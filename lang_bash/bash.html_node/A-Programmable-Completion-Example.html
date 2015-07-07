@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- This text is a brief description of the features that are present in
+the Bash shell (version 4.3, 2 February 2014).
+
+This is Edition 4.3, last updated 2 February 2014,
+of The GNU Bash Reference Manual,
+for Bash, Version 4.3.
+
+Copyright (C) 1988-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled
+"GNU Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>Bash Reference Manual: A Programmable Completion Example</title>
+
+<meta name="description" content="Bash Reference Manual: A Programmable Completion Example">
+<meta name="keywords" content="Bash Reference Manual: A Programmable Completion Example">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indexes.html#Indexes" rel="index" title="Indexes">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Command-Line-Editing.html#Command-Line-Editing" rel="up" title="Command Line Editing">
+<link href="Using-History-Interactively.html#Using-History-Interactively" rel="next" title="Using History Interactively">
+<link href="Programmable-Completion-Builtins.html#Programmable-Completion-Builtins" rel="prev" title="Programmable Completion Builtins">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="A-Programmable-Completion-Example"></a>
+<div class="header">
+<p>
+Previous: <a href="Programmable-Completion-Builtins.html#Programmable-Completion-Builtins" accesskey="p" rel="prev">Programmable Completion Builtins</a>, Up: <a href="Command-Line-Editing.html#Command-Line-Editing" accesskey="u" rel="up">Command Line Editing</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indexes.html#Indexes" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="A-Programmable-Completion-Example-1"></a>
+<h3 class="section">8.8 A Programmable Completion Example</h3>
+
+<p>The most common way to obtain additional completion functionality beyond
+the default actions <code>complete</code> and <code>compgen</code> provide is to use
+a shell function and bind it to a particular command using <code>complete -F</code>.
+</p>
+<p>The following function provides completions for the <code>cd</code> builtin.
+It is a reasonably good example of what shell functions must do when
+used for completion.  This function uses the word passsed as <code>$2</code>
+to determine the directory name to complete.  You can also use the
+<code>COMP_WORDS</code> array variable; the current word is indexed by the
+<code>COMP_CWORD</code> variable.
+</p>
+<p>The function relies on the <code>complete</code> and <code>compgen</code> builtins
+to do much of the work, adding only the things that the Bash <code>cd</code>
+does beyond accepting basic directory names:
+tilde expansion (see <a href="Tilde-Expansion.html#Tilde-Expansion">Tilde Expansion</a>),
+searching directories in <var>$CDPATH</var>, which is described above
+(see <a href="Bourne-Shell-Builtins.html#Bourne-Shell-Builtins">Bourne Shell Builtins</a>),
+and basic support for the <code>cdable_vars</code> shell option
+(see <a href="The-Shopt-Builtin.html#The-Shopt-Builtin">The Shopt Builtin</a>).
+<code>_comp_cd</code> modifies the value of <var>IFS</var> so that it contains only
+a newline to accommodate file names containing spaces and tabs &ndash;
+<code>compgen</code> prints the possible completions it generates one per line.
+</p>
+<p>Possible completions go into the <var>COMPREPLY</var> array variable, one
+completion per array element.  The programmable completion system retrieves
+the completions from there when the function returns.
+</p>
+<div class="example">
+<pre class="example"># A completion function for the cd builtin
+# based on the cd completion function from the bash_completion package
+_comp_cd()
+{
+    local IFS=$' \t\n'    # normalize IFS
+    local cur _skipdot _cdpath
+    local i j k
+
+    # Tilde expansion, with side effect of expanding tilde to full pathname
+    case &quot;$2&quot; in
+    \~*)    eval cur=&quot;$2&quot; ;;
+    *)      cur=$2 ;;
+    esac
+
+    # no cdpath or absolute pathname -- straight directory completion
+    if [[ -z &quot;${CDPATH:-}&quot; ]] || [[ &quot;$cur&quot; == @(./*|../*|/*) ]]; then
+        # compgen prints paths one per line; could also use while loop
+        IFS=$'\n'
+        COMPREPLY=( $(compgen -d -- &quot;$cur&quot;) )
+        IFS=$' \t\n'
+    # CDPATH+directories in the current directory if not in CDPATH
+    else
+        IFS=$'\n'
+        _skipdot=false
+        # preprocess CDPATH to convert null directory names to .
+        _cdpath=${CDPATH/#:/.:}
+        _cdpath=${_cdpath//::/:.:}
+        _cdpath=${_cdpath/%:/:.}
+        for i in ${_cdpath//:/$'\n'}; do
+            if [[ $i -ef . ]]; then _skipdot=true; fi
+            k=&quot;${#COMPREPLY[@]}&quot;
+            for j in $( compgen -d -- &quot;$i/$cur&quot; ); do
+                COMPREPLY[k++]=${j#$i/}        # cut off directory
+            done
+        done
+        $_skipdot || COMPREPLY+=( $(compgen -d -- &quot;$cur&quot;) )
+        IFS=$' \t\n'
+    fi
+
+    # variable names if appropriate shell option set and no completions
+    if shopt -q cdable_vars &amp;&amp; [[ ${#COMPREPLY[@]} -eq 0 ]]; then
+        COMPREPLY=( $(compgen -v -- &quot;$cur&quot;) )
+    fi
+
+    return 0
+}
+</pre></div>
+
+<p>We install the completion function using the <samp>-F</samp> option to
+<code>complete</code>:
+</p>
+<div class="example">
+<pre class="example"># Tell readline to quote appropriate and append slashes to directories;
+# use the bash default completion for other arguments
+complete -o filenames -o nospace -o bashdefault -F _comp_cd cd
+</pre></div>
+
+<p>Since we&rsquo;d like Bash and Readline to take care of some
+of the other details for us, we use several other options to tell Bash
+and Readline what to do.  The <samp>-o filenames</samp> option tells Readline
+that the possible completions should be treated as filenames, and quoted
+appropriately.  That option will also cause Readline to append a slash to
+filenames it can determine are directories (which is why we might want to
+extend <code>_comp_cd</code> to append a slash if we&rsquo;re using directories found
+via <var>CDPATH</var>: Readline can&rsquo;t tell those completions are directories).
+The <samp>-o nospace</samp> option tells Readline to not append a space
+character to the directory name, in case we want to append to it.
+The <samp>-o bashdefault</samp> option brings in the rest of the &quot;Bash default&quot;
+completions &ndash; possible completion that Bash adds to the default Readline
+set.  These include things like command name completion, variable completion
+for words beginning with &lsquo;<samp>{</samp>&rsquo;, completions containing pathname
+expansion patterns (see <a href="Filename-Expansion.html#Filename-Expansion">Filename Expansion</a>), and so on.
+</p>
+<p>Once installed using <code>complete</code>, <code>_comp_cd</code> will be called every
+time we attempt word completion for a <code>cd</code> command.
+</p>
+<p>Many more examples &ndash; an extensive collection of completions for most of
+the common GNU, Unix, and Linux commands &ndash; are available as part of the
+bash_completion project.  This is installed by default on many GNU/Linux
+distributions.  Originally written by Ian Macdonald, the project now lives
+at <a href="http://bash-completion.alioth.debian.org/">http://bash-completion.alioth.debian.org/</a>.  There are ports for
+other systems such as Solaris and Mac OS X.
+</p>
+<p>An older version of the bash_completion package is distributed with bash
+in the <samp>examples/complete</samp> subdirectory.
+</p>
+<a name="index-History_002c-how-to-use"></a>
+
+<hr>
+<div class="header">
+<p>
+Previous: <a href="Programmable-Completion-Builtins.html#Programmable-Completion-Builtins" accesskey="p" rel="prev">Programmable Completion Builtins</a>, Up: <a href="Command-Line-Editing.html#Command-Line-Editing" accesskey="u" rel="up">Command Line Editing</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indexes.html#Indexes" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 14. Internal Commands and Builtins</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt04.html" title="Часть Part 4. Commands"/><link rel="prev" href="pt04.html" title="Часть Part 4. Commands"/><link rel="next" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 14. Internal Commands and Builtins</th></tr><tr><td align="left"><a accesskey="p" href="pt04.html">Пред.</a> </td><th width="60%" align="center">Часть Part 4. Commands</th><td align="right"> <a accesskey="n" href="ch15.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 14. Internal Commands and Builtins"><div class="titlepage"><div><div><h2 class="title"><a id="internal"/>Глава 14. Internal Commands and Builtins</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch14.html#idp11605200">Job Control Commands</a></span></dt></dl></div><a id="idp11053440" class="indexterm"/><p><a id="builtinref"/>A <em class="firstterm">builtin</em>
+  is a <span class="command"><strong>command</strong></span> contained within the Bash tool
+  set, literally <em class="firstterm">built in</em>. This is either
+  for performance reasons -- builtins execute faster than external
+  commands, which usually require <em class="firstterm">forking off</em>
+    <sup>[<a id="idp11057456" href="#ftn.idp11057456" class="footnote">51</a>]</sup>
+  a separate process -- or because a particular builtin needs
+  direct access to the shell internals.</p><p><a id="forkref"/></p><div class="sidebar"><p class="title"><b/></p><p><a id="parentref"/>When a command or
+       the shell itself initiates (or
+       <em class="firstterm">spawns</em>) a new
+       subprocess to carry out a task, this is called
+       <em class="firstterm">forking</em>. This new process
+       is the <em class="firstterm">child</em>, and the process
+       that <em class="firstterm">forked</em> it off is the
+       <em class="firstterm">parent</em>. While the <em class="firstterm">child
+       process</em> is doing its work, the
+       <em class="firstterm">parent process</em> is still
+       executing.</p><p>Note that while a <em class="firstterm">parent
+       process</em> gets the <em class="firstterm">process
+       ID</em> of the <em class="firstterm">child
+       process</em>, and can thus pass arguments to it,
+       <span class="emphasis"><em>the reverse is not true</em></span>. <a class="link" href="ch31.html#parchildprobref">This can create problems
+       that are subtle and hard to track down.</a></p><div class="example"><a id="spawnscr"/><p class="title"><b>Пример 14.1. A script that spawns multiple instances of itself</b></p><div class="example-contents"><pre class="programlisting">&amp;spawnscr;</pre></div></div><br class="example-break"/><p><a id="bltinfrk"/></p><p>Generally, a Bash <em class="firstterm">builtin</em>
+       does not fork a subprocess when it executes within
+       a script. An external system command or filter in
+       a script usually <span class="emphasis"><em>will</em></span> fork a
+       subprocess.</p></div><p>A builtin may be a synonym to a system command of the same
+  name, but Bash reimplements it internally.  For example,
+  the Bash <span class="command"><strong>echo</strong></span> command is not the same as
+  <code class="filename">/bin/echo</code>, although their behavior is
+  almost identical.
+     </p><pre class="programlisting">#!/bin/bash
+
+echo "This line uses the \"echo\" builtin."
+/bin/echo "This line uses the /bin/echo system command."</pre><p>
+  </p><p><a id="keywordref"/>A <em class="firstterm">keyword</em>
+  is a <em class="firstterm">reserved</em> word, token or
+  operator. Keywords have a special meaning to the shell,
+  and indeed are the building blocks of the shell's
+  syntax. As examples, <em class="firstterm">for</em>,
+  <em class="firstterm">while</em>, <em class="firstterm">do</em>,
+  and <em class="firstterm">!</em> are keywords. Similar to a <a class="link" href="ch14.html#builtinref">builtin</a>, a keyword is hard-coded into
+  Bash, but unlike a <em class="firstterm">builtin</em>, a keyword is
+  not in itself a command, but <span class="emphasis"><em>a subunit of a command
+  construct</em></span>.
+
+     <sup>[<a id="idp11079312" href="#ftn.idp11079312" class="footnote">52</a>]</sup>
+
+  </p><div class="variablelist" title="I/O"><a id="intio"/><p class="title"><b><a id="intio1"/>I/O</b></p><dl><dt><span class="term"><a id="echoref"/><span class="command"><strong>echo</strong></span></span></dt><dd><p>prints (to <code class="filename">stdout</code>) an expression
+        or variable (see <a class="xref" href="ch04.html#ex9" title="Пример 4.1. Присваивание значений и подстановка переменных">Пример 4.1, «Присваивание значений и подстановка переменных»</a>). 
+        </p><pre class="programlisting">echo Hello
+echo $a</pre><p>An <span class="command"><strong>echo</strong></span> requires the
+        <code class="option">-e</code> option to print escaped characters. See
+        <a class="xref" href="ch05s02.html#escaped" title="Пример 5.2. Экранирование символов">Пример 5.2, «Экранирование символов»</a>.</p><p>Normally, each <span class="command"><strong>echo</strong></span> command prints
+        a terminal newline, but the <code class="option">-n</code> option
+        suppresses this.</p><p><a id="echogrepref"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>An <span class="command"><strong>echo</strong></span> can be used to feed a
+        sequence of commands down a pipe.</p><pre class="programlisting">if echo "$VAR" | grep -q txt   # if [[ $VAR = *txt* ]]
+then
+  echo "$VAR contains the substring sequence \"txt\""
+fi</pre></div><p><a id="echocs"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>An <span class="command"><strong>echo</strong></span>, in combination with
+        <a class="link" href="ch11.html#commandsubref">command substitution</a>
+        can set a variable.</p><p><strong class="userinput"><code>a=`echo
+        "HELLO" | tr A-Z a-z`</code></strong></p><p>See also <a class="xref" href="ch15s04.html#lowercase" title="Пример 15.22. lowercase: Changes all filenames in working directory to lowercase.">Пример 15.22, «<em class="firstterm">lowercase</em>: Changes all
+        filenames in working directory to lowercase.»</a>, <a class="xref" href="ch15s02.html#ex57" title="Пример 15.3. Badname, eliminate file names in current directory containing bad characters and whitespace.">Пример 15.3, «<em class="firstterm">Badname</em>, eliminate file names
+    in current directory containing bad characters and whitespace.»</a>, <a class="xref" href="ch15s08.html#monthlypmt" title="Пример 15.47. Monthly Payment on a Mortgage">Пример 15.47, «Monthly Payment on a Mortgage»</a>, and <a class="xref" href="ch15s08.html#base" title="Пример 15.48. Base Conversion">Пример 15.48, «Base Conversion»</a>.</p></div><p>Be aware that <span class="command"><strong>echo `command`</strong></span>
+        deletes any linefeeds that the output
+        of <em class="replaceable"><code>command</code></em>
+        generates.</p><p>The <a class="link" href="ch09.html#ifsref">$IFS</a> (internal field
+        separator) variable normally contains
+        <span class="token">\n</span> (linefeed) as one of its set of
+        <a class="link" href="ch03.html#whitespaceref">whitespace</a>
+        characters. Bash therefore splits the output of
+        <em class="replaceable"><code>command</code></em> at linefeeds
+        into arguments to <span class="command"><strong>echo</strong></span>.  Then
+        <span class="command"><strong>echo</strong></span> outputs these arguments,
+        separated by spaces.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l /usr/share/apps/kjezz/sounds</code></strong>
+<code class="computeroutput">-rw-r--r--    1 root     root         1407 Nov  7  2000 reflect.au
+ -rw-r--r--    1 root     root          362 Nov  7  2000 seconds.au</code>
+
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo `ls -l /usr/share/apps/kjezz/sounds`</code></strong>
+<code class="computeroutput">total 40 -rw-r--r-- 1 root root 716 Nov 7 2000 reflect.au -rw-r--r-- 1 root root ...</code>
+        </pre><p>
+      </p><p>
+              So, how can we embed a linefeed within an
+        <a class="link" href="ch14.html#echoref">echoed</a> character string?
+
+       </p><pre class="programlisting"># Embedding a linefeed?
+echo "Why doesn't this string \n split on two lines?"
+# Doesn't split.
+
+# Let's try something else.
+
+echo
+       
+echo $"A line of text containing
+a linefeed."
+# Prints as two distinct lines (embedded linefeed).
+# But, is the "$" variable prefix really necessary?
+
+echo
+
+echo "This string splits
+on two lines."
+# No, the "$" is not needed.
+
+echo
+echo "---------------"
+echo
+
+echo -n $"Another line of text containing
+a linefeed."
+# Prints as two distinct lines (embedded linefeed).
+# Even the -n option fails to suppress the linefeed here.
+
+echo
+echo
+echo "---------------"
+echo
+echo
+
+# However, the following doesn't work as expected.
+# Why not? Hint: Assignment to a variable.
+string1=$"Yet another line of text containing
+a linefeed (maybe)."
+
+echo $string1
+# Yet another line of text containing a linefeed (maybe).
+#                                    ^
+# Linefeed becomes a space.
+
+# Thanks, Steve Parker, for pointing this out.</pre><p>
+            </p><p><a id="binecho"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>This command is a shell builtin, and not the same as
+        <code class="filename">/bin/echo</code>, although its behavior is
+        similar.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>type -a echo</code></strong>
+<code class="computeroutput">echo is a shell builtin
+ echo is /bin/echo</code>
+        </pre><p>
+    </p></div></dd><dt><span class="term"><a id="printfref"/><span class="command"><strong>printf</strong></span></span></dt><dd><p>The <span class="command"><strong>printf</strong></span>, formatted print, command is an
+        enhanced <span class="command"><strong>echo</strong></span>. It is a limited variant
+        of the <em class="firstterm">C</em> language
+        <code class="function">printf()</code> library function, and its
+        syntax is somewhat different.</p><div class="cmdsynopsis"><p><code class="command">printf</code>   <em class="replaceable"><code>format-string</code></em>...   <em class="replaceable"><code>parameter</code></em>... </p></div><p>This is the Bash <em class="firstterm">builtin</em> version
+        of the <code class="filename">/bin/printf</code> or
+        <code class="filename">/usr/bin/printf</code> command. See the
+        <span class="command"><strong>printf</strong></span> <a class="link" href="ch15.html#manref">manpage</a> (of the system command)
+        for in-depth coverage.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Older versions of Bash may not support
+        <span class="command"><strong>printf</strong></span>.</p></div><div class="example"><a id="ex47"/><p class="title"><b>Пример 14.2. <em class="firstterm">printf</em> in action</b></p><div class="example-contents"><pre class="programlisting">&amp;ex47;</pre></div></div><br class="example-break"/><p>Formatting error messages is a useful application of
+        <span class="command"><strong>printf</strong></span></p><p>
+          </p><pre class="programlisting">E_BADDIR=85
+
+var=nonexistent_directory
+
+error()
+{
+  printf "$@" &gt;&amp;2
+  # Formats positional params passed, and sends them to stderr.
+  echo
+  exit $E_BADDIR
+}
+
+cd $var || error $"Can't cd to %s." "$var"
+
+# Thanks, S.C.</pre><p>
+            </p><p>See also <a class="xref" href="ch33s08.html#progressbar" title="Пример 33.15. A Progress Bar">Пример 33.15, «A Progress Bar»</a>.</p></dd><dt><span class="term"><a id="readref"/><span class="command"><strong>read</strong></span></span></dt><dd><p><span class="quote">«<span class="quote">Reads</span>»</span> the value
+      of a variable from <code class="filename">stdin</code>, that
+      is, interactively fetches input from the keyboard. The
+      <code class="option">-a</code> option lets <span class="command"><strong>read</strong></span>
+      get array variables (see <a class="xref" href="ch26.html#ex67" title="Пример 26.6. Some special properties of arrays">Пример 26.6, «Some special properties of arrays»</a>).</p><div class="example"><a id="ex36"/><p class="title"><b>Пример 14.3. Variable assignment, using <em class="firstterm">read</em></b></p><div class="example-contents"><pre class="programlisting">&amp;ex36;</pre></div></div><br class="example-break"/><p>A <span class="command"><strong>read</strong></span> without an associated variable
+        assigns its input to the dedicated variable <a class="link" href="ch09.html#replyref">$REPLY</a>.</p><div class="example"><a id="readnovar"/><p class="title"><b>Пример 14.4. What happens when <em class="firstterm">read</em> has no
+          variable</b></p><div class="example-contents"><pre class="programlisting">&amp;readnovar;</pre></div></div><br class="example-break"/><p>Normally, inputting a <strong class="userinput"><code>\</code></strong>
+        suppresses a newline during input to
+        a <span class="command"><strong>read</strong></span>. The <code class="option">-r</code>
+        option causes an inputted <strong class="userinput"><code>\</code></strong> to be
+        interpreted literally.</p><div class="example"><a id="readr"/><p class="title"><b>Пример 14.5. Multi-line input to <em class="firstterm">read</em></b></p><div class="example-contents"><pre class="programlisting">&amp;readr;</pre></div></div><br class="example-break"/><p><a id="readoptions"/></p><p>The <span class="command"><strong>read</strong></span> command has some interesting
+        options that permit echoing a prompt and even reading keystrokes
+        without hitting <span class="keycap"><strong>ENTER</strong></span>.</p><pre class="programlisting"># Read a keypress without hitting ENTER.
+
+read -s -n1 -p "Hit a key " keypress
+echo; echo "Keypress was "\"$keypress\""."
+
+# -s option means do not echo input.
+# -n N option means accept only N characters of input.
+# -p option means echo the following prompt before reading input.
+
+# Using these options is tricky, since they need to be in the correct order.</pre><p><a id="readarrow"/></p><p>The <code class="option">-n</code> option to <span class="command"><strong>read</strong></span>
+        also allows detection of the <span class="keycap"><strong>arrow keys</strong></span>
+        and certain of the other unusual keys.</p><div class="example"><a id="arrowdetect"/><p class="title"><b>Пример 14.6. Detecting the arrow keys</b></p><div class="example-contents"><pre class="programlisting">&amp;arrowdetect;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <code class="option">-n</code> option to <span class="command"><strong>read</strong></span>
+        will not detect the <span class="keycap"><strong>ENTER</strong></span> (newline)
+        key.</p></div><p><a id="readtimed"/></p><p>The <code class="option">-t</code> option to <span class="command"><strong>read</strong></span>
+        permits timed input (see <a class="xref" href="ch09.html#tout" title="Пример 9.4. Timed read">Пример 9.4, «Timed <em class="firstterm">read</em>»</a> and <a class="xref" href="apa.html#qky" title="Пример A.41. Quacky: a Perquackey-type word game">Пример A.41, «Quacky: a Perquackey-type word game»</a>).</p><p><a id="readfd"/>The <code class="option">-u</code> option
+                takes the <a class="link" href="ch19.html#fdref">file descriptor</a>
+                of the target file.</p><p><a id="readredir0"/></p><p>The <span class="command"><strong>read</strong></span> command may also
+        <span class="quote">«<span class="quote">read</span>»</span> its variable value from a file
+        <a class="link" href="ch19.html#ioredirref">redirected</a> to
+        <code class="filename">stdin</code>.  If the file contains
+        more than one line, only the first line is assigned
+        to the variable. If <span class="command"><strong>read</strong></span>
+        has more than one parameter, then each of
+        these variables gets assigned a successive <a class="link" href="ch03.html#whitespaceref">whitespace-delineated</a>
+        string. Caution!</p><div class="example"><a id="readredir"/><p class="title"><b>Пример 14.7. Using <em class="firstterm">read</em> with
+          <a class="link" href="ch19.html#ioredirref">file redirection</a></b></p><div class="example-contents"><pre class="programlisting">&amp;readredir;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a id="pipereadref0"/></p><p><a class="link" href="ch03.html#piperef">Piping</a> output
+        to a <em class="firstterm">read</em>, using <a class="link" href="ch14.html#echoref">echo</a> to set variables <a class="link" href="ch31.html#badread0">will fail</a>.</p><p><a id="readpiperef"/>Yet, piping the output of <a class="link" href="ch15.html#catref">cat</a> <span class="emphasis"><em>seems</em></span> to
+        work.</p><p><a id="whilereadref"/></p><pre class="programlisting">cat file1 file2 |
+while read line
+do
+echo $line
+done</pre><p>However, as Bjön Eriksson shows:</p><div class="example"><a id="readpipe"/><p class="title"><b>Пример 14.8. Problems reading from a pipe</b></p><div class="example-contents"><pre class="programlisting">&amp;readpipe;</pre></div></div><br class="example-break"/><p>The <em class="firstterm">gendiff</em> script, usually
+              found in <code class="filename">/usr/bin</code> on
+              many Linux distros, pipes the output of <a class="link" href="ch15s02.html#findref">find</a> to a <em class="firstterm">while
+              read</em> construct.
+
+        </p><pre class="programlisting">find $1 \( -name "*$2" -o -name ".*$2" \) -print |
+while read f; do
+. . .</pre><p>
+            </p></div><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>It is possible to <em class="firstterm">paste</em> text into
+          the input field of a <em class="firstterm">read</em> (but
+    <span class="emphasis"><em>not</em></span> multiple lines!). See <a class="xref" href="apa.html#padsw" title="Пример A.38. A pad file generator for shareware authors">Пример A.38, «A <em class="firstterm">pad</em> file generator for shareware
+        authors»</a>.</p></div></dd></dl></div><div class="variablelist" title="Filesystem"><a id="intfilesystem"/><p class="title"><b><a id="intfilesystem1"/>Filesystem</b></p><dl><dt><span class="term"><a id="cdref"/><span class="command"><strong>cd</strong></span></span></dt><dd><p>The familiar <span class="command"><strong>cd</strong></span> change directory
+        command finds use in scripts where execution of a command
+        requires being in a specified directory.</p><p>  
+        </p><pre class="programlisting">(cd /source/directory &amp;&amp; tar cf - . ) | (cd /dest/directory &amp;&amp; tar xpvf -)</pre><p>
+        [from the <a class="link" href="ch03.html#coxex">previously cited</a>
+        example by Alan Cox]</p><p>The <code class="option">-P</code> (physical) option to
+        <span class="command"><strong>cd</strong></span> causes it to ignore symbolic
+        links.</p><p><span class="command"><strong>cd -</strong></span> changes to <a class="link" href="ch09.html#oldpwd">$OLDPWD</a>, the previous working
+      directory.</p><p><a id="doubleslashref"/></p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>The <span class="command"><strong>cd</strong></span> command does not function
+        as expected when presented with two forward slashes.
+
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>cd //</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>pwd</code></strong>
+<code class="computeroutput">//</code>
+        </pre><p>
+        The output should, of course, be <code class="computeroutput">/</code>.
+        This is a problem both from the command-line and in a script.</p></div></dd><dt><span class="term"><a id="pwd2ref"/><span class="command"><strong>pwd</strong></span></span></dt><dd><p>Print Working Directory. This gives the user's
+        (or script's) current directory (see <a class="xref" href="ch14.html#ex37" title="Пример 14.9. Changing the current working directory">Пример 14.9, «Changing the current working directory»</a>). The effect is identical to
+        reading the value of the builtin variable <a class="link" href="ch09.html#pwdref">$PWD</a>.</p></dd><dt><span class="term"><a id="dirsd"/><span class="command"><strong>pushd</strong></span>, </span><span class="term"><span class="command"><strong>popd</strong></span>, </span><span class="term"><span class="command"><strong>dirs</strong></span></span></dt><dd><p>This command set is a mechanism for bookmarking
+        working directories, a means of moving back and forth
+        through directories in an orderly manner. A pushdown <a class="link" href="ch09.html#stackdefref">stack</a> is used to keep track
+        of directory names. Options allow various manipulations
+        of the directory stack.</p><p><a id="pushdref"/><strong class="userinput"><code>pushd
+        dir-name</code></strong> pushes the path
+        <em class="replaceable"><code>dir-name</code></em> onto the directory
+        stack and simultaneously changes the current working
+        directory to <em class="replaceable"><code>dir-name</code></em></p><p><a id="popdref"/><span class="command"><strong>popd</strong></span> removes
+        (pops) the top directory path name off the directory stack
+        and simultaneously changes the current working directory
+        to that directory popped from the stack.</p><p><a id="dirsref"/><span class="command"><strong>dirs</strong></span> lists
+        the contents of the directory stack (compare this
+        with the <a class="link" href="ch09.html#dirstackref">$DIRSTACK</a>
+        variable).  A successful <span class="command"><strong>pushd</strong></span>
+        or <span class="command"><strong>popd</strong></span> will automatically invoke
+        <span class="command"><strong>dirs</strong></span>.</p><p>Scripts that require various changes to the current
+        working directory without hard-coding the directory name
+        changes can make good use of these commands. Note that
+        the implicit <code class="varname">$DIRSTACK</code> array variable,
+        accessible from within a script, holds the contents of
+        the directory stack.
+      </p><div class="example"><a id="ex37"/><p class="title"><b>Пример 14.9. Changing the current working directory</b></p><div class="example-contents"><pre class="programlisting">&amp;ex37;</pre></div></div><br class="example-break"/></dd></dl></div><div class="variablelist" title="Variables"><a id="intvar"/><p class="title"><b><a id="intvar1"/>Variables</b></p><dl><dt><span class="term"><a id="letref"/><span class="command"><strong>let</strong></span></span></dt><dd><p>The <span class="command"><strong>let</strong></span> command carries out
+                    <em class="firstterm">arithmetic</em> operations on variables.
+
+          <sup>[<a id="idp11276064" href="#ftn.idp11276064" class="footnote">53</a>]</sup>
+        
+        In many cases, it functions as a less complex version
+                    of <a class="link" href="ch15s02.html#exprref">expr</a>.</p><div class="example"><a id="ex46"/><p class="title"><b>Пример 14.10. Letting <em class="firstterm">let</em> do arithmetic.</b></p><div class="example-contents"><pre class="programlisting">&amp;ex46;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="evalref"/><span class="command"><strong>eval</strong></span></span></dt><dd><p><strong class="userinput"><code>eval arg1 [arg2] ... [argN]</code></strong></p><p>Combines the arguments in an expression or list of
+              expressions and <em class="replaceable"><code>evaluates</code></em> them.
+              Any variables within the expression are expanded. The
+        net result is to <span class="command"><strong>convert a string into a
+              command</strong></span>.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>The <span class="command"><strong>eval</strong></span> command can be used for
+        code generation from the command-line or within a script.
+        </p></div><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>command_string="ps ax"</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>process="ps ax"</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>eval "$command_string" | grep "$process"</code></strong>
+<code class="computeroutput">26973 pts/3    R+     0:00 grep --color ps ax
+ 26974 pts/3    R+     0:00 ps ax</code>
+        </pre><p>
+        </p><p><a id="evalforced"/></p><p>Each invocation of <em class="firstterm">eval</em> forces
+        a re-<span class="emphasis"><em>evaluation</em></span> of its arguments.
+  </p><pre class="programlisting">a='$b'
+b='$c'
+c=d
+
+echo $a             # $b
+                    # First level.
+eval echo $a        # $c
+                    # Second level.
+eval eval echo $a   # d
+                    # Third level.
+
+# Thank you, E. Choroba.</pre><p><a id="evaleff"/></p><div class="example"><a id="ex43"/><p class="title"><b>Пример 14.11. Showing the effect of <em class="firstterm">eval</em></b></p><div class="example-contents"><pre class="programlisting">&amp;ex43;</pre></div></div><br class="example-break"/><p><a id="arrchoice0"/></p><div class="example"><a id="arrchoice"/><p class="title"><b>Пример 14.12. Using <em class="firstterm">eval</em> to select
+                      among variables</b></p><div class="example-contents"><pre class="programlisting">&amp;arrchoice;</pre></div></div><br class="example-break"/><div class="example"><a id="echoparams"/><p class="title"><b>Пример 14.13. <em class="firstterm">Echoing</em> the
+          <em class="firstterm">command-line parameters</em></b></p><div class="example-contents"><pre class="programlisting">&amp;echoparams;</pre></div></div><br class="example-break"/><div class="example"><a id="ex44"/><p class="title"><b>Пример 14.14. Forcing a log-off</b></p><div class="example-contents"><pre class="programlisting">&amp;ex44;</pre></div></div><br class="example-break"/><div class="example"><a id="rot14"/><p class="title"><b>Пример 14.15. A version of <em class="firstterm">rot13</em></b></p><div class="example-contents"><pre class="programlisting">&amp;rot14;</pre></div></div><br class="example-break"/><p>The <em class="firstterm">eval</em> command occurs
+        in the older version of <a class="link" href="ch09s05.html#ivrref">indirect
+        referencing</a>.
+        </p><pre class="programlisting">eval var=\$$var</pre><p> 
+        </p><p><a id="evalrisk"/></p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>The <span class="command"><strong>eval</strong></span> command can be
+        risky, and normally should be avoided when there
+        exists a reasonable alternative. An <strong class="userinput"><code>eval
+        $COMMANDS</code></strong> executes the contents of
+        <em class="replaceable"><code>COMMANDS</code></em>, which may
+        contain such unpleasant surprises as <span class="command"><strong>rm -rf
+        *</strong></span>. Running an <span class="command"><strong>eval</strong></span> on
+        unfamiliar code written by persons unknown is living
+        dangerously.</p></div></dd><dt><span class="term"><a id="setref"/><span class="command"><strong>set</strong></span></span></dt><dd><p>The <span class="command"><strong>set</strong></span> command changes
+        the value of internal script variables/options. One use for
+        this is to toggle <a class="link" href="ch30.html#optionsref">option
+        flags</a> which help determine the behavior of the
+        script. Another application for it is to reset the <a class="link" href="ch09.html#posparamref">positional parameters</a> that
+        a script sees as the result of a command (<strong class="userinput"><code>set
+        `command`</code></strong>). The script can then parse the
+        <a class="link" href="ch03.html#fieldref">fields</a> of the command
+        output.</p><div class="example"><a id="ex34"/><p class="title"><b>Пример 14.16. Using <em class="firstterm">set</em> with positional
+          parameters</b></p><div class="example-contents"><pre class="programlisting">&amp;ex34;</pre></div></div><br class="example-break"/><p>More fun with positional parameters.</p><div class="example"><a id="revposparams"/><p class="title"><b>Пример 14.17. Reversing the positional parameters</b></p><div class="example-contents"><pre class="programlisting">&amp;revposparams;</pre></div></div><br class="example-break"/><p>Invoking <span class="command"><strong>set</strong></span> without any options or
+        arguments simply lists all the <a class="link" href="ch04s04.html#envref">environmental</a> and other variables
+        that have been initialized.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>set</code></strong>
+<code class="computeroutput">AUTHORCOPY=/home/bozo/posts
+ BASH=/bin/bash
+ BASH_VERSION=$'2.05.8(1)-release'
+ ...
+ XAUTHORITY=/home/bozo/.Xauthority
+ _=/etc/bashrc
+ variable22=abc
+ variable23=xzy</code>
+        </pre><p>
+            </p><p>Using <span class="command"><strong>set</strong></span> with the <code class="option">--</code>
+        option explicitly assigns the contents of a variable to
+        the positional parameters. If no variable follows the
+        <code class="option">--</code> it <em class="firstterm">unsets</em>
+        the positional parameters.</p><div class="example"><a id="setpos"/><p class="title"><b>Пример 14.18. Reassigning the positional parameters</b></p><div class="example-contents"><pre class="programlisting">&amp;setpos;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="ch10.html#ex22a" title="Пример 10.2. Цикл for с двумя параметрами в каждом из элементов списка">Пример 10.2, «Цикл <em class="firstterm">for</em> с двумя параметрами в каждом из элементов списка»</a> and <a class="xref" href="ch15s09.html#ex33a" title="Пример 15.56. Using getopt to parse command-line options">Пример 15.56, «Using <em class="firstterm">getopt</em> to parse command-line
+          options»</a>.</p></dd><dt><span class="term"><a id="unsetref"/><span class="command"><strong>unset</strong></span></span></dt><dd><p>The <span class="command"><strong>unset</strong></span> command deletes a
+        shell variable, effectively setting it to
+        <em class="firstterm">null</em>. Note that this command does
+        not affect positional parameters.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>unset PATH</code></strong>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo $PATH</code></strong>
+<code class="computeroutput">
+
+
+</code>
+<code class="prompt">bash$ </code></pre><p>
+      </p><div class="example"><a id="uns"/><p class="title"><b>Пример 14.19. <span class="quote">«<span class="quote">Unsetting</span>»</span> a variable</b></p><div class="example-contents"><pre class="programlisting">&amp;uns;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>In most contexts, an <em class="firstterm">undeclared</em>
+              variable and one that has been <em class="firstterm">unset</em>
+        are equivalent. However, the <a class="link" href="ch09s03.html#unddr">
+              ${parameter:-default}</a> parameter substitution
+              construct can distinguish between the two.</p></div></dd><dt><span class="term"><a id="exportref"/><span class="command"><strong>export</strong></span></span></dt><dd><p><a id="exportref2"/></p><p>The <span class="command"><strong>export</strong></span>
+
+        <sup>[<a id="idp11366480" href="#ftn.idp11366480" class="footnote">54</a>]</sup>
+    
+        command makes available variables to all child processes
+        of the running script or shell. One important use
+        of the <span class="command"><strong>export</strong></span> command is in <a class="link" href="apg.html#filesref1">startup files</a>, to initialize
+        and make accessible <a class="link" href="ch04s04.html#envref">environmental
+        variables</a> to subsequent user processes.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Unfortunately, <a class="link" href="ch31.html#parchildprobref">
+       there is no way to export variables back to the parent
+       process</a>, to the process that called or invoked the
+       script or shell.</p></div><p><a id="exportawk"/></p><div class="example"><a id="coltotaler3"/><p class="title"><b>Пример 14.20. Using <em class="firstterm">export</em> to pass a variable to an
+        embedded <em class="firstterm">awk</em> script</b></p><div class="example-contents"><pre class="programlisting">&amp;coltotaler3;</pre></div></div><br class="example-break"/><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>It is possible to initialize and export
+      variables in the same operation, as in <span class="command"><strong>export
+      var1=xxx</strong></span>.</p><p>However, as Greg Keraunen points out, in certain
+      situations this may have a different effect than
+      setting a variable, then exporting it.</p><p>
+          </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>export var=(a b); echo ${var[0]}</code></strong>
+<code class="computeroutput">(a b)</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>var=(a b); export var; echo ${var[0]}</code></strong>
+<code class="computeroutput">a</code>
+        </pre><p>
+      </p></div></dd><dt><span class="term"><a id="declare2ref"/><span class="command"><strong>declare</strong></span>, </span><span class="term"><span class="command"><strong>typeset</strong></span></span></dt><dd><p>The <a class="link" href="ch09s04.html" title="Typing variables: declare or typeset">declare</a> and
+        <a class="link" href="ch09s04.html" title="Typing variables: declare or typeset">typeset</a> commands specify
+        and/or restrict properties of variables.</p></dd><dt><span class="term"><a id="readonlyref"/><span class="command"><strong>readonly</strong></span></span></dt><dd><p>Same as <a class="link" href="ch09s04.html" title="Typing variables: declare or typeset">declare -r</a>,
+        sets a variable as read-only, or, in effect, as a
+        constant. Attempts to change the variable fail with
+        an error message. This is the shell analog of the
+        <em class="firstterm">C</em> language <span class="command"><strong>const</strong></span>
+        type qualifier.</p></dd><dt><span class="term"><a id="getoptsx"/><span class="command"><strong>getopts</strong></span></span></dt><dd><p>This powerful tool parses command-line arguments passed
+        to the script. This is the Bash analog of the <a class="link" href="ch15s09.html#getopty">getopt</a> external command and the
+        <em class="firstterm">getopt</em> library function familiar to
+        <em class="firstterm">C</em> programmers. It permits passing
+        and concatenating multiple options
+
+        <sup>[<a id="idp11412640" href="#ftn.idp11412640" class="footnote">55</a>]</sup>
+
+        and associated arguments to a script (for
+        example <strong class="userinput"><code>scriptname -abc -e
+        /usr/local</code></strong>).</p><p><a id="getoptsopt"/></p><p>The <span class="command"><strong>getopts</strong></span> construct uses two implicit
+        variables. <code class="varname">$OPTIND</code> is the argument
+        pointer (<em class="wordasword">OPTion INDex</em>)
+        and <code class="varname">$OPTARG</code> (<em class="wordasword">OPTion
+        ARGument</em>) the (optional) argument attached
+        to an option. A colon following the option name in the
+        declaration tags that option as having an associated
+        argument.</p><p>A <span class="command"><strong>getopts</strong></span> construct usually comes
+        packaged in a <a class="link" href="ch10.html#whileloopref">while
+        loop</a>, which processes the options and
+        arguments one at a time, then increments the implicit
+        <code class="varname">$OPTIND</code> variable to point to the
+        next.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>
+    </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p>The arguments passed from the command-line to
+          the script must be preceded by a
+          dash (<code class="option">-</code>). It is the
+          prefixed <code class="option">-</code> that lets
+          <span class="command"><strong>getopts</strong></span> recognize command-line
+          arguments as <em class="firstterm">options</em>.
+          In fact, <span class="command"><strong>getopts</strong></span> will not process
+          arguments without the prefixed <code class="option">-</code>,
+          and will terminate option processing at the first
+          argument encountered lacking them.</p></li><li class="listitem"><p>The <span class="command"><strong>getopts</strong></span> template
+          differs slightly from the standard <a class="link" href="ch10.html#whileloopref">while loop</a>, in that
+          it lacks condition brackets.</p></li><li class="listitem"><p>The <span class="command"><strong>getopts</strong></span> construct is a highly
+         functional replacement for the traditional
+         <a class="link" href="ch15s09.html#getopty">getopt</a> external
+         command.</p></li></ol></div><p>
+        </p></div><pre class="programlisting">
+while getopts ":abcde:fg" Option
+# Initial declaration.
+# a, b, c, d, e, f, and g are the options (flags) expected.
+# The : after option 'e' shows it will have an argument passed with it.
+do
+  case $Option in
+    a ) # Do something with variable 'a'.
+    b ) # Do something with variable 'b'.
+    ...
+    e)  # Do something with 'e', and also with $OPTARG,
+        # which is the associated argument passed with option 'e'.
+    ...
+    g ) # Do something with variable 'g'.
+  esac
+done
+shift $(($OPTIND - 1))
+# Move argument pointer to next.
+
+# All this is not nearly as complicated as it looks &lt;grin&gt;.</pre><div class="example"><a id="ex33"/><p class="title"><b>Пример 14.21. Using <em class="firstterm">getopts</em> to read the
+          options/arguments passed to a script</b></p><div class="example-contents"><pre class="programlisting">&amp;ex33;</pre></div></div><br class="example-break"/></dd></dl></div><div class="variablelist" title="Script Behavior"><a id="intscrbeh"/><p class="title"><b><a id="intscrbeh1"/>Script Behavior</b></p><dl><dt><span class="term"><a id="sourceref"/><span class="command"><strong>source</strong></span>, </span><span class="term"><span class="token">.</span> (<a class="link" href="ch03.html#dotref">dot</a> command)</span></dt><dd><p>This command, when invoked from the command-line,
+        executes a script. Within a script, a
+        <strong class="userinput"><code>source file-name</code></strong>
+        loads the file <code class="filename">file-name</code>.
+        <em class="firstterm">Sourcing</em> a file (dot-command)
+        <em class="firstterm">imports</em>
+       code into the script, appending to the script (same effect
+       as the <strong class="userinput"><code>#include</code></strong> directive in a
+       <em class="firstterm">C</em> program). The net result is the
+       same as if the <span class="quote">«<span class="quote">sourced</span>»</span> lines of code were
+       physically present in the body of the script. This is useful
+       in situations when multiple scripts use a common data file
+       or function library.</p><div class="example"><a id="ex38"/><p class="title"><b>Пример 14.22. <span class="quote">«<span class="quote">Including</span>»</span> a data file</b></p><div class="example-contents"><pre class="programlisting">&amp;ex38;</pre><p>File <code class="filename">data-file</code> for <a class="xref" href="ch14.html#ex38" title="Пример 14.22. «Including» a data file">Пример 14.22, «<span class="quote">«<span class="quote">Including</span>»</span> a data file»</a>, above.  Must be present in same
+    directory.</p><pre class="programlisting">&amp;ex38bis;</pre></div></div><br class="example-break"/><p>If the <em class="firstterm">sourced</em> file is itself
+         an executable script, then it will run, then return
+         control to the script that called it. A
+         <em class="firstterm">sourced</em> executable script may use a
+        <a class="link" href="ch23.html#returnref">return</a> for this
+        purpose.</p><p><a id="sourceparams"/></p><p>
+        Arguments may be (optionally) passed to the
+        <em class="firstterm">sourced</em> file as <a class="link" href="ch04s04.html#posparamref1">positional parameters</a>.
+         </p><pre class="programlisting">source $filename $arg1 arg2</pre><p>
+      </p><p>It is even possible for a script to
+      <em class="firstterm">source</em> itself, though this does not
+      seem to have any practical applications.</p><div class="example"><a id="selfsource"/><p class="title"><b>Пример 14.23. A (useless) script that sources itself</b></p><div class="example-contents"><pre class="programlisting">&amp;selfsource;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="exitref"/><span class="command"><strong>exit</strong></span></span></dt><dd><p>Unconditionally terminates a script.
+        <sup>[<a id="idp11469872" href="#ftn.idp11469872" class="footnote">56</a>]</sup>
+          The <span class="command"><strong>exit</strong></span> command may optionally take an
+    integer argument, which is returned to the shell as
+    the <a class="link" href="ch06.html#exitstatusref">exit status</a>
+    of the script. It is good practice to end all but the
+    simplest scripts with an <strong class="userinput"><code>exit 0</code></strong>,
+    indicating a successful run.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>If a script terminates with an <span class="command"><strong>exit</strong></span>
+        lacking an argument, the exit status of the script is the exit
+        status of the last command executed in the script, not counting
+        the <span class="command"><strong>exit</strong></span>. This is equivalent to an
+        <span class="command"><strong>exit $?</strong></span>.</p></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>An <span class="command"><strong>exit</strong></span> command may also be used to
+        terminate a <a class="link" href="ch20.html#subshellsref">subshell</a>.</p></div></dd><dt><span class="term"><a id="execref"/><span class="command"><strong>exec</strong></span></span></dt><dd><p>
+        This shell builtin replaces the current process with
+        a specified command. Normally, when the shell encounters
+        a command, it <a class="link" href="ch14.html#forkref">forks off</a> a
+        child process to actually execute the command.  Using the
+        <span class="command"><strong>exec</strong></span> builtin, the shell does not fork,
+        and the command <em class="firstterm">exec</em>'ed replaces
+        the shell.  When used in a script, therefore, it forces an
+        exit from the script when the <span class="command"><strong>exec</strong></span>'ed
+        command terminates.
+    <sup>[<a id="idp11487632" href="#ftn.idp11487632" class="footnote">57</a>]</sup>
+      </p><div class="example"><a id="ex54"/><p class="title"><b>Пример 14.24. Effects of <em class="firstterm">exec</em></b></p><div class="example-contents"><pre class="programlisting">&amp;ex54;</pre></div></div><br class="example-break"/><div class="example"><a id="selfexec"/><p class="title"><b>Пример 14.25. A script that <em class="firstterm">exec's</em> itself</b></p><div class="example-contents"><pre class="programlisting">&amp;selfexec;</pre></div></div><br class="example-break"/><p>An <span class="command"><strong>exec</strong></span> also serves to <a class="link" href="ch19.html#usingexecref">reassign
+        file descriptors</a>.  For example, <strong class="userinput"><code>exec
+        &lt;zzz-file</code></strong> replaces <code class="filename">stdin</code>
+        with the file <code class="filename">zzz-file</code>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <code class="option">-exec</code> option to
+        <a class="link" href="ch15s02.html#findref">find</a> is
+        <em class="replaceable"><code>not</code></em> the same as the
+        <span class="command"><strong>exec</strong></span> shell builtin.</p></div></dd><dt><span class="term"><a id="shoptref"/><span class="command"><strong>shopt</strong></span></span></dt><dd><p>This command permits changing <em class="firstterm">shell
+        options</em> on the fly (see <a class="xref" href="ch24.html#al" title="Пример 24.1. Псевдонимы внутри сценария">Пример 24.1, «Псевдонимы внутри сценария»</a>
+        and <a class="xref" href="ch24.html#unal" title="Пример 24.2. unalias: Установка и удаление псевдонима">Пример 24.2, «<em class="firstterm">unalias</em>: Установка и удаление псевдонима»</a>).  It often appears in the Bash
+        <a class="link" href="apg.html#filesref1">startup files</a>, but also has
+        its uses in scripts. Needs <a class="link" href="ch34.html#bash2ref">version
+        2</a> or later of Bash.</p><pre class="programlisting">shopt -s cdspell
+# Allows minor misspelling of directory names with 'cd'
+
+cd /hpme  # Oops! Mistyped '/home'.
+pwd       # /home
+          # The shell corrected the misspelling.</pre></dd><dt><span class="term"><span class="command"><strong>caller</strong></span><a id="callerref"/></span></dt><dd><p>Putting a <span class="command"><strong>caller</strong></span> command
+         inside a <a class="link" href="ch23.html#functionref">function</a>
+         echoes to <code class="filename">stdout</code> information about
+         the <em class="firstterm">caller</em> of that function.</p><pre class="programlisting">#!/bin/bash
+
+function1 ()
+{
+  # Inside function1 ().
+  caller 0   # Tell me about it.
+}
+
+function1    # Line 9 of script.
+
+# 9 main test.sh
+# ^                 Line number that the function was called from.
+#   ^^^^            Invoked from "main" part of script.
+#        ^^^^^^^    Name of calling script.
+
+caller 0     # Has no effect because it's not inside a function.</pre><p>A <span class="command"><strong>caller</strong></span> command can also return
+        <em class="firstterm">caller</em> information from a script <a class="link" href="ch14.html#sourceref">sourced</a> within another
+        script. Analogous to a function, this is a <span class="quote">«<span class="quote">subroutine
+        call.</span>»</span></p><p>You may find this command useful in debugging.</p></dd></dl></div><div class="variablelist" title="Commands"><a id="intcommand"/><p class="title"><b><a id="intcommand1"/>Commands</b></p><dl><dt><span class="term"><a id="trueref"/><span class="command"><strong>true</strong></span></span></dt><dd><p>A command that returns a successful
+      (<span class="returnvalue">zero</span>) <a class="link" href="ch06.html#exitstatusref">exit status</a>, but does
+      nothing else.
+    </p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>true</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo $?</code></strong>
+<code class="computeroutput">0</code>
+        </pre><p>
+      </p><pre class="programlisting"># Endless loop
+while true   # alias for ":"
+do
+   operation-1
+   operation-2
+   ...
+   operation-n
+   # Need a way to break out of loop or script will hang.
+done</pre></dd><dt><span class="term"><a id="falseref"/><span class="command"><strong>false</strong></span></span></dt><dd><p>A command that returns an unsuccessful <a class="link" href="ch06.html#exitstatusref">exit status</a>,
+      but does nothing else.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>false</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo $?</code></strong>
+<code class="computeroutput">1</code>
+        </pre><p>
+      </p><pre class="programlisting"># Testing "false" 
+if false
+then
+  echo "false evaluates \"true\""
+else
+  echo "false evaluates \"false\""
+fi
+# false evaluates "false"
+
+
+# Looping while "false" (null loop)
+while false
+do
+   # The following code will not execute.
+   operation-1
+   operation-2
+   ...
+   operation-n
+   # Nothing happens!
+done   
+</pre></dd><dt><span class="term"><a id="typeref"/><span class="command"><strong>type [cmd]</strong></span></span></dt><dd><p>Similar to the <a class="link" href="ch15s05.html#whichref">which</a> external command,
+      <span class="command"><strong>type cmd</strong></span> identifies
+      <span class="quote">«<span class="quote">cmd.</span>»</span> Unlike <span class="command"><strong>which</strong></span>,
+      <span class="command"><strong>type</strong></span> is a Bash builtin. The useful
+      <code class="option">-a</code> option to <span class="command"><strong>type</strong></span>
+      identifies <em class="replaceable"><code>keywords</code></em>
+      and <em class="replaceable"><code>builtins</code></em>, and also locates
+      system commands with identical names.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>type '['</code></strong>
+<code class="computeroutput">[ is a shell builtin</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>type -a '['</code></strong>
+<code class="computeroutput">[ is a shell builtin
+ [ is /usr/bin/[</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>type type</code></strong>
+<code class="computeroutput">type is a shell builtin</code>
+        </pre><p>
+      </p><p>The <span class="command"><strong>type</strong></span> command can be useful
+              for <a class="link" href="ch03.html#devnullredirect">testing whether a
+              certain command exists</a>.</p></dd><dt><span class="term"><a id="hashcmdref"/><span class="command"><strong>hash [cmds]</strong></span></span></dt><dd><p>Records the <em class="firstterm">path</em>
+      name of specified commands -- in the shell <em class="firstterm">hash
+      table</em>
+
+          <sup>[<a id="idp11577552" href="#ftn.idp11577552" class="footnote">58</a>]</sup>
+        
+              -- so the shell or script will not need to search the
+              <a class="link" href="ch09.html#pathref">$PATH</a> on subsequent calls to those
+              commands. When <span class="command"><strong>hash</strong></span> is called with no
+        arguments, it simply lists the commands that have been hashed.
+        The <code class="option">-r</code> option resets the hash table.</p></dd><dt><span class="term"><a id="bindref"/><span class="command"><strong>bind</strong></span></span></dt><dd><p>The <span class="command"><strong>bind</strong></span> builtin displays or modifies
+    <em class="firstterm">readline</em>
+      <sup>[<a id="idp11592880" href="#ftn.idp11592880" class="footnote">59</a>]</sup>
+    key bindings.</p></dd><dt><span class="term"><a id="helpref"/><span class="command"><strong>help</strong></span></span></dt><dd><p>Gets a short usage summary of a shell builtin. This is
+      the counterpart to <a class="link" href="ch15s05.html#whatisref">whatis</a>,
+      but for builtins. The display of <em class="firstterm">help</em>
+      information got a much-needed update in the <a class="link" href="ch34s03.html#bash4ref">version 4 release</a> of Bash.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>help exit</code></strong>
+<code class="computeroutput">exit: exit [n]
+    Exit the shell with a status of N.  If N is omitted, the exit status
+    is that of the last command executed.</code>
+        </pre><p>
+        </p></dd></dl></div><div class="sect1" title="Job Control Commands"><div class="titlepage"><div><div><h2 class="title"><a id="idp11605200"/>Job Control Commands</h2></div></div></div><p>Certain of the following job control commands take a
+    <em class="firstterm">job identifier</em> as an argument. See
+    the <a class="link" href="ch14.html#jobidtable" title="Таблица 14.1. Job identifiers">table</a> at end of the
+    chapter.</p><div class="variablelist"><a id="jccommandlist"/><dl><dt><span class="term"><a id="jobsref"/><span class="command"><strong>jobs</strong></span></span></dt><dd><p>Lists the jobs running in the background, giving
+          the <em class="firstterm">job number</em>.
+    Not as useful as <a class="link" href="ch16.html#ppssref">ps</a>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>It is all too easy to confuse
+    <em class="firstterm">jobs</em> and
+    <em class="firstterm">processes</em>.  Certain <a class="link" href="ch14.html#builtinref">builtins</a>, such as
+    <span class="command"><strong>kill</strong></span>, <span class="command"><strong>disown</strong></span>, and
+    <span class="command"><strong>wait</strong></span> accept either a job number or a
+    process number as an argument. The <a class="link" href="ch14.html#fgref">fg</a>,
+    <a class="link" href="ch14.html#bgref">bg</a> and <span class="command"><strong>jobs</strong></span>
+    commands accept only a job number.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>sleep 100 &amp;</code></strong>
+<code class="computeroutput">[1] 1384</code>
+
+<code class="prompt">bash $ </code><strong class="userinput"><code>jobs</code></strong>
+<code class="computeroutput">[1]+  Running                 sleep 100 &amp;</code></pre><p>
+        </p><p><span class="quote">«<span class="quote">1</span>»</span> is the job number (jobs are
+    maintained by the current shell). <span class="quote">«<span class="quote">1384</span>»</span>
+    is the <a class="link" href="ch09.html#ppidref">PID</a> or <em class="firstterm">process ID
+    number</em> (processes are maintained by the system). To kill
+    this job/process, either a <span class="command"><strong>kill %1</strong></span>
+    or a <span class="command"><strong>kill 1384</strong></span> works.</p><p><span class="emphasis"><em>Thanks, S.C.</em></span></p></div></dd><dt><span class="term"><a id="disownref"/><span class="command"><strong>disown</strong></span></span></dt><dd><p>Remove job(s) from the shell's table of active jobs.</p></dd><dt><span class="term"><a id="fgref"/><span class="command"><strong>fg</strong></span>, </span><span class="term"><a id="bgref"/><span class="command"><strong>bg</strong></span></span></dt><dd><p>The <span class="command"><strong>fg</strong></span> command switches a job
+        running in the background into the foreground.  The
+        <span class="command"><strong>bg</strong></span> command restarts a suspended job, and
+        runs it in the background. If no job number is specified,
+        then the <span class="command"><strong>fg</strong></span> or <span class="command"><strong>bg</strong></span>
+        command acts upon the currently running job.</p></dd><dt><span class="term"><a id="waitref"/><span class="command"><strong>wait</strong></span></span></dt><dd><p>Suspend script execution until all jobs running in
+          background have terminated, or until the job number or
+          process ID specified as an option terminates. Returns the <a class="link" href="ch06.html#exitstatusref">exit status</a> of waited-for
+          command.</p><p>You may use the <span class="command"><strong>wait</strong></span> command
+    to prevent a script from exiting before a background
+    job finishes executing (this would create a dreaded
+    <a class="link" href="ch14.html#zombieref">orphan process</a>).</p><div class="example"><a id="ex39"/><p class="title"><b>Пример 14.26. Waiting for a process to finish before proceeding</b></p><div class="example-contents"><pre class="programlisting">&amp;ex39;</pre></div></div><br class="example-break"/><p>Optionally, <span class="command"><strong>wait</strong></span> can take a <em class="firstterm">job
+    identifier</em> as an argument, for example,
+    <em class="replaceable"><code>wait%1</code></em> or <em class="replaceable"><code>wait
+    $PPID</code></em>. See the <a class="link" href="ch14.html#jobidtable" title="Таблица 14.1. Job identifiers">job
+    id table</a>.</p><p><a id="waithang"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Within a script, running a command in the background
+    with an ampersand (&amp;) may cause the script
+    to hang until <span class="keycap"><strong>ENTER</strong></span> is hit. This
+    seems to occur with commands that write to
+    <code class="filename">stdout</code>. It can be a major annoyance.
+      </p><pre class="programlisting">#!/bin/bash
+# test.sh     
+
+ls -l &amp;
+echo "Done."</pre><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>./test.sh</code></strong>
+<code class="computeroutput">Done.
+ [bozo@localhost test-scripts]$ total 1
+ -rwxr-xr-x    1 bozo     bozo           34 Oct 11 15:09 test.sh
+ _
+</code>
+               </pre><p>
+         </p><div class="blockquote"><blockquote class="blockquote"><div class="literallayout"><p><br/>
+    As Walter Brameld IV explains it:<br/>
+<br/>
+    As far as I can tell, such scripts don't actually hang. It just<br/>
+    seems that they do because the background command writes text to<br/>
+    the console after the prompt. The user gets the impression that<br/>
+    the prompt was never displayed. Here's the sequence of events:<br/>
+<br/>
+    1. Script launches background command.<br/>
+    2. Script exits.<br/>
+    3. Shell displays the prompt.<br/>
+    4. Background command continues running and writing text to the<br/>
+       console.<br/>
+    5. Background command finishes.<br/>
+    6. User doesn't see a prompt at the bottom of the output, thinks script<br/>
+       is hanging.<br/>
+  </p></div></blockquote></div><p>Placing a <span class="command"><strong>wait</strong></span> after the background
+                command seems to remedy this.
+      </p><pre class="programlisting">#!/bin/bash
+# test.sh     
+
+ls -l &amp;
+echo "Done."
+wait</pre><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>./test.sh</code></strong>
+<code class="computeroutput">Done.
+ [bozo@localhost test-scripts]$ total 1
+ -rwxr-xr-x    1 bozo     bozo           34 Oct 11 15:09 test.sh</code>
+               </pre><p>
+          <a class="link" href="ch19.html#ioredirref">Redirecting</a> the
+                output of the command to a file or even to
+    <code class="filename">/dev/null</code> also takes care of this
+    problem.
+              </p></div></dd><dt><span class="term"><a id="suspendref"/><span class="command"><strong>suspend</strong></span></span></dt><dd><p>This has a similar effect to
+    <span class="keycap"><strong>Control</strong></span>+<span class="keycap"><strong>Z</strong></span>, 
+    but it suspends the shell (the shell's parent process should
+    resume it at an appropriate time).</p></dd><dt><span class="term"><a id="logoutref"/><span class="command"><strong>logout</strong></span></span></dt><dd><p>Exit a login shell, optionally specifying an <a class="link" href="ch06.html#exitstatusref">exit status</a>.</p></dd><dt><span class="term"><a id="timesref"/><span class="command"><strong>times</strong></span></span></dt><dd><p>Gives statistics on the system time elapsed when
+          executing commands, in the following form:
+    </p><pre class="screen"><code class="computeroutput">0m0.020s 0m0.020s</code></pre><p>This capability is of relatively limited value, since it is not common to
+    profile and benchmark shell scripts.</p></dd><dt><span class="term"><a id="killref"/><span class="command"><strong>kill</strong></span></span></dt><dd><p>Forcibly terminate a process by sending it an
+    appropriate <em class="firstterm">terminate</em> signal
+    (see <a class="xref" href="ch16.html#killprocess" title="Пример 16.6. pidof helps kill a process">Пример 16.6, «<em class="firstterm">pidof</em> helps kill a process»</a>).</p><div class="example"><a id="selfdestruct"/><p class="title"><b>Пример 14.27. A script that kills itself</b></p><div class="example-contents"><pre class="programlisting">&amp;selfdestruct;</pre></div></div><br class="example-break"/><p><a id="zombieref"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><strong class="userinput"><code>kill -l</code></strong> lists all the
+    <a class="link" href="ch29.html#signald">signals</a> (as does the
+    file <code class="filename">/usr/include/asm/signal.h</code>).
+    A <strong class="userinput"><code>kill -9</code></strong> is a <em class="firstterm">sure
+    kill</em>, which will usually terminate a
+    process that stubbornly refuses to die with a plain
+    <span class="command"><strong>kill</strong></span>. Sometimes, a <strong class="userinput"><code>kill
+    -15</code></strong> works. A <em class="firstterm">zombie</em> process,
+    that is, a child process that has terminated, but that
+    the <a class="link" href="ch14.html#forkref">parent process</a>
+    has not (yet) killed, cannot be killed by a logged-on
+    user -- you can't kill something that is already dead --
+    but <span class="command"><strong>init</strong></span> will generally clean it up
+    sooner or later.</p></div></dd><dt><span class="term"><a id="killallref"/><span class="command"><strong>killall</strong></span></span></dt><dd><p>The <span class="command"><strong>killall</strong></span> command
+      kills a running process by <em class="firstterm">name</em>,
+            rather than by <a class="link" href="ch03.html#processidref">process ID</a>.
+      If there are multiple instances of a particular command running,
+      then doing a <em class="firstterm">killall</em> on that command will
+      terminate them <span class="emphasis"><em>all</em></span>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>This refers to the <span class="command"><strong>killall</strong></span>
+        command in <code class="filename">/usr/bin</code>,
+        <span class="emphasis"><em>not</em></span> the <a class="link" href="ch16.html#killall2ref">killall script</a> in <code class="filename">/etc/rc.d/init.d</code>.</p></div></dd><dt><span class="term"><a id="commandref"/><span class="command"><strong>command</strong></span></span></dt><dd><p>The <span class="command"><strong>command</strong></span> directive
+      disables aliases and functions for the command immediately
+      following it.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>command ls</code></strong>
+              </pre><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>This is one of three shell directives that
+        effect script command processing. The others are
+        <a class="link" href="ch14.html#bltref">builtin</a> and <a class="link" href="ch14.html#enableref">enable</a>.</p></div></dd><dt><span class="term"><a id="bltref"/><span class="command"><strong>builtin</strong></span></span></dt><dd><p>Invoking <span class="command"><strong>builtin
+        BUILTIN_COMMAND</strong></span> runs the command
+        <em class="replaceable"><code>BUILTIN_COMMAND</code></em> as a shell <a class="link" href="ch14.html#builtinref">builtin</a>, temporarily disabling
+        both functions and external system commands with the
+        same name.</p></dd><dt><span class="term"><a id="enableref"/><span class="command"><strong>enable</strong></span></span></dt><dd><p>This either enables or disables a shell
+        builtin command. As an example, <em class="replaceable"><code>enable -n
+        kill</code></em> disables the shell builtin <a class="link" href="ch14.html#killref">kill</a>, so that when Bash
+        subsequently encounters <em class="firstterm">kill</em>, it invokes
+        the external command <code class="filename">/bin/kill</code>.</p><p><a id="enableref1"/>The <code class="option">-a</code>
+        option to <em class="firstterm">enable</em> lists all the
+        shell builtins, indicating whether or not they
+        are enabled. The <code class="option">-f filename</code>
+        option lets <em class="firstterm">enable</em> load a <a class="link" href="ch14.html#builtinref">builtin</a> as a shared library
+        (DLL) module from a properly compiled object file.
+          <sup>[<a id="idp11756992" href="#ftn.idp11756992" class="footnote">60</a>]</sup>.
+       </p></dd><dt><span class="term"><a id="autoloadref"/><span class="command"><strong>autoload</strong></span></span></dt><dd><p>This is a port to Bash of the
+      <em class="firstterm">ksh</em> autoloader. With
+      <span class="command"><strong>autoload</strong></span> in place, a function with
+      an <em class="firstterm">autoload</em> declaration will load from an
+      external file at its first invocation.
+        <sup>[<a id="idp11767296" href="#ftn.idp11767296" class="footnote">61</a>]</sup>
+      This saves system resources.</p><p>Note that <em class="firstterm">autoload</em> is not a part of the
+      core Bash installation. It needs to be loaded in with
+      <em class="replaceable"><code>enable -f</code></em> (see above).</p></dd></dl></div><p><a id="jobidtable0"/></p><div class="table"><a id="jobidtable"/><p class="title"><b>Таблица 14.1. Job identifiers</b></p><div class="table-contents"><table summary="Job identifiers" border="1"><colgroup><col/><col/></colgroup><thead><tr><th>Notation</th><th>Meaning</th></tr></thead><tbody><tr><td><code class="option">%N</code></td><td>Job number [N]</td></tr><tr><td><code class="option">%S</code></td><td>Invocation (command-line) of job begins with string <span class="emphasis"><em>S</em></span></td></tr><tr><td><code class="option">%?S</code></td><td>Invocation (command-line) of job contains within it string <span class="emphasis"><em>S</em></span></td></tr><tr><td><code class="option">%%</code></td><td><span class="quote">«<span class="quote">current</span>»</span> job (last job stopped in
+        foreground or started in background)</td></tr><tr><td><code class="option">%+</code></td><td><span class="quote">«<span class="quote">current</span>»</span> job (last job stopped in
+        foreground or started in background)</td></tr><tr><td><code class="option">%-</code></td><td>Last job</td></tr><tr><td><code class="option">$!</code></td><td>Last background process</td></tr></tbody></table></div></div><br class="table-break"/></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp11057456" href="#idp11057456" class="para">51</a>] </sup>As Nathan Coulter points out, "while forking a
+    process is a low-cost operation, executing a new program in
+    the newly-forked child process adds more
+    overhead."</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11079312" href="#idp11079312" class="para">52</a>] </sup>An exception to this is the <a class="link" href="ch15s03.html#timref">time</a> command, listed in the
+       official Bash documentation as a keyword (<span class="quote">«<span class="quote">reserved
+       word</span>»</span>).</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11276064" href="#idp11276064" class="para">53</a>] </sup>Note that <em class="firstterm">let</em>
+          <a class="link" href="ch31.html#letbad">cannot be used
+          for setting <em class="firstterm">string</em>
+          variables.</a></p></div><div class="footnote"><p><sup>[<a id="ftn.idp11366480" href="#idp11366480" class="para">54</a>] </sup>To <em class="firstterm">Export</em>
+        information is to make it available in a more general context.
+        See also <a class="link" href="ch20.html#scoperef">scope</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11412640" href="#idp11412640" class="para">55</a>] </sup>An <em class="firstterm">option</em> is an
+    argument that acts as a flag, switching script behaviors
+    on or off. The argument associated with a particular
+    option indicates the behavior that the option (flag)
+    switches on or off.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11469872" href="#idp11469872" class="para">56</a>] </sup>Technically, an
+        <span class="command"><strong>exit</strong></span> only terminates the
+        process (or shell) in which it is running,
+        <span class="emphasis"><em>not</em></span> the <em class="firstterm">parent
+        process</em>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11487632" href="#idp11487632" class="para">57</a>] </sup>Unless the <span class="command"><strong>exec</strong></span> is used
+       to <a class="link" href="ch19.html#usingexecref">reassign file
+       descriptors</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11577552" href="#idp11577552" class="para">58</a>] </sup><a id="hashref"/></p><p><em class="firstterm">Hashing</em> is a method of
+    creating lookup keys for data stored in a table. The
+    <span class="emphasis"><em>data items themselves</em></span> are
+    <span class="quote">«<span class="quote">scrambled</span>»</span> to create keys, using one of
+    a number of simple mathematical
+    <em class="firstterm">algorithms</em> (methods, or
+    recipes).</p><p>An advantage of <em class="firstterm">hashing</em> is that
+    it is fast. A disadvantage is that
+    <em class="firstterm">collisions</em> -- where a single key
+    maps to more than one data item -- are possible.</p><p>For examples of hashing see <a class="xref" href="apa.html#hashlib" title="Пример A.20. Library of hash functions">Пример A.20, «Library of hash functions»</a> and
+      <a class="xref" href="apa.html#hashexample" title="Пример A.21. Colorizing text using hash functions">Пример A.21, «Colorizing text using hash functions»</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11592880" href="#idp11592880" class="para">59</a>] </sup><a id="readlineref"/>The
+            <em class="firstterm">readline</em> library is what
+            Bash uses for reading input in an
+            interactive shell.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11756992" href="#idp11756992" class="para">60</a>] </sup>The C source for a number of loadable builtins is
+        typically found in the <code class="filename">/usr/share/doc/bash-?.??/functions</code>
+        directory.</p><p>Note that the <code class="option">-f</code> option to
+        <span class="command"><strong>enable</strong></span> is not portable to all
+        systems.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11767296" href="#idp11767296" class="para">61</a>] </sup>The same effect as
+        <span class="command"><strong>autoload</strong></span> can be achieved with <a class="link" href="ch09s04.html" title="Typing variables: declare or typeset">typeset -fu</a>.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="pt04.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt04.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch15.html">След.</a></td></tr><tr><td align="left" valign="top">Часть Part 4. Commands </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 15. External Filters, Programs and Commands</td></tr></table></div></body></html>

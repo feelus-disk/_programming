@@ -1,0 +1,137 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<link rel="STYLESHEET" href="../tables.css" type="text/css">
+<title>killall Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>killall</h1> 
+<p>kill processes by name .</p>
+<pre>Syntax
+      killall [<i>option(s)</i>] [--] <i>name</i> ...
+	  
+      killall -l
+	  
+      killall -V,--version 
+
+Options
+
+   -e
+   --exact
+          Require an exact match for very long names.
+          If a command name is longer than 15 characters, the full name may be
+          unavailable (i.e. it is swapped out). In this case, killall will kill everything
+          that matches within the first 15 characters. With -e, such entries are skipped. 
+          killall prints a message for each skipped entry if -v is specified in addition to -e, 
+
+   -g
+   --process-group
+          Kill the process group to which the process belongs.
+          The kill signal is only sent once per group, even if multiple processes belonging
+          to the same process group were found.
+
+   -I     Do case insensitive process name match. 
+   --ignore-case
+     
+   -i     Interactively ask for confirmation before killing. 
+   --interactive
+     
+   -l     List all known signal names.
+   --list
+
+   <i>name</i>   The command/process to be killed
+
+   -q     Do not complain if no processes were killed.
+   --quiet
+     
+   -r     Interpret process name pattern as an extended regular expression.
+   --regexp
+     
+   -<i>s</i> <i>signal</i>
+   --signal <i>signal</i>
+          Send <i>signal </i>instead of the default SIGTERM.  e.g. -9 = SIGKILL
+
+   -u <i>user</i>
+   --user <i>user</i>
+          Kill only processes the specified user owns. Command names are optional.
+
+   -v     Report if the signal was successfully sent.
+   --verbose
+     
+   -V     Display version information.
+   --version
+     
+   -w
+   --wait
+          Wait for all killed processes to die. killall checks once per second if any
+          of the killed processes still exist and only returns if none are left.
+          Note that killall may wait forever if the signal was ignored, had no effect, or
+          if the process stays in zombie state. 
+
+   -Z <i>pattern</i>
+   --context <i>pattern</i> 
+          Specify security context: kill only processes having security context that match
+          with given expended regular expression pattern. Must precede other arguments on
+          the command line. Command names are optional. (SELinux Only)
+
+   --     Each parameter after a '--' parameter is always interpreted as a non-option parameter.</pre>
+<p>killall sends a signal to all processes running any of the specified commands. If no signal name is specified, SIGTERM is sent.</p>
+<p>Signals can be specified either by name (e.g. -HUP) or by number (e.g. -1) or by option -s.</p>
+<p>If the command name is not regular expression (option -r) and contains a slash (/), processes executing that particular file will be selected for killing, independent of their name.</p>
+<p>killall returns a zero return code if at least one process has been killed for each listed command, or no commands were listed and at least one process matched the -u and -Z search criteria. killall returns non-zero otherwise.</p>
+<p>A killall process never kills itself (but may kill other killall processes). </p>
+<p><b>Common kill signals</b></p>
+<table border="1" cellpadding="2" cellspacing="0">
+<thead><tr><th>Signal name</th>
+<th>Signal value</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td>SIGHUP</td><td>1</td><td>Hangup</td></tr>
+<tr><td>SIGINT</td><td>2</td><td>Interrupt from keyboard</td></tr>
+<tr><td>SIGKILL</td><td>9</td><td>Kill signal</td></tr>
+<tr><td>SIGTERM</td><td>15</td><td>Termination signal (allow the process to run it's exit handler)</td>
+</tr><tr><td>SIGSTOP</td><td>17,19,23</td><td>Stop the process</td>
+</tr></tbody></table>
+
+<p><b>Files<br>
+</b><span class="code">/proc</span><br>
+location of the proc file system</p>
+<p><b>Known Bugs</b></p>
+<p>Typing<span class="code"> killall <i>name</i></span> may not have the desired effect on non-Linux systems, especially when done by a privileged user. e.g. on Solaris it will kill all active processes.</p>
+<p>Killing by file only works for executables that are kept open during execution, i.e. impure executables can't be killed this way.</p>
+<p>killall -w doesn't detect if a process disappears and is replaced by a new process with the same PID between scans.</p>
+<p>If processes change their name, killall may not be able to match them correctly. </p>
+<p><b>Examples</b></p>
+<p>Kill firefox:</p>
+<p class="code">$ killall -9 mozilla-bin</p>
+<p class="quote">&ldquo;If future generations are to remember us with gratitude rather than contempt, we must leave them more than the miracles of technology. We must leave them a glimpse of the world as it was in the beginning, not just after we got through with it&rdquo; ~ President Lyndon B. Johnson</p>
+<p><b>Related:</b></p>
+<p><a href="syntax-keyboard.html">ctrl+z / 	ctrl+c</a> - Suspend/Interrupt a program<br>
+<a href="ps.html">ps</a> - List running processes (returns PID)<br>
+pgrep  - look up or signal processes based on name and other attributes<br>
+<a href="pkill.html">pkill</a> - Signal a process to stop running<br>
+<a href="fuser.html">fuser</a> - identify processes using files or sockets<br>
+<a href="jobs.html">jobs</a> - List your own processes (returns Job No.)<br>
+<a href="bg.html">bg</a> - Put a process in the background<br>
+<a href="fg.html">fg</a> - Put a process in the foreground<br>
+<a href="kill.html">kill</a> - kill processes</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="killall.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

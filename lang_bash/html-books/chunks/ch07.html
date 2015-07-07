@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 7. Проверка условий</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt02.html" title="Часть Part 2. Основы"/><link rel="prev" href="ch06.html" title="Глава 6. Exit and Exit Status"/><link rel="next" href="ch07s02.html" title="Операторы проверки файлов"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 7. Проверка условий</th></tr><tr><td align="left"><a accesskey="p" href="ch06.html">Пред.</a> </td><th width="60%" align="center">Часть Part 2. Основы</th><td align="right"> <a accesskey="n" href="ch07s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 7. Проверка условий"><div class="titlepage"><div><div><h2 class="title"><a id="tests"/>Глава 7. Проверка условий</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch07.html#testconstructs">Конструкции проверки условий</a></span></dt><dt><span class="sect1"><a href="ch07s02.html">Операторы проверки файлов</a></span></dt><dt><span class="sect1"><a href="ch07s03.html">Другие операторы сравнения</a></span></dt><dt><span class="sect1"><a href="ch07s04.html">Вложенные конструкции проверки <em class="replaceable"><code>if/then</code></em></a></span></dt><dt><span class="sect1"><a href="ch07s05.html">Проверка знаний по теме "Проверка условий"</a></span></dt></dl></div><p><a id="ifthen"/></p><a id="idp8319088" class="indexterm"/><a id="idp8320096" class="indexterm"/><a id="idp8321488" class="indexterm"/><a id="idp8322496" class="indexterm"/><a id="idp8323504" class="indexterm"/><a id="idp8324512" class="indexterm"/><p>Любой, хорошо спроектированный язык программирования может производить
+	проверку условий, а затем выполнять действия, основываясь на результатах такой проверки.
+	В Bash для этого используется команда <a class="link" href="ch07.html#ttestref">test</a>, различные 
+	скобочные операторы (<a class="link" href="ch07.html#dblparenstst">круглые</a>
+	и <a class="link" href="ch07.html#dblbrackets">квадратные</a> скобки), а также конструкции
+ 	<span class="command"><strong>if/then</strong></span>.</p><div class="sect1" title="Конструкции проверки условий"><div class="titlepage"><div><div><h2 class="title"><a id="testconstructs"/>Конструкции проверки условий</h2></div></div></div><p><a id="testconstructs1"/></p><div class="itemizedlist"><a id="testingref"/><ul class="itemizedlist"><li class="listitem"><p>Конструкция <span class="command"><strong>if/then</strong></span> проверяет, равен ли
+	<a class="link" href="ch06.html#exitstatusref">код завершения</a> списка команд нулю
+	(в UNIX принято, что 0 означает <span class="quote">«<span class="quote">успех</span>»</span>), и выполняет одну
+	или несколько операций.</p></li><li class="listitem"><p>	
+	Существует специальная команда - <span class="command"><strong>[</strong></span>
+	(<a class="link" href="ch03.html#leftbracket">левая квадратная скобка</a>).
+	Она является синонимом <span class="command"><strong>test</strong></span> и в целях увеличения производительности
+	реализована как <a class="link" href="ch14.html#builtinref">встроенная команда</a>.
+       	Она рассматривает переданные аргументы
+	как выражение сравнения или как проверку файла и возвращает значение
+	соответствующее результату проверки (0 - истина, 1 - ложь).
+	</p></li><li class="listitem"><p> Начиная с версии 2.02, в Bash введена расширенная команда проверки
+	<a class="link" href="ch07.html#dblbrackets">[[ ... ]]</a>, которая производит сравнения
+	способом более понятным для программистов, использующих другие языки программирования.
+	Стоит отметить, что <span class="command"><strong>[[</strong></span> - это <a class="link" href="ch14.html#keywordref">ключевое слово</a>
+	, а не команда.
+	</p><p> Bash воспринимает <strong class="userinput"><code>[[ $a -lt $b ]]</code></strong> как единый элемент,
+	возвращающий значение.
+	</p></li><li class="listitem"><p><a id="dblparenstst"/></p><p>Статус возврата конструкций <a class="link" href="ch09s07.html" title="The Double-Parentheses Construct">(( ... ))</a> и 
+	<a class="link" href="ch14.html#letref">let ...</a> зависит от того, является ли результатом
+	вычисляемого ими математического выражения ненулевое значение. Следовательно, эти конструкции,  
+	обладающие возможностью <a class="link" href="ch12.html#arithexpref">арифметической подстановки</a>,
+       	могут быть использованы для выполнения операций
+       	<a class="link" href="ch07s03.html#icomparison1">арифметического сравнения</a>.</p><p><span class="command"><strong>TODO by idler</strong></span> нужно как-то переделать последний абзац. Смысл вроде бы и 
+  совпадает с оригиналом, но в то же время уходит немного в сторону, как мне кажется.</p><p><em><span class="remark">ANSWER by Mage-Warrior [18/09/2009]</span></em>: Действительно перевёл не совсем
+  удачно и некрасиво. Как второй вариант? Первое предложение стало сложнее в понимании, кажется.</p><p>
+        </p><pre class="programlisting">
+
+
+(( 0 &amp;&amp; 1 ))                 # Логическое И (AND)
+echo $?     # 1     ***
+# А так ...
+let "num = (( 0 &amp;&amp; 1 ))"
+echo $num   # 0
+# Но ...
+let "num = (( 0 &amp;&amp; 1 ))"
+echo $?     # 1     ***
+
+
+(( 200 || 11 ))              # Логическое ИЛИ (OR)
+echo $?     # 0     ***
+# ...
+let "num = (( 200 || 11 ))"
+echo $num   # 1
+let "num = (( 200 || 11 ))"
+echo $?     # 0     ***
+
+
+(( 200 | 11 ))               # Побитовое ИЛИ
+echo $?                      # 0     ***
+# ...
+let "num = (( 200 | 11 ))"
+echo $num                    # 203
+let "num = (( 200 | 11 ))"
+echo $?                      # 0     ***
+# Конструкция "let" возвращает то же значение, что и 
+# арифметическое расширение в виде двух круглых скобок.
+
+</pre><p>	    
+	</p></li><li class="listitem"><p><a id="ifgrepref"/></p><p><span class="command"><strong>if</strong></span> может проверять код завершения любой команды,
+	а не только условия заключенные в квадратные скобки.</p><p>
+	</p><pre class="programlisting">if cmp a b &amp;&gt; /dev/null  # Подавляем вывод.
+then echo "Файлы a и b идентичны."
+else echo "Файлы a и b разные."
+fi
+
+# Очень полезная конструкция "if-grep":
+# ----------------------------------- 
+if grep -q Bash file
+  then echo "Слово Bash встречается в файле как минимум один раз."
+fi
+
+word=Linux
+letter_sequence=inu
+if echo "$word" | grep -q "$letter_sequence"
+# Опция "-q" заставляет команду grep подавить вывод.
+then
+  echo "$letter_sequence найдено в слове $word"
+else
+  echo "$letter_sequence не найдено в слове $word"
+fi
+
+
+if COMMAND_WHOSE_EXIT_STATUS_IS_0_UNLESS_ERROR_OCCURRED
+  then echo "Команда выполнена успешно."
+  else echo "Неудачное выполнение команды."
+fi
+</pre><p>
+        </p></li><li class="listitem"><p><span class="emphasis"><em>Последние два примера любезно предоставил
+	Stéphane Chazelas.</em></span></p></li></ul></div><div class="example"><a id="ex10"/><p class="title"><b>Пример 7.1. Что есть истина?</b></p><div class="example-contents"><pre class="programlisting">#!/bin/bash
+
+#  Подсказка:
+# Если Вы не уверены, как определенное условие будет вычислено,
+#+ проверьте его с помощью конструкции "if-test"
+
+echo
+
+echo "Проверяем \"0\""
+if [ 0 ]      # Ноль
+then
+  echo "0 - истина."
+else          # или ...
+  echo "0 - ложь."
+fi            # 0 - истина.
+
+echo
+
+echo "Проверяем \"1\""
+if [ 1 ]      # единица
+then
+  echo "1 - истина."
+else
+  echo "1 - ложь."
+fi            # 1 - истина.
+
+echo
+
+echo "Проверяем \"-1\""
+if [ -1 ]     # минус единица
+then
+  echo "-1 - истина."
+else
+  echo "-1 - ложь."
+fi            # -1 - истина.
+
+echo
+
+echo "Проверяем \"NULL\""
+if [ ]        # NULL (пустое условие)
+then
+  echo "NULL - истина."
+else
+  echo "NULL - ложь."
+fi            # NULL - ложь.
+
+echo
+
+echo "Проверяем \"xyz\""
+if [ xyz ]    # строка
+then
+  echo "Случайная строка - истина."
+else
+  echo "Случайная строка - ложь."
+fi            # Случайная строка - истина.
+
+echo
+
+echo "Проверяем \"\$xyz\""
+if [ $xyz ]   # Проверяет, пуста ли переменная $xyz, но...
+              # это только неинициализированная переменная.
+then
+  echo "Неинициализированная переменная - истина."
+else
+  echo "Неинициализированная переменная - ложь."
+fi            # Неинициализированная переменная - ложь.
+
+echo
+
+echo "Проверяем \"-n \$xyz\""
+if [ -n "$xyz" ]            # Более правильный вариант.
+then
+  echo "Неинициализированная переменная - истина."
+else
+  echo "Неинициализированная переменная - ложь."
+fi            # Неинициализированная переменная - ложь.
+
+echo
+
+
+xyz=          # Инициализирована пустым (null) значением.
+
+echo "Проверяем \"-n \$xyz\""
+if [ -n "$xyz" ]
+then
+  echo "Переменная со значением null - истина."
+else
+  echo "Переменная со значением null - ложь."
+fi            # Переменная со значением null - ложь.
+
+
+echo
+
+
+# Когда "ложь" истинна?
+
+echo "Проверяем \"false\""
+if [ "false" ]              # "false" просто строка.
+then
+  echo "\"false\" - истина." #+ и проверка возвращает истину.
+else
+  echo "\"false\" - ложь."
+fi            # "false" - истина.
+
+echo
+
+echo "Проверяем \"\$false\""  # Снова неинициализированная переменная.
+if [ "$false" ]
+then
+  echo "\"\$false\" - истина."
+else
+  echo "\"\$false\" - ложь."
+fi            # "$false" - ложь.
+              # Теперь мы получили ожидаемый результат.
+
+#  Что случится, если мы проверим неинициализированную переменную "$true"?
+
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p title="Упражнение"><b>Упражнение. </b>Поясните приведённый выше <a class="xref" href="ch07.html#ex10" title="Пример 7.1. Что есть истина?">Пример 7.1, «Что есть истина?»</a>.</p><p><a id="elseref"/></p><pre class="programlisting">if [ condition-true ]
+then
+   command 1
+   command 2
+   ...
+else  # Или иначе ...
+      # Добавление блока команд, выполняемого в случае, если результат проверки - "ложь".
+   command 3
+   command 4
+   ...
+fi</pre><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>В случае, когда <em class="firstterm">if</em> и <em class="firstterm">then</em>
+ находятся в одной строке с проверкой условия, выражение <em class="firstterm">if</em>
+ должно завершаться точкой с запятой. <em class="firstterm">if</em> и <em class="firstterm">then</em>
+ - <a class="link" href="ch14.html#keywordref">ключевые слова</a>. 
+ Ключевые слова (или команды) являются началом инструкции, и если две инструкции стоят в одной строке, 
+ предшествующая должна завершиться разделителем перед тем, как начнется следующая.</p><pre class="programlisting">if [ -x "$filename" ]; then</pre></div><div class="variablelist" title="Else if и elif"><a id="elifref"/><p class="title"><b><a id="elifref1"/>Else if и elif</b></p><dl><dt><span class="term"><span class="token">elif</span></span></dt><dd><p><strong class="userinput"><code>elif</code></strong> - это сокращенние от
+	      <em class="firstterm">else if</em>. Используется для вставки
+	      конструкции <span class="token">if/then</span> внутрь другой такой же.</p><pre class="programlisting">if [ condition1 ]
+then
+   command1
+   command2
+   command3
+elif [ condition2 ]
+# То же, что и else if
+then
+   command4
+   command5
+else
+   default-command
+fi</pre><p>
+	      </p></dd></dl></div><p>
+      <a id="idp8380864" class="indexterm"/>
+      <a id="idp8381936" class="indexterm"/>
+      <a id="idp8383424" class="indexterm"/>
+      <a id="idp8384464" class="indexterm"/>
+      <a id="idp8385920" class="indexterm"/>
+      <a id="idp8386960" class="indexterm"/>
+      <a id="ifref2"/>
+	Конструкция <strong class="userinput"><code>if test condition-true</code></strong> является точным
+	эквивалентом <strong class="userinput"><code>if [ condition-true ]</code></strong>.
+	Левая скобка <span class="command"><strong>[</strong></span>, в данном случае, - <em class="firstterm">лексема (token)</em>,
+
+	<sup>[<a id="idp8391776" href="#ftn.idp8391776" class="footnote">29</a>]</sup>
+
+	которая вызывает команду <span class="command"><strong>test</strong></span>. 
+	Закрывающая правая скобка <span class="command"><strong>]</strong></span> не является строго необходимой, но
+	новые версии Bash требуют её наличия.</p><p><a id="ttestref"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><span class="command"><strong>test</strong></span> - это <a class="link" href="ch14.html#builtinref">встроенная команда</a> Bash,
+	способная проверять типы файлов и сравнивать строки. Поэтому в скриптах Bash команда <span class="command"><strong>test</strong></span>
+	<span class="emphasis"><em>не</em></span> вызывает программу <code class="filename">/usr/bin/test</code>,
+	являющуюся частью пакета sh-utils. Так же и вызов <span class="command"><strong>[</strong></span> не
+	влечёт за собой запуск команды <code class="filename">/usr/bin/[</code>, которая ссылается
+	на <code class="filename">/usr/bin/test</code>.</p><p>
+	      </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>type test</code></strong>
+<code class="computeroutput">test is a shell builtin</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>type '['</code></strong>
+<code class="computeroutput">[ is a shell builtin</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>type '[['</code></strong>
+<code class="computeroutput">[[ is a shell keyword</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>type ']]'</code></strong>
+<code class="computeroutput">]] is a shell keyword</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>type ']'</code></strong>
+<code class="computeroutput">bash: type: ]: not found</code>
+	      </pre><p>
+	    </p><p><a id="usrbintest"/></p><p>Если по какой-то причине появилась необходимость использовать в скрипте именно
+	<code class="filename">/usr/bin/test</code>, вызов осуществляется с указанием полного пути к
+	исполняемому файлу.</p></div><div class="example"><a id="ex11"/><p class="title"><b>Пример 7.2. Эквиваленты <em class="firstterm">test</em>,
+	  <code class="filename">/usr/bin/test</code>, <span class="token">[ ]</span>,
+	  и <code class="filename">/usr/bin/[</code></b></p><div class="example-contents"><pre class="programlisting">#!/bin/bash
+
+echo
+
+if test -z "$1"
+then
+  echo "Нет аргументов командной строки."
+else
+  echo "Первый переданный аргумент: $1."
+fi
+
+echo
+
+if /usr/bin/test -z "$1"      # Эквивалентно встроенной команде "test"
+#  ^^^^^^^^^^^^^              # Указание полного пути.
+then
+  echo "Нет аргументов командной строки."
+else
+  echo "Первый переданный аргумент: $1."
+fi
+
+echo
+
+if [ -z "$1" ]                # Функционально идентично приведенному выше.
+#   if [ -z "$1"                должно работать, но...
+#+  Bash сообщает об отсутствии закрывающей скобки (возникает ошибка).
+then
+  echo "Нет аргументов командной строки."
+else
+  echo "Первый переданный аргумент: $1."
+fi
+
+echo
+
+
+if /usr/bin/[ -z "$1" ]       # Снова функционально идентично приведенному выше.
+# if /usr/bin/[ -z "$1"       # Работает, но сообщает об ошибке.
+#                             # Примечание:
+#                               Было исправлено в Bash версии 3.x.
+then
+  echo "Нет аргументов командной строки."
+else
+  echo "Первый переданный аргумент: $1."
+fi
+
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><a id="idp8425968" class="indexterm"/><a id="idp8430544" class="indexterm"/><a id="idp8432032" class="indexterm"/><a id="idp8433072" class="indexterm"/><a id="idp8434528" class="indexterm"/><a id="idp8435568" class="indexterm"/><p><a id="dblbrackets"/>Конструкция <span class="token">[[  ]]</span> 
+	более универсальна, чем <span class="token">[ ]</span>.
+	Это <em class="firstterm">расширенный вариант команды проверки</em> (test),
+	заимствованный из <em class="firstterm">ksh88</em>.</p><p>*  *  *</p><p>Внутри конструкции <span class="token">[[  ]]</span> не производится подстановок
+	имен файлов или разбиения аргументов на слова, но возможна подстановка
+	параметров и команд.
+
+	</p><pre class="programlisting">file=/etc/passwd
+
+if [[ -e $file ]]
+then
+  echo "Файл паролей существует."
+fi</pre><p>
+      </p><p>Использование конструкции проверки в виде <span class="command"><strong>[[ ... ]]</strong></span>
+	вместо <span class="command"><strong>[ ... ]</strong></span> может предотвратить появление логических
+	ошибок в скриптах. Например, операторы <span class="token">&amp;&amp;</span>,
+	<span class="token">||</span>, <span class="token">&lt;</span> и <span class="token">&gt;</span>
+	работают внутри <span class="token">[[  ]]</span>, в то время как при использовании внутри 
+	конструкции <span class="token">[  ]</span> вызывают ошибки.</p><p><a id="dblbraev"/></p><p><em class="firstterm">Арифметические вычисления</em> восьмеричных / шестнадцатеричных
+	констант производятся автоматически при использовании <span class="token">[[ ... ]]</span>.
+	</p><pre class="programlisting"># [[ Восьмеричное и шестнадцатеричное вычисление ]]
+# Спасибо Moritz Gronbach, указавшему нам на это.
+
+
+decimal=15
+octal=017   # = 15 (decimal)
+hex=0x0f    # = 15 (decimal)
+
+if [ "$decimal" -eq "$octal" ]
+then
+  echo "$decimal равно $octal"
+else
+  echo "$decimal не равно $octal"       # 15 не равно 017
+fi      # Не производится вычислений внутри одинарных скобок [ ]!
+
+
+if [[ "$decimal" -eq "$octal" ]]
+then
+  echo "$decimal равно $octal"                # 15 равно 017
+else
+  echo "$decimal не равно $octal"
+fi      # Вычисляется внутри двойных скобок [[ ]]!
+
+if [[ "$decimal" -eq "$hex" ]]
+then
+  echo "$decimal равно $hex"                  # 15 равно 0x0f
+else
+  echo "$decimal не равно $hex"
+fi      # шеснадцатеричное тоже вычисляется!</pre><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>После <span class="command"><strong>if</strong></span> необязательно использовать ни команду
+        <span class="command"><strong>test</strong></span>, ни скобки ( [ ] or [[ ]] ).
+
+	</p><pre class="programlisting">dir=/home/bozo
+
+if cd "$dir" 2&gt;/dev/null; then   # "2&gt;/dev/null" скрывает сообщения об ошибках.
+  echo "Сейчас мы в $dir."
+else
+  echo "Не могу перейти в каталог $dir."
+fi</pre><p>
+
+        Конструкция "if COMMAND" возвращает код завершения команды COMMAND.
+</p><p>Подобным же образом, условие внутри квадратных скобок может
+	использоваться без <span class="command"><strong>if</strong></span>, если находится в
+	комбинации с <a class="link" href="ch25.html#listconsref">последовательным списком</a>.
+
+	  </p><pre class="programlisting">
+var1=20
+var2=22
+[ "$var1" -ne "$var2" ] &amp;&amp; echo "$var1 не равно $var2"
+
+home=/home/bozo
+[ -d "$home" ] || echo "Каталог $home не существует."
+</pre></div><a id="idp8459600" class="indexterm"/><a id="idp8460640" class="indexterm"/><a id="idp8462128" class="indexterm"/><a id="idp8463216" class="indexterm"/><a id="idp8464672" class="indexterm"/><a id="idp8465712" class="indexterm"/><p><a id="dblprx"/>Конструкция <a class="link" href="ch09s07.html" title="The Double-Parentheses Construct">(( ))
+	</a> распознаёт и вычисляет арифметические выражения.
+	Если результат вычисления равен нулю,
+	<a class="link" href="ch06.html#exitstatusref">код возврата</a> принимает значение
+	<span class="returnvalue">1</span>, т.е. "ложь". Если результат не равен нулю,
+	то код возврата становится равным <span class="returnvalue">0</span>, т.е. "истина".
+	
+	Это полная противоположность использованию
+	конструкций <span class="command"><strong>test</strong></span> и <span class="token">[ ]</span>
+	, рассмотернному выше.</p><div class="example"><a id="arithtests"/><p class="title"><b>Пример 7.3. Арифметические проверки с использованием <span class="token">(( ))</span></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Арифметические проверки.
+
+# Конструкция (( ... )) вычисляет и проверяет числовые выражения.
+# Статус возврата противоположен статусу возврата конструкции [ ... ]!
+
+(( 0 ))
+echo "Статус возврата \"(( 0 ))\" : $?."         # 1
+
+(( 1 ))
+echo "Статус возврата \"(( 1 ))\" : $?."         # 0
+
+(( 5 &gt; 4 ))                                      # истина 
+echo "Статус возврата \"(( 5 &gt; 4 ))\" : $?."     # 0
+
+(( 5 &gt; 9 ))                                      # ложь
+echo "Статус возврата \"(( 5 &gt; 9 ))\" : $?."     # 1
+
+(( 5 - 5 ))                                      # 0
+echo "Статус возврата \"(( 5 - 5 ))\" : $?."     # 1
+
+(( 5 / 4 ))                                      # Деление успешно
+echo "Статус возврата \"(( 5 / 4 ))\" : $?."     # 0
+
+(( 1 / 2 ))                                      # Результат деления &lt; 1.
+echo "Статус возврата \"(( 1 / 2 ))\" : $?."     # Округляется до 0.
+                                                 # 1
+
+(( 1 / 0 )) 2&gt;/dev/null                          # Недопустимое деление на 0.
+#           ^^^^^^^^^^^
+echo "Статус возврата \"(( 1 / 0 ))\" : $?."     # 1
+
+# Каков эффект применения "2&gt;/dev/null"?
+# Что будет, если данное выражение убрать?
+# Попробуйте удалить его и запустить скрипт.
+
+# ======================================= #
+
+# (( ... )) также полезно при использовании проверки if-then.
+
+var1=5
+var2=4
+
+if (( var1 &gt; var2 ))
+then #^      ^      Примечание: Не $var1, $var2. Почему?
+  echo "$var1 больше $var2"
+fi     # 5 больше 4
+
+exit 0
+
+</pre></div></div><br class="example-break"/></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp8391776" href="#idp8391776" class="para">29</a>] </sup><a id="tokenref"/>
+	<em class="firstterm">Лексема</em> - это символ или короткая строка
+	со специально назначенным смыслом (<a class="link" href="ch17.html#metameaningref">мета-значение</a>).
+	
+	В Bash определенные лексемы, такие как <span class="command"><strong>[</strong></span> и <a class="link" href="ch03.html#dotref">. (команда-точка)</a>, могут быть расширены до
+	<em class="firstterm">ключевых слов</em> и команд.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch06.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt02.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch07s02.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 6. Exit and Exit Status </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Операторы проверки файлов</td></tr></table></div></body></html>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 5. Использование кавычек</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt02.html" title="Часть Part 2. Основы"/><link rel="prev" href="ch04s04.html" title="Специальные типы переменных"/><link rel="next" href="ch05s02.html" title="Экранирование символов"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 5. Использование кавычек</th></tr><tr><td align="left"><a accesskey="p" href="ch04s04.html">Пред.</a> </td><th width="60%" align="center">Часть Part 2. Основы</th><td align="right"> <a accesskey="n" href="ch05s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 5. Использование кавычек"><div class="titlepage"><div><div><h2 class="title"><a id="quoting"/>Глава 5. Использование кавычек</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch05.html#quotingvar">Заключение переменных в кавычки</a></span></dt><dt><span class="sect1"><a href="ch05s02.html">Экранирование символов</a></span></dt></dl></div><p><a id="quotingref"/></p><a id="idp8078976" class="indexterm"/><a id="idp8079984" class="indexterm"/><a id="idp8082736" class="indexterm"/><a id="idp8083776" class="indexterm"/><a id="idp8085232" class="indexterm"/><a id="idp8086304" class="indexterm"/><a id="idp8087344" class="indexterm"/><a id="idp8088800" class="indexterm"/><p>Заключение строки в кавычки предотвращает
+  распознавание <a class="link" href="ch03.html#scharlist1">специальных символов</a> 
+  в строке командной оболочкой или скриптом. (Символ является
+  <span class="quote">«<span class="quote">специальным</span>»</span>, если имеется другое,
+  отличное от буквенного, толкование этого символа. Например, <a class="link" href="ch03.html#asteriskref">звездочка  (asterisk) *</a> представляет
+  собой <em class="firstterm">шаблонный</em> символ (wildcard) в 
+  <a class="link" href="ch17s02.html" title="Глоббинг">глоббинге (globbing)</a> и <a class="link" href="ch17.html#regexref">Регулярных выражениях</a>).</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ls -l [Vv]*</code></strong>
+<code class="computeroutput">-rw-rw-r--    1 bozo  bozo       324 Apr  2 15:05 VIEWDATA.BAT
+-rw-rw-r--    1 bozo  bozo       507 May  4 14:25 vartrace.sh
+-rw-rw-r--    1 bozo  bozo       539 Apr 14 17:11 viewdata.sh
+</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l '[Vv]*'</code></strong>
+<code class="computeroutput">ls: [Vv]*: No such file or directory</code></pre><p>        
+        </p><p><a id="quotingdef"/></p><p>В повседневном общении и на письме мы выделяем фразу,
+      которую заключаем в кавычки, и придаем ей особое значение.
+      При написании сценариев, заключая строку в <em class="firstterm">кавычки</em>,
+      мы выделяем строку и сохраняем ее <em class="firstterm">буквенное</em>
+      значение.</p><p>Некоторые программы и утилиты интерпретируют и используют
+  специальные символы в строке, заключенной в кавычки. Защита параметров 
+  командной строки от интерпретатора команд (shell) является важным свойством 
+  использования кавычек, что не мешает вызываемой программе использовать 
+  эти параметры.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep '[Пп]ервая' *.txt</code></strong>
+<code class="computeroutput">file1.txt:Это первая строка файла file1.txt.
+file2.txt:Это Первая строка файла file2.txt.</code></pre><p>
+        </p><p>Отметим, что не заключенный в кавычки вариант <strong class="userinput"><code>grep [Пп]ервая *.txt</code></strong>
+    работает только в Bash.
+    <sup>[<a id="idp8108368" href="#ftn.idp8108368" class="footnote">25</a>]</sup>
+    </p><p><a class="link" href="ch14.html#echoref">echo</a> любит
+        <span class="quote">«<span class="quote">есть</span>»</span> символы перевода на новую строку, при помощи
+	кавычек этого можно избежать.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo $(ls -l)</code></strong>
+<code class="computeroutput">total 8 -rw-rw-r-- 1 bo bo 13 Aug 21 12:57 t.sh -rw-rw-r-- 1 bo bo 78 Aug 21 12:57 u.sh</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo "$(ls -l)"</code></strong>
+<code class="computeroutput">total 8
+-rw-rw-r--  1 bo bo  13 Aug 21 12:57 t.sh
+-rw-rw-r--  1 bo bo  78 Aug 21 12:57 u.sh</code></pre><p>
+        </p><div class="sect1" title="Заключение переменных в кавычки"><div class="titlepage"><div><div><h2 class="title"><a id="quotingvar"/>Заключение переменных в кавычки</h2></div></div></div><p>При обращении к переменной, следует заключить ее в двойные кавычки.
+  Это предотвратит интерпретацию всех специальных символов в строке,
+  заключенной в кавычки -- за исключением <span class="token">$</span>,
+  <span class="token">`</span> (обратной кавычки) и <span class="token">\</span> (символа экранирования).
+
+      <sup>[<a id="idp8120448" href="#ftn.idp8120448" class="footnote">26</a>]</sup>
+  
+  Сохранение значения <span class="token">$</span>, как специального символа, в двойных
+  кавычках позволяет обратиться к переменной в кавычках
+  (<em class="replaceable"><code>"$variable"</code></em>), то есть, заменить переменную
+  ее значением (смотри <a class="xref" href="ch04.html#ex9" title="Пример 4.1. Присваивание значений и подстановка переменных">Пример 4.1, «Присваивание значений и подстановка переменных»</a>, ранее).</p><p><a id="wsquo"/></p><p>Используйте двойные кавычки для предотвращения расщепления слов
+	(word splitting) в строке.
+
+	<sup>[<a id="idp8151856" href="#ftn.idp8151856" class="footnote">27</a>]</sup>
+
+  Аргумент, заключенный в двойные кавычки, представляет собой одно слово,
+  даже если он содержит разделительные <a class="link" href="ch03.html#whitespaceref">пробелы</a>.</p><p><a id="varsplitting"/></p><pre class="programlisting">List="один два три"
+
+for a in $List     # Разделение переменной на части при помощи пробелов.
+do
+  echo "$a"
+done
+# один
+# два
+# три
+
+echo "---"
+
+for a in "$List"   # Одна переменная, содержащая пробелы.
+do #     ^     ^
+  echo "$a"
+done
+# один два три</pre><p>Более сложный пример:</p><pre class="programlisting">variable1="переменная содержит четыре слова"
+COMMAND Эта $variable1    # Исполняется команда COMMAND с 5ю аргументами:
+# "Эта" "переменная" "содержит" "четыре" "слова"
+
+COMMAND "Эта $variable1"  # Исполняется команда COMMAND с одним аргументом:
+# "Эта переменная содержит четыре слова"
+
+
+variable2=""    # Пусто.
+
+COMMAND $variable2 $variable2 $variable2
+                # Команда COMMAND исполняется без аргументов. 
+COMMAND "$variable2" "$variable2" "$variable2"
+                # Команда COMMAND исполняется с 3мя пустыми аргументами. 
+COMMAND "$variable2 $variable2 $variable2"
+                # Команда COMMAND исполняется с одним аргументом (2 пробела). 
+
+# Спасибо, Stéphane Chazelas.
+</pre><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Если аргумент состоит из нескольких слов и необходимо
+  сохранить <a class="link" href="ch03.html#whitespaceref">разделительные знаки</a>
+  между ними - следует заключать аргументы команды <span class="command"><strong>echo</strong></span>
+  в двойные кавычки</p></div><div class="example"><a id="weirdvars"/><p class="title"><b>Пример 5.1. Вывод "своеобразных" переменных</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# weirdvars.sh: Вывод "своеобразных" переменных
+
+echo
+
+var="'(]\\{}\$\""
+echo $var        # '(]\{}$"
+echo "$var"      # '(]\{}$"     Разницы никакой.
+
+echo
+
+IFS='\'
+echo $var        # '(] {}$"     \ преобразуется в пробел. Почему?
+echo "$var"      # '(]\{}$"
+
+# Вышеупомянутые примеры представлены Stephane Chazelas.
+
+echo
+
+var2="\\\\\""
+echo $var2       #   "
+echo "$var2"     # \\"
+echo
+# Но вариант ... var2="\\\\"" недействительный. Почему?
+var3='\\\\'
+echo "$var3"     # \\\\
+# Строгие (strong) кавычки все же работают.
+
+exit
+</pre></div></div><br class="example-break"/><p>Одинарные кавычки (<span class="token">' '</span>) работают так же, как и
+  двойные, но не позволяют обращаться к переменным, поскольку
+  специальное значение <span class="token">$</span> не действует.
+  В одинарных кавычках <span class="emphasis"><em>каждый</em></span> специальный
+  символ, за исключением <span class="token">'</span>, принимает непосредственное значение 
+  (то, которое обозначает). При рассмотрении видно, что метод использования
+  одинарных кавычек (<span class="quote">«<span class="quote">полных кавычек</span>»</span>) является более строгим
+  по сравнению с методом использования двойных кавычек (<span class="quote">«<span class="quote">частичных
+  кавычек</span>»</span>).</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Поскольку даже символ экранирования (<span class="token">\</span>)
+  в одинарных кавычках принимает буквальное значение, попытка заключить 
+  одиночную кавычку в одинарные кавычки не даст ожидаемого результата.
+  </p><pre class="programlisting">echo "Why can't I write 's between single quotes"
+#  Eсли по-русски, то "Почему я не могу писать ' в одинарных кавычках"
+echo
+
+#  Обходной путь.
+echo 'Why can'\''t I write '"'"'s between single quotes'
+#    |-------|  |----------|   |-----------------------|
+#  Три строки заключенные в одинарные кавычки, а также экранированный и 
+#+ заключенный в кавычки символ одинарной кавычки.
+
+#  Этот пример любезно предоставил Stéphane Chazelas.</pre><p>
+      </p></div></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp8108368" href="#idp8108368" class="para">25</a>] </sup>За исключением случая, когда в текущем рабочем каталоге
+	     существует файл с именем <code class="filename">первая</code>. Еще одна
+             причина для использования <em class="firstterm">кавычек</em>. (Спасибо Харальду Кёнигу 
+	     (Harald Koenig) за указание на это.)</p></div><div class="footnote"><p><sup>[<a id="ftn.idp8120448" href="#idp8120448" class="para">26</a>] </sup><a id="quotingbsl"/></p><p>Инкапсуляция <span class="quote">«<span class="quote">!</span>»</span> в двойных кавычках вызовет ошибку
+      при использовании в <span class="emphasis"><em>командной строке</em></span>.
+      Это распознается как команда вызова <a class="link" href="apk.html" title="Приложение K. History Commands">механизма
+      истории bash</a>. В скрипте подобной проблемы не возникает, так как,
+      в нем механизм истории Bash недоступен.</p><p>Следует обратить внимание на <span class="emphasis"><em>явно</em></span>
+        противоречивое поведение <em class="replaceable"><code>\</code></em> в двойных
+        кавычках, особенно при использовании команды
+        <span class="command"><strong>echo -e</strong></span>.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo hello\!</code></strong>
+<code class="computeroutput">hello!</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo "hello\!"</code></strong>
+<code class="computeroutput">hello\!</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo \</code></strong>
+<code class="computeroutput">&gt;</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo "\"</code></strong>
+<code class="computeroutput">&gt;</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo \a</code></strong>
+<code class="computeroutput">a</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo "\a"</code></strong>
+<code class="computeroutput">\a</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo x\ty</code></strong>
+<code class="computeroutput">xty</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo "x\ty"</code></strong>
+<code class="computeroutput">x\ty</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e x\ty</code></strong>
+<code class="computeroutput">xty</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e "x\ty"</code></strong>
+<code class="computeroutput">x       y</code>
+        </pre><p>
+        </p><p>Двойные кавычки в команде <em class="firstterm">echo</em>
+                <span class="emphasis"><em>иногда</em></span> экранируют символ
+                <em class="replaceable"><code>\</code></em>. Вместе с тем, параметр
+                <code class="option">-e</code> команды <em class="firstterm">echo</em>
+                заставляет интерпретировать <span class="quote">«<span class="quote">\t</span>»</span> как
+                <em class="firstterm">табуляцию</em>.</p><p>(Спасибо, Wayne Pollock, за указание, и Geoff
+        Lee и Daniel Barclay за разъяснение этого.) </p></div><div class="footnote"><p><sup>[<a id="ftn.idp8151856" href="#idp8151856" class="para">27</a>] </sup><a id="wsplitref"/><span class="quote">«<span class="quote">Расщепление 
+	слов</span>»</span> (word splitting), в данном контексте, подразумевает
+	разделение символьной строки на отдельные аргументы.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch04s04.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt02.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch05s02.html">След.</a></td></tr><tr><td align="left" valign="top">Специальные типы переменных </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Экранирование символов</td></tr></table></div></body></html>

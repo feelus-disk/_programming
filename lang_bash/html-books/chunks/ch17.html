@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 17. Регулярные выражения</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="next" href="ch17s02.html" title="Глоббинг"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 17. Регулярные выражения</th></tr><tr><td align="left"><a accesskey="p" href="pt05.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch17s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 17. Регулярные выражения"><div class="titlepage"><div><div><h2 class="title"><a id="regexp"/>Глава 17. Регулярные выражения</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch17.html#idp15492592">Краткое введение в регулярные выражения</a></span></dt><dt><span class="sect1"><a href="ch17s02.html">Глоббинг</a></span></dt></dl></div><div class="epigraph"><p>. . . Интеллектуальная деятельность, связанная с разработкой
+        программного обеспечения, является в значительной степени одним из способов узнать ее настоящие подробности.</p><p>--Стоув Бойд (Stowe Boyd)</p></div><p><a id="regexref"/></p><p>Чтобы полностью использовать мощь сценариев командной оболочки, вам нужно
+  овладеть регулярными выражениями (Regular Expression, RE). Некоторые команды
+  и утилиты, обычно используемые в сценариях, такиe
+  как <a class="link" href="ch15s04.html#grepref">grep</a>, <a class="link" href="ch15s02.html#exprref">expr</a>, <a class="link" href="apc.html#sedref">sed</a>
+  и <a class="link" href="apcs02.html#awkref">awk</a>, интерпретируют и используют регулярные выражения. Что касается
+  <a class="link" href="ch34s02.html#bash3ref">3 версии</a>, то в ней Bash получил свой
+  собственный <a class="link" href="ch34s02.html#regexmatchref">оператор поиска по шаблону</a> для регулярных выражений:
+  <span class="command"><strong>=~</strong></span>.</p><div class="sect1" title="Краткое введение в регулярные выражения"><div class="titlepage"><div><div><h2 class="title"><a id="idp15492592"/>Краткое введение в регулярные выражения</h2></div></div></div><p>Выражение - это строка, состоящая из некоторых символов. Символы,
+    имеющие иную интерпретацию помимо их буквального (литерального)
+    значения, называются <em class="firstterm">метасимволами</em>.
+    Символ "кавычки", например, может <em class="firstterm">в точности </em>обозначать прямую речь
+    или иметь метазначение
+
+      <sup>[<a id="idp15494864" href="#ftn.idp15494864" class="footnote">88</a>]</sup>
+
+    для последующих символов. Регулярные выражения - сочетания
+    символов и/или метасимволов, которые совпадают
+    с данными образцами (или точно определяют данные образцы).</p><p>Регулярное выражение может содержать в себе один или больше нижеперечисленных элементов:</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><em class="firstterm">Набор символов</em>. Это символы,
+              сохраняющие свои буквальные значения. 
+        Простейший пример регулярного выражения состоит
+        <span class="emphasis"><em>только</em></span> из набора символов и не содержит
+        метасимволов.</p></li><li class="listitem"><p><a id="anchorref"/></p><p><em class="firstterm">Якорь</em>. Он 
+        (<em class="firstterm">якорь</em>) обозначает позицию текста в строке, которая совпадает с регулярным выражением. Например, символы <span class="token">^</span>
+        и <span class="token">$</span> являются якорями.</p></li><li class="listitem"><p><em class="firstterm">Модификаторы</em>. Они расширяют или сужают
+        (<em class="firstterm">модифицируют</em>) блок текста, совпадающего с регулярным выражением.
+        Модификаторы включают в себя, например, звездочку (asterisk), квадратные скобки и
+        обратную косую черту.</p></li></ul></div><p>Основной областью использования для регулярных выражений
+    (<em class="firstterm">RE</em>s) является поиск текста и манипуляции
+    со строками. Регулярные выражения <em class="firstterm">совпадают</em> с одиночным
+    символом или с совокупностью символов -- строкой или частью строки.
+    </p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><a id="idp15596768" class="indexterm"/><a id="idp15597808" class="indexterm"/><p><a id="asteriskreg"/>Астериск (asterisk) --
+      <span class="token">*</span> -- совпадает с любым количеством повторений
+         предшествующих символов в строке или регулярных выражений, предшествующих *,
+        включая <span class="emphasis"><em>нуль</em></span> совпадений.</p><p><span class="quote">«<span class="quote">1133*</span>»</span> совпадает с <em class="replaceable"><code>11 +
+        одной или более цифр 3</code></em>:
+        <em class="replaceable"><code>113</code></em>, <em class="replaceable"><code>1133</code></em>,
+        <em class="replaceable"><code>1133333</code></em> и так далее.</p></li><li class="listitem"><a id="idp15604496" class="indexterm"/><a id="idp15605536" class="indexterm"/><p><a id="regexdot"/><em class="firstterm">Точка</em>
+      -- <span class="token">.</span> -- совпадает
+        с любым одиночным символом, исключая символ перевода строки.
+          <sup>[<a id="idp15608704" href="#ftn.idp15608704" class="footnote">89</a>]</sup>  
+      </p><p><span class="quote">«<span class="quote">13.</span>»</span> совпадает с <em class="replaceable"><code>13 + 
+       как минимум один произвольный символ (включая
+       пробел)</code></em>: <em class="replaceable"><code>1133</code></em>,
+       <em class="replaceable"><code>11333</code></em>, но не
+       <em class="replaceable"><code>13</code></em> (символ вообще
+       отсутствует).</p><p>См. <a class="xref" href="ch15s04.html#cwsolver" title="Пример 15.18. Crossword puzzle solver">Пример 15.18, «Crossword puzzle solver»</a> для демонстрации
+         <em class="firstterm">одиночного символа</em>,
+         совпадающего с .</p></li><li class="listitem"><a id="idp15618336" class="indexterm"/><a id="idp15619344" class="indexterm"/><p><a id="caretref"/>Знак вставки (the caret) -- <span class="token">^</span>
+        -- совпадает с началом строки, но, иногда, в зависимоcти от контекста, инвертирует символьный класс в регулярных выражениях.
+        </p></li><li class="listitem"><a id="idp15622960" class="indexterm"/><a id="idp15623968" class="indexterm"/><p><a id="dollarsignref"/></p><p>Знак доллара -- <span class="token">$</span> -- в конце
+        регулярного выражения совпадает с концом строки.</p><p><span class="quote">«<span class="quote">XXX$</span>»</span> совпадает с <span class="token">XXX</span>
+       в конце строки.</p><p><span class="quote">«<span class="quote">^$</span>»</span> совпадает с пустой строкой.</p></li><li class="listitem"><a id="idp15629616" class="indexterm"/><a id="idp15630688" class="indexterm"/><p><a id="bracketsref"/></p><p>Квадратные скобки -- <span class="token">[...]</span> -- заключают в себе символьный класс - набор символов,
+        один из которых совпадает с символом в исходной строке.</p><p><span class="quote">«<span class="quote">[xyz]</span>»</span> совпадает с любым из символов
+        <em class="replaceable"><code>x</code></em>, <em class="replaceable"><code>y</code></em>,
+        или <em class="replaceable"><code>z</code></em>.</p><p><span class="quote">«<span class="quote">[c-n]</span>»</span> совпадает с любым одним символом
+        в диапазоне между <em class="replaceable"><code>c</code></em>
+        и <em class="replaceable"><code>n</code></em> включительно.</p><p><span class="quote">«<span class="quote">[B-Pk-y]</span>»</span> совпадает с любым одним символом
+        в диапазонах между <em class="replaceable"><code>B</code></em>
+        и <em class="replaceable"><code>P</code></em>, а также
+         <em class="replaceable"><code>k</code></em> и
+        <em class="replaceable"><code>y</code></em> включительно.</p><p><span class="quote">«<span class="quote">[a-z0-9]</span>»</span> совпадает с любой одиночной строчной
+        буквой латиницы или любой цифрой.</p><p><span class="quote">«<span class="quote">[^b-d]</span>»</span> совпадает с любым символом,
+        <span class="emphasis"><em>исключая</em></span> те, которые
+        входят в диапазон от <em class="replaceable"><code>b</code></em> до
+        <em class="replaceable"><code>d</code></em> включительно. Исключающий символ
+        <span class="token">^</span> отрицает или инвертирует значение
+        последующего регулярного выражения  (выступая в роли, сходной с
+        <span class="token">!</span> в другом контексте).</p><p>Комбинируя последовательности символов в квадратных скобках, можно подобрать  
+        распространенные шаблоны. <span class="quote">«<span class="quote">[Yy][Ee][Ss]</span>»</span> совпадает с
+        <em class="replaceable"><code>yes</code></em>, <em class="replaceable"><code>Yes</code></em>,
+        <em class="replaceable"><code>YES</code></em>, <em class="replaceable"><code>yEs</code></em>
+        и так далее.
+        <span class="quote">«<span class="quote">[0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]</span>»</span>
+        совпадает с номером социального страхования (Social Security number) (см. <a class="ulink" href="http://en.wikipedia.org/wiki/Social_Security_number">http://en.wikipedia.org/wiki/Social_Security_number</a> - прим. перев.).</p></li><li class="listitem"><a id="idp15649984" class="indexterm"/><a id="idp15651024" class="indexterm"/><p><a id="regexbs"/></p><p>Обратный слэш -- <span class="token">\</span> -- <a class="link" href="ch05s02.html#escp">экранирует</a> специальное значение символа, что, в свою очередь,
+              означает, что символ интерпретируется буквально (и,
+              следовательно, более не является <em class="firstterm">специальным</em>).</p><p><span class="quote">«<span class="quote">\$</span>»</span> трактуется как
+         буквальное значение <span class="quote">«<span class="quote">$</span>»</span>, а не
+         значение "конец строки" в регулярном выражении. Подобно этому, <span class="quote">«<span class="quote">\\</span>»</span>
+         имеет буквальное значение <span class="quote">«<span class="quote">\</span>»</span>.</p></li><li class="listitem"><a id="idp15658624" class="indexterm"/><a id="idp15659696" class="indexterm"/><p><a id="anglebrac"/></p><p><a class="link" href="ch05s02.html#escp">Экранированные</a> <span class="quote">«<span class="quote">угловые
+        скобки</span>»</span> -- <span class="token">\&lt;...\&gt;</span> -- обозначают границы
+        слова.</p><p>Угловые скобки необходимо экранировать, так как иначе
+        они будут интерпретироваться буквально.</p><p><span class="quote">«<span class="quote">\&lt;the\&gt;</span>»</span> совпадает со словом
+        <span class="quote">«<span class="quote">the</span>»</span>, но не со словами <span class="quote">«<span class="quote">them</span>»</span>,
+        <span class="quote">«<span class="quote">there</span>»</span>, <span class="quote">«<span class="quote">other</span>»</span> и т.д.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat textfile</code></strong>
+<code class="computeroutput">This is line 1, of which there is only one instance.
+ This is the only instance of line 2.
+ This is line 3, another line.
+ This is line 4.</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>grep 'the' textfile</code></strong>
+<code class="computeroutput">This is line 1, of which there is only one instance.
+ This is the only instance of line 2.
+ This is line 3, another line.</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>grep '\&lt;the\&gt;' textfile</code></strong>
+<code class="computeroutput">This is the only instance of line 2.</code>
+        </pre><p>
+      </p></li></ul></div><p>Единственный способ убедиться (для пущей уверенности), что отдельное регулярное выражение "работает" - это
+      протестировать его.</p><pre class="programlisting">TEST FILE: tstfile                          # Нет совпадений.
+                                            # Нет совпадений.
+Run   grep "1133*"  on this file.           # Совпадает.
+                                            # Нет совпадений.
+                                            # Нет совпадений.
+This line contains the number 113.          # Совпадает.
+This line contains the number 13.           # Нет совпадений.
+This line contains the number 133.          # Нет совпадений.
+This line contains the number 1133.         # Совпадает.
+This line contains the number 113312.       # Совпадает.
+This line contains the number 1112.         # Нет совпадений.
+This line contains the number 113312312.    # Совпадает.
+This line contains no numbers at all.       # Нет совпадений.</pre><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep "1133*" tstfile</code></strong>
+<code class="computeroutput">Run   grep "1133*"  on this file.           # Совпадает.
+ This line contains the number 113.          # Совпадает.
+ This line contains the number 1133.         # Совпадает.
+ This line contains the number 113312.       # Совпадает.
+ This line contains the number 113312312.    # Совпадает.</code>
+        </pre><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p title="Расширенные регулярные выражения"><b><a id="extregex"/>Расширенные регулярные выражения. </b>Дополнительные метасимволы добавлены в базовый набор метасимволов. Используются
+    в <a class="link" href="ch15s04.html#egrepref">egrep</a>,
+    <a class="link" href="apcs02.html#awkref">awk</a>, и <a class="link" href="ch33s03.html#perlref">Perl</a>.</p></li><li class="listitem"><a id="idp15686480" class="indexterm"/><a id="idp15687520" class="indexterm"/><p><a id="quexregex"/></p><p>Знак вопроса -- <span class="token">?</span> -- совпадает с нулевым или
+        одним вхождением предыдущего регулярного выражения. Он используется, как правило, для поиска совпадений
+        одиночного символа.</p></li><li class="listitem"><a id="idp15691504" class="indexterm"/><a id="idp15692512" class="indexterm"/><p><a id="plusref"/></p><p>Плюс -- <span class="token">+</span> -- совпадает с одним или более
+      предыдущих регулярных выражений. Он выступает в роли, подобной роли символа <span class="token">*</span>, но
+      <span class="emphasis"><em>не</em></span> совпадает с нулевым количеством вхождений.</p><pre class="programlisting"># GNU-версия sed и awk может использовать "+",
+# но его нужно экранировать.
+
+echo a111b | sed -ne '/a1\+b/p'
+echo a111b | grep 'a1\+b'
+echo a111b | gawk '/a1+b/'
+# Все вышеперечисленные строки эквивалентны.
+
+# Спасибо S.C.</pre><p><a id="escpcb"/></p></li><li class="listitem"><a id="idp15699456" class="indexterm"/><a id="idp15700496" class="indexterm"/><p><a class="link" href="ch05s02.html#escp">Экранированные</a> <span class="quote">«<span class="quote">фигурные
+        скобки</span>»</span> -- <span class="token">\{ \}</span> -- указывают количество
+        вхождений предшествующего регулярного выражения для совпадения.</p><p>Необходимо экранировать фигурные скобки, так как
+        иначе они будут интерпретированы буквально. Это использование формально не является частью базового набора
+        регулярных выражений.</p><p><span class="quote">«<span class="quote">[0-9]\{5\}</span>»</span> - совпадает в точности с пятью цифрами
+        (символы в последовательности от 0 до 9).</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Фигурные скобки не доступны в регулярных выражениях в
+        <span class="quote">«<span class="quote">классической</span>»</span> (несовместимой с POSIX) версии
+        <a class="link" href="apcs02.html#awkref">awk</a>.
+        <a id="gnugawk"/>Тем не менее, расширенная GNU-версия
+        <em class="firstterm">awk</em>, <span class="command"><strong>gawk</strong></span>,
+        имеет опцию<code class="option">--re-interval</code>, которая разрешает
+        их использование (без экранирования).</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo 2222 | gawk --re-interval '/2{3}/'</code></strong>
+<code class="computeroutput">2222</code>
+        </pre><p>
+      </p><p><span class="command"><strong>Perl</strong></span> и некоторые версии 
+        <span class="command"><strong>egrep</strong></span> не требуют экранирования
+        фигурных скобок.</p></div></li><li class="listitem"><a id="idp15716352" class="indexterm"/><a id="idp15717392" class="indexterm"/><p><a id="parengrps"/></p><p>Круглые скобки -- <span class="command"><strong>( )</strong></span> -- заключают в себе группу
+        регулярных выражений. Они полезны с последующим упомянутым оператором
+        <span class="quote">«<span class="quote"><span class="token">|</span></span>»</span> и в операции <a class="link" href="ch09s02.html#exprparen">извлечения подстроки</a>, использующей <a class="link" href="ch15s02.html#exprref">expr</a>.</p></li><li class="listitem"><a id="idp15723760" class="indexterm"/><a id="idp15724800" class="indexterm"/><p><span class="command"><strong>|</strong></span> -- оператор <span class="quote">«<span class="quote">или</span>»</span> для регулярных выражений,
+        результат совпадает с любым из операндов этого оператора.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>egrep 're(a|e)d' misc.txt</code></strong>
+<code class="computeroutput">People who read seem to be better informed than those who do not.
+ The clarinet produces sound by the vibration of its reed.</code>
+        </pre><p>
+        </p></li></ul></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Некоторые версии <span class="command"><strong>sed</strong></span>,
+        <span class="command"><strong>ed</strong></span> и  <span class="command"><strong>ex</strong></span> поддерживают
+        экранированные версии расширенных регулярных выражений,
+        описанных выше, так же, как это делают утилиты GNU.</p></div><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p title="Символьные классы POSIX"><b><a id="posixref"/>Символьные классы POSIX. </b><strong class="userinput"><code>[:class:]</code></strong></p><a id="idp15736896" class="indexterm"/><a id="idp15737984" class="indexterm"/><p>Это альтернативный метод определения совпадений последовательностей символов.</p></li><li class="listitem"><a id="idp15740416" class="indexterm"/><a id="idp15741488" class="indexterm"/><p><strong class="userinput"><code>[:alnum:]</code></strong> совпадает с алфавитными (в латинице - прим. пер.) или
+       цифровыми символами. Это эквивалент регулярного выражения
+        <strong class="userinput"><code>A-Za-z0-9</code></strong>.</p></li><li class="listitem"><a id="idp15745440" class="indexterm"/><a id="idp15746512" class="indexterm"/><p><strong class="userinput"><code>[:alpha:]</code></strong> совпадает с алфавитными
+        символами. Это эквивалент регулярного выражения
+        <strong class="userinput"><code>A-Za-z</code></strong>.</p></li><li class="listitem"><a id="idp15750336" class="indexterm"/><a id="idp15751408" class="indexterm"/><p><strong class="userinput"><code>[:blank:]</code></strong> совпадает с пробелом или с
+        символом табуляции.</p></li><li class="listitem"><a id="idp15754432" class="indexterm"/><a id="idp15755504" class="indexterm"/><p><strong class="userinput"><code>[:cntrl:]</code></strong> совпадает с управляющими символами.</p></li><li class="listitem"><a id="idp15758464" class="indexterm"/><a id="idp15759536" class="indexterm"/><p><strong class="userinput"><code>[:digit:]</code></strong> совпадает с десятичными
+        цифрами. Этот класс эквивалентен
+        <strong class="userinput"><code>0-9</code></strong>.</p></li><li class="listitem"><a id="idp15763312" class="indexterm"/><a id="idp15764384" class="indexterm"/><p><strong class="userinput"><code>[:graph:]</code></strong> (печатные и псевдографические
+        символы). Совпадают с символами в диапазоне кодов ASCII 33 -
+        126. Это то же самое, что и <strong class="userinput"><code>[:print:]</code></strong>
+        ниже, но за исключением пробела.</p></li><li class="listitem"><a id="idp15768480" class="indexterm"/><a id="idp15769552" class="indexterm"/><p><strong class="userinput"><code>[:lower:]</code></strong> совпадает со строчными
+        алфавитными символами. Это эквивалент регулярного выражения
+        <strong class="userinput"><code>a-z</code></strong>.</p></li><li class="listitem"><a id="idp15773440" class="indexterm"/><a id="idp15774512" class="indexterm"/><p><strong class="userinput"><code>[:print:]</code></strong> (печатные
+        символы). Совпадает с символами в диапазоне кодов ASCII 32 -
+        126. Это то же самое, что и <strong class="userinput"><code>[:graph:]</code></strong>
+        выше, но с добавлением пробела.</p></li><li class="listitem"><a id="idp15778544" class="indexterm"/><a id="idp15779616" class="indexterm"/><p><a id="wsposix"/><strong class="userinput"><code>[:space:]</code></strong>
+        совпадает с пробельными символами (пробел и горизонтальная
+        табуляция).</p></li><li class="listitem"><a id="idp15783168" class="indexterm"/><a id="idp15784240" class="indexterm"/><p><strong class="userinput"><code>[:upper:]</code></strong> совпадает с прописными
+        алфавитными символами. Класс эквивалентен регулярному выражению
+        <strong class="userinput"><code>A-Z</code></strong>.</p></li><li class="listitem"><a id="idp15788144" class="indexterm"/><a id="idp15789216" class="indexterm"/><p><strong class="userinput"><code>[:xdigit:]</code></strong> совпадает с шестнадцатеричными
+        цифрами. Это эквивалент регулярному выражению
+        <strong class="userinput"><code>0-9A-Fa-f</code></strong>.</p><div class="important" title="Важно" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Важно</h3><p>Символьные классы POSIX требуют 
+        <a class="link" href="ch07.html#dblbrackets">двойных квадратных скобок.</a>
+        ([[ ]]).</p></div><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep [[:digit:]] test.file</code></strong>
+<code class="computeroutput">abc=723</code>
+        </pre><p>
+      </p><pre class="programlisting"># ...
+if [[ $arow =~ [[:digit:]] ]]   #  Вводится число?
+then       #  симв. класс POSIX
+  if [[ $acol =~ [[:alpha:]] ]] # Число, следующее за буквой? Недопустимо!
+# ...
+# Из примера-сценария ktour.sh.</pre><p>
+      </p><p>Эти символьные классы могут быть использованы даже в сочетании с <a class="link" href="ch17s02.html" title="Глоббинг">глоббингом</a> для ограничения пределов
+        конкретно взятого класса.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ls -l ?[[:digit:]][[:digit:]]?</code></strong>
+<code class="computeroutput">-rw-rw-r--    1 bozo  bozo         0 Aug 21 14:47 a33b</code>
+        </pre><p>
+      </p><p>Символьные классы POSIX используются в 
+        <a class="xref" href="ch15s04.html#ex49" title="Пример 15.21. toupper: Transforms a file to all uppercase.">Пример 15.21, «<em class="firstterm">toupper</em>: Transforms a file
+        to all uppercase.»</a> и <a class="xref" href="ch15s04.html#lowercase" title="Пример 15.22. lowercase: Changes all filenames in working directory to lowercase.">Пример 15.22, «<em class="firstterm">lowercase</em>: Changes all
+        filenames in working directory to lowercase.»</a>.</p></li></ul></div><p><a class="link" href="apc.html#sedref">Sed</a>, <a class="link" href="apcs02.html#awkref">awk</a>, и <a class="link" href="ch33s03.html#perlref">Perl</a>, используемые в качестве фильтров в сценариях, пользуются
+    регулярными выражениями как аргументами, когда "просеивают" или трансформируют файлы или потоки ввода-вывода.
+    См. <a class="xref" href="apa.html#behead" title="Пример A.12. behead: Removing mail and news message headers">Пример A.12, «<em class="firstterm">behead</em>: Removing mail and news
+      message headers»</a> и <a class="xref" href="apa.html#tree" title="Пример A.16. tree: Displaying a directory tree">Пример A.16, «<em class="firstterm">tree</em>: Displaying a directory tree»</a>
+    для наглядной иллюстрации.</p><p>Стандартная информация по этой обширной теме - это книга Дж. Фридла
+    <em class="citetitle">"Регулярные
+    выражения"</em>. <em class="citetitle">"Sed &amp;
+    Awk"</em> Доггерти и Роббинса (Dougherty and Robbins) также дает очень
+    ясную трактовку регулярных выражений. См. <a class="xref" href="bi01.html" title="Литература">Литература</a> для
+    подробной информации об этих книгах.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp15494864" href="#idp15494864" class="para">88</a>] </sup><a id="metameaningref"/>
+      <em class="firstterm">метазначение</em> - это значение
+      термина или выражения на более высоком уровне абстракции.
+      Например, <em class="firstterm">литеральное</em> значение
+       <em class="firstterm">регулярного выражения</em> -
+      обыкновенное выражение, которое соответствует общепринятому употреблению. 
+      <em class="firstterm">Метазначение</em> резко отличается от литерального значения,
+      что и обсуждается подробно в этой главе.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp15608704" href="#idp15608704" class="para">89</a>] </sup>Так как <a class="link" href="apc.html#sedref">sed</a>, <a class="link" href="apcs02.html#awkref">awk</a>, and <a class="link" href="ch15s04.html#grepref">grep</a> обрабатывают отдельные строки, символ 
+      новой строки обычно не включается в совпадение. В тех случаях, где
+      есть символ новой строки в выражении, состоящем из нескольких строк, точка
+      будет совпадать с символом новой строки.
+              <pre class="programlisting">#!/bin/bash
+
+sed -e 'N;s/.*/[&amp;]/' &lt;&lt; EOF   # Встроенный документ
+line1
+line2
+EOF
+# OUTPUT:
+# [line1
+# line2]
+
+
+
+echo
+
+awk '{ $0=$1 "\n" $2; if (/line.1/) {print}}' &lt;&lt; EOF
+line 1
+line 2
+EOF
+# OUTPUT:
+# line
+# 1
+
+exit 0
+
+# Спасибо S.C.
+
+</pre></p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="pt05.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch17s02.html">След.</a></td></tr><tr><td align="left" valign="top">Часть Part 5. Материал повышенной сложности </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глоббинг</td></tr></table></div></body></html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Управление ходом выполнения цикла</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch10.html" title="Глава 10. Циклы и ветвления"/><link rel="prev" href="ch10s02.html" title="Вложенные циклы"/><link rel="next" href="ch10s04.html" title="Проверки и ветвления"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Управление ходом выполнения цикла</th></tr><tr><td align="left"><a accesskey="p" href="ch10s02.html">Пред.</a> </td><th width="60%" align="center">Глава 10. Циклы и ветвления</th><td align="right"> <a accesskey="n" href="ch10s04.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Управление ходом выполнения цикла"><div class="titlepage"><div><div><h2 class="title"><a id="loopcontrol"/>Управление ходом выполнения цикла</h2></div></div></div><div class="epigraph"><p>Гони, гони деревянных коней.</p><p>Хоть сто, хоть тысячу раз - порезвей . . .</p><p>--Верлен, <span class="quote">«<span class="quote">Деревянные кони</span>»</span></p></div><div class="variablelist" title="Команды, управляющие ходом выполнения цикла"><a id="brkcont"/><p class="title"><b><a id="brkcont1"/>Команды, управляющие ходом выполнения цикла</b></p><dl><dt><span class="term"><span class="command"><strong>break</strong></span>, </span><span class="term"><span class="command"><strong>continue</strong></span></span></dt><dd><p>Команды <span class="command"><strong>break</strong></span> и <span class="command"><strong>continue</strong></span>
+    <sup>[<a id="idp10292608" href="#ftn.idp10292608" class="footnote">47</a>]</sup>
+        точно соответствуют своим аналогам в других языках программирования.
+     Команда <span class="command"><strong>break</strong></span>
+        прерывает выполнение цикла, в то время как <span class="command"><strong>continue</strong></span> переходит
+        к следующей <a class="link" href="ch10.html#iterationref">итерации</a>
+        цикла, пропуская все оставшиеся команды в теле цикла.</p><div class="example"><a id="ex28"/><p class="title"><b>Пример 10.20. Результат работы <em class="firstterm">break</em> и
+    <span class="command">continue</span> в цикле</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+LIMIT=19  # Верхний предел
+
+echo
+echo "Печать чисел 1 до 20 (исключая 3 и 11)."
+
+a=0
+
+while [ $a -le "$LIMIT" ]
+do
+ a=$(($a+1))
+
+ if [ "$a" -eq 3 ] || [ "$a" -eq 11 ]  # Исключить 3 и 11
+ then
+   continue      # Пропустить оставшиеся команды и перейти в начало цикла.
+ fi
+
+ echo -n "$a "   # Эта строка не выполнится для 3 и 11.
+done 
+
+# Упражнение:
+# Почему число 20 тоже выводится?
+
+echo; echo
+
+echo Печать чисел от 1 до 20, но взгляните, что происходит после вывода числа 2.
+
+##################################################################
+
+# Тот же цикл, только 'continue' заменено на 'break'.
+
+a=0
+
+while [ "$a" -le "$LIMIT" ]
+do
+ a=$(($a+1))
+
+ if [ "$a" -gt 2 ]
+ then
+   break  # Завершение работы цикла.
+ fi
+
+ echo -n "$a "
+done
+
+echo; echo; echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="breakparam"/></p><p>Команде <span class="command"><strong>break</strong></span> может передаваться необязательный параметр. Команда <span class="command"><strong>break</strong></span> без параметра завершает
+        только тот внутренний цикл, в теле которого она находится,
+        а команда <span class="command"><strong>break N</strong></span> прерывает цикл, стоящий на
+        <em class="parameter"><code>N</code></em> уровней выше. (прим. перев: 1-й уровень -- это уровень текущего цикла.).</p><div class="example"><a id="breaklevels"/><p class="title"><b>Пример 10.21. Прерывание многоуровневых циклов</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# break-levels.sh: Прерывание циклов.
+
+# "break N" прерывает исполнение цикла, стоящего на N уровней выше текущего.
+
+for outerloop in 1 2 3 4 5
+do
+  echo -n "Группа $outerloop:   "
+
+  # --------------------------------------------------------
+  for innerloop in 1 2 3 4 5
+  do
+    echo -n "$innerloop "
+
+    if [ "$innerloop" -eq 3 ]
+    then
+      break  # Попробуйте  break 2, чтобы увидеть,
+             # что тогда будут прерываться как внутренний, так и внешний циклы.)
+    fi
+  done
+  # --------------------------------------------------------
+
+  echo
+done  
+
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p>Команда <span class="command"><strong>continue</strong></span>, как и команда
+        <span class="command"><strong>break</strong></span>, может также иметь необязательный параметр. В
+        самом простом случае <span class="command"><strong>continue</strong></span> прерывает текущую итерацию и передает управление в начало текущего цикла.
+        Команда <span class="command"><strong>continue N</strong></span> прерывает все оставшиеся итерации на текущем уровне цикла и продолжает со следующей итерации цикла, находящегося <code class="option">N</code> уровнями
+        выше.</p><div class="example"><a id="continuelevels"/><p class="title"><b>Пример 10.22. Передача управления с помощью continue в начало внешнего цикла</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Команда "continue N", передающая управление в начало внешнего цикла, отстоящего от текущего на N уровней .
+
+for outer in I II III IV V           # внешний цикл
+do
+  echo; echo -n "Группа $outer: "
+
+  # --------------------------------------------------------------------
+  for inner in 1 2 3 4 5 6 7 8 9 10  # внутренний цикл
+  do
+
+    if [[ "$inner" -eq 7 &amp;&amp; "$outer" = "III" ]]
+    then
+      continue 2  # Передача управления в цикл второго уровня, который в данном примере является "внешним циклом".
+                  # Замените строку выше командой "continue",
+                  # чтобы увидеть нормальное поведение цикла.
+    fi  
+
+    echo -n "$inner "  # 7 8 9 10 не будут выведены для "Группы III."
+  done  
+  # --------------------------------------------------------------------
+
+done
+
+echo; echo
+
+# Упражнение:
+# Предложите пример содержательного использвания для команды "continue N" в скрипте.
+
+exit 0
+</pre></div></div><br class="example-break"/><div class="example"><a id="continuenex"/><p class="title"><b>Пример 10.23. Реальный пример использования команды <em class="firstterm">continue N</em></b></p><div class="example-contents"><pre class="programlisting">
+# Альберт Рейнер (Albert Reiner) привел пример использования "continue N":
+# ---------------------------------------------------------
+
+#  Допустим, у меня есть большое количество задач, обрабатывающих некоторые данные,
+#+ которые хранятся в файлах с именами, задаваемыми по шаблону,
+#+ в заданном каталоге.
+
+#+ Есть несколько машин, которым открыт доступ к этому каталогу
+#+ и я хочу распределить обработку информации между машинами.
+#+ Тогда я для каждой машины обычно пишу нечто подобное:
+
+while true
+do
+  for n in .iso.*
+    do
+        [ "$n" = ".iso.opts" ] &amp;&amp; continue
+        beta=${n#.iso.} #удаление подстроки ".iso" (см. гл. 9.2) - прим. перев.)
+        [ -r .Iso.$beta ] &amp;&amp; continue
+        [ -r .lock.$beta ] &amp;&amp; sleep 10 &amp;&amp; continue
+        lockfile -r0 .lock.$beta || continue
+        echo -n "$beta: " `date`
+        run-isotherm $beta
+        date
+        ls -alF .Iso.$beta
+        [ -r .Iso.$beta ] &amp;&amp; rm -f .lock.$beta
+        continue 2
+    done
+    break
+done
+
+# Тонкости использования, в особенности sleep N, индивидуальны для каждого конкретного моего приложения, но основной шаблон выглядит так:
+
+while true
+do
+ for job in {pattern}
+ do
+  {задача, уже выполненная или выполняемая} &amp;&amp; continue
+  {отметить задачу как запущенную, выполнить задачу, отметить задачу как выполненную}
+  continue 2
+ done
+ break        # Или что-то наподобие `sleep 600', если нужно избежать завершения цикла.
+done
+
+#  Этот сценарий завершит работу после того как все данные будут обработаны
+#+ (включая данные, которые поступили во время обработки). Использование
+#+ соответствующих lock-файлов позволяет выполнять обработку на нескольких машинах
+#+ одновременно, не производя дублирующих вычислений [которые, в моем случае,
+#+ выполняются в течении нескольких часов, так что я реально хочу избежать этого].
+#+ Кроме того, поскольку поиск необработанных файлов всегда начинается с
+#+ самого начала, можно задавать приоритеты в именах файлов. Конечно, мы могли бы
+#+ обойтись и без `continue 2', но тогда придется ввести дополнительную
+#+ проверку -- действительно ли была выполнена или нет та или иная задача,
+#+ так, чтобы мы немедленно перейти к поиску следующего необработанного файла.
+# (В этом случае мы завершим или приостановим текущую задачу на долгое время для того, чтобы чтобы перейти к поиску следующего необработанного файла).
+
+</pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Конструкция <span class="command"><strong>continue N</strong></span> сложна для понимания и применения в любом значимом контексте. Вероятно, ее лучше избегать.</p></div></dd></dl></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp10292608" href="#idp10292608" class="para">47</a>] </sup>Эти команды являются <a class="link" href="ch14.html#builtinref">встроенными</a>,
+    тогда как другие, например <a class="link" href="ch10.html#whileloopref">while</a> и <a class="link" href="ch10s04.html#caseesac1">case</a>, являются <a class="link" href="ch14.html#keywordref">ключевыми словами</a>.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch10s02.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch10.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch10s04.html">След.</a></td></tr><tr><td align="left" valign="top">Вложенные циклы </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Проверки и ветвления</td></tr></table></div></body></html>

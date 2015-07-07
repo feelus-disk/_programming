@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 22. Process Substitution</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch21.html" title="Глава 21. Restricted Shells"/><link rel="next" href="ch23.html" title="Глава 23. Функции"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 22. Process Substitution</th></tr><tr><td align="left"><a accesskey="p" href="ch21.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch23.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 22. Process Substitution"><div class="titlepage"><div><div><h2 class="title"><a id="process-sub"/>Глава 22. Process Substitution</h2></div></div></div><p><a id="processsubref"/><a class="link" href="ch03.html#piperef">Piping</a> the <code class="filename">stdout</code>
+  of a command into the <code class="filename">stdin</code> of another
+  is a powerful technique.  But, what if you need to pipe the
+  <code class="filename">stdout</code> of <span class="emphasis"><em>multiple</em></span>
+  commands? This is where <em class="replaceable"><code>process
+  substitution</code></em> comes in.</p><p><em class="firstterm">Process substitution</em> feeds the
+        output of a <a class="link" href="ch03.html#processref">process</a> (or
+        processes) into the <code class="filename">stdin</code> of another
+        process.</p><div class="variablelist" title="Template"><a id="commandsparens"/><p class="title"><b><a id="commandsparens1"/>Template</b></p><dl><dt><span class="term">Command list enclosed within parentheses</span></dt><dd><p><span class="command"><strong>&gt;(command_list)</strong></span></p><p><span class="command"><strong>&lt;(command_list)</strong></span></p><p>Process substitution uses
+      <code class="filename">/dev/fd/&lt;n&gt;</code> files to send the
+      results of the process(es) within parentheses to another process.
+        <sup>[<a id="idp16488256" href="#ftn.idp16488256" class="footnote">97</a>]</sup>
+    </p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>There is <span class="emphasis"><em>no</em></span> space between the
+            the <span class="quote">«<span class="quote">&amp;lt;</span>»</span> or <span class="quote">«<span class="quote">&gt;</span>»</span> and the parentheses.
+            Space there would give an error message.</p></div></dd></dl></div><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo &gt;(true)</code></strong>
+<code class="computeroutput">/dev/fd/63</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo &lt;(true)</code></strong>
+<code class="computeroutput">/dev/fd/63</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo &gt;(true) &lt;(true)</code></strong>
+<code class="computeroutput">/dev/fd/63 /dev/fd/62</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>wc &lt;(cat /usr/share/dict/linux.words)</code></strong>
+<code class="computeroutput"> 483523  483523 4992010 /dev/fd/63</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>grep script /usr/share/dict/linux.words | wc</code></strong>
+<code class="computeroutput">    262     262    3601</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>wc &lt;(grep script /usr/share/dict/linux.words)</code></strong>
+<code class="computeroutput">    262     262    3601 /dev/fd/63</code>
+        </pre><p>
+              </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>
+    Bash creates a pipe with two <a class="link" href="ch19.html#fdref">file
+    descriptors</a>, <code class="filename">--fIn</code> and
+    <code class="filename">fOut--</code>.  The <code class="filename">stdin</code>
+    of <a class="link" href="ch14.html#trueref">true</a> connects
+    to <code class="filename">fOut</code> (dup2(fOut, 0)),
+    then Bash passes a <code class="filename">/dev/fd/fIn</code>
+    argument to <span class="command"><strong>echo</strong></span>. On systems lacking
+    <code class="filename">/dev/fd/&lt;n&gt;</code> files, Bash may use
+    temporary files. (Thanks, S.C.)
+          </p></div><p>Process substitution can compare the output of two
+         different commands, or even the output of different options
+         to the same command.</p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>comm &lt;(ls -l) &lt;(ls -al)</code></strong>
+<code class="computeroutput">total 12
+-rw-rw-r--    1 bozo bozo       78 Mar 10 12:58 File0
+-rw-rw-r--    1 bozo bozo       42 Mar 10 12:58 File2
+-rw-rw-r--    1 bozo bozo      103 Mar 10 12:58 t2.sh
+        total 20
+        drwxrwxrwx    2 bozo bozo     4096 Mar 10 18:10 .
+        drwx------   72 bozo bozo     4096 Mar 10 17:58 ..
+        -rw-rw-r--    1 bozo bozo       78 Mar 10 12:58 File0
+        -rw-rw-r--    1 bozo bozo       42 Mar 10 12:58 File2
+        -rw-rw-r--    1 bozo bozo      103 Mar 10 12:58 t2.sh</code></pre><p><a id="pcc2dir"/></p><p>
+          Process substitution can compare the contents
+    of two directories -- to see which filenames are in one,
+    but not the other.</p><p>
+    </p><pre class="programlisting">diff &lt;(ls $first_directory) &lt;(ls $second_directory)</pre><p>
+              </p><p>Some other usages and uses of process substitution:</p><p><a id="psfdstdin"/></p><pre class="programlisting">read -a list &lt; &lt;( od -Ad -w24 -t u2 /dev/urandom )
+#  Read a list of random numbers from /dev/urandom,
+#+ process with "od"
+#+ and feed into stdin of "read" . . .
+
+#  From "insertion-sort.bash" example script.
+#  Courtesy of JuanJo Ciarlante.</pre><pre class="programlisting">cat &lt;(ls -l)
+# Same as     ls -l | cat
+
+sort -k 9 &lt;(ls -l /bin) &lt;(ls -l /usr/bin) &lt;(ls -l /usr/X11R6/bin)
+# Lists all the files in the 3 main 'bin' directories, and sorts by filename.
+# Note that three (count 'em) distinct commands are fed to 'sort'.
+
+ 
+diff &lt;(command1) &lt;(command2)    # Gives difference in command output.
+
+tar cf &gt;(bzip2 -c &gt; file.tar.bz2) $directory_name
+# Calls "tar cf /dev/fd/?? $directory_name", and "bzip2 -c &gt; file.tar.bz2".
+#
+# Because of the /dev/fd/&lt;n&gt; system feature,
+# the pipe between both commands does not need to be named.
+#
+# This can be emulated.
+#
+bzip2 -c &lt; pipe &gt; file.tar.bz2&amp;
+tar cf pipe $directory_name
+rm pipe
+#        or
+exec 3&gt;&amp;1
+tar cf /dev/fd/4 $directory_name 4&gt;&amp;1 &gt;&amp;3 3&gt;&amp;- | bzip2 -c &gt; file.tar.bz2 3&gt;&amp;-
+exec 3&gt;&amp;-
+
+
+# Thanks, Stéphane Chazelas</pre><p><a id="goodread0"/>Here is a method of circumventing the
+       problem of an <a class="link" href="ch31.html#badread0"><em class="firstterm">echo</em>
+       piped to a <em class="firstterm">while-read loop</em></a> running
+       in a subshell.</p><div class="example"><a id="wrps"/><p class="title"><b>Пример 22.1. Code block redirection without forking</b></p><div class="example-contents"><pre class="programlisting">&amp;wrps;</pre></div></div><br class="example-break"/><p>A reader sent in the following interesting example of process
+        substitution.</p><pre class="programlisting"># Script fragment taken from SuSE distribution:
+
+# --------------------------------------------------------------#
+while read  des what mask iface; do
+# Some commands ...
+done &lt; &lt;(route -n)  
+#    ^ ^  First &lt; is redirection, second is process substitution.
+
+# To test it, let's make it do something.
+while read  des what mask iface; do
+  echo $des $what $mask $iface
+done &lt; &lt;(route -n)  
+
+# Output:
+# Kernel IP routing table
+# Destination Gateway Genmask Flags Metric Ref Use Iface
+# 127.0.0.0 0.0.0.0 255.0.0.0 U 0 0 0 lo
+# --------------------------------------------------------------#
+
+#  As Stéphane Chazelas points out,
+#+ an easier-to-understand equivalent is:
+route -n |
+  while read des what mask iface; do   # Variables set from output of pipe.
+    echo $des $what $mask $iface
+  done  #  This yields the same output as above.
+        #  However, as Ulrich Gayer points out . . .
+        #+ this simplified equivalent uses a subshell for the while loop,
+        #+ and therefore the variables disappear when the pipe terminates.
+  
+# --------------------------------------------------------------#
+  
+#  However, Filip Moritz comments that there is a subtle difference
+#+ between the above two examples, as the following shows.
+
+(
+route -n | while read x; do ((y++)); done
+echo $y # $y is still unset
+
+while read x; do ((y++)); done &lt; &lt;(route -n)
+echo $y # $y has the number of lines of output of route -n
+)
+
+More generally spoken
+(
+: | x=x
+# seems to start a subshell like
+: | ( x=x )
+# while
+x=x &lt; &lt;(:)
+# does not
+)
+
+# This is useful, when parsing csv and the like.
+# That is, in effect, what the original SuSE code fragment does.</pre><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp16488256" href="#idp16488256" class="para">97</a>] </sup>This has the same effect as a
+    <a class="link" href="ch15s09.html#namedpiperef">named pipe</a> (temp
+    file), and, in fact, named pipes were at one time used
+    in process substitution.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch21.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch23.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 21. Restricted Shells </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 23. Функции</td></tr></table></div></body></html>

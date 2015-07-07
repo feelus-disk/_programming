@@ -1,0 +1,292 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>units Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>units</h1> 
+<p>Convert units from one scale to another. The units are defined 
+  in an external data file. You can use the extensive data file that comes with 
+  this program, or you can provide your own data file to suit your needs. You 
+  can use the program interactively with prompts, or you can use it from the command 
+line.</p>
+<pre>Syntax
+      units <i>options</i> [<i>FROM-UNIT</i> [<i>TO-UNIT</i>]]
+
+Options
+
+ -c
+ --check
+     Check that all units and prefixes defined in the units file reduce
+     to primitive units.  The program will print a list of all units
+     that cannot be reduced.
+
+ --check-verbose
+     Like the `-check' option, this option prints a list of units that
+     cannot be reduced.  But to help find unit  definitions that cause
+     endless loops, it lists the units as they are checked.  If `units'
+     hangs, then the last unit to be printed has a bad definition.
+
+ -o <i>format</i>
+ --output-format format
+     Use the specified format for numeric output.  Format is the same
+     as that for the printf function in the ANSI C standard.  For
+     example, if you want more precision you might use `-o %.15g'.
+
+ -f <i>filename</i>
+ --file <i>filename</i>
+     Use filename as the units data file rather than the default units
+     data file `units.dat'.
+
+ -h
+ --help
+     Print out a summary of the options for `units'.
+
+ -q
+ --quiet
+ --silent
+     Suppress prompting of the user for units and the display of
+     statistics about the number of units loaded.
+
+ -s
+ --strict
+     Suppress conversion of units to their reciprocal units.
+
+ -v
+ --verbose
+     Give slightly more verbose output when converting units.  When
+     combined with the `-c' option this gives the same effect as
+     `--check-verbose'.
+
+ -V
+ --version
+     Print program version number, tell whether the readline library
+     has been included, and give the location of the default units data
+     file.</pre>
+<p>To invoke units for interactive use, type `units' at your shell 
+  prompt. The program will print something like this: <br>
+  <span class="code"><br>
+  1161 units, 53 prefixes <br>
+  You have: </span><br>
+  <br>
+  At the `You have:' prompt, type the quantity and units that you are converting 
+  *from*. For example, if you want to convert ten meters to feet, type `10 meters'. 
+  Next, `units' will print `You want:'. You should type the type of units you 
+  want to convert *to*. To convert to feet, you would type `feet'. <br>
+  <br>
+  The answer will be displayed in two ways. The first line of output, which is 
+  marked with a `*' to indicate multiplication, gives the result of the conversion 
+  you have asked for. The second line of output, which is marked with a `/' to 
+  indicate division, gives the inverse of the conversion factor. If you convert 
+  10 meters to feet, `units' will print <br>
+  <br>
+  <span class="code">* 32.808399 <br>
+  / 0.03048 </span><br>
+  <br>
+  which tells you that 10 meters equals about 32.8 feet. The second number gives 
+  the conversion in the reverse direction.<br>
+  <br>
+  The `units' program can perform units conversions non-interactively from the 
+  command line. To do this, type the command, type the original units expression, 
+  and type the new units you want. You will probably need to protect the units 
+  expressions from interpretation by the shell using single quote characters.<br>
+  If you type <br>
+  <br>
+  <span class="code">units '2 liters' 'quarts' </span><br>
+  <br>
+  then `units' will print <br>
+  <br>
+  * 2.1133764 <br>
+  / 0.47317647 <br>
+  <br>
+  and then exit. The output tells you that 2 liters is about 2.1 quarts, or alternatively 
+  that a quart is about 0.47 times 2 liters.</p>
+<p><b>Unit expressions</b><br>
+<br>   
+In order to enter more complicated units or fractions, you will need
+to use operations such as powers, products and division.  Powers of
+units can be specified using the `^' character as shown in the
+following example, or by simple concatenation: `cm3' is equivalent to
+`cm^3'.  If the exponent is more than one digit, the `^' is required.<br>
+</p>
+<pre>
+         You have: cm^3
+         You want: gallons
+                 * 0.00026417205
+                 / 3785.4118
+     
+         You have: arabicfoot-arabictradepound-force
+         You want: ft lbf
+                 * 0.7296
+                 / 1.370614
+
+   Multiplication of units can be specified by using spaces, a hyphen
+(`-') or an asterisk (`*').  Division of units is indicated by the
+slash (`/').
+
+         You have: furlongs/fortnight
+         You want: m/s
+                 * 0.00016630986
+                 / 6012.8727
+</pre>
+<p>Multiplication has a higher precedence than division and is evaluated
+left to right, so `m/s * s/day' is equivalent to `m / s s day' and has
+dimensions of length per time cubed.  In effect, the first `/'
+character marks the beginning of the denominator of your unit.  In
+particular, this means that writing `1/2 meter' refers to a unit of
+reciprocal length equivalent to .5/meter, which is probably not what
+you would intend if you entered that expression.  To indicate division
+of numbers, use the vertical dash (`|').  No spaces area permitted on
+either side of the vertical dash character.</p>
+<pre>
+         You have: 1|2 inch
+         You want: cm
+                 * 1.27
+                 / 0.78740157</pre>
+<p>Prefixes are defined separately from base units.  In order to get
+centimeters, the units database defines `centi-' and `c-' as prefixes.<br>
+Prefixes can appear alone with no unit following them.  An exponent
+applies only to the immediately preceding unit and its prefix so that
+`cm^3' or `centimeter^3' refer to cubic centimeters but `centi-meter^3'
+refers to hundredths of cubic meters.  Only one prefix is permitted per
+unit, so `micromicrofarad' will fail, but `micro-microfarad' will work.<br>
+<br>   
+For `units', numbers are just another kind of unit.  They can appear
+as many times as you like and in any order in a unit expression.  For
+example, to find the volume of a box which is 2 ft by 3 ft by 12 ft in
+steres, you could do the following:</p>
+<pre>         You have: 2 ft 3 ft 12 ft
+         You want: stere
+                 * 2.038813
+                 / 0.49048148
+     
+         You have: $ 5 / yard
+         You want: cents / inch
+                 * 13.888889
+                 / 0.072</pre>
+<p>And the second example shows how the dollar sign in the units conversion
+can precede the five.  Be careful:  `units' will interpret `$5' with no
+space as equivalent to dollars^5.<br>
+<br>
+Outside of the SI system, it is often desirable to add values of
+different units together.  Sums of conformable units are written with
+the `+' character.</p>
+<pre>         You have: 2 hours + 23 minutes + 32 seconds
+         You want: seconds
+                 * 8612
+                 / 0.00011611705
+     
+         You have: 12 ft + 3 in
+         You want: cm
+                 * 373.38
+                 / 0.0026782366
+     
+         You have: 2 btu + 450 ft-lbf
+         You want: btu
+                 * 2.5782804
+                 / 0.38785542</pre>
+<p>
+The expressions which are added together must reduce to identical
+expressions in primitive units, or an error message will be displayed:</p>
+<pre>         You have: 12 printerspoint + 4 heredium
+         Illegal sum of non-conformable units:
+                 12 printerspoint reduces to 0.0042175176 m
+                 4 heredium reduces to 20145.828 m^2</pre>
+<p>Because `-' is used for products, it cannot  also be used to form
+differences of units.  If a `-' appears before numerical digits as the
+very first character on the input line or if it appears immediately
+after a `+' then the number will be evaluated as a negative number.  So
+you can compute 20 degrees minus 12 minutes by entering `20 degrees+-12<br>
+arcmin'.  The `+' character is sometimes used in exponents like
+`3.43e+8'.  Exponents of this form cannot be used when forming sums of
+units, but they may be used otherwise.<br>
+<br>
+<b>Unit definitions</b><br>
+<br>
+The conversion information is read from a units data file which is
+called `units.dat' and is probably located in the `/usr/local/share'
+directory.  If you invoke `units' with the `-V' option, it will print
+the location of this file.  The default file includes definitions for
+all familiar units, abbreviations and metric prefixes.  It also
+includes many obscure or archaic units.</p>
+<pre>   Many constants of nature are defined, including these:
+
+     pi          ratio of circumference to diameter
+     c           speed of light
+     e           charge on an electron
+     force       acceleration of gravity
+     mole        Avogadro's number
+     water       pressure per unit height of water
+     Hg          pressure per unit height of mercury
+     au          astronomical unit
+     k           Boltzman's constant
+     mu0         permeability of vacuum
+     epsilon0    permitivity of vacuum
+     G           Gravitational constant
+     mach        speed of sound</pre>
+<p>The database includes atomic masses for all of the elements and numerous
+other constants.  Also included are the densities of various ingredients
+used in baking so that `2 cups flour_sifted' can be converted to<br>
+`grams'.  This is not an exhaustive list.  Consult the units data file
+to see the complete list, or to see the definitions that are used.<br>
+<br>
+The unit `pound' is a unit of mass.  To get force, multiply by the
+force conversion unit `force' or use the shorthand `lbf'.  (Note that
+`g' is already taken as the standard abbreviation for the gram.)  The
+unit `ounce' is also a unit of mass.  The fluid ounce is `fluidounce'
+or `floz'.  British capacity units that differ from their US
+counterparts, such as the British Imperial gallon, are prefixed with
+`br'.  Currency is prefixed with its country name: `belgiumfranc',
+`britainpound'.<br>
+<br>
+The US Survey foot, yard, and mile can be obtained by using the `US'
+prefix.  These units differ slightly from the international length
+units.  They were in use until 1959, but for geographic surveys, they
+are still used.  The acre is officially defined in terms of the US
+Survey foot.  If you want an acre defined according to the
+international foot, use `intacre'.  The difference between these units
+is about 4 parts per million.  The British also used a slightly
+different length measure before 1959.  These can be obtained with the
+prefix `UK'.<br>
+<br>   
+When searching for a unit, if the specified string does not appear
+exactly as a unit name, then the `units' program will try to remove a
+trailing `s' or a trailing `es'.  If that fails, `units' will check for
+a prefix.  All of the standard metric prefixes are defined.<br>
+<br>   
+To find out what units and prefixes are available, read the standard
+units data file.<br>
+<br>
+All of the units and prefixes that `units' can convert are defined
+in the units data file.  <br>
+To add your own units data file - see the man pages for the file layout.</p>
+<p class="quote"><i>"You have not converted a man because you have silenced him&quot; 
+  ~ John 
+  Morley</i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="cal.html">cal</a> - Display a calendar<br>
+<a href="dc.html">dc</a> - Desk Calculator<br>
+<a href="factor.html">factor</a> - Print prime factors <br>
+<a href="wc.html">wc</a> - Print byte, word, and line counts</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="units.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

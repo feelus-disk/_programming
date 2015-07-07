@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Complex Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/><link rel="prev" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/><link rel="next" href="ch15s03.html" title="Time / Date Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Complex Commands</th></tr><tr><td align="left"><a accesskey="p" href="ch15.html">Пред.</a> </td><th width="60%" align="center">Глава 15. External Filters, Programs and Commands</th><td align="right"> <a accesskey="n" href="ch15s03.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Complex Commands"><div class="titlepage"><div><div><h2 class="title"><a id="moreadv"/>Complex Commands</h2></div></div></div><div class="variablelist" title="Commands for more advanced users"><a id="cclisting"/><p class="title"><b><a id="cclisting1"/>Commands for more advanced users</b></p><dl><dt><span class="term"><a id="findref"/><span class="command"><strong>find</strong></span></span></dt><dd><p><a id="findref0"/></p><p>-exec <em class="replaceable"><code>COMMAND</code></em> \;</p><p>Carries out <em class="replaceable"><code>COMMAND</code></em> on
+        each file that <span class="command"><strong>find</strong></span> matches.  The
+        command sequence terminates with <span class="token">;</span> (the
+        <span class="quote">«<span class="quote">;</span>»</span> is <a class="link" href="ch05s02.html#escp">escaped</a> to
+        make certain the shell passes it to <span class="command"><strong>find</strong></span>
+        literally, without interpreting it as a special character).</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>find ~/ -name '*.txt'</code></strong>
+<code class="computeroutput">/home/bozo/.kde/share/apps/karm/karmdata.txt
+ /home/bozo/misc/irmeyc.txt
+ /home/bozo/test-scripts/1.txt</code>
+        </pre><p>
+    </p><p><a id="curlybracketsref"/></p><p>If <em class="replaceable"><code>COMMAND</code></em> contains
+        <span class="token">{}</span>, then <span class="command"><strong>find</strong></span>
+        substitutes the full path name of the selected file for
+        <span class="quote">«<span class="quote">{}</span>»</span>.</p><p>
+          </p><pre class="programlisting">find ~/ -name 'core*' -exec rm {} \;
+# Removes all core dump files from user's home directory.</pre><p>
+    </p><p>
+</p><pre class="programlisting">find /home/bozo/projects -mtime -1
+#                               ^   Note minus sign!
+#  Lists all files in /home/bozo/projects directory tree
+#+ that were modified within the last day (current_day - 1).
+#
+find /home/bozo/projects -mtime 1
+#  Same as above, but modified *exactly* one day ago.
+#
+#  mtime = last modification time of the target file
+#  ctime = last status change time (via 'chmod' or otherwise)
+#  atime = last access time
+
+DIR=/home/bozo/junk_files
+find "$DIR" -type f -atime +5 -exec rm {} \;
+#                          ^           ^^
+#  Curly brackets are placeholder for the path name output by "find."
+#
+#  Deletes all files in "/home/bozo/junk_files"
+#+ that have not been accessed in *at least* 5 days (plus sign ... +5).
+#
+#  "-type filetype", where
+#  f = regular file
+#  d = directory
+#  l = symbolic link, etc.
+#
+#  (The 'find' manpage and info page have complete option listings.)</pre><p>
+          </p><pre class="programlisting">find /etc -exec grep '[0-9][0-9]*[.][0-9][0-9]*[.][0-9][0-9]*[.][0-9][0-9]*' {} \;
+
+# Finds all IP addresses (xxx.xxx.xxx.xxx) in /etc directory files.
+# There a few extraneous hits. Can they be filtered out?
+
+# Possibly by:
+
+find /etc -type f -exec cat '{}' \; | tr -c '.[:digit:]' '\n' \
+| grep '^[^.][^.]*\.[^.][^.]*\.[^.][^.]*\.[^.][^.]*$'
+#
+#  [:digit:] is one of the character classes
+#+ introduced with the POSIX 1003.2 standard. 
+
+# Thanks, Stéphane Chazelas. 
+</pre><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <code class="option">-exec</code> option to
+        <span class="command"><strong>find</strong></span> should not be confused with the <a class="link" href="ch14.html#execref">exec</a> shell builtin.</p></div><div class="example"><a id="ex57"/><p class="title"><b>Пример 15.3. <em class="firstterm">Badname</em>, eliminate file names
+    in current directory containing bad characters and <a class="link" href="ch03.html#whitespaceref">whitespace</a>.</b></p><div class="example-contents"><pre class="programlisting">&amp;ex57;</pre></div></div><br class="example-break"/><div class="example"><a id="idelete"/><p class="title"><b>Пример 15.4. Deleting a file by its <em class="firstterm">inode</em>
+          number</b></p><div class="example-contents"><pre class="programlisting">&amp;idelete;</pre></div></div><br class="example-break"/><p>The <span class="command"><strong>find</strong></span> command also works
+        without the <code class="option">-exec</code> option.</p><p>
+      </p><pre class="programlisting">#!/bin/bash
+#  Find suid root files.
+#  A strange suid file might indicate a security hole,
+#+ or even a system intrusion.
+
+directory="/usr/sbin"
+# Might also try /sbin, /bin, /usr/bin, /usr/local/bin, etc.
+permissions="+4000"  # suid root (dangerous!)
+
+
+for file in $( find "$directory" -perm "$permissions" )
+do
+  ls -ltF --author "$file"
+done</pre><p>
+      </p><p>See <a class="xref" href="ch15s05.html#ex48" title="Пример 15.30. Using cpio to move a directory tree">Пример 15.30, «Using <em class="firstterm">cpio</em> to move a directory tree»</a>, <a class="xref" href="ch03.html#ex58" title="Пример 3.4. Backup of all files changed in last day">Пример 3.4, «Backup of all files changed in last day»</a>,
+        and <a class="xref" href="ch10.html#findstring" title="Пример 10.9. Проверка авторства всех бинарных файлов в каталоге">Пример 10.9, «Проверка авторства всех бинарных файлов в каталоге»</a> for scripts using
+        <span class="command"><strong>find</strong></span>. Its <a class="link" href="ch15.html#manref">manpage</a> provides more detail
+        on this complex and powerful command.</p></dd><dt><span class="term"><a id="xargsref"/><span class="command"><strong>xargs</strong></span></span></dt><dd><p>A filter for feeding arguments to a command, and also
+        a tool for assembling the commands themselves. It breaks
+        a data stream into small enough chunks for filters and
+        commands to process.  Consider it as a powerful replacement
+        for <a class="link" href="ch11.html#backquotesref">backquotes</a>.
+        In situations where <a class="link" href="ch11.html#commandsubref">command
+        substitution</a> fails with a <span class="errorname">too
+        many arguments</span> error,
+        substituting <span class="command"><strong>xargs</strong></span> often
+        works.
+          <sup>[<a id="idp12029312" href="#ftn.idp12029312" class="footnote">64</a>]</sup>
+        Normally, <span class="command"><strong>xargs</strong></span> reads from
+        <code class="filename">stdin</code> or from a pipe, but it can also
+        be given the output of a file.</p><p>The default command for <span class="command"><strong>xargs</strong></span> is
+        <a class="link" href="ch14.html#echoref">echo</a>. This means that input
+        piped to <span class="command"><strong>xargs</strong></span> may have linefeeds and
+        other whitespace characters stripped out.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l</code></strong>
+<code class="computeroutput">total 0
+ -rw-rw-r--    1 bozo  bozo         0 Jan 29 23:58 file1
+ -rw-rw-r--    1 bozo  bozo         0 Jan 29 23:58 file2</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l | xargs</code></strong>
+<code class="computeroutput">total 0 -rw-rw-r-- 1 bozo bozo 0 Jan 29 23:58 file1 -rw-rw-r-- 1 bozo bozo 0 Jan...</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>find ~/mail -type f | xargs grep "Linux"</code></strong>
+<code class="computeroutput">./misc:User-Agent: slrn/0.9.8.1 (Linux)
+ ./sent-mail-jul-2005: hosted by the Linux Documentation Project.
+ ./sent-mail-jul-2005: (Linux Documentation Project Site, rtf version)
+ ./sent-mail-jul-2005: Subject: Criticism of Bozo's Windows/Linux article
+ ./sent-mail-jul-2005: while mentioning that the Linux ext2/ext3 filesystem
+ . . .</code>
+        </pre><p>
+        </p><p><strong class="userinput"><code>ls | xargs -p -l gzip</code></strong> <a class="link" href="ch15s05.html#gzipref">gzips</a> every file in current
+        directory, one at a time, prompting before each
+        operation.</p><p><a id="xargsoneatatime"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Note that <em class="firstterm">xargs</em> processes the
+        arguments passed to it sequentially, <span class="emphasis"><em>one at
+        a time</em></span>.</p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>find /usr/bin | xargs file</code></strong>
+<code class="computeroutput">/usr/bin:          directory
+ /usr/bin/foomatic-ppd-options:          perl script text executable
+ . . .</code>
+        </pre><p>
+        </p></div><p><a id="xargslimargs"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>An interesting <em class="firstterm">xargs</em>
+        option is <code class="option">-n <em class="replaceable"><code>NN</code></em></code>,
+        which limits to <em class="replaceable"><code>NN</code></em> the number
+        of arguments passed.</p><p><strong class="userinput"><code>ls | xargs -n 8 echo</code></strong> lists the files in the
+        current directory in <code class="literal">8</code> columns.</p></div><p><a id="xargsws"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Another useful option is
+        <code class="option">-0</code>, in combination with <strong class="userinput"><code>find
+        -print0</code></strong> or <strong class="userinput"><code>grep -lZ</code></strong>. This
+        allows handling arguments containing whitespace or
+        quotes.</p><p>
+      <strong class="userinput"><code>find / -type f -print0 | xargs -0 grep -liwZ GUI | xargs -0 rm -f</code></strong>
+      </p><p>
+      <strong class="userinput"><code>grep -rliwZ GUI / | xargs -0 rm -f</code></strong>
+      </p><p>Either of the above will remove any file containing <span class="quote">«<span class="quote">GUI</span>»</span>.
+        <span class="emphasis"><em>(Thanks, S.C.)</em></span></p><p>Or:
+        </p><pre class="programlisting">cat /proc/"$pid"/"$OPTION" | xargs -0 echo
+#  Formats output:         ^^^^^^^^^^^^^^^
+#  From Han Holl's fixup of "get-commandline.sh"
+#+ script in "/dev and /proc" chapter.</pre></div><div class="example"><a id="ex41"/><p class="title"><b>Пример 15.5. Logfile: Using <em class="firstterm">xargs</em> to monitor system log</b></p><div class="example-contents"><pre class="programlisting">&amp;ex41;</pre></div></div><br class="example-break"/><p><a id="xargscurlyref"/></p><p><a class="link" href="ch15s02.html#curlybracketsref">As in
+        <span class="command"><strong>find</strong></span></a>, a curly bracket
+        pair serves as a placeholder for replacement text.</p><div class="example"><a id="ex42"/><p class="title"><b>Пример 15.6. Copying files in current directory to another</b></p><div class="example-contents"><pre class="programlisting">&amp;ex42;</pre></div></div><br class="example-break"/><div class="example"><a id="killbyname"/><p class="title"><b>Пример 15.7. Killing processes by name</b></p><div class="example-contents"><pre class="programlisting">&amp;killbyname;</pre></div></div><br class="example-break"/><div class="example"><a id="wf2"/><p class="title"><b>Пример 15.8. Word frequency analysis using
+        <em class="firstterm">xargs</em></b></p><div class="example-contents"><pre class="programlisting">&amp;wf2;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="exprref"/><strong class="userinput"><code>expr</code></strong></span></dt><dd><p>All-purpose expression evaluator:
+        Concatenates and evaluates the arguments according
+        to the operation given (arguments must be separated
+        by spaces). Operations may be arithmetic, comparison,
+        string, or logical.</p><div class="variablelist"><dl><dt><span class="term"><strong class="userinput"><code>expr 3 + 5</code></strong></span></dt><dd><p>returns <code class="literal">8</code></p></dd><dt><span class="term"><strong class="userinput"><code>expr 5 % 3</code></strong></span></dt><dd><p>returns 2</p></dd><dt><span class="term"><strong class="userinput"><code>expr 1 / 0</code></strong></span></dt><dd><p>returns the error message, <span class="errorcode">expr: division by
+        zero</span></p><p>Illegal arithmetic operations not allowed.</p></dd><dt><span class="term"><strong class="userinput"><code>expr 5 \* 3</code></strong></span></dt><dd><p>returns 15</p><p>The multiplication operator
+      must be escaped when used in an arithmetic expression
+      with <span class="command"><strong>expr</strong></span>.</p></dd><dt><span class="term"><strong class="userinput"><code>y=`expr $y + 1`</code></strong></span></dt><dd><p>Increment a variable, with the same effect
+        as <strong class="userinput"><code>let y=y+1</code></strong> and
+        <strong class="userinput"><code>y=$(($y+1))</code></strong>. This is an
+        example of <a class="link" href="ch12.html#arithexpref">arithmetic
+        expansion</a>.</p></dd><dt><span class="term"><a id="expextrsub"/><strong class="userinput"><code>z=`expr substr
+    $string $position $length`</code></strong></span></dt><dd><p>Extract substring of $length characters, starting
+        at $position.</p></dd></dl></div><div class="example"><a id="ex45"/><p class="title"><b>Пример 15.9. Using <em class="firstterm">expr</em></b></p><div class="example-contents"><pre class="programlisting">&amp;ex45;</pre></div></div><br class="example-break"/><div class="important" title="Важно" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Важно</h3><p>The <a class="link" href="ch03.html#nullref">:
+        (<em class="firstterm">null</em>)</a> operator
+        can substitute for <span class="command"><strong>match</strong></span>. For example,
+        <strong class="userinput"><code>b=`expr $a : [0-9]*`</code></strong> is the
+        exact equivalent of <strong class="userinput"><code>b=`expr match $a
+        [0-9]*`</code></strong> in the above listing.</p><pre class="programlisting">&amp;ex45a;</pre></div></dd></dl></div><p>The above script illustrates how
+        <span class="command"><strong>expr</strong></span> uses the <em class="firstterm">escaped
+        parentheses -- \( ... \) --</em> grouping operator
+        in tandem with <a class="link" href="ch17.html#regexref">regular
+        expression</a> parsing to match a substring.
+        Here is a another example, this time from <span class="quote">«<span class="quote">real
+        life.</span>»</span>
+
+          </p><pre class="programlisting"># Strip the whitespace from the beginning and end.
+LRFDATE=`expr "$LRFDATE" : '[[:space:]]*\(.*\)[[:space:]]*$'`
+
+#  From Peter Knowles' "booklistgen.sh" script
+#+ for converting files to Sony Librie/PRS-50X format.
+#  (http://booklistgensh.peterknowles.com)</pre><p>
+
+        </p><p><a class="link" href="ch33s03.html#perlref">Perl</a>,
+        <a class="link" href="apc.html#sedref">sed</a>, and <a class="link" href="apcs02.html#awkref">awk</a> have far superior string
+        parsing facilities. A short <span class="command"><strong>sed</strong></span> or
+        <span class="command"><strong>awk</strong></span> <span class="quote">«<span class="quote">subroutine</span>»</span> within
+        a script (see <a class="xref" href="ch33s03.html" title="Shell Wrappers">«Shell Wrappers»</a>) is an attractive
+        alternative to <span class="command"><strong>expr</strong></span>.</p><p>See <a class="xref" href="ch09s02.html" title="Manipulating Strings">«Manipulating Strings»</a> for more on
+              using <span class="command"><strong>expr</strong></span> in string operations.</p><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp12029312" href="#idp12029312" class="para">64</a>] </sup>And even when <em class="firstterm">xargs</em> is
+    not strictly necessary, it can speed up execution of a command
+    involving <a class="link" href="ch15s03.html#batchprocref">batch-processing</a> of multiple
+    files.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch15.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch15.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch15s03.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 15. External Filters, Programs and Commands </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Time / Date Commands</td></tr></table></div></body></html>

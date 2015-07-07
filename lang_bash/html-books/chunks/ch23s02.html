@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Локальные переменные</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch23.html" title="Глава 23. Функции"/><link rel="prev" href="ch23.html" title="Глава 23. Функции"/><link rel="next" href="ch23s03.html" title="Рекурсия без локальных переменных"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Локальные переменные</th></tr><tr><td align="left"><a accesskey="p" href="ch23.html">Пред.</a> </td><th width="60%" align="center">Глава 23. Функции</th><td align="right"> <a accesskey="n" href="ch23s03.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Локальные переменные"><div class="titlepage"><div><div><h2 class="title"><a id="localvar"/>Локальные переменные</h2></div></div></div><div class="variablelist" title="Каким образом переменные делаются локальными?"><a id="localref"/><p class="title"><b><a id="localref1"/>Каким образом переменные делаются
+        <em class="firstterm">локальными</em>?</b></p><dl><dt><span class="term">локальные переменные</span></dt><dd><p>Переменная объявленная как <em class="firstterm">локальная</em>
+        видна только в <a class="link" href="ch03.html#codeblockref">блоке кода</a>, которому она
+        принадлежит. Она имеет локальную <a class="link" href="ch20.html#scoperef">область видимости</a>.
+        В функции <em class="firstterm">локальная переменная</em> определена
+        только в теле этой функции.</p><div class="example"><a id="ex62"/><p class="title"><b>Пример 23.12. Local variable visibility</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Глобальные и локальные переменные внутри функции.
+
+func ()
+{
+  local loc_var=23       # Объявлена, как локальная переменная.
+  echo                   # Используется встроенный оператор 'local'.
+  echo "\"loc_var\" in function = $loc_var"
+  global_var=999         # Не локальная.
+                         # По умолчанию все переменные глобальные. 
+  echo "\"global_var\" in function = $global_var"
+}  
+
+func
+
+# Теперь посмотрим видна ли локальная переменная "loc_var" извне функции.
+
+echo
+echo "\"loc_var\" outside function = $loc_var"
+                                      # $loc_var outside function = 
+                                      # Нет, $loc_var не видна глобально.
+echo "\"global_var\" outside function = $global_var"
+                                      # $global_var outside function = 999
+                                      # $global_var видна глобально.
+echo				      
+
+exit 0
+#  В противовес языку C, в Bash переменная объявленная внутри функции
+#+ становится локальной *только* если это задано в явном виде с помощью оператора local.
+</pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>До того, как функция будет вызвана, <span class="emphasis"><em>все</em></span>
+        переменные объявленные внутри неё будут невидимы извне тела этой функции,
+        причём это относится не только к переменным объявленным явным образом, как
+        <em class="firstterm">локальные</em>, но и к глобальным.
+          </p><pre class="programlisting">#!/bin/bash
+
+func ()
+{
+global_var=37    #  Видна только внутри тела функции
+                 #+ вплоть до того, как функция будет вызвана. 
+}                #  КОНЕЦ ФУНКЦИИ
+
+echo "global_var = $global_var"  # global_var =
+                                 #  Функция "func" не была вызвана,
+                                 #+ поэтому $global_var здесь не видна.
+
+func
+echo "global_var = $global_var"  # global_var = 37
+                                 # Стала видна после вызова функции.</pre><p>
+            </p></div></dd></dl></div><div class="sect2" title="Локальные переменные и рекурсия."><div class="titlepage"><div><div><h3 class="title"><a id="locvarrecur"/>Локальные переменные и рекурсия.</h3></div></div></div><p><a id="recursionref0"/></p><div class="sidebar"><p class="title"><b/></p><p><a id="recursionref"/></p><p><em class="firstterm">Рекурсия</em> -- интересная
+    и иногда полезная форма
+    <em class="firstterm">само-вызова функции</em>.  <a class="link" href="bi01.html#mayerref">Herbert Mayer</a> определяет её
+    как <span class="quote">«<span class="quote">. . . описание алгоритма с помощью
+    упрощенного варианта того же алгоритма . . .</span>»</span></p><p>Рассматривается определение сформулированное в терминах самого себя,
+      <sup>[<a id="idp16727760" href="#ftn.idp16727760" class="footnote">99</a>]</sup>
+    выражение, подразумевающее собственное выражение,
+      <sup>[<a id="idp16728992" href="#ftn.idp16728992" class="footnote">100</a>]</sup>
+    <span class="emphasis"><em>змея, глотающая свой собственный
+    хвост</em></span>,
+      <sup>[<a id="idp16730496" href="#ftn.idp16730496" class="footnote">101</a>]</sup>
+    или . . . функция, вызывающая саму себя.
+      <sup>[<a id="idp16731664" href="#ftn.idp16731664" class="footnote">102</a>]</sup>
+    </p><p><a id="recursiondemo0"/></p><div class="example"><a id="recursiondemo"/><p class="title"><b>Пример 23.13. Демонстрация простой рекурсивной функции</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# recursion-demo.sh
+# Демонстрация рекурсии.
+
+RECURSIONS=9   # Глубина рекурсии.
+r_count=0      # Должна быть глобальной. Почему?
+
+recurse ()
+{
+  var="$1"
+
+  while [ "$var" -ge 0 ]
+  do
+    echo "Recursion count = "$r_count"  +-+  \$var = "$var""
+    (( var-- )); (( r_count++ ))
+    recurse "$var"  #  Функция вызывает себя (рекурсия)
+  done              #+ до тех пор пока не сработает условие. Какое?
+}
+
+recurse $RECURSIONS
+
+exit $?
+</pre></div></div><br class="example-break"/><p><a id="recursiondemo02"/></p><div class="example"><a id="recursiondemo2"/><p class="title"><b>Пример 23.14. Другая простая демонстрация</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# recursion-def.sh
+# Сценарий определяющий "рекурсию" в более наглядном виде.
+
+RECURSIONS=10
+r_count=0
+sp=" "
+
+define_recursion ()
+{
+  ((r_count++))
+  sp="$sp"" "
+  echo -n "$sp"
+  echo "\"The act of recurring ... \""   # Согласно Вебстерскому словарю 1913-го издания.
+
+  while [ $r_count -le $RECURSIONS ]
+  do
+    define_recursion
+  done
+}
+
+echo
+echo "Recursion: "
+define_recursion
+echo
+
+exit $?
+</pre></div></div><br class="example-break"/></div><p>Локальные переменные являются хорошим помощником в написании рекурсивного
+        кода, но их использование пораждает большое количество накладных расходов
+        и строго
+        <span class="emphasis"><em>не</em></span> рекомендуется при написании shell сценариев.
+
+           <sup>[<a id="idp16739712" href="#ftn.idp16739712" class="footnote">103</a>]</sup>
+        
+        </p><p><a id="factorialref"/></p><div class="example"><a id="ex63"/><p class="title"><b>Пример 23.15. Рекурсия с использованием локальных переменных</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+#               факториал
+#               ---------
+
+
+# Bash позволяет использовать рекурсию?
+# Да, но...
+# Она настолько медленна, что вы должны иметь опилки в голове, чтобы использовать её.
+
+
+MAX_ARG=5
+E_WRONG_ARGS=85
+E_RANGE_ERR=86
+
+
+if [ -z "$1" ]
+then
+  echo "Usage: `basename $0` number"
+  exit $E_WRONG_ARGS
+fi
+
+if [ "$1" -gt $MAX_ARG ]
+then
+  echo "Out of range ($MAX_ARG is maximum)."
+  #  Давайте на чистоту.
+  #  Если вы хотите использовать более широкий диапазон, чем этот,
+  #+ перепишите сценарий на настоящем языке программирования.
+  exit $E_RANGE_ERR
+fi  
+
+fact ()
+{
+  local number=$1
+  #  Переменная "number" должна быть объявлена, как локальная,
+  #+ иначе это не будет работать.
+  if [ "$number" -eq 0 ]
+  then
+    factorial=1    # Факториал 0 = 1.
+  else
+    let "decrnum = number - 1"
+    fact $decrnum  # Рекурсивный вызов функции (функция вызывает саму себя).
+    let "factorial = $number * $?"
+  fi
+
+  return $factorial
+}
+
+fact $1
+echo "Factorial of $1 is $?."
+
+exit 0
+</pre></div></div><br class="example-break"/><p>Также смотрите <a class="xref" href="apa.html#primes" title="Пример A.15. Generating prime numbers using the modulo operator">Пример A.15, «Generating prime numbers using the modulo operator»</a> для примера
+        рекурсии в сценарии. Помните, что рекурсия
+        ресурсоёмка и медлительна, и поэтому категорически
+        не подходит для сценариев.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp16727760" href="#idp16727760" class="para">99</a>] </sup>Иначе известное, как
+      <em class="firstterm">избыточность</em>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16728992" href="#idp16728992" class="para">100</a>] </sup>Иначе известное, как
+      <em class="firstterm">тавтология</em>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16730496" href="#idp16730496" class="para">101</a>] </sup>Иначе известная, как
+      <em class="firstterm">метафора</em>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16731664" href="#idp16731664" class="para">102</a>] </sup>Иначе известная, как
+      <em class="firstterm">рекурсивная функция</em>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16739712" href="#idp16739712" class="para">103</a>] </sup>Слишком большое число рекурсивных вызовов может
+       аварийно завершить сценарий с сообщением об ошибке сегментирования.
+       <pre class="programlisting">#!/bin/bash
+
+#  Предупреждение: Запуск данного сценария может повесить вашу систему!
+#  Если вам повезёт, то сценарий аварийно завершится с сообщением об ошибке сегментирования перед тем, как использует всю доступную память.
+
+recursive_function ()      
+{
+echo "$1"     # Пусть функция делает что-нибудь до тех пор пока не произойдёт ошибка сегментирования.
+(( $1 &lt; $2 )) &amp;&amp; recursive_function $(( $1 + 1 )) $2;
+#  До тех пор пока первый параметр меньше вторго,
+#+ увеличиваем на 1 первый и совершаем рекурсивный вызов.
+}
+
+recursive_function 1 50000  # 50,000 рекурсивных вызовов!
+#  Скорее всего ошибка сегментирования (зависит от размера стека, определенного ulimit -m).
+
+#  Такая глубокая рекурсия может вызвать ошибку сегментирования даже у программы на языке C,
+#+ т.к. возможно использование всей памяти отведённой под стек.
+
+
+echo "Возможно это не напечатается."
+exit 0  # Данный сценарий не завершится корректно.
+
+#  Спасибо, Stéphane Chazelas.</pre>
+</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch23.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch23.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch23s03.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 23. Функции </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Рекурсия без локальных переменных</td></tr></table></div></body></html>

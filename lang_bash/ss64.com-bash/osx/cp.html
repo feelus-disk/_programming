@@ -1,0 +1,121 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>cp OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>cp</h1> 
+<p>Copy files.</p>
+<pre>Syntax
+      cp [-R [-H | -L | -P]] [-fi | -n] [-pvX] <i>Source_file Target_file</i>
+
+      cp [-R [-H | -L | -P]] [-fi | -n] [-pvX] <i>Source_file(s) Target_Folder
+</i>Key:
+   -R   Copy the folder and subtree (recursive).  
+        If <i>source_file</i> designates a directory, cp copies the directory and
+        the entire subtree connected at that point.  If the source_file
+        ends in a /, the contents of the directory are copied rather than
+        the directory itself.  This option also causes symbolic links to be
+        copied, rather than indirected through, and for cp to create special
+        files rather than copying them as normal files.  Created
+        directories have the same mode as the corresponding source directory,
+        unmodified by the process' umask.
+
+   -H   Symbolic links on the command line are followed.
+        (but Symbolic links encountered in the tree traversal are not followed.)
+
+   -L   All symbolic links are followed.
+
+   -P   No symbolic links are followed. This is the default.
+
+   -f   For each existing destination pathname, remove it and create a new
+        file, without prompting for confirmation regardless of its permissions.
+        (The -f option overrides any previous -i or -n options.)
+
+   -i   Cause cp to write a prompt to the standard error output before
+        copying a file that would overwrite an existing file.  If the
+        response from the standard input begins with the character `y' or
+        `Y', the file copy is attempted.  (The -i option overrides any
+        previous -f or -n options.)
+
+   -n   Do not overwrite an existing file.  (The -n option overrides any
+        previous -f or -i options.)
+
+   -p   Cause cp to preserve the following attributes of each source file
+        in the copy: modification time, access time, file flags, file mode,
+        user ID, and group ID, as allowed by permissions.  Access Control
+        Lists (ACLs) will also be preserved.
+
+        If the user ID and group ID cannot be preserved, no error message
+        is displayed and the exit value is not altered.
+
+   -v   Verbose - show files as they are copied.
+
+   -X   Do not copy Extended Attributes (EAs) or resource forks.</pre>
+<p>In -R mode, cp will continue copying even if errors are detected.</p>
+<p> Note that cp copies hard linked files as separate files. If you need to preserve hard links, consider using <a href="tar.html">tar</a>, cpio(1), or pax(1) instead.</P>
+<p>For each destination file that already exists, its contents are overwritten if permissions allow. Its mode, user ID, and group ID are unchanged
+unless the -p option was specified.</P>
+<p> In the second synopsis form, <i>target_directory</i> must exist unless there is only one named <i>source_file</i> which is a directory and the -R flag is specified.</p>
+<p>Permissions: </p>
+<blockquote>
+<p>Appropriate permissions are required for file creation or overwriting.</p>
+<p> If the source file has its set user ID bit on and the user ID can not be preserved, the set user ID bit is not preserved in the copy's permissions. If the source file has its set group ID bit on and the group ID cannot be preserved, the set group ID bit is not preserved in the copy's permissions. If the source file has both its set user ID and set group ID bits on, and either the user ID or group ID cannot be preserved, neither the set user ID nor set group ID bits are preserved in the copy's permissions.</p>
+<p>If the destination file does not exist, the mode of the source file is used as modified by the file mode creation mask (<a href="umask.html">umask</a>). If the source file has its set-user-ID bit on, that bit is removed unless both the source file and the destination file are owned by the same user. If the source file has its set-group-ID bit on, that bit is removed unless both the source file and the destination file are in the same group and the user is a member of that group. If both the set-user-ID and set-group-ID bits are set, all of the above conditions must be fulfilled or both bits are removed.</p>
+</blockquote><p>Symbolic links are always followed unless the -R flag is set, in which case symbolic links are not followed, by default. The -H or -L flags (in conjunction with the -R flag) cause symbolic links to be followed as described above. The -H, -L and -P options are ignored unless the -R option is specified. In addition, these options override each other and the command's actions are determined by the last one specified.</p>
+<p>If cp receives a SIGINFO (see the status argument for stty(1)) signal, the current input and output file and the percentage complete will be written to the standard output.</p>
+<p>The -v and -n options are non-standard and their use in scripts is not recommended.</p>
+<p> The cp utility exits 0 on success, and &gt;0 if an error occurs.</p>
+<p><b>Examples</b></P>
+<p>Copy a file in the current folder<br> 
+<span class="code">$ cp old.txt new.txt</span><br><br>
+Copy a file in the current folder to your 'Documents' folder<br> 
+<span class="code">$ cp old.txt ~/Documents</span><br><br>
+Copy the file to the 'Documents' folder and rename the copy "new.txt"<br> 
+<span class="code">$ cp old.txt ~/Documents/new.txt</span><br><br>
+Copy all .jpg files to the Documents folder<br> 
+<span class="code">$ cp *.jpg ~/Documents</span><br><br>
+Copy the "Documents" folder to "Documents backup".<br>
+The quotes are needed because of the space in the folder name.<br> 
+<span class="code">$ cp -R Documents "Documents backup"</span><br><br>
+Copy the entire /Users folder (including subfolders), preserving <br>
+file ownership and permissions but not resource forks. <br>
+Root access is required to use -p, so the example uses <a href="sudo.html">sudo </a>to get root access temporarily.<br><br>  
+<span class="code">$ <b>sudo</b> cp -Rp /Users "/Users backup"</span></p>
+<p class="quote"><i>&ldquo;The white man knows how to make everything but he does not know how to distribute it&rdquo; - Sitting Bull</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/cp.1.html">cp man page</a> - Apple.com<br>
+<a href="dd.html">dd</a> - Data Dump - convert and copy a file (use for RAW storage)<br>
+<a href="ditto.html">ditto</a> - copy files and folders (Can preserve Apple resource forks, type &amp; creator)<br>
+copy - Copy groups of files in folders<br>
+<a href="install.html">install</a> - Copy files and set attributes<br>
+<a href="mv.html">mv</a> - Move or rename files or directories<br>
+<a href="rcp.html">rcp</a> - Remote copy<br>
+<a href="tar.html">tar</a> - store or extract files to an archive (allows symbolic links to be copied as links)<br>
+<a href="umask.html">umask</a> - Users file creation mask</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="cp.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

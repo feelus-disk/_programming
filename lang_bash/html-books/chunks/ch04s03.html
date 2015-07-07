@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Переменные Bash не типизированы</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch04.html" title="Глава 4. Введение в переменные и параметры"/><link rel="prev" href="ch04s02.html" title="Присваивание значений переменным"/><link rel="next" href="ch04s04.html" title="Специальные типы переменных"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Переменные Bash не типизированы</th></tr><tr><td align="left"><a accesskey="p" href="ch04s02.html">Пред.</a> </td><th width="60%" align="center">Глава 4. Введение в переменные и параметры</th><td align="right"> <a accesskey="n" href="ch04s04.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Переменные Bash не типизированы"><div class="titlepage"><div><div><h2 class="title"><a id="untyped"/>Переменные Bash не типизированы</h2></div></div></div><p><a id="bvuntyped"/></p><p>В отличие от многих языков программирования, Bash не разделяет
+  переменные по их <span class="quote">«<span class="quote">типу</span>»</span>. В основном, <span class="emphasis"><em>переменные Bash
+  являются символьными строками</em></span>.
+  Bash допускает арифметические операции и операции сравнения над
+  переменными, преобразуя строку в число. Определяющим фактором является -
+  содержит ли значение переменной только цифры.</p><div class="example"><a id="intorstring"/><p class="title"><b>Пример 4.4. Целое число или строка?</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+a=2334                   # Целое число.
+let "a += 1"
+echo "a = $a "           # a = 2335
+echo                     # Все еще целое число.
+
+
+b=${a/23/BB}             # Замена "23" на "BB".
+                         # Это преобразует $b в строку.
+echo "b = $b"            # b = BB35
+declare -i b             # Объявление ее как целочисленной не помогает.
+echo "b = $b"            # b = BB35
+
+let "b += 1"             # BB35 + 1
+echo "b = $b"            # b = 1
+echo                     # Bash задает "целочисленное значение" строки как 0.
+
+c=BB34
+echo "c = $c"            # c = BB34
+d=${c/BB/23}             # Замена "BB" на "23".
+                         # Это делает $d целочисленной.
+echo "d = $d"            # d = 2334
+let "d += 1"             # 2334 + 1
+echo "d = $d"            # d = 2335
+echo
+
+
+# Как насчет пустых переменных?
+e=''                     # ... или e="" ... или e=
+echo "e = $e"            # e =
+let "e += 1"             # Допустимо ли использование пустых переменных
+			 #+ в арифметических операциях?
+echo "e = $e"            # e = 1
+echo                     # Пустые переменные преобразуются в целочисленные.
+
+# Как насчет необъявленных переменных?
+echo "f = $f"            # f =
+let "f += 1"             # Допустимы ли арифметические операции?
+echo "f = $f"            # f = 1
+echo                     # Необъявленные переменные преобразуются в целочисленные.
+#
+# Однако ...
+let "f /= $undecl_var"   # Деление на нуль?
+#   let: f /= : syntax error: operand expected (error token is " ")
+# Синтаксическая ошибка! Переменная $undecl_var не установлена в нуль сейчас!
+#
+# Но все-таки ...
+let "f /= 0"
+#   let: f /= 0: division by 0 (error token is "0")
+# Ожидаемое поведение.
+
+
+#  Bash (обычно) принимает "целочисленное значение" пустой переменной за нуль
+#+ при использовании в арифметических операциях.
+#  Но не делайте этого дома!
+#  Это недокументированное и, возможно, непереносимое поведение.
+
+
+#  drBatty отметил, что, в тех немногих случаях, когда переменная 
+#+ преобразуется в число, пустая строка преобразуется в ноль, 
+#+ впрочем как и любая строка, которая не является числом:
+X="ggg"
+((X++))
+echo $X		# 1
+# преобразование строки в число произошло в строке ((X++)), ggg -&gt; 0
+
+
+# Заключение: Переменные Bash не типизированы,
+#+ со всеми вытекающими из этого последствиями.
+
+exit $?
+</pre></div></div><br class="example-break"/><p>Нетипизированные переменные - это, одновременно, и дар и проклятие.
+  Они дают гибкость в написании сценариев и упрощают процесс оптимизации
+  кода (и дают вам достаточно веревки чтобы повеситься!).
+  Однако, они так же допускают возникновение неявных ошибок
+  и способствуют развитию плохого стиля программирования.</p><p>Для облегчения слежения за типами переменных в сценарии,
+        Bash <span class="emphasis"><em>разрешает</em></span>
+  <a class="link" href="ch09s04.html" title="Typing variables: declare or typeset">объявлять</a> переменные.</p></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch04s02.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch04.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch04s04.html">След.</a></td></tr><tr><td align="left" valign="top">Присваивание значений переменным </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Специальные типы переменных</td></tr></table></div></body></html>

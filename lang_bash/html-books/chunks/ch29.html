@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 29. Debugging</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch28.html" title="Глава 28. Of Zeros and Nulls"/><link rel="next" href="ch30.html" title="Глава 30. Options"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 29. Debugging</th></tr><tr><td align="left"><a accesskey="p" href="ch28.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch30.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 29. Debugging"><div class="titlepage"><div><div><h2 class="title"><a id="debugging"/>Глава 29. Debugging</h2></div></div></div><div class="epigraph"><p>Debugging is twice as hard as writing the code in the first
+        place. Therefore, if you write the code as cleverly as possible,
+        you are, by definition, not smart enough to debug it.</p><p>--Brian Kernighan</p></div><p>The Bash shell contains no built-in debugger, and only bare-bones
+  debugging-specific commands and constructs. Syntax errors or
+  outright typos in the script generate cryptic error messages that
+  are often of no help in debugging a non-functional script.</p><div class="example"><a id="ex74"/><p class="title"><b>Пример 29.1. A buggy script</b></p><div class="example-contents"><pre class="programlisting">&amp;ex74;</pre></div></div><br class="example-break"/><p>Output from script:
+  </p><pre class="screen"><code class="computeroutput">./ex74.sh: [37: command not found</code></pre><p>
+        What's wrong with the above script? Hint: after the
+        <em class="firstterm">if</em>.</p><div class="example"><a id="missingkeyword"/><p class="title"><b>Пример 29.2. Missing <a class="link" href="ch14.html#keywordref">keyword</a></b></p><div class="example-contents"><pre class="programlisting">&amp;missingkeyword;</pre></div></div><br class="example-break"/><p>Output from script:
+  </p><pre class="screen">
+<code class="computeroutput">missing-keyword.sh: line 10: syntax error: unexpected end of file</code>
+  </pre><p>
+  Note that the error message does <span class="emphasis"><em>not</em></span> necessarily
+  reference the line in which the error occurs, but the line where the
+  Bash interpreter finally becomes aware of the error.
+  </p><p>Error messages may disregard comment lines in a script when
+        reporting the line number of a syntax error.</p><p>What if the script executes, but does not work as expected? This is the
+  all too familiar logic error.</p><div class="example"><a id="ex75"/><p class="title"><b>Пример 29.3. <em class="firstterm">test24</em>: another buggy script</b></p><div class="example-contents"><pre class="programlisting">&amp;ex75;</pre></div></div><br class="example-break"/><p>Try to find out what's wrong with <a class="xref" href="ch29.html#ex75" title="Пример 29.3. test24: another buggy script">Пример 29.3, «<em class="firstterm">test24</em>: another buggy script»</a>
+  by uncommenting the <strong class="userinput"><code>echo "$badname"</code></strong> line. Echo
+  statements are useful for seeing whether what you expect is
+  actually what you get.</p><p>In this particular case, <strong class="userinput"><code>rm "$badname"</code></strong>
+  will not give the desired results because
+  <code class="varname">$badname</code> should not be quoted. Placing it
+  in quotes ensures that <span class="command"><strong>rm</strong></span> has only one
+  argument (it will match only one filename). A partial fix
+  is to remove to quotes from <code class="varname">$badname</code> and
+  to reset <code class="varname">$IFS</code> to contain only a newline,
+  <strong class="userinput"><code>IFS=$'\n'</code></strong>. However, there are simpler
+  ways of going about it.
+  </p><pre class="programlisting"># Correct methods of deleting filenames containing spaces.
+rm *\ *
+rm *" "*
+rm *' '*
+# Thank you. S.C.</pre><p>
+  
+  </p><p>Summarizing the symptoms of a buggy script,
+  </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p>It bombs with a <span class="quote">«<span class="quote"><span class="errorname">syntax error</span></span>»</span> message, or</p></li><li class="listitem"><p>It runs, but does not work as expected 
+        (<span class="errorname">logic error</span>).</p></li><li class="listitem"><p>It runs, works as expected, but has nasty side effects
+        (<span class="errorname">logic bomb</span>).</p></li></ol></div><p>
+      </p><p><a id="debugtools"/></p><p>Tools for debugging non-working scripts include
+  </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p>Inserting <a class="link" href="ch14.html#echoref">echo</a>
+        statements at critical points in the script to trace the
+        variables, and otherwise give a snapshot of what is going
+        on.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Even better is an <span class="command"><strong>echo</strong></span> that echoes
+        only when <em class="firstterm">debug</em> is on.</p><pre class="programlisting">### debecho (debug-echo), by Stefano Falsetto ###
+### Will echo passed parameters only if DEBUG is set to a value. ###
+debecho () {
+  if [ ! -z "$DEBUG" ]; then
+     echo "$1" &gt;&amp;2
+     #         ^^^ to stderr
+  fi
+}
+
+DEBUG=on
+Whatever=whatnot
+debecho $Whatever   # whatnot
+
+DEBUG=
+Whatever=notwhat
+debecho $Whatever   # (Will not echo.)</pre></div></li><li class="listitem"><p>Using the <a class="link" href="ch15s09.html#teeref">tee</a> filter
+        to check processes or data flows at critical points.</p></li><li class="listitem"><p>Setting option flags <code class="option">-n -v -x</code></p><p><strong class="userinput"><code>sh -n scriptname</code></strong> checks for
+        syntax errors without actually running the script. This is
+        the equivalent of inserting <strong class="userinput"><code>set -n</code></strong> or
+        <strong class="userinput"><code>set -o noexec</code></strong> into the script. Note
+        that certain types of syntax errors can slip past this
+        check.</p><p><strong class="userinput"><code>sh -v scriptname</code></strong> echoes each
+        command before executing it. This is the equivalent of
+        inserting <strong class="userinput"><code>set -v</code></strong> or <strong class="userinput"><code>set
+        -o verbose</code></strong> in the script.</p><p>The <code class="option">-n</code> and <code class="option">-v</code>
+        flags work well together. <strong class="userinput"><code>sh -nv
+        scriptname</code></strong> gives a verbose syntax check.</p><p><strong class="userinput"><code>sh -x scriptname</code></strong> echoes the result each
+        command, but in an abbreviated manner. This is the equivalent of
+        inserting <strong class="userinput"><code>set -x</code></strong> or 
+        <strong class="userinput"><code>set -o xtrace</code></strong> in the script.</p><p><a id="undvarerr"/></p><p>Inserting <strong class="userinput"><code>set -u</code></strong> or 
+    <strong class="userinput"><code>set -o nounset</code></strong> in the script runs it, but
+    gives an <span class="errorname">unbound variable</span> error message
+    at each attempt to use an undeclared variable.</p></li><li class="listitem"><p>Using an <span class="quote">«<span class="quote">assert</span>»</span> function to test a
+        variable or condition at critical points in a script. (This is
+        an idea borrowed from C.)</p><div class="example"><a id="assert"/><p class="title"><b>Пример 29.4. Testing a condition with an
+        <em class="firstterm">assert</em></b></p><div class="example-contents"><pre class="programlisting">&amp;assert;</pre></div></div><br class="example-break"/></li><li class="listitem"><p>Using the <a class="link" href="ch09.html#linenoref">$LINENO</a>
+        variable and the <a class="link" href="ch14.html#callerref">caller</a>
+        builtin.</p></li><li class="listitem"><p><a id="debugtrap"/>Trapping at exit.</p><p>The <a class="link" href="ch14.html#exitref">exit</a> command in a script
+        triggers a signal <span class="returnvalue">0</span>, terminating
+        the process, that is, the script itself.
+
+        <sup>[<a id="idp17183840" href="#ftn.idp17183840" class="footnote">110</a>]</sup>
+
+        It is often useful to trap the
+        <em class="firstterm">exit</em>, forcing a <span class="quote">«<span class="quote">printout</span>»</span>
+        of variables, for example. The <em class="firstterm">trap</em>
+        must be the first command in the script.</p></li></ol></div><p>
+      </p><div class="variablelist" title="Trapping signals"><a id="trapref"/><p class="title"><b><a id="trapref1"/>Trapping signals</b></p><dl><dt><span class="term"><span class="command"><strong>trap</strong></span></span></dt><dd><p>Specifies an action on receipt of a
+          signal; also useful for debugging.</p><p><a id="signald"/></p><div class="sidebar"><p class="title"><b/></p><p>A <em class="firstterm">signal</em> is a message
+    sent to a process, either by the kernel or another
+    process, telling it to take some specified action
+    (usually to terminate).  For example, hitting a
+    <a class="link" href="ch03.html#ctlcref">Control-C</a>
+    sends a user interrupt, an INT signal, to a running
+    program.</p></div><p><span class="emphasis"><em>A simple instance:</em></span>
+      </p><pre class="programlisting">trap '' 2
+# Ignore interrupt 2 (Control-C), with no action specified. 
+
+trap 'echo "Control-C disabled."' 2
+# Message when Control-C pressed.</pre><p>
+        </p></dd></dl></div><div class="example"><a id="ex76"/><p class="title"><b>Пример 29.5. Trapping at exit</b></p><div class="example-contents"><pre class="programlisting">&amp;ex76;</pre></div></div><br class="example-break"/><div class="example"><a id="online"/><p class="title"><b>Пример 29.6. Cleaning up after <span class="keycap">Control-C</span></b></p><div class="example-contents"><pre class="programlisting">&amp;online;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <code class="option">DEBUG</code> argument to
+  <span class="command"><strong>trap</strong></span> causes a specified action to execute
+  after every command in a script. This permits tracing variables,
+  for example.
+
+      </p><div class="example"><a id="vartrace"/><p class="title"><b>Пример 29.7. Tracing a variable</b></p><div class="example-contents"><pre class="programlisting">&amp;vartrace;</pre></div></div><p><br class="example-break"/>
+
+      </p></div><p>Of course, the <span class="command"><strong>trap</strong></span> command has other uses
+        aside from debugging, such as disabling certain keystrokes within a
+  script (see <a class="xref" href="apa.html#stopwatch" title="Пример A.43. A command-line stopwatch">Пример A.43, «A command-line stopwatch»</a>).</p><div class="example"><a id="multipleproc"/><p class="title"><b>Пример 29.8. Running multiple processes (on an SMP box)</b></p><div class="example-contents"><pre class="programlisting">&amp;multipleproc;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><strong class="userinput"><code>trap '' SIGNAL</code></strong> (two adjacent
+  apostrophes) disables SIGNAL for the remainder of the
+  script. <strong class="userinput"><code>trap SIGNAL</code></strong> restores
+  the functioning of SIGNAL once more. This is useful to
+  protect a critical portion of a script from an undesirable
+  interrupt.</p></div><pre class="programlisting">
+  trap '' 2  # Signal 2 is Control-C, now disabled.
+  command
+  command
+  command
+  trap 2     # Reenables Control-C
+  </pre><div class="sidebar"><p class="title"><b/></p><p><a class="link" href="ch34s02.html#bash3ref">Version 3</a> of Bash adds the
+    following <a class="link" href="ch09.html#internalvariables1">internal
+    variables</a> for use by the debugger.
+
+       </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p><code class="varname">$BASH_ARGC</code></p><p>Number of command-line arguments passed to script,
+       similar to <a class="link" href="ch09.html#clacountref"><code class="varname">$#</code></a>.</p></li><li class="listitem"><p><code class="varname">$BASH_ARGV</code></p><p>Final command-line parameter passed to script, equivalent
+       <a class="link" href="ch04s04.html#lastargref"><code class="varname">${!#}</code></a>.</p></li><li class="listitem"><p><code class="varname">$BASH_COMMAND</code></p><p>Command currently executing.</p></li><li class="listitem"><p><code class="varname">$BASH_EXECUTION_STRING</code></p><p>The <em class="firstterm">option string</em> following the
+       <code class="option">-c</code> <a class="link" href="apfs02.html#clopts">option</a>
+       to Bash.</p></li><li class="listitem"><p><code class="varname">$BASH_LINENO</code></p><p>In a <a class="link" href="ch23.html#functionref">function</a>,
+       indicates the line number of the function call.</p></li><li class="listitem"><p><code class="varname">$BASH_REMATCH</code></p><p>Array variable associated with <span class="command"><strong>=~</strong></span>
+     <a class="link" href="ch34s02.html#regexmatchref">conditional regex
+     matching</a>.</p></li><li class="listitem"><p><code class="varname">$BASH_SOURCE</code></p><p>Same as <a class="link" href="ch04s04.html#arg0">$0</a>.</p></li><li class="listitem"><p>
+   <a class="link" href="ch09.html#bashsubshellref"><code class="varname">$BASH_SUBSHELL</code></a></p></li></ol></div></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp17183840" href="#idp17183840" class="para">110</a>] </sup>By convention, <em class="replaceable"><code>signal
+    0</code></em> is assigned to <a class="link" href="ch06.html#exitcommandref">exit</a>.  </p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch28.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch30.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 28. Of Zeros and Nulls </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 30. Options</td></tr></table></div></body></html>

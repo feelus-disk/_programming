@@ -1,0 +1,253 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>fdisk OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>fdisk</h1> 
+<p>Partition table manipulator for Darwin UFS/HFS/DOS. </p>
+<pre>Syntax
+      fdisk [-ieu] [-f <i>mbrname</i>] [-c <i>cylinders</i>] [-h <i>heads</i>] [-s <i>sectors</i>] [-S <i>size</i>] [-b <i>size</i>] <i>disc</i>
+
+Options<i>
+</i>     -i	     Initialize the MBR sector.
+
+     -a <i>style</i>
+	     Specify an automatic partitioning style.
+
+     -e	     Edit existing MBR sectors.
+
+     -f <i>mbrname</i>
+	     Specifies an alternate MBR template file.
+
+     -u	     Update MBR code, preserving existing partition table.
+
+     -y	     Do not ask for confirmation before writing.
+
+     -d	     Dump partition table in a format readable by the -r option.
+
+     -r	     Read a partition table from the standard input.
+
+     -t	     Test if the disk is partitioned.
+
+     -c <i>cylinders</i>, -h <i>heads</i>, -s <i>sectors</i>
+	     Specify an alternate BIOS geometry for fdisk to use.
+
+     -S <i>size</i>    Specify the disk size in blocks.
+
+     -b size    Specify the number of bytes per disk block.
+
+     <i>disk</i>       The disk in the form /dev/rdisk0.
+
+     The <b>DOS fdisk </b>program can be used to divide space on the disk into parti-
+     tions and set one active.	This <b>fdisk</b> program serves a similar purpose to
+     the DOS program.  When called with no special flags, it prints the MBR
+     partition table of the specified device, i.e.,
+
+	 # fdisk fd0
+	 Disk: fd0	 geometry: 80/2/18 [2880 sectors]
+	 Offset: 0	 Signature: 0xAA55
+		  Starting	  Ending
+	  #: id	 cyl  hd sec -	cyl  hd sec [	  start -	size]
+	 ----------------------------------------------------------------------
+	 *1: A6	   0   0   1 -	 79   1	 18 [	      0 -	2880] OpenBSD
+	  2: 00	   0   0   0 -	  0   0	  0 [	      0 -	   0] unused
+	  3: A7	   0   0   2 -	 79   1	 18 [	      1 -	2879] NEXTSTEP
+	  4: 00	   0   0   0 -	  0   0	  0 [	      0 -	   0] unused
+
+     The geometry displayed is a synthetic geometry unless another geometry
+     has been selected using the -c, -h, and -s options.  In the future, fdisk
+     will read the BIOS geometry from the IOKit registry.
+
+     In this example, the disk is divided into two partitions that happen to
+     fill the disk.  The first partition overlaps the third partition.	(Used
+     for debugging purposes.)
+
+     #		 Number of partition table entry.  A `*' denotes the
+		 bootable partition.
+
+     id		 System identifier.  OpenBSD reserves the magic number 166
+		 decimal (A6 in hex).  If no 166 partition is found, it will
+		 use an older FreeBSD partition (with a magic number of 165 or
+		 A5 in hex).
+
+     cyl/hd/sec	 These fields provide the starting and ending address of the
+		 partition in BIOS geometry
+
+     start/size	 These fields provide the starting sector and size in sectors
+		 of the partition in linear block addresses.
+
+     NOTE: The sectors field is `1 based', and the start field is `0
+     based'.  The CHS values may need to be in the BIOS's geometry for older
+     systems to be able to boot and use the drive correctly; most modern sys-
+     tems prefer the starting sector and size in preference to the CHS values.
+
+     The -i flag is used to indicate that the partition data is to be initial-
+     ized.  In this mode, fdisk will completely overwrite the primary MBR and
+     partition table, either using the default MBR template, or the one speci-
+     fied by the -f flag.
+
+     In the default template, partition number 1 will be configured as a Dar-
+     win boot partition spanning from cylinder 0, head 1, sector 1, and
+     extending for 8 megabytes.	 Partition number 2 will be configured as a
+     Darwin HFS partition spanning the rest of the disk.  This mode is
+     designed to initialize an MBR the very first time, or when it has been
+     corrupted beyond repair.
+
+     You can specify other default partition styles with the -a flag.  The
+     available styles are:
+
+     boothfs	 Creates an 8Mb boot partition (type AB hex) and makes the
+		 rest of the disk a Darwin HFS partition (type AF hex).
+
+     bootufs	 Creates an 8Mb boot partition (type AB hex) and makes the
+		 rest of the disk a Darwin UFS partition (type A8 hex).
+
+     hfs	 Makes the entire disk one Darwin UFS partition (type A8 hex).
+
+     ufs	 Makes the entire disk one HFS+ partition (type AF hex).
+
+     dos	 Makes the entire disk one DOS partition (type 0C hex).
+
+     raid	 Makes the entire disk one type AC hex partition.
+
+     The -u flag is used to update the MBR code on a given drive.  The MBR
+     code extends from offset 0x000 to the start of the partition table at
+     offset 0x1BE.  It is similar to the -i flag, except the existing parti-
+     tion table is preserved. This is useful for writing new MBR code onto an
+     existing drive, and is equivalent to the DOS command `FDISK /MBR'.
+     Note that this option will overwrite the NT disk signature, if present.
+     The -u and -i flags may not be specified together.
+
+     The flag -e is used to modify a partition table using a interactive edit
+     mode of the fdisk program.	 This mode is designed to allow you to change
+     any partition on the drive you choose, including extended partitions.  It
+     is a very powerful mode, but is safe as long as you do not execute the
+     write command, or answer in the negative (the default) when fdisk asks
+     you about writing out changes.
+
+COMMAND MODE
+
+     When you first enter this mode, you are presented with a prompt, that
+     looks like so: fdisk: 0>.	This prompt has two important pieces of infor-
+     mation for you.  It will tell you if the in-memory copy of the boot block
+     has been modified or not.	If it has been modified, the prompt will
+     change to look like: fdisk:*0>.  The second piece of information pertains
+     to the number given in the prompt.	 This number specifies the disk offset
+     of the currently selected boot block you are editing.  This number could
+     be something different that zero when you are editing extended parti-
+     tions.  The list of commands and their explanations are given below.
+
+     help    Display a list of commands that fdisk understands in the interac-
+	     tive edit mode.
+
+     manual  Display this manual page.
+
+     reinit  Initialize the currently selected, in-memory copy of the boot
+	     block.
+
+     auto    Partition the disk with one of the automatic partition styles.
+
+     disk    Display the current drive geometry that fdisk has probed.	You
+	     are given a chance to edit it if you wish.
+
+     edit    Edit a given table entry in the memory copy of the current boot
+	     block.  You may edit either in BIOS geometry mode, or in sector
+	     offsets and sizes.
+
+     setpid  Change the partition identifier of the given partition table
+	     entry.  This command is particularly useful for reassigning an
+	     existing partition to OpenBSD.
+
+     flag    Make the given partition table entry bootable.  Only one entry
+	     can be marked bootable.  If you wish to boot from an extended
+	     partition, you will need to mark the partition table entry for
+	     the extended partition as bootable.
+
+     update  Update the machine code in the memory copy of the currently
+	     selected boot block.  Note that this option will overwrite the NT
+	     disk signature, if present.
+
+     select  Select and load into memory the boot block pointed to by the
+	     extended partition table entry in the current boot block.
+
+     print   Print the currently selected in-memory copy of the boot block and
+	     its MBR table to the terminal.
+
+     write   Write the in-memory copy of the boot block to disk.  You will be
+	     asked to confirm this operation.
+
+     exit    Exit the current level of fdisk, either returning to the previously
+        selected in-memory copy of a boot block, or exiting the
+	     program if there is none.
+
+     quit    Exit the current level of fdisk, either returning to the previously
+        selected in-memory copy of a boot block, or exiting the
+	     program if there is none.	Unlike exit it does write the modified
+	     block out.
+
+     abort   Quit program without saving current changes.</pre>
+<p>In order for the BIOS to boot the kernel, certain conventions must be adhered 
+  to. Sector 0 of a bootable hard disk must contain boot code, an MBR partition 
+  table, and a magic number (0xAA55). These MBR partitions (also known as BIOS 
+  partitions) can be used to break the disk up into several pieces. The BIOS loads 
+  sector 0 of the boot disk into memory, verifies the magic number, and begins 
+  executing the code at the first byte. The normal DOS MBR boot code searches 
+  the MBR partition table for an ``active'' partition (indicated by a `*' in 
+  the first column), and if one is found, the boot block from that partition is 
+  loaded and executed in place of the original (MBR) boot block.</p>
+<p> The automatic calculation of starting cylinder etc. uses a set 
+  of figures that represent what the BIOS thinks is the geometry of the drive.	
+  These figures are by default taken from the in-core disklabel, or values that 
+  /boot has passed to the kernel, but fdisk gives you an opportunity to change 
+  them if there is a need to. This allows the user to create a bootblock that 
+  can work with drives that use geometry translation under a potentially different 
+  BIOS. </p>
+<p>If you hand craft your disk layout, please make sure that the 
+  OpenBSD partition starts on a cylinder boundary. (This restriction may be changed 
+  in the future.) </p>
+<p>Editing an existing partition is risky, and may cause you to lose 
+  all the data in that partition. </p>
+<p>You should run this program interactively once or twice to see 
+  how it works. This is completely safe as long as you answer the `write' questions 
+  in the negative.</p>
+<p>There are subtleties fdisk detects that are not explained in this 
+  manual page. As well, chances are that some of the subtleties it should detect 
+  are being steamrolled. Caveat Emptor.</p>
+<p><b>Examples</b></p>
+<p>List the current partitions:</p>
+<p class="code">$ sudo fdisk /dev/rdisk0</p>
+<p class="quote"><i>"When I'm reading material, if I'm a little bit afraid of a 
+  part and I'm willing to admit that to myself, then I'll do it, definitely. If 
+  I'm worried about being able to do it, to get it - I absolutely just love it&quot; 
+  - Jack 
+  Lemmon</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/fdisk.8.html">fdisk man page</a> - Apple.com<br>
+pdisk(8)</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="fdisk.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

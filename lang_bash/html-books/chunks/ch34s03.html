@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bash, version 4</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch34.html" title="Глава 34. Bash, versions 2, 3, and 4"/><link rel="prev" href="ch34s02.html" title="Bash, version 3"/><link rel="next" href="ch35.html" title="Глава 35. Endnotes"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Bash, version 4</th></tr><tr><td align="left"><a accesskey="p" href="ch34s02.html">Пред.</a> </td><th width="60%" align="center">Глава 34. Bash, versions 2, 3, and 4</th><td align="right"> <a accesskey="n" href="ch35.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Bash, version 4"><div class="titlepage"><div><div><h2 class="title"><a id="bashver4"/>Bash, version 4</h2></div></div></div><p><a id="bash4ref"/></p><p>Chet Ramey announced Version 4 of Bash on the 20th
+        of February, 2009. This release has a number of significant
+  new features, as well as some important bugfixes.</p><p>Among the new goodies:</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><a id="assocarr"/>Associative arrays.</p><div class="sidebar"><p class="title"><b/></p><p>An <em class="firstterm">associative</em> array can
+        be thought of as a set of two linked arrays -- one holding
+        the <em class="firstterm">data</em>, and the other the
+        <em class="firstterm">keys</em> that index the individual elements
+  of the <em class="firstterm">data</em> array.</p></div><div class="example"><a id="fetchaddress"/><p class="title"><b>Пример 34.5. A simple address database</b></p><div class="example-contents"><pre class="programlisting">&amp;fetchaddress;</pre></div></div><br class="example-break"/><div class="example"><a id="fetchaddress2"/><p class="title"><b>Пример 34.6. A somewhat more elaborate address database</b></p><div class="example-contents"><pre class="programlisting">&amp;fetchaddress2;</pre></div></div><br class="example-break"/></li><li class="listitem"><p><a id="ncterm"/>Enhancements to the
+            <a class="link" href="ch10s04.html#caseesac1">case</a> construct:
+            the <em class="replaceable"><code>;;&amp;</code></em> and
+            <em class="replaceable"><code>;&amp;</code></em> terminators.</p><div class="example"><a id="case4"/><p class="title"><b>Пример 34.7. Testing characters</b></p><div class="example-contents"><pre class="programlisting">&amp;case4;</pre></div></div><br class="example-break"/></li><li class="listitem"><p><a id="coprocref"/>The new <span class="command"><strong>coproc</strong></span>
+            builtin enables two parallel <a class="link" href="ch03.html#processref">processes</a> to communicate and
+            interact. As Chet Ramey states in the
+            <a class="link" href="bi01.html#bashfaq">Bash FAQ</a>
+  <sup>[<a id="idp18012192" href="#ftn.idp18012192" class="footnote">119</a>]</sup>
+      , ver. 4.01:
+    </p><div class="blockquote"><blockquote class="blockquote"><div class="literallayout"><p><br/>
+    There is a new 'coproc' reserved word that specifies a coprocess:<br/>
+    an asynchronous command run with two pipes connected to the creating<br/>
+    shell. Coprocs can be named. The input and output file descriptors<br/>
+    and the PID of the coprocess are available to the calling shell in<br/>
+    variables with coproc-specific names.<br/>
+<br/>
+    George Dimitriu explains,<br/>
+    "... coproc ... is a feature used in Bash process substitution,<br/>
+    which now is made publicly available."<br/>
+    This means it can be explicitly invoked in a script, rather than<br/>
+    just being a behind-the-scenes mechanism used by Bash.<br/>
+    See http://linux010.blogspot.com/2008/12/bash-process-substitution.html.<br/>
+      </p></div></blockquote></div><p>Coprocesses use <em class="firstterm">file descriptors</em>.
+      <a class="link" href="ch19.html#fdref2">File descriptors enable processes and
+        pipes to communicate</a>.</p><pre class="programlisting">#!/bin/bash4
+# A coprocess communicates with a while-read loop.
+
+
+coproc { cat mx_data.txt; sleep 2; }
+#                         ^^^^^^^
+# Try running this without "sleep 2" and see what happens.
+
+while read -u ${COPROC[0]} line    #  ${COPROC[0]} is the
+do                                 #+ file descriptor of the coprocess.
+  echo "$line" | sed -e 's/line/NOT-ORIGINAL-TEXT/'
+done
+
+kill $COPROC_PID                   #  No longer need the coprocess,
+                                   #+ so kill its PID.</pre><p>But, be careful!</p><pre class="programlisting">#!/bin/bash4
+
+echo; echo
+a=aaa
+b=bbb
+c=ccc
+
+coproc echo "one two three"
+while read -u ${COPROC[0]} a b c;  #  Note that this loop
+do                                 #+ runs in a subshell.
+  echo "Inside while-read loop: ";
+  echo "a = $a"; echo "b = $b"; echo "c = $c"
+  echo "coproc file descriptor: ${COPROC[0]}"
+done 
+
+# a = one
+# b = two
+# c = three
+# So far, so good, but ...
+
+echo "-----------------"
+echo "Outside while-read loop: "
+echo "a = $a"  # a =
+echo "b = $b"  # b =
+echo "c = $c"  # c =
+echo "coproc file descriptor: ${COPROC[0]}"
+echo
+#  The coproc is still running, but ...
+#+ it still doesn't enable the parent process
+#+ to "inherit" variables from the child process, the while-read loop.
+
+#  Compare this to the "badread.sh" script.</pre><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>The coprocess is <em class="firstterm">asynchronous</em>,
+        and this might cause a problem. It may terminate before another
+        process has finished communicating with it.</p><pre class="programlisting">#!/bin/bash4
+
+coproc cpname { for i in {0..10}; do echo "index = $i"; done; }
+#      ^^^^^^ This is a *named* coprocess.
+read -u ${cpname[0]}
+echo $REPLY         #  index = 0
+echo ${COPROC[0]}   #+ No output ... the coprocess timed out
+#  after the first loop iteration.
+
+
+
+# However, George Dimitriu has a partial fix.
+
+coproc cpname { for i in {0..10}; do echo "index = $i"; done; sleep 1;
+echo hi &gt; myo; cat - &gt;&gt; myo; }
+#       ^^^^^ This is a *named* coprocess.
+
+echo "I am main"$'\04' &gt;&amp;${cpname[1]}
+myfd=${cpname[0]}
+echo myfd=$myfd
+
+### while read -u $myfd
+### do
+###   echo $REPLY;
+### done
+
+echo $cpname_PID
+
+#  Run this with and without the commented-out while-loop, and it is
+#+ apparent that each process, the executing shell and the coprocess,
+#+ waits for the other to finish writing in its own write-enabled pipe.</pre></div></li><li class="listitem"><p><a id="mapfileref"/>The new <span class="command"><strong>mapfile</strong></span>
+      builtin makes it possible to load an array with the contents
+      of a text file without using a loop or <a class="link" href="ch26.html#arrayinitcs">command substitution</a>.</p><pre class="programlisting">#!/bin/bash4
+
+mapfile Arr1 &lt; $0
+# Same result as     Arr1=( $(cat $0) )
+echo "${Arr1[@]}"  # Copies this entire script out to stdout.
+
+echo "--"; echo
+
+# But, not the same as   read -a   !!!
+read -a Arr2 &lt; $0
+echo "${Arr2[@]}"  # Reads only first line of script into the array.
+
+exit</pre></li><li class="listitem"><p>The <a class="link" href="ch14.html#readref">read</a> builtin got
+  a minor facelift. The <code class="option">-t</code>
+  <a class="link" href="ch14.html#readtimed">timeout</a> option now accepts
+  (decimal) fractional values
+          <sup>[<a id="idp18030368" href="#ftn.idp18030368" class="footnote">120</a>]</sup>
+  and the <code class="option">-i</code> option
+  permits preloading the edit buffer.
+          <sup>[<a id="idp18032704" href="#ftn.idp18032704" class="footnote">121</a>]</sup>
+        Unfortunately, these enhancements are still a work in progress
+        and not (yet) usable in scripts.</p></li><li class="listitem"><p><a id="casemodparamsub"/>
+                   <a class="link" href="ch09s03.html#paramsubref">Parameter substitution</a>
+        gets <em class="firstterm">case-modification</em> operators.</p><pre class="programlisting">#!/bin/bash4
+
+var=veryMixedUpVariable
+echo ${var}            # veryMixedUpVariable
+echo ${var^}           # VeryMixedUpVariable
+#         *              First char --&gt; uppercase.
+echo ${var^^}          # VERYMIXEDUPVARIABLE
+#         **             All chars  --&gt; uppercase.
+echo ${var,}           # veryMixedUpVariable
+#         *              First char --&gt; lowercase.
+echo ${var,,}          # verymixedupvariable
+#         **             All chars  --&gt; lowercase.</pre></li><li class="listitem"><p><a id="declarecasemod"/></p><p>The <a class="link" href="ch09s04.html" title="Typing variables: declare or typeset">declare</a> builtin now
+        accepts the <code class="option">-l</code> <em class="firstterm">lowercase</em>
+        and <code class="option">-c</code> <em class="firstterm">capitalize</em>
+        options.</p><pre class="programlisting">#!/bin/bash4
+
+declare -l var1            # Will change to lowercase
+var1=MixedCaseVARIABLE
+echo "$var1"               # mixedcasevariable
+# Same effect as             echo $var1 | tr A-Z a-z
+
+declare -c var2            # Changes only initial char to uppercase.
+var2=originally_lowercase
+echo "$var2"               # Originally_lowercase
+# NOT the same effect as     echo $var2 | tr a-z A-Z</pre></li><li class="listitem"><p><a id="braceexpref4"/>
+      <a class="link" href="ch03.html#braceexpref">Brace expansion</a> has more options.</p><p><em class="firstterm">Increment/decrement</em>, specified in the
+        final term within braces.</p><pre class="programlisting">#!/bin/bash4
+
+echo {40..60..2}
+# 40 42 44 46 48 50 52 54 56 58 60
+# All the even numbers, between 40 and 60.
+
+echo {60..40..2}
+# 60 58 56 54 52 50 48 46 44 42 40
+# All the even numbers, between 40 and 60, counting backwards.
+# In effect, a decrement.
+echo {60..40..-2}
+# The same output. The minus sign is not necessary.
+
+# But, what about letters and symbols?
+echo {X..d}
+# X Y Z [  ] ^ _ ` a b c d
+echo {X..d..2}
+# X Z  ^ ` b d
+#  It seems to work for upper/lowercase letters,
+#+ but the increment is a bit inconsistent on symbols.</pre><p><em class="firstterm">Zero-padding</em>, specified in the
+       first term within braces, prefixes each term in the output
+       with the <span class="emphasis"><em>same number</em></span> of zeroes.</p><pre class="screen">
+<code class="prompt">bash4$ </code><strong class="userinput"><code>echo {010..15}</code></strong>
+<code class="computeroutput">010 011 012 013 014 015</code>
+
+
+<code class="prompt">bash4$ </code><strong class="userinput"><code>echo {000..10}</code></strong>
+<code class="computeroutput">000 001 002 003 004 005 006 007 008 009 010</code>
+      </pre></li><li class="listitem"><p><a id="substrextref4"/></p><p><a class="link" href="ch34s03.html#substrextref4"><em class="firstterm">Substring
+          extraction</em> on <em class="firstterm">positional
+    parameters</em></a> now starts with <a class="link" href="ch04s04.html#scrnameparam">$0</a> as the
+    <em class="firstterm">zero-index</em>. (This corrects an
+    inconsistency in the treatment of positional parameters.)</p><pre class="programlisting">#!/bin/bash4
+# show-params.bash4
+
+# Invoke this scripts with at least one positional parameter.
+
+E_BADPARAMS=99
+
+if [ -z "$1" ]
+then
+  echo "Usage $0 param1 ..."
+  exit $E_BADPARAMS
+fi
+
+echo ${@:0}
+
+# bash3 show-params.bash4 one two three
+# one two three
+
+# bash4 show-params.bash4 one two three
+# show-params.bash4 one two three
+
+# $0                $1  $2  $3</pre></li><li class="listitem"><p><a id="globstarref"/>The new <span class="token">**</span>
+            <a class="link" href="ch17s02.html" title="Глоббинг">globbing</a> operator
+      matches filenames and directories
+      <a class="link" href="ch23s02.html#recursionref0">recursively</a>.</p><pre class="programlisting">#!/bin/bash4
+# filelist.bash4
+
+shopt -s globstar  # Must enable globstar, otherwise ** doesn't work.
+                   # The globstar shell option is new to version 4 of Bash.
+
+echo "Using *"; echo
+for filename in *
+do
+  echo "$filename"
+done   # Lists only files in current directory ($PWD).
+
+echo; echo "--------------"; echo
+
+echo "Using **"
+for filename in **
+do
+  echo "$filename"
+done   # Lists complete file tree, recursively.
+
+exit
+
+Using *
+
+allmyfiles
+filelist.bash4
+
+--------------
+
+Using **
+
+allmyfiles
+allmyfiles/file.index.txt
+allmyfiles/my_music
+allmyfiles/my_music/me-singing-60s-folksongs.ogg
+allmyfiles/my_music/me-singing-opera.ogg
+allmyfiles/my_music/piano-lesson.1.ogg
+allmyfiles/my_pictures
+allmyfiles/my_pictures/at-beach-with-Jade.png
+allmyfiles/my_pictures/picnic-with-Melissa.png
+filelist.bash4</pre></li><li class="listitem"><p>The new <a class="link" href="ch09.html#bashpidref">$BASHPID</a>
+        internal variable.</p></li><li class="listitem"><p><a id="cnfh"/></p><p>There is a new <a class="link" href="ch14.html#builtinref">builtin</a>
+            error-handling function named
+      <span class="command"><strong>command_not_found_handle</strong></span>.</p><pre class="programlisting">#!/bin/bash4
+
+command_not_found_handle ()
+{ # Accepts implicit parameters.
+  echo "The following command is not valid: \""$1\"""
+  echo "With the following argument(s): \""$2\"" \""$3\"""   # $4, $5 ...
+} # $1, $2, etc. are not explicitly passed to the function.
+
+bad_command arg1 arg2
+
+# The following command is not valid: "bad_command"
+# With the following argument(s): "arg1" "arg2"</pre></li></ul></div><div class="sidebar"><p class="title"><b/></p><p><span class="emphasis"><em>Editorial comment</em></span></p><p>Associative arrays? Coprocesses? Whatever happened
+          to the lean and mean Bash we have come to know and love?
+          Could it be suffering from (horrors!) <span class="quote">«<span class="quote">feature
+          creep</span>»</span>? Or perhaps even Korn shell envy?</p><p><span class="emphasis"><em>Note to Chet Ramey:</em></span> Please add only
+          <span class="emphasis"><em>essential</em></span> features in future Bash
+    releases -- perhaps <em class="firstterm">for-each</em>
+    loops and support for multi-dimensional arrays.
+      <sup>[<a id="idp383200" href="#ftn.idp383200" class="footnote">122</a>]</sup>
+    Most Bash users won't need, won't use, and likely won't greatly
+    appreciate complex <span class="quote">«<span class="quote">features</span>»</span> like built-in
+    debuggers, Perl interfaces, and bolt-on rocket boosters.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp18012192" href="#idp18012192" class="para">119</a>] </sup>Copyright 1995-2009 by Chester Ramey.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp18030368" href="#idp18030368" class="para">120</a>] </sup>This only works with <a class="link" href="ch03.html#piperef">pipes</a> and certain other
+                <em class="firstterm">special</em> files.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp18032704" href="#idp18032704" class="para">121</a>] </sup>But only in conjunction with
+                <a class="link" href="ch14.html#readlineref">readline</a>, i.e.,
+                from the command-line.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp383200" href="#idp383200" class="para">122</a>] </sup>And while you're at it, consider fixing
+              the notorious <a class="link" href="ch14.html#pipereadref0">piped read</a>
+        problem.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch34s02.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch34.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch35.html">След.</a></td></tr><tr><td align="left" valign="top">Bash, version 3 </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 35. Endnotes</td></tr></table></div></body></html>

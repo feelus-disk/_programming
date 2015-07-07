@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 25. List Constructs</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch24.html" title="Глава 24. Псевдонимы"/><link rel="next" href="ch26.html" title="Глава 26. Arrays"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 25. List Constructs</th></tr><tr><td align="left"><a accesskey="p" href="ch24.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch26.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 25. List Constructs"><div class="titlepage"><div><div><h2 class="title"><a id="list-cons"/>Глава 25. List Constructs</h2></div></div></div><p><a id="listconsref"/></p><a id="idp16833424" class="indexterm"/><a id="idp16834352" class="indexterm"/><a id="idp16835840" class="indexterm"/><a id="idp16837296" class="indexterm"/><a id="idp16838336" class="indexterm"/><a id="idp16839792" class="indexterm"/><p>The <em class="firstterm">and list</em> and <em class="firstterm">or
+  list</em> constructs provide a means of processing a
+  number of commands consecutively. These can effectively replace
+  complex nested <a class="link" href="ch07.html#testconstructs1">if/then</a>
+  or even <a class="link" href="ch10s04.html#caseesac1">case</a> statements.</p><div class="variablelist" title="Chaining together commands"><a id="lcons"/><p class="title"><b><a id="lcons1"/>Chaining together commands</b></p><dl><dt><span class="term">and list</span></dt><dd><pre class="programlisting">command-1 &amp;&amp; command-2 &amp;&amp; command-3 &amp;&amp; ... command-n</pre><p>
+        Each command executes in turn, provided that
+        the previous command has given a return value of
+        <em class="replaceable"><code>true</code></em> (zero). At the first
+        <em class="replaceable"><code>false</code></em> (non-zero) return, the
+        command chain terminates (the first command returning
+        <em class="replaceable"><code>false</code></em> is the last one to
+        execute).</p><div class="example"><a id="ex64"/><p class="title"><b>Пример 25.1. Using an <em class="firstterm">and list</em> to test
+        for command-line arguments</b></p><div class="example-contents"><pre class="programlisting">&amp;ex64;</pre></div></div><br class="example-break"/><div class="example"><a id="andlist2"/><p class="title"><b>Пример 25.2. Another command-line arg test using an <em class="firstterm">and
+        list</em></b></p><div class="example-contents"><pre class="programlisting">&amp;andlist2;</pre></div></div><br class="example-break"/><p><a id="anddefault"/></p><p>
+        Of course, an <em class="firstterm">and list</em> can also
+        <em class="firstterm">set</em> variables to a default value.
+          </p><pre class="programlisting">arg1=$@ &amp;&amp; [ -z "$arg1" ] &amp;&amp; arg1=DEFAULT
+    
+              # Set $arg1 to command-line arguments, if any.
+              # But . . . set to DEFAULT if not specified on command-line.</pre><p>
+            </p></dd><dt><span class="term"><a id="orlistref"/>or list</span></dt><dd><pre class="programlisting">command-1 || command-2 || command-3 || ... command-n</pre><p>
+        Each command executes in turn for as long as the previous
+        command returns <span class="returnvalue">false</span>. At
+        the first <span class="returnvalue">true</span> return, the
+        command chain terminates (the first command returning
+        <span class="returnvalue">true</span> is the last one to
+        execute). This is obviously the inverse of the <span class="quote">«<span class="quote">and
+        list</span>»</span>.</p><div class="example"><a id="ex65"/><p class="title"><b>Пример 25.3. Using <em class="firstterm">or lists</em> in combination
+        with an <em class="firstterm">and list</em></b></p><div class="example-contents"><pre class="programlisting">&amp;ex65;</pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>If the first command in an <em class="firstterm">or
+        list</em> returns <span class="returnvalue">true</span>,
+        it <em class="replaceable"><code>will</code></em> execute.</p></div></dd></dl></div><pre class="programlisting"># ==&gt; The following snippets from the /etc/rc.d/init.d/single
+#+==&gt; script by Miquel van Smoorenburg
+#+==&gt; illustrate use of "and" and "or" lists.
+# ==&gt; "Arrowed" comments added by document author.
+
+[ -x /usr/bin/clear ] &amp;&amp; /usr/bin/clear
+  # ==&gt; If /usr/bin/clear exists, then invoke it.
+  # ==&gt; Checking for the existence of a command before calling it
+  #+==&gt; avoids error messages and other awkward consequences.
+
+  # ==&gt; . . .
+
+# If they want to run something in single user mode, might as well run it...
+for i in /etc/rc1.d/S[0-9][0-9]* ; do
+        # Check if the script is there.
+        [ -x "$i" ] || continue
+  # ==&gt; If corresponding file in $PWD *not* found,
+  #+==&gt; then "continue" by jumping to the top of the loop.
+
+        # Reject backup files and files generated by rpm.
+        case "$1" in
+                *.rpmsave|*.rpmorig|*.rpmnew|*~|*.orig)
+                        continue;;
+        esac
+        [ "$i" = "/etc/rc1.d/S00single" ] &amp;&amp; continue
+  # ==&gt; Set script name, but don't execute it yet.
+        $i start
+done
+
+  # ==&gt; . . .</pre><div class="important" title="Важно" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Важно</h3><p>The <a class="link" href="ch06.html#exitstatusref">exit
+    status</a> of an <strong class="userinput"><code>and list</code></strong> or an
+    <strong class="userinput"><code>or list</code></strong> is the exit status of the last
+    command executed.</p></div><p>Clever combinations of <em class="firstterm">and</em> and
+  <em class="firstterm">or</em> lists are possible, but the logic may
+  easily become convoluted and require close attention to <a class="link" href="ch33s02.html#opprecedence1">operator precedence rules</a>, and
+  possibly extensive debugging.</p><pre class="programlisting">false &amp;&amp; true || echo false         # false
+
+# Same result as
+( false &amp;&amp; true ) || echo false     # false
+# But NOT
+false &amp;&amp; ( true || echo false )     # (nothing echoed)
+
+#  Note left-to-right grouping and evaluation of statements,
+#+ since the logic operators "&amp;&amp;" and "||" have equal precedence.
+
+#  It's usually best to avoid such complexities.
+
+#  Thanks, S.C.</pre><p>
+  </p><p>See <a class="xref" href="apa.html#daysbetween" title="Пример A.7. days-between: Days between two dates">Пример A.7, «<em class="firstterm">days-between</em>: Days between two
+        dates»</a> and <a class="xref" href="ch07s02.html#brokenlink" title="Пример 7.4. Проверка ссылок на корректность">Пример 7.4, «Проверка ссылок на корректность»</a> for illustrations of using <strong class="userinput"><code>and
+  / or list</code></strong> constructs to test variables.</p></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch24.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch26.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 24. Псевдонимы </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 26. Arrays</td></tr></table></div></body></html>

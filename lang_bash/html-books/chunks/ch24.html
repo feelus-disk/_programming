@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 24. Псевдонимы</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch23s03.html" title="Рекурсия без локальных переменных"/><link rel="next" href="ch25.html" title="Глава 25. List Constructs"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 24. Псевдонимы</th></tr><tr><td align="left"><a accesskey="p" href="ch23s03.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch25.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 24. Псевдонимы"><div class="titlepage"><div><div><h2 class="title"><a id="aliases"/>Глава 24. Псевдонимы</h2></div></div></div><p><a id="aliasref"/></p><a id="idp16773888" class="indexterm"/><p><em class="firstterm">Псевдоним (alias)</em> bash есть ничего более, чем
+  "горячая клавиша", сокращение, в смысле избежания
+  ввода длинной последовательности команд. Если, например,
+  мы включим <span class="command"><strong>alias lm="ls -l | more"</strong></span> в файл
+  <a class="link" href="apl.html" title="Приложение L. A Sample .bashrc File"><code class="filename">~/.bashrc</code>
+        </a>, то каждая напечатанная в командной строке команда <strong class="userinput"><code>lm</code></strong>
+          <sup>[<a id="idp16769024" href="#ftn.idp16769024" class="footnote">104</a>]</sup>
+  автоматически будет заменена командой
+  <span class="command"><strong>ls -l | more</strong></span>. Это может сэкономить много времени, затраченного на печать в командной строке и избежать запоминания сложных комбинаций команд и опций. Выполнив команду <span class="command"><strong>alias
+  rm="rm -i"</strong></span> (интерактивный режим удаления), мы можем избежать 
+  многих неприятностей, так как она предотвращает нечаянное удаление важных файлов.</p><p>В сценариях псевдонимы имеют крайне невысокую полезность. Хорошо бы было, если бы псевдонимы допускали некоторую функциональность
+  препроцессора <span class="command"><strong>C</strong></span>, такую, как макроподстановки,
+  но, к несчастью bash не раскрывает аргументы внутри
+  псевдонима.
+    <sup>[<a id="idp16780288" href="#ftn.idp16780288" class="footnote">105</a>]</sup>
+  Кроме того, сценарий не может раскрывать псевдоним
+  внутри <span class="quote">«<span class="quote">составных конструкций</span>»</span>, таких, как условная конструкция <a class="link" href="ch07.html#ifthen">if/then</a>, циклы и
+  функции. Добавлено также ограничение на то, что псевдоним не будет раскрываться
+  рекурсивно. Почти всегда, все, что бы мы хотели от псевдонима,
+  может быть выполнено более эффективно с помощью <a class="link" href="ch23.html#functionref">функции</a>.</p><div class="example"><a id="al"/><p class="title"><b>Пример 24.1. Псевдонимы внутри сценария</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# alias.sh
+
+shopt -s expand_aliases
+# Эта опция должна быть установлена, иначе сценарий не будет раскрывать псевдонимы.
+
+
+# Сначала немного юмора.
+alias Jesse_James='echo "\"Псевдоним Джесси Джеймс\" был комедией 1959 года с Бобом Хоупом (Bob Hope) в главной роли."'
+Jesse_James
+
+echo; echo; echo;
+
+alias ll="ls -l"
+# Можно использовать либо ординарные ('), либо двойные (") кавычки, чтобы определить псевдоним.
+
+echo "Пробуем псевдоним \"ll\":"
+ll /usr/X11R6/bin/mk*   #* Псевдоним работает.
+
+echo
+
+directory=/usr/X11R6/bin/
+prefix=mk*  # Смотри, если шаблон вызывает проблемы.
+echo "Переменные \"directory\" + \"prefix\" = $directory$prefix"
+echo
+
+alias lll="ls -l $directory$prefix"
+
+echo "Пробуем псевдоним \"lll\":"
+lll         # Подробный листинг всех файлов в /usr/X11R6/bin, начинающихся с mk.
+# Псевдоним может обрабатывать соединенные переменные -- включая шаблоны -- o.k.
+
+
+
+
+TRUE=1
+
+echo
+
+if [ TRUE ]
+then
+  alias rr="ls -l"
+  echo "Пробуем псевдоним \"rr\" внутри конструкции if/then :"
+  rr /usr/X11R6/bin/mk*   #* Сообщение об ошибке в результате!
+  # Псевдонимы не раскрываются внутри составных конструкций.
+  echo "Тем не менее, предыдущий раскрытый псевдоним все еще распознается:"
+  ll /usr/X11R6/bin/mk*
+fi  
+
+echo
+
+count=0
+while [ $count -lt 3 ]
+do
+  alias rrr="ls -l"
+  echo "Пробуем псевдоним \"rrr\" внутри цикла \"while\" :"
+  rrr /usr/X11R6/bin/mk*   #* Псевдоним также не раскрывается здесь.
+                           #  alias.sh: line 57: rrr: команда не найдена
+  let count+=1
+done 
+
+echo; echo
+
+alias xyz='cat $0'   # Сценарий выдает свое содержимое на вывод.
+                     # Обратите внимание на строгие кавычки.
+xyz
+#  Это, кажется, работает,
+#+ хотя документация Bash говорит о том, что так быть не должно.
+#
+#  Тем не менее, как указал Стив Якобсон (Steve Jacobson),
+#+ параметр "$0" немедленно раскрывается в объявлении псевдонима.
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="unaliasref"/></p><p>Команда <span class="command"><strong>unalias</strong></span> удаляет предыдущий
+      установленный <em class="firstterm">псевдоним</em>.</p><div class="example"><a id="unal"/><p class="title"><b>Пример 24.2. <em class="firstterm">unalias</em>: Установка и удаление псевдонима</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# unalias.sh
+
+shopt -s expand_aliases  # Включить раскрытие псевдонимов.
+
+alias llm='ls -al | more'
+llm
+
+echo
+
+unalias llm              # Удалить псевдоним.
+llm
+# Сообщение об ошибке в результате, так как псевдоним 'llm' больше не распознается.
+
+exit 0
+</pre></div></div><br class="example-break"/><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>./unalias.sh</code></strong>
+<code class="computeroutput">
+total 6
+drwxrwxr-x    2 bozo     bozo         3072 Feb  6 14:04 .
+drwxr-xr-x   40 bozo     bozo         2048 Feb  6 14:04 ..
+-rwxr-xr-x    1 bozo     bozo          199 Feb  6 14:04 unalias.sh
+
+./unalias.sh: llm: команда не найдена
+</code></pre><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp16769024" href="#idp16769024" class="para">104</a>] </sup> ... в качестве первого слова в командной строке .
+         Очевидно, псевдоним имеет смысл только в 
+          <span class="emphasis"><em>начале</em></span> команды.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16780288" href="#idp16780288" class="para">105</a>] </sup>Тем не менее, псевдонимы могут раскрывать позиционные параметры.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch23s03.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch25.html">След.</a></td></tr><tr><td align="left" valign="top">Рекурсия без локальных переменных </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 25. List Constructs</td></tr></table></div></body></html>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Приложение N. Exercises</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="prev" href="apm.html" title="Приложение M. Converting DOS Batch Files to Shell Scripts"/><link rel="next" href="apns02.html" title="Writing Scripts"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Приложение N. Exercises</th></tr><tr><td align="left"><a accesskey="p" href="apm.html">Пред.</a> </td><th width="60%" align="center"> </th><td align="right"> <a accesskey="n" href="apns02.html">След.</a></td></tr></table><hr/></div><div class="appendix" title="Приложение N. Exercises"><div class="titlepage"><div><div><h2 class="title"><a id="exercises"/>Приложение N. Exercises</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="apn.html#scriptanalysis">Analyzing Scripts</a></span></dt><dt><span class="sect1"><a href="apns02.html">Writing Scripts</a></span></dt></dl></div><p>The exercises that follow test and extend your knowledge
+  of scripting. Think of them as a challenge, as an entertaining way
+  to take you further along the stony path toward UNIX wizardry.</p><p>
+      </p><div class="literallayout"><p><br/>
+      On a dingy side street in a run-down section of Hoboken, New Jersey,<br/>
+      there sits a nondescript squat two-story brick building with an inscription<br/>
+      incised on a marble plate in its wall:<br/>
+<br/>
+                       <code class="computeroutput">Bash Scripting Hall of Fame</code>.<br/>
+<br/>
+      Inside, among various dusty uninteresting exhibits is a corroding,<br/>
+      cobweb-festooned brass plaque inscribed with a short, very short<br/>
+      list of those few persons who have successfully mastered the material<br/>
+      in the <em class="firstterm">Advanced Bash Scripting Guide</em>, as evidenced by their performance<br/>
+      on the following Exercise sections.<br/>
+<br/>
+      (Alas, the author of the <em class="firstterm">ABS Guide</em> is not represented among the exhibits.<br/>
+      This is possibly due to malicious rumors about <a class="link" href="ch35s02.html#nocreds">lack of credentials</a> and<br/>
+      <a class="link" href="apa.html#ktour0">deficient scripting skills</a>.)<br/>
+      </p></div><p>
+      </p><div class="sect1" title="Analyzing Scripts"><div class="titlepage"><div><div><h2 class="title"><a id="scriptanalysis"/>Analyzing Scripts</h2></div></div></div><p>Examine the following script. Run it, then explain what it
+        does.  Annotate the script and rewrite it in a more compact and
+        elegant manner.</p><p>
+       </p><pre class="programlisting">#!/bin/bash
+
+MAX=10000
+
+
+  for((nr=1; nr&lt;$MAX; nr++))
+  do
+
+    let "t1 = nr % 5"
+    if [ "$t1" -ne 3 ]
+    then
+      continue
+    fi
+
+    let "t2 = nr % 7"
+    if [ "$t2" -ne 4 ]
+    then
+      continue
+    fi
+
+    let "t3 = nr % 9"
+    if [ "$t3" -ne 5 ]
+    then
+      continue
+    fi
+
+  break   # What happens when you comment out this line? Why?
+
+  done
+
+  echo "Number = $nr"
+
+
+exit 0</pre><p>
+       </p><p>---</p><p>Explain what the following script does. It is really just
+        a parameterized command-line pipe.</p><p>
+        </p><pre class="programlisting">#!/bin/bash
+
+DIRNAME=/usr/bin
+FILETYPE="shell script"
+LOGFILE=logfile
+
+file "$DIRNAME"/* | fgrep "$FILETYPE" | tee $LOGFILE | wc -l
+
+exit 0</pre><p>
+      </p><p>---</p><p>Examine and explain the following script. For hints, you
+        might refer to the listings for <a class="link" href="ch15s02.html#findref">find</a> and <a class="link" href="ch16.html#statref">stat</a>.</p><p>
+        </p><pre class="programlisting">#!/bin/bash
+
+# Author:  Nathan Coulter
+# This code is released to the public domain.
+# The author gave permission to use this code snippet in the ABS Guide.
+
+find -maxdepth 1 -type f -printf '%f\000'  | {
+   while read -d $'\000'; do
+      mv "$REPLY" "$(date -d "$(stat -c '%y' "$REPLY") " '+%Y%m%d%H%M%S'
+      )-$REPLY"
+   done
+}
+
+# Warning: Test-drive this script in a "scratch" directory.
+# It will somehow affect all the files there.</pre><p>
+      </p><p>---</p><p>A reader sent in the following code snippet.</p><p>
+         </p><pre class="programlisting">while read LINE
+do
+  echo $LINE
+done &lt; `tail -f /var/log/messages`</pre><p>
+   </p><p>He wished to write a script tracking changes to the system log
+     file, <code class="filename">/var/log/messages</code>. Unfortunately,
+     the above code block hangs and does nothing
+     useful. Why? Fix this so it does work. (Hint:
+     rather than <a class="link" href="ch19s02.html#redirref">redirecting the
+     <code class="filename">stdin</code> of the loop</a>, try a <a class="link" href="ch03.html#piperef">pipe</a>.)</p><p>---</p><p>Analyze the following <span class="quote">«<span class="quote">one-liner</span>»</span> (here
+        split into two lines for clarity) contributed by Rory
+        Winston:</p><p>
+      </p><pre class="programlisting">export SUM=0; for f in $(find src -name "*.java");
+do export SUM=$(($SUM + $(wc -l $f | awk '{ print $1 }'))); done; echo $SUM</pre><p>
+   </p><p>Hint: First, break the script up into bite-sized
+  sections. Then, carefully examine its use of <a class="link" href="ch09s07.html" title="The Double-Parentheses Construct">double-parentheses</a> arithmetic,
+  the <a class="link" href="ch14.html#exportref">export</a> command,
+  the <a class="link" href="ch15s02.html#findref">find</a> command, the
+  <a class="link" href="ch15s04.html#wcref">wc</a> command, and <a class="link" href="apcs02.html#awkref">awk</a>.</p><p>---</p><p>Analyze <a class="xref" href="apa.html#lifeslow" title="Пример A.10. Game of Life">Пример A.10, «<em class="firstterm">Game of Life</em>»</a>, and reorganize it in a
+  simplified and more logical style. See how many of the variables
+  can be eliminated, and try to optimize the script to speed up
+  its execution time.</p><p>Alter the script so that it accepts any ordinary ASCII
+  text file as input for its initial <span class="quote">«<span class="quote">generation</span>»</span>. The
+  script will read the first <em class="parameter"><code>$ROW*$COL</code></em>
+  characters, and set the occurrences of vowels as
+  <span class="quote">«<span class="quote">living</span>»</span> cells. Hint: be sure to translate the
+  spaces in the input file to underscore characters.</p></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="apm.html">Пред.</a> </td><td align="center"> </td><td align="right"> <a accesskey="n" href="apns02.html">След.</a></td></tr><tr><td align="left" valign="top">Приложение M. Converting DOS Batch Files to Shell Scripts </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Writing Scripts</td></tr></table></div></body></html>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Math Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/><link rel="prev" href="ch15s07.html" title="Terminal Control Commands"/><link rel="next" href="ch15s09.html" title="Miscellaneous Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Math Commands</th></tr><tr><td align="left"><a accesskey="p" href="ch15s07.html">Пред.</a> </td><th width="60%" align="center">Глава 15. External Filters, Programs and Commands</th><td align="right"> <a accesskey="n" href="ch15s09.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Math Commands"><div class="titlepage"><div><div><h2 class="title"><a id="mathc"/>Math Commands</h2></div></div></div><div class="variablelist" title="«Doing the numbers»"><a id="mathcommandlisting"/><p class="title"><b><a id="mathcommandlisting1"/><span class="quote">«<span class="quote">Doing the
+     numbers</span>»</span></b></p><dl><dt><span class="term"><a id="factorref"/><span class="command"><strong>factor</strong></span></span></dt><dd><p>Decompose an integer into prime factors.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>factor 27417</code></strong>
+<code class="computeroutput">27417: 3 13 19 37</code>
+        </pre><p>
+      </p><div class="example"><a id="primes2"/><p class="title"><b>Пример 15.46. Generating prime numbers</b></p><div class="example-contents"><pre class="programlisting">&amp;primes2;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="bcref"/><span class="command"><strong>bc</strong></span></span></dt><dd><p>Bash can't handle floating point calculations, and
+        it lacks operators for certain important mathematical
+        functions. Fortunately, <span class="command"><strong>bc</strong></span> comes to
+        the rescue.</p><p>Not just a versatile, arbitrary precision calculation
+        utility, <span class="command"><strong>bc</strong></span> offers many of the facilities of
+        a programming language.</p><p><span class="command"><strong>bc</strong></span> has a syntax vaguely resembling C.</p><p>Since it is a fairly well-behaved UNIX utility, and may
+         therefore be used in a <a class="link" href="ch03.html#piperef">pipe</a>,
+         <span class="command"><strong>bc</strong></span> comes in handy in scripts.</p><p><a id="bctemplate"/></p><p>Here is a simple template for using
+        <span class="command"><strong>bc</strong></span> to calculate a script
+        variable. This uses <a class="link" href="ch11.html#commandsubref">command
+        substitution</a>.</p><p>
+              </p><pre class="screen">
+        <strong class="userinput"><code>variable=$(echo "OPTIONS; OPERATIONS" | bc)</code></strong>
+        </pre><p>
+        </p><p><a id="monthlypmt0"/></p><div class="example"><a id="monthlypmt"/><p class="title"><b>Пример 15.47. Monthly Payment on a Mortgage</b></p><div class="example-contents"><pre class="programlisting">&amp;monthlypmt;</pre></div></div><br class="example-break"/><p><a id="base0"/></p><div class="example"><a id="base"/><p class="title"><b>Пример 15.48. Base Conversion</b></p><div class="example-contents"><pre class="programlisting">&amp;base;</pre></div></div><br class="example-break"/><p><a id="bcheredoc"/></p><p>An alternate method of invoking <span class="command"><strong>bc</strong></span>
+    involves using a <a class="link" href="ch18.html#heredocref">here
+    document</a> embedded within a <a class="link" href="ch11.html#commandsubref">command substitution</a>
+    block. This is especially appropriate when a script
+    needs to pass a list of options and commands to
+    <span class="command"><strong>bc</strong></span>.</p><p>
+        </p><pre class="programlisting">variable=`bc &lt;&lt; LIMIT_STRING
+options
+statements
+operations
+LIMIT_STRING
+`
+
+...or...
+
+
+variable=$(bc &lt;&lt; LIMIT_STRING
+options
+statements
+operations
+LIMIT_STRING
+)</pre><p>
+              </p><div class="example"><a id="altbc"/><p class="title"><b>Пример 15.49. Invoking <em class="firstterm">bc</em> using a <em class="firstterm">here
+          document</em></b></p><div class="example-contents"><pre class="programlisting">&amp;altbc;</pre></div></div><br class="example-break"/><p><a id="cannonref"/></p><div class="example"><a id="cannon"/><p class="title"><b>Пример 15.50. Calculating PI</b></p><div class="example-contents"><pre class="programlisting">&amp;cannon;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="apa.html#stddev" title="Пример A.37. Standard Deviation">Пример A.37, «Standard Deviation»</a>.</p></dd><dt><span class="term"><a id="dcref"/><span class="command"><strong>dc</strong></span></span></dt><dd><p>The <span class="command"><strong>dc</strong></span> (<span class="command"><strong>d</strong></span>esk
+              <span class="command"><strong>c</strong></span>alculator) utility is <a class="link" href="ch09.html#stackdefref">stack-oriented</a>
+        and uses RPN (<span class="quote">«<span class="quote">Reverse Polish Notation</span>»</span>). Like
+        <span class="command"><strong>bc</strong></span>, it has much of the power of a
+        programming language.</p><p>
+         </p><pre class="programlisting">echo "7 8 * p" | dc     # 56
+#  Pushes 7, then 8 onto the stack,
+#+ multiplies ("*" operator), then prints the result ("p" operator).</pre><p>
+             </p><p>Most persons avoid <span class="command"><strong>dc</strong></span>, because
+                of its non-intuitive input and rather cryptic
+    operators. Yet, it has its uses.</p><div class="example"><a id="hexconvert"/><p class="title"><b>Пример 15.51. Converting a decimal number to hexadecimal</b></p><div class="example-contents"><pre class="programlisting">&amp;hexconvert;</pre></div></div><br class="example-break"/><p>Studying the <em class="firstterm">info</em> page for
+    <span class="command"><strong>dc</strong></span> is a painful path to understanding its
+    intricacies. There seems to be a small, select group of
+    <span class="emphasis"><em>dc wizards</em></span> who delight in showing off
+    their mastery of this powerful, but arcane utility.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo "16i[q]sa[ln0=aln100%Pln100/snlbx]sbA0D68736142snlbxq" | dc</code></strong>
+<code class="computeroutput">Bash</code>
+        </pre><p>
+    </p><p><a id="goldenratio"/>
+          </p><pre class="programlisting">dc &lt;&lt;&lt; 10k5v1+2/p # 1.6180339887
+#  ^^^            Feed operations to dc using a Here String.
+#      ^^^        Pushes 10 and sets that as the precision (10k).
+#         ^^      Pushes 5 and takes its square root (5v, v = square root).
+#           ^^    Pushes 1 and adds it to the running total (1+).
+#             ^^  Pushes 2 and divides the running total by that (2/).
+#               ^ Pops and prints the result (p)
+#  The result is  1.6180339887 ...
+#  ... which happens to be the Pythagorean Golden Ratio, to 10 places.</pre><p>
+    </p><div class="example"><a id="factr"/><p class="title"><b>Пример 15.52. Factoring</b></p><div class="example-contents"><pre class="programlisting">&amp;factr;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="awkmath"/><span class="command"><strong>awk</strong></span></span></dt><dd><p>Yet another way of doing floating point math in
+        a script is using <a class="link" href="apcs02.html#awkref">awk's</a>
+        built-in math functions in a <a class="link" href="ch33s03.html#shwrapper">shell
+        wrapper</a>.</p><div class="example"><a id="hypot"/><p class="title"><b>Пример 15.53. Calculating the hypotenuse of a triangle</b></p><div class="example-contents"><pre class="programlisting">&amp;hypot;</pre></div></div><br class="example-break"/></dd></dl></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch15s07.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch15.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch15s09.html">След.</a></td></tr><tr><td align="left" valign="top">Terminal Control Commands </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Miscellaneous Commands</td></tr></table></div></body></html>

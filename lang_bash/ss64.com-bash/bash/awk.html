@@ -1,0 +1,229 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>awk gawk Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>awk or gawk (gnu awk)</h1> 
+<p>Find and Replace text, database sort/validate/index</p>
+<pre>Syntax
+
+      awk &lt;<i>options</i>&gt; '<i>Program</i>' <i>Input-File1 Input-File2</i> ...
+
+      awk -f <i>PROGRAM-FILE</i> &lt;<i>options</i>&gt; <i>Input-File1 Input-File2</i> ...
+
+Key
+ -F <i>FS</i>
+ --field-separator <i>FS</i>
+     Use FS for the input field separator (the value of the `<i>FS</i>'
+     predefined variable).
+
+ -f <i>PROGRAM-FILE</i>
+ --file <i>PROGRAM-FILE</i>
+     Read the awk program source from the file <i>PROGRAM-FILE</i>, instead
+     of from the first command line argument.
+
+ -mf<i> NNN</i>
+ -mr<i> NNN</i>
+     The `f' flag sets the maximum number of fields, and the `r' flag
+     sets the maximum record size.  These options are ignored by
+     `gawk', since `gawk' has no predefined limits; they are only for
+     compatibility with the Bell Labs research version of Unix awk.
+
+ -v <i>VAR</i>=<i>VAL</i>
+ --assign <i>VAR</i>=<i>VAL</i>
+     Assign the variable <i>VAR</i> the value <i>VAL</i> before program execution
+     begins.
+
+ -W traditional
+ -W compat
+ --traditional
+ --compat
+     Use compatibility mode, in which `gawk' extensions are turned off.
+
+ -W lint
+ --lint
+     Give warnings about dubious or non-portable awk constructs.
+
+ -W lint-old
+ --lint-old
+     Warn about constructs that are not available in the original
+     Version 7 Unix version of awk.
+
+ -W posix
+ --posix
+     Use POSIX compatibility mode, in which `gawk' extensions are
+     turned off and additional restrictions apply.
+
+ -W re-interval
+ --re-interval
+     Allow interval expressions, in regexps.
+
+ -W source=<i>PROGRAM-TEXT</i>
+ --source <i>PROGRAM-TEXT</i>
+     Use PROGRAM-TEXT as awk program source code.  This option allows
+     mixing command line source code with source code from files, and is
+     particularly useful for mixing command line programs with library
+     functions.
+
+ --
+     Signal the end of options.  This is useful to allow further
+     arguments to the awk program itself to start with a `-'.  This
+     is mainly for consistency with POSIX argument parsing conventions.
+
+'<i>Program</i>'
+     A series of patterns and actions: see below
+
+<i>Input-File</i>
+     If no Input-File is specified then awk applies the <i>Program</i> to 
+     "standard input", (piped output of some other command or the terminal.
+     Typed input will continue until end-of-file (typing `Control-d')</pre>
+<p><b>Basic functions</b><br>
+  <br>
+The basic function of awk is to search files for lines (or other units of text) that contain a pattern. When a line matches, awk performs a specific action on that line.</p>
+<p>The <i>Program</i> statement that tells awk what to do; consists of a series of "rules". 
+  Each rule specifies one pattern to search for, and one action to perform when that pattern is found.<br>
+  <br>
+For ease of reading, each line in an awk program is normally a separate <i>Program </i>statement , like this:</p>
+<pre>     <i>pattern</i> { <i>action</i> }
+     <i>pattern</i> { <i>action</i> }
+     ...</pre>
+<p>e.g. Display lines from samplefile containing the string &quot;123&quot; or &quot;abc&quot; or &quot;some text&quot;:</p>
+<pre>awk '/123/ { print $0 } 
+     /abc/ { print $0 }
+     /some text/ { print $0 }' samplefile</pre>
+<p>A regular expression enclosed in slashes (/) is an awk pattern that matches every input record whose text belongs to that set. e.g. the pattern /foo/ matches any input record containing the three characters `foo', *anywhere* in the record. </p>
+<p>awk patterns may be one of the following: </p>
+<pre><b>/</b>Regular Expression<b>/</b>        - Match =
+Pattern <b>&&</b> Pattern          - AND
+Pattern <b>||</b> Pattern          - OR
+<b>!</b> Pattern                   - NOT
+Pattern <b>?</b> Pattern <b>:</b> Pattern - If, Then, Else
+Pattern1<b>,</b> Pattern2          - Range Start - end
+<b>BEGIN</b>                       - Perform action BEFORE input file is read
+<b>END</b>                         - Perform action AFTER input file is read</pre>
+<p>The special patterns BEGIN and END may be used to capture control before the first input line is read and after the last. BEGIN and END do not combine with other patterns.<br>
+<br>
+Variable names with special meanings:</p>
+<pre>
+     CONVFMT  conversion  format  used  when  converting  numbers
+              (default %.6g)
+
+     FS       regular  expression  used  to separate fields; also
+              settable by option -Ffs.
+
+     NF       number of fields in the current record
+
+     NR       ordinal number of the current record
+
+     FNR      ordinal number of the current record in the current
+              file
+
+     FILENAME the name of the current input file
+
+     RS       input record separator (default newline)
+
+     OFS      output field separator (default blank)
+
+     ORS      output record separator (default newline)
+
+     OFMT     output format for numbers (default %.6g)
+
+     SUBSEP   separates multiple subscripts (default 034)
+
+     ARGC     argument count, assignable
+
+     ARGV     argument  array,  assignable;  non-null members are
+              taken as filenames
+
+     ENVIRON  array  of  environment  variables;  subscripts  are
+              names.</pre>
+<p>In addition to simple pattern matching awk has a huge range 
+of text and arithmetic Functions, Variables and Operators. </p>
+<p>`gawk' will ignore newlines after any of the following:</p>
+<pre>    , { ? : || &amp;&amp; do else</pre>
+<p> Comments - start with a `#', and continue to the end of the line:</p>
+<pre> # This program prints a nice friendly message</pre>
+<p><b>Examples</b></p>
+<p>From an <a href="ls.html">ls - l</a> listing, return the fifth item ($5) from each line of the output: </p>
+<p class="code">$ ls -l | awk '{print $5}' </p>
+<p>Print the Row Number (NR), then a dash and space <span class="code">(&quot;- &quot;</span>) and then the first item ($1) from each line in samplefile.txt: </p>
+<p class="code">$ awk '{print NR &quot;- &quot; $1 }' samplefile.txt</p>
+<p>Print the first item ($1) and then the third last item<span class="code"> $(NF-2)</span> from each line in samplefile.txt: </p>
+<p class="code">$ awk '{print $1, $(NF-2) }' samplefile.txt</p>
+<p>Print every line that has at least one field. This is an easy way to delete blank lines from a file (or rather, to<br>
+create a new file similar to the old file but from which the blank lines have been deleted)</p>
+<pre> awk 'NF > 0' data.txt</pre>
+<p>Comparison with <a href="grep.html">grep</a>:</p>
+<blockquote>
+<p>Running <span class="code">grep Dec</span> against the following file listing would return the 3 rows shown in bold as it matches text in different places: </p>
+<p><span class="code">-rw-r--r-- 7 simon simon 12043 Jan 31 09:36 <b>Dec</b>ember.pdf<br>
+-rw-r--r-- 3 simon simon 1024 <b>Dec</b> 01 11:59 README<br>
+-rw-r--r-- 3 simon simon 5096 Nov 14 18:22 <b>Dec</b>ision.txt </span></p>
+<p>Running <span class="code">awk '$6 == &quot;Dec&quot;'</span>against the same file listing, the relational operator $6 matches the exact field (column 6 = Month) so it will list only the December file:</p>
+<p class="code"> $ ls -l /tmp/demo | awk '$6 == &quot;Dec&quot;'</p>
+</blockquote>
+<p>Print the length of the longest input line: </p>
+<pre> awk '{ if (length($0) > max) max = length($0) }
+      END { print max }' data
+</pre>
+<p>Print seven random numbers from zero to 100,
+inclusive:</p>
+<pre> awk 'BEGIN { for (i = 1; i <= 7; i++)
+                print int(101 * rand()) }'
+</pre>
+<p>Print the total number of bytes used by <i>FILES</i>:</p>
+<pre> ls -lg <i>FILES</i> | awk '{ x += $5 } ; END { print "total bytes: " x }'
+</pre>
+<p>Print the average file size of all .PNG files within a directory:</p>
+<pre> ls -l *.png | gawk '{sum += $5; n++;} END {print sum/n;}' </pre>
+<p>  Print a sorted list of the login names of all users:</p>
+<pre> awk -F: '{ print $1 }' /etc/passwd | sort</pre>
+<p> Count the lines in a file:</p>
+<pre> awk 'END { print NR }' data</pre>
+<p>  Print the even numbered lines in the data file.  If you were to use the expression <span class="code">'NR % 2 == 1'</span> instead, it would
+print the odd numbered lines.</p>
+<pre> awk 'NR % 2 == 0' data</pre>
+<p><i class="quote">&ldquo;Whenever faced with a problem, some people say `Lets use AWK.' Now, they have two problems&rdquo; ~ D. Tilbrook (1988)</i><br>
+<br>
+<b>Related:</b></p>
+<p><a href="http://blog.bignerdranch.com/3799-a-crash-course-in-awk/">A Crash Course In AWK</a> - Bill Phllips<br>
+<a href="http://www.cs.princeton.edu/courses/archive/spr08/cos333/awk.help">AWK Help page</a> - Brian Kernighan<br>
+<a href="http://www.grymoire.com/Unix/Awk.html">AWK tutorial and introduction</a> - Bruce Barnett <br>
+<a href="http://www.gnu.org/software/gawk/manual/gawk.html">GNU Awk User Guide</a> - Full guide with examples<br>
+<a href="http://www.pement.org/awk/awk1line.txt">awk one liners</a> - Eric Pement<br>
+<a href="http://www.catonmat.net/blog/awk-one-liners-explained-part-one/">awk one liners explained</a> &amp; <a href="http://www.catonmat.net/blog/awk-one-liners-explained-part-two/">pt2</a> - Peteris Krumin (CatOnMat.net)<br>
+<a href="http://gregable.com/2010/09/why-you-should-know-just-little-awk.html">Gregable</a> - Why you should know just a little Awk<br>
+<a href="http://sparky.rice.edu/%7Ehartigan/awk.html">Patrick Hartigan</a> - How to use awk<a href="http://www.pement.org/awk/awk1line.txt"></a><br>
+awk, `oawk', and `nawk' - Alternative, older and newer versions of awk<br>
+<a href="egrep.html">egrep</a> - egrep foo FILES ...is essentially the same as awk '/foo/' FILES ... <br>
+<a href="expr.html">expr</a> - Evaluate expressions<br>
+<a href="eval.html">eval</a> - Evaluate several commands/arguments<br>
+<a href="for.html">for</a> - Expand <var>words</var>, and execute <var>commands</var><br>
+<a href="grep.html">grep</a> - search file(s) for lines that match a given pattern 
+<br>
+<a href="m4.html">m4</a> - Macro processor <br>
+<a href="tr.html">tr</a> - Translate, squeeze, and/or delete characters <br>
+Equivalent Windows command: 
+<a href="http://ss64.com/nt/for.html">FOR</a> - Conditionally perform a command several times.</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="awk.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

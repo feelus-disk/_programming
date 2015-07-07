@@ -1,0 +1,915 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 3. Специальные символы</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt02.html" title="Часть Part 2. Основы"/><link rel="prev" href="pt02.html" title="Часть Part 2. Основы"/><link rel="next" href="ch04.html" title="Глава 4. Введение в переменные и параметры"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 3. Специальные символы</th></tr><tr><td align="left"><a accesskey="p" href="pt02.html">Пред.</a> </td><th width="60%" align="center">Часть Part 2. Основы</th><td align="right"> <a accesskey="n" href="ch04.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 3. Специальные символы"><div class="titlepage"><div><div><h2 class="title"><a id="special-chars"/>Глава 3. Специальные символы</h2></div></div></div><p>Что делает символы  <em class="firstterm">специальными</em>?
+        Если интерпретация символа не  совпадает с его <em class="firstterm">буквальным
+        значением</em>, например символ имеет <a class="link" href="ch17.html#metameaningref">мета-значение</a>, тогда мы считаем, что 
+  это  <em class="firstterm">специальный символ</em>.</p><div class="variablelist" title="Специальные символы расположенные в сценариях и где-либо еще"><a id="scharlist"/><p class="title"><b><a id="scharlist1"/>Специальные символы расположенные в сценариях и где-либо еще</b></p><dl><dt><span class="term"><a id="hashmarkref"/><span class="token">#</span></span></dt><dd><p title="Комментарий"><b>Комментарий. </b>Строки, начинающиеся с <span class="token">#</span>
+        (исключая <a class="link" href="ch02.html#magnumref">
+        <span class="token">#!</span></a>) являются комментариями и 
+        <span class="emphasis"><em>НЕ</em></span> исполняются.</p><pre class="programlisting"># Эта строка является комментарием.</pre><p>Комментарий также может следовать за командой.</p><pre class="programlisting">echo "Комментарий дальше." # Это комментарий.
+#                            ^ обратите внимание на пробел перед #</pre><p><a id="wsbcomm"/> Комментарий также может начинаться не вначале строки (<a class="link" href="ch03.html#whitespaceref">whitespace</a> перед комментарием) .</p><p>
+             </p><pre class="programlisting">    # TAB (символ табуляции) предшествует началу комментария.</pre><p>
+     </p><p><a id="comminpipe"/>Комментарии могут встречаться даже между
+               <a class="link" href="ch03.html#piperef">pipe</a>.</p><p>
+</p><pre class="programlisting">initial=( `cat "$startfile" | sed -e '/#/d' | tr -d '\n' |\
+# Удаляем строки, содержащие символ '#' 
+           sed -e 's/\./\. /g' -e 's/_/_ /g'` )
+# Отрывок сценария life.sh</pre><p>
+      </p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Исполняемые команды не могут следовать за комментарием в той же самой строке. Пока что еще не существует способа отделения комментария от "исполняемого кода", следующего за комментарием в той же строке.
+      Используйте новую строку для следующей команды.</p></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Конечно, <a class="link" href="ch05.html#quotingref">заключенный в кавычки</a>
+      или  <a class="link" href="ch05s02.html#escp">экранированный</a> символ <span class="token">#</span>
+      в операторе <a class="link" href="ch14.html#echoref">echo</a> 
+      <span class="emphasis"><em>НЕ</em></span> означает начало комментария. Более того
+      он может использоваться в <a class="link" href="ch09s03.html#psub2">операциях
+      подстановки параметра</a> и в <a class="link" href="ch08s02.html#numconstants"> числовых константных выражениях</a>.
+
+      </p><pre class="programlisting">echo "Здесь # не начинается комментарий."
+echo 'Здесь # не начинается комментарий.'
+echo Здесь \# не начинается комментарий.
+echo Здесь # НАЧИНАЕТСЯ комментарий.
+
+echo ${PATH#*:}       # Подстановка параметра, не комментарий.
+echo $(( 2#101011 ))  # База системы счисления, не комментарий.
+
+# Спасибо, S.C.</pre><p>
+
+    Обычно <a class="link" href="ch05.html#quotingref">символы: " ' \</a> 
+    экранируют #.
+    </p></div><p>В операциях <a class="link" href="ch09s03.html#psorex1">поиска по щаблону</a>
+    так же используется символ <span class="token">#</span>, при этом не означая начало комментария.</p></dd><dt><span class="term"><a id="semicolonref"/><span class="token">;</span></span></dt><dd><p title="Разделитель команд [точка с запятой]"><b>Разделитель команд [точка с запятой]. </b>Позволяет записывать две или более команд в одной строке.</p><p>
+        </p><pre class="programlisting">echo hello; echo there
+
+
+if [ -x "$filename" ]; then    #  Обратите внимание на пробел после точки с запятой.
+#+                   ^^
+  echo "Файл $filename существует."; cp $filename $filename.bak
+else   #                       ^^
+  echo "Файл $filename не найден."; touch $filename
+fi; echo "Проверка файла завершена."</pre><p>
+</p><p>Стоит сказать, что символ <span class="quote">«<span class="quote"><span class="token">;</span></span>»</span>
+        <a class="link" href="ch15s02.html#findref0"> иногда нуждается в
+        <em class="firstterm">экранировании</em></a>.</p></dd><dt><span class="term"><span class="token">;;</span></span></dt><dd><p title="Ограничитель в операторе case [двойная точка с запятой]"><b>Ограничитель в операторе  <a class="link" href="ch10s04.html#caseesac1">case</a>  [двойная точка с запятой]. </b><a id="doublesemicolon"/></p><pre class="programlisting">case "$variable" in
+  abc)  echo "\$variable = abc" ;;
+  xyz)  echo "\$variable = xyz" ;;
+esac</pre></dd><dt><span class="term"><span class="token">;;&amp;</span>, </span><span class="term"><span class="token">;&amp;</span></span></dt><dd><p title="Ограничители в операторе case (Версия Bash 4+ )."><b><a class="link" href="ch34s03.html#ncterm">Ограничители</a>
+           в операторе <em class="firstterm">case</em>  (<a class="link" href="ch34s03.html#bash4ref">Версия Bash 4+</a> ). </b></p></dd><dt><span class="term"><span class="token">.</span></span></dt><dd><p><a id="dotref"/></p><p title="Команда «точка»"><b>Команда <span class="quote">«<span class="quote">точка</span>»</span> . </b>Эквивалент команды <a class="link" href="ch14.html#sourceref">source</a> (см.
+    <a class="xref" href="ch14.html#ex38" title="Пример 14.22. «Including» a data file">Пример 14.22, «<span class="quote">«<span class="quote">Including</span>»</span> a data file»</a>). Это  <a class="link" href="ch14.html#builtinref">встроенная</a> команда Bash.</p></dd><dt><span class="term"><span class="token">.</span></span></dt><dd><p title="«точка», как компонент имени файла"><b><span class="quote">«<span class="quote">точка</span>»</span>, как компонент имени файла. </b>Если имя файла начинается с точки, такой файл
+    является <span class="quote">«<span class="quote">скрытым</span>»</span>, при обычных условиях команда
+    <a class="link" href="ch15.html#lsref">ls</a> не покажет такой файл.
+          </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>touch .hidden-file</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l</code></strong>       
+<code class="computeroutput">total 10
+ -rw-r--r--    1 bozo      4034 Jul 18 22:04 data1.addressbook
+ -rw-r--r--    1 bozo      4602 May 25 13:58 data1.addressbook.bak
+ -rw-r--r--    1 bozo       877 Dec 17  2000 employment.addressbook</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -al</code></strong>        
+<code class="computeroutput">total 14
+ drwxrwxr-x    2 bozo  bozo      1024 Aug 29 20:54 ./
+ drwx------   52 bozo  bozo      3072 Aug 29 20:51 ../
+ -rw-r--r--    1 bozo  bozo      4034 Jul 18 22:04 data1.addressbook
+ -rw-r--r--    1 bozo  bozo      4602 May 25 13:58 data1.addressbook.bak
+ -rw-r--r--    1 bozo  bozo       877 Dec 17  2000 employment.addressbook
+ -rw-rw-r--    1 bozo  bozo         0 Aug 29 20:54 .hidden-file</code>
+          </pre><p title="«точка», как компонент имени файла">
+        </p><p><a id="dotdirectory"/></p><p>Рассмотрим имена каталогов, <em class="firstterm">точка</em> 
+        ссылается на текущий рабочий каталогr,
+    а <em class="firstterm">двойная точка</em> обозначает
+    родительский каталог (или каталог на уровень выше).</p><p>
+          </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>pwd</code></strong>
+<code class="computeroutput">/home/bozo/projects</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>cd .</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>pwd</code></strong>
+<code class="computeroutput">/home/bozo/projects</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>cd ..</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>pwd</code></strong>
+<code class="computeroutput">/home/bozo/</code>
+          </pre><p>
+        </p><p>Символ <em class="firstterm">точки</em> часто 
+        используется для обозначения каталога назначения в 
+        операциях копирования/перемещения файлов.
+        В этом контексте она означает <em class="firstterm">текущий
+                каталог</em>.</p><p>
+          </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>cp /home/bozo/current_work/junk/* .</code></strong>
+          </pre><p>
+    Копировать все файлы из каталога <span class="quote">«<span class="quote">junk</span>»</span> в
+    <a class="link" href="ch09.html#pwdref">$PWD</a>.</p></dd><dt><span class="term"><span class="token">.</span></span></dt><dd><p title="«dot» character match"><b><span class="quote">«<span class="quote">dot</span>»</span> character match. </b>When <a class="link" href="ch17.html#regexdot">matching
+          characters</a>, as part of a <a class="link" href="ch17.html#regexref">regular expression</a>, a
+    <span class="quote">«<span class="quote">dot</span>»</span> <a class="link" href="ch17.html#regexdot">matches a
+    single character</a>.</p></dd><dt><span class="term"><span class="token">"</span></span></dt><dd><p title="partial quoting [double quote]"><b><a class="link" href="ch04.html#dblquo">partial
+      quoting</a> [double quote]. </b><span class="emphasis"><em>"STRING"</em></span> preserves (from
+        interpretation) most of the special characters within
+        <span class="emphasis"><em>STRING</em></span>. See <a class="xref" href="ch05.html" title="Глава 5. Использование кавычек">Глава 5, <i>Использование кавычек</i></a>.</p></dd><dt><span class="term"><span class="token">'</span></span></dt><dd><p title="full quoting [single quote]"><b><a class="link" href="ch04.html#snglquo">full
+      quoting</a> [single quote]. </b><span class="emphasis"><em>'STRING'</em></span> preserves all special
+        characters within <span class="emphasis"><em>STRING</em></span>. This is a
+        stronger form of quoting than <span class="emphasis"><em>"STRING"</em></span>.
+        See <a class="xref" href="ch05.html" title="Глава 5. Использование кавычек">Глава 5, <i>Использование кавычек</i></a>.</p></dd><dt><span class="term"><span class="token">,</span></span></dt><dd><p title="comma operator"><b><a class="link" href="ch08.html#commaop">comma
+      operator</a>. </b>The <em class="firstterm">comma operator</em>
+
+    <sup>[<a id="idp7191360" href="#ftn.idp7191360" class="footnote">15</a>]</sup>
+
+        links together a
+    series of arithmetic operations. All are evaluated,
+    but only the last one is returned.
+         </p><pre class="programlisting">let "t2 = ((a = 9, 15 / 3))"  # Set "a =
+         9" and "t2 = 15 / 3"</pre><p title="comma operator">
+        </p><p><a id="commaop2"/>The <em class="firstterm">comma</em>
+        operator can also concatenate strings.
+         </p><pre class="programlisting">for file in /{,usr/}bin/*calc
+#             ^    Find all executable files ending in "calc"
+#+                 in /bin and /usr/bin directories.
+do
+        if [ -x "$file" ]
+        then
+          echo $file
+        fi
+done
+
+# /bin/ipcalc
+# /usr/bin/kcalc
+# /usr/bin/oidcalc
+# /usr/bin/oocalc
+
+
+# Thank you, Rory Winston, for pointing this out.</pre><p>
+        </p></dd><dt><span class="term"><span class="token">,</span>, </span><span class="term"><span class="token">,</span></span></dt><dd><p title="Lowercase conversion in parameter substitution (added in version 4 of Bash)"><b><a class="link" href="ch34s03.html#casemodparamsub">Lowercase
+            conversion</a> in <em class="firstterm">parameter substitution</em>
+            (added in <a class="link" href="ch34s03.html#bash4ref">version 4</a> of Bash). </b></p></dd><dt><span class="term"><span class="token">\</span></span></dt><dd><p title="escape [backslash]"><b><a class="link" href="ch05s02.html#escp">escape</a> [backslash]. </b>A quoting mechanism for single characters.</p><p><strong class="userinput"><code>\X</code></strong>
+    <em class="firstterm">escapes</em> the character
+    <span class="emphasis"><em>X</em></span>. This has the effect of
+    <span class="quote">«<span class="quote">quoting</span>»</span> <span class="emphasis"><em>X</em></span>, equivalent
+    to <span class="emphasis"><em>'X'</em></span>.  The <span class="token">\</span> may
+    be used to quote <span class="token">"</span> and <span class="token">'</span>,
+    so they are expressed literally.</p><p>See <a class="xref" href="ch05.html" title="Глава 5. Использование кавычек">Глава 5, <i>Использование кавычек</i></a> for an in-depth explanation
+          of escaped characters.</p></dd><dt><span class="term"><span class="token">/</span></span></dt><dd><p title="Filename path separator [forward slash]"><b>Filename path separator [forward slash]. </b>Separates the components of a filename (as in
+          <code class="filename">/home/bozo/projects/Makefile</code>).</p><p>This is also the division <a class="link" href="ch08.html#arops1">arithmetic operator</a>.</p></dd><dt><span class="term"><a id="backticksref"/><span class="token">`</span></span></dt><dd><p title="command substitution"><b><a class="link" href="ch11.html#commandsubref">command substitution</a>. </b>The <span class="command"><strong>`command`</strong></span> construct makes
+    available the output of <span class="command"><strong>command</strong></span>
+    for assignment to a variable. This is also known as
+    <a class="link" href="ch11.html#backquotesref">backquotes</a> or
+    backticks.</p></dd><dt><span class="term"><a id="colon0ref"/><span class="token">:</span></span></dt><dd><p><a id="nullref"/></p><p title="null command [colon]"><b>null command [colon]. </b>This is the shell equivalent of a
+    <span class="quote">«<span class="quote">NOP</span>»</span> (<em class="replaceable"><code>no op</code></em>, a
+    do-nothing operation). It may be considered a synonym for
+    the shell builtin <a class="link" href="ch14.html#trueref">true</a>. The
+    <span class="quote">«<span class="quote"><span class="token">:</span></span>»</span> command is itself a
+    <em class="firstterm">Bash</em> <a class="link" href="ch14.html#builtinref">builtin</a>, and its <a class="link" href="ch06.html#exitstatusref">exit status</a> is
+    <em class="firstterm">true</em>
+    (<span class="returnvalue">0</span>).</p><pre class="programlisting">:
+echo $?   # 0</pre><p>Endless loop:</p><pre class="programlisting">
+while :
+do
+   operation-1
+   operation-2
+   ...
+   operation-n
+done
+
+# Same as:
+#    while true
+#    do
+#      ...
+#    done</pre><p>
+      </p><p>Placeholder in if/then test:</p><pre class="programlisting">
+if condition
+then :   # Do nothing and branch ahead
+else     # Or else ...
+   take-some-action
+fi</pre><p>
+      </p><p>Provide a placeholder where a binary operation is
+        expected, see <a class="xref" href="ch08.html#arithops" title="Пример 8.2. Using Arithmetic Operations">Пример 8.2, «Using Arithmetic Operations»</a> and <a class="link" href="ch09s03.html#defparam">default parameters</a>.</p><pre class="programlisting">: ${username=`whoami`}
+# ${username=`whoami`}   Gives an error without the leading :
+#                        unless "username" is a command or builtin...</pre><p>
+</p><p>Provide a placeholder where a command is expected in a
+        <a class="link" href="ch18.html#heredocref">here document</a>. See <a class="xref" href="ch18.html#anonheredoc" title="Пример 18.10. «Анонимный» встроенный документ">Пример 18.10, «<span class="quote">«<span class="quote">Анонимный</span>»</span> встроенный документ»</a>.</p><p>Evaluate string of variables using
+    <a class="link" href="ch09s03.html#paramsubref">parameter substitution</a>
+    (as in <a class="xref" href="ch09s03.html#ex6" title="Пример 9.16. Using parameter substitution and error messages">Пример 9.16, «Using parameter substitution and error messages»</a>).
+
+      </p><pre class="programlisting">: ${HOSTNAME?} ${USER?} ${MAIL?}
+#  Prints error message
+#+ if one or more of essential environmental variables not set.</pre><p>
+</p><p><span class="command"><strong><a class="link" href="ch09s03.html#exprepl1">Variable expansion / substring
+        replacement</a></strong></span>.</p><p>In combination with the <span class="token">&amp;gt;</span> <a class="link" href="ch19.html#ioredirref">redirection operator</a>,
+        truncates a file to zero length, without changing its
+        permissions. If the file did not previously exist,
+        creates it.
+
+        </p><pre class="programlisting">: &gt; data.xxx   # File "data.xxx" now empty.       
+
+# Same effect as   cat /dev/null &gt;data.xxx
+# However, this does not fork a new process, since ":" is a builtin.</pre><p>
+              See also <a class="xref" href="ch15s04.html#ex12" title="Пример 15.15. Using tail to monitor the system log">Пример 15.15, «Using <em class="firstterm">tail</em> to monitor the system log»</a>.</p><p>In combination with the <span class="token">&gt;&gt;</span>
+        redirection operator, has no effect on a pre-existing
+        target file (<strong class="userinput"><code>: &gt;&gt; target_file</code></strong>).
+        If the file did not previously exist, creates it.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a id="regfileref"/>This applies to regular files,
+        not pipes, symlinks, and certain special files.</p></div><p>May be used to begin a comment line, although this is not
+        recommended. Using <span class="token">#</span> for a comment turns
+        off error checking for the remainder of that line, so
+        almost anything may appear in a comment. However,
+        this is not the case with
+        <span class="token">:</span>.
+        </p><pre class="programlisting">: This is a comment that generates an error, ( if [ $x -eq 3] ).</pre><p>
+      </p><p>The <span class="quote">«<span class="quote"><span class="token">:</span></span>»</span> also serves as a <a class="link" href="ch03.html#fieldref">field</a>
+        separator, in <a class="link" href="apg.html#datafilesref1"><code class="filename">/etc/passwd</code></a>,
+        and in the <a class="link" href="ch09.html#pathref">$PATH</a> variable.
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo $PATH</code></strong>
+<code class="computeroutput">/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/games</code></pre><p>
+      </p></dd><dt><span class="term"><a id="notref"/><span class="token">!</span></span></dt><dd><p title="reverse (or negate) the sense of a test or exit status [bang]"><b>reverse (or negate) the sense of
+    a test or exit status [bang]. </b>The <span class="token">!</span> operator inverts the <a class="link" href="ch06.html#exitstatusref">exit status</a>
+    of the command to which it is applied (see
+    <a class="xref" href="ch06.html#negcond" title="Пример 6.2. Negating a condition using !">Пример 6.2, «Negating a condition using <span class="token">!</span>»</a>). It also inverts
+    the meaning of a test operator. This can, for
+    example, change the sense of <em class="firstterm">equal</em>
+    ( <a class="link" href="ch07s03.html#equalsignref">=</a>
+    ) to <em class="firstterm">not-equal</em> ( != ). The
+    <span class="token">!</span> operator is a Bash <a class="link" href="ch14.html#keywordref">keyword</a>.</p><p>In a different context, the <span class="token">!</span>
+          also appears in <a class="link" href="ch09s05.html#ivrref">indirect variable
+    references</a>.</p><p>In yet another context, from the <em class="firstterm">command
+    line</em>, the <span class="token">!</span> invokes the
+    Bash <em class="firstterm">history mechanism</em> (see <a class="xref" href="apk.html" title="Приложение K. History Commands">Приложение K, <i>History Commands</i></a>). Note that within a script,
+    the history mechanism is disabled.</p></dd><dt><span class="term"><a id="asteriskref"/><span class="token">*</span></span></dt><dd><p title="wild card [asterisk]"><b>wild card [asterisk]. </b>The <span class="token">*</span> character serves as a <span class="quote">«<span class="quote">wild
+          card</span>»</span> for filename expansion in
+    <a class="link" href="ch17s02.html" title="Глоббинг">globbing</a>. By itself,
+    it matches every filename in a given directory.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo *</code></strong>
+<code class="computeroutput">abs-book.sgml add-drive.sh agram.sh alias.sh</code>
+        </pre><p>
+      </p><p><a id="asteriskref2"/></p><p>The <span class="token">*</span> also represents <a class="link" href="ch17.html#asteriskreg">any number
+        (or zero) characters</a> in a <a class="link" href="ch17.html#regexref">regular expression</a>.</p></dd><dt><span class="term"><span class="token">*</span></span></dt><dd><p title="arithmetic operator"><b><a class="link" href="ch08.html#arops1">arithmetic operator</a>. </b>In the context of arithmetic operations, the
+          <span class="token">*</span> denotes multiplication.</p><p><span class="token">**</span> A double asterisk can represent the
+              <a class="link" href="ch08.html#exponentiationref">exponentiation</a>
+              operator or <a class="link" href="ch34s03.html#globstarref">extended
+              file-match</a> <em class="firstterm">globbing</em>.</p></dd><dt><span class="term"><span class="token">?</span></span></dt><dd><p title="test operator"><b>test operator. </b>Within certain expressions, the <span class="token">?</span> indicates
+          a test for a condition.</p><p><a id="cstrinary"/></p><p>In a <a class="link" href="ch09s07.html" title="The Double-Parentheses Construct">double-parentheses
+          construct</a>, the <span class="token">?</span>
+    can serve as an element of a C-style
+    <em class="firstterm">trinary</em> operator,
+    <code class="varname">?:</code>.
+
+    </p><pre class="programlisting">(( var0 = var1&lt;98?9:21 ))
+#                ^ ^
+
+# if [ "$var1" -lt 98 ]
+# then
+#   var0=9
+# else
+#   var0=21
+# fi</pre><p>In a <a class="link" href="ch09s03.html#paramsubref">parameter
+          substitution</a> expression, the <span class="token">?</span>
+    <a class="link" href="ch09s03.html#qerrmsg">tests whether a variable has been
+    set</a>.</p></dd><dt><span class="term"><a id="wildcardqu"/><span class="token">?</span></span></dt><dd><p title="wild card"><b>wild card. </b><a id="quexwc"/>The <span class="token">?</span> character
+    serves as a single-character <span class="quote">«<span class="quote">wild card</span>»</span>
+    for filename expansion in <a class="link" href="ch17s02.html" title="Глоббинг">globbing</a>, as well as <a class="link" href="ch17.html#quexregex">representing one character</a>
+    in an <a class="link" href="ch17.html#extregex">extended regular
+    expression</a>.</p></dd><dt><span class="term"><span class="token">$</span></span></dt><dd><p title="Variable substitution (contents of a variable)"><b><a class="link" href="ch04.html#varsubn" title="Подстановка переменных">Variable
+              substitution</a> (contents of a variable). </b>
+         </p><pre class="programlisting">var1=5
+var2=23skidoo
+
+echo $var1     # 5
+echo $var2     # 23skidoo</pre><p title="Variable substitution (contents of a variable)">
+         </p><p><a id="varprefixref"/></p><p>A <span class="token">$</span> prefixing a variable name
+    indicates the <em class="firstterm">value</em> the variable
+    holds.</p></dd><dt><span class="term"><span class="token">$</span></span></dt><dd><p title="end-of-line"><b>end-of-line. </b>In a <a class="link" href="ch17.html#regexref">regular expression</a>, a
+    <span class="quote">«<span class="quote">$</span>»</span> addresses the <a class="link" href="ch17.html#dollarsignref">end of a line</a> of
+    text.</p></dd><dt><span class="term"><span class="token">${}</span></span></dt><dd><p title="Parameter substitution"><b><a class="link" href="ch09s03.html#paramsubref">Parameter
+              substitution</a>. </b></p></dd><dt><span class="term"><span class="token">$*</span>, </span><span class="term"><span class="token">$@</span></span></dt><dd><p title="positional parameters"><b><a class="link" href="ch09.html#appref">positional
+      parameters</a>. </b></p></dd><dt><span class="term"><span class="token">$?</span></span></dt><dd><p title="exit status variable"><b>exit status variable. </b>The <a class="link" href="ch06.html#exsref">$? variable</a>
+          holds the <a class="link" href="ch06.html#exitstatusref">exit status</a>
+    of a command, a <a class="link" href="ch23.html#functionref">function</a>,
+    or of the script itself.</p></dd><dt><span class="term"><a id="processidref"/><span class="token">$$</span></span></dt><dd><p title="process ID variable"><b>process ID variable. </b>The <a class="link" href="ch09.html#proccid">$$ variable</a>
+          holds the <em class="firstterm">process ID</em>
+      <sup>[<a id="idp7365456" href="#ftn.idp7365456" class="footnote">16</a>]</sup>
+    of the script in which it appears.</p></dd><dt><span class="term"><a id="parensref"/><span class="token">()</span></span></dt><dd><p title="command group"><b>command group. </b></p><pre class="programlisting">(a=hello; echo $a)</pre><div class="important" title="Важно" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Важно</h3><p>A listing of commands within
+        <em class="replaceable"><code>parentheses</code></em> starts a <a class="link" href="ch20.html#subshellsref">subshell</a>.</p><p>Variables inside parentheses, within the subshell, are not
+        visible to the rest of the script. The parent process,
+        the script, <a class="link" href="ch20.html#parvis">cannot read variables
+        created in the child process</a>, the subshell.
+        </p><pre class="programlisting">a=123
+( a=321; )        
+
+echo "a = $a"   # a = 123
+# "a" within parentheses acts like a local variable.</pre></div><p title="array initialization"><b>array initialization. </b>
+        <a id="arrayinit1"/>
+        </p><pre class="programlisting">Array=(element1 element2 element3)</pre><p title="array initialization">
+      </p></dd><dt><span class="term"><span class="token">{xxx,yyy,zzz,...}</span></span></dt><dd><p title="Brace expansion"><b>Brace expansion. </b><a id="braceexpref"/>
+</p><pre class="programlisting">echo \"{These,words,are,quoted}\"   # " prefix and suffix
+# "These" "words" "are" "quoted"
+
+
+cat {file1,file2,file3} &gt; combined_file
+# Concatenates the files file1, file2, and file3 into combined_file.
+
+cp file22.{txt,backup}
+# Copies "file22.txt" to "file22.backup"</pre><p>A command may act upon a comma-separated list of file specs within
+    <em class="replaceable"><code>braces</code></em>.
+
+       <sup>[<a id="idp7387760" href="#ftn.idp7387760" class="footnote">17</a>]</sup>
+    
+    Filename expansion (<a class="link" href="ch17s02.html" title="Глоббинг">globbing</a>)
+    applies to the file specs between the braces.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>No spaces allowed within the braces
+      <span class="emphasis"><em>unless</em></span> the spaces are quoted or escaped.</p><p><strong class="userinput"><code>echo {file1,file2}\ :{\ A," B",' C'}</code></strong></p><p><code class="computeroutput">file1 : A file1 : B file1 : C file2 : A file2 : B file2 : C</code></p></div></dd><dt><span class="term"><a id="braceexpref33"/><span class="token">{a..z}</span></span></dt><dd><p title="Extended Brace expansion"><b>Extended Brace expansion. </b>
+</p><pre class="programlisting">echo {a..z} # a b c d e f g h i j k l m n o p q r s t u v w x y z
+# Echoes characters between a and z.
+
+echo {0..3} # 0 1 2 3
+# Echoes characters between 0 and 3.</pre><p title="Extended Brace expansion">
+        </p><p>The <em class="firstterm">{a..z}</em>
+      <a class="link" href="ch34s02.html#braceexpref3">extended brace
+      expansion</a> construction is a feature introduced
+      in <a class="link" href="ch34s02.html#bash3ref">version 3</a> of
+      <em class="firstterm">Bash</em>.</p></dd><dt><span class="term"><a id="codeblockref"/><span class="token">{}</span></span></dt><dd><p title="Block of code [curly brackets]"><b>Block of code [curly brackets]. </b>Also referred to as an <em class="firstterm">inline group</em>,
+    this construct, in effect, creates an <em class="firstterm">anonymous
+    function</em> (a function without a
+    name). However, unlike in a <span class="quote">«<span class="quote">standard</span>»</span> <a class="link" href="ch23.html#functionref">function</a>, the variables
+    inside a code block remain visible to the remainder of the
+    script.</p><p> </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>{ local a;
+        a=123; }</code></strong>
+<code class="computeroutput">bash: local: can only be used in a
+function</code>
+        </pre><p> </p><pre class="programlisting">a=123
+{ a=321; }
+echo "a = $a"   # a = 321   (value inside code block)
+
+# Thanks, S.C.</pre><p><a id="blockio"/></p><p>The code block enclosed in braces may have <a class="link" href="ch19.html#ioredirref">I/O redirected</a> to and from
+        it.</p><div class="example"><a id="ex8"/><p class="title"><b>Пример 3.1. Code blocks and I/O redirection</b></p><div class="example-contents"><pre class="programlisting"> &amp;ex8; </pre></div></div><br class="example-break"/><p><a id="blockio2"/></p><div class="example"><a id="rpmcheck"/><p class="title"><b>Пример 3.2. Saving the output of a code block to a file</b></p><div class="example-contents"><pre class="programlisting">&amp;rpmcheck;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Unlike a command group within (parentheses),
+        as above, a code block enclosed by {braces} will
+        <span class="emphasis"><em>not</em></span> normally launch a <a class="link" href="ch20.html#subshellsref">subshell</a>.
+
+    <sup>[<a id="idp7420288" href="#ftn.idp7420288" class="footnote">18</a>]</sup>
+
+        </p></div></dd><dt><span class="term"><span class="token">{}</span></span></dt><dd><p title="placeholder for text"><b>placeholder for text. </b>Used after <a class="link" href="ch15s02.html#xargscurlyref">xargs
+    <code class="option">-i</code></a> (<em class="firstterm">replace
+    strings</em> option). The <span class="token">{}</span> double
+    curly brackets are a placeholder for output text.</p><pre class="programlisting">ls . | xargs -i -t cp ./{} $1
+#            ^^         ^^
+
+# From "ex42.sh" (copydir.sh) example.</pre><p>anchor id="semicolonesc"&gt;</p></dd><dt><span class="term"><span class="token">{} \;</span></span></dt><dd><p title="pathname"><b>pathname. </b>Mostly used in <a class="link" href="ch15s02.html#findref">find</a>
+    constructs. This is <span class="emphasis"><em>not</em></span> a shell
+    <a class="link" href="ch14.html#builtinref">builtin</a>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <span class="quote">«<span class="quote"><span class="token">;</span></span>»</span> ends
+    the <code class="option">-exec</code> option of a
+    <span class="command"><strong>find</strong></span> command sequence.  It needs
+    to be escaped to protect it from interpretation by the
+    shell.</p></div></dd><dt><span class="term"><a id="leftbracket"/><span class="token">[ ]</span></span></dt><dd><p title="test"><b>test. </b><a id="bracktest"/></p><p><a class="link" href="ch07.html#ifthen">Test</a> expression between
+         <span class="command"><strong>[ ]</strong></span>.  Note that <span class="command"><strong>[</strong></span>
+         is part of the shell <em class="firstterm">builtin</em> <a class="link" href="ch07.html#ttestref">test</a> (and a synonym for it),
+         <span class="emphasis"><em>not</em></span> a link to the external command
+         <code class="filename">/usr/bin/test</code>.</p></dd><dt><span class="term"><span class="token">[[ ]]</span></span></dt><dd><p title="test"><b>test. </b></p><p>Test expression between <span class="token">[[ ]]</span>. More
+       flexible than the single-bracket <span class="token">[ ]</span> test,
+       this is a shell <a class="link" href="ch14.html#keywordref">keyword</a>.</p><p>See the
+       discussion on the <a class="link" href="ch07.html#dblbrackets">[[ ... ]]
+       construct</a>.</p></dd><dt><span class="term"><span class="token">[ ]</span></span></dt><dd><p title="array element"><b>array element. </b></p><p>In the context of an <a class="link" href="ch26.html#arrayref">array</a>,
+         brackets set off the numbering of each element of that array.
+           </p><pre class="programlisting">Array[1]=slot_1
+echo ${Array[1]}</pre></dd><dt><span class="term"><span class="token">[ ]</span></span></dt><dd><p title="range of characters"><b>range of characters. </b></p><p>As part of a <a class="link" href="ch17.html#regexref">regular
+         expression</a>, brackets delineate a <a class="link" href="ch17.html#bracketsref">range of characters</a> to
+         match.</p></dd><dt><span class="term"><a id="bracketarith"/><span class="token">$[ ... ]</span></span></dt><dd><p title="integer expansion"><b>integer expansion. </b></p><p>Evaluate integer expression between
+         <span class="token">$[ ]</span>.
+               </p><pre class="programlisting">a=3
+b=7
+
+echo $[$a+$b]   # 10
+echo $[$a*$b]   # 21</pre><p>Note that this usage is <span class="emphasis"><em>deprecated</em></span>,
+               and has been replaced by the
+               <a class="link" href="ch09s07.html" title="The Double-Parentheses Construct">(( ... ))</a> construct.</p></dd><dt><span class="term"><span class="token">(( ))</span></span></dt><dd><p title="integer expansion"><b>integer expansion. </b></p><p>Expand and evaluate integer expression between
+         <span class="token">(( ))</span>.</p><p>See the discussion on the <a class="link" href="ch09s07.html" title="The Double-Parentheses Construct">(( ... )) construct</a>.</p></dd><dt><span class="term"><span class="token">&amp;gt;</span> <span class="token">&amp;&gt;</span> <span class="token">&gt;&amp;</span> <span class="token">&gt;&gt;</span> <span class="token">&amp;lt;</span> <span class="token">&lt;&gt;</span></span></dt><dd><p title="redirection"><b><a class="link" href="ch19.html#ioredirref">redirection</a>. </b></p><p><strong class="userinput"><code>scriptname &gt;filename</code></strong> redirects the output of
+        <code class="filename">scriptname</code> to file
+        <code class="filename">filename</code>. Overwrite
+        <code class="filename">filename</code> if it already exists.</p><p><a id="redirouterror"/></p><p><strong class="userinput"><code>command &amp;&gt;filename</code></strong> redirects
+        both the <a class="link" href="ape.html#stdinoutdef"><code class="filename">stdout</code></a>
+        and the
+        <code class="filename">stderr</code> of <code class="filename">command</code>
+        to <code class="filename">filename</code>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>
+                <a id="devnullredirect"/>
+          This is useful for suppressing output when
+                testing for a condition. For example, let us
+                test whether a certain command exists.
+              </p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>type bogus_command &amp;&gt;/dev/null</code></strong>
+<code class="computeroutput"/>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo $?</code></strong>
+<code class="computeroutput">1</code>
+                    </pre><p>
+              </p><p>Or in a script:</p><pre class="programlisting">command_test () { type "$1" &amp;&gt;/dev/null; }
+#                                      ^
+
+cmd=rmdir            # Legitimate command.
+command_test $cmd; echo $?   # 0
+
+
+cmd=bogus_command    # Illegitimate command
+command_test $cmd; echo $?   # 1</pre></div><p><a id="redirouterror2"/></p><p><strong class="userinput"><code>command &gt;&amp;2</code></strong> redirects
+        <code class="filename">stdout</code> of <code class="filename">command</code>
+        to <code class="filename">stderr</code>.</p><p><strong class="userinput"><code>scriptname &gt;&gt;filename</code></strong> appends
+        the output of <code class="filename">scriptname</code>
+        to file <code class="filename">filename</code>. If
+        <code class="filename">filename</code> does not already exist,
+        it is created.</p><p><a id="redirrw"/></p><p><strong class="userinput"><code>[i]&lt;&gt;filename</code></strong>
+               opens file <code class="filename">filename</code> for reading
+               and writing, and assigns <a class="link" href="ch19.html#fdref">file
+               descriptor</a> <span class="token">i</span> to it. If
+               <code class="filename">filename</code> does not exist, it is
+               created.</p><p title="process substitution"><b><a class="link" href="ch22.html#processsubref">process substitution</a>. </b></p><p><strong class="userinput"><code>(command)&gt;</code></strong></p><p><strong class="userinput"><code>&lt;(command)</code></strong></p><p><a class="link" href="ch07s03.html#ltref">In a different context</a>,
+        the <span class="quote">«<span class="quote"><span class="token">&amp;lt;</span></span>»</span> and
+        <span class="quote">«<span class="quote"><span class="token">&amp;gt;</span></span>»</span> characters act
+        as <a class="link" href="ch07s03.html#scomparison1">string comparison
+        operators</a>.</p><p><a class="link" href="ch07s03.html#intlt">In yet another context</a>,
+        the <span class="quote">«<span class="quote"><span class="token">&amp;lt;</span></span>»</span> and
+        <span class="quote">«<span class="quote"><span class="token">&amp;gt;</span></span>»</span> characters act
+        as <a class="link" href="ch07s03.html#icomparison1">integer comparison
+        operators</a>. See also <a class="xref" href="ch15s02.html#ex45" title="Пример 15.9. Using expr">Пример 15.9, «Using <em class="firstterm">expr</em>»</a>.</p></dd><dt><span class="term"><a id="heredocrrref"/><span class="token">&lt;&lt;</span></span></dt><dd><p title="redirection used in a here document"><b>redirection used in a <a class="link" href="ch18.html#heredocref">here document</a>. </b></p></dd><dt><span class="term"><a id="herestringref"/><span class="token">&lt;&lt;&lt;</span></span></dt><dd><p title="redirection used in a here string"><b>redirection used in a <a class="link" href="ch18.html#herestringsref">here string</a>. </b></p></dd><dt><span class="term"><span class="token">&amp;lt;</span>, </span><span class="term"><span class="token">&amp;gt;</span></span></dt><dd><p title="ASCII comparison"><b><a class="link" href="ch07s03.html#ltref">ASCII
+      comparison</a>. </b></p><pre class="programlisting">veg1=carrots
+veg2=tomatoes
+
+if [[ "$veg1" &lt; "$veg2" ]]
+then
+  echo "Although $veg1 precede $veg2 in the dictionary,"
+  echo -n "this does not necessarily imply anything "
+  echo "about my culinary preferences."
+else
+  echo "What kind of dictionary are you using, anyhow?"
+fi</pre></dd><dt><span class="term"><span class="token">\&lt;</span>, </span><span class="term"><span class="token">\&gt;</span></span></dt><dd><p title="word boundary in a regular expression"><b><a class="link" href="ch17.html#anglebrac">word
+      boundary</a> in a <a class="link" href="ch17.html#regexref">regular
+      expression</a>. </b></p><p><code class="prompt">bash$ </code><strong class="userinput"><code>grep '\&lt;the\&gt;' textfile</code></strong></p></dd><dt><span class="term"><span class="token">|</span></span></dt><dd><p><a id="piperef"/></p><p title="pipe"><b>pipe. </b>Passes the output (<code class="filename">stdout</code>
+    of a previous command to the input
+    (<code class="filename">stdin</code>) of the next one, or
+    to the shell. This is a method of chaining commands
+    together.</p><p>
+              </p><pre class="programlisting">echo ls -l | sh
+#  Passes the output of "echo ls -l" to the shell,
+#+ with the same result as a simple "ls -l".
+
+
+cat *.lst | sort | uniq
+# Merges and sorts all ".lst" files, then deletes duplicate lines.</pre><p>
+      </p><div class="sidebar"><p class="title"><b/></p><p>
+        A pipe, as a classic method of interprocess
+        communication, sends the <code class="filename">stdout</code>
+        of one <a class="link" href="ch03.html#processref">process</a> to the
+        <code class="filename">stdin</code> of another. In a typical case,
+        a command, such as <a class="link" href="ch15.html#catref">cat</a> or
+        <a class="link" href="ch14.html#echoref">echo</a>, pipes a stream of
+        data to a
+        <a id="filterdef"/>
+        <em class="firstterm">filter</em>, a command that
+        transforms its input for processing.
+    <sup>[<a id="idp7568288" href="#ftn.idp7568288" class="footnote">19</a>]</sup>
+        </p><p>  
+        <strong class="userinput"><code>cat $filename1 $filename2 | grep $search_word</code></strong>
+            </p><p>For an interesting note on the complexity of using UNIX
+        pipes, see <a class="ulink" href="http://www.faqs.org/faqs/unix-faq/faq/part3/">the UNIX FAQ,
+        Part 3</a>.</p></div><p><a id="ucref"/>The output of a command or commands
+        may be piped to a script.
+
+        </p><pre class="programlisting">#!/bin/bash
+# uppercase.sh : Changes input to uppercase.
+
+tr 'a-z' 'A-Z'
+#  Letter ranges must be quoted
+#+ to prevent filename generation from single-letter filenames.
+
+exit 0</pre><p>
+              Now, let us pipe the output of <span class="command"><strong>ls -l</strong></span> to this
+        script.
+
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ls -l | ./uppercase.sh</code></strong>
+<code class="computeroutput">-RW-RW-R--    1 BOZO  BOZO       109 APR  7 19:49 1.TXT
+ -RW-RW-R--    1 BOZO  BOZO       109 APR 14 16:48 2.TXT
+ -RW-R--R--    1 BOZO  BOZO       725 APR 20 20:56 DATA-FILE</code>
+        </pre><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <code class="filename">stdout</code> of each process in
+         a pipe must be read as the <code class="filename">stdin</code>
+         of the next. If this is not the case, the data stream
+         will <em class="firstterm">block</em>, and the pipe will not
+         behave as expected.
+           </p><pre class="programlisting">cat file1 file2 | ls -l | sort
+# The output from "cat file1 file2" disappears.</pre><p>
+             </p><p>A pipe runs as a <a class="link" href="ch04s04.html#childref">child
+         process</a>, and therefore cannot alter script
+         variables.
+           </p><pre class="programlisting">variable="initial_value"
+echo "new_value" | read variable
+echo "variable = $variable"     # variable = initial_value</pre><p>
+             </p><p>If one of the commands in the pipe
+         aborts, this prematurely terminates execution of the
+         pipe. Called a <em class="firstterm">broken pipe</em>, this
+         condition sends a <em class="replaceable"><code>SIGPIPE</code></em> <a class="link" href="ch29.html#signald">signal</a>.</p></div></dd><dt><span class="term"><span class="token">&gt;|</span></span></dt><dd><p title="force redirection (even if the noclobber option is set)"><b>force redirection (even if
+    the <a class="link" href="ch30.html#noclobberref">noclobber option</a>
+    is set). </b>This will forcibly overwrite an existing file.</p></dd><dt><span class="term"><span class="token">||</span></span></dt><dd><p title="OR logical operator"><b><a class="link" href="ch08.html#orref">OR logical operator</a>. </b>In a <a class="link" href="ch07.html#testconstructs1">test
+    construct</a>, the <span class="token">||</span> operator causes
+    a return of <span class="returnvalue">0</span> (success) if
+    <span class="emphasis"><em>either</em></span> of the linked test conditions
+    is true.</p></dd><dt><span class="term"><a id="bgjob"/><span class="token">&amp;amp;</span></span></dt><dd><p title="Run job in background"><b>Run job in background. </b>A command followed by an <span class="token">&amp;amp;</span>
+          will run in the background.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>sleep 10 &amp;</code></strong>
+<code class="computeroutput">[1] 850</code>
+<code class="computeroutput">[1]+  Done                    sleep 10</code>
+        </pre><p>
+      </p><p>Within a script, commands and even <a class="link" href="ch10.html#forloopref1">loops</a> may run in the
+        background.</p><p><a id="bgloop0"/></p><div class="example"><a id="bgloop"/><p class="title"><b>Пример 3.3. Running a loop in the background</b></p><div class="example-contents"><pre class="programlisting"> &amp;bgloop; </pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>A command run in the background within a
+        script may cause the script to hang, waiting
+        for a keystroke. Fortunately, there is a <a class="link" href="ch14.html#waithang">remedy</a> for this.</p></div></dd><dt><span class="term"><a id="logicaland"/><span class="token">&amp;&amp;</span></span></dt><dd><p title="AND logical operator"><b><a class="link" href="ch08.html#logops1">AND logical
+      operator</a>. </b>In a <a class="link" href="ch07.html#testconstructs1">test
+    construct</a>, the <span class="token">&amp;&amp;</span> operator causes
+    a return of <span class="returnvalue">0</span> (success) only if
+    <span class="emphasis"><em>both</em></span> the linked test conditions
+    are true.</p></dd><dt><span class="term"><a id="dashref"/><span class="token">-</span></span></dt><dd><p title="option, prefix"><b>option, prefix. </b>Option flag for a command or filter. Prefix for
+    an operator. Prefix for a <a class="link" href="ch09s03.html#defparam1">default parameter</a>
+    in <a class="link" href="ch09s03.html#paramsubref">parameter
+    substitution</a>.</p><p><strong class="userinput"><code>COMMAND -[Option1][Option2][...]</code></strong></p><p><strong class="userinput"><code>ls -al</code></strong></p><p><strong class="userinput"><code>sort -dfu $filename</code></strong></p><p>
+        </p><pre class="programlisting">
+if [ $file1 -ot $file2 ]
+then #      ^
+  echo "File $file1 is older than $file2."
+fi
+
+if [ "$a" -eq "$b" ]
+then      ^
+  echo "$a is equal to $b."
+fi
+
+if [ "$c" -eq 24 -a "$d" -eq 47 ]
+then      ^              ^
+  echo "$c equals 24 and $d equals 47."
+fi
+
+
+param2=${param1:-$DEFAULTVAL}
+#               ^</pre><p>  
+        </p><p><a id="doubledashref"/></p><p><span class="command"><strong>--</strong></span></p><p>The <em class="firstterm">double-dash</em>
+    <code class="option">--</code> prefixes <em class="firstterm">long</em>
+    (verbatim) options to commands.</p><p><strong class="userinput"><code>sort --ignore-leading-blanks</code></strong></p><p>Used with a <a class="link" href="ch14.html#builtinref">Bash
+          builtin</a>, it means the <em class="firstterm">end of
+    options</em> to that particular command.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>This provides a handy means of removing
+      files whose <span class="emphasis"><em>names begin with a dash</em></span>.
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ls -l</code></strong>
+<code class="computeroutput">-rw-r--r-- 1 bozo bozo 0 Nov 25 12:29 -badname</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>rm -- -badname</code></strong>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l</code></strong>
+<code class="computeroutput">total 0</code></pre><p>
+      </p></div><p>The <em class="firstterm">double-dash</em> is also used in
+          conjunction with <a class="link" href="ch14.html#setref">set</a>.</p><p><strong class="userinput"><code>set -- $variable</code></strong> (as in <a class="xref" href="ch14.html#setpos" title="Пример 14.18. Reassigning the positional parameters">Пример 14.18, «Reassigning the positional parameters»</a>)</p></dd><dt><span class="term"><a id="dashref2"/><span class="token">-</span></span></dt><dd><p title="redirection from/to stdin or stdout [dash]"><b>redirection from/to <code class="filename">stdin</code> or <code class="filename">stdout</code> [dash]. </b><a id="coxex"/></p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>cat -</code></strong>
+<strong class="userinput"><code>abc</code></strong>
+<code class="computeroutput">abc</code>
+
+<code class="computeroutput">...</code>
+
+<strong class="userinput"><code>Ctl-D</code></strong></pre><p>
+      </p><p>As expected, <strong class="userinput"><code>cat -</code></strong> echoes
+      <code class="filename">stdin</code>, in this case keyboarded user input,
+      to <code class="filename">stdout</code>. But, does I/O redirection using
+      <span class="command"><strong>-</strong></span> have real-world applications?</p><pre class="programlisting">(cd /source/directory &amp;&amp; tar cf - . ) | (cd /dest/directory &amp;&amp; tar xpvf -)
+# Move entire file tree from one directory to another
+# [courtesy Alan Cox &lt;a.cox@swansea.ac.uk&gt;, with a minor change]
+
+# 1) cd /source/directory
+#    Source directory, where the files to be moved are.
+# 2) &amp;&amp;
+#   "And-list": if the 'cd' operation successful,
+#    then execute the next command.
+# 3) tar cf - .
+#    The 'c' option 'tar' archiving command creates a new archive,
+#    the 'f' (file) option, followed by '-' designates the target file
+#    as stdout, and do it in current directory tree ('.').
+# 4) |
+#    Piped to ...
+# 5) ( ... )
+#    a subshell
+# 6) cd /dest/directory
+#    Change to the destination directory.
+# 7) &amp;&amp;
+#   "And-list", as above
+# 8) tar xpvf -
+#    Unarchive ('x'), preserve ownership and file permissions ('p'),
+#    and send verbose messages to stdout ('v'),
+#    reading data from stdin ('f' followed by '-').
+#
+#    Note that 'x' is a command, and 'p', 'v', 'f' are options.
+#
+# Whew!
+
+
+
+# More elegant than, but equivalent to:
+#   cd source/directory
+#   tar cf - . | (cd ../dest/directory; tar xpvf -)
+#
+#     Also having same effect:
+# cp -a /source/directory/* /dest/directory
+#     Or:
+# cp -a /source/directory/* /source/directory/.[^.]* /dest/directory
+#     If there are hidden files in /source/directory.
+</pre><pre class="programlisting">bunzip2 -c linux-2.6.16.tar.bz2 | tar xvf -
+#  --uncompress tar file--    | --then pass it to "tar"--
+#  If "tar" has not been patched to handle "bunzip2",
+#+ this needs to be done in two discrete steps, using a pipe.
+#  The purpose of the exercise is to unarchive "bzipped" kernel source.
+</pre><p>Note that in this context the <span class="quote">«<span class="quote">-</span>»</span> is not
+            itself a Bash operator, but rather an option recognized by
+      certain UNIX utilities that write to
+      <code class="filename">stdout</code>, such as <span class="command"><strong>tar</strong></span>,
+      <span class="command"><strong>cat</strong></span>, etc.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo "whatever" | cat -</code></strong>
+<code class="computeroutput">whatever</code> </pre><p>
+      </p><p>Where a filename is expected,
+        <em class="replaceable"><code>-</code></em> redirects output to
+        <code class="filename">stdout</code> (sometimes seen with
+        <strong class="userinput"><code>tar cf</code></strong>), or accepts input from
+        <code class="filename">stdin</code>, rather than from a file.
+        <a id="filterdash"/>
+        This is a method of using a file-oriented utility as a
+        filter in a pipe.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>file</code></strong>
+<code class="computeroutput">Usage: file [-bciknvzL] [-f namefile] [-m magicfiles] file...</code>
+        </pre><p>
+
+      By itself on the command-line, <a class="link" href="ch15s05.html#fileref">file</a> fails with an error message.
+      </p><p>
+      Add a <span class="quote">«<span class="quote">-</span>»</span> for a more useful result. This causes the
+        shell to await user input.
+
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>file -</code></strong>
+<strong class="userinput"><code>abc</code></strong>
+<code class="computeroutput">standard input:              ASCII text</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>file -</code></strong>
+<strong class="userinput"><code>#!/bin/bash</code></strong>
+<code class="computeroutput">standard input:              Bourne-Again shell script text executable</code>
+        </pre><p>
+
+        Now the command accepts input from <code class="filename">stdin</code>
+          and analyzes it.
+      </p><p>The <span class="quote">«<span class="quote">-</span>»</span> can be used to pipe
+        <code class="filename">stdout</code> to other commands. This permits
+        such stunts as <a class="link" href="ch33s08.html#prependref">prepending lines
+        to a file</a>.</p><p>Using <a class="link" href="ch15s05.html#diffref">diff</a> to
+        compare a file with a <span class="emphasis"><em>section</em></span>
+        of another:</p><p><strong class="userinput"><code>grep Linux file1 | diff file2 -</code></strong></p><p>Finally, a real-world example using
+        <em class="replaceable"><code>-</code></em> with <a class="link" href="ch15s05.html#tarref">tar</a>.</p><div class="example"><a id="ex58"/><p class="title"><b>Пример 3.4. Backup of all files changed in last day</b></p><div class="example-contents"><pre class="programlisting">&amp;ex58;</pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Filenames beginning with
+        <span class="quote">«<span class="quote">-</span>»</span> may cause problems when coupled with the
+        <span class="quote">«<span class="quote">-</span>»</span> redirection operator. A script should
+        check for this and add an appropriate prefix to such
+        filenames, for example <code class="filename">./-FILENAME</code>,
+        <code class="filename">$PWD/-FILENAME</code>, or
+        <code class="filename">$PATHNAME/-FILENAME</code>.</p><p>If the value of a variable begins with a
+          <em class="replaceable"><code>-</code></em>, this may likewise create
+    problems.
+    </p><pre class="programlisting">var="-n"
+echo $var   
+# Has the effect of "echo -n", and outputs nothing.</pre><p>
+              </p></div></dd><dt><span class="term"><span class="token">-</span></span></dt><dd><p title="previous working directory"><b>previous working directory. </b>A <span class="command"><strong>cd -</strong></span> command changes to the
+    previous working directory. This uses the
+    <a class="link" href="ch09.html#oldpwd">$OLDPWD</a> <a class="link" href="ch04s04.html#envref">environmental variable</a>.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Do not confuse the <span class="quote">«<span class="quote">-</span>»</span> used in this
+    sense with the <span class="quote">«<span class="quote">-</span>»</span> redirection
+    operator just discussed. The interpretation of the
+    <span class="quote">«<span class="quote">-</span>»</span> depends on the context in which it
+    appears.</p></div></dd><dt><span class="term"><span class="token">-</span></span></dt><dd><p title="Minus"><b>Minus. </b>Minus sign in an <a class="link" href="ch08.html#arops1">arithmetic
+          operation</a>.</p></dd><dt><span class="term"><span class="token">=</span></span></dt><dd><p title="Equals"><b>Equals. </b><a class="link" href="ch04s02.html#eqref">Assignment operator</a>
+          </p><pre class="programlisting">a=28
+echo $a   # 28</pre><p>In a <a class="link" href="ch07s03.html#equalsignref">different context</a>,
+        the <span class="quote">«<span class="quote"><span class="token">=</span></span>»</span> is a <a class="link" href="ch07s03.html#scomparison1">string comparison</a>
+        operator.</p></dd><dt><span class="term"><span class="token">+</span></span></dt><dd><p title="Plus"><b>Plus. </b>Addition  <a class="link" href="ch08.html#arops1">arithmetic
+          operator</a>.</p><p>In a <a class="link" href="ch17.html#plusref">different context</a>,
+        the <span class="token">+</span> is a <a class="link" href="ch17.html" title="Глава 17. Регулярные выражения">Regular
+        Expression</a> operator.</p></dd><dt><span class="term"><span class="token">+</span></span></dt><dd><p title="Option"><b>Option. </b>Option flag for a command or filter.</p><p>Certain commands and <a class="link" href="ch14.html#builtinref">builtins</a> use the
+        <code class="option">+</code> to enable certain options and the
+        <code class="option">-</code> to disable them. In <a class="link" href="ch09s03.html#paramsubref">parameter substitution</a>,
+        the <code class="option">+</code> prefixes an <a class="link" href="ch09s03.html#paramaltv">
+        alternate value</a> that a variable expands to.</p></dd><dt><span class="term"><a id="modulo00"/><span class="token">%</span></span></dt><dd><p title="modulo"><b><a class="link" href="ch08.html#moduloref">modulo</a>. </b>Modulo (remainder of a division) <a class="link" href="ch08.html#arops1">arithmetic
+          operation</a>.</p><pre class="programlisting">let "z = 5 % 3"
+echo $z  # 2</pre><p>In a <a class="link" href="ch09s03.html#pctpatref">different context</a>,
+        the <span class="token">%</span> is a <a class="link" href="ch09s03.html#psub2">pattern
+        matching</a> operator.</p></dd><dt><span class="term"><a id="tilderef"/><span class="token">~</span></span></dt><dd><p title="home directory [tilde]"><b>home directory [tilde]. </b>This corresponds to the <a class="link" href="ch09.html#homedirref">$HOME</a> internal variable.
+
+        <code class="filename">~bozo</code> is bozo's home directory,
+    and <span class="command"><strong>ls ~bozo</strong></span> lists the contents of it.
+    <span class="token">~/</span> is the current user's home directory,
+    and <span class="command"><strong>ls ~/</strong></span> lists the contents of it.
+
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo ~bozo</code></strong>
+<code class="computeroutput">/home/bozo</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo ~</code></strong>
+<code class="computeroutput">/home/bozo</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo ~/</code></strong>
+<code class="computeroutput">/home/bozo/</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo ~:</code></strong>
+<code class="computeroutput">/home/bozo:</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo ~nonexistent-user</code></strong>
+<code class="computeroutput">~nonexistent-user</code>
+        </pre><p title="home directory [tilde]">
+        </p></dd><dt><span class="term"><a id="workingdirref"/><span class="token">~+</span></span></dt><dd><p title="current working directory"><b>current working directory. </b>This corresponds to the <a class="link" href="ch09.html#pwdref">$PWD</a> internal variable.</p></dd><dt><span class="term"><a id="prevworkingdir"/><span class="token">~-</span></span></dt><dd><p title="previous working directory"><b>previous working directory. </b>This corresponds to the <a class="link" href="ch09.html#oldpwd">$OLDPWD</a> internal variable.</p></dd><dt><span class="term"><span class="token">=~</span></span></dt><dd><p title="regular expression match"><b><a class="link" href="ch34s02.html#regexmatchref">regular
+    expression match</a>. </b>This operator was introduced with <a class="link" href="ch34s02.html#bash3ref">version 3</a> of Bash.</p></dd><dt><span class="term"><a id="beglineref"/><span class="token">^</span></span></dt><dd><p title="beginning-of-line"><b>beginning-of-line. </b>In a <a class="link" href="ch17.html#regexref">regular expression</a>, a
+    <span class="quote">«<span class="quote">^</span>»</span> addresses the <a class="link" href="ch17.html#caretref">beginning of a line</a> of text.</p></dd><dt><span class="term"><span class="token">^</span>, </span><span class="term"><span class="token">^^</span></span></dt><dd><p title="Uppercase conversion in parameter substitution (added in version 4 of Bash)"><b><a class="link" href="ch34s03.html#casemodparamsub">Uppercase
+            conversion</a> in <em class="firstterm">parameter substitution</em>
+            (added in <a class="link" href="ch34s03.html#bash4ref">version 4</a> of Bash). </b></p></dd><dt><span class="term"><a id="controlcharref"/>Control Characters</span></dt><dd><p title="change the behavior of the terminal or text display."><b> change the behavior of the
+          terminal or text display. </b>A control character is a <span class="keycap"><strong>CONTROL</strong></span>
+        + <span class="keycap"><strong>key</strong></span> combination (pressed
+        simultaneously).
+        
+        A control character may also
+        be written in <em class="firstterm">octal</em> or
+        <em class="firstterm">hexadecimal</em> notation,
+        following an <em class="firstterm">escape</em>.</p><p>Control characters are not normally useful inside a
+      script.</p><div class="itemizedlist"><a id="ctlchar"/><ul class="itemizedlist"><li class="listitem"><p><strong class="userinput"><code>Ctl-A</code></strong></p><p>Moves cursor to beginning of line of text
+      (on the command-line).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-B</code></strong></p><p><strong class="userinput"><code>Backspace</code></strong>
+      (nondestructive).</p></li><li class="listitem"><p><a id="ctlcref"/></p><p><strong class="userinput"><code>Ctl-C</code></strong></p><p><strong class="userinput"><code>Break</code></strong>.
+      Terminate a foreground job.</p></li><li class="listitem"><p><a id="ctldref"/></p><p><strong class="userinput"><code>Ctl-D</code></strong></p><p><em class="firstterm">Log out</em> from a shell (similar to
+      <a class="link" href="ch06.html#exitcommandref">exit</a>).</p><p><strong class="userinput"><code>EOF</code></strong> (end-of-file). This also
+      terminates input from <code class="filename">stdin</code>.</p><p>When typing text on the console or in an
+                  <em class="firstterm">xterm</em> window,
+      <strong class="userinput"><code>Ctl-D</code></strong> erases the character under the
+      cursor. When there are no characters present,
+      <strong class="userinput"><code>Ctl-D</code></strong> logs out of the session, as
+      expected. In an <em class="firstterm">xterm</em> window,
+      this has the effect of closing the window.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-E</code></strong></p><p>Moves cursor to end of line of text
+      (on the command-line).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-F</code></strong></p><p>Moves cursor forward one character position
+      (on the command-line).</p></li><li class="listitem"><p><a id="ctlgref"/></p><p><strong class="userinput"><code>Ctl-G</code></strong></p><p><strong class="userinput"><code>BEL</code></strong>. On some
+    old-time teletype terminals, this would actually ring
+    a bell. In an <em class="firstterm">xterm</em> it might
+    beep.</p></li><li class="listitem"><p><a id="ctlhref"/></p><p><strong class="userinput"><code>Ctl-H</code></strong></p><p><strong class="userinput"><code>Rubout</code></strong> (destructive backspace).
+      Erases characters the cursor backs over while
+      backspacing.</p><p>
+    </p><pre class="programlisting">#!/bin/bash
+# Embedding Ctl-H in a string.
+
+a="^H^H"                  # Two Ctl-H's -- backspaces
+                          # ctl-V ctl-H, using vi/vim
+echo "abcdef"             # abcdef
+echo
+echo -n "abcdef$a "       # abcd f
+#  Space at end  ^              ^  Backspaces twice.
+echo
+echo -n "abcdef$a"        # abcdef
+#  No space at end               ^ Doesn't backspace (why?).
+                          # Results may not be quite as expected.
+echo; echo
+
+# Constantin Hagemeier suggests trying:
+# a=$'\010\010'
+# a=$'\b\b'
+# a=$'\x08\x08'
+# But, this does not change the results.</pre><p>
+                </p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-I</code></strong></p><p><strong class="userinput"><code>Horizontal tab</code></strong>.</p></li><li class="listitem"><p><a id="ctljref"/></p><p><strong class="userinput"><code>Ctl-J</code></strong></p><p><strong class="userinput"><code>Newline</code></strong> (line feed).
+      In a script, may also be expressed in octal notation --
+      '\012' or in hexadecimal -- '\x0a'.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-K</code></strong></p><p><strong class="userinput"><code>Vertical tab</code></strong>.</p><p>When typing text on the console or in an
+                  <em class="firstterm">xterm</em> window,
+      <strong class="userinput"><code>Ctl-K</code></strong> erases from the character
+      under the cursor to end of line. Within a script,
+      <strong class="userinput"><code>Ctl-K</code></strong> may behave differently,
+      as in Lee Lee Maschmeyer's example, below.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-L</code></strong></p><p><strong class="userinput"><code>Formfeed</code></strong> (clear the terminal
+      screen). In a terminal, this has the same effect as the
+      <a class="link" href="ch15s07.html#clearref">clear</a> command. When sent
+      to a printer, a <strong class="userinput"><code>Ctl-L</code></strong> causes
+      an advance to end of the paper sheet.</p></li><li class="listitem"><p><a id="ctlmref"/></p><p><strong class="userinput"><code>Ctl-M</code></strong></p><p><strong class="userinput"><code>Carriage return</code></strong>.</p><p>
+    </p><pre class="programlisting">#!/bin/bash
+# Thank you, Lee Maschmeyer, for this example.
+
+read -n 1 -s -p \
+$'Control-M leaves cursor at beginning of this line. Press Enter. \x0d'
+           # Of course, '0d' is the hex equivalent of Control-M.
+echo &gt;&amp;2   #  The '-s' makes anything typed silent,
+           #+ so it is necessary to go to new line explicitly.
+
+read -n 1 -s -p $'Control-J leaves cursor on next line. \x0a'
+           #  '0a' is the hex equivalent of Control-J, linefeed.
+echo &gt;&amp;2
+
+###
+
+read -n 1 -s -p $'And Control-K\x0bgoes straight down.'
+echo &gt;&amp;2   #  Control-K is vertical tab.
+
+# A better example of the effect of a vertical tab is:
+
+var=$'\x0aThis is the bottom line\x0bThis is the top line\x0a'
+echo "$var"
+#  This works the same way as the above example. However:
+echo "$var" | col
+#  This causes the right end of the line to be higher than the left end.
+#  It also explains why we started and ended with a line feed --
+#+ to avoid a garbled screen.
+
+# As Lee Maschmeyer explains:
+# --------------------------
+#  In the [first vertical tab example] . . . the vertical tab
+#+ makes the printing go straight down without a carriage return.
+#  This is true only on devices, such as the Linux console,
+#+ that can't go "backward."
+#  The real purpose of VT is to go straight UP, not down.
+#  It can be used to print superscripts on a printer.
+#  The col utility can be used to emulate the proper behavior of VT.
+
+exit 0</pre><p>
+    </p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-N</code></strong></p><p>Erases a line of text recalled from
+      <em class="firstterm">history buffer</em>
+        <sup>[<a id="idp7812560" href="#ftn.idp7812560" class="footnote">20</a>]</sup> (on the
+        command-line).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-O</code></strong></p><p>Issues a <em class="firstterm">newline</em>
+      (on the command-line).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-P</code></strong></p><p>Recalls last command from <em class="firstterm">history
+      buffer</em> (on the command-line).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-Q</code></strong></p><p>Resume (<strong class="userinput"><code>XON</code></strong>).</p><p>This resumes <code class="filename">stdin</code> in a terminal.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-R</code></strong></p><p>Backwards search for text in <em class="firstterm">history
+      buffer</em>
+      (on the command-line).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-S</code></strong></p><p>Suspend (<strong class="userinput"><code>XOFF</code></strong>).</p><p>This freezes <code class="filename">stdin</code> in a terminal.
+      (Use Ctl-Q to restore input.)</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-T</code></strong></p><p>Reverses the position of the character the cursor
+      is on with the previous character (on the
+      command-line).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-U</code></strong></p><p>Erase a line of input, from the cursor backward to
+      beginning of line. In some settings,
+      <strong class="userinput"><code>Ctl-U</code></strong> erases the entire
+      line of input, <span class="emphasis"><em>regardless of cursor
+      position</em></span>.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-V</code></strong></p><p>When inputting text, <strong class="userinput"><code>Ctl-V</code></strong>
+      permits inserting control characters. For example, the
+      following two are equivalent:
+        </p><pre class="programlisting">echo -e '\x0a'
+echo &lt;Ctl-V&gt;&lt;Ctl-J&gt;</pre><p><strong class="userinput"><code>Ctl-V</code></strong> is primarily useful from
+    within a text editor.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-W</code></strong></p><p>When typing text on the console or in an xterm window,
+      <strong class="userinput"><code>Ctl-W</code></strong> erases from the character
+      under the cursor backwards to the first instance of
+      <a class="link" href="ch03.html#whitespaceref">whitespace</a>. In
+      some settings, <strong class="userinput"><code>Ctl-W</code></strong> erases
+      backwards to first non-alphanumeric character.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-X</code></strong></p><p>In certain word processing programs,
+      <em class="firstterm">Cuts</em> highlighted text
+      and copies to <em class="firstterm">clipboard</em>.</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-Y</code></strong></p><p><em class="firstterm">Pastes</em> back text previously
+      erased (with <strong class="userinput"><code>Ctl-K</code></strong> or
+      <strong class="userinput"><code>Ctl-U</code></strong>).</p></li><li class="listitem"><p><strong class="userinput"><code>Ctl-Z</code></strong></p><p><em class="firstterm">Pauses</em> a foreground job.</p><p><em class="firstterm">Substitute</em> operation in certain
+      word processing applications.</p><p><strong class="userinput"><code>EOF</code></strong> (end-of-file) character
+      in the MSDOS filesystem.</p></li></ul></div></dd><dt><span class="term"><a id="whitespaceref"/>Whitespace</span></dt><dd><p title="functions as a separator between commands and/or variables."><b>functions as a separator between commands and/or
+              variables. </b>Whitespace consists of either
+    <em class="firstterm">spaces</em>,
+    <em class="firstterm">tabs</em>, <em class="firstterm">blank
+    lines</em>, or any combination thereof.
+
+      <sup>[<a id="idp7850928" href="#ftn.idp7850928" class="footnote">21</a>]</sup>
+
+    In some contexts, such as <a class="link" href="ch31.html#wsbad">variable
+    assignment</a>, whitespace is not permitted, and
+    results in a syntax error.</p><p>Blank lines have no effect on the action of a script,
+      and are therefore useful for visually separating functional
+      sections.</p><p><a class="link" href="ch09.html#ifsref">$IFS</a>, the special variable
+      separating <em class="firstterm">fields</em> of input to certain
+      commands. It defaults to whitespace.</p><div class="sidebar"><p class="title"><b/></p><p>
+        <a id="fieldref"/><strong class="userinput"><code>Definition:</code></strong>
+        A <em class="firstterm">field</em> is a discrete chunk of data
+        expressed as a string of consecutive characters.
+        Separating each field from adjacent fields is either
+        <em class="firstterm">whitespace</em> or some other designated
+        character (often determined by the <span class="token">$IFS</span>).
+        In some contexts, a field may be called a
+        <em class="firstterm">record</em>.
+        </p></div><p><a id="quotingws"/></p><p>To preserve <em class="firstterm">whitespace</em>
+    within a string or in a variable, use <a class="link" href="ch05.html#quotingref">quoting</a>.</p><p>UNIX <a class="link" href="ch03.html#filterdef">filters</a>
+      can target and operate on <em class="firstterm">whitespace</em>
+      using the <a class="link" href="ch17.html#posixref">POSIX</a> character class
+      <a class="link" href="ch17.html#wsposix">[:space:]</a>.</p></dd></dl></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp7191360" href="#idp7191360" class="para">15</a>] </sup><a id="operatordef"/>An
+      <em class="firstterm">operator</em> is an agent that carries
+      out an <em class="firstterm">operation</em>. Some examples
+      are the common <a class="link" href="ch08.html#arops1">arithmetic
+      operators</a>, <span class="command"><strong>+ - * /</strong></span>. In
+      Bash, there is some overlap between the concepts
+      of <em class="firstterm">operator</em> and <a class="link" href="ch14.html#keywordref">keyword</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7365456" href="#idp7365456" class="para">16</a>] </sup><a id="processiddef"/></p><p>A <em class="firstterm">PID</em>, or
+          <em class="firstterm">process ID</em>, is a number assigned
+          to a running process. The <em class="firstterm">PID</em>s
+          of running processes may be viewed with a <a class="link" href="ch16.html#ppssref">ps</a> command.
+          </p><p><a id="processref"/></p><p>
+          <strong class="userinput"><code>Definition:</code></strong> A
+          <em class="firstterm">process</em> is a currently
+          executing command (or program), sometimes referred
+          to as a <em class="firstterm">job</em>.  </p></div><div class="footnote"><p><sup>[<a id="ftn.idp7387760" href="#idp7387760" class="para">17</a>] </sup>The shell does the <em class="firstterm">brace
+         expansion</em>. The command itself acts upon the
+         <span class="emphasis"><em>result</em></span> of the expansion.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7420288" href="#idp7420288" class="para">18</a>] </sup>Exception: a code block in braces as
+      part of a pipe <span class="emphasis"><em>may</em></span> run as a
+      <a class="link" href="ch20.html#subshellsref">subshell</a>.</p><pre class="programlisting">ls | { read firstline; read secondline; }
+#  Error. The code block in braces runs as a subshell,
+#+ so the output of "ls" cannot be passed to variables within the block.
+echo "First line is $firstline; second line is $secondline"  # Won't work.
+
+# Thanks, S.C.</pre></div><div class="footnote"><p><sup>[<a id="ftn.idp7568288" href="#idp7568288" class="para">19</a>] </sup> Even as in olden times a
+    <em class="firstterm">philtre</em> denoted a potion alleged
+    to have magical transformative powers, so does a UNIX
+    <em class="firstterm">filter</em> transform its target in
+    (roughly) analogous fashion. (The coder who comes up with a
+    <span class="quote">«<span class="quote">love philtre</span>»</span> that runs on a Linux machine
+    will likely win accolades and honors.)</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7812560" href="#idp7812560" class="para">20</a>] </sup>Bash stores a list of commands
+        previously issued from the command-line
+        in a <em class="firstterm">buffer</em>, or
+        memory space, for recall with the <a class="link" href="ch14.html#builtinref">builtin</a>
+        <em class="firstterm">history</em>
+        commands.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7850928" href="#idp7850928" class="para">21</a>] </sup>A linefeed (<em class="firstterm">newline</em>)
+        is also a whitespace character. This explains
+        why a <em class="firstterm">blank line</em>,
+        consisting only of a linefeed, is considered
+        whitespace.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="pt02.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt02.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch04.html">След.</a></td></tr><tr><td align="left" valign="top">Часть Part 2. Основы </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 4. Введение в переменные и параметры</td></tr></table></div></body></html>

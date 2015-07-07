@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Assorted Tips</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch33.html" title="Глава 33. Miscellany"/><link rel="prev" href="ch33s07.html" title="Optimizations"/><link rel="next" href="ch33s09.html" title="Security Issues"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Assorted Tips</th></tr><tr><td align="left"><a accesskey="p" href="ch33s07.html">Пред.</a> </td><th width="60%" align="center">Глава 33. Miscellany</th><td align="right"> <a accesskey="n" href="ch33s09.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Assorted Tips"><div class="titlepage"><div><div><h2 class="title"><a id="assortedtips"/>Assorted Tips</h2></div></div></div><div class="sect2" title="Ideas for more powerful scripts"><div class="titlepage"><div><div><h3 class="title"><a id="idp17684160"/>Ideas for more powerful scripts</h3></div></div></div><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><a id="pseudocoderef"/></p><p>You have a problem that you want to solve by writing a Bash
+       script. Unfortunately, you don't know quite where to start.
+       One method is to plunge right in and code those parts
+       of the script that come easily, and write the hard parts as
+       <em class="firstterm">pseudo-code</em>.</p><pre class="programlisting">#!/bin/bash
+
+ARGCOUNT=1                     # Need name as argument.
+E_WRONGARGS=65
+
+if [ number-of-arguments is-not-equal-to "$ARGCOUNT" ]
+#    ^^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^
+#  Can't figure out how to code this . . .
+#+ . . . so write it in pseudo-code.
+
+then
+  echo "Usage: name-of-script name"
+  #            ^^^^^^^^^^^^^^     More pseudo-code.
+  exit $E_WRONGARGS
+fi 
+
+. . .
+
+exit 0
+
+
+# Later on, substitute working code for the pseudo-code.
+
+# Line 6 becomes:
+if [ $# -ne "$ARGCOUNT" ]
+
+# Line 12 becomes:
+  echo "Usage: `basename $0` name"</pre><p>For an example of using pseudo-code, see the <a class="link" href="apns02.html#newtonsqrt">Square Root</a> exercise.</p></li><li class="listitem"><p><a id="trackingscr"/></p><p>To keep a record of which user scripts have run
+      during a particular session or over a number of sessions,
+      add the following lines to each script you want to keep track
+      of. This will keep a continuing file record of the script
+      names and invocation times. </p><p>
+    </p><pre class="programlisting"># Append (&gt;&gt;) following to end of each script tracked.
+
+whoami&gt;&gt; $SAVE_FILE    # User invoking the script.
+echo $0&gt;&gt; $SAVE_FILE   # Script name.
+date&gt;&gt; $SAVE_FILE      # Date and time.
+echo&gt;&gt; $SAVE_FILE      # Blank line as separator.
+
+#  Of course, SAVE_FILE defined and exported as environmental variable in ~/.bashrc
+#+ (something like ~/.scripts-run)</pre><p>
+          </p></li><li class="listitem"><p><a id="prependref"/></p><p>The <span class="token">&gt;&gt;</span> operator
+      <em class="firstterm">appends</em> lines to a file.
+      What if you wish to <em class="firstterm">prepend</em> a
+      line to an existing file, that is, to paste it in at the
+      beginning?</p><p>
+    </p><pre class="programlisting">file=data.txt
+title="***This is the title line of data text file***"
+
+echo $title | cat - $file &gt;$file.new
+# "cat -" concatenates stdout to $file.
+#  End result is
+#+ to write a new file with $title appended at *beginning*.</pre><p>
+    </p><p>This is a simplified variant of the <a class="xref" href="ch18.html#prependex" title="Пример 18.13. Добавление строки в файл">Пример 18.13, «Добавление строки в файл»</a> script given earlier.  And, of course,
+      <a class="link" href="apc.html#sedref">sed</a> can also do this.</p></li><li class="listitem"><p><a id="scriptasemb"/></p><p>A shell script may act as an embedded command inside
+      another shell script, a <em class="firstterm">Tcl</em> or
+      <em class="firstterm">wish</em> script, or even a <a class="link" href="ch15s05.html#makefileref">Makefile</a>. It can be invoked
+      as an external shell command in a C program using the
+      <em class="replaceable"><code>system()</code></em> call, i.e.,
+     <em class="replaceable"><code>system("script_name");</code></em>.</p></li><li class="listitem"><p><a id="setvaremb"/></p><p>Setting a variable to the contents of an embedded
+      <em class="firstterm">sed</em> or <em class="firstterm">awk</em>
+      script increases the readability of the surrounding <a class="link" href="ch33s03.html#shwrapper">shell wrapper</a>. See <a class="xref" href="apa.html#mailformat" title="Пример A.1. mailformat: Formatting an e-mail message">Пример A.1, «<em class="firstterm">mailformat</em>: Formatting an e-mail
+      message»</a> and <a class="xref" href="ch14.html#coltotaler3" title="Пример 14.20. Using export to pass a variable to an embedded awk script">Пример 14.20, «Using <em class="firstterm">export</em> to pass a variable to an
+        embedded <em class="firstterm">awk</em> script»</a>.</p></li><li class="listitem"><p><a id="libroutines"/></p><p>Put together files containing your favorite and most useful
+      definitions and functions.  As necessary,
+      <span class="quote">«<span class="quote">include</span>»</span> one or more of these
+      <span class="quote">«<span class="quote">library files</span>»</span> in scripts with either the
+      <a class="link" href="ch03.html#dotref">dot</a> (<span class="command"><strong>.</strong></span>)
+      or <a class="link" href="ch14.html#sourceref">source</a> command.</p><p>  
+            </p><pre class="programlisting"># SCRIPT LIBRARY
+# ------ -------
+
+# Note:
+# No "#!" here.
+# No "live code" either.
+
+
+# Useful variable definitions
+
+ROOT_UID=0             # Root has $UID 0.
+E_NOTROOT=101          # Not root user error. 
+MAXRETVAL=255          # Maximum (positive) return value of a function.
+SUCCESS=0
+FAILURE=-1
+
+
+
+# Functions
+
+Usage ()               # "Usage:" message.
+{
+  if [ -z "$1" ]       # No arg passed.
+  then
+    msg=filename
+  else
+    msg=$@
+  fi
+
+  echo "Usage: `basename $0` "$msg""
+}  
+
+
+Check_if_root ()       # Check if root running script.
+{                      # From "ex39.sh" example.
+  if [ "$UID" -ne "$ROOT_UID" ]
+  then
+    echo "Must be root to run this script."
+    exit $E_NOTROOT
+  fi
+}  
+
+
+CreateTempfileName ()  # Creates a "unique" temp filename.
+{                      # From "ex51.sh" example.
+  prefix=temp
+  suffix=`eval date +%s`
+  Tempfilename=$prefix.$suffix
+}
+
+
+isalpha2 ()            # Tests whether *entire string* is alphabetic.
+{                      # From "isalpha.sh" example.
+  [ $# -eq 1 ] || return $FAILURE
+
+  case $1 in
+  *[!a-zA-Z]*|"") return $FAILURE;;
+  *) return $SUCCESS;;
+  esac                 # Thanks, S.C.
+}
+
+
+abs ()                           # Absolute value.
+{                                # Caution: Max return value = 255.
+  E_ARGERR=-999999
+
+  if [ -z "$1" ]                 # Need arg passed.
+  then
+    return $E_ARGERR             # Obvious error value returned.
+  fi
+
+  if [ "$1" -ge 0 ]              # If non-negative,
+  then                           #
+    absval=$1                    # stays as-is.
+  else                           # Otherwise,
+    let "absval = (( 0 - $1 ))"  # change sign.
+  fi  
+
+  return $absval
+}
+
+
+tolower ()             #  Converts string(s) passed as argument(s)
+{                      #+ to lowercase.
+
+  if [ -z "$1" ]       #  If no argument(s) passed,
+  then                 #+ send error message
+    echo "(null)"      #+ (C-style void-pointer error message)
+    return             #+ and return from function.
+  fi  
+
+  echo "$@" | tr A-Z a-z
+  # Translate all passed arguments ($@).
+
+  return
+
+# Use command substitution to set a variable to function output.
+# For example:
+#    oldvar="A seT of miXed-caSe LEtTerS"
+#    newvar=`tolower "$oldvar"`
+#    echo "$newvar"    # a set of mixed-case letters
+#
+# Exercise: Rewrite this function to change lowercase passed argument(s)
+#           to uppercase ... toupper()  [easy].
+}</pre><p>
+          </p></li><li class="listitem"><p><a id="commenth"/></p><p>Use special-purpose comment headers to increase clarity
+      and legibility in scripts.</p><pre class="programlisting">## Caution.
+rm -rf *.zzy   ##  The "-rf" options to "rm" are very dangerous,
+               ##+ especially with wild cards.
+
+#+ Line continuation.
+#  This is line 1
+#+ of a multi-line comment,
+#+ and this is the final line.
+
+#* Note.
+
+#o List item.
+
+#&gt; Another point of view.
+while [ "$var1" != "end" ]    #&gt; while test "$var1" != "end"</pre></li><li class="listitem"><p><a id="progbar"/></p><p>Dotan Barak contributes template code for a
+    <em class="firstterm">progress bar</em> in a script.</p><div class="example"><a id="progressbar"/><p class="title"><b>Пример 33.15. A Progress Bar</b></p><div class="example-contents"><pre class="programlisting">&amp;progressbar;</pre></div></div><br class="example-break"/></li><li class="listitem"><p><a id="comoutbl"/></p><p>A particularly clever use of <a class="link" href="ch07.html#testconstructs1">if-test</a> constructs
+      is for comment blocks.</p><p>    
+        </p><pre class="programlisting">#!/bin/bash
+
+COMMENT_BLOCK=
+#  Try setting the above variable to some value
+#+ for an unpleasant surprise.
+
+if [ $COMMENT_BLOCK ]; then
+
+Comment block --
+=================================
+This is a comment line.
+This is another comment line.
+This is yet another comment line.
+=================================
+
+echo "This will not echo."
+
+Comment blocks are error-free! Whee!
+
+fi
+
+echo "No more comments, please."
+
+exit 0</pre><p>
+    </p><p>Compare this with <a class="link" href="ch18.html#cblock1">using  
+      here documents to comment out code blocks</a>.</p></li><li class="listitem"><p><a id="intparam"/></p><p>Using the <a class="link" href="ch09.html#xstatvarref">$? exit status
+      variable</a>, a script may test if a parameter contains
+      only digits, so it can be treated as an integer.</p><p>  
+      </p><pre class="programlisting">#!/bin/bash
+
+SUCCESS=0
+E_BADINPUT=85
+
+test "$1" -ne 0 -o "$1" -eq 0 2&gt;/dev/null
+# An integer is either equal to 0 or not equal to 0.
+# 2&gt;/dev/null suppresses error message.
+
+if [ $? -ne "$SUCCESS" ]
+then
+  echo "Usage: `basename $0` integer-input"
+  exit $E_BADINPUT
+fi
+
+let "sum = $1 + 25"             # Would give error if $1 not integer.
+echo "Sum = $sum"
+
+# Any variable, not just a command-line parameter, can be tested this way.
+
+exit 0</pre><p>
+          </p></li><li class="listitem"><p><a id="rvt"/>The 0 - 255 range for function return
+      values is a severe limitation. Global variables and
+      other workarounds are often problematic. An alternative
+      method for a function to communicate a value back to
+      the main body of the script is to have the function
+      write to <code class="filename">stdout</code> (usually with
+      <a class="link" href="ch14.html#echoref">echo</a>) the <span class="quote">«<span class="quote">return
+      value,</span>»</span> and assign this to a variable. This is
+      actually a variant of <a class="link" href="ch11.html#commandsubref">command
+      substitution.</a></p><div class="example"><a id="multiplication"/><p class="title"><b>Пример 33.16. Return value trickery</b></p><div class="example-contents"><pre class="programlisting">&amp;multiplication;</pre></div></div><br class="example-break"/><p>The same technique also works for alphanumeric
+      strings. This means that a function can <span class="quote">«<span class="quote">return</span>»</span>
+      a non-numeric value.</p><p>
+    </p><pre class="programlisting">capitalize_ichar ()          #  Capitalizes initial character
+{                            #+ of argument string(s) passed.
+
+  string0="$@"               # Accepts multiple arguments.
+
+  firstchar=${string0:0:1}   # First character.
+  string1=${string0:1}       # Rest of string(s).
+
+  FirstChar=`echo "$firstchar" | tr a-z A-Z`
+                             # Capitalize first character.
+
+  echo "$FirstChar$string1"  # Output to stdout.
+
+}  
+
+newstring=`capitalize_ichar "every sentence should start with a capital letter."`
+echo "$newstring"          # Every sentence should start with a capital letter.</pre><p> 
+    </p><p>It is even possible for a function to <span class="quote">«<span class="quote">return</span>»</span>
+      multiple values with this method.</p><div class="example"><a id="sumproduct"/><p class="title"><b>Пример 33.17. Even more return value trickery</b></p><div class="example-contents"><pre class="programlisting">&amp;sumproduct;</pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p><a id="rvtcaution"/>There can be only
+      <span class="command"><strong>one</strong></span> <em class="firstterm">echo</em> statement
+      in the function for this to work. If you alter the previous
+      example:</p><pre class="programlisting">sum_and_product ()
+{
+  echo "This is the sum_and_product function." # This messes things up!
+  echo $(( $1 + $2 )) $(( $1 * $2 ))
+}
+...
+retval=`sum_and_product $first $second`      # Assigns output of function.
+# Now, this will not work correctly.</pre></div></li><li class="listitem"><p><a id="passarray"/></p><p>Next in our bag of tricks are techniques for passing
+      an <a class="link" href="ch26.html#arrayref">array</a> to a
+      <a class="link" href="ch23.html#functionref">function</a>, then
+      <span class="quote">«<span class="quote">returning</span>»</span> an array back to the main body of
+      the script.</p><p>Passing an array involves loading the space-separated
+      elements of the array into a variable with <a class="link" href="ch11.html#commandsubref">command substitution</a>. <a id="retarray"/>Getting an array back as the <span class="quote">«<span class="quote">return
+      value</span>»</span> from a function uses the previously mentioned
+      strategem of <a class="link" href="ch14.html#echoref">echoing</a> the
+      array in the function, then invoking command substitution
+      and the <span class="command"><strong>( ... )</strong></span> operator to assign it to
+      an array.</p><div class="example"><a id="arrfunc"/><p class="title"><b>Пример 33.18. Passing and returning arrays</b></p><div class="example-contents"><pre class="programlisting">&amp;arrfunc;</pre></div></div><br class="example-break"/><p>For a more elaborate example of passing arrays to
+      functions, see <a class="xref" href="apa.html#lifeslow" title="Пример A.10. Game of Life">Пример A.10, «<em class="firstterm">Game of Life</em>»</a>.</p></li><li class="listitem"><p><a id="cstyle"/></p><p>Using the <a class="link" href="ch09s07.html" title="The Double-Parentheses Construct">double-parentheses
+      construct</a>, it is possible to use C-style syntax
+      for setting and incrementing/decrementing variables
+      and in <a class="link" href="ch10.html#forloopref1">for</a> and <a class="link" href="ch10.html#whileloopref">while</a> loops.  See <a class="xref" href="ch10.html#forloopc" title="Пример 10.12. C-подобный синтаксис оператора цикла for">Пример 10.12, «C-подобный синтаксис оператора цикла <em class="firstterm">for</em> »</a> and <a class="xref" href="ch10.html#whloopc" title="Пример 10.17. C-подобный синтаксис оформления цикла while">Пример 10.17, «C-подобный синтаксис оформления цикла <em class="firstterm">while</em>»</a>.</p></li><li class="listitem"><p><a id="setpum"/></p><p>Setting the <a class="link" href="ch09.html#pathref">path</a> and <a class="link" href="ch16.html#umaskref">umask</a> at the beginning of a script makes
+      it more <span class="quote">«<span class="quote">portable</span>»</span> -- more likely to run on a
+      <span class="quote">«<span class="quote">foreign</span>»</span> machine whose user may have bollixed up the
+      <code class="varname">$PATH</code> and <span class="command"><strong>umask</strong></span>.
+        </p><pre class="programlisting">#!/bin/bash
+PATH=/bin:/usr/bin:/usr/local/bin ; export PATH
+umask 022   # Files that the script creates will have 755 permission.
+
+# Thanks to Ian D. Allen, for this tip.</pre></li><li class="listitem"><p><a id="filteroutp"/></p><p>A useful scripting technique is to
+      <span class="emphasis"><em>repeatedly</em></span> feed the output of a filter
+      (by piping) back to the <span class="emphasis"><em>same filter</em></span>, but
+      with a different set of arguments and/or options. Especially
+      suitable for this are <a class="link" href="ch15s04.html#trref">tr</a> and
+      <a class="link" href="ch15s04.html#grepref">grep</a>.</p><p>
+    </p><pre class="programlisting"># From "wstrings.sh" example.
+
+wlist=`strings "$1" | tr A-Z a-z | tr '[:space:]' Z | \
+tr -cs '[:alpha:]' Z | tr -s '\173-\377' Z | tr Z ' '`</pre><p>
+    </p><div class="example"><a id="agram"/><p class="title"><b>Пример 33.19. Fun with anagrams</b></p><div class="example-contents"><pre class="programlisting">&amp;agram;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="ch27s02.html#constat" title="Пример 27.4. On-line connect status">Пример 27.4, «On-line connect status»</a>, <a class="xref" href="ch15s04.html#cryptoquote" title="Пример 15.25. Generating «Crypto-Quote» Puzzles">Пример 15.25, «Generating <span class="quote">«<span class="quote">Crypto-Quote</span>»</span> Puzzles»</a>, and <a class="xref" href="apa.html#soundex" title="Пример A.9. Soundex conversion">Пример A.9, «Soundex conversion»</a>.</p></li><li class="listitem"><p><a id="commblahd"/></p><p>Use <span class="quote">«<span class="quote"><a class="link" href="ch18.html#anonheredoc0">anonymous here
+      documents</a></span>»</span> to comment out blocks of code,
+      to save having to individually comment out each line with
+      a <span class="token">#</span>.  See <a class="xref" href="ch18.html#commentblock" title="Пример 18.11. Комментирование блоков кода">Пример 18.11, «Комментирование блоков кода»</a>.</p></li><li class="listitem"><p><a id="whatisref3"/></p><p>Running a script on a machine that relies on a command
+      that might not be installed is dangerous. Use <a class="link" href="ch15s05.html#whatisref">whatis</a> to avoid potential problems
+      with this.</p><p>
+      </p><pre class="programlisting">CMD=command1                 # First choice.
+PlanB=command2               # Fallback option.
+
+command_test=$(whatis "$CMD" | grep 'nothing appropriate')
+#  If 'command1' not found on system , 'whatis' will return
+#+ "command1: nothing appropriate."
+#
+#  A safer alternative is:
+#     command_test=$(whereis "$CMD" | grep \/)
+#  But then the sense of the following test would have to be reversed,
+#+ since the $command_test variable holds content only if
+#+ the $CMD exists on the system.
+#     (Thanks, bojster.)
+
+
+if [[ -z "$command_test" ]]  # Check whether command present.
+then
+  $CMD option1 option2       #  Run command1 with options.
+else                         #  Otherwise,
+  $PlanB                     #+ run command2. 
+fi</pre><p>
+          </p></li><li class="listitem"><p><a id="ifgrepfix"/></p><p>An <a class="link" href="ch07.html#ifgrepref">if-grep test</a> may not
+      return expected results in an error case, when text is output to
+      <code class="filename">stderr</code>, rather that
+      <code class="filename">stdout</code>.
+        </p><pre class="programlisting">if ls -l nonexistent_filename | grep -q 'No such file or directory'
+  then echo "File \"nonexistent_filename\" does not exist."
+fi</pre><p><a class="link" href="ch19.html#ioredirref">Redirecting</a>
+      <code class="filename">stderr</code> to <code class="filename">stdout</code> fixes
+      this.
+        </p><pre class="programlisting">if ls -l nonexistent_filename 2&gt;&amp;1 | grep -q 'No such file or directory'
+#                             ^^^^
+  then echo "File \"nonexistent_filename\" does not exist."
+fi
+
+# Thanks, Chris Martin, for pointing this out.</pre></li><li class="listitem"><p><a id="subshtmp"/>
+        If you absolutely must access a subshell variable outside the
+  subshell, here's a way to do it.
+    </p><pre class="programlisting">TMPFILE=tmpfile                  # Create a temp file to store the variable.
+
+(   # Inside the subshell ...
+inner_variable=Inner
+echo $inner_variable
+echo $inner_variable &gt;&gt;$TMPFILE  # Append to temp file.
+)
+
+    # Outside the subshell ...
+
+echo; echo "-----"; echo
+echo $inner_variable             # Null, as expected.
+echo "-----"; echo
+
+# Now ...
+read inner_variable &lt;$TMPFILE    # Read back shell variable.
+rm -f "$TMPFILE"                 # Get rid of temp file.
+echo "$inner_variable"           # It's an ugly kludge, but it works.</pre><p>
+  </p></li><li class="listitem"><p><a id="runpartsref2"/></p><p>The <a class="link" href="ch15s09.html#runpartsref">run-parts</a>
+      command is handy for running a set of command
+      scripts in a particular sequence, especially in
+      combination with <a class="link" href="ch16.html#cronref">cron</a> or
+      <a class="link" href="ch15s03.html#atref">at</a>.</p></li><li class="listitem"><p><a id="rcsref"/></p><p>For doing multiple revisions on a complex script, use the
+      <em class="firstterm">rcs</em> Revision Control System package.</p><p> Among other benefits of this is automatically updated ID
+      header tags. The <span class="command"><strong>co</strong></span> command in
+      <em class="firstterm">rcs</em> does a parameter replacement of
+      certain reserved key words, for example, replacing
+      <em class="parameter"><code># $Id$</code></em> in a script with something like:
+        </p><pre class="programlisting"># $Id$</pre></li></ul></div></div><div class="sect2" title="Widgets"><div class="titlepage"><div><div><h3 class="title"><a id="idp17812480"/>Widgets</h3></div></div></div><p><a id="widgetref"/></p><p>It would be nice to be able to invoke X-Windows widgets
+      from a shell script. There happen to exist several packages
+      that purport to do so, namely <em class="firstterm">Xscript</em>,
+      <em class="firstterm">Xmenu</em>, and <em class="firstterm">widtools</em>.
+      The first two of these no longer seem
+      to be maintained.  Fortunately, it is still
+      possible to obtain <em class="firstterm">widtools</em> <a class="ulink" href="http://www.batse.msfc.nasa.gov/~mallozzi/home/software/xforms/src/widtools-2.0.tgz">here</a>.
+      </p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>The <em class="firstterm">widtools</em> (widget tools)
+      package requires the <em class="firstterm">XForms</em> library to
+      be installed. Additionally, the <a class="link" href="ch15s05.html#makefileref">Makefile</a> needs some judicious
+      editing before the package will build on a typical Linux
+      system. Finally, three of the six widgets offered do not work
+      (and, in fact, segfault).</p></div><p><a id="dialogref"/></p><p>The <em class="firstterm">dialog</em> family of tools offers a method
+      of calling <span class="quote">«<span class="quote">dialog</span>»</span> widgets from a shell script. The
+      original <em class="firstterm">dialog</em> utility works in a text
+      console, but its successors, <em class="firstterm">gdialog</em>,
+      <em class="firstterm">Xdialog</em>, and <em class="firstterm">kdialog</em>
+      use X-Windows-based widget sets.</p><div class="example"><a id="dialog"/><p class="title"><b>Пример 33.20. Widgets invoked from a shell script</b></p><div class="example-contents"><pre class="programlisting">&amp;dialog;</pre></div></div><br class="example-break"/><p><a id="xmessageref2"/>
+      The <a class="link" href="ch15s09.html#xmessageref">xmessage</a> command is
+      a simple method of popping up a message/query window. For
+      example:
+        </p><pre class="programlisting">xmessage Fatal error in script! -button exit</pre><p>
+    </p><p><a id="zenityref2"/>
+      The latest entry in the widget sweepstakes is
+      <a class="link" href="ch15s09.html#zenityref">zenity</a>.
+      This utility pops up
+      <em class="firstterm">GTK+</em> dialog widgets-and-windows,
+      and it works very nicely within a script.
+        </p><pre class="programlisting">get_info ()
+{
+  zenity --entry       #  Pops up query window . . .
+                       #+ and prints user entry to stdout.
+
+                       #  Also try the --calendar and --scale options.
+}
+
+answer=$( get_info )   #  Capture stdout in $answer variable.
+
+echo "User entered: "$answer""</pre><p>
+    </p><p>For other methods of scripting with widgets, try
+      <em class="firstterm">Tk</em> or <em class="firstterm">wish</em>
+      (<em class="firstterm">Tcl</em> derivatives),
+      <em class="firstterm">PerlTk</em> (<em class="firstterm">Perl</em>
+      with <em class="firstterm">Tk</em> extensions),
+      <em class="firstterm">tksh</em> (<em class="firstterm">ksh</em>
+      with <em class="firstterm">Tk</em> extensions),
+      <em class="firstterm">XForms4Perl</em>
+      (<em class="firstterm">Perl</em> with
+      <em class="firstterm">XForms</em> extensions),
+      <em class="firstterm">Gtk-Perl</em> (<em class="firstterm">Perl</em>
+      with <em class="firstterm">Gtk</em> extensions), or
+      <em class="firstterm">PyQt</em> (<em class="firstterm">Python</em>
+      with <em class="firstterm">Qt</em> extensions).</p></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch33s07.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch33.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch33s09.html">След.</a></td></tr><tr><td align="left" valign="top">Optimizations </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Security Issues</td></tr></table></div></body></html>

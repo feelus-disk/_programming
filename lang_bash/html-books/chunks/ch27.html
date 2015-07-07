@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 27. /dev and /proc</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch26.html" title="Глава 26. Arrays"/><link rel="next" href="ch27s02.html" title="/proc"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 27. <code class="filename">/dev</code> and <code class="filename">/proc</code></th></tr><tr><td align="left"><a accesskey="p" href="ch26.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch27s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 27. /dev and /proc"><div class="titlepage"><div><div><h2 class="title"><a id="devproc"/>Глава 27. <code class="filename">/dev</code> and <code class="filename">/proc</code></h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch27.html#devref1"><code class="filename">/dev</code></a></span></dt><dt><span class="sect1"><a href="ch27s02.html"><code class="filename">/proc</code></a></span></dt></dl></div><p><a id="devprocref"/></p><p>A Linux or UNIX filesystem typically has the
+      <code class="filename">/dev</code> and
+  <code class="filename">/proc</code> special-purpose
+  directories.</p><div class="sect1" title="/dev"><div class="titlepage"><div><div><h2 class="title"><a id="devref1"/><code class="filename">/dev</code></h2></div></div></div><p><a id="devfileref"/>The <code class="filename">/dev</code> directory contains entries for
+  the <em class="firstterm">physical devices</em> that may or may not
+  be present in the hardware.
+
+     <sup>[<a id="idp16968848" href="#ftn.idp16968848" class="footnote">106</a>]</sup>
+  
+  Appropriately enough, these are called <em class="firstterm">device
+  files</em>.
+  As an example, the hard drive partitions containing
+  the mounted filesystem(s) have entries in <code class="filename">/dev</code>, as <a class="link" href="ch16.html#dfref">df</a> shows.</p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>df</code></strong>
+<code class="computeroutput">Filesystem           1k-blocks      Used Available Use%
+ Mounted on
+ /dev/hda6               495876    222748    247527  48% /
+ /dev/hda1                50755      3887     44248   9% /boot
+ /dev/hda8               367013     13262    334803   4% /home
+ /dev/hda5              1714416   1123624    503704  70% /usr</code>
+        </pre><p>
+        </p><p><a id="loopbackref"/>Among other things, the <code class="filename">/dev</code> directory
+  contains <em class="firstterm">loopback</em> devices, such as
+  <code class="filename">/dev/loop0</code>. A loopback device is a gimmick
+  that allows an ordinary file to be accessed as if it were a
+  block device.
+
+    <sup>[<a id="idp16981952" href="#ftn.idp16981952" class="footnote">107</a>]</sup>
+
+  This permits mounting an entire filesystem within a
+  single large file. See <a class="xref" href="ch16.html#createfs" title="Пример 16.8. Creating a filesystem in a file">Пример 16.8, «Creating a filesystem in a file»</a> and <a class="xref" href="ch16.html#isomountref" title="Пример 16.7. Checking a CD image">Пример 16.7, «Checking a CD image»</a>.</p><p>A few of the pseudo-devices in <code class="filename">/dev</code>
+   have other specialized uses, such as <a class="link" href="ch28.html#zerosref"><code class="filename">/dev/null</code></a>, <a class="link" href="ch28.html#zerosref1"><code class="filename">/dev/zero</code></a>, <a class="link" href="ch09s06.html#urandomref"><code class="filename">/dev/urandom</code></a>,
+   <code class="filename">/dev/sda1</code> (hard drive partition),
+   <code class="filename">/dev/udp</code> (<em class="firstterm">User
+   Datagram Packet</em> port), and <a class="link" href="ch27.html#devtcp" title="Пример 27.1. Using /dev/tcp for troubleshooting"><code class="filename">/dev/tcp</code></a>.</p><p>For instance:</p><p>To manually <a class="link" href="ch16.html#mountref">mount</a>
+         a USB flash drive, append the following line to
+         <a class="link" href="ch16.html#fstabref"><code class="filename">/etc/fstab</code></a>.
+
+        <sup>[<a id="idp16998832" href="#ftn.idp16998832" class="footnote">108</a>]</sup>
+
+     </p><pre class="programlisting">/dev/sda1    /mnt/flashdrive    auto    noauto,user,noatime    0 0</pre><p>
+
+         (See also <a class="xref" href="apa.html#usbinst" title="Пример A.23. Mounting USB keychain storage devices">Пример A.23, «Mounting USB keychain storage devices»</a>.)</p><p>Checking whether a disk is in the CD-burner
+         (soft-linked to <code class="filename">/dev/hdc</code>):
+
+   </p><pre class="programlisting">head -1 /dev/hdc
+
+
+#  head: cannot open '/dev/hdc' for reading: No medium found
+#  (No disc in the drive.)
+
+#  head: error reading '/dev/hdc': Input/output error
+#  (There is a disk in the drive, but it can't be read;
+#+  possibly it's an unrecorded CDR blank.)   
+
+#  Stream of characters and assorted gibberish
+#  (There is a pre-recorded disk in the drive,
+#+ and this is raw output -- a stream of ASCII and binary data.)
+#  Here we see the wisdom of using 'head' to limit the output
+#+ to manageable proportions, rather than 'cat' or something similar.
+
+
+#  Now, it's just a matter of checking/parsing the output and taking
+#+ appropriate action.</pre><p><a id="socketref"/></p><p>When executing a command on a
+         <code class="filename">/dev/tcp/$host/$port</code> pseudo-device file, Bash
+   opens a TCP connection to the associated
+   <em class="firstterm">socket</em>.</p><div class="sidebar"><p class="title"><b/></p><p>A <em class="firstterm">socket</em> is a
+        communications node associated with a specific I/O
+        port. (This is analogous to a <em class="firstterm">hardware
+        socket</em>, or <em class="firstterm">receptacle</em>,
+        for a connecting cable.) It permits data transfer between
+        hardware devices on the same machine, between machines
+        on the same network, between machines across different
+        networks, and, of course, between machines at different
+        locations on the Internet.</p></div><p>The following examples assume an active Internet
+         connection.</p><p>Getting the time from <code class="filename">nist.gov</code>:</p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>cat &lt;/dev/tcp/time.nist.gov/13</code></strong>
+<code class="computeroutput">53082 04-03-18 04:26:54 68 0 0 502.3 UTC(NIST) *</code>
+        </pre><p>[Mark contributed the above example.]</p><p>Downloading a URL:</p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>exec 5&lt;&gt;/dev/tcp/www.net.cn/80</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e "GET / HTTP/1.0\n" &gt;&amp;5</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat &lt;&amp;5</code></strong>
+        </pre><p>[Thanks, Mark and Mihai Maties.]</p><div class="example"><a id="devtcp"/><p class="title"><b>Пример 27.1. Using <code class="filename">/dev/tcp</code> for
+        troubleshooting</b></p><div class="example-contents"><pre class="programlisting">&amp;devtcp;</pre></div></div><br class="example-break"/><div class="example"><a id="musicscr"/><p class="title"><b>Пример 27.2. Playing music</b></p><div class="example-contents"><pre class="programlisting">&amp;musicscr;</pre></div></div><br class="example-break"/></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp16968848" href="#idp16968848" class="para">106</a>] </sup>The entries in <code class="filename">/dev</code>
+       provide mount points for physical and virtual devices. These
+       entries use very little drive space.</p><p>Some devices, such as <code class="filename">/dev/null</code>,
+     <code class="filename">/dev/zero</code>,
+     and <code class="filename">/dev/urandom</code> are virtual. They
+     are not actual physical devices and exist only in
+     software.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16981952" href="#idp16981952" class="para">107</a>] </sup><a id="blockdevref"/>A <em class="firstterm">block
+      device</em> reads and/or writes data in chunks,
+      or <em class="firstterm">blocks</em>, in contrast to a <a id="chardevref"/><em class="firstterm">character device</em>,
+      which acesses data in <em class="firstterm">character</em>
+      units. Examples of block devices are hard drives, CDROM
+      drives, and flash drives. Examples of character devices are
+      keyboards, modems, sound cards.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16998832" href="#idp16998832" class="para">108</a>] </sup>Of course, the mount point
+          <code class="filename">/mnt/flashdrive</code> must exist. If not,
+    then, as <em class="firstterm">root</em>, <span class="command"><strong>mkdir
+    /mnt/flashdrive</strong></span>.</p><p>To actually mount the drive, use the following command:
+         <span class="command"><strong>mount /mnt/flashdrive</strong></span></p><p>Newer Linux distros automount flash drives in the
+         <code class="filename">/media</code>
+         directory without user intervention.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch26.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch27s02.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 26. Arrays </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> <code class="filename">/proc</code></td></tr></table></div></body></html>

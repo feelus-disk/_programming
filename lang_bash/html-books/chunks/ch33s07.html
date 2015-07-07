@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Optimizations</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch33.html" title="Глава 33. Miscellany"/><link rel="prev" href="ch33s06.html" title="«Colorizing» Scripts"/><link rel="next" href="ch33s08.html" title="Assorted Tips"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Optimizations</th></tr><tr><td align="left"><a accesskey="p" href="ch33s06.html">Пред.</a> </td><th width="60%" align="center">Глава 33. Miscellany</th><td align="right"> <a accesskey="n" href="ch33s08.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Optimizations"><div class="titlepage"><div><div><h2 class="title"><a id="optimizations"/>Optimizations</h2></div></div></div><p>Most shell scripts are quick 'n dirty solutions to non-complex
+    problems. As such, optimizing them for speed is not much of an
+    issue.  Consider the case, though, where a script carries out
+    an important task, does it well, but runs too slowly. Rewriting
+    it in a compiled language may not be a palatable option. The
+    simplest fix would be to rewrite the parts of the script
+    that slow it down. Is it possible to apply principles of code
+    optimization even to a lowly shell script?</p><p>Check the loops in the script. Time consumed by repetitive
+    operations adds up quickly. If at all possible, remove
+    time-consuming operations from within loops.</p><p>Use <a class="link" href="ch14.html#builtinref">builtin</a> commands in
+    preference to system commands. Builtins execute faster and
+    usually do not launch a subshell when invoked.</p><p><a id="catabuse"/></p><p>Avoid unnecessary commands, particularly in a <a class="link" href="ch03.html#piperef">pipe</a>.
+      </p><pre class="programlisting">cat "$file" | grep "$word"
+
+grep "$word" "$file"
+
+#  The above command-lines have an identical effect,
+#+ but the second runs faster since it launches one fewer subprocess.</pre><p>
+    The <a class="link" href="ch15.html#catref">cat</a> command seems especially
+    prone to overuse in scripts.</p><p>Use the <a class="link" href="ch15s03.html#timref">time</a> and <a class="link" href="ch14.html#timesref">times</a> tools to profile
+    computation-intensive commands. Consider rewriting time-critical
+    code sections in C, or even in assembler.</p><p>Try to minimize file I/O. Bash is not particularly
+     efficient at handling files, so consider using
+     more appropriate tools for this within the script,
+     such as <a class="link" href="apcs02.html#awkref">awk</a> or <a class="link" href="ch33s03.html#perlref">Perl</a>.</p><p>Write your scripts in a modular and coherent form,
+     <sup>[<a id="idp17679328" href="#ftn.idp17679328" class="footnote">116</a>]</sup>
+     so they can be reorganized and tightened up as necessary. Some
+     of the optimization techniques applicable to high-level
+     languages may work for scripts, but others, such as
+     <em class="firstterm">loop unrolling</em>, are mostly
+     irrelevant. Above all, use common sense.</p><p>For an excellent demonstration of how optimization can
+     dramatically reduce the  execution time of a script, see <a class="xref" href="ch15s08.html#monthlypmt" title="Пример 15.47. Monthly Payment on a Mortgage">Пример 15.47, «Monthly Payment on a Mortgage»</a>.</p><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp17679328" href="#idp17679328" class="para">116</a>] </sup>This usually means liberal use of
+     <a class="link" href="ch23.html#functionref">functions</a>.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch33s06.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch33.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch33s08.html">След.</a></td></tr><tr><td align="left" valign="top"><span class="quote">«<span class="quote">Colorizing</span>»</span> Scripts </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Assorted Tips</td></tr></table></div></body></html>

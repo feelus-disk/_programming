@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 15. External Filters, Programs and Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt04.html" title="Часть Part 4. Commands"/><link rel="prev" href="ch14.html" title="Глава 14. Internal Commands and Builtins"/><link rel="next" href="ch15s02.html" title="Complex Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 15. External Filters, Programs and Commands</th></tr><tr><td align="left"><a accesskey="p" href="ch14.html">Пред.</a> </td><th width="60%" align="center">Часть Part 4. Commands</th><td align="right"> <a accesskey="n" href="ch15s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 15. External Filters, Programs and Commands"><div class="titlepage"><div><div><h2 class="title"><a id="external"/>Глава 15. External Filters, Programs and Commands</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch15.html#basic">Basic Commands</a></span></dt><dt><span class="sect1"><a href="ch15s02.html">Complex Commands</a></span></dt><dt><span class="sect1"><a href="ch15s03.html">Time / Date Commands</a></span></dt><dt><span class="sect1"><a href="ch15s04.html">Text Processing Commands</a></span></dt><dt><span class="sect1"><a href="ch15s05.html">File and Archiving Commands</a></span></dt><dt><span class="sect1"><a href="ch15s06.html">Communications Commands</a></span></dt><dt><span class="sect1"><a href="ch15s07.html">Terminal Control Commands</a></span></dt><dt><span class="sect1"><a href="ch15s08.html">Math Commands</a></span></dt><dt><span class="sect1"><a href="ch15s09.html">Miscellaneous Commands</a></span></dt></dl></div><p><a id="externalref"/></p><p>Standard UNIX commands make shell scripts more versatile. The
+  power of scripts comes from coupling system commands and shell
+  directives with simple programming constructs.</p><div class="sect1" title="Basic Commands"><div class="titlepage"><div><div><h2 class="title"><a id="basic"/>Basic Commands</h2></div></div></div><div class="variablelist" title="The first commands a novice learns"><a id="basiccommands"/><p class="title"><b><a id="basiccommands1"/>The first commands a novice learns</b></p><dl><dt><span class="term"><a id="lsref"/><span class="command"><strong>ls</strong></span></span></dt><dd><p>The basic file <span class="quote">«<span class="quote">list</span>»</span> command. It is all too easy
+        to underestimate the power of this humble command. For
+        example, using the <code class="option">-R</code>, recursive option,
+        <span class="command"><strong>ls</strong></span> provides a tree-like listing of
+        a directory structure. Other useful options are
+        <code class="option">-S</code>, sort listing by file size,
+        <code class="option">-t</code>, sort by file modification time,
+        <code class="option">-b</code>, show escape characters, and
+        <code class="option">-i</code>, show file inodes (see <a class="xref" href="ch15s02.html#idelete" title="Пример 15.4. Deleting a file by its inode number">Пример 15.4, «Deleting a file by its <em class="firstterm">inode</em>
+          number»</a>).</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>
+        The <em class="firstterm">ls</em> command returns a
+        non-zero <a class="link" href="ch06.html#exitstatusref">exit status</a> when
+        attempting to list a non-existent file.
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ls abc</code></strong>
+<code class="computeroutput">ls: abc: No such file or directory</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo $?</code></strong>
+<code class="computeroutput">2</code></pre><p>
+      </p></div><div class="example"><a id="ex40"/><p class="title"><b>Пример 15.1. Using <em class="firstterm">ls</em> to create a table of contents
+    for burning a <abbr class="abbrev">CDR</abbr> disk</b></p><div class="example-contents"><pre class="programlisting">&amp;ex40;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="catref"/><span class="command"><strong>cat</strong></span>, </span><span class="term"><span class="command"><strong>tac</strong></span></span></dt><dd><p><span class="command"><strong>cat</strong></span>, an acronym for
+      <em class="wordasword">concatenate</em>,
+        lists a file to <code class="filename">stdout</code>. When
+        combined with redirection (<span class="token">&gt;</span> or
+        <span class="token">&gt;&gt;</span>), it is commonly used to concatenate
+        files.
+
+    <a id="catuses"/>
+          </p><pre class="programlisting"># Uses of 'cat'
+cat filename                          # Lists the file.
+
+cat file.1 file.2 file.3 &gt; file.123   # Combines three files into one.</pre><p>
+
+        The <code class="option">-n</code> option to <span class="command"><strong>cat</strong></span>
+        inserts consecutive numbers before all lines of the
+        target file(s). The <code class="option">-b</code> option numbers
+        only the non-blank lines. The <code class="option">-v</code> option
+        echoes nonprintable characters, using <span class="token">^</span>
+        notation. The <code class="option">-s</code> option squeezes multiple
+        consecutive blank lines into a single blank line.</p><p>See also <a class="xref" href="ch15s04.html#lnum" title="Пример 15.28. nl: A self-numbering script.">Пример 15.28, «<em class="firstterm">nl</em>: A self-numbering script.»</a> and <a class="xref" href="ch15s04.html#rot13" title="Пример 15.24. rot13: ultra-weak encryption.">Пример 15.24, «<em class="firstterm">rot13</em>: ultra-weak encryption.»</a>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a id="catlesseff"/>
+      In a <a class="link" href="ch03.html#piperef">pipe</a>, it may be
+      more efficient to <a class="link" href="ch19.html#ioredirref">redirect</a>
+      the <code class="filename">stdin</code> to a file, rather than to
+            <span class="command"><strong>cat</strong></span> the file.
+            </p><p>
+      </p><pre class="programlisting">cat filename | tr a-z A-Z
+
+tr a-z A-Z &lt; filename   #  Same effect, but starts one less process,
+                        #+ and also dispenses with the pipe.</pre><p>
+            </p></div><p><span class="command"><strong>tac</strong></span>, is the inverse of
+        <em class="wordasword">cat</em>, listing a file backwards from its end.</p></dd><dt><span class="term"><a id="revref"/><span class="command"><strong>rev</strong></span></span></dt><dd><p>reverses each line of a file, and outputs to
+        <code class="filename">stdout</code>.  This does not have the same effect
+        as <span class="command"><strong>tac</strong></span>, as it preserves the order of
+        the lines, but flips each one around (mirror image).</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>cat file1.txt</code></strong>
+<code class="computeroutput">This is line 1.
+ This is line 2.</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>tac file1.txt</code></strong>
+<code class="computeroutput">This is line 2.
+ This is line 1.</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>rev file1.txt</code></strong>
+<code class="computeroutput">.1 enil si sihT
+ .2 enil si sihT</code>
+        </pre><p>
+      </p></dd><dt><span class="term"><a id="cpref"/><span class="command"><strong>cp</strong></span></span></dt><dd><p>This is the file copy command. <strong class="userinput"><code>cp file1
+        file2</code></strong> copies <code class="filename">file1</code>
+        to <code class="filename">file2</code>, overwriting
+        <code class="filename">file2</code> if it already exists (see <a class="xref" href="ch15s02.html#ex42" title="Пример 15.6. Copying files in current directory to another">Пример 15.6, «Copying files in current directory to another»</a>).</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Particularly useful are the <code class="option">-a</code>
+         archive flag (for copying an entire directory tree),
+         the <code class="option">-u</code> update flag (which prevents
+         overwriting identically-named newer files), and the
+         <code class="option">-r</code> and <code class="option">-R</code> recursive
+         flags.</p><pre class="programlisting">cp -u source_dir/* dest_dir
+#  "Synchronize" dest_dir to source_dir
+#+  by copying over all newer and not previously existing files.</pre></div></dd><dt><span class="term"><a id="mvref"/><span class="command"><strong>mv</strong></span></span></dt><dd><p>This is the file <em class="firstterm">move</em> command.
+        It is equivalent to a combination of <span class="command"><strong>cp</strong></span>
+        and <span class="command"><strong>rm</strong></span>. It may be used to move multiple
+        files to a directory, or even to rename a directory. For
+        some examples of using <span class="command"><strong>mv</strong></span> in a script,
+        see <a class="xref" href="ch09s03.html#rfe" title="Пример 9.20. Renaming file extensions:">Пример 9.20, «Renaming file extensions<span class="token">:</span>»</a> and <a class="xref" href="apa.html#rn" title="Пример A.2. rn: A simple-minded file renaming utility">Пример A.2, «<em class="firstterm">rn</em>: A simple-minded file renaming
+      utility»</a>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>When used in a non-interactive script,
+        <span class="command"><strong>mv</strong></span> takes the <code class="option">-f</code>
+        (<em class="firstterm">force</em>) option to bypass user
+        input.</p><p>When a directory is moved to a preexisting directory,
+        it becomes a subdirectory of the destination directory.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>mv source_directory target_directory</code></strong>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -lF target_directory</code></strong>
+<code class="computeroutput">total 1
+ drwxrwxr-x    2 bozo  bozo      1024 May 28 19:20 source_directory/</code>
+        </pre><p>
+      </p></div></dd><dt><span class="term"><a id="rmref"/><span class="command"><strong>rm</strong></span></span></dt><dd><p>Delete (remove) a file or files. The <code class="option">-f</code>
+        option forces removal of even readonly files, and is useful
+        for bypassing user input in a script.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a id="dashrem"/></p><p>The <em class="firstterm">rm</em> command will, by
+    itself,  fail to remove filenames beginning with
+    a dash. Why? Because <em class="firstterm">rm</em>
+    sees a dash-prefixed filename as an
+    <em class="firstterm">option</em>.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>rm -badname</code></strong>
+<code class="computeroutput">rm: invalid option -- b
+ Try `rm --help' for more information.</code></pre><p>
+        </p><p>
+    One clever workaround is to precede
+    the filename with a <span class="quote">«<span class="quote"> -- </span>»</span> (the
+    <em class="firstterm">end-of-options</em> flag).
+
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>rm -- -badname</code></strong></pre><p>
+    </p><p>
+        Another method to is to preface the filename to be removed
+        with a <code class="filename">dot-slash</code> .
+
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>rm ./-badname</code></strong></pre><p>
+        </p></div><div class="warning" title="Внимание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Внимание</h3><p><a id="rmrecurs"/>When used with the
+        recursive flag <code class="option">-r</code>, this command removes
+        files all the way down the directory tree from the current
+        directory.  A careless <span class="command"><strong>rm -rf *</strong></span> can wipe
+        out a big chunk of a directory structure.</p></div></dd><dt><span class="term"><a id="rmdirref"/><span class="command"><strong>rmdir</strong></span></span></dt><dd><p>Remove directory. The directory must be empty of
+        all files -- including <span class="quote">«<span class="quote">invisible</span>»</span>
+        <em class="firstterm">dotfiles</em>
+
+    <sup>[<a id="idp11900704" href="#ftn.idp11900704" class="footnote">62</a>]</sup>
+
+        -- for this command to succeed.</p></dd><dt><span class="term"><a id="mkdirref"/><span class="command"><strong>mkdir</strong></span></span></dt><dd><p>Make directory, creates a new directory. For example,
+        <strong class="userinput"><code>mkdir -p project/programs/December</code></strong>
+        creates the named directory. The
+        <em class="replaceable"><code>-p</code></em> option automatically creates
+        any necessary parent directories.</p></dd><dt><span class="term"><a id="chmodref"/><span class="command"><strong>chmod</strong></span></span></dt><dd><p>Changes the attributes of an existing file or directory
+        (see <a class="xref" href="ch14.html#ex44" title="Пример 14.14. Forcing a log-off">Пример 14.14, «Forcing a log-off»</a>).</p><pre class="programlisting">chmod +x filename
+# Makes "filename" executable for all users.
+
+chmod u+s filename
+# Sets "suid" bit on "filename" permissions.
+# An ordinary user may execute "filename" with same privileges as the file's owner.
+# (This does not apply to shell scripts.)</pre><pre class="programlisting">chmod 644 filename
+# Makes "filename" readable/writable to owner, readable to others
+# (octal mode).
+
+chmod 444 filename
+#  Makes "filename" read-only for all.
+#  Modifying the file (for example, with a text editor)
+#+ not allowed for a user who does not own the file (except for root),
+#+ and even the file owner must force a file-save
+#+ if she modifies the file.
+#  Same restrictions apply for deleting the file.</pre><pre class="programlisting">chmod 1777 directory-name
+#  Gives everyone read, write, and execute permission in directory,
+#+ however also sets the "sticky bit".
+#  This means that only the owner of the directory,
+#+ owner of the file, and, of course, root
+#+  can delete any particular file in that directory.
+
+chmod 111 directory-name
+#  Gives everyone execute-only permission in a directory.
+#  This means that you can execute and READ the files in that directory
+#+ (execute permission necessarily includes read permission
+#+ because you can't execute a file without being able to read it).
+#  But you can't list the files or search for them with the "find" command.
+#  These restrictions do not apply to root.
+
+chmod 000 directory-name
+#  No permissions at all for that directory.
+#  Can't read, write, or execute files in it.
+#  Can't even list files in it or "cd" to it.
+#  But, you can rename (mv) the directory
+#+ or delete it (rmdir) if it is empty.
+#  You can even symlink to files in the directory,
+#+ but you can't read, write, or execute the symlinks.
+#  These restrictions do not apply to root.</pre></dd><dt><span class="term"><a id="chattrref"/><span class="command"><strong>chattr</strong></span></span></dt><dd><p><span class="command"><strong>Ch</strong></span>ange file
+        <span class="command"><strong>attr</strong></span>ibutes. This is analogous to
+        <span class="command"><strong>chmod</strong></span> above, but with different options
+        and a different invocation syntax, and it works only on
+         <em class="firstterm">ext2/ext3</em> filesystems.</p><p>One particularly interesting <span class="command"><strong>chattr</strong></span>
+        option is <code class="option">i</code>. A <span class="command"><strong>chattr +i
+        <code class="filename">filename</code></strong></span> marks the file
+        as immutable. The file cannot be modified, linked to, or
+        deleted, <span class="emphasis"><em>not even by root</em></span>. This
+        file attribute can be set or removed only by
+        <em class="firstterm">root</em>. In a similar fashion,
+        the <code class="option">a</code> option marks the file as append
+        only.</p><p>
+        </p><pre class="screen">
+<code class="prompt">root# </code><strong class="userinput"><code>chattr +i file1.txt</code></strong>
+
+
+<code class="prompt">root# </code><strong class="userinput"><code>rm file1.txt</code></strong>
+
+<code class="computeroutput">rm: remove write-protected regular file `file1.txt'? y
+ rm: cannot remove `file1.txt': Operation not permitted</code>
+        </pre><p>
+      </p><p>If a file has the <code class="option">s</code> (secure)
+              attribute set, then when it is deleted its block is 
+        overwritten with binary zeroes.
+    <sup>[<a id="idp11939968" href="#ftn.idp11939968" class="footnote">63</a>]</sup>
+        </p><p>If a file has the <code class="option">u</code> (undelete)
+              attribute set, then when it is deleted, its contents can still
+        be retrieved (undeleted).</p><p>If a file has the <code class="option">c</code> (compress)
+              attribute set, then it will automatically be compressed
+        on writes to disk, and uncompressed on reads.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The file attributes set with
+        <span class="command"><strong>chattr</strong></span> do not show in a file listing
+        (<span class="command"><strong>ls -l</strong></span>).</p></div></dd><dt><span class="term"><a id="linkref"/><span class="command"><strong>ln</strong></span></span></dt><dd><p>Creates links to pre-existings files. A <span class="quote">«<span class="quote">link</span>»</span>
+        is a reference to a file, an alternate name for it.
+        The <span class="command"><strong>ln</strong></span> command permits referencing
+        the linked file by more than one name and is a superior
+        alternative to aliasing (see <a class="xref" href="ch04s04.html#ex18" title="Пример 4.6. wh, whois просмотр имени домена">Пример 4.6, «<em class="firstterm">wh</em>, <em class="firstterm">
+                whois</em> просмотр имени домена»</a>).</p><p>The <span class="command"><strong>ln</strong></span> creates only a reference, a
+         pointer to the file only a few bytes in size.</p><p><a id="symlinkref"/></p><p>The <span class="command"><strong>ln</strong></span> command is most often used
+        with the <code class="option">-s</code>, symbolic or
+        <span class="quote">«<span class="quote">soft</span>»</span> link flag. Advantages of using the
+        <code class="option">-s</code> flag are that it permits linking across
+        file systems or to directories.</p><p>The syntax of the command is a bit tricky. For example:
+        <strong class="userinput"><code>ln -s oldfile newfile</code></strong> links the
+        previously existing <code class="filename">oldfile</code> to the
+        newly created link, <code class="filename">newfile</code>.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>If a file named <code class="filename">newfile</code> has
+        previously existed, an error message will
+        result.</p></div><div class="sidebar" title="Which type of link to use?"><p class="title"><b>Which type of link to use?</b></p><p>As John Macdonald explains it:</p><p>Both of these [types of links] provide a certain measure of dual reference
+    -- if you edit the contents of the file using any name,
+    your changes will affect both the original name and either
+    a hard or soft new name.  The differences between them
+    occurs when you work at a higher level.  The advantage of
+    a hard link is that the new name is totally independent
+    of the old name -- if you remove or rename the old name,
+    that does not affect the hard link, which continues
+    to point to the data while it would leave a soft link
+    hanging pointing to the old name which is no longer
+    there. The advantage of a soft link is that it can refer
+    to a different file system (since it is just a reference
+    to a file name, not to actual data). And, unlike a hard
+    link, a symbolic link can refer to a directory.</p></div><p><a id="linkminvok"/></p><p>Links give the ability to invoke a script (or any other type
+        of executable) with multiple names, and having that script
+        behave according to how it was invoked.</p><div class="example"><a id="hellol"/><p class="title"><b>Пример 15.2. Hello or Good-bye</b></p><div class="example-contents"><pre class="programlisting">&amp;hellol;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="manref"/><span class="command"><strong>man</strong></span>, </span><span class="term"><a id="inforef"/><span class="command"><strong>info</strong></span></span></dt><dd><p>These commands access the manual and information pages on
+        system commands and installed utilities. When available, the
+        <em class="firstterm">info</em> pages usually contain more detailed
+        descriptions than do the <em class="firstterm">man</em> pages.</p><p>There have been various attempts at
+        <span class="quote">«<span class="quote">automating</span>»</span> the writing of <em class="firstterm">man
+        pages</em>. For a script that makes a tentative first
+        step in that direction, see <a class="xref" href="apa.html#maned" title="Пример A.39. A man page editor">Пример A.39, «A <em class="firstterm">man page</em> editor»</a>.</p></dd></dl></div></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp11900704" href="#idp11900704" class="para">62</a>] </sup><a id="dotfilesref"/></p><p><em class="firstterm">Dotfiles</em> are files whose
+        names begin with a <em class="firstterm">dot</em>, such as
+        <code class="filename">~/.Xdefaults</code>. Such filenames do
+        not appear in a normal <span class="command"><strong>ls</strong></span> listing
+        (although an <span class="command"><strong>ls -a</strong></span> will show
+        them), and they cannot be deleted by an accidental
+        <span class="command"><strong>rm -rf *</strong></span>. Dotfiles are generally
+        used as setup and configuration files in a user's
+        home directory.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp11939968" href="#idp11939968" class="para">63</a>] </sup>This particular feature may not yet be
+    implemented in the version of the ext2/ext3 filesystem
+    installed on your system. Check the documentation for
+    your Linux distro.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch14.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt04.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch15s02.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 14. Internal Commands and Builtins </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Complex Commands</td></tr></table></div></body></html>

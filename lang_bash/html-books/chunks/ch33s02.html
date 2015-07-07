@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Operator Precedence</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch33.html" title="Глава 33. Miscellany"/><link rel="prev" href="ch33.html" title="Глава 33. Miscellany"/><link rel="next" href="ch33s03.html" title="Shell Wrappers"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Operator Precedence</th></tr><tr><td align="left"><a accesskey="p" href="ch33.html">Пред.</a> </td><th width="60%" align="center">Глава 33. Miscellany</th><td align="right"> <a accesskey="n" href="ch33s03.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Operator Precedence"><div class="titlepage"><div><div><h2 class="title"><a id="opprecedence"/>Operator Precedence</h2></div></div></div><p><a id="opprecedence1"/></p><p>
+        In a script, operations execute in order of
+        <em class="firstterm">precedence</em>: the higher precedence operations
+  execute <span class="emphasis"><em>before</em></span> the lower precedence ones.
+    <sup>[<a id="idp17512480" href="#ftn.idp17512480" class="footnote">113</a>]</sup>
+      </p>
+
+       &amp;opprectable;
+
+      <p>In practice, all you really need to remember is the
+      following:</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>The <span class="quote">«<span class="quote">My Dear Aunt Sally</span>»</span> mantra (<span class="emphasis"><em>multiply,
+    divide, add, subtract</em></span>) for the familiar <a class="link" href="ch08.html#arops1">arithmetic operations</a>.</p></li><li class="listitem"><p>The <em class="firstterm">compound</em> logical operators,
+    <span class="command"><strong>&amp;&amp;</strong></span>, <span class="command"><strong>||</strong></span>, <span class="command"><strong>-a</strong></span>,
+    and <span class="command"><strong>-o</strong></span> have low precedence.</p></li><li class="listitem"><p>The order of evaluation of equal-precedence operators is
+    usually <em class="firstterm">left-to-right</em>.</p></li></ul></div><p>Now, let's utilize our knowledge of operator precedence to
+    analyze a couple of lines from the
+    <code class="filename">/etc/init.d/functions file</code>, as found in
+    the <em class="firstterm">Fedora Core</em> Linux distro.</p><pre class="programlisting">while [ -n "$remaining" -a "$retry" -gt 0 ]; do
+
+# This looks rather daunting at first glance.
+
+
+# Separate the conditions:
+while [ -n "$remaining" -a "$retry" -gt 0 ]; do
+#       --condition 1-- ^^ --condition 2-
+
+#  If variable "$remaining" is not zero length
+#+      AND (-a)
+#+ variable "$retry" is greater-than zero
+#+ then
+#+ the [ expresion-within-condition-brackets ] returns success (0)
+#+ and the while-loop executes an iteration.
+#  ==============================================================
+#  Evaluate "condition 1" and "condition 2" ***before***
+#+ ANDing them. Why? Because the AND (-a) has a lower precedence
+#+ than the -n and -gt operators,
+#+ and therefore gets evaluated *last*.
+
+#################################################################
+
+if [ -f /etc/sysconfig/i18n -a -z "${NOLOCALE:-}" ] ; then
+
+
+# Again, separate the conditions:
+if [ -f /etc/sysconfig/i18n -a -z "${NOLOCALE:-}" ] ; then
+#    --condition 1--------- ^^ --condition 2-----
+
+#  If file "/etc/sysconfig/i18n" exists
+#+      AND (-a)
+#+ variable $NOLOCALE is zero length
+#+ then
+#+ the [ test-expresion-within-condition-brackets ] returns success (0)
+#+ and the commands following execute.
+#
+#  As before, the AND (-a) gets evaluated *last*
+#+ because it has the lowest precedence of the operators within
+#+ the test brackets.
+#  ==============================================================
+#  Note:
+#  ${NOLOCALE:-} is a parameter expansion that seems redundant.
+#  But, if $NOLOCALE has not been declared, it gets set to *null*,
+#+ in effect declaring it.
+#  This makes a difference in some contexts.</pre><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>To avoid confusion or error in a complex sequence of test
+        operators, break up the sequence into bracketed sections.
+      </p><pre class="programlisting">if [ "$v1" -gt "$v2"  -o  "$v1" -lt "$v2"  -a  -e "$filename" ]
+# Unclear what's going on here...
+
+if [[ "$v1" -gt "$v2" ]] || [[ "$v1" -lt "$v2" ]] &amp;&amp; [[ -e "$filename" ]]
+# Much better -- the condition tests are grouped in logical sections.</pre><p>
+      </p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp17512480" href="#idp17512480" class="para">113</a>] </sup><em class="firstterm">Precedence</em>, in this context,
+      has approximately the same meaning as
+      <em class="firstterm">priority</em></p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch33.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch33.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch33s03.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 33. Miscellany </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Shell Wrappers</td></tr></table></div></body></html>

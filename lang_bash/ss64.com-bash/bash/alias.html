@@ -1,0 +1,111 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>alias Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>alias</h1> 
+<p>Create an alias, aliases allow a string to be substituted for a word when it 
+is used as the first word of a simple command. </p>
+<pre>Syntax
+      alias [-p] [<i>name</i>[=<i>value</i>] ...]
+
+      unalias [-a] [<var>name</var> ... ]
+
+Key
+   -p   Print the current values
+
+   -a   Remove All aliases</pre>
+<p> If arguments are supplied, an alias is defined for each name whose value is 
+  given. </p>
+<p>If no value is given, <span class="code">alias</span> will print the current value of the alias.<br>
+  <br>
+  Without arguments or with the <span class="code">-p</span> option, alias prints the list of aliases 
+on the standard output in a form that allows them to be reused as input. </p>
+<p>The <i><span class="code">value</span></i> cannot contain any positional parameters (<span class="code">$1</span> etc), if you need to do that use a shell <a href="function.html">function</a> instead.</p>
+<p>The <i class="code">name</i> may not be 'alias' or 'unalias'.</p>
+<p>unalias may be used to remove each <i>name </i>from the list of defined aliases.</p>
+<h2>Make an alias permanent</h2>
+<p> Use your favorite text editor to create a file called <span class="code">~/.bash_aliases</span>, and type 
+  the alias commands into the file. <br>
+  .bash_aliases will run at login (or you can just execute it with <span class="code">..bash_aliases</span> )</p>
+<h2>Expand Multiple aliases</h2>
+<p>If the last character of the alias value is a space or tab character, then the next command word following the alias is also checked for alias expansion.</p>
+<p><b>Examples</b>:</p>
+<p>  Create an alias 'c' that will clear the screen:<br>
+<span class="code">$ 
+alias c='clear'</span></p>
+<p>Create an alias 'ls' that will change the default action of <a href="ls.html">ls</a>:<br>
+
+<span class="code">$ alias ls='ls --classify'<br>
+$ ls <br>
+$ unalias ls</span></p>
+<p>More aliases for ls:<span class="code"><br>
+$ alias la='ls -lAXh --color=always' &nbsp;&nbsp;#Show all, sort by extension <br>
+</span>
+<span class="code">$ alias ls-al='ls -al' &nbsp;&nbsp;#fix typo missing space <br>
+</span>
+<span class="code">$ alias l=&quot;ls -l&quot;<br>
+$ alias la=&quot;ls -la&quot;<br>
+<br>
+</span>Use alias to <a href="cd.html">cd</a> into to sub-sub directories:<br>
+<span class="code"> $ alias ..='cd ..' <br>
+$ alias ...='cd ../..'<br>
+$ alias ....='cd ../../..'<br>
+</span></p>
+<p>Use alias to fix missing space typos:<br>
+<span class="code"> $ alias cd..='cd ..'</span></p>
+<p>Display the working directory<span class="code"> <br>
+$ alias .='echo $PWD'</span></p>
+<p>Prevent accidental deletions by making <a href="rm.html">rm</a> interactive: <br>
+<span class="code">$ alias rm='rm -i'</span></p>
+<p>Shorten apt-get installation commands: <br>
+<span class="code">$ alias canhaz='sudo apt-get install'</span></p>
+<p>Run firefox and open a specific website:<br>
+<span class="code">$ alias fftr='/home/simon/firefox/firefox http://ss64.com'</span><br>
+</p>
+<h2>Details</h2>
+<p>  The first word of each simple command, if unquoted, is checked to see if it has an alias. If so, that word is replaced by the text of the alias. The alias name and the replacement text may contain any valid shell input, including shell metacharacters, with the exception that the alias name may not contain `='. <br>
+  <br>
+  The first word of the replacement text is tested for aliases, but a word that is identical to an alias being expanded is not expanded a second time. This means that one may alias <span class="code">ls</span> to "<span class="code">ls -F</span>", for instance, and Bash does not try to recursively expand the replacement text. <br>
+  <br>
+  Aliases are not expanded when the shell is not interactive, unless the expand_aliases shell option is set using shopt . <br>
+  <br>
+  The rules concerning the definition and use of aliases are somewhat confusing. Bash always reads at least one complete line of input before executing any of the commands on that line. Aliases are expanded when a command is read, not when it is executed. Therefore, an alias definition appearing on the same line as another command does not take effect until the next line of input is read. The commands following the alias definition on that line are not affected by the new alias. This behavior is also an issue when functions are executed. Aliases are expanded when a function definition is read, not when the function is executed, because a function definition is itself a compound command. As a consequence, aliases defined in a function are not available until after that function is executed. To be safe, always put alias definitions on a separate line, and do not use alias in compound commands. <br>
+  <br>
+  `alias' and `unalias' are BASH built-ins. For almost every purpose, shell <a href="function.html">functions</a> are preferred over aliases. <br>
+  <br>
+  <i class="quote">“There are many reasons why novelists write, but they all have one thing in common - a need to create an alternative world” ~ John Fowles</i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="export.html">export</a> - Set an environment variable<br>
+<a href="env.html">env</a> - Display, set, or remove environment variables<br>
+<a href="echo.html">echo</a> - Display message on screen <br>
+<a href="readonly.html">readonly</a> - Mark variables/functions as readonly 
+<br>
+<a href="shift.html">shift</a> - Shift positional parameters<br>
+<a href="http://alias.sh/">alias.sh</a> - Manage all of your aliases online<br>
+Equivalent Windows command: 
+<a href="http://ss64.com/nt/set.html"></a><a href="http://ss64.com/nt/set.html">SET</a> - Display, set, or remove Windows  environment 
+variables.</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="alias.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

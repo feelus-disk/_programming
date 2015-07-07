@@ -1,0 +1,119 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>dd Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>dd</h1> 
+<p>Convert and copy a file, write disk headers, boot records, create a boot floppy. dd can make an exact clone of an (unmounted) disk, this will include all  blank space so the output destination must be at least as large as the input. </p>
+<pre>Syntax
+     dd [<i>Options</i>]
+	 
+Key
+   if=<i>FILE</i>
+      Input file : Read from FILE instead of standard input.
+
+   of=<i>FILE</i>
+      Output file : Write to FILE instead of standard output.  Unless `conv=notrunc'
+      is given, `dd' truncates FILE to zero bytes (or the size specified
+      with `seek=').
+
+   ibs=<i>BYTES</i>
+      Read BYTES bytes at a time.
+
+   obs=<i>BYTES</i>
+      Write BYTES bytes at a time.
+
+   bs=<i>BYTES</i>
+      Block size, both read and write <i>BYTES</i> bytes at a time.  This overrides `ibs'
+      and `obs'.
+
+   cbs=<i>BYTES</i>
+      Convert BYTES bytes at a time.
+
+   skip=<i>BLOCKS</i>
+      Skip BLOCKS `ibs'-byte blocks in the input file before copying.
+
+   seek=<i>BLOCKS</i>
+      Skip BLOCKS `obs'-byte blocks in the output file before copying.
+
+   count=<i>BLOCKS</i>
+      Copy BLOCKS `ibs'-byte blocks from the input file, instead of
+      everything until the end of the file.
+
+   conv=<i>CONVERSION</i>[,<i>CONVERSION</i>]...
+      Convert the file as specified by the CONVERSION argument(s).  
+      (No spaces around any comma)
+
+     Conversions:
+    `ascii'    Convert EBCDIC to ASCII.
+    `ebcdic'   Convert ASCII to EBCDIC.
+    `ibm'      Convert ASCII to alternate EBCDIC.
+    `block'    For each line in the input, output `cbs' bytes, replacing the
+               input newline with a space and padding with spaces as
+               necessary.
+    `unblock'  Replace trailing spaces in each `cbs'-sized input block with a newline.
+    `lcase'    Change uppercase letters to lowercase.
+    `ucase'    Change lowercase letters to uppercase.
+    `swab'     Swap every pair of input bytes.  GNU `dd', unlike others,
+               works when an odd number of bytes are read--the last byte is
+               simply copied (since there is nothing to swap it with).
+    `noerror'  Continue after read errors.
+    `notrunc'  Do not truncate the output file.
+    `sync'     Pad every input block to size of `ibs' with trailing zero bytes.
+          </pre>
+<p>  The numeric-valued options  (BYTES and BLOCKS) can be followed by a multiplier: `b'=512, `c'=1, `w'=2, `xM'=M, or any of the standard block size suffixes like `k'=1024.<br>
+The name <span class="code">dd</span> may be an allusion to the DD statement found in <a href="http://www.catb.org/jargon/html/D/dd.html">IBM's</a> Job Control Language (JCL), where the acronym stands for &quot;Data Description&quot;.</p>
+<p>dd  can copy a smaller drive to a larger one, but can’t copy a larger drive to a smaller one.</p>
+<p>When cloning a disk drive, its a good idea to list the partitions before and afterwards using <span class="code">sudo <a href="fdisk.html">fdisk</a> –l</span><br>
+An empty/unformatted drive will appear as &quot;Disk dev/sd<i>n</i> doesn't contain a vaild partition table&quot;.</p>
+<p>If <span class="code">dd</span> receives a USR1 signal, the current input and output block counts will be written to the standard error output in the same format as the standard completion message. e.g. <span class="code">kill -USR1 1234</span> where 1234 is the process id.</p>
+<p><b>Examples:</b></p>
+<p>Clone the drive sda onto drive sdb<span class="code">:<br>
+$ dd if=/dev/sda of=/dev/sdb</span></p>
+<p>Clone the drive hda onto an image file:<br>
+<span class="code">$ dd if=/dev/hda of=/image.img</span></p>
+<p>Copy a CD or DVD disc to a .iso image file, first unmounting the disc:<br>
+<span class="code">sudo umount /dev/<i>dvd-device</i><br>
+dd if=/dev/<i>dvd-device</i> of=<i>dvd.iso</i></span><span class="code"> bs=2048 conv=sync,notrunc</span><br>
+#  dvd-device will typically be <span class="code">dvd</span> for a dvd disc or <span class="code">cdrom</span> for a cdrom disc.</p>
+<p>Clone a hard drive to a zipped image file in 100Mb blocks:<span class="code"><br>
+$ dd if=/dev/hda bs=100M | gzip -c &gt; /image.img</span></p>
+<p>Create a 10 KB file filled with random data (10 x 1K blocks):<span class="code"><br>
+$ dd if=/dev/random of=random.bin bs=1024 count=10</span></p>
+<p>Completely wipe the hard drive hdz by overwriting it with random data<span class="code">:<br>
+$ dd if=/dev/urandom of=/dev/hdz</span></p>
+<p>Create a boot floppy:<br>
+<span class="code">$ dd if=boot.img of=/dev/fd0 bs=1440</span></p>
+<p><i class="quote"> &quot;..If it disagrees with experiment it is wrong. In that simple statement is the key to science. It does not make any difference how beautiful your guess is. It does not make any difference how smart you are, who made the guess, or what his name is – if it disagrees with experiment it is wrong&quot; ~ <a href="http://www.youtube.com/watch?v=EYPapE-3FRw">Richard Feynman</a></i><br>
+  <br>
+<b> Related:</b></p>
+<p><a href="http://www.codecoffee.com/tipsforlinux/articles/036.html">CodeCoffee.com</a> - dd examples<br>
+<a href="cp.html">cp</a> - Copy one or more files to another location<br>
+<a href="ddrescue.html">ddrescue</a> - Data recovery tool
+<br>
+<a href="install.html">install</a> - Copy files and set attributes<br>
+<a href="mtools.html">mtools</a> - Manipulate MS-DOS files<br>
+<a href="sum.html">sum</a> - Print a checksum for a file<br>
+Equivalent Windows command: <a href="http://ss64.com/nt/fsutil.html">FSUTIL</a> file setzerodata, or <a href="http://alter.org.ua/soft/win/bb_recover/">bbcopy.exe</a></p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="dd.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

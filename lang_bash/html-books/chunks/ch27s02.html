@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>/proc</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch27.html" title="Глава 27. /dev and /proc"/><link rel="prev" href="ch27.html" title="Глава 27. /dev and /proc"/><link rel="next" href="ch28.html" title="Глава 28. Of Zeros and Nulls"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center"><code class="filename">/proc</code></th></tr><tr><td align="left"><a accesskey="p" href="ch27.html">Пред.</a> </td><th width="60%" align="center">Глава 27. <code class="filename">/dev</code> and <code class="filename">/proc</code></th><td align="right"> <a accesskey="n" href="ch28.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="/proc"><div class="titlepage"><div><div><h2 class="title"><a id="procref1"/><code class="filename">/proc</code></h2></div></div></div><p><a id="procref2"/></p><p>The <code class="filename">/proc</code> directory
+  is actually a pseudo-filesystem.  The files in <code class="filename">/proc</code> mirror currently running
+  system and kernel <a class="link" href="ch03.html#processref">processes</a>
+  and contain information and statistics about them.</p><p>
+         </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>cat /proc/devices</code></strong>
+<code class="computeroutput">Character devices:
+   1 mem
+   2 pty
+   3 ttyp
+   4 ttyS
+   5 cua
+   7 vcs
+  10 misc
+  14 sound
+  29 fb
+  36 netlink
+ 128 ptm
+ 136 pts
+ 162 raw
+ 254 pcmcia
+
+ Block devices:
+   1 ramdisk
+   2 fd
+   3 ide0
+   9 md</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat /proc/interrupts</code></strong>
+<code class="computeroutput">           CPU0       
+   0:      84505          XT-PIC  timer
+   1:       3375          XT-PIC  keyboard
+   2:          0          XT-PIC  cascade
+   5:          1          XT-PIC  soundblaster
+   8:          1          XT-PIC  rtc
+  12:       4231          XT-PIC  PS/2 Mouse
+  14:     109373          XT-PIC  ide0
+ NMI:          0 
+ ERR:          0</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat /proc/partitions</code></strong>
+<code class="computeroutput">major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse running use aveq
+
+    3     0    3007872 hda 4472 22260 114520 94240 3551 18703 50384 549710 0 111550 644030
+    3     1      52416 hda1 27 395 844 960 4 2 14 180 0 800 1140
+    3     2          1 hda2 0 0 0 0 0 0 0 0 0 0 0
+    3     4     165280 hda4 10 0 20 210 0 0 0 0 0 210 210
+    ...</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat /proc/loadavg</code></strong>
+<code class="computeroutput">0.13 0.42 0.27 2/44 1119</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat /proc/apm</code></strong>
+<code class="computeroutput">1.16 1.2 0x03 0x01 0xff 0x80 -1% -1 ?</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat /proc/acpi/battery/BAT0/info</code></strong>
+<code class="computeroutput">present:                 yes
+ design capacity:         43200 mWh
+ last full capacity:      36640 mWh
+ battery technology:      rechargeable
+ design voltage:          10800 mV
+ design capacity warning: 1832 mWh
+ design capacity low:     200 mWh
+ capacity granularity 1:  1 mWh
+ capacity granularity 2:  1 mWh
+ model number:            IBM-02K6897
+ serial number:            1133
+ battery type:            LION
+ OEM info:                Panasonic</code>
+ 
+ 
+ 
+<code class="prompt">bash$ </code><strong class="userinput"><code>fgrep Mem /proc/meminfo</code></strong>
+<code class="computeroutput">MemTotal:       515216 kB
+ MemFree:        266248 kB</code>
+         </pre><p>
+      </p><p>Shell scripts may extract data from certain of the files in
+         <code class="filename">/proc</code>.
+
+     <sup>[<a id="idp17050560" href="#ftn.idp17050560" class="footnote">109</a>]</sup></p><pre class="programlisting">FS=iso                       # ISO filesystem support in kernel?
+
+grep $FS /proc/filesystems   # iso9660</pre><pre class="programlisting">kernel_version=$( awk '{ print $3 }' /proc/version )</pre><pre class="programlisting">CPU=$( awk '/model name/ {print $5}' &lt; /proc/cpuinfo )
+
+if [ "$CPU" = "Pentium(R)" ]
+then
+  run_some_commands
+  ...
+else
+  run_other_commands
+  ...
+fi
+
+
+
+cpu_speed=$( fgrep "cpu MHz" /proc/cpuinfo | awk '{print $4}' )
+#  Current operating speed (in MHz) of the cpu on your machine.
+#  On a laptop this may vary, depending on use of battery
+#+ or AC power.</pre><pre class="programlisting">#!/bin/bash
+# get-commandline.sh
+# Get the command-line parameters of a process.
+
+OPTION=cmdline
+
+# Identify PID.
+pid=$( echo $(pidof "$1") | awk '{ print $1 }' )
+# Get only first            ^^^^^^^^^^^^^^^^^^ of multiple instances.
+
+echo
+echo "Process ID of (first instance of) "$1" = $pid"
+echo -n "Command-line arguments: "
+cat /proc/"$pid"/"$OPTION" | xargs -0 echo
+#   Formats output:        ^^^^^^^^^^^^^^^
+#   (Thanks, Han Holl, for the fixup!)
+
+echo; echo
+
+
+# For example:
+# sh get-commandline.sh xterm</pre><p>+</p><pre class="programlisting">devfile="/proc/bus/usb/devices"
+text="Spd"
+USB1="Spd=12"
+USB2="Spd=480"
+
+
+bus_speed=$(fgrep -m 1 "$text" $devfile | awk '{print $9}')
+#                 ^^^^ Stop after first match.
+
+if [ "$bus_speed" = "$USB1" ]
+then
+  echo "USB 1.1 port found."
+  # Do something appropriate for USB 1.1.
+fi</pre><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>It is even possible to control certain peripherals with commands
+    sent to the <code class="filename">/proc</code> directory.
+
+          </p><pre class="screen">
+    <code class="prompt">root# </code><span class="command"><strong>echo on &gt; /proc/acpi/ibm/light</strong></span>
+          </pre><p>
+
+    This turns on the <span class="emphasis"><em>Thinklight</em></span> in certain models
+    of IBM/Lenovo Thinkpads. (May not work on all Linux distros.)</p><p>Of course, caution is advised when writing to <code class="filename">/proc</code>.</p></div><p><a id="procrunning"/></p><p>The <code class="filename">/proc</code> directory
+     contains subdirectories with unusual numerical
+     names.  Every one of these names maps to the <a class="link" href="ch09.html#ppidref">process ID</a> of a currently running
+     process.  Within each of these subdirectories, there are
+     a number of files that hold useful information about the
+     corresponding process.  The <code class="filename">stat</code> and
+     <code class="filename">status</code> files keep running statistics
+     on the process, the <code class="filename">cmdline</code> file holds
+     the command-line arguments the process was invoked with, and
+     the <code class="filename">exe</code> file is a symbolic link to the
+     complete path name of the invoking process. There are a few
+     more such files, but these seem to be the most interesting
+     from a scripting standpoint.</p><div class="example"><a id="pidid"/><p class="title"><b>Пример 27.3. Finding the process associated with a PID</b></p><div class="example-contents"><pre class="programlisting">&amp;pidid;</pre></div></div><br class="example-break"/><div class="example"><a id="constat"/><p class="title"><b>Пример 27.4. On-line connect status</b></p><div class="example-contents"><pre class="programlisting">&amp;constat;</pre></div></div><br class="example-break"/><p><a id="procwarning"/></p><div class="warning" title="Внимание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Внимание</h3><p>In general, it is dangerous to
+   <span class="emphasis"><em>write</em></span> to the files in <code class="filename">/proc</code>, as this can corrupt the
+   filesystem or crash the machine.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp17050560" href="#idp17050560" class="para">109</a>] </sup>Certain system commands, such as
+       <a class="link" href="ch16.html#procinforef">procinfo</a>,
+       <a class="link" href="ch16.html#freeref">free</a>,
+       <a class="link" href="ch16.html#vmstatref">vmstat</a>,
+       <a class="link" href="ch16.html#lsdevref">lsdev</a>,
+       and <a class="link" href="ch16.html#uptimeref">uptime</a>
+       do this as well.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch27.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch27.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch28.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 27. <code class="filename">/dev</code> and <code class="filename">/proc</code> </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 28. Of Zeros and Nulls</td></tr></table></div></body></html>

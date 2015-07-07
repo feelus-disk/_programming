@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Приложение C. A Sed and Awk Micro-Primer</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="prev" href="apb.html" title="Приложение B. Reference Cards"/><link rel="next" href="apcs02.html" title="Awk"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Приложение C. A Sed and Awk Micro-Primer</th></tr><tr><td align="left"><a accesskey="p" href="apb.html">Пред.</a> </td><th width="60%" align="center"> </th><td align="right"> <a accesskey="n" href="apcs02.html">След.</a></td></tr></table><hr/></div><div class="appendix" title="Приложение C. A Sed and Awk Micro-Primer"><div class="titlepage"><div><div><h2 class="title"><a id="sedawk"/>Приложение C. A Sed and Awk Micro-Primer</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="apc.html#idp18916112">Sed</a></span></dt><dt><span class="sect1"><a href="apcs02.html">Awk</a></span></dt></dl></div><p><a id="sedref"/></p><p>This is a very brief introduction to the <span class="command"><strong>sed</strong></span>
+  and <span class="command"><strong>awk</strong></span> text processing utilities. We will
+  deal with only a few basic commands here, but that will suffice
+  for understanding simple sed and awk constructs within shell
+  scripts.</p><p><span class="command"><strong>sed</strong></span>: a non-interactive
+         text file editor</p><p><span class="command"><strong>awk</strong></span>: a field-oriented pattern processing
+         language with a <span class="command"><strong>C</strong></span>-style syntax</p><p>For all their differences, the two utilities share a similar
+   invocation syntax, use <a class="link" href="ch17.html#regexref">regular
+   expressions </a>, read input by default
+   from <code class="filename">stdin</code>, and output to
+   <code class="filename">stdout</code>. These are well-behaved UNIX tools,
+   and they work together well. The output from one can be piped
+   to the other, and their combined capabilities give shell scripts
+   some of the power of <a class="link" href="ch33s03.html#perlref">Perl</a>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>One important difference between the utilities is
+   that while shell scripts can easily pass arguments to sed, it
+   is more complicated for awk (see <a class="xref" href="ch33s03.html#coltotaler" title="Пример 33.5. A shell wrapper around another awk script">Пример 33.5, « A <em class="firstterm">shell wrapper</em> around another
+  awk script»</a>
+   and <a class="xref" href="ch09s05.html#coltotaler2" title="Пример 9.25. Passing an indirect reference to awk">Пример 9.25, «Passing an indirect reference to <em class="firstterm">awk</em>»</a>).
+   </p></div><div class="sect1" title="Sed"><div class="titlepage"><div><div><h2 class="title"><a id="idp18916112"/>Sed</h2></div></div></div><p><em class="firstterm">Sed</em> is a non-interactive
+          <sup>[<a id="idp18917312" href="#ftn.idp18917312" class="footnote">130</a>]</sup>
+  <span class="command"><strong>s</strong></span>tream <span class="command"><strong>ed</strong></span>itor. It
+  receives text input, whether from <code class="filename">stdin</code>
+  or from a file, performs certain operations on specified lines
+  of the input, one line at a time, then outputs the result to
+  <code class="filename">stdout</code> or to a file.  Within a shell script,
+  <em class="firstterm">sed</em> is usually one of several tool
+  components in a pipe.</p><p><em class="firstterm">Sed</em> determines which lines of
+        its input that it will operate on from the <em class="firstterm">address
+        range</em> passed to it.
+    <sup>[<a id="idp18922768" href="#ftn.idp18922768" class="footnote">131</a>]</sup>
+  Specify this address range either by line number or by a
+  pattern to match. For example, <em class="replaceable"><code>3d</code></em>
+  signals <em class="firstterm">sed</em> to delete line 3 of the
+  input, and <em class="replaceable"><code>/Windows/d</code></em> tells sed
+  that you want every line of the input containing a match to
+  <span class="quote">«<span class="quote">Windows</span>»</span> deleted.</p><p>Of all the operations in the <em class="firstterm">sed</em>
+  toolkit, we will focus primarily on the three most commonly
+  used ones. These are <span class="command"><strong>p</strong></span>rinting (to
+  <code class="filename">stdout</code>), <span class="command"><strong>d</strong></span>eletion,
+  and <span class="command"><strong>s</strong></span>ubstitution.</p><p><a id="sedbasictable"/></p><div class="table"><a id="idp18930352"/><p class="title"><b>Таблица C.1. Basic sed operators</b></p><div class="table-contents"><table summary="Basic sed operators" border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th>Operator</th><th>Name</th><th>Effect</th></tr></thead><tbody><tr><td><code class="option">[address-range]/p</code></td><td>print</td><td>Print [specified address range]</td></tr><tr><td><code class="option">[address-range]/d</code></td><td>delete</td><td>Delete [specified address range]</td></tr><tr><td><code class="option">s/pattern1/pattern2/</code></td><td>substitute</td><td>Substitute pattern2 for first instance of pattern1 in a line</td></tr><tr><td><code class="option">[address-range]/s/pattern1/pattern2/</code></td><td>substitute</td><td>Substitute pattern2 for first instance of pattern1 in a
+        line, over <em class="replaceable"><code>address-range</code></em></td></tr><tr><td><code class="option">[address-range]/y/pattern1/pattern2/</code></td><td>transform</td><td>replace any character in pattern1 with the
+          corresponding character in pattern2, over
+        <em class="replaceable"><code>address-range</code></em> (equivalent of
+          <span class="command"><strong>tr</strong></span>)</td></tr><tr><td><code class="option">g</code></td><td>global</td><td>Operate on <span class="emphasis"><em>every</em></span> pattern match
+          within each matched line of input</td></tr></tbody></table></div></div><br class="table-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Unless the <code class="option">g</code>
+  (<em class="firstterm">global</em>) operator is appended to a
+  <em class="firstterm">substitute</em> command, the substitution
+  operates only on the <span class="emphasis"><em>first</em></span> instance of a
+  pattern match within each line.</p></div><p>From the command-line and in a shell script, a sed operation may
+       require quoting and certain options.</p><pre class="programlisting">sed -e '/^$/d' $filename
+# The -e option causes the next string to be interpreted as an editing instruction.
+#  (If passing only a single instruction to sed, the "-e" is optional.)
+#  The "strong" quotes ('') protect the RE characters in the instruction
+#+ from reinterpretation as special characters by the body of the script.
+# (This reserves RE expansion of the instruction for sed.)
+#
+# Operates on the text contained in file $filename.
+</pre><p>In certain cases, a <em class="firstterm">sed</em> editing command will
+         not work with single quotes.</p><pre class="programlisting">
+filename=file1.txt
+pattern=BEGIN
+
+  sed "/^$pattern/d" "$filename"  # Works as specified.
+# sed '/^$pattern/d' "$filename"    has unexpected results.
+#        In this instance, with strong quoting (' ... '),
+#+      "$pattern" will not expand to "BEGIN".</pre><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><em class="firstterm">Sed</em> uses the <code class="option">-e</code>
+   option to specify that the following string is an instruction
+   or set of instructions. If there is only a single instruction
+   contained in the string, then this may be omitted.</p></div><pre class="programlisting">sed -n '/xzy/p' $filename
+# The -n option tells sed to print only those lines matching the pattern.
+# Otherwise all input lines would print.
+# The -e option not necessary here since there is only a single editing instruction.
+</pre><p><a id="sedoptable"/></p><div class="table"><a id="idp18956160"/><p class="title"><b>Таблица C.2. Examples of sed operators</b></p><div class="table-contents"><table summary="Examples of sed operators" border="1"><colgroup><col/><col/></colgroup><thead><tr><th>Notation</th><th>Effect</th></tr></thead><tbody><tr><td><code class="option">8d</code></td><td>Delete 8th line of input.</td></tr><tr><td><code class="option">/^$/d</code></td><td>Delete all blank lines.</td></tr><tr><td><code class="option">1,/^$/d</code></td><td>Delete from beginning of input up to, and including
+          first blank line.</td></tr><tr><td><code class="option">/Jones/p</code></td><td>Print only lines containing <span class="quote">«<span class="quote">Jones</span>»</span> (with
+          <span class="token">-n</span> option).</td></tr><tr><td><code class="option">s/Windows/Linux/</code></td><td>Substitute <span class="quote">«<span class="quote">Linux</span>»</span> for first instance
+          of <span class="quote">«<span class="quote">Windows</span>»</span> found in each input line.</td></tr><tr><td><code class="option">s/BSOD/stability/g</code></td><td>Substitute <span class="quote">«<span class="quote">stability</span>»</span> for every instance
+          of <span class="quote">«<span class="quote">BSOD</span>»</span> found in each input line.</td></tr><tr><td><code class="option">s/ *$//</code></td><td>Delete all spaces at the end of every line.</td></tr><tr><td><code class="option">s/00*/0/g</code></td><td>Compress all consecutive sequences of zeroes into
+          a single zero.</td></tr><tr><td><code class="option">/GUI/d</code></td><td>Delete all lines containing <span class="quote">«<span class="quote">GUI</span>»</span>.</td></tr><tr><td><code class="option">s/GUI//g</code></td><td>Delete all instances of <span class="quote">«<span class="quote">GUI</span>»</span>, leaving the 
+          remainder of each line intact.</td></tr></tbody></table></div></div><br class="table-break"/><p>Substituting a zero-length string for another is equivalent
+       to deleting that string within a line of input. This leaves the
+       remainder of the line intact. Applying <strong class="userinput"><code>s/GUI//</code></strong>   
+       to the line
+       </p><pre class="screen"><strong class="userinput"><code>The most important parts of any application are its GUI and sound effects</code></strong></pre><p>
+       results in
+       </p><pre class="screen"><code class="computeroutput">The most important parts of any application are its  and sound effects</code></pre><p>A backslash forces the <span class="command"><strong>sed</strong></span> replacement
+       command to continue on to the next line. This has the effect of
+       using the <em class="firstterm">newline</em> at the end of the first
+       line as the <em class="firstterm">replacement string</em>.
+
+       </p><pre class="programlisting">s/^  */\
+/g</pre><p>
+
+       This substitution replaces line-beginning spaces with a
+       newline. The net result is to replace paragraph indents with a
+       blank line between paragraphs.</p><p>An address range followed by one or more operations may require
+       open and closed curly brackets, with appropriate newlines. 
+       </p><pre class="programlisting">/[0-9A-Za-z]/,/^$/{
+/^$/d
+}</pre><p>
+       This deletes only the first of each set of consecutive blank
+       lines. That might be useful for single-spacing a text file,
+       but retaining the blank line(s) between paragraphs.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The usual delimiter that <em class="firstterm">sed</em> uses is
+      <span class="token">/</span>. However, <span class="emphasis"><em>sed</em></span> allows other
+      delimiters, such as <span class="token">%</span>. This is useful when
+      <span class="token">/</span> is part of a replacement string, as in a file pathname.
+      See <a class="xref" href="ch10.html#findstring" title="Пример 10.9. Проверка авторства всех бинарных файлов в каталоге">Пример 10.9, «Проверка авторства всех бинарных файлов в каталоге»</a> and <a class="xref" href="ch15s05.html#stripc" title="Пример 15.32. Stripping comments from C program files">Пример 15.32, «Stripping comments from C program files»</a>.</p></div><p><a id="doublespace"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>A quick way to double-space a text file is <strong class="userinput"><code>sed G
+       filename</code></strong>.</p></div><p>For illustrative examples of sed within shell scripts, see:
+       </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p><a class="xref" href="ch33s03.html#ex3" title="Пример 33.1. shell wrapper">Пример 33.1, «<em class="firstterm">shell wrapper</em>»</a></p></li><li class="listitem"><p><a class="xref" href="ch33s03.html#ex4" title="Пример 33.2. A slightly more complex shell wrapper">Пример 33.2, « A slightly more complex <em class="firstterm">shell
+  wrapper</em>»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s02.html#ex57" title="Пример 15.3. Badname, eliminate file names in current directory containing bad characters and whitespace.">Пример 15.3, «<em class="firstterm">Badname</em>, eliminate file names
+    in current directory containing bad characters and whitespace.»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#rn" title="Пример A.2. rn: A simple-minded file renaming utility">Пример A.2, «<em class="firstterm">rn</em>: A simple-minded file renaming
+      utility»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s04.html#grp" title="Пример 15.17. Emulating grep in a script">Пример 15.17, «Emulating <em class="firstterm">grep</em> in a script»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s04.html#col" title="Пример 15.27. Using column to format a directory listing">Пример 15.27, «Using <em class="firstterm">column</em> to format a directory
+          listing»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#behead" title="Пример A.12. behead: Removing mail and news message headers">Пример A.12, «<em class="firstterm">behead</em>: Removing mail and news
+      message headers»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#tree" title="Пример A.16. tree: Displaying a directory tree">Пример A.16, «<em class="firstterm">tree</em>: Displaying a directory tree»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#tree2" title="Пример A.17. tree2: Alternate directory tree script">Пример A.17, «<em class="firstterm">tree2</em>: Alternate directory tree script»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s05.html#stripc" title="Пример 15.32. Stripping comments from C program files">Пример 15.32, «Stripping comments from C program files»</a></p></li><li class="listitem"><p><a class="xref" href="ch10.html#findstring" title="Пример 10.9. Проверка авторства всех бинарных файлов в каталоге">Пример 10.9, «Проверка авторства всех бинарных файлов в каталоге»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s08.html#base" title="Пример 15.48. Base Conversion">Пример 15.48, «Base Conversion»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#mailformat" title="Пример A.1. mailformat: Formatting an e-mail message">Пример A.1, «<em class="firstterm">mailformat</em>: Formatting an e-mail
+      message»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s04.html#rnd" title="Пример 15.14. Generating 10-digit random numbers">Пример 15.14, «Generating 10-digit random numbers»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s04.html#wf" title="Пример 15.12. Word Frequency Analysis">Пример 15.12, «Word Frequency Analysis»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#lifeslow" title="Пример A.10. Game of Life">Пример A.10, «<em class="firstterm">Game of Life</em>»</a></p></li><li class="listitem"><p><a class="xref" href="ch18.html#selfdocument" title="Пример 18.12. Самодокументирующийся сценарий">Пример 18.12, «Самодокументирующийся сценарий»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s04.html#dictlookup" title="Пример 15.19. Looking up definitions in Webster's 1913 Dictionary">Пример 15.19, «Looking up definitions in <em class="citetitle">Webster's 1913 Dictionary</em>»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#whx" title="Пример A.29. Spammer Hunt">Пример A.29, «Spammer Hunt»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#bashpodder" title="Пример A.31. A podcasting script">Пример A.31, «A <em class="firstterm">podcasting</em> script»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#tohtml" title="Пример A.24. Converting to HTML">Пример A.24, «Converting to HTML»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#stopwatch" title="Пример A.43. A command-line stopwatch">Пример A.43, «A command-line stopwatch»</a></p></li></ol></div><p>
+     </p><p>For a more extensive treatment of <em class="firstterm">sed</em>,
+        check the appropriate references in the <a class="xref" href="bi01.html" title="Литература">Литература</a>.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp18917312" href="#idp18917312" class="para">130</a>] </sup><em class="firstterm">Sed</em> executes without
+          user intervention.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp18922768" href="#idp18922768" class="para">131</a>] </sup>If no address range is specified, the default
+    is <span class="emphasis"><em>all</em></span> lines.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="apb.html">Пред.</a> </td><td align="center"> </td><td align="right"> <a accesskey="n" href="apcs02.html">След.</a></td></tr><tr><td align="left" valign="top">Приложение B. Reference Cards </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Awk</td></tr></table></div></body></html>

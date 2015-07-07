@@ -1,0 +1,471 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script type="text/javascript">
+
+
+        var scope = "frame";
+
+function appendRight(array, addedArray) {
+    for (var i = 1; i < arguments.length; i++) {
+        array.push(arguments[i]);
+    }
+    return array.length;
+}
+
+function trim(text, length) {
+    text = String(text).replace(/^\s+|\s+$/g, "");
+    length && text.length > length && (text = text.substr(0, length));
+    return text;
+}
+
+
+function isEmptyObject(obj) {
+    for(var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function param(parameters) {
+    var tokens = [],
+        param;
+    for (param in parameters) {
+        if (parameters.hasOwnProperty(param)) {
+            (tokens[tokens.length] = param + "=" + encodeURIComponent(parameters[param]).replace(/\+/g, "%2B"));
+        }
+    }
+    return tokens.join("&");
+}
+
+function forEachKey(object, callback, context) {
+    for (var prop in object) if (object.hasOwnProperty(prop)) {
+        callback.call(context, prop, object[prop], object)
+    }
+}
+
+function  inArray(array, object) {
+    for (var c = 0; c < array.length; c++) {
+        if (array[c] == object) return true;
+    }
+    return false
+}
+
+
+
+
+var Utils = {
+    mixin: function (mix) {
+        for (var c = 1; c < arguments.length; c++)
+            if (arguments[c]) {
+                for (var e in arguments[c]) {
+                    if (arguments[c].hasOwnProperty(e)) {
+                        mix[e] = arguments[c][e];
+                    }
+                }
+                if (arguments[c].hasOwnProperty("toString")) {
+                    mix.toString = arguments[c].toString;
+                }
+            }
+        return mix
+    }
+};
+var Obj = function (b) {
+    b = b || {};
+    Utils.mixin(this, b);
+    this._initComponent()
+};
+Obj.prototype._initComponent = function () {};
+Obj.inherit = function (parent) {
+    parent = parent || {};
+    var c = "function" == typeof this ? this : Object;
+    parent.hasOwnProperty("constructor") || (parent.constructor = function () {
+        c.apply(this, arguments)
+    });
+    var e = function () {};
+    e.prototype = c.prototype;
+    parent.constructor.prototype = new e;
+    Utils.mixin(parent.constructor.prototype, parent);
+    parent.constructor.prototype.constructor = parent.constructor;
+    parent.constructor.superclass = c.prototype;
+    parent.constructor.inherit = Obj.inherit;
+    return parent.constructor
+};
+
+
+var Storage = Obj.inherit({
+    counterId: "",
+    _initComponent: function () {
+        Storage.superclass._initComponent.apply(this, arguments);
+        this._buffer = {};
+        this._ls = null;
+        try {
+            this._ls = window.localStorage
+        } catch (b) {}
+    },
+    set: function (key, value) {
+        if (this.isEnabled()) {
+            try {
+                if (!value || value && isArray(value) && !value.length) {
+                    this.remove(key);
+                }
+                else {
+                    this._ls.setItem(this._getLsKey(key), JSON.stringify(value));
+                }
+            } catch (e) {}
+        }
+
+    },
+    get: function (key) {
+        if (this.isEnabled()) {
+            try {
+                return JSON.parse(this._ls.getItem(this._getLsKey(key)))
+            } catch (c) {}
+        }
+        return null
+    },
+    remove: function (key) {
+        if (this.isEnabled()) {
+            try {
+                this._ls.removeItem(this._getLsKey(key))
+            } catch (c) {}
+        }
+    },
+    isEnabled: function () {
+        return this._ls && window.JSON && "object" == typeof this._ls && "object" == typeof window.JSON
+    },
+    _getLsKey: function (key) {
+        return "__utl_zp" + this.counterId + "_" + key
+    }
+});
+
+
+var BaseSender = Obj.inherit({
+
+    senderTypes: ["htmlfile", "xhr", "img"],
+    postParams: [],
+    _initComponent: function () {
+
+        this._htmlfile = this._createHtmlfile();
+        this._senders = {
+            htmlfile: this._sendByHtmlfile,
+            xhr: this._sendByXhr,
+            img: this._sendByImg
+        }
+    },
+    send: function (zpHandlerUrl, requestParams, callback, context) {
+        callback = callback || function () {};
+        var requestParams = this._createRequestParams(zpHandlerUrl, requestParams);
+        for (var i = 0; i < this.senderTypes.length && !this._senders[this.senderTypes[i]].call(this, requestParams, callback, context); i++);
+    },
+
+    _sendByHtmlfile: function (requestParams, context, callback) {
+        if (this._htmlfile) {
+            this._submitForm(this._htmlfile, requestParams, "application/x-www-form-urlencoded", context, callback);
+            return true;
+        }
+        else {
+            return false;
+        }
+    },
+
+    _sendByXhr: function (requestParams, context, callback) {
+        if ("XMLHttpRequest" in window) {
+            var xhr = new XMLHttpRequest;
+        /**/
+            xhr.open(requestParams.method, requestParams.url, !0);
+        /**/
+            if ("POST" == requestParams.method) {
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            }
+            setTimeout(function() {xhr.send(requestParams.postBody);}, 50);
+
+            var invokeCallBackFN = function () {
+                if (4 == xhr.readyState) {
+                    context.call(callback);
+                }
+                else {
+                    setTimeout(invokeCallBackFN, 50);
+                }
+            };
+            setTimeout(invokeCallBackFN, 50);
+            return true;
+        /**/
+        }
+        return false
+    },
+    _sendByImg: function (requestParams, callback, context) {
+        var img = new Image;
+        img.onload = function () {
+            callback.call(context);
+        };
+        img.src = requestParams.onlyGetUrl;
+        return true
+    },
+
+    _submitForm: function (document, requestParams, encType, callback, context) {
+        var iframeName = "ifr" + Math.round(1E10 * Math.random()),
+            formWrapper = document.createElement("div");
+        formWrapper.style.position = "absolute";
+        formWrapper.style.left = "-99999px";
+        formWrapper.style.top = "-99999px";
+        var formContent = ['<iframe name="', iframeName, '"></iframe>', '<form action="', requestParams.url, '" method="' + requestParams.method + '" target="',
+            iframeName, '" enctype="', encType, '">'
+        ];
+
+        for (var param in requestParams.postParams) {
+            if (requestParams.hasOwnProperty(param)) {
+                appendRight(formContent, '<textarea name="', param, '"></textarea>')
+            }
+        }
+        appendRight(formContent, "</form>");
+
+        formWrapper.innerHTML = formContent.join("");
+        document.body.appendChild(formWrapper);
+
+        var form = formWrapper.getElementsByTagName("form")[0];
+        var iframe = formWrapper.getElementsByTagName("iframe")[0];
+
+        for (param in requestParams.postParams) {
+            if (requestParams.postParams.hasOwnProperty(param)) {
+                form[param].value = requestParams.postParams[param];
+            }
+        }
+        iframe.onload = function () {
+            iframe.onload = null;
+            callback.call(context)
+        };
+        form.submit();
+        setTimeout(function () {
+            document.body.removeChild(formWrapper)
+        }, 1E4);
+    },
+
+
+    _createRequestParams: function (href, parameters) {
+        var sendViaGet = {}, sendViaPost = {};
+        forEachKey(parameters, function (key, value) {
+            if (inArray(this.postParams, key)){
+                sendViaPost[key] = value
+            } else {
+                sendViaGet[key] = value
+            }
+        }, this);
+        href += -1 < href.indexOf("?") ? "&" : "?";
+
+        var hasPostData = !isEmptyObject(sendViaPost);
+
+        return {
+            method: hasPostData ? "POST" : "GET",
+            url: href + param(sendViaGet),
+            postBody: hasPostData ? param(sendViaPost) : null,
+            postParams: sendViaPost,
+            onlyGetUrl: href + param(parameters)
+        }
+    },
+    _createHtmlfile: function () {
+        try {
+            if (window.ActiveXObject) {
+                var a = new ActiveXObject("htmlfile");
+                a.open();
+                a.write("<html><body></body></html>");
+                a.close();
+                return a
+            }
+        } catch (b) {}
+        return null
+    }
+});
+
+var Sender = BaseSender.inherit({
+    protocol: "http:",
+    host: "w.uptolike.com",
+    resource: "/",
+    counterType: 0,
+    retry: false,
+    _initComponent: function () {
+        Sender.superclass._initComponent.apply(this, arguments);
+        if (this.retry) {
+            this._storage = new Storage();
+        }
+    },
+    send: function (requestParams, browserInfo, callback, context) {
+
+        if (this.retry && this._storage.isEnabled()) {
+            browserInfo.rqnl = browserInfo.rqnl || 0;
+            browserInfo.rqnl++;
+
+            requestParams["n"] = browserInfo.rqnl;
+
+            for (var req = this._storage.get("retryReqs") || {}, h = 0; req[h];) h++;
+            req[h] = {
+                protocol: this.protocol,
+                host: this.host,
+                resource: this.resource,
+                params: requestParams,
+                browserInfo: browserInfo,
+                time: +new Date
+            };
+            this._storage.set("retryReqs", req);
+        }
+        var handlerUrl = [this.protocol, "//", this.host, this.resource ].join("");
+        var browserInfoJoined = [];
+
+        if (browserInfo)
+            for (var prop in browserInfo) {
+                if (browserInfo.hasOwnProperty(prop) && browserInfo[prop]) {
+                    browserInfoJoined.push(prop, browserInfo[prop]);
+                }
+            }
+
+        if (browserInfoJoined.length>0) {
+            requestParams["browser-info"] = browserInfoJoined.join(":")
+        }
+
+        if (this.counterType) {
+            requestParams["cnt-class"] = this.counterType
+        }
+        if (scope) {
+            requestParams["scope"] = scope;
+        }
+
+        return Sender.superclass.send.call(this, handlerUrl, requestParams, function () {
+            if (this.retry && this._storage.isEnabled()) {
+                var a = this._storage.get("retryReqs") || {};
+                delete a[h];
+                this._storage.set("retryReqs", a)
+            }
+            if (callback) {
+                callback.apply(context, arguments)
+            }
+        }, this);
+    }
+
+});
+Sender.retransmit = function () {
+    var storage = new Storage();
+    var retryReqs = storage.get("retryReqs") || {};
+    storage.remove("retryReqs");
+    forEachKey(retryReqs, function (prop, value) {
+        if (value.time && value.time + 6E5 > +new Date) {
+            new Sender({
+                protocol: value.protocol,
+                host: value.host,
+                resource: value.resource,
+                retry: true
+            }).send(value.params, value.browserInfo);
+        }
+    });
+};
+
+if (window["__utl_retransmitted"]===undefined) {
+    window["__utl_retransmitted"]=true;
+    Sender.retransmit();
+}
+
+
+
+
+        function isArray(obj) {
+            return Object.prototype.toString.call(obj) === '[object Array]';
+        }
+
+        var EventSender = Sender.inherit({
+            retry: true,
+            postParams: ["site-info"],
+            senderTypes: ["htmlfile", "xhr", "img"],
+
+            sendClickLink: function (url, text, options) {
+                this._hitExt(url, text, options["ref"], null, options)
+            },
+
+            _hitExt: function (url, text, localHref, d, options, browserInfo, callback, context) {
+                options = options || {};
+                browserInfo = browserInfo || {};
+
+                var requestParams = {};
+                if (options.ar && !options.onlyData) {
+                    localHref = this._prepareHitUrl(localHref);
+                    url = this._prepareHitUrl(url)
+                }
+                options.reqNum = !0;
+                var trimmed = trim(localHref, 2048);
+                if (trimmed){
+                    requestParams["ref"] = trimmed
+                }
+
+                requestParams.pid = options.pid;
+                requestParams.vp = options.viewId;
+                requestParams.url = trim(url, 2048);
+                requestParams.rnd = Math.random();
+
+                this.send(requestParams, browserInfo, callback, context);
+            },
+            _prepareHitUrl: function (url) {
+                var host = win.document.location.host,
+                        localHref = win.document.location.href;
+                if (!url) return localHref;
+                if (-1 != url.search(/^\w+:\/\//)) {
+                    return url;
+                }
+                var firstChar = url.charAt(0),
+                        idx;
+                if ("?" == firstChar) {
+                    idx = localHref.search(/\?/);
+                    if (idx == -1) {
+                        return localHref + url;
+                    }
+                    else {
+                        return localHref.substr(0, idx) + url;
+                    }
+                }
+                if ("#" == firstChar) {
+                    idx = localHref.search(/#/);
+                    if (idx == -1) {
+                        return localHref + url;
+                    }
+                    else {
+                        return localHref.substr(0, idx) + url;
+                    }
+                }
+                if ("/" == firstChar) {
+                    idx = localHref.search(host);
+                    if (idx != -1) {
+                        return localHref.substr(0, idx + host.length) + url
+                    }
+                } else {
+                    host = localHref.split("/");
+                    host[host.length - 1] = url;
+                    return host.join("/");
+                }
+                return url
+            }
+
+        });
+
+        var eventSender = new EventSender({
+            protocol: window.document.location.protocol,
+            host: "w.uptolike.com",
+            counterType: "sp",
+            resource: "/widgets/v1/zp/clk"
+        });
+
+        function attachEvent(doc, event, handler, phase) {
+            doc.addEventListener ? doc.addEventListener(event, handler, !! phase) : doc.attachEvent &&
+                    doc.attachEvent("on" + event, handler)
+        }
+
+        attachEvent(window.document, "message", function(e) {
+            if (e.data.action==='store_link') {
+                var event = e.data.event;
+                eventSender.sendClickLink(event.href, event.text, event.params);
+            }
+        }, false);
+
+
+
+    </script>
+</head>
+<body>
+</body></html>

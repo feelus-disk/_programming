@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 20. Subshells</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch19s03.html" title="Applications"/><link rel="next" href="ch21.html" title="Глава 21. Restricted Shells"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 20. Subshells</th></tr><tr><td align="left"><a accesskey="p" href="ch19s03.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch21.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 20. Subshells"><div class="titlepage"><div><div><h2 class="title"><a id="subshells"/>Глава 20. Subshells</h2></div></div></div><p><a id="subshellsref"/></p><p>Running a shell script launches a new process, a
+        <em class="firstterm">subshell</em>.</p><div class="sidebar"><p class="title"><b/></p><p><strong class="userinput"><code>Definition:</code></strong>
+          A <em class="firstterm">subshell</em> is a
+          <a class="link" href="ch04s04.html#childref2">child process</a> launched by a
+          shell (or <em class="firstterm">shell script</em>).</p></div><p>A subshell is a separate instance of the command processor
+        -- the <em class="firstterm">shell</em> that gives you the prompt at
+        the console or in an <em class="firstterm">xterm</em> window. Just
+        as your commands are interpreted at the command-line prompt,
+        similarly does a script <a class="link" href="ch15s03.html#batchprocref">batch-process</a> a list of
+        commands. Each shell script running is, in effect, a subprocess
+        (<em class="firstterm">child process</em>) of the <a class="link" href="ch14.html#forkref">parent</a> shell.</p><p>A shell script can itself launch subprocesses. These
+  <em class="firstterm">subshells</em> let the script do
+  parallel processing, in effect executing multiple subtasks
+  simultaneously.</p><p>
+      </p><pre class="programlisting">#!/bin/bash
+# subshell-test.sh
+
+(
+# Inside parentheses, and therefore a subshell . . .
+while [ 1 ]   # Endless loop.
+do
+  echo "Subshell running . . ."
+done
+)
+
+#  Script will run forever,
+#+ or at least until terminated by a Ctl-C.
+
+exit $?  # End of script (but will never get here).
+
+
+
+Now, run the script:
+sh subshell-test.sh
+
+And, while the script is running, from a different xterm:
+ps -ef | grep subshell-test.sh
+
+UID       PID   PPID  C STIME TTY      TIME     CMD
+500       2698  2502  0 14:26 pts/4    00:00:00 sh subshell-test.sh
+500       2699  2698 21 14:26 pts/4    00:00:24 sh subshell-test.sh
+
+          ^^^^
+
+Analysis:
+PID 2698, the script, launched PID 2699, the subshell.
+
+Note: The "UID ..." line would be filtered out by the "grep" command,
+but is shown here for illustrative purposes.</pre><p>
+      </p><p>In general, an <a class="link" href="ch15.html#externalref">external
+  command</a> in a script <a class="link" href="ch14.html#forkref">forks
+  off</a> a subprocess,
+           <sup>[<a id="idp16420768" href="#ftn.idp16420768" class="footnote">96</a>]</sup>
+        whereas a Bash <a class="link" href="ch14.html#builtinref">builtin</a>
+        does not. For this reason, builtins execute more quickly
+        and use fewer system resources than their external command
+        equivalents.</p><div class="variablelist" title="Command List within Parentheses"><a id="subshellparens"/><p class="title"><b><a id="subshellparens1"/>Command List within
+  Parentheses</b></p><dl><dt><span class="term">( command1; command2; command3; ... )</span></dt><dd><p>A command list embedded between
+    <em class="replaceable"><code>parentheses</code></em> runs as a
+    subshell.</p></dd></dl></div><p><a id="parvis"/>Variables in a subshell are
+        <span class="emphasis"><em>not</em></span> visible outside the block of code
+        in the subshell. They are not accessible to the <a class="link" href="ch14.html#forkref">parent process</a>, to the shell
+        that launched the subshell. These are, in effect,
+        variables <a class="link" href="ch23s02.html#localref" title="Каким образом переменные делаются локальными?">local</a> to the
+  <em class="firstterm">child process</em>.</p><div class="example"><a id="subshell"/><p class="title"><b>Пример 20.1. Variable scope in a subshell</b></p><div class="example-contents"><pre class="programlisting">&amp;subshell;</pre></div></div><br class="example-break"/><p>See also <a class="link" href="ch09.html#bashpidref">$BASHPID</a> and
+        <a class="xref" href="ch31.html#subpit" title="Пример 31.2. Subshell Pitfalls">Пример 31.2, «Subshell Pitfalls»</a>.</p><div class="sidebar"><p class="title"><b/></p><p><a id="scoperef"/></p><p><strong class="userinput"><code>Definition:</code></strong> The
+      <em class="firstterm">scope</em> of a variable is the
+      context in which it has meaning, in which it has a
+      <em class="firstterm">value</em> that can be referenced. For
+      example, the scope of a <a class="link" href="ch23s02.html#localref1">local
+      variable</a> lies only within the function,
+      block of code, or subshell within which it is defined,
+      while the scope of a <em class="firstterm">global</em> variable
+      is the entire script in which it appears.</p></div><p><a id="subshnlevref"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>While the <a class="link" href="ch09.html#bashsubshellref">$BASH_SUBSHELL</a>
+        internal variable indicates the nesting level of a
+        subshell, the <a class="link" href="ch09.html#shlvlref">$SHLVL</a>
+        variable <span class="emphasis"><em>shows no change</em></span> within
+        a subshell.</p><p>
+</p><pre class="programlisting">echo " \$BASH_SUBSHELL outside subshell       = $BASH_SUBSHELL"           # 0
+  ( echo " \$BASH_SUBSHELL inside subshell        = $BASH_SUBSHELL" )     # 1
+  ( ( echo " \$BASH_SUBSHELL inside nested subshell = $BASH_SUBSHELL" ) ) # 2
+# ^ ^                           *** nested ***                        ^ ^
+
+echo
+
+echo " \$SHLVL outside subshell = $SHLVL"       # 3
+( echo " \$SHLVL inside subshell  = $SHLVL" )   # 3 (No change!)</pre><p>
+            </p></div><p>Directory changes made in a subshell do not carry over to the
+        parent shell.</p><div class="example"><a id="allprofs"/><p class="title"><b>Пример 20.2. List User Profiles</b></p><div class="example-contents"><pre class="programlisting">&amp;allprofs;</pre></div></div><br class="example-break"/><p>A subshell may be used to set up a <span class="quote">«<span class="quote">dedicated
+        environment</span>»</span> for a command group.
+        </p><pre class="programlisting">COMMAND1
+COMMAND2
+COMMAND3
+(
+  IFS=:
+  PATH=/bin
+  unset TERMINFO
+  set -C
+  shift 5
+  COMMAND4
+  COMMAND5
+  exit 3 # Only exits the subshell!
+)
+# The parent shell has not been affected, and the environment is preserved.
+COMMAND6
+COMMAND7</pre><p>
+
+    As seen here, the <a class="link" href="ch14.html#exitref">exit</a>
+    command only terminates the subshell in which it is running,
+    <span class="emphasis"><em>not</em></span> the parent shell or script.</p><p>One application of such a <span class="quote">«<span class="quote">dedicated environment</span>»</span>
+        is testing whether a variable is defined.
+              </p><pre class="programlisting">if (set -u; : $variable) 2&gt; /dev/null
+then
+  echo "Variable is set."
+fi     #  Variable has been set in current script,
+       #+ or is an an internal Bash variable,
+       #+ or is present in environment (has been exported).
+
+# Could also be written [[ ${variable-x} != x || ${variable-y} != y ]]
+# or                    [[ ${variable-x} != x$variable ]]
+# or                    [[ ${variable+x} = x ]]
+# or                    [[ ${variable-x} != x ]]</pre><p>Another application is checking for a lock file:
+        </p><pre class="programlisting">if (set -C; : &gt; lock_file) 2&gt; /dev/null
+then
+  :   # lock_file didn't exist: no user running the script
+else
+  echo "Another user is already running that script."
+exit 65
+fi
+
+#  Code snippet by Stéphane Chazelas,
+#+ with modifications by Paulo Marcel Coelho Aragao.</pre><p>
+      </p><p>+</p><p>Processes may execute in parallel within different
+        subshells. This permits breaking a complex task into subcomponents
+        processed concurrently.</p><div class="example"><a id="parallel-processes"/><p class="title"><b>Пример 20.3. Running parallel processes in subshells</b></p><div class="example-contents"><pre class="programlisting">
+  (cat list1 list2 list3 | sort | uniq &gt; list123) &amp;
+  (cat list4 list5 list6 | sort | uniq &gt; list456) &amp;
+  # Merges and sorts both sets of lists simultaneously.
+  # Running in background ensures parallel execution.
+  #
+  # Same effect as
+  #   cat list1 list2 list3 | sort | uniq &gt; list123 &amp;
+  #   cat list4 list5 list6 | sort | uniq &gt; list456 &amp;
+  
+  wait   # Don't execute the next command until subshells finish.
+  
+  diff list123 list456</pre></div></div><br class="example-break"/><p>Redirecting I/O to a subshell uses the <span class="quote">«<span class="quote">|</span>»</span> pipe
+    operator, as in <strong class="userinput"><code>ls -al | (command)</code></strong>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>A code block between <a class="link" href="ch03.html#codeblockref">curly brackets</a> does
+        <span class="emphasis"><em>not</em></span> launch a subshell.</p><p>{ command1; command2; command3; . . . commandN; }</p><pre class="programlisting">var1=23
+echo "$var1"   # 23
+
+{ var1=76; }
+echo "$var1"   # 76</pre></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp16420768" href="#idp16420768" class="para">96</a>] </sup>An external command invoked with an <a class="link" href="ch14.html#execref">exec</a> does <span class="emphasis"><em>not</em></span>
+             (usually) fork off a subprocess / subshell.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch19s03.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch21.html">След.</a></td></tr><tr><td align="left" valign="top">Applications </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 21. Restricted Shells</td></tr></table></div></body></html>

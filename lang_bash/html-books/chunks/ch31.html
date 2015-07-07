@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 31. Gotchas</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch30.html" title="Глава 30. Options"/><link rel="next" href="ch32.html" title="Глава 32. Scripting With Style"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 31. Gotchas</th></tr><tr><td align="left"><a accesskey="p" href="ch30.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch32.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 31. Gotchas"><div class="titlepage"><div><div><h2 class="title"><a id="gotchas"/>Глава 31. Gotchas</h2></div></div></div><div class="epigraph"><p>Turandot: <span class="foreignphrase"><em class="foreignphrase">Gli enigmi sono tre, la morte
+        una!</em></span></p><p>Caleph: <span class="foreignphrase"><em class="foreignphrase">No, no! Gli enigmi sono tre, una la
+        vita!</em></span></p><p>--Puccini</p></div><p><a id="bash3gotcha"/></p><p>Here are some (non-recommended!) scripting practices that
+        will bring excitement into an otherwise dull life.</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><a id="inappvn"/></p><p>Assigning reserved words or characters to variable names.</p><p>
+  </p><pre class="programlisting">case=value0       # Causes problems.
+23skidoo=value1   # Also problems.
+# Variable names starting with a digit are reserved by the shell.
+# Try _23skidoo=value1. Starting variables with an underscore is okay.
+
+# However . . .   using just an underscore will not work.
+_=25
+echo $_           # $_ is a special variable set to last arg of last command.
+# But . . .       _ is a valid function name!
+
+xyz((!*=value2    # Causes severe problems.
+# As of version 3 of Bash, periods are not allowed within variable names.</pre><p>
+  </p></li><li class="listitem"><p>Using a hyphen or other reserved characters in a variable name (or
+        function name).</p><p>
+  </p><pre class="programlisting">var-1=23
+# Use 'var_1' instead.
+
+function-whatever ()   # Error
+# Use 'function_whatever ()' instead.
+
+ 
+# As of version 3 of Bash, periods are not allowed within function names.
+function.whatever ()   # Error
+# Use 'functionWhatever ()' instead.</pre><p>
+      </p></li><li class="listitem"><p>Using the same name for a variable and a function. This can make a
+        script difficult to understand.</p><p>
+        </p><pre class="programlisting">do_something ()
+{
+  echo "This function does something with \"$1\"."
+}
+
+do_something=do_something
+
+do_something do_something
+
+# All this is legal, but highly confusing.</pre><p>
+  </p></li><li class="listitem"><p><a id="wsbad"/>Using <a class="link" href="ch03.html#whitespaceref">whitespace</a> inappropriately.
+  In contrast to other programming languages, Bash can be quite
+  finicky about whitespace.</p><p>
+  </p><pre class="programlisting">var1 = 23   # 'var1=23' is correct.
+# On line above, Bash attempts to execute command "var1"
+# with the arguments "=" and "23".
+  
+let c = $a - $b   # Instead:   let c=$a-$b   or   let "c = $a - $b"
+
+if [ $a -le 5]    # if [ $a -le 5 ]   is correct.
+#           ^^      if [ "$a" -le 5 ]   is even better.
+                  # [[ $a -le 5 ]] also works.</pre><p>
+  </p></li><li class="listitem"><p><a id="omitsemicolon"/></p><p>Not terminating with a <a class="link" href="ch03.html#semicolonref">semicolon</a> the final command
+        in a <a class="link" href="ch03.html#codeblockref">code block within curly
+        brackets</a>.</p><p>
+        </p><pre class="programlisting">{ ls -l; df; echo "Done." }
+# bash: syntax error: unexpected end of file
+
+{ ls -l; df; echo "Done."; }
+#                        ^     ### Final command needs semicolon.</pre><p>
+      </p></li><li class="listitem"><p><a id="uninitvar"/></p><p>
+        Assuming uninitialized variables (variables before a value is
+  assigned to them) are <span class="quote">«<span class="quote">zeroed out</span>»</span>. An
+  uninitialized variable has a value of <em class="firstterm">null</em>,
+  <span class="emphasis"><em>not</em></span> zero.</p><p>
+     </p><pre class="programlisting">#!/bin/bash
+
+echo "uninitialized_var = $uninitialized_var"
+# uninitialized_var =</pre><p>
+
+      </p></li><li class="listitem"><p><a id="eqdif"/></p><p>Mixing up <em class="firstterm">=</em> and
+    <em class="firstterm">-eq</em> in a test. Remember,
+    <em class="firstterm">=</em> is for comparing literal variables
+    and <em class="firstterm">-eq</em> for integers.</p><p>
+  </p><pre class="programlisting">if [ "$a" = 273 ]      # Is $a an integer or string?
+if [ "$a" -eq 273 ]    # If $a is an integer.
+
+# Sometimes you can interchange -eq and = without adverse consequences.
+# However . . .
+
+
+a=273.0   # Not an integer.
+     
+if [ "$a" = 273 ]
+then
+  echo "Comparison works."
+else  
+  echo "Comparison does not work."
+fi    # Comparison does not work.
+
+# Same with   a=" 273"  and a="0273".
+
+
+# Likewise, problems trying to use "-eq" with non-integer values.
+     
+if [ "$a" -eq 273.0 ]
+then
+  echo "a = $a"
+fi  # Aborts with an error message.  
+# test.sh: [: 273.0: integer expression expected</pre><p>
+        </p></li><li class="listitem"><p><a id="numstrcompne"/></p><p>Misusing <a class="link" href="ch07s03.html#scomparison1">string comparison</a>
+        operators.</p><div class="example"><a id="badop"/><p class="title"><b>Пример 31.1. Numerical and string comparison are not equivalent</b></p><div class="example-contents"><pre class="programlisting">&amp;badop;</pre></div></div><br class="example-break"/></li><li class="listitem"><p><a id="letbad"/></p><p>Attempting to use <a class="link" href="ch14.html#letref">let</a>
+                to set string variables.</p><pre class="programlisting">let "a = hello, you"
+echo "$a"   # 0</pre></li><li class="listitem"><p><a id="failquote"/></p><p>Sometimes variables within <span class="quote">«<span class="quote">test</span>»</span> brackets
+  ([ ]) need to be quoted (double quotes).  Failure to do so may
+  cause unexpected behavior. See <a class="xref" href="ch07s03.html#strtest" title="Пример 7.6. Проверка пустых (null) строк">Пример 7.6, «Проверка <em class="firstterm">пустых (null)</em> строк»</a>, <a class="xref" href="ch19s02.html#redir2" title="Пример 19.5. Redirected while loop">Пример 19.5, «Redirected <em class="firstterm">while</em> loop»</a>, and <a class="xref" href="ch09.html#arglist" title="Пример 9.6. arglist: Listing arguments with $* and $@">Пример 9.6, «<em class="firstterm">arglist</em>: Listing arguments
+        with $* and $@»</a>.</p></li><li class="listitem"><p><a id="failnotquote"/></p><p>Quoting a variable containing whitespace <a class="link" href="ch05.html#wsquo">prevents splitting</a>. Sometimes
+  this produces <a class="link" href="ch05.html#varsplitting">unintended
+  consequences</a>.</p></li><li class="listitem"><p><a id="execperm"/></p><p>Commands issued from a script may fail to execute because
+  the script owner lacks execute permission for them. If a user
+  cannot invoke a command from the command-line, then putting it
+  into a script will likewise fail. Try changing the attributes of
+  the command in question, perhaps even setting the suid bit
+  (as <em class="firstterm">root</em>, of course).</p></li><li class="listitem"><p><a id="dashnredr"/></p><p>Attempting to use <span class="command"><strong>-</strong></span> as a redirection
+        operator (which it is not) will usually result in an unpleasant
+  surprise.</p><p>
+  </p><pre class="programlisting">command1 2&gt; - | command2
+# Trying to redirect error output of command1 into a pipe . . .
+# . . . will not work.  
+
+command1 2&gt;&amp; - | command2  # Also futile.
+
+Thanks, S.C.</pre></li><li class="listitem"><p><a id="lateverf"/></p><p>Using Bash <a class="link" href="ch34.html#bash2ref">version 2+</a>
+  functionality may cause a bailout with error messages. Older
+  Linux machines may have version 1.XX of Bash as the default
+  installation.</p><p>
+  </p><pre class="programlisting">#!/bin/bash
+
+minimum_version=2
+# Since Chet Ramey is constantly adding features to Bash,
+# you may set $minimum_version to 2.XX, 3.XX, or whatever is appropriate.
+E_BAD_VERSION=80
+
+if [ "$BASH_VERSION" \&lt; "$minimum_version" ]
+then
+  echo "This script works only with Bash, version $minimum or greater."
+  echo "Upgrade strongly recommended."
+  exit $E_BAD_VERSION
+fi
+
+...</pre></li><li class="listitem"><p>Using Bash-specific functionality in a <a class="link" href="ch01.html#bashdef">Bourne shell</a> script
+  (<strong class="userinput"><code>#!/bin/sh</code></strong>) on a non-Linux machine
+  <a class="link" href="ch31.html#binsh">may cause unexpected behavior</a>.
+  A Linux system usually aliases <span class="command"><strong>sh</strong></span> to
+  <span class="command"><strong>bash</strong></span>, but this does not necessarily hold true
+  for a generic UNIX machine.</p></li><li class="listitem"><p><a id="undocf"/></p><p>Using undocumented features in Bash turns out to be a
+  dangerous practice. In previous releases of this
+  book there were several scripts that depended on the
+  <span class="quote">«<span class="quote">feature</span>»</span> that, although the maximum value
+  of an <a class="link" href="ch06.html#exitstatusref">exit</a> or <a class="link" href="ch23.html#returnref">return</a> value was 255, that limit
+  did not apply to <span class="emphasis"><em>negative</em></span> integers.
+  Unfortunately, in version 2.05b and later, that loophole
+  disappeared.  See <a class="xref" href="ch23.html#returntest" title="Пример 23.9. Тестирование возврата больших значений из функции">Пример 23.9, «Тестирование возврата больших значений из функции»</a>.</p></li><li class="listitem"><p><a id="dosnewlines"/></p><p>
+        A script with DOS-type newlines (<em class="replaceable"><code>\r\n</code></em>)
+  will fail to execute, since <strong class="userinput"><code>#!/bin/bash\r\n</code></strong>
+  is <span class="emphasis"><em>not</em></span> recognized, <span class="emphasis"><em>not</em></span>
+  the same as the expected <strong class="userinput"><code>#!/bin/bash\n</code></strong>. The
+  fix is to convert the script to UNIX-style newlines.</p><p>
+    </p><pre class="programlisting">#!/bin/bash
+
+echo "Here"
+
+unix2dos $0    # Script changes itself to DOS format.
+chmod 755 $0   # Change back to execute permission.
+               # The 'unix2dos' command removes execute permission.
+
+./$0           # Script tries to run itself again.
+               # But it won't work as a DOS file.
+
+echo "There"
+
+exit 0</pre><p>
+      </p></li><li class="listitem"><p><a id="binsh"/></p><p>A shell script headed by <strong class="userinput"><code>#!/bin/sh</code></strong>
+  will not run in full Bash-compatibility mode. Some Bash-specific
+  functions might be disabled. Scripts that need complete
+  access to all the Bash-specific extensions should start with
+  <strong class="userinput"><code>#!/bin/bash</code></strong>.</p></li><li class="listitem"><p><a class="link" href="ch18.html#indentedls">Putting whitespace in front of
+  the terminating limit string</a> of a <a class="link" href="ch18.html#heredocref">here document</a> will cause unexpected
+  behavior in a script.</p></li><li class="listitem"><p><a id="rvtcaution2"/>Putting more than one
+  <em class="firstterm">echo</em> statement in a function <a class="link" href="ch33s08.html#rvt">whose output is captured</a>.
+  </p><pre class="programlisting">add2 ()
+{
+  echo "Whatever ... "   # Delete this line!
+  let "retval = $1 + $2"
+    echo $retval
+    }
+
+    num1=12
+    num2=43
+    echo "Sum of $num1 and $num2 = $(add2 $num1 $num2)"
+
+#   Sum of 12 and 43 = Whatever ... 
+#   55
+
+#        The "echoes" concatenate.</pre><p>
+  This <a class="link" href="ch33s08.html#rvtcaution">will not work</a>.</p></li><li class="listitem"><p><a id="parchildprobref"/></p><p>A script may not <span class="command"><strong>export</strong></span> variables back
+  to its <a class="link" href="ch14.html#forkref">parent process</a>, the shell,
+  or to the environment. Just as we learned in biology, a child
+  process can inherit from a parent, but not vice versa.</p><p>
+    </p><pre class="programlisting">WHATEVER=/home/bozo
+export WHATEVER
+exit 0</pre><p>
+          </p><pre class="screen"><code class="prompt">bash$ </code><span class="command"><strong>echo $WHATEVER</strong></span>
+<code class="computeroutput">
+
+</code>
+<code class="prompt">bash$ </code></pre><p>
+      </p><p>
+        Sure enough, back at the command prompt, $WHATEVER remains unset.
+       </p></li><li class="listitem"><p><a id="varsubsh"/></p><p>Setting and manipulating variables in a <a class="link" href="ch20.html#subshellsref">subshell</a>, then attempting
+        to use those same variables outside the scope of the subshell will
+  result an unpleasant surprise.</p><div class="example"><a id="subpit"/><p class="title"><b>Пример 31.2. Subshell Pitfalls</b></p><div class="example-contents"><pre class="programlisting">&amp;subpit;</pre></div></div><br class="example-break"/></li><li class="listitem"><p><a id="badread0"/></p><p><a class="link" href="ch03.html#piperef">Piping</a>
+  <span class="command"><strong>echo</strong></span> output to a <a class="link" href="ch14.html#readref">read</a> may produce unexpected
+  results.  In this scenario, the <span class="command"><strong>read</strong></span>
+  acts as if it were running in a subshell. Instead, use
+  the <a class="link" href="ch14.html#setref">set</a> command (as in <a class="xref" href="ch14.html#setpos" title="Пример 14.18. Reassigning the positional parameters">Пример 14.18, «Reassigning the positional parameters»</a>).</p><div class="example"><a id="badread"/><p class="title"><b>Пример 31.3. Piping the output of <em class="firstterm">echo</em> to a
+  <em class="firstterm">read</em></b></p><div class="example-contents"><pre class="programlisting">&amp;badread;</pre></div></div><br class="example-break"/><p><a id="pipeloop"/></p><p>In fact, as Anthony Richardson points out, piping to
+        <span class="emphasis"><em>any</em></span> loop can cause a similar problem.</p><p>  
+</p><pre class="programlisting"># Loop piping troubles.
+#  This example by Anthony Richardson,
+#+ with addendum by Wilbert Berendsen.
+
+
+foundone=false
+find $HOME -type f -atime +30 -size 100k |
+while true
+do
+   read f
+   echo "$f is over 100KB and has not been accessed in over 30 days"
+   echo "Consider moving the file to archives."
+   foundone=true
+   # ------------------------------------
+   echo "Subshell level = $BASH_SUBSHELL"
+   # Subshell level = 1
+   # Yes, we're inside a subshell.
+   # ------------------------------------
+done
+   
+#  foundone will always be false here since it is
+#+ set to true inside a subshell
+if [ $foundone = false ]
+then
+   echo "No files need archiving."
+fi
+
+# =====================Now, here is the correct way:=================
+
+foundone=false
+for f in $(find $HOME -type f -atime +30 -size 100k)  # No pipe here.
+do
+   echo "$f is over 100KB and has not been accessed in over 30 days"
+   echo "Consider moving the file to archives."
+   foundone=true
+done
+   
+if [ $foundone = false ]
+then
+   echo "No files need archiving."
+fi
+
+# ==================And here is another alternative==================
+
+#  Places the part of the script that reads the variables
+#+ within a code block, so they share the same subshell.
+#  Thank you, W.B.
+
+find $HOME -type f -atime +30 -size 100k | {
+     foundone=false
+     while read f
+     do
+       echo "$f is over 100KB and has not been accessed in over 30 days"
+       echo "Consider moving the file to archives."
+       foundone=true
+     done
+
+     if ! $foundone
+     then
+       echo "No files need archiving."
+     fi
+}</pre><p>
+      </p><p><a id="ptailgrep"/></p><p>
+        A lookalike problem occurs when trying to write the
+  <code class="filename">stdout</code> of a <span class="command"><strong>tail -f</strong></span>
+  piped to <a class="link" href="ch15s04.html#grepref">grep</a>.
+    </p><pre class="programlisting">tail -f /var/log/messages | grep "$ERROR_MSG" &gt;&gt; error.log
+#  The "error.log" file will not have anything written to it.
+#  As Samuli Kaipiainen points out, this results from grep
+#+ buffering its output.
+#  The fix is to add the "--line-buffered" parameter to grep.</pre><p>
+      </p></li><li class="listitem"><p><a id="suidscr"/></p><p>Using <span class="quote">«<span class="quote">suid</span>»</span> commands within scripts is risky,
+  as it may compromise system security.
+    <sup>[<a id="idp17436144" href="#ftn.idp17436144" class="footnote">111</a>]</sup>
+      </p></li><li class="listitem"><p><a id="cgiref"/></p><p>Using shell scripts for CGI programming may be problematic. Shell
+        script variables are not <span class="quote">«<span class="quote">typesafe,</span>»</span> and this can cause
+  undesirable behavior as far as CGI is concerned. Moreover, it is
+  difficult to <span class="quote">«<span class="quote">cracker-proof</span>»</span> shell scripts.</p></li><li class="listitem"><p>Bash does not handle the <a class="link" href="ch14.html#doubleslashref">double slash
+        (<span class="token">//</span>) string</a> correctly.</p></li><li class="listitem"><p><a id="gnuref"/></p><p>Bash scripts written for Linux or BSD systems may need
+  fixups to run on a commercial UNIX (or Apple OSX) machine. Such
+  scripts often employ the GNU set of commands and filters,
+  which have greater functionality than their generic UNIX
+  counterparts. This is particularly true of such text processing
+  utilites as <a class="link" href="ch15s04.html#trref">tr</a>.</p></li></ul></div><div class="epigraph"><p>Danger is near thee --</p><p>Beware, beware, beware, beware.</p><p>Many brave hearts are asleep in the deep.</p><p>So beware --</p><p>Beware.</p><p>--A.J. Lamb and H.W. Petrie</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp17436144" href="#idp17436144" class="para">111</a>] </sup>Setting the <a class="link" href="ch07s02.html#suidref">suid</a>
+    permission on the script itself has no effect in Linux
+    and most other UNIX flavors.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch30.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch32.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 30. Options </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 32. Scripting With Style</td></tr></table></div></body></html>

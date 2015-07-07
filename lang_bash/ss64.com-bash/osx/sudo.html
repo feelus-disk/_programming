@@ -1,0 +1,204 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>sudo OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>sudo</h1> 
+<p>Execute a command as another user.<br>
+  Allows a permitted user to execute a command as the superuser or another user, 
+as specified in the sudoers file.</p>
+<pre>Syntax
+       sudo [ -H ] [-P ] [-S ] [ -b ] <i>command</i>
+
+       sudo [ -p <i>prompt</i> ] [ -c <i>class</i>|- ]
+               [ -a <i>auth_type</i> ] [ -u <i>username</i>|#<i>uid</i> ] <i>command</i>
+
+       sudo -V | -h | -l | -L | -v | -k | -K | -s <i>command</i>
+
+Options<i>
+</i>       -a  The -a (authentication type) option causes sudo to use the speci-
+	   fied authentication type when validating the user, as allowed by
+	   /etc/login.conf.  The system administrator may specify a list of
+	   sudo-specific authentication methods by adding an "auth-sudo" entry
+	   in /etc/login.conf.	This option is only available on systems that
+	   support BSD authentication where sudo has been configured with the
+	   --with-bsdauth option.
+
+       -b  The -b (background) option tells sudo to run the given command in
+	   the background.  Note that if you use the -b option you cannot use
+	   shell job control to manipulate the process.
+
+       -c  The -c (class) option causes sudo to run the specified command with
+	   resources limited by the specified login class.  The class argument
+	   can be either a class name as defined in /etc/login.conf, or a sin-
+	   gle '-' character.  Specifying a class of - indicates that the com-
+	   mand should be run restricted by the default login capabilities for
+	   the user the command is run as.  If the class argument specifies an
+	   existing user class, the command must be run as root, or the sudo
+	   command must be run from a shell that is already root.  This option
+	   is only available on systems with BSD login classes where sudo has
+	   been configured with the --with-logincap option.
+
+       -h  The -h (help) option causes sudo to print a usage message and exit.
+
+       -H  The -H (HOME) option sets the HOME environment variable to the
+	   homedir of the target user (root by default) as specified in
+	   passwd(5).  By default, sudo does not modify HOME.
+
+       -k  The -k (kill) option to sudo invalidates the user's timestamp by
+	   setting the time on it to the epoch.	 The next time sudo is run a
+	   password will be required.  This option does not require a password
+	   and was added to allow a user to revoke sudo permissions from a
+	   .logout file.
+
+       -K  The -K (sure kill) option to sudo removes the user's timestamp
+	   entirely.  Likewise, this option does not require a password.
+
+       -l  The -l (list) option will list out the allowed (and forbidden) com-
+	   mands for the user on the current host.
+
+       -L  The -L (list defaults) option will list out the parameters that may
+	   be set in a Defaults line along with a short description for each.
+	   This option is useful in conjunction with grep(1).
+
+       -p  The -p (prompt) option allows you to override the default password
+	   prompt and use a custom one.	 If the password prompt contains the
+	   %u escape, %u will be replaced with the user's login name.  Simi-
+	   larly, %h will be replaced with the local hostname.
+
+       -P  The -P (preserve group vector) option causes sudo to preserve the
+	   user's group vector unaltered.  By default, sudo will initialize
+	   the group vector to the list of groups the target user is in.  The
+	   real and effective group IDs, however, are still set to match the
+	   target user.
+
+       -s  The -s (shell) option runs the shell specified by the SHELL envi-
+	   ronment variable if it is set or the shell as specified in
+	   passwd(5).
+
+       -S  The -S (stdin) option causes sudo to read the password from stan-
+	   dard input instead of the terminal device.
+
+       -u  The -u (user) option causes sudo to run the specified command as a
+	   user other than root.  To specify a uid instead of a username, use
+	   #uid.
+
+       -v  If given the -v (validate) option, sudo will update the user's
+	   timestamp, prompting for the user's password if necessary.  This
+	   extends the sudo timeout for another 5 minutes (or whatever the
+	   timeout is set to in sudoers) but does not run a command.
+
+       -V  The -V (version) option causes sudo to print the version number and
+	   exit.  If the invoking user is already root the -V option will
+	   print out a list of the defaults sudo was compiled with as well as
+	   the machine's local network addresses.
+
+       --  The -- flag indicates that sudo should stop processing command line
+	   arguments.  It is most useful in conjunction with the -s flag.
+
+<b>Examples</b>
+The following examples assume suitable sudoers(5) entries.
+
+       Get a file listing of an unreadable directory:
+
+	$ sudo ls /usr/local/protected
+
+       Run the last command again as root:
+
+	$ sudo !!
+
+       List the home directory of user yazza on a machine where the
+       filesystem holding ~yazza is not exported as root:
+
+	$ sudo -u yazza ls ~yazza
+
+       Edit the index.html file as user www:
+
+	$ sudo -u www vi ~www/htdocs/index.html
+
+       To shutdown a machine:
+
+	$ sudo shutdown -r +15 "quick reboot"
+
+       Make a usage listing of the directories in the /home partition.
+       Note that this runs the commands in a sub-shell to make the cd and file
+       redirection work.
+
+	$ sudo sh -c "cd /home ; du -s * | sort -rn > USAGE"
+    </pre>
+<p><b>Notes<br>
+  </b>By default, sudo requires that users authenticate themselves with a password 
+  (by default this is the user's password, not the root password). Once a user 
+  has been authenticated, a timestamp is updated and the user may then use sudo 
+  without a password for a short period of time (5 minutes unless overridden in 
+  sudoers). </p>
+<p> sudo determines who is an authorized user by consulting the file 
+  /etc/sudoers. By giving sudo the -v flag a user can update the time stamp without 
+  running a command. The password prompt itself will also time out if the user's 
+  password is not entered within 0 minutes (unless overridden via sudoers). If 
+  a user who is not listed in the sudoers file tries to run a command via sudo, 
+  mail is sent to the proper authorities, as defined at configure time or the 
+  sudoers file (defaults to root). Note that the mail will not be sent if an unauthorized 
+  user tries to run sudo with the -l or -v flags. This allows users to determine 
+  for themselves whether or not they are allowed to use sudo. sudo can log both 
+  successful and unsuccessful attempts (as well as errors) to syslog(3), a log 
+  file, or both. By default sudo will log via syslog(3) but this is changeable 
+  at configure time or via the sudoers file.</p>
+<p>Please note that sudo will only log the command it explicitly 
+  runs. If a user runs a command such as sudo su or sudo sh, subsequent commands 
+  run from that shell will not be logged, nor will sudo's access control affect 
+  them. The same is true for commands that offer shell escapes (including most 
+  editors). Because of this, care must be taken when giving users access to commands 
+  via sudo to verify that the command does not inadvertantly give the user an 
+  effective root shell.</p>
+<p><b>Return Values</b><br>
+  Upon successful execution of a program, the return value from sudo will simply 
+  be the return value of the program that was executed. Otherwise, sudo quits 
+  with an exit value of 1 if there is a configuration/permission problem or if 
+  sudo cannot execute the given command.</p>
+<p><b>Environment<br>
+  </b>sudo uses the environment variables: HOME, PATH, SHELL, USER, SUDO_PROMPT, 
+  SUDO_COMMAND, SUDO_USER, SUDO_UID, SUDO_GID and SUDO_PS1.</p>
+<p> <b>Files<br>
+  </b>/etc/sudoers List of who can run what <br>
+  /var/run/sudo Directory containing timestamps</p>
+<p class="quote"><i>"If you don't like your reality change it" ~ Richard 
+  Bandler </i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/sudo.8.html">sudo man page</a> - Apple.com<br>
+<a href="login.html">login</a> - log into the computer<br>
+<a href="su.html">su</a> - Substitute user identity<br>
+stat(2)<br>
+sudoers(5)<br>
+<a href="passwd.html">passwd</a> - Modify a user password<br>
+visudo(8)<br>
+<a href="grep.html">grep</a> - Search file(s) for lines that match a given pattern<br>
+<a href="http://www.sudo.ws/">www.sudo.ws</a> - Todd Miller, sudo maintainer<br>
+<a href="http://ss64.com/pass/">Password generator</a></p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="sudo.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>ipconfig OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>ipconfig</h1> 
+<p>View and control IP configuration state.</p>
+<pre>Syntax
+     ipconfig waitall<br>     ipconfig getifaddr <i>interface-name</i><br>     ipconfig ifcount<br>     ipconfig getoption <i>interface-name</i> (<i>option-name</i> | <i>option-code</i>)<br>     ipconfig getpacket <i>interface-name</i><br>     ipconfig getv6packet <i>interface-name</i><br>     ipconfig setverbose <i>level</i><br>     ipconfig set <i>interface-name</i> NONE<br>     ipconfig set <i>interface-name</i> (DHCP | BOOTP)<br>     ipconfig set <i>interface-name</i> (MANUAL | INFORM) <i>ip-address subnet-mask</i><br>     ipconfig set <i>interface-name</i> NONE-V6<br>     ipconfig set <i>interface-name</i> AUTOMATIC-V6<br>     ipconfig set <i>interface-name</i> MANUAL-V6 <i>ipv6-address prefix-length</i><br>     ipconfig set <i>interface-name</i> 6TO4</pre>
+<p>  ipconfig is a utility that communicates with the IPConfiguration agent to
+  retrieve and set IP configuration parameters.  It should only be used in
+  a test and debug context.  Using it for any other purpose is strongly
+  discouraged.  Public API's in the SystemConfiguration framework are currently the only supported way to access and control the state of IPConfiguration.<br>
+  <br>
+  The IPConfiguration agent is responsible for configuring and managing the
+  IP addresses on direct, connectionless interfaces such as IEEE 802.3 Ethernet and IEEE 1394 FireWire.  The IPConfiguration agent is a program
+  bundle that is loaded and executed by the configd(8) process.<br>
+  <br>
+  The IPConfiguration agent implements the client side of the DHCP and
+  BOOTP protocols described in RFC951, RFC1542, RFC2131, and RFC2132.  It also assigns and maintains static IP addresses.  It may also allocate and
+  assign a link-local IP address if DHCP fails to acquire an IP address.<br>
+  <br>
+  In all cases, the IPConfiguration agent performs IP address conflict
+  detection before assigning an IP address to an interface.</p>
+<pre>COMMANDS
+
+     The ipconfig utility provides several commands:
+
+     waitall     Blocks until all network services have completed configuring,
+                 or have timed out in the process of configuring.  This is
+                 only useful for initial system start-up time synchronization
+                 for legacy network services that are incapable of dealing
+                 with dynamic network configuration changes.
+
+     getifaddr <i>interface-name</i>
+                 Prints to standard output the IP address for the first net-
+                 work service associated with the given interface.  The output
+                 will be empty if no service is currently configured or active
+                 on the interface.
+
+     ifcount     Prints the number of interfaces that IPConfiguration is capa-
+                 ble of configuring.  The value that's printed will not change
+                 unless relevant network interfaces are either added to or
+                 removed from the system.
+
+     getoption <i>interface-name</i> (<i>option-name</i> | <i>option-code</i>)
+                 Prints the BOOTP/DHCP option with the given name or option
+                 code integer value.  See bootpd(8) for option code names.  If
+                 an option has multiple values e.g. domain_name_server, only
+                 the first value is printed.
+
+     getpacket <i>interface-name</i>
+                 Prints to standard output the DHCP/BOOTP packet that the
+                 client accepted from the DHCP/BOOTP server.  This command is
+                 useful to check what the server provided, and whether the
+                 values are sensible.  This command outputs nothing if
+                 DHCP/BOOTP is not active on the interface, or the attempt to
+                 acquire an IP address was unsuccessful.
+
+     getv6packet <i>interface-name</i>
+                 Prints to standard output the latest DHCPv6 packet that the
+                 client accepted from the DHCPv6 server.  In the case of
+                 stateful DHCPv6, it corresponds to the last packet from the
+                 server that contained addressing information.  This command
+                 is useful to check what the server provided, and whether the
+                 values are sensible.  This command outputs nothing if DHCPv6
+                 is not active on the interface.
+
+     set <i>interface-name</i> NONE
+     set <i>interface-name</i> (DHCP | BOOTP)
+     set <i>interface-name</i> (MANUAL | INFORM) ip-address subnet-mask
+     set <i>interface-name</i> NONE-V6
+     set <i>interface-name</i> AUTOMATIC-V6
+     set <i>interface-name</i> MANUAL-V6 ipv6-address prefix-length
+     set <i>interface-name</i> 6TO4
+                 Sets the interface to have a new temporary network service of
+                 the given type.  Any existing services on the interface for
+                 the particular protocol (IPv4 or IPv6) are first de-config-
+                 ured before the new service is instantiated.
+
+                 If NONE is specified, all existing IPv4 services are de-con-
+                 figured.  If NONE-V6 is specified, all existing IPv6 services
+                 are de-configured.
+
+                 DHCP and BOOTP require no additional arguments. The IP
+                 address, subnet mask, router, and DNS information are
+                 retrieved automatically.
+
+                 Both MANUAL and INFORM require the specification of an IP
+                 address ip-address and a subnet mask subnet-mask.
+
+                 The INFORM service configures the IP address statically like
+                 MANUAL, but then broadcasts DHCP INFORM packets to retrieve
+                 DHCP option information. If the DHCP server responds and sup-
+                 plies a subnet mask, that subnet mask is used instead of the
+                 specified subnet-mask.
+
+                 AUTOMATIC-V6 requires no additional arguments.  The IPv6
+                 address, prefix length and router are retrieved automati-
+                 cally.
+
+                 MANUAL-V6 requires the specification of the IPv6 address
+                 ipv6-address and a prefix length prefix-length.
+
+                 6TO4 only works on Six To Four (IFT_STF) interfaces e.g.
+                 stf0.  If it is specified on a non-IFT_STF interface, it has
+                 the same effect as specifying NONE-V6.
+
+                 The set command requires root privileges.
+
+                 Note: The set command is very useful for debugging, but it
+                 can't be used to configure a persistent service.  The tempo-
+                 rary services that are created only remain until the next
+                 network configuration change occurs. See scselect(8).
+
+     setverbose <i>level</i>
+                 Sets verbose mode logging in the IPConfiguration agent. Spec-
+                 ify a level value of 0 to disable verbose logging, the
+                 default.  Specify a value of 1 to enable verbose logging.
+
+                 When enabled, useful debugging information is logged using
+                 syslog(3) with level LOG_NOTICE.  In addition, the packet
+                 trace file /var/log/com.apple.IPConfiguration.bootp is opened
+                 and BOOTP/DHCP packets that are sent and received are printed
+                 to the file.
+
+                 The setverbose command requires root privileges.
+
+EXAMPLES
+
+  Display your routers ip address:
+     $ ipconfig getoption en0 <b>router</b>
+     192.168.0.1
+
+  Display all DHCP configuration details:
+     $ ipconfig getpacket en0
+     op = BOOTREPLY
+     htype = 1
+     dp_flags = 0
+     hlen = 6
+     hops = 0
+     xid = 1956115059
+     secs = 0
+     ciaddr = 0.0.0.0
+     yiaddr = 192.168.4.10
+     siaddr = 192.168.4.1
+     giaddr = 0.0.0.0
+     chaddr = 0:3:93:7a:d7:5c
+     sname = dhcp.mycompany.net
+     file =
+     options:
+     Options count is 10
+     dhcp_message_type (uint8): ACK 0x5
+     server_identifier (ip): 192.168.4.1
+     lease_time (uint32): 0x164a
+     subnet_mask (ip): 255.255.255.0
+     <b>router</b> (ip_mult): {192.168.0.1}
+     <b>domain_name_server</b> (ip_mult): {8.8.4.4}
+     domain_name (string): mycompany.net
+     end (none):
+
+  Display the DNS Server:
+     $ ipconfig getoption en0 <b>domain_name_server</b>
+     8.8.4.4</pre>
+<p class="quote"><i>&ldquo;A Connection Manager connection does not connect after being disconnected&rdquo; - Title of Microsoft <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;325331">KnowledgeBase</a> article</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/ipconfig.8.html">ipconfig man page</a> - Apple.com<br>
+<a href="ifconfig.html">ifconfig</a> - Configure network interface parameters  <br>
+netstat(1) - Networking information<br> 
+netintro(4)<br>
+sysctl(8)<br>
+Equivalent Windows command: <a href="http://ss64.com/nt/ipconfig.html">ipconfig</a> - Configure IP (<i>internet protocol</i> configuration)</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="ipconfig.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

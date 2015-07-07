@@ -1,0 +1,143 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>most Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem -->
+<h1>most</h1> 
+<p>Browse or page through a text file. </p>
+<pre>Syntax
+      most [-1bCckMstvwz] [+lineno] [+c] [+d] [+s] [+/<i>string</i>] [<i>filename</i>...] 
+
+Key
+   -1  VT100 mode. This is meaningful only on VMS systems.
+       This option should be used if the terminal is strictly a VT100.
+       This implies that the terminal does not have the ability to delete and
+       insert multiple lines. VT102s and above have this ability.
+
+   -b  Binary mode. Use this switch when you want to view files containing
+       8 bit characters. most will display the file 16 bytes per line in
+       hexidecimal notation. A typical line looks like:
+         01000000 40001575 9C23A020 4000168D ....@..u.#. @... 
+       When used with the -v option, the same line looks like:
+
+         ^A^@^@^@  @^@^U u 9C #A0    @^@^V8D     ....@..u.#. @...
+
+   -k  'Kanji' option. Ordinarily, most will go into binary mode if the file
+       consists of non-ascii characters. Sometimes this feature is not
+       desirable since some terminals have a special interpretation for
+       eight bit characters. The -k option turns off the automatic sensing.
+
+   -C  Disable color support.
+
+   -M  Disable the use of mmap.
+
+   -s  Squeeze. Replace multiple blank lines with a single blank line.
+
+   -z  option turns off gunzip-on-the-fly.
+
+   -v  Display control characters as in '^A' for control A.
+       Normally most does not interpret control characters.
+
+   -t  Display tabs as '^I'. This option is meaningful only when used
+       with the -v option. +lineno Start up at lineno.
+
+   +c  Make search case sensitive. By default, they are not.
+
+   +d  This switch should only be used if you want the option to delete
+       a file while viewing it. This makes it easier to clean unwanted
+       files out of a directory. The file is deleted with the interactive
+       key sequence ':D' and then confirming with 'y'.
+
+   +/<i>string</i>
+       Start up at the line containing the first occurrence of string. </pre>
+<p>most is a paging program that displays, one windowful at a time, the contents of a file on a terminal. It pauses after each windowful and prints on the window status line the screen the file name, current line number, and the percentage of the file so far displayed. Unlike other paging programs, most is capable of displaying an arbitrary number of windows as long as each window occupies at least two screen lines. Each window may contain the same file or a different file. In addition, each window has its own mode. </p>
+<p>For example, one window may display a file with its lines wrapped while another may be truncating the lines. Windows may be 'locked' together in the sense that if one of the locked windows scrolls, all locked windows will scroll. most is also capable of ignoring lines that are indented beyond a user specified value. This is useful when viewing computer programs to pick out gross features of the code. See the ':o' command for a description of this feature. </p>
+<p>In addition to displaying ordinary text files, most can also display binary files as well as files with arbitrary ascii characters. When a file is read into a buffer, most examines the first 32 bytes of the file to determine if the file is a binary file and then switches to the appropriate mode. However, this feature may be disabled with the -k option. See the description of the -b, -k, -v, and -t options for further details.</p>
+<p> Text files may contain combinations of underscore and backspace characters causing a printer to underline or overstrike. When <span class="code">most</span> recognizes this, it inserts the appropriate escape sequences to achieve the desired effect. In addition, some files cause the printer to overstrike some characters by embedding carriage return characters in the middle of a line. When this occurs, most displays the overstruck character with a bold attribute. This feature facilitates the reading of UNIX man pages or a document produced by runoff. In particular, viewing this document with most should illustrate this behavior provided that the underline characters have not been stripped. This may be turned off with the -v option. </p>
+<p>By default, lines with more characters than the terminal width are not wrapped but are instead truncated. When truncation occurs, this is indicated by a '$' in the far right column of the terminal screen. The RIGHT and LEFT arrow keys may be used to view lines which extend past the margins of the screen. The -w option may be used to override this feature. When a window is wrapped, the character '\' will appear at the right edge of the window.</p>
+<p>CTRL-G aborts the commands requiring the user to type something in at a prompt. The backquote key has a special meaning here. It is used to quote certain characters. This is useful when search for the occurrence of a string with a control character or a string at the beginning of a line. In the latter case, to find the occurrence of 'The' at the beginning of a line, enter '^JThe where ' quotes the CTRL-J. </p>
+<h2>Environment variables</h2>
+<p><span class="code">MOST_SWITCHES</span> This variable sets commonly used switches. For example, some people prefer to use most with the -s option so that excess blank lines are not displayed. On VMS this is normally done done in the login.com through the line:      $ define MOST_SWITCHES &quot;-s&quot;</p>
+<p><span class="code">MOST_EDITOR, SLANG_EDITOR</span> Either of these environment variables specify an editor for most to invoke to edit a file. The value can contain %s and %d formatting descriptors that represent the file name and line number, respectively. For example, if JED is your editor, then set <br>
+MOST_EDITOR to 'jed %s -g %d'.  </p>
+<p><span class="code">MOST_HELP</span> This variable may be used to specify an alternate help file.</p>
+<p><span class="code">MOST_INITFILE</span> Set this variable to specify the initialization file to load during startup. The default action is to load the system configuration file and then a personal configuration file called .mostrc on Unix, and most.rc on other systems. </p>
+<h2> Configuration File Syntax </h2>
+<p>When <span class="code">most</span> starts up, it tries to read a system confiuration file and then a personal configuration file. These files may be used to specify keybindings and colors. </p>
+<p>To bind a key to a particular function use the syntax:<span class="code"><br> 
+setkey <i>function-name key-sequence</i></span> </p>
+<p>The setkey command requires two arguments. The function-name argument specifies the function that is to be executed as a response to the keys specified by the key-sequence argument are pressed. For example, setkey &quot;up&quot; &quot;^P&quot; indicates that when Ctrl-P is pressed then the function up is to be executed. </p>
+<p>Sometimes, it is necessary to first unbind a key-sequence before rebinding it in order via the unsetkey function: <br>
+<span class="code">unsetkey &quot;^F&quot; </span></p>
+<p>Colors may be defined through the use of the color keyword in the the configuration file using the syntax:<br>
+<span class="code">color <i>OBJECT-NAME FOREGROUND-COLOR BACKGROUND-COLOR </i></span></p>
+<p>Here, <span class="code"><i>OBJECT-NAME</i></span> can be any one of the following:<br>
+<span class="code">status</span> -- the status line <br>
+<span class="code">underline</span> -- underlined text <br>
+<span class="code">overstrike</span> -- overstriked text <br>
+<span class="code">normal</span> -- anything else <br>
+See the sample configuration files for more. </p>
+<p><b>Examples</b></p>
+<p>In the following commands,<span class="code"><i> i</i></span> is a numerical argument (1 by default). </p>
+<p><span class="code">SPACE, CTRL-D, NEXT_SCREEN</span> Display another windowful, or jump <i class="code">i</i> windowfuls if <i class="code">i</i> is specified. </p>
+<p><span class="code">RETURN, DOWN_ARROW, V, CTRL-N</span> Display another line, or <i class="code">i</i> more lines, if specified. </p>
+<p><span class="code">UP_ARROW, ^, CTRL-P</span> Display previous line, or <i class="code">i</i> previous lines, if specified. </p>
+<p><span class="code">T, ESCAPE&lt;</span>     Move to top of buffer.</p>
+<p> <span class="code">B, ESCAPE&gt;</span>     Move to bottom of buffer.  </p>
+<p><span class="code">RIGHT_ARROW, TAB, &gt;</span>     Scroll window left 60<i class="code">i</i> columns to view lines that are beyond the right margin of the window.</p>
+<p><span class="code">LEFT_ARROW, CTRL-B, &lt;</span>     Scroll window right 60<i class="code">i</i> columns to view lines that are beyond the left margin of the window. </p>
+<p><span class="code">U, CTRL-U, DELETE, PREV_SCREEN</span> Skip back <i class="code">i</i> windowfuls and then print a windowful. </p>
+<p><span class="code">R, CTRL-R</span> Redraw the window.</p>
+<p> <span class="code">J, G</span> If<span class="code"><i> i</i></span> is not specified, then prompt for a line number then jump to that line otherwise just jump to line <i class="code">i</i>. </p>
+<p><span class="code">%</span> If i is not specified, then prompt for a percent number then jump to that percent of the file otherwise just jump to <i class="code">i</i> percent of the file. </p>
+<p><span class="code">W, w</span> If the current screen width is 80, make it 132 and vice-versa. For other values, this command is ignored. </p>
+<p><span class="code">Q, CTRL-X CTRL-C, CTRL-K E</span> Exit from <span class="code">most</span>. On VMS, ^Z also exits. </p>
+<p><span class="code">h, CTRL-H, HELP, PF2</span> Help. Give a description of all the <span class="code">most</span> commands. The most environment variable MOST_HELP must be set for this to be meaningful. </p>
+<p><span class="code">f, /, CTRL-F, FIND, GOLD PF3</span> Prompt for a string and search forward from the current line for ith distinct line containing the string. CTRL-G aborts.  </p>
+<p><span class="code">? </span>Prompt for a string and search backward for the <i class="code">i</i>th distinct line containing the string. CTRL-G aborts. </p>
+<p><span class="code">n</span> Search for the next <i class="code">i</i> lines containing an occurrence of the last search string in the direction of the previous search. </p>
+<p><span class="code">m, SELECT, CTRL-@, CTRL-K M, PERIOD</span> Set a mark on the current line for later reference.</p>
+<p> <span class="code">INSERT_HERE, CTRL-X CTRL-X, COMMA, CTRL-K RETURN, GOLD PERIOD</span> Set a mark on the current line but return to previous mark. This allows the user to toggle back and forth between two positions in the file.  </p>
+<p><span class="code">l, L </span>Toggle locking for this window. The window is locked if there is a '*' at the left edge of the status line. Windows locked together, scroll together. </p>
+<p><span class="code">CTRL-X 2, CTRL-W 2, GOLD X</span> Split this window in half. </p>
+<p><span class="code">CTRL-X o, CTRL-W o, o, GOLDUP, GOLDDOWN</span> Move to other window.  </p>
+<p><span class="code">CTRL-X 0, CTRL-W 0, GOLD V</span> Delete this window.  </p>
+<p><span class="code">CTRL-X 1, CTRL-W 1, GOLD O</span> Delete all other windows, leaving only one window.  </p>
+<p><span class="code">E, e</span> Edit this file. </p>
+<p><span class="code">$, ESC $</span> This is system dependent. On VMS, this causes <span class="code">most</span> to spawn a subprocess. When the user exits the process, <span class="code">most</span> is resumed. On UNIX systems, <span class="code">most</span> simply suspends itself. </p>
+<p><span class="code">:n</span> Skip to the next filename given in the command line. Use the arrow keys to scroll forward or backward through the file list. </p>
+<p><span class="code">'Q' </span>quits <span class="code">most</span> and any other key selects the given file. </p>
+<p><span class="code">:c</span> Toggle case sensitive search.</p>
+<p> <span class="code">:D </span>Delete current file. This command is only meaningful with the +d switch.</p>
+<p> <span class="code">:o, :O </span>Toggle various options. With this key sequence, <span class="code">most</span> displays a prompt asking the user to hit one of: bdtvw. The 'b', 't', 'v', and 'w' options have the same meaning as the command line switches. For example, the 'w' option will toggle wrapping on and off for the current window.</p>
+<p> The 'd' option must be used with a prefix integer <i>i</i>. All lines indented beyond<i> i </i>columns will not be displayed.  </p>
+<p>The key sequence '<span class="code">1:od</span>' will cause <span class="code">most</span> to display the file ignoring all lines indented beyond the first column. So for the example above, <span class="code">most</span> would display:<br>
+int main(int argc, char **argv)...     }     where the '...' indicates lines follow are not displayed. </p>
+<p class="quote"><i>“It is not the man who has too little, but the man who craves more, who is poor” ~  President José Mujica</i></p>
+<p><b>Related:</b></p>
+<p><a href="http://www.jedsoft.org/most/">Jedsoft</a> - most home page<br>
+<a href="more.html">more</a> - Display output one screen at a time</p>
+<!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="most.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

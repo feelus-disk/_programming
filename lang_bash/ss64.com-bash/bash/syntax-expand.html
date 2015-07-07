@@ -1,0 +1,233 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>shell expansions | Bash | SS64.com</title>
+</head><!-- #BeginLibraryItem "/Library/head_bashsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Shell Expansion</h1>
+<p>Expansion is performed on the command line after it has been split into <code>tokens. </code></p>
+<p>The order of expansions is: brace expansion, tilde expansion, parameter, variable, 
+  and arithmetic expansion and command substitution (done in a left-to-right fashion), 
+  word splitting, and filename expansion. <code>Quote removal</code> is performed 
+  after all the other expansions.</p>
+<p><b>Brace Expansion</b></p>
+<p>Brace expansion is a mechanism by which arbitrary strings may be generated. 
+  This mechanism is similar to <var>filename expansion</var> (see section <a 
+  href="syntax-expand.html#filename">Filename Expansion</a>), but the file names generated 
+  need not exist. Patterns to be brace expanded take the form of an optional <var>preamble</var>, 
+  followed by a series of comma-separated strings between a pair of braces, followed 
+  by an optional <var>postscript</var>. The preamble is prefixed to each string 
+  contained within the braces, and the postscript is then appended to each resulting 
+  string, expanding left to right. </p>
+<p>Brace expansions may be nested. The results of each expanded string are not 
+  sorted; left to right order is preserved. For example, 
+<pre>bash$ echo a{d,c,b}e
+ade ace abe</pre>
+<p>Brace expansion is performed before any other expansions, and any characters 
+  special to other expansions are preserved in the result. It is strictly textual. 
+  Bash does not apply any syntactic interpretation to the context of the expansion 
+  or the text between the braces. To avoid conflicts with parameter expansion, 
+  the string <samp>`${'</samp> is not considered eligible for brace expansion. 
+</p>
+<p>A correctly-formed brace expansion must contain unquoted opening and closing 
+  braces, and at least one unquoted comma. Any incorrectly formed brace expansion 
+  is left unchanged. </p>
+<p>This construct is most useful when the strings involved have a long common prefix, such as a long file path.
+<p>Examples
+<pre>
+$ mv app/ss64/alpha.py app/ss64/alphabeta.py
+ can be
+$ mv app/ss64/{alpha,alphabeta}.py
+ or even
+$ mv app/ss64/alpha{,beta}.py
+
+$ mkdir /usr/local/src/bash/{old,new,dist,bugs}
+
+$ chown root /usr/{ucb/{ex,edit},lib/{ex?.?*,how_ex}}</pre>
+<h3>Tilde Expansion</h3>
+<p>If a word begins with an unquoted tilde character (<samp>`~'</samp>), all of the characters up to the first unquoted slash (or all characters, if there is no unquoted slash) are considered a <var>tilde-prefix</var>. If none of the characters in the tilde-prefix are quoted, the characters in the tilde-prefix following the tilde are treated as a possible <var>login name</var>. If this login name is the null string, the tilde is replaced with the value of the <code>HOME</code> 
+shell variable. If <code>HOME</code> is unset, the home directory of the user executing the shell is substituted instead. Otherwise, the tilde-prefix is replaced  with the home directory associated with the specified login name. </p>
+<p>If the tilde-prefix is <samp>`~+'</samp>, the value of the shell variable <code>PWD</code> 
+  replaces the tilde-prefix. If the tilde-prefix is <samp>`~-'</samp>, the value 
+  of the shell variable <code>OLDPWD</code>, if it is set, is substituted. </p>
+<p>If the characters following the tilde in the tilde-prefix consist of a number 
+  <var>N</var>, optionally prefixed by a <samp>`+'</samp> or a <samp>`-'</samp>, 
+  the tilde-prefix is replaced with the corresponding element from the directory 
+  stack, as it would be displayed by the <code>dirs</code> builtin invoked with 
+  the characters following tilde in the tilde-prefix as an argument. If the tilde-prefix, 
+  sans the tilde, consists of a number without a leading <samp>`+'</samp> or <samp>`-'</samp>, 
+  <samp>`+'</samp> is assumed. </p>
+<p>If the login name is invalid, or the tilde expansion fails, the word is left 
+  unchanged. </p>
+<p>Each variable assignment is checked for unquoted tilde-prefixes immediately 
+  following a <samp>`:'</samp> or <samp>`='</samp>. In these cases, tilde expansion 
+  is also performed. Consequently, one may use file names with tildes in assignments 
+  to <code>PATH</code>, <code>MAILPATH</code>, and <code>CDPATH</code>, and the 
+  shell assigns the expanded value. </p>
+<p>The following table shows how Bash treats unquoted tilde-prefixes: </p>
+
+  <p><code>~</code> <br>
+  The value of <code>$HOME</code> <br>
+  <code>~/foo<br>
+$HOME/foo<br>
+~fred/foo</code> 
+<br>The subdirectory <code>foo</code> of the home directory of the user <code>fred</code> 
+  <br><code>~+/foo<br>
+$PWD/foo
+  <br>~-/foo<br>
+${OLDPWD-'~-'}/foo
+  ~<var>N</var></code> </p>
+<p>The string that would be displayed by <samp>`dirs +<var>N</var>'</samp> 
+  <br><code>~+<var>N</var></code> 
+  <br>The string that would be displayed by <samp>`dirs +<var>N</var>'</samp> 
+  <br><code>~-<var>N</var></code> 
+  <br>The string that would be displayed by <samp>`dirs -<var>N</var>'</samp>  </p>
+
+<h3>Shell Parameter Expansion</h3>
+<p>The <samp>`$'</samp> character introduces parameter expansion, command substitution, or arithmetic expansion. The parameter name or symbol to be expanded may be 
+  enclosed in braces, which are optional but serve to protect the variable to be expanded from characters immediately following it which could be interpreted 
+  as part of the name. </p>
+<p>When braces are used, the matching ending brace is the first <samp>`}'</samp> not escaped by a backslash or within a quoted string, and not within an embedded arithmetic expansion, command substitution, or parameter expansion. </p>
+<p>The basic form of parameter expansion is ${<var>parameter</var>}. The value of <var>parameter</var> is substituted. The braces are required when <var>parameter</var> 
+  is a positional parameter with more than one digit, or when <var>parameter</var> is followed by a character that is not to be interpreted as part of its name. </p>
+<p>If the first character of <var>parameter</var> is an exclamation point, a level of variable indirection is introduced. Bash uses the value of the variable formed 
+  from the rest of <var>parameter</var> as the name of the variable; this variable is then expanded and that value is used in the rest of the substitution, rather 
+than the value of <var>parameter</var> itself. This is known as <code>indirect expansion</code>. The exception to this is the expansion of ${!<var>prefix*}</var> described below. </p>
+<p>In each of the cases below, <var>word</var> is subject to tilde expansion, parameter expansion, command substitution, and arithmetic expansion. </p>
+<p>When not performing substring expansion, Bash tests for a parameter that is unset or null; omitting the colon results in a test only for a parameter that is unset. Put another way, if the colon is included, the operator tests for both existence and that the value is not null; if the colon is omitted, the operator tests only for existence. </p>
+
+<p><code>${<var>parameter</var>:-<var>word</var>}</code> <br>
+If <var>parameter</var> is unset or null, the expansion of <var>word</var> is substituted. Otherwise, the value of <var>parameter</var> is substituted.
+
+<p><code>${<var>parameter</var>:=<var>word</var>}</code> <br>
+If <var>parameter</var> is unset or null, the expansion of <var>word</var> is assigned to <var>parameter</var>. The value of <var>parameter</var> is then substituted. Positional parameters and special parameters may not be assigned to in this way. 
+
+<p><code>${<var>parameter</var>:?<var>word</var>}</code><br> 
+If <var>parameter</var> is null or unset, the expansion of <var>word</var> 
+  (or a message to that effect if <var>word</var> is not present) is written to the standard error and the shell, if it is not interactive, exits. Otherwise, the value of <var>parameter</var> is substituted. </p>
+<p><code>${<var>parameter</var>:+<var>word</var>}</code><br>
+If <var>parameter</var> is null or unset, nothing is substituted, otherwise the expansion of <var>word</var> is substituted. </p>
+
+<p><code>${<var>parameter</var>:<var>offset</var>}</code> <br>
+<code>${<var>parameter</var>:<var>offset</var>:<var>length</var>}</code> </p>
+<p>Expands to up to <var>length</var> characters of <var>parameter</var> starting at the character specified by <var>offset</var>. If <var>length</var> is omitted, 
+expands to the substring of <var>parameter</var> starting at the character specified by <var>offset</var>. <var>length</var> and <var>offset</var> are 
+arithmetic expressions. This is referred to as Substring Expansion. <var>length</var> 
+must evaluate to a number greater than or equal to zero. If <var>offset</var> 
+evaluates to a number less than zero, the value is used as an offset from the end of the value of <var>parameter</var>. If <var>parameter</var> is <samp>`@'</samp>, 
+the result is <var>length</var> positional parameters beginning at <var>offset</var>. 
+If <var>parameter</var> is an array name indexed by <samp>`@'</samp> or <samp>`*'</samp>, 
+the result is the <var>length</var> members of the array beginning with <code>${<var>parameter</var>[<var>offset</var>]}</code>. 
+Substring indexing is zero-based unless the positional parameters are used, 
+in which case the indexing starts at 1. </p>
+
+<p><code>${!<var>prefix</var>*}</code> <br>
+Expands to the names of variables whose names begin with <var>prefix</var>, separated by the first character of the <code>IFS</code> special variable. 
+<code>${#<var>parameter</var>}</code> </p>
+
+<p>The length in characters of the expanded value of <var>parameter</var> is substituted. If <var>parameter</var> is <samp>`*'</samp> or <samp>`@'</samp>, 
+  the value substituted is the number of positional parameters. If <var>parameter</var> 
+  is an array name subscripted by <samp>`*'</samp> or <samp>`@'</samp>, the value substituted is the number of elements in the array. </p>
+
+<p><code>${<var>parameter</var>#<var>word</var>}</code> 
+  <br><code>${<var>parameter</var>##<var>word</var>}</code> 
+  <br>The <var>word</var> is expanded to produce a pattern just as in filename expansion (see section <a href="syntax-expand.html#filename">Filename Expansion</a>). If the pattern matches the beginning of the expanded value of <var>parameter</var>, then the result of the expansion is the expanded value of <var>parameter</var> with the shortest matching pattern (the <samp>`#'</samp> case) or the longest matching pattern (the <samp>`##'</samp> case) deleted. If <var>parameter</var> is <samp>`@'</samp> 
+  or <samp>`*'</samp>, the pattern removal operation is applied to each positional parameter in turn, and the expansion is the resultant list. If <var>parameter</var> 
+  is an array variable subscripted with <samp>`@'</samp> or <samp>`*'</samp>, the pattern removal operation is applied to each member of the array in turn, and the expansion is the resultant list. </p>
+<p><code>${<var>parameter</var>%<var>word</var>}</code> 
+  <br><code>${<var>parameter</var>%%<var>word</var>}</code> 
+  <br>The <var>word</var> is expanded to produce a pattern just as in filename expansion. If the pattern matches a trailing portion of the expanded value of <var>parameter</var>, then the result of the expansion is the value of <var>parameter</var> with the shortest matching pattern (the <samp>`%'</samp> 
+    case) or the longest matching pattern (the <samp>`%%'</samp> case) deleted. 
+    If <var>parameter</var> is <samp>`@'</samp> or <samp>`*'</samp>, the pattern removal operation is applied to each positional parameter in turn, and the expansion is the resultant list. If <var>parameter</var> is an array variable subscripted with <samp>`@'</samp> or <samp>`*'</samp>, the pattern removal operation is applied to each member of the array in turn, and the expansion is the resultant list. </p>
+<p><code>${<var>parameter</var>/<var>pattern</var>/<var>string</var>}</code> 
+<br><code>${<var>parameter</var>//<var>pattern</var>/<var>string</var>}</code> 
+<br>The <var>pattern</var> is expanded to produce a pattern just as in filename expansion. <var>Parameter</var> is expanded and the longest match of <var>pattern</var> 
+ against its value is replaced with <var>string</var>. In the first form, only the first match is replaced. The second form causes all matches of <var>pattern</var> 
+ to be replaced with <var>string</var>. If <var>pattern</var> begins with <samp>`#'</samp>, 
+ it must match at the beginning of the expanded value of <var>parameter</var>. 
+If <var>pattern</var> begins with <samp>`%'</samp>, it must match at the end of the expanded value of <var>parameter</var>. If <var>string</var> is null, matches of <var>pattern</var> are deleted and the <code>/</code> following <var>pattern</var> may be omitted. If <var>parameter</var> is <samp>`@'</samp> or <samp>`*'</samp>, the substitution operation is applied to each positional parameter in turn, and the expansion is the resultant list. If <var>parameter</var> is an array variable subscripted with <samp>`@'</samp> or <samp>`*'</samp>, the substitution operation is applied to each member of the array in turn, and the expansion is the resultant list. </p>
+<h2>Command Substitution</h2>
+<p>Command substitution allows the output of a command to replace the command itself. Command substitution occurs when a command is enclosed as follows: </p>
+<pre>$(<var>command</var>)</pre>
+<p>or 
+<pre>`<var>command</var>`</pre>
+<p>Bash performs the expansion by executing <var>command</var> and replacing the command substitution with the standard output of the command, with any trailing newlines deleted. Embedded newlines are not deleted, but they may be removed during word splitting. The command substitution <code>$(cat <var>file</var>)</code> can be replaced by the equivalent but faster <code>$(&lt; <var>file</var>)</code>. 
+</p>
+<p>When the old-style backquote form of substitution is used, backslash retains its literal meaning except when followed by <samp>`$'</samp>, <samp>``'</samp>, 
+  or <samp>`\'</samp>. The first backquote not preceded by a backslash terminates the command substitution. When using the <code>$(<var>command</var>)</code> 
+form, all characters between the parentheses make up the command; none are treated specially. </p>
+<p>Command substitutions may be nested. To nest when using the backquoted form, escape the inner backquotes with backslashes. </p>
+<p>If the substitution appears within double quotes, word splitting and filename expansion are not performed on the results.</p>
+<h2>Word Splitting</h2>
+<p>The shell scans the results of parameter expansion, command substitution, and arithmetic expansion that did not occur within double quotes for word splitting. 
+</p>
+<p>The shell treats each character of <code>$IFS</code> as a delimiter, and splits the results of the other expansions into words on these characters. If <code>IFS</code> 
+is unset, or its value is exactly <code>&lt;space&gt;&lt;tab&gt;&lt;newline&gt;</code>, 
+the default, then any sequence of <code>IFS</code> characters serves to delimit words. If <code>IFS</code> has a value other than the default, then sequences 
+of the whitespace characters <code>space</code> and <code>tab</code> are ignored at the beginning and end of the word, as long as the whitespace character is 
+in the value of <code>IFS</code> (an <code>IFS</code> whitespace character). Any character in <code>IFS</code> that is not <code>IFS</code> whitespace, along 
+with any adjacent <code>IFS</code> whitespace characters, delimits a field. A sequence of <code>IFS</code> whitespace characters is also treated as a delimiter. 
+If the value of <code>IFS</code> is null, no word splitting occurs. </p>
+<p>Explicit null arguments (<code>""</code> or <code>"</code>) are retained. Unquoted implicit null arguments, resulting from the expansion of parameters that have 
+no values, are removed. If a parameter with no value is expanded within double quotes, a null argument results and is retained. </p>
+<p>Note that if no expansion occurs, no splitting is performed. </p>
+<h2>Filename Expansion</h2>
+<p>After word splitting, unless the <samp>`-f'</samp> option has been set (see 
+<a href="set.html">the Set Builtin</a>), Bash scans each word for the characters <samp>`*'</samp>, <samp>`?'</samp>, and <samp>`['</samp>. If one 
+of these characters appears, then the word is regarded as a <var>pattern</var>, and replaced with an alphabetically sorted list of file names matching the pattern. 
+If no matching file names are found, and the shell option <code>nullglob</code> is disabled, the word is left unchanged. If the <code>nullglob</code> option is set, and no matches are found, the word is removed. If the shell option <code>nocaseglob</code> is enabled, the match is performed without regard to the case of alphabetic characters. </p>
+<p>When a pattern is used for filename generation, the character <samp>`.'</samp> 
+at the start of a filename or immediately following a slash must be matched explicitly, unless the shell option <code>dotglob</code> is set. When matching a file name, the slash character must always be matched explicitly. In other cases, the <samp>`.'</samp> character is not treated specially. </p>
+<p>See the description of <a href="shopt.html"><code>shopt</code></a>, for a description of the <code>nocaseglob</code>, <code>nullglob</code>, and <code>dotglob</code> options. </p>
+<p>The <code>GLOBIGNORE</code> shell variable may be used to restrict the set of filenames matching a pattern. If <code>GLOBIGNORE</code> is set, each matching filename that also matches one of the patterns in <code>GLOBIGNORE</code> is removed from the list of matches. The filenames<span class="code"> . </span>and<span class="code"> .. </span>are always ignored, even when <code>GLOBIGNORE</code> is set. However, setting <code>GLOBIGNORE</code> has the effect of enabling the <code>dotglob</code> 
+  shell option, so all other filenames beginning with a<span class="code"> . </span>will match. To get the old behavior of ignoring filenames beginning with a<span class="code"> . </span>, make<span class="code"> .* </span>one of the patterns in <code>GLOBIGNORE</code>. The <code>dotglob</code> option is disabled when <code>GLOBIGNORE</code> is unset. </p>
+<h2>Pattern Matching</h2>
+<p>Any character that appears in a pattern, other than the special pattern characters described below, matches itself. The NUL character may not occur in a pattern. The special pattern characters must be quoted if they are to be matched literally. </p>
+<p>The special pattern characters have the following meanings: </p>
+
+  <p><code>*</code> <br>
+  Matches any string, including the null string.  <br>
+ <code>?</code>  <br>
+ Matches any single character. <br>
+  <code>[...]</code> </p>
+  <p>Matches any one of the enclosed characters. A pair of characters separated by a minus sign denotes a <var>range</var>; any character lexically between those two characters, inclusive, is matched. If the first character following the <samp>`['</samp> is a <samp>`!'</samp> or a <samp>`^'</samp> then any character not enclosed is matched. A <samp>`-'</samp> may be matched by including it as the first or last character in the set. A <samp>`]'</samp> may be matched by including it as the first character in the set. Within <samp>`['</samp> 
+    and <samp>`]'</samp>, <var>character classes</var> can be specified using the syntax <code>[:</code><var>class</var><code>:]</code>, where <var>class</var> is one of the following classes defined in the POSIX 1003.2 standard: 
+  <pre>alnum   alpha   ascii   blank   cntrl   digit   graph   lower
+print   punct   space   upper   xdigit</pre>
+A character class matches any character belonging to that class. Within <samp>`['</samp> and <samp>`]'</samp>, an <var>equivalence class</var> can be specified using the syntax <code>[=</code><var>c</var><code>=]</code>, which matches all characters with the same collation weight (as defined by the current locale) as the character <var>c</var>. Within <samp>`['</samp> and <samp>`]'</samp>, the syntax <code>[.</code><var>symbol</var><code>.]</code> matches the collating symbol <var>symbol</var>. 
+<p>If the <code>extglob</code> shell option is enabled using the <code>shopt</code> builtin, several extended pattern matching operators are recognized. In the following description, a <var>pattern-list</var> is a list of one or more patterns separated by a <samp>`|'</samp>. Composite patterns may be formed using one or more of the following sub-patterns: </p>
+
+<p><code>?(<var>pattern-list</var>)</code> 
+<br>Matches zero or one occurrence of the given patterns. 
+<br><code>*(<var>pattern-list</var>)</code> 
+<br>Matches zero or more occurrences of the given patterns. 
+<br><code>+(<var>pattern-list</var>)</code> 
+<br>Matches one or more occurrences of the given patterns. 
+<br><code>@(<var>pattern-list</var>)</code> 
+<br>Matches exactly one of the given patterns. 
+<br><code>!(<var>pattern-list</var>)</code> 
+<br>Matches anything except one of the given patterns. 
+<h2>Quote Removal</h2>
+<p>After the preceding expansions, all unquoted occurrences of the characters <samp>`\'</samp>, <samp>`''</samp>, and <samp>`"'</samp> that did not result from one of the above expansions are removed.</p>
+<p><b>Related:</b>
+<a href="syntax.html">BASH Syntax</a></p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-expand.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body></html>

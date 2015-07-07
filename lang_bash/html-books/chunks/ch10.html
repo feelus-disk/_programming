@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 10. Циклы и ветвления</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt03.html" title="Часть Part 3. Углубленный материал"/><link rel="prev" href="ch09s07.html" title="The Double-Parentheses Construct"/><link rel="next" href="ch10s02.html" title="Вложенные циклы"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 10. Циклы и ветвления</th></tr><tr><td align="left"><a accesskey="p" href="ch09s07.html">Пред.</a> </td><th width="60%" align="center">Часть Part 3. Углубленный материал</th><td align="right"> <a accesskey="n" href="ch10s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 10. Циклы и ветвления"><div class="titlepage"><div><div><h2 class="title"><a id="loops"/>Глава 10. Циклы и ветвления</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch10.html#loops1">Циклы</a></span></dt><dt><span class="sect1"><a href="ch10s02.html">Вложенные циклы</a></span></dt><dt><span class="sect1"><a href="ch10s03.html">Управление ходом выполнения цикла</a></span></dt><dt><span class="sect1"><a href="ch10s04.html">Проверки и ветвления</a></span></dt></dl></div><div class="epigraph"><p>Что повторять?</p><p>--Шекспир, <em class="replaceable"><code>Отелло</code></em></p></div><p><a id="loopref00"/></p><p>Операции с блоками кода -- ключ к структурированным и упорядоченным сценариям оболочки. Циклы и ветвления являются теми инструментальными средствами, которые предоставляют возможность достигнуть этой цели.</p><div class="sect1" title="Циклы"><div class="titlepage"><div><div><h2 class="title"><a id="loops1"/>Циклы</h2></div></div></div><p><em class="firstterm">Цикл</em> это блок команд, который повторяется
+  (<em class="firstterm">итерируется</em>)
+
+    <sup>[<a id="idp10009584" href="#ftn.idp10009584" class="footnote">46</a>]</sup>
+
+  до тех пор, пока не будет выполнено <em class="firstterm">условие выхода из цикла</em>
+  .</p><div class="variablelist" title="Цикл for"><a id="forloopref"/><p class="title"><b><a id="forloopref1"/>Цикл for</b></p><dl><dt><span class="term"><span class="command"><strong>for <em class="parameter"><code>arg</code></em> in
+      <em class="replaceable"><code>[list]</code></em></strong></span></span></dt><dd><p>Это одна из основных разновидностей циклов. И она значительно отличается от аналога в языке <em class="firstterm">C</em>.</p><p><a id="doinref"/></p><div class="cmdsynopsis"><p><code class="command">for</code>   <em class="replaceable"><code>arg</code></em>   in  [<em class="replaceable"><code>list</code></em>]<br/>  do <br/>  <em class="replaceable"><code> команда(ы)</code></em>... <br/>  done </p></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>  
+    На каждом проходе цикла, переменная-аргумент цикла
+        <em class="replaceable"><code>arg</code></em> последовательно, одно за другим, принимает значения из списка
+        <em class="replaceable"><code>list</code></em>.</p></div><pre class="programlisting">for arg in "$var1" "$var2" "$var3" ... "$varN"  
+# На первом проходе, arg = $var1      
+# На втором проходе, arg = $var2      
+# На третьем проходе, arg = $var3     
+# ...
+# На N-ном проходе, arg = $varN
+
+# Элементы списка [list] заключены в кавычки для того, чтобы предотвратить возможное разбиение их на отдельные аргументы (слова).
+</pre><p>Элементы <em class="replaceable"><code>списка</code></em> могут включать <a class="link" href="ch03.html#asteriskref">шаблонные символы</a>.</p><p><a id="needsemicolon"/></p><p>Если ключевое слово <em class="firstterm">do</em> находится в одной строке со словом
+        <em class="firstterm">for</em>, то после списка аргументов (перед do) необходимо ставить точку с запятой.</p><div class="cmdsynopsis"><p><code class="command">for</code>   <em class="replaceable"><code>arg</code></em>   in  [<em class="replaceable"><code>list</code></em>]  ;   do <br/></p></div><div class="example"><a id="ex22"/><p class="title"><b>Пример 10.1. Простой цикл <em class="firstterm">for</em></b></p><div class="example-contents"><pre class="programlisting">
+
+#!/bin/bash
+# Список планет.
+
+for planet in Меркурий Венера Земля Марс Юпитер Сатурн Уран Нептун Плутон
+do
+  echo $planet  # Каждая планета на отдельной строке.
+done
+
+echo; echo
+
+for planet in "Меркурий Венера Земля Марс Юпитер Сатурн Уран Нептун Плутон"
+    # Все планеты в одной строке.
+    # Если 'список аргументов' заключить в кавычки, то он будет восприниматься как единственный аргумент.
+do
+  echo $planet
+done
+
+echo; echo "Упс! Плутон больше не планета!"
+#См. <a class="ulink" href="http://ru.wikipedia.org/wiki/%D0%9F%D0%BB%D1%83%D1%82%D0%BE%D0%BD_(%D0%BA%D0%B0%D1%80%D0%BB%D0%B8%D0%BA%D0%BE%D0%B2%D0%B0%D1%8F_%D0%BF%D0%BB%D0%B0%D0%BD%D0%B5%D1%82%D0%B0)">здесь</a> (прим.перев.)
+exit 0
+
+</pre></div></div><br class="example-break"/><p><a id="multparaml"/></p><p>Каждый из элементов списка <strong class="userinput"><code>[list]</code></strong>
+        может содержать несколько аргументов. Это бывает полезным при обработке групп параметров.  В этом случае,
+        для принудительного разбора каждого из аргументов в списке <strong class="userinput"><code>[list]</code></strong> и присваивания каждого компонента позиционным параметрам, необходимо использовать команду <a class="link" href="ch14.html#setref">set</a>
+        (см. <a class="xref" href="ch14.html#ex34" title="Пример 14.16. Using set with positional parameters">Пример 14.16, «Using <em class="firstterm">set</em> with positional
+          parameters»</a>)</p><div class="example"><a id="ex22a"/><p class="title"><b>Пример 10.2. Цикл <em class="firstterm">for</em> с двумя параметрами в каждом из элементов списка</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Еще раз о планетах.
+
+# Имя каждой планеты ассоциировано с расстоянием от планеты до Солнца (млн. миль).
+
+for planet in "Меркурий 36" "Венера 67" "Земля 93"  "Марс 142" "Юпитер 483"
+do
+  set -- $planet  #  # Разбиение переменной "planet" на множество аргументов (позиционных параметров).
+  #  Конструкция "--" предохраняет от неожиданностей, если $planet "пуста" или начинается с символа "-".
+
+  #  Если каждый из позиционных параметров потребуется сохранить (поскольку на следующем проходе они будут "затёрты" новыми значениями),
+  # то можно поместить их в массив,
+  #         original_params=("$@")
+
+  echo "$1		 в $2,000,000 милях от Солнца"
+  #-------две табуляции---к параметру $2 добавлены нули
+
+done
+
+# (Спасибо S.C. за разъяснения.)
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="paramli"/></p><p>Переменная может замещать список <strong class="userinput"><code>[list]</code></strong> в цикле
+        <em class="firstterm">for</em>.</p><div class="example"><a id="fileinfo"/><p class="title"><b>Пример 10.3. <span class="emphasis"><em>Fileinfo:</em></span> обработка списка файлов, содержащегося в переменной</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# fileinfo.sh
+
+FILES="/usr/sbin/accept
+/usr/sbin/pwck
+/usr/sbin/chroot
+/usr/bin/fakefile
+/sbin/badblocks
+/sbin/ypbind"     # Список интересующих нас файлов.
+                  # В список добавлен фиктивный файл /usr/bin/fakefile.
+
+echo
+
+for file in $FILES
+do
+
+  if [ ! -e "$file" ]       # Проверка существования файла.
+  then
+    echo "$file не существует."; echo
+    continue                # Переход к следующей итерации.
+   fi
+
+  ls -l $file | awk '{ print $8 "         размер файла: " $5 }'  # Печать 2 полей.
+  whatis `basename $file`   # Информация о файле.
+  # Заметим, что нужно создать индекс базы данных для whatis для того, чтобы предыдущая команда работала.
+  # Чтобы сделать это, из-под пользователя root запустите /usr/bin/makewhatis.
+  # (Для Debian/Ubuntu используйте команду /usr/bin/mandb - примеч. перев.)
+
+  echo
+done  
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="liglob"/></p><p>Если список <strong class="userinput"><code>[list]</code></strong> цикла
+        <em class="firstterm">for</em> содержит шаблонные символы
+        (<span class="token">*</span> и <span class="token">?</span>), используемые в раскрытии имён файлов (pathname expansion), то имеет место процесс, называемый <a class="link" href="ch17s02.html" title="Глоббинг">глоббинг (globbing)</a>
+       </p><div class="example"><a id="listglob"/><p class="title"><b>Пример 10.4. Обработка списка файлов в цикле <em class="firstterm">for</em></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# list-glob.sh: Создание списка файлов в цикле for с использованием
+# "глоббинга".
+
+
+echo
+
+for file in *
+#           ^  Bash выполняет раскрытие имён файлов
+#+             в выражениях, которые являются результатом глоббинга.
+do
+  ls -l "$file"  # Отсортированный список всех файлов в $PWD (текущем каталоге).
+  #  # Напоминаю, что символу "*" соответствует любое имя файла,
+  # однако, в для глоббинга
+  # имеется исключение - имена файлов, начинающиеся с точки.
+  # (Такие файлы по умолчанию не отображаются в списке совпадающих с шаблоном имен файлов, см. man bash. Спасибо Dr.Batty за это замечание - прим. перев.)
+
+
+  #  Если шаблону не соответствует ни один файл, то за имя файла принимается сам шаблон.
+  #  Чтобы избежать этого, используйте ключ nullglob
+  #   (shopt -s nullglob).
+  #  Спасибо S.C.
+done
+
+echo; echo
+
+for file in [jx]*
+do
+  rm -f $file    # Удаление файлов, начинающихся с "j" или "x" в $PWD.
+  echo "Удален файл \"$file\"".
+done
+
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="omitlist"/></p><p>Если список <strong class="userinput"><code>[list]</code></strong> в цикле
+        <em class="firstterm">for</em> не задан, то в качестве оного используется переменная <span class="token">$@</span> - 
+        список всех аргументов командной строки (<a class="link" href="ch09.html#posparamref">позиционных параметров</a>). Очень остроумно эта особенность проиллюстрирована в <a class="xref" href="apa.html#primes" title="Пример A.15. Generating prime numbers using the modulo operator">Пример A.15, «Generating prime numbers using the modulo operator»</a>. См. также <a class="xref" href="ch14.html#revposparams" title="Пример 14.17. Reversing the positional parameters">Пример 14.17, «Reversing the positional parameters»</a>.</p><div class="example"><a id="ex23"/><p class="title"><b>Пример 10.5. Цикл <em class="firstterm">for</em> без списка аргументов</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+#  Попробуйте вызвать этот сценарий с аргументами и без них и посмотреть на результаты.
+
+for a
+do
+ echo -n "$a "
+done
+
+#   Список аргументов не задан, поэтому цикл работает с переменной '$@'
+#+ (список аргументов командной строки, включая пробельные символы).
+
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="loopcs"/></p><p>Также имеется возможность использования <a class="link" href="ch11.html#commandsubref">подстановки команд</a>, чтобы сгенерировать список
+        <strong class="userinput"><code>[list]</code></strong> для цикла
+        <em class="firstterm">for</em>. См. также <a class="xref" href="ch15s09.html#ex53" title="Пример 15.54. Using seq to generate loop arguments">Пример 15.54, «Using <em class="firstterm">seq</em> to generate loop
+        arguments»</a>,
+        <a class="xref" href="ch10.html#symlinks" title="Пример 10.10. Список символических ссылок в каталоге.">Пример 10.10, «Список <em class="firstterm">символических ссылок</em> в каталоге.»</a> и <a class="xref" href="ch15s08.html#base" title="Пример 15.48. Base Conversion">Пример 15.48, «Base Conversion»</a>.</p><div class="example"><a id="forloopcmd"/><p class="title"><b>Пример 10.6. Создание списка аргументов в цикле <em class="firstterm">for</em> с помощью подстановки команд</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+#  for-loopcmd.sh: Цикл for со списком,
+#+ создаваемым подстановкой команд.
+
+NUMBERS="9 7 3 8 37.53"
+
+for number in `echo $NUMBERS`  # for number in 9 7 3 8 37.53
+do
+  echo -n "$number "
+done
+
+echo 
+exit 0
+</pre></div></div><br class="example-break"/><p>Более сложный пример использования подстановки команд при создании списка аргументов цикла. </p><div class="example"><a id="bingrep"/><p class="title"><b>Пример 10.7. <em class="firstterm">grep</em> для бинарных файлов</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# bin-grep.sh: Вывод строк, содержащих указанную подстроку в бинарном файле.
+
+# Замена "grep" для бинарных файлов.
+# Аналогична команде "grep -a"
+
+E_BADARGS=65
+E_NOFILE=66
+
+if [ $# -ne 2 ]
+then
+  echo "Использование: `basename $0` искомая_строка имя_файла"
+  exit $E_BADARGS
+fi
+
+if [ ! -f "$2" ]
+then
+  echo "Файл \"$2\" не существует."
+  exit $E_NOFILE
+fi  
+
+
+IFS=$'\012'       # С подачи Антона Филиппова (23 строка)
+                  # было:  IFS="\n"
+for word in $( strings "$2" | grep "$1" )
+# Команда "strings" возвращает список строк в двоичных файлах.
+# Который затем передается по конвейеру команде "grep" для выполнения поиска.
+do
+  echo $word
+done # (30 строка)
+
+# Как указывает S.C., строки 23 - 30 могут быть заменены более простым
+#    strings "$2" | grep "$1" | tr -s "$IFS" '[\n*]'
+
+
+#  Попробуйте проверить работу этого скрипта с помощью чего-то наподобие  "./bin-grep.sh mem /bin/ls"
+
+exit 0
+</pre></div></div><br class="example-break"/><p>Снова пример на ту же тему.</p><div class="example"><a id="userlist"/><p class="title"><b>Пример 10.8. Список всех пользователей системы</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# userlist.sh
+
+PASSWORD_FILE=/etc/passwd
+n=1           # Число пользователей
+
+for name in $( awk 'BEGIN{FS=":"}{print $1}' &lt; "$PASSWORD_FILE" )
+# Разделитель полей = :    ^^^^^^
+# Вывод первого поля              ^^^^^^^^
+# Данные берутся из файла паролей               ^^^^^^^^^^^^^^^^^
+do
+  echo "Пользователь #$n = $name"
+  let "n += 1"
+done  
+
+
+# Пользователь #1 = root
+# Пользователь #2 = bin
+# Пользователь #3 = daemon
+# ...
+# Пользователь #30 = bozo
+
+exit 0
+
+#  Вопрос:
+#  --------
+#  Что вы думаете о том, что обыкновенный пользователь (или запускаемый скрипт с правами этого пользователя)
+#+ может читать из файла /etc/passwd?
+#  Не является ли это дырой в безопасности? Почему да либо почему нет?
+</pre></div></div><br class="example-break"/><p>Еще пример с подстановкой команд.</p><div class="example"><a id="findstring"/><p class="title"><b>Пример 10.9. Проверка авторства всех бинарных файлов в каталоге</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# findstring.sh:
+# Поиск заданной строки в двоичном файле в определенном каталоге.
+
+directory=/usr/bin/
+fstring="Free Software Foundation"  # Поиск файлов от FSF.
+
+for file in $( find $directory -type f -name '*' | sort )
+do
+  strings -f $file | grep "$fstring" | sed -e "s%$directory%%"
+  #  В выражении, используемом sed,
+  #+ необходимо заменить обычный разделитель "/",
+  #+ так как "/" встречается среди отфильтровываемых символов.
+  # Использование такого символа порождает сообщение об ошибке (попробуйте).
+done  
+
+exit $?
+
+#  Упражнение (легкое):
+#  ---------------
+#  Измените сценарий таким образом, чтобы он брал параметры
+#+ для $directory и $fstring из командной строки.
+</pre></div></div><br class="example-break"/><p>И заключительный пример использования подстановки команд при создании списка <strong class="userinput"><code>[list]</code></strong>, но в этот раз
+         <span class="quote">«<span class="quote">команда</span>»</span> - это <a class="link" href="ch23.html#functionref">функция</a>.</p><pre class="programlisting">generate_list ()
+{
+  echo "one two three"
+}
+
+for word in $(generate_list)  # Переменная "word" получает возвращаемое значение функции.
+do
+  echo "$word"
+done
+
+# one
+# two
+# three</pre><p><a id="loopredir"/></p><p>Результат работы цикла <em class="firstterm">for</em> может передаваться другим командам по конвейеру.</p><div class="example"><a id="symlinks"/><p class="title"><b>Пример 10.10. Список <em class="firstterm">символических ссылок</em> в каталоге.</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# symlinks.sh: Список символических ссылок в каталоге.
+
+
+directory=${1-`pwd`}
+#  По умолчанию в текущем каталоге,
+#+ если не определен иной.
+#  Эквивалентен блоку кода, данному ниже.
+# ----------------------------------------------------------
+# ARGS=1                 # Ожидается один аргумент командной строки.
+#
+# if [ $# -ne "$ARGS" ]  # Если каталог поиска не задан...
+# then
+#   directory=`pwd`      # текущий каталог
+# else
+#   directory=$1
+# fi
+# ----------------------------------------------------------
+
+echo "symbolic links in directory \"$directory\""
+
+for file in "$( find $directory -type l )"   # -type l = символические ссылки
+do
+  echo "$file"
+done | sort                                  # Иначе получится неотсортированный список.
+#  Строго говоря, в действительности цикл не нужен здесь,
+#+ так как каждая выводимая командой "find" строка раскрывается в одиночное слово.
+#  Тем не менее, этот способ легко понять и проиллюстрировать.
+
+#  Как отмечает Доминик 'Aeneas' Шнитцер,
+#+  в случае отсутствия кавычек для  $( find $directory -type l )
+#+ сценарий перестанет выполняться, как только встретится файл, содержащий пробел в имени.
+# Сценарий "подавится" именами файлов, содержащими пробел.
+
+exit 0
+
+
+# --------------------------------------------------------
+# Жан Хелу предлагает следующую альтернативу:
+
+echo "symbolic links in directory \"$directory\""
+# Сохранить текущее значение IFS в другой переменной. Никогда не помешает быть чуточку осмотрительным.
+OLDIFS=$IFS
+IFS=:
+
+for file in $(find $directory -type l -printf "%p$IFS")
+do     #                              ^^^^^^^^^^^^^^^^
+       echo "$file"
+       done|sort
+
+# И, наконец, Джеймс "Mike" Конли предложил изменить код Хелу таким образом:
+
+OLDIFS=$IFS
+IFS='' # Пустое значение IFS означает, что нет разрыва между словами
+for file in $( find $directory -type l )
+do
+  echo $file
+  done | sort
+
+#  Это работает в "патологическом" случае - если имя каталога содержит
+#+ двоеточие.
+#  "Это также исправляет патологический случай имени каталога, содержащего
+#+  двоеточие (или пробел в примере выше)."
+</pre></div></div><br class="example-break"/><p>Вывод из <code class="filename">stdout</code> цикла может быть <a class="link" href="ch19.html#ioredirref">перенаправлен </a>  в файл, ниже приводится немного модифицированный вариант предыдущего примера, демонстрирующий эту возможность.</p><div class="example"><a id="symlinks2"/><p class="title"><b>Пример 10.11. Список символических ссылок в каталоге, сохраняемый в файле</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# symlinks.sh: Список символических ссылок в каталоге.
+
+OUTFILE=symlinks.list                         # сохраняемый файл со списком
+
+directory=${1-`pwd`}
+#  По умолчанию в текущем каталоге,
+#+ если не определен иной.
+
+echo "символические ссылки в каталоге \"$directory\"" &gt; "$OUTFILE"
+echo "---------------------------" &gt;&gt; "$OUTFILE"
+
+for file in "$( find $directory -type l )"    # -type l = символические ссылки
+do
+  echo "$file"
+done | sort &gt;&gt; "$OUTFILE"                     # стандартный вывод цикла,
+#           ^^^^^^^^^^^^^                       перенаправляемый в файл.
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="loopcstyle"/></p><p>Оператор цикла <em class="firstterm">for
+        </em> имеет и альтернативный синтаксис записи, который очень похож на синтаксис оператора for в языке C. Для этого используются <a class="link" href="ch09s07.html#dblparensref">двойные круглые скобки</a>.</p><div class="example"><a id="forloopc"/><p class="title"><b>Пример 10.12. C-подобный синтаксис оператора цикла <em class="firstterm">for</em> </b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Несколько способов посчитать до 10.
+
+echo
+
+# Стандартный синтаксис.
+for a in 1 2 3 4 5 6 7 8 9 10
+do
+  echo -n "$a "
+done  
+
+echo; echo
+
+# +==========================================+
+
+# Используя команду "seq" ...
+for a in `seq 10`
+do
+  echo -n "$a "
+done  
+
+echo; echo
+
+# +==========================================+
+
+# Используя раскрытие скобок (brace expansion) ...
+# Требуется bash версии 3 и выше.
+for a in {1..10}
+do
+  echo -n "$a "
+done  
+
+echo; echo
+
+# +==========================================+
+
+# Теперь давайте сделаем то же самое, используя C-подобный синтаксис.
+
+LIMIT=10
+
+for ((a=1; a &lt;= LIMIT ; a++))  # Двойные круглые скобки и "LIMIT" без "$".
+do
+  echo -n "$a "
+done                           # Конструкция заимствована из 'ksh93'.
+
+echo; echo
+
+# +=========================================================================+
+
+# Давайте попробуем оператор C "запятая", чтобы совместно увеличивать значения двух переменных.
+
+for ((a=1, b=1; a &lt;= LIMIT ; a++, b++))
+do  # Запятая разделяет две операции, которые выполняются совместно.
+  echo -n "$a-$b "
+done
+
+echo; echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p> Смотрите также <a class="xref" href="ch26.html#qfunction" title="Пример 26.16. Complex array application: Exploring a weird mathematical series">Пример 26.16, «Complex array application:
+             <span class="emphasis"><em>Exploring a weird mathematical series</em></span>»</a>, <a class="xref" href="ch26.html#twodim" title="Пример 26.17. Simulating a two-dimensional array, then tilting it">Пример 26.17, «Simulating a two-dimensional array, then tilting it»</a> и <a class="xref" href="apa.html#collatz" title="Пример A.6. Collatz series">Пример A.6, «Collatz series»</a>.</p><p>---</p><p>А теперь сценарий с использованием цикла <em class="firstterm">for</em> из
+        <span class="quote">«<span class="quote">реальной жизни</span>»</span>.</p><div class="example"><a id="ex24"/><p class="title"><b>Пример 10.13. Использование команды <em class="firstterm">efax</em> в пакетном режиме</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Отправка факса (пакет 'efax' должен быть установлен).
+
+EXPECTED_ARGS=2
+E_BADARGS=85
+MODEM_PORT="/dev/ttyS2"   # Порт может быть другим на вашей машине.
+#                ^^^^^      Порт по умолчанию PCMCIA-модема.
+
+if [ $# -ne $EXPECTED_ARGS ]
+# Проверка необходимого количества аргументов командной строки.
+then
+   echo "Использование: `basename $0` телефон# текстовый файл"
+   exit $E_BADARGS
+fi
+
+
+if [ ! -f "$2" ]
+then
+  echo "Файл $2 не является текстовым файлом."
+  #     Не обычный (regular) файл, либо файл не существует.
+  exit $E_BADARGS
+fi
+  
+
+fax make $2              #  Создать fax-файлы из текстовых файлов
+
+for file in $(ls $2.0*)  #  Соединять конвертированные файлы.
+                         #  используется шаблон ("глоббинг" имен файлов)
+			 #+ в списке.
+do
+  fil="$fil $file"
+done  
+
+efax -d "$MODEM_PORT"  -t "T$1" $fil   # Отправить.
+# Попробуйте добавить опцию  "-o1", если команда выше завершилась неудачно.
+
+
+#  Как указывает S.C., можно обойтись без цикла for-loop с помощью
+#     efax -d /dev/ttyS2 -o1 -t "T$1" $2.0*
+#+  но это не так поучительно [;-)].
+
+exit $?   # efax также отправляет диагностические сообщения на стандартный вывод (stdout).
+</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="whileloopref"/><span class="command"><strong>while</strong></span></span></dt><dd><p>Оператор while проверяет условие перед началом каждой итерации и если условие истинно (если <a class="link" href="ch06.html#exitstatusref">код возврата</a> равен <span class="returnvalue">0</span>), то управление передается в тело цикла.  В отличие от цикла <a class="link" href="ch10.html#forloopref1">for</a>, цикл
+        <em class="firstterm">while</em> используется в тех случаях, когда количество итераций заранее не известно.</p><div class="cmdsynopsis"><p><code class="command">while</code>  [<em class="replaceable"><code> условие </code></em>]<br/>  do <br/>  <em class="replaceable"><code> команда(-ы)</code></em>... <br/>  done </p></div><p>Конструкция с квадратными скобками в цикле <em class="firstterm">while
+        </em> ничего более, чем наши старая знакомая -
+        <a class="link" href="ch07.html#testconstructs1">команда</a>,
+        используемая для проверки условия <em class="firstterm">if/then</em>. На самом деле
+        цикл <em class="firstterm">while</em> вполне может использовать более универсальную <a class="link" href="ch07.html#dblbrackets">конструкцию с двойными квадратными скобками</a> (while [[ условие ]]).</p><p><a id="whileneedsemi"/></p><p><a class="link" href="ch10.html#needsemicolon">Как и в случае с циклом
+        <em class="firstterm">for</em></a>, при размещении ключевого слова
+        <em class="firstterm">do</em> в одной строке с объявлением цикла, необходимо вставлять символ ";" перед do:</p><div class="cmdsynopsis"><p><code class="command">while</code>  [<em class="replaceable"><code> условие </code></em>]  ;   do </p></div><p>Обратите внимание:  <em class="firstterm">квадратные скобки</em>
+        <a class="link" href="ch10.html#whilenobrackets"> <span class="emphasis"><em>не</em></span>
+        являются обязательными</a> для цикла <em class="firstterm">while</em>.
+        Для примера, см. конструкцию с использованием команды <a class="link" href="ch14.html#getoptsx">getopts
+        </a>.</p><div class="example"><a id="ex25"/><p class="title"><b>Пример 10.14. Простой цикл <em class="firstterm">while</em></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+var0=0
+LIMIT=10
+
+while [ "$var0" -lt "$LIMIT" ]
+#      ^                    ^
+# Пробелы, так как используются квадратные скобки - аналог команды test . . .
+do
+  echo -n "$var0 "        # -n подавляет перевод строки.
+  #             ^           Пробел, чтобы разделить выводимые числа.
+
+  var0=`expr $var0 + 1`   # var0=$(($var0+1))  также допустимо.
+                          # var0=$((var0 + 1)) также допустимо.
+                          # let "var0 += 1"    также допустимо.
+done                      # Различные допустимые варианты.
+
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><div class="example"><a id="ex26"/><p class="title"><b>Пример 10.15. Другой пример цикла <em class="firstterm">while</em> </b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+echo
+                               # Эквивалентна команде:
+while [ "$var1" != "end" ]     # while test "$var1" != "end"
+do
+  echo "Введите значение переменной #1 (end - для выхода) "
+  read var1                    # Конструкция 'read $var1' недопустима (почему?).
+  echo "Значение переменной #1 = $var1"   # кавычки обязательны, потому что имеется символ "#". . . .
+  # Если введено слово 'end', то оно тоже выводится на экран,
+  # потому, что проверка переменной выполняется в начале итерации (перед вводом).
+
+  echo
+done  
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="whmultcond"/></p><p>Цикл <em class="firstterm">while</em> может иметь несколько условий. Но только последнее из них определяет возможность продолжения выполнения цикла. Это требует несколько другого синтаксиса.</p><div class="example"><a id="ex26a"/><p class="title"><b>Пример 10.16. Цикл <em class="firstterm">while</em> loop с несколькими условиями</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+var1=unset
+previous=$var1
+
+while echo "предыдущее значение = $previous"
+      echo
+      previous=$var1
+      [ "$var1" != end ] # Следить за тем, какое значение $var1 было ранее.
+      #  В операторе "while" присутствуют 4 условия, но только последнее определяет возможность продолжения цикла.
+      # Код возврата *последнего* выражения - единственное значение, которое принимается во внимание.
+do
+echo "Введите значение переменной #1 (end - выход) "
+  read var1
+  echo "текущее значение #1 = $var1"
+done  
+
+# Попробуйте разобраться, как это все работает.
+# Сценарий немножко каверзный.
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="wloopcstyle"/></p><p>Как и в случае с <em class="firstterm">for</em>, для цикла
+        <em class="firstterm">while</em> может использоваться C-подобный синтаксис
+        с использованием двойных круглых скобок (см. также <a class="xref" href="ch09s07.html#cvars" title="Пример 9.33. C-style manipulation of variables">Пример 9.33, «C-style manipulation of variables»</a>).</p><div class="example"><a id="whloopc"/><p class="title"><b>Пример 10.17. C-подобный синтаксис оформления цикла <em class="firstterm">while</em></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# wh-loopc.sh: Считаем до 10, используя цикл "while".
+
+LIMIT=10
+a=1
+
+while [ "$a" -le $LIMIT ]
+do
+  echo -n "$a "
+  let "a+=1"
+done           # До сих пор ничего особенного.
+
+echo; echo
+
+# +=================================================================+
+
+# А теперь напишем, используя C-подобный синтаксис.
+
+((a = 1))      # a=1
+# Двойные скобки разрешают наличие пробелов при присваивании значения переменной, как и в языке C.
+while (( a &lt;= LIMIT ))   # В двойных скобках символ "$" перед переменными опускается.
+do
+  echo -n "$a "
+  ((a += 1))   # let "a+=1"
+  # Да, действительно это так.
+  # Двойные скобки позволяют давать приращение переменной, используя C-подобный синтаксис.
+done
+
+echo
+
+# Программисты на C  могут чувствовать себя в Bash как дома.
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="whilefunc"/></p><p>
+        Вместо конструкции с квадратными скобками в условии, цикл <em class="firstterm">while</em> может вызывать <a class="link" href="ch23.html#functionref">функцию</a>.
+	</p><pre class="programlisting">t=0
+
+condition ()
+{
+  ((t++))
+
+  if [ $t -lt 5 ]
+  then
+    return 0  # true
+  else
+    return 1  # false
+  fi
+}
+
+while condition
+#     ^^^^^^^^^
+#     Вызов функции, после чего произойдет четыре итерации цикла.
+do
+  echo "Цикл все еще выполняется: t = $t"
+done
+
+# Цикл все еще выполняется: t = 1
+# Цикл все еще выполняется: t = 2
+# Цикл все еще выполняется: t = 3
+# Цикл все еще выполняется: t = 4</pre><p>
+      </p><p><a id="whilenobrackets"/></p><p>Как и для конструкции <a class="link" href="ch07.html#ifgrepref">if-test</a>
+       , в подобных случаях для цикла <em class="firstterm">while</em> скобки в условии можно опустить.
+      </p><pre class="programlisting">while условие
+do
+   команда(ы) ...
+done</pre><p><a id="whilereadref2"/></p><p>Соединяя мощь команды <a class="link" href="ch14.html#readref">read</a> с циклом
+        <em class="firstterm">while</em>, мы получаем удобную конструкцию <a class="link" href="ch14.html#whilereadref">while-read</a>, полезную
+        для чтения и синтаксического разбора файлов.</p><pre class="programlisting">cat $filename |   # Построчный вывод из файла.
+while read line   # Продолжать до тех пор, пока есть следующая строка для чтения . . .
+do
+  ...
+done
+
+# =========== Фрагмент из скрипта-примера "sd.sh" ========== #
+
+  while read value   # Читать одну строку с данными за один раз.
+  do
+    rt=$(echo "шкала=$SC; $rt + $value" | bc)
+    (( ct++ ))
+  done
+
+  am=$(echo "шкала=$SC; $rt / $ct" | bc)
+
+  echo $am; return $ct   # Эта функция "возвращает" ДВА значения!
+  #  Внимание: Эта маленькая уловка не будет работать, если $ct &gt; 255!
+  #  Чтобы обрабатывать большее число результатов обработки данных,
+  #+ просто закомментируйте строку "return $ct" выше.
+} &lt;"$datafile"   # Получение данных из файла.</pre><p><a id="whredir"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Цикл <em class="firstterm">while</em> может <a class="link" href="ch19s02.html#redirref">перенаправить данные из файла</a> на свой
+        <code class="filename">стандартный ввод (stdin)</code>  с помощью символа
+        <span class="token">&amp;lt;</span> в конце цикла.</p><p>Цикл <em class="firstterm">while</em> может получать данные через <a class="link" href="ch14.html#readpiperef">конвейер (pipe)</a> на свой
+        <code class="filename">стандартный ввод (stdin)</code>.</p></div></dd><dt><span class="term"><a id="untilloopref"/><span class="command"><strong>until</strong></span></span></dt><dd><p>Эта конструкция проверяет условие в начале цикла и выполняет итерации, 
+        пока условие
+        <span class="emphasis"><em>ложно</em></span> (в отличие от цикла <em class="firstterm">while</em>).</p><div class="cmdsynopsis"><p><code class="command">until</code>  [<em class="replaceable"><code> условие </code></em>]<br/>  do <br/>  <em class="replaceable"><code> команда(ы)</code></em>... <br/>  done </p></div><p>Обратите внимание: оператор цикла <em class="firstterm">until</em> проверяет условие завершения цикла <span class="emphasis"><em>перед</em></span>
+        очередной итерацией, а не после, как это принято в некоторых языках программирования.</p><p>Как и в случае с циклом <em class="firstterm">for</em>,
+        при размещении ключевого слова <em class="firstterm">do</em> в одной строке с объявлением цикла, необходимо вставлять символ ";" перед do.</p><div class="cmdsynopsis"><p><code class="command">until</code>  [<em class="replaceable"><code> условие</code></em>]  ;   do </p></div><div class="example"><a id="ex27"/><p class="title"><b>Пример 10.18. <em class="firstterm">until</em> loop</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+END_CONDITION=end
+
+until [ "$var1" = "$END_CONDITION" ]
+# Условие проверяется здесь, перед началом итерации.
+do
+  echo "Введите значение переменной #1 "
+  echo "($END_CONDITION - выход)"
+  read var1
+  echo "значение переменной #1 = $var1"
+  echo
+done  
+
+# ------------------------------------------- #
+
+#  Как и циклы "for" и "while",
+#+ цикл "until" позволяет C-подобные конструкции в условии.
+
+LIMIT=10
+var=0
+
+until (( var &gt; LIMIT ))
+do  # ^^ ^     ^     ^^   Никаких квадратных скобок, никакого символа "$" перед переменными.
+  echo -n "$var "
+  (( var++ ))
+done    # 0 1 2 3 4 5 6 7 8 9 10 
+
+
+exit 0
+</pre></div></div><br class="example-break"/></dd></dl></div><p><a id="chooseloop"/></p><p>Как понять, что выбрать: цикл <em class="firstterm">for</em>,
+    <em class="firstterm">while</em> или
+    <em class="firstterm">until</em>? В языке <span class="command"><strong>C</strong></span>,
+    вы обычно используете цикл <em class="firstterm">for</em> тогда,
+    когда количество итераций цикла известно заранее. В
+    <em class="firstterm">Bash</em>, однако, ситуация не четко определена . В Bash цикл <em class="firstterm">for</em> - более
+    свободно структурирован и более гибок, чем его эквиваленты в других языках. Поэтому не стесняйтесь использовать любой тип
+    цикла, выполняющий свою задачу самым простым способом.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp10009584" href="#idp10009584" class="para">46</a>] </sup><a id="iterationref"/><em class="firstterm">Итерация</em>:
+  Повторяющееся выполнение команды или группы команд; обычно продолжается до тех пор, пока (<em class="firstterm">while</em>) данное условие выполняется  или, напротив, пока оно не выполняется (<em class="firstterm">until</em>). 
+    </p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch09s07.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt03.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch10s02.html">След.</a></td></tr><tr><td align="left" valign="top">The Double-Parentheses Construct </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Вложенные циклы</td></tr></table></div></body></html>

@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 2. Для начала о Sha-Bang</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt01.html" title="Часть Часть 1. Введение"/><link rel="prev" href="ch01.html" title="Глава 1. Программирование на Shell!"/><link rel="next" href="ch02s02.html" title="Упражнения"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 2. Для начала о Sha-Bang</th></tr><tr><td align="left"><a accesskey="p" href="ch01.html">Пред.</a> </td><th width="60%" align="center">Часть Часть 1. Введение</th><td align="right"> <a accesskey="n" href="ch02s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 2. Для начала о Sha-Bang"><div class="titlepage"><div><div><h2 class="title"><a id="sha-bang"/>Глава 2. Для начала о Sha-Bang</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch02.html#invoking">Запуск сценария</a></span></dt><dt><span class="sect1"><a href="ch02s02.html">Упражнения</a></span></dt></dl></div><div class="epigraph"><p>Программирование на Shell — игрушки пятидесятых . . .</p><p>--Larry Wall</p></div><p>
+    В простейщем случае, скрипт — это всего лишь список системных комманд,
+    записанных в файл. По меньшей мере такой файл хранит некоторую последовательность комманд,
+    которую довольно часто приходится запускать, заново набирая комманды с клавиатуры.</p><div class="example"><a id="ex1"/><p class="title"><b>Пример 2.1. <em class="firstterm">Очистка</em>: Скрипт для очистки файлов в 
+      /var/log </b></p><div class="example-contents"><pre class="programlisting">
+# Cleanup (очистка)
+# Должен запускаться от root.
+
+cd /var/log
+cat /dev/null &gt; messages
+cat /dev/null &gt; wtmp
+echo "Журналы очищены."
+</pre></div></div><br class="example-break"/><p>
+    Ничего необычного, только набор комманд, которые так же могут быть запущены 
+    по очереди в окне терминала. Преимущества помещения комманд в скрипт в том,
+    что их не надо писать снова и снова. Скрипт становится <em class="firstterm">программой</em>
+    — <em class="firstterm">инструментом</em>, который впоследствии легко модифицируется
+    для применения в других случаях.</p><div class="example"><a id="ex1a"/><p class="title"><b>Пример 2.2. <em class="firstterm">Очистка</em>: Улучшеный скрипт
+      </b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Обычный заголовок для bash-скрипта.
+
+# Cleanup (очистка), версия 2
+
+# Должен запускаться от root.
+# Сюда следовало бы вставить код, выдающий сообщение об ошибке и обрывающий выполнение, если скрипт запущен не от root
+
+LOG_DIR=/var/log
+# Переменные лучше, чем жестко закодюированные значения
+cd $LOG_DIR
+
+cat /dev/null &gt; messages
+cat /dev/null &gt; wtmp
+
+
+echo "Logs cleaned up."
+
+exit # Такой выход из скрипта считается более правильным
+</pre></div></div><br class="example-break"/><p>Теперь это начинает быть похожим на настояший скрипт.
+    Но мы можем сделать немного больше ...</p><div class="example"><a id="ex2"/><p class="title"><b>Пример 2.3. <em class="firstterm">Очистка</em>: Расширенная, и более
+      универсальная версия скрипта.</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Очистка, версия 3
+
+#  Предупреждение
+#  -------
+#  Этот скрипт использует некоторую функцональность, которая будет объяснена позже.
+#  Когда вы прочитаете первую половину книги
+#  эти возможности перестанут быть загадкой.
+
+
+
+LOG_DIR=/var/log
+ROOT_UID=0     # Только ползовтели с $UID, равным нулю имеют привилегии администратора (root).
+LINES=50       # Число строк, сохраняемых в файле по умолчанию.
+E_XCD=86       # Невозможно сметить текущий каталог?
+E_NOTROOT=87   # Ошибка принудительного выхода, если пользаватель не root.
+
+
+# Должно запускаться от root.
+if [ "$UID" -ne "$ROOT_UID" ]
+then
+  echo "Только администратор может запускать этот скрипт."
+  exit $E_NOTROOT
+fi  
+
+if [ -n "$1" ]
+# Проверяем, существет ли аргумент коммадной строки (и не пуст ли он).
+then
+  lines=$1
+else  
+  lines=$LINES # По умолчанию, если не передан аргумент.
+fi  
+
+
+#  Stephane Chazelas подсказал следующий,
+#  более правильный способ проверки аргумента коммандной строки,
+#  но это несколько опережает уровень знаний TODO: который дается в этой главе.
+#
+#    E_WRONGARGS=85  # Не числовой аргумент (неверный формат).
+#
+#    case "$1" in
+#    ""      ) lines=50;;
+#    *[!0-9]*) echo "Usage: `basename $0` file-to-cleanup"; exit $E_WRONGARGS;;
+#    *       ) lines=$1;;
+#    esac
+#
+#* Читайте главу Циклы и ветвления, чтобы раобраться с этим.
+
+
+cd $LOG_DIR
+
+if [ `pwd` != "$LOG_DIR" ]  # or   if [ "$PWD" != "$LOG_DIR" ]
+                            # Not in /var/log?
+then
+  echo "Невозможно перейти в $LOG_DIR."
+  exit $E_XCD
+fi  # Doublecheck if in right directory before messing with log file. (TODO)
+
+# Более эффективно так:
+#
+# cd /var/log || {
+#   echo "Невозможно перейти в  каталог." &gt;&amp;2
+#   exit $E_XCD;
+# }
+
+
+
+
+tail -n $lines messages &gt; mesg.temp # Сохраним последнюю секцию(TODO) файла журнала,
+mv mesg.temp messages               # и заменим, созданным файлом старый.
+
+
+#  cat /dev/null &gt; messages
+#* Более не требуется, описанный выше метод более безопасен.
+
+cat /dev/null &gt; wtmp  #  ': &gt; wtmp' and '&gt; wtmp'  have the same effect. (TODO)
+echo "Logs cleaned up."
+
+exit 0
+#  Скрипт при выходе возвращает ноль, что является для оболочки сигналом о том, 
+#  что скрипт завершен без ошибок.
+
+</pre></div></div><br class="example-break"/><p>Если вы не хотите стирать весь системный журнал, эта версия
+    скрипта сохраняет последние сообщения невредимыми. В процессе чтения книги, вы будете
+    постоянно узнавать, как улучшить эффективность скриптов, написанных ранее.
+   </p><p><a id="shabangref"/>* * *</p><p><a id="magnumref"/>
+      <em class="firstterm"><a id="idp7004608" class="indexterm"/> sha-bang</em>
+      (<span class="token">
+  <a id="idp7006096" class="indexterm"/> #!</span>)
+
+    <sup>[<a id="idp7007344" href="#ftn.idp7007344" class="footnote">5</a>]</sup>
+
+      в начале скрипта, говорит вашей системе, что этот файл
+      является набором комманд, которые которые поддерживаются указанным
+      интерпретатором.  
+      <span class="token">#!</span> фактически двухбайтовый 
+
+        <sup>[<a id="idp7011728" href="#ftn.idp7011728" class="footnote">6</a>]</sup>
+
+  <a id="idp6973872" class="indexterm"/>
+  <em class="firstterm">магический номер</em>, 
+  специальный маркер, обозначающий тип файла, или в данном случае
+  исполняемый shell-скрипт (смотрите <strong class="userinput"><code>man magic</code></strong>, 
+  чтобы получить больше информации по этой теме). 
+  Непосредственно за <em class="firstterm">sha-bang</em> должен следовать
+  <em class="firstterm">путь</em> к программе-интерпретатору комманд.
+  Такой путь может указывать на коммадную оболочку, интерпретатор языка
+  программирования или какую-либо системную утилиту. 
+  Эта программа-интерпретатор и будет исполнять скрипт строка за строкой,
+  начиная со строки, следующей за <em class="firstterm">sha-bang</em>.
+  
+
+    <sup>[<a id="idp6978720" href="#ftn.idp6978720" class="footnote">7</a>]</sup>
+
+  </p><pre class="programlisting">#!/bin/sh
+#!/bin/bash
+#!/usr/bin/perl
+#!/usr/bin/tcl
+#!/bin/sed -f
+#!/usr/awk -f</pre><p>
+    Каждый, из вышеприведенных заголовков вызывает различные интерпретаторы,
+    будь то  <code class="filename">/bin/sh</code>, интерпретатор по умолчанию (<span class="command"><strong>bash</strong></span>
+    в Linux) или другие.
+
+        <sup>[<a id="idp6989600" href="#ftn.idp6989600" class="footnote">8</a>]</sup>
+
+      Использование <strong class="userinput"><code>#!/bin/sh</code></strong>, shell по умолчанию
+      во многих коммерческих версиях UNIX, делает скрипт <a class="link" href="ch33s10.html" title="Portability Issues">переносимым</a> на не-Linux платформы,
+      однако при этом вы <a class="link" href="ch31.html#binsh">жертвуете специфичными для Bash
+      возможностями</a>.  Скрипт в этом случае соответствует стандарту 
+      <acronym class="acronym">POSIX</acronym>
+
+   <sup>[<a id="idp7000784" href="#ftn.idp7000784" class="footnote">9</a>]</sup>
+
+     .</p><p>Заметьте, путь обозначенный в <span class="quote">«<span class="quote">sha-bang</span>»</span> дожен 
+      указаывать на исполняемый файл, иначе только ошибка — обычно <span class="quote">«<span class="quote">команда не найдена.</span>»</span> 
+      — будет результатом выполнния скрипта.
+        <sup>[<a id="idp7025008" href="#ftn.idp7025008" class="footnote">10</a>]</sup>
+      
+      </p><p><span class="token">#!</span>
+    может быть опущено, если скрипт состоит только из общих системных команд и не
+    использует внутренних конструкций оболочки.
+      В примере выше <span class="token">#!</span>
+       является обязательным, т.к. мы использовали присваивание значения переменной 
+      <strong class="userinput"><code>lines=50</code></strong>, что является встроенной конструкцией языка оболочки.
+  <sup>[<a id="idp7031376" href="#ftn.idp7031376" class="footnote">11</a>]</sup>
+      Заметьте, что <strong class="userinput"><code>#!/bin/sh</code></strong> 
+      запускает умолчательный интерпретатор оболочки,
+      который обычно указывает на <code class="filename">/bin/bash</code>
+      на Linux-системах.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>В данном руководстве приветствуется модульный подход к построению сценариев. Записывайте, собирайте свою коллекцию участков кода, который может пригодиться в будущем. В конечном итоге вы соберете свою "библиотеку" подпрограмм, которые затем сможете использовать при написании своих сценариев. Например, следующий отрывок сценария проверяет количество аргументов в командной строке.</p><pre class="programlisting">
+E_WRONG_ARGS=85
+script_parameters="-a -h -m -z"
+#                  -a = all, -h = help, etc.
+$Number_of_expected_args = 4
+if [ $# -ne $Number_of_expected_args ]
+then
+  echo "Usage: `basename $0` $script_parameters"
+  # `basename $0` is the script's filename.
+  exit $E_WRONG_ARGS
+fi
+</pre><p>
+      </p><p>Очень часто вы будете писать скрипты, автоматизирующие 
+      одну конкретную задачу. Примером может послужить первый скрипт в 
+      этой главе. Позже вы будете изменять скрипты, в целях расширить функционал.
+      На таких этапах вы заменять жестко закодированные константы переменными, а так же
+      часто повторяющиеся блоки кода <a class="link" href="ch23.html#functionref">функциями</a>.</p></div><div class="sect1" title="Запуск сценария"><div class="titlepage"><div><div><h2 class="title"><a id="invoking"/>Запуск сценария</h2></div></div></div><p>Написав сценарий, вы можете запустить его <strong class="userinput"><code>sh
+  scriptname</code></strong>,
+
+    <sup>[<a id="idp7043424" href="#ftn.idp7043424" class="footnote">12</a>]</sup>
+
+  или <strong class="userinput"><code>bash scriptname</code></strong>. (Не рекомендуется использовать
+  <strong class="userinput"><code>sh &lt;scriptname</code></strong>,
+  т.к. в этом случае вы не сможете читать из
+  <a class="link" href="ape.html#stdinoutdef"><code class="filename">stdin</code></a>
+  внутри скрипта.) Более удобным будет дать вашему скрипту права на исполнение командой <a class="link" href="ch15.html#chmodref">chmod</a>.
+
+  </p><div class="variablelist"><dl><dt><span class="term">Такой способ:</span></dt><dd><p><strong class="userinput"><code>chmod 555 scriptname</code></strong> (делает сценарий читаемым/исполняемым для всех)
+          <sup>[<a id="idp7051184" href="#ftn.idp7051184" class="footnote">13</a>]</sup>
+        </p></dd><dt><span class="term">или такой:</span></dt><dd><p><strong class="userinput"><code>chmod +rx scriptname</code></strong> (делает сценарий читаемым/исполняемым для всех)</p><p><strong class="userinput"><code>chmod
+        u+rx scriptname</code></strong> (дает права на чтение/исполнение только владельцу файла)</p></dd></dl></div><p>
+      </p><p>Сделав скрипт исполняемым, вы можете запустить его таким способом: 
+  <strong class="userinput"><code>./scriptname</code></strong>.
+  
+    <sup>[<a id="idp7057328" href="#ftn.idp7057328" class="footnote">14</a>]</sup>
+Если, при этом, текст сценария начинается с корректной сигнатуры <span class="quote">«<span class="quote">sha-bang</span>»</span>, то для его исполнения будет вызван соответствующий интерпретатор.</p><p>Завершив отладку сценария в можете поместить его в каталог <code class="filename">/usr/local/bin</code> (конечно для этого вы должны обладать правами
+  <em class="firstterm">root</em>), чтобы сделать его доступным для себя и 
+  других пользователей системы. Теперь сценарий можно запускать просто набрав имя файла
+  и нажав  <span class="keycap"><strong>[ENTER]</strong></span> в командной строке.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp7007344" href="#idp7007344" class="para">5</a>] </sup>Также встречается в литературе, как
+    <em class="firstterm">she-bang</em> или <em class="firstterm">sh-bang</em>.
+    Имеет свое происходждение от соединения двух слов 
+    <em class="firstterm">sharp</em> (<span class="token">#</span>) и
+    <em class="firstterm">bang</em> (<span class="token">!</span>).</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7011728" href="#idp7011728" class="para">6</a>] </sup>Некоторые разновидности UNIX (построенные на основе BSD 4.2)
+          якобы читают четырех-байтовый магический номер, требуя
+          наличия пробелов после <span class="token">!</span> —
+    <strong class="userinput"><code>#! /bin/sh</code></strong>. <a class="ulink" href="http://www.in-ulm.de/~mascheck/various/shebang/#details">
+    Если верить Sven Mascheck</a> 
+   это всего лишь миф.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp6978720" href="#idp6978720" class="para">7</a>] </sup>Строка, начинающаяся с <span class="token">#!</span>, и указывающая на
+      интерпретатор комманд 
+        (<span class="command"><strong>sh</strong></span> или <span class="command"><strong>bash</strong></span>)
+        должна быть помещена в самом начале скрипта, т.е. первой строкой.
+        Поскольку эта строка начинается с <span class="token">#</span>,
+        она будет корректно интерпретирована как комментарий, когда
+        оболочка будет исполнять скрипт. К тому времени эта строка 
+        уже выполнит свое предназначение — вызовет коммандный интерпретатор.
+        </p><p>Если скрипт включает в себя <span class="emphasis"><em>дополнительные</em></span> строки,
+      содержащие <span class="token">#!</span>, <span class="command"><strong>bash</strong></span> будет считать такие 
+      строки обычным комментарием.
+          </p><pre class="programlisting">#!/bin/bash
+
+echo "Первая часть скрипта."
+a=1
+
+#!/bin/bash
+# Здесь *НЕ* будет запущен новый скрипт
+
+echo "Вторая часть скрипта."
+echo $a  # значение $a осталось равным 1.</pre></div><div class="footnote"><p><sup>[<a id="ftn.idp6989600" href="#idp6989600" class="para">8</a>] </sup>Это позволяет делать некоторые хитрости.</p><pre class="programlisting">#!/bin/rm
+# Самоуничтожающийся скрипт.
+
+# Этот скрипт ничего не делает, только уничтожает сам себя.
+
+WHATEVER=85
+
+echo "Эта строка не будет напечатана (спорим?!)."
+
+exit $WHATEVER  # Не имеет смысле. Скрипт завершит выполнение не здесь.
+                # попробуйте echo $? после завершения скрипта.
+                # Вы получите 0, не 85.</pre><p>Так же попробуйте включить в начало файла <code class="filename">README</code> строку
+        <strong class="userinput"><code>#!/bin/more</code></strong>, затем дать ему права на исполнение.
+        Результатом будет исполняемый файл документации, показывающий сам себя. (<a class="link" href="ch18.html#heredocref">here document</a>, использующий
+  <a class="link" href="ch15.html#catref">cat</a>, возможно, лучшая альтернатива
+  — см. <a class="xref" href="ch18.html#ex71" title="Пример 18.3. Многострочное сообщение, использующее cat">Пример 18.3, «Многострочное сообщение, использующее <em class="firstterm">cat</em>»</a>).</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7000784" href="#idp7000784" class="para">9</a>] </sup><a id="posix2ref"/><span class="strong"><strong>P</strong></span>ortable
+   <span class="strong"><strong>O</strong></span>perating
+   <span class="strong"><strong>S</strong></span>ystem <span class="bold"><strong>I</strong></span>nterface, an attempt to
+   standardize UNI<span class="strong"><strong>X</strong></span>-like
+   OSes — Интерфейс Переносимых Опреационных Систем, попытка 
+   стандартизировать UNIX. Спецификацию POSIX можно найти на  <a class="ulink" href="http://www.opengroup.org/onlinepubs/007904975/toc.htm">сайте Open
+   Group</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7025008" href="#idp7025008" class="para">10</a>] </sup>Чтобы избежать возможности такой ошибки,
+        скрипт может начинаться с такой <em class="firstterm">sha-bang</em> строки:
+        <a class="link" href="ch16.html#envv2ref">#!/bin/env bash</a>. 
+        Это можно использовать на UNIX-машинах, где <em class="firstterm">bash</em>
+    находится не в <code class="filename">/bin</code></p></div><div class="footnote"><p><sup>[<a id="ftn.idp7031376" href="#idp7031376" class="para">11</a>] </sup>Если <em class="firstterm">Bash</em> 
+  является вашей оболочкой по умолчанию, нет необходимости вставлять 
+  <span class="token">#!</span> в начало скрипта.
+  Однако, если вы запускаете скрипт из другой оболочки, 
+  такой как например <em class="firstterm">tcsh</em>,
+  вы <span class="emphasis"><em>должны</em></span> вписать в скрипт
+  <span class="token">#!</span>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7043424" href="#idp7043424" class="para">12</a>] </sup>Внимание: Запуск сценария  <em class="firstterm">Bash</em>
+    при помощи <strong class="userinput"><code>sh scriptname</code></strong> выключает 
+    расширения функциональности специфичные для Bash,
+    следовательно сценарий может выполняться с ошибкой или вызывать аварийное завершение работы.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7051184" href="#idp7051184" class="para">13</a>] </sup>Сценарий должен иметь права как на исполнение, так и
+    на чтение, ведь оболочка должна иметь возможность прочитать сценарий, чтобы исполнить его.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp7057328" href="#idp7057328" class="para">14</a>] </sup>Почему нельзя просто запустить сценарий, как 
+    <strong class="userinput"><code>scriptname</code></strong>? 
+    Если каталог в котором вы находитесь (<a class="link" href="ch09.html#pwdref">$PWD</a>) тот же, где
+    расположен 
+    <code class="filename">scriptname</code> , Почему это не работает? 
+    Это не работает потому, что  в целях обеспечения безопасности текущий каталог 
+    (<code class="filename">./</code>)
+    не включен в переменную окружения <a class="link" href="ch09.html#pathref">$PATH</a>. Поэтому необходимо явно указывать 
+    путь до сценария: 
+     <strong class="userinput"><code>./scriptname</code></strong>.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch01.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt01.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch02s02.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 1. Программирование на Shell! </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Упражнения</td></tr></table></div></body></html>

@@ -1,0 +1,289 @@
+<!DOCTYPE xhtml PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta name="title" content="Cвежачок">
+<meta name="keywords" content="linux, Bash, прерывания, linux, bash, shell, сервер, php, magento, symfony, doctrine, javascript, jQuery, jsHttpRequest, sjFilemanager, Prototype">
+<meta name="description" content="Учимся программировать в Shell: обработка сигналов; Сбой работы скрипта может произойти не только из-за какой-то ошибки, но и из-за сигналов. Рассмотрим следующий пример
+#!/bin/bashecho &quot;this script will endlessly loop until you stop it&quot;while true; do    : # Do nothingdone
+Этот скрипт будет выполнятся до тех пор пока его кто-то или что-то не прерве; Полезные и интересные статьи из серии программирования в WEB">
+   <title>Cвежачок</title>
+   <link type="image/x-icon" rel="shortcut icon" href="http://freaksidea.com/images/favicon.png">
+   <link rel="stylesheet" type="text/css" media="screen" href="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/styles.css">
+   <!--[if lte IE 7]>
+      <link type="text/css" rel="stylesheet" href="/css/ie.css" />
+   <![endif]-->
+   <script async="" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/cbgapi.loaded_1"></script><script async="" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/cbgapi.loaded_0"></script><script src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/all.js" id="facebook-jssdk"></script><script gapi_processed="true" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/plusone.js" async="" type="text/javascript"></script><script src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/ga.js" async="" type="text/javascript"></script><script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-19088556-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<style type="text/css">.fb_hidden{position:absolute;top:-10000px;z-index:10001}.fb_invisible{display:none}.fb_reset{background:none;border:0;border-spacing:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}.fb_reset>div{overflow:hidden}.fb_link img{border:none}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}.fb_reset .fb_dialog_legacy{overflow:visible}.fb_dialog_advanced{padding:10px;-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px}.fb_dialog_content{background:#fff;color:#333}.fb_dialog_close_icon{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif);cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px}.fb_dialog_mobile .fb_dialog_close_icon{top:5px;left:5px;right:auto}.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}.fb_dialog_close_icon:hover{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_close_icon:active{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent;_background-image:url(http://static.ak.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_loader{background-color:#f6f7f8;border:1px solid #606060;font-size:24px;padding:20px}.fb_dialog_top_left,.fb_dialog_top_right,.fb_dialog_bottom_left,.fb_dialog_bottom_right{height:10px;width:10px;overflow:hidden;position:absolute}.fb_dialog_top_left{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 0;left:-10px;top:-10px}.fb_dialog_top_right{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -10px;right:-10px;top:-10px}.fb_dialog_bottom_left{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -20px;bottom:-10px;left:-10px}.fb_dialog_bottom_right{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -30px;right:-10px;bottom:-10px}.fb_dialog_vert_left,.fb_dialog_vert_right,.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{position:absolute;background:#525252;filter:alpha(opacity=70);opacity:.7}.fb_dialog_vert_left,.fb_dialog_vert_right{width:10px;height:100%}.fb_dialog_vert_left{margin-left:-10px}.fb_dialog_vert_right{right:0;margin-right:-10px}.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{width:100%;height:10px}.fb_dialog_horiz_top{margin-top:-10px}.fb_dialog_horiz_bottom{bottom:0;margin-bottom:-10px}.fb_dialog_iframe{line-height:0}.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #3a5795;color:#fff;font-size:14px;font-weight:bold;margin:0}.fb_dialog_content .dialog_title>span{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/yd/r/Cou7n-nqK52.gif) no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}body.fb_hidden{-webkit-transform:none;height:100%;margin:0;overflow:visible;position:absolute;top:-10000px;left:0;width:100%}.fb_dialog.fb_dialog_mobile.loading{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/ya/r/3rhSv5V8j3o.gif) white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}.fb_dialog.fb_dialog_mobile.loading.centered{max-height:590px;min-height:590px;max-width:500px;min-width:500px}#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .45);position:absolute;left:0;top:0;width:100%;min-height:100%;z-index:10000}#fb-root #fb_dialog_ipad_overlay.hidden{display:none}.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}.fb_dialog_content .dialog_header{-webkit-box-shadow:white 0 1px 1px -1px inset;background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#738ABA), to(#2C4987));border-bottom:1px solid;border-color:#1d4088;color:#fff;font:14px Helvetica, sans-serif;font-weight:bold;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}.fb_dialog_content .dialog_header table{-webkit-font-smoothing:subpixel-antialiased;height:43px;width:100%}.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px}.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px}.fb_dialog_content .touchable_button{background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#4966A6), color-stop(.5, #355492), to(#2A4887));border:1px solid #2f477a;-webkit-background-clip:padding-box;-webkit-border-radius:3px;-webkit-box-shadow:rgba(0, 0, 0, .117188) 0 1px 1px inset, rgba(255, 255, 255, .167969) 0 1px 0;display:inline-block;margin-top:3px;max-width:85px;line-height:18px;padding:4px 12px;position:relative}.fb_dialog_content .dialog_header .touchable_button input{border:none;background:none;color:#fff;font:12px Helvetica, sans-serif;font-weight:bold;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}.fb_dialog_content .dialog_content{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #555;border-bottom:0;border-top:0;height:150px}.fb_dialog_content .dialog_footer{background:#f6f7f8;border:1px solid #555;border-top-color:#ccc;height:40px}#fb_dialog_loader_close{float:left}.fb_dialog.fb_dialog_mobile .fb_dialog_close_button{text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}
+.fb_iframe_widget{display:inline-block;position:relative}.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}.fb_iframe_widget iframe{position:absolute}.fb_iframe_widget_lift{z-index:1}.fb_hide_iframes iframe{position:relative;left:-10000px}.fb_iframe_widget_loader{position:relative;display:inline-block}.fb_iframe_widget_fluid{display:inline}.fb_iframe_widget_fluid span{width:100%}.fb_iframe_widget_loader iframe{min-height:32px;z-index:2;zoom:1}.fb_iframe_widget_loader .FB_Loader{background:url(http://static.ak.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat;height:32px;width:32px;margin-left:-16px;position:absolute;left:50%;z-index:4}</style></head>
+<body>
+        <div id="wrapper">
+                <div id="top-menu">
+    <a href="http://freaksidea.com/format-rss" class="s-item">RSS</a>
+        <a href="http://freaksidea.com/friends">Мои друзья</a>
+        <a href="http://freaksidea.com/writeme">Контакты</a>
+    </div>
+<div id="header">
+    <a href="http://freaksidea.com/" id="slogan"></a>
+    <a href="http://freaksidea.com/" id="logo"></a>
+    <div id="menu">
+<a href="http://freaksidea.com/main" class="act">Свежачок</a><a href="http://freaksidea.com/javascript">Любимый JavaScript</a><a href="http://freaksidea.com/php_and_somethings">PHP и еще Кое-Что</a><a href="http://freaksidea.com/ruby">Ruby.respond_to?</a><a href="http://freaksidea.com/linux">Linux для Всех</a></div>
+</div>
+        <div id="content">
+            <div class="container">
+                <div class="cwrap">
+                                          <h1><span class="idea"></span><span class="txt"></span>Учимся программировать в Shell: обработка сигналов</h1>
+<div class="dscr">
+        <div class="page-dscr"><p>Сбой работы скрипта может произойти не только из-за какой-то ошибки, но и из-за сигналов. Рассмотрим следующий пример</p>
+<pre><code class="bash"><span class="shebang">#!/bin/bash</span><br><br><span class="keyword">echo</span> <span class="string">"this script will endlessly loop until you stop it"</span><br><span class="keyword">while</span> <span class="literal">true</span>; <span class="keyword">do</span><br>    : <span class="comment"># Do nothing</span><br><span class="keyword">done</span></code></pre>
+<p>Этот скрипт будет выполнятся до тех пор пока его кто-то или что-то не
+ прервет при помощи сигналов. Такой сигнал можно послать при помощи 
+комбинации клавиш <em>CTRL + C</em>, такой сигнал называется <em>SIGINT</em>.</p>
+<h2>Уборка за собой</h2>
+<p>В большинстве случаев обработку сигналов не нужно писать. Но в некоторых условиях все же является обязательным. Например</p>
+<pre><code class="bash"><span class="shebang">#!/bin/bash</span><br><br><span class="comment"># Program to print a text file with headers and footers</span><br><br>TEMP_FILE=/tmp/printfile.txt<br><br>pr <span class="variable">$1</span> &gt; <span class="variable">$TEMP_FILE</span><br><br><span class="keyword">echo</span> -n <span class="string">"Print file? [y/n]: "</span><br>read<br><span class="keyword">if</span> <span class="test_condition">[ <span class="string">"<span class="variable">$REPLY</span>"</span> = <span class="string">"y"</span> ]</span>; <span class="keyword">then</span><br>    lpr <span class="variable">$TEMP_FILE</span><br><span class="keyword">fi</span><br></code></pre>
+<p>Данный скрипт обрабатывает, переданный в качестве аргумента, файл при помощи команды <strong>pr</strong>
+ и сохраняет результат во временном файле. Потом он спрашивает 
+пользователя нужно ли напечатать файл. Если он (пользователь) ответит да
+ ("y"), то файл отправляется на печать (если у Вас не установлен 
+принтер, то вместо <strong>lpr</strong> можно использовать <strong>less</strong>).</p>
+<p>В этом скрипте можно заметить множество проблем. Поскольку мы 
+передаем файл, то для начала нужно проверить передается ли аргумент 
+вообще и является ли он файлом. Но это вовсе не то, на чем мы 
+сфокусируемся. Основная проблема в том, что если выполнение скрипта 
+будет&nbsp; прервано сигналом, то на файловой системе останется 
+временной файл.</p>
+<p>Хорошим тоном является удаление временных файлов, если скрипт получил сигнал на прерывание. И <strong>Bash</strong> предоставляет нам возможности определить это событие.</p>
+<h2>trap</h2>
+<p>Команда <strong>trap</strong> позволяет запустить функцию во время получения какого-то сигнала. Ее синтаксис</p>
+<pre><code class="bash">trap arg signals</code></pre>
+<p>"signals" - это список сигналов, которые нужно прослушивать, "arg" - 
+это команда, которую нужно запустить при появлении одного из заданных 
+сигналов. Для нашего примера - это будет выглядеть следующим образом</p>
+<pre><code class="bash"><span class="shebang">#!/bin/bash</span><br><br><span class="comment"># Program to print a text file with headers and footers</span><br><br>TEMP_FILE=/tmp/printfile.txt<br><br>trap <span class="string">"rm <span class="variable">$TEMP_FILE</span>; exit"</span> SIGHUP SIGINT SIGTERM<br><br>pr <span class="variable">$1</span> &gt; <span class="variable">$TEMP_FILE</span><br><br><span class="keyword">echo</span> -n <span class="string">"Print file? [y/n]: "</span><br>read<br><span class="keyword">if</span> <span class="test_condition">[ <span class="string">"<span class="variable">$REPLY</span>"</span> = <span class="string">"y"</span> ]</span>; <span class="keyword">then</span><br>    lpr <span class="variable">$TEMP_FILE</span><br><span class="keyword">fi</span><br>rm <span class="variable">$TEMP_FILE</span><br></code></pre>
+<p>В скрипте мы прослушиваем 3 сигнала, но можно добавить и больше. Полный список сигналов можно получить выполнив <strong>trap -l</strong>. Сигнала можно указывать не только по имени, но и по их числовым идентификаторам.</p>
+<p>Все же существует сигнал, который нельзя прослушивать - это <em>SIGNKILL (9)</em>. Ядро <em>Linux</em>
+ мгновенно прерывает скрипт, который получает такой сигнал. Обычно это 
+делается когда какой-то процесс завис. Это делается при помощи команды <strong>kill -9 processId</strong>.
+ Но все же не забывайте, что посылая такой сигнал, программа, которую вы
+ хотите остановить никаким образом не сможет отреагировать на него. 
+Например, скрипт, который создает файлы-блокировки не сможет их удалить 
+получив такой сигнал и тогда следующий его запуск будет невозможен. 
+Файлы-блокировки придется удалять вручную и это хорошо если команда 
+сообщит Вам где они находятся.</p>
+<h2>Clean Up функция</h2>
+<p>Хотя команда <strong>trap</strong> и позволяет прослушивать появление
+ сигналов, она все же имеет некоторые ограничения - можно передать 
+только простую строку команд на выполнение. Конечно можно разделить их 
+двоеточием, но тогда когда перестанет быть читабельным. Более правильным
+ способом является создание <strong>clean_up</strong> функции, которая выполняет все основные действия. Конечный вариант нашего скрипта выглядит следующим образом</p>
+<pre><code class="bash"><span class="shebang">#!/bin/bash</span><br><br><span class="comment"># Program to print a text file with headers and footers</span><br><br>TEMP_FILE=/tmp/printfile.txt<br><br>function clean_up {<br>    <span class="comment"># Perform program exit housekeeping</span><br>    rm <span class="variable">$TEMP_FILE</span><br>    <span class="keyword">exit</span><br>}<br><br>trap clean_up SIGHUP SIGINT SIGTERM<br><br>pr <span class="variable">$1</span> &gt; <span class="variable">$TEMP_FILE</span><br><br><span class="keyword">echo</span> -n <span class="string">"Print file? [y/n]: "</span><br>read<br><span class="keyword">if</span> <span class="test_condition">[ <span class="string">"<span class="variable">$REPLY</span>"</span> = <span class="string">"y"</span> ]</span>; <span class="keyword">then</span><br>    lpr <span class="variable">$TEMP_FILE</span><br><span class="keyword">fi</span><br>clean_up</code></pre>
+<h2>Создание "безопасных" временных файлов</h2>
+<p>Наш скрипт можно кое-чем улучшить. Традиционно, в <em>Unix</em>, все временные файлы хранятся в директории <strong>/tmp</strong>.
+ Из-за этого возникает ряд проблем. Имена создаваемых Вами файлов должны
+ быть уникальными, чтобы не испортить работу какой-то другой программы, 
+но и в тоже время их имя должно быть читабельным и понятным для 
+пользователя. Для создания подобных имен можно использовать следующую 
+технику</p>
+<pre><code class="php">TEMP_FILE=/tmp/printfile.$$.<span class="variable">$RANDOM</span></code></pre>
+<p>Т.е. имя файла осталось тоже самое - <strong>printfile</strong>. Переменная <strong>$$</strong> хранит в себе идентификатор процесса (<em>pid</em>)
+ - это поможет найти процесс, который отвечает за создание и удаление 
+этого файла. Но этого не достаточно, чтобы получить уникальное имя, 
+по-этому добавляем произвольно сгенерированное число при помощи <strong>shell</strong> переменной <em>RANDOM</em>. При помощи этой техники у нас получилось создать одновременно читабельное и уникальное имя временного файла.</p>
+<p>По мотивам <a href="http://linuxcommand.org/">http://linuxcommand.org</a></p></div>
+
+    <div class="public-footer">
+        <div class="f-left">
+            20 октября 2011 г.            <span>Теги:</span> <a href="http://freaksidea.com/search/tag-44-linux">linux</a>&nbsp;<a href="http://freaksidea.com/search/tag-59-bash">Bash</a>&nbsp;<a href="http://freaksidea.com/search/tag-70-preryvaniia">прерывания</a>&nbsp;        </div>
+        <div class="f-right">
+            <div class="f-left">
+                <!-- G+ -->
+<div class="social_item">
+    <div id="___plusone_0" style="text-indent: 0px; margin: 0px; padding: 0px; background: none repeat scroll 0% 0% transparent; border-style: none; float: none; line-height: normal; font-size: 1px; vertical-align: baseline; display: inline-block; width: 90px; height: 20px;"><iframe title="+1" data-gapiattached="true" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/fastbutton.htm" name="I0_1419149444108" id="I0_1419149444108" vspace="0" tabindex="0" style="position: static; top: 0px; width: 90px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 20px;" scrolling="no" marginwidth="0" marginheight="0" hspace="0" frameborder="0" width="100%"></iframe></div>
+
+    <script type="text/javascript">
+      window.___gcfg = {lang: 'ru'};
+
+      (function() {
+        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+        po.src = 'https://apis.google.com/js/plusone.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+      })();
+    </script>
+</div>
+
+<!-- Facebook I Like -->
+<div class="social_item">
+    <div class=" fb_reset" id="fb-root"><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div><iframe src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/7r8gQb8MIqE.htm" style="border: medium none;" tabindex="-1" title="Facebook Cross Domain Communication Frame" aria-hidden="true" id="fb_xdm_frame_http" scrolling="no" allowtransparency="true" name="fb_xdm_frame_http" frameborder="0"></iframe><iframe src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/7r8gQb8MIqE_002.htm" style="border: medium none;" tabindex="-1" title="Facebook Cross Domain Communication Frame" aria-hidden="true" id="fb_xdm_frame_https" scrolling="no" allowtransparency="true" name="fb_xdm_frame_https" frameborder="0"></iframe></div></div><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div><iframe src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/ping.htm" style="display: none;" scrolling="no" allowtransparency="true" name="fdbd219a5d57b8" frameborder="0"></iframe></div></div></div>
+    <script type="text/javascript">(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {return;}
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/all.js#appId=152417101503637&xfbml=1";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+    <div fb-iframe-plugin-query="app_id=152417101503637&amp;font=tahoma&amp;href=http%3A%2F%2Ffreaksidea.com%2Flinux%2Fshow-52-uchimsia-proghrammirovat-v-shell-obrabotka-sighnalov&amp;layout=button_count&amp;locale=en_US&amp;sdk=joey&amp;send=false&amp;show_faces=false&amp;width=70" fb-xfbml-state="rendered" class="fb-like fb_iframe_widget" data-href="http://freaksidea.com/linux/show-52-uchimsia-proghrammirovat-v-shell-obrabotka-sighnalov" data-send="false" data-layout="button_count" data-width="70" data-show-faces="false" data-font="tahoma"><span style="vertical-align: bottom; width: 77px; height: 20px;"><iframe class="" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/like.htm" style="border: medium none; visibility: visible; width: 77px; height: 20px;" title="fb:like Facebook Social Plugin" scrolling="no" allowtransparency="true" name="f3389417c990aae" frameborder="0" height="1000px" width="70px"></iframe></span></div>
+</div>
+
+<div class="clear"></div>
+            </div>
+            <div class="f-left">
+                                <a target="_blank" href="http://www.facebook.com/sharer.php?src=sp&amp;u=http://freaksidea.com/show-52-uchimsia-proghrammirovat-v-shell-obrabotka-sighnalov&amp;t=%D0%A3%D1%87%D0%B8%D0%BC%D1%81%D1%8F+%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C+%D0%B2+Shell%3A+%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0+%D1%81%D0%B8%D0%B3%D0%BD%D0%B0%D0%BB%D0%BE%D0%B2&amp;description=&amp;picture=" class="fb" rel="nofollow"></a>
+                                <a target="_blank" href="http://twitter.com/intent/tweet?status=%D0%A3%D1%87%D0%B8%D0%BC%D1%81%D1%8F+%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C+%D0%B2+Shell%3A+%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0+%D1%81%D0%B8%D0%B3%D0%BD%D0%B0%D0%BB%D0%BE%D0%B2+http://freaksidea.com/show-52-uchimsia-proghrammirovat-v-shell-obrabotka-sighnalov" class="tw" rel="nofollow"></a>
+                                <a target="_blank" href="http://vkontakte.ru/share.php?url=http://freaksidea.com/show-52-uchimsia-proghrammirovat-v-shell-obrabotka-sighnalov&amp;title=%D0%A3%D1%87%D0%B8%D0%BC%D1%81%D1%8F+%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C+%D0%B2+Shell%3A+%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0+%D1%81%D0%B8%D0%B3%D0%BD%D0%B0%D0%BB%D0%BE%D0%B2&amp;description=&amp;image=" class="vk" rel="nofollow"></a>
+                            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+            <div class="similar">
+        <h3>Читайте также:</h3>
+        <ul>
+                                    <li><a href="http://freaksidea.com/linux/show-50-uchimsia-proghrammirovat-v-shell-obrabotka-oshibok">Учимся программировать в Shell: обработка ошибок</a><span class="date">[19 октября 2011 г.]</span></li>
+                                    <li><a href="http://freaksidea.com/linux/show-48-uchimsia-proghrammirovat-v-shell-i-o-pereadresatsiia-chast-2">Учимся программировать в Shell: i/o переадресация. Часть 2</a><span class="date">[16 октября 2011 г.]</span></li>
+                                    <li><a href="http://freaksidea.com/linux/show-47-uchimsia-proghrammirovat-v-shell-upravliaiushchie-konstruktsii-chast-2">Учимся программировать в Shell: управляющие конструкции. Часть 2</a><span class="date">[16 октября 2011 г.]</span></li>
+                    </ul>
+    </div>
+    </div>
+      <div class="cmt-wrap dscr">
+        <div id="cmt-form" class="w-440">
+    <h3><a href="#">Добавить комментарий</a></h3>
+    <form action="/show-52-uchimsia-proghrammirovat-v-shell-obrabotka-sighnalov/#cmt-form" method="post" name="comments">
+        <input name="force" value="comment" type="hidden">
+        <input name="comment[reply]" id="comment_reply" type="hidden"><input name="comment[record_id]" value="52" id="comment_record_id" type="hidden"><input name="comment[record_model]" value="CmsContent" id="comment_record_model" type="hidden"><input name="comment[user_name]" id="comment_user_name" type="hidden"><input name="comment[_csrf_token]" value="8f5d301da40ecc063b0c873e963556e4" id="comment__csrf_token" type="hidden">                <div class="bfield mfield f-left mr-10">
+                        <label for="comment_author_name">Ваше имя</label>            <input name="comment[author_name]" id="comment_author_name" type="text">        </div>
+        <div class="bfield mfield f-left">
+                        <label for="comment_author_email">Ваш e-mail</label>            <input name="comment[author_email]" id="comment_author_email" type="text">        </div>
+        <div class="clear"></div>
+                <div style="visibility: hidden; position: absolute;" class="bfield mfield f-big">
+            <label for="comment_lastname">Lastname</label><input name="comment[lastname]" id="comment_lastname" type="text"><script type="text/javascript">var e = document.getElementById("comment_lastname").parentNode;e.style.visibility = "hidden";e.style.position = "absolute";</script><div></div><label for="comment_company">Company</label><input name="comment[company]" id="comment_company" type="text"><script type="text/javascript">var e = document.getElementById("comment_company").parentNode;e.style.visibility = "hidden";e.style.position = "absolute";</script><div></div><label for="comment_address">Address</label><input name="comment[address]" id="comment_address" type="text"><script type="text/javascript">var e = document.getElementById("comment_address").parentNode;e.style.visibility = "hidden";e.style.position = "absolute";</script><div></div>        </div>
+        <div class="bfield mfield">
+            <textarea rows="4" cols="30" name="comment[body]" id="comment_body"></textarea>                    </div>
+        <div align="right">
+            <button class="button" type="submit">Опубликовать</button>
+        </div>
+    </form>
+</div>
+        <div id="comments">
+    <h3>Комментариев: 0</h3>
+    </div>
+    </div>
+                                      </div>
+            </div>
+            <div class="sidebar">
+                <div class="box" id="search">
+    <form action="/search" name="search">
+        <div class="mfield">
+            <label for="s-i">Поиск идей</label>
+            <input name="form_prepare[txt]" id="s-i" type="text">
+        </div>
+    </form>
+</div>
+<div class="banner-block box">
+    <h3>0 Step Checkout</h3>
+    <div class="box-content" style="padding-left:10px">
+        <p>Хотите упростить процесс оформления заказа в Magento? <a href="http://atmagex.com/magento/0-step-checkout-magento.html" target="_blank">0 Step Checkout</a> поможет Вам решить эту проблему!</p>
+<div align="center">
+<a href="http://atmagex.com/magento/0-step-checkout-magento.html" target="_blank"><img src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/BOX-icon.jpg"></a>
+</div>    </div>
+</div>
+<div class="box">
+    <h3>Популярные посты</h3>
+    <div class="box-content">
+                    <h4><a href="http://freaksidea.com/javascript/show-75-best-practises-v-knockout-uproshchaem-vew"><span class="s-idea"></span><span class="txt">Best practisies в Knockout: упрощаем view</span></a></h4>
+                    <h4><a href="http://freaksidea.com/ruby/show-74-vvedenie-ruby-rack"><span class="s-idea"></span><span class="txt">Введение Ruby::Rack</span></a></h4>
+                    <h4><a href="http://freaksidea.com/php_and_somethings/show-24-internatsionalizatsiia-v-magento"><span class="s-idea"></span><span class="txt">Интернационализация в Magento</span></a></h4>
+                    <h4><a href="http://freaksidea.com/javascript/show-71-obrabotka-sobytii-i-rabota-s-poliami-form-v-knockout"><span class="s-idea"></span><span class="txt">Обработка событий и работа с полями форм в Knockout </span></a></h4>
+                    <h4><a href="http://freaksidea.com/javascript/show-69-baindinghi-v-knockout-upravlenie-vidimostiu-i-soderzhimym"><span class="s-idea"></span><span class="txt">Байндинги в KnockOut: управление видимостью и содержимым</span></a></h4>
+                    <h4><a href="http://freaksidea.com/javascript/show-66-knockout-nabliudaem-za-vsem-i-vezde"><span class="s-idea"></span><span class="txt">KnockOut - наблюдаем за всем и везде</span></a></h4>
+                    <h4><a href="http://freaksidea.com/javascript/show-65-vvedenie-v-knockout-novyi-vzghliad-na-postroenie-javascript-prilozhenii"><span class="s-idea"></span><span class="txt">Введение в KnockOut - новый взгляд на построение JavaScript приложений</span></a></h4>
+                    <h4><a href="http://freaksidea.com/php_and_somethings/show-64-upravlenie-prostranstvom-i-vremenem-magento-cron-esli-prosto"><span class="s-idea"></span><span class="txt">Управление пространством и временем. Magento Cron, если просто</span></a></h4>
+                    <h4><a href="http://freaksidea.com/php_and_somethings/show-63-magento-modeli-ot-a-do-ia-sobytiia-i-rewrite-klassov"><span class="s-idea"></span><span class="txt">Magento модели от А до Я: события и rewrite классов</span></a></h4>
+                    <h4><a href="http://freaksidea.com/php_and_somethings/show-62-magento-modeli-ot-a-do-ia-modeli-iadra"><span class="s-idea"></span><span class="txt">Magento модели от А до Я: модели ядра</span></a></h4>
+        </div>
+</div>
+<div class="box">
+   <h3>Теги</h3>
+   <div class="box-content">
+                    <a style="font-size: 102%" href="http://freaksidea.com/search/tag-87-bind">bind</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-54-output">output</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-52-faily">файлы</a>&nbsp;
+                    <a style="font-size: 102%" href="http://freaksidea.com/search/tag-67-konfighuratsiia">конфигурация</a>&nbsp;
+                    <a style="font-size: 108%" href="http://freaksidea.com/search/tag-35-modul">модуль</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-45-novichok">новичок</a>&nbsp;
+                    <a style="font-size: 108%" href="http://freaksidea.com/search/tag-79-modeli">модели</a>&nbsp;
+                    <a style="font-size: 200%" href="http://freaksidea.com/search/tag-33-magento">magento</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-63-symfony">symfony</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-53-input">input</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-39-doctrine">Doctrine</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-41-xml">XML</a>&nbsp;
+                    <a style="font-size: 121%" href="http://freaksidea.com/search/tag-81-javascript">javascript</a>&nbsp;
+                    <a style="font-size: 102%" href="http://freaksidea.com/search/tag-84-mvvm">MVVM</a>&nbsp;
+                    <a style="font-size: 108%" href="http://freaksidea.com/search/tag-85-observables">observables</a>&nbsp;
+                    <a style="font-size: 90%" href="http://freaksidea.com/search/tag-49-osnovnye-direktorii">основные директории</a>&nbsp;
+                    <a style="font-size: 139%" href="http://freaksidea.com/search/tag-82-knockout">knockout</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-64-i18n">I18n</a>&nbsp;
+                    <a style="font-size: 139%" href="http://freaksidea.com/search/tag-59-bash">Bash</a>&nbsp;
+                    <a style="font-size: 102%" href="http://freaksidea.com/search/tag-26-failovyi-menedzher">файловый менеджер</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-36-backend">backend</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-65-poisk">поиск</a>&nbsp;
+                    <a style="font-size: 90%" href="http://freaksidea.com/search/tag-83-jquery">jQuery</a>&nbsp;
+                    <a style="font-size: 102%" href="http://freaksidea.com/search/tag-57-upravlenie">управление</a>&nbsp;
+                    <a style="font-size: 90%" href="http://freaksidea.com/search/tag-70-preryvaniia">прерывания</a>&nbsp;
+                    <a style="font-size: 176%" href="http://freaksidea.com/search/tag-44-linux">linux</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-48-novinki">новинки</a>&nbsp;
+                    <a style="font-size: 96%" href="http://freaksidea.com/search/tag-62-import">import</a>&nbsp;
+                    <a style="font-size: 114%" href="http://freaksidea.com/search/tag-27-ajax">ajax</a>&nbsp;
+                    <a style="font-size: 90%" href="http://freaksidea.com/search/tag-38-eav">eav</a>&nbsp;
+            </div>
+</div>
+<div style="position: static; top: 5px;" class="banne-block box banner-fixed">
+    <h3>Реклама</h3>
+    <div class="box-content" style="padding-left:10px">
+        <script type="text/javascript"><!--
+google_ad_client = "ca-pub-5129274777209544";
+/* Баннер справа */
+google_ad_slot = "8551486343";
+google_ad_width = 300;
+google_ad_height = 250;
+//-->
+</script>
+<script type="text/javascript" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/show_ads.js"></script>    </div>
+</div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div id="footer">
+    <span class="txt">© 2011-2012 Sergiy Stotskiy</span>
+    <div class="counters"><div class="banner-block" id="sj_banner_place_5">
+                        <!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?105188';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u105188&p62&n'+Math.random();
+iD=document;if(!iD.cookie)iD.cookie="b=b; path=/";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height;
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7));
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script><img src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/s.png" border="0" height="31" width="88"></a><!-- End of I.UA counter -->            </div>
+</div>
+</div><!-- #footer -->
+    <script type="text/javascript" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/jquery-1.js"></script>
+<script type="text/javascript" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/front.js"></script>
+
+<iframe tabindex="-1" style="width: 1px; height: 1px; position: absolute; top: -100px;" src="C%D0%B2%D0%B5%D0%B6%D0%B0%D1%87%D0%BE%D0%BA_files/postmessageRelay.htm" id="oauth2relay436656631" name="oauth2relay436656631"></iframe></body></html>

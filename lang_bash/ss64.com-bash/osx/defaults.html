@@ -1,0 +1,279 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>defaults OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>defaults</h1> 
+<p>Set preferences, the OS X  user defaults system works with both the OS and with individual applications. </p>
+<pre>Syntax
+      defaults [<i>host</i>] <i>Actions Options</i>
+
+      defaults help
+
+Actions:
+   read [<i>domain</i> [<i>key</i>]]      Print defaults to standard output
+
+   read-type <i>domain key</i>     Print the plist type
+
+   write <i>domain</i> <i>key</i> '<i>value</i>' Save a default <i>value</i>
+
+   write <i>domain</i> 'plist'     Save <i>plist </i>(a property list) as a default:
+
+   rename <i>domain old_key new_key  </i>Rename a domain key.
+
+   delete [<i>domain</i> [<i>key</i>]]    Remove key.
+                            (for most applications this will return the behaviour
+                             to the original default values) 
+ 
+   domains                  Print all the domains in the user's defaults system.
+
+   defaults [<i>host</i>] find <i>word</i> 
+                            Search for <i>word</i> in the user's defaults, and
+                            print a list of matches.
+
+   <i>Host</i>  Optionally you may restrict changes to a specific host
+         by default changes will apply to any host.
+         [-host <i>hostname</i>] Restrict to a remote machine.
+         [-currentHost]   Restrict to the host the user is currently logged into.
+
+Options: See below</pre>
+<p> If you change a default  that belongs to a running application, the application won't see the change and might even overwrite the default.</p>
+<p>In general you should close an application before changing its defaults, in the case of  Dock and Finder defaults - restart them after applying the default with the <span class="code">killall</span> command : Restart the Dock: <span class="code">killall Dock</span> 
+Restart the Finder: <span class="code">killall Finder</span></p>
+<p><b>Examples</b>:</p>
+<h2>Monitor font smoothing</h2>
+<p>Display the current font smoothing:<br>
+<span class="body"> $</span> <span class="code">defaults -currentHost read -globalDomain AppleFontSmoothing<br>
+</span><span class="body"><br>
+Change the font smoothing (</span><span class="code">0</span><span class="body">=off, </span><span class="code">1</span><span class="body">=light, </span><span class="code">2</span><span class="body">=Medium/flat panel, </span><span class="code">3</span><span class="body">=strong/blurred)<br>
+$</span> <span class="code">defaults -currentHost write -globalDomain AppleFontSmoothing -int 0</span><br>
+<span class="body">Restart applications to see the effect</span><br>
+<br>
+<span class="body">Delete the setting completely (restore default)<br>
+$</span> <span class="code">defaults -currentHost delete -globalDomain AppleFontSmoothing</span></p>
+<h2>Apple Mail</h2>
+<p>Close Mail before making any changes.</p>
+<p> Set a minimum font size of 14px (affects reading and sending email):<br>
+<span class="code">$ defaults write com.apple.mail MinimumHTMLFontSize 14<br>
+</span><br>
+<span class="body">Force all  Mail messages to display as plain text:<br>
+$</span> <span class="code">defaults write com.apple.mail PreferPlainText -bool TRUE</span><br>
+<span class="body">For rich text (the default) set it to</span> FALSE</p>
+<h2>iTunes 10</h2>
+<p><span class="body">  Make the arrows next to artist &amp; album jump to local iTunes library folders instead of Store<br>
+$</span> <span class="code">defaults write com.apple.iTunes show-store-link-arrows -bool YES</span><br>
+<span class="body"> $</span> <span class="code">defaults write com.apple.iTunes invertStoreLinks -bool YES</span><br>
+<span class="body">  To restore the default change the YES to NO<br>
+<br>
+Restore the standard close/minimise buttons<br>
+$</span> <span class="code">defaults write com.apple.iTunes full-window -1<br>
+</span><br>
+<span class="body">Hide the iTunes Genre list<br>
+$</span> <span class="code">defaults write com.apple.iTunes show-genre-when-browsing -bool FALSE </span><br>
+</p>
+<h2>Finder</h2>
+<p><span class="body">  Show hidden files <br>
+$</span> <span class="code">defaults write com.apple.finder AppleShowAllFiles TRUE</span><span class="body"><br>
+$</span> <span class="code">killall Finder</span><br>
+<br>
+<span class="body"> Hide hidden files (default)<br>
+$</span> <span class="code">defaults write com.apple.finder AppleShowAllFiles FALSE</span><span class="body"><br>
+$</span> <span class="code">killall Finder</span><br>
+<br>
+<span class="body"> Disable the OS X Crash reporter (quit dialog after an application crash)<br>
+$</span> <span class="code">defaults write com.apple.CrashReporter DialogType none</span><br>
+<span class="body"> To enable the crash reporter (default) change none to prompt<br>
+<br>
+Disable dashboard widgets (saves RAM)<br>
+$</span> <span class="code">defaults write com.apple.dashboard mcx-disabled -boolean YES</span><br>
+<span class="body">To Enable dashboard widgets (default) set this to </span>NO<br>
+<br>
+Disable the New Window Animation<br>
+$</span> <span class="code">defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool NO</span><br>
+<span class="body">To enable the animation (default) set this to </span>YES</p>
+<p> Set the font anti-aliasing minimum sizes, globally or per-application:<br>
+$</span> <span class="code">defaults -currentHost write .GlobalPreferences AppleSmoothFontsSizeThreshold -int 16</span><br>
+$</span> <span class="code">defaults -currentHost write .GlobalPreferences AppleFontSmoothing -int 0</span><br>
+$ <span class="code">defaults -currentHost write com.apple.safari AppleAntiAliasingThreshold -int 16</span></p>
+<p>Restore the  the 'Save As' menu item (Equivalent to adding a Keyboard shortcut in the System Preferences.app )<br>
+$ <span class="code"> defaults write -globalDomain NSUserKeyEquivalents -dict-add 'Save As...' '@$S'</span></p>
+<p>Expand 'Save As&hellip;' Dialog Boxes by Default<br>
+$ <span class="code">defaults write -g NSNavPanelExpandedStateForSaveMode -boolean true</span><br>
+</p>
+<h2>Dock</h2>
+<p><span class="body">  Two Dimensional Dock (disable the 3D mirror glass effect)<br>
+  $</span> <span class="code">defaults write com.apple.dock no-glass -bool YES</span><br>
+  <span class="body"> $</span> <span class="code">killall Dock</span><br>
+  <br>
+  <span class="body"> Three Dimensional Dock (default)<br>
+  $</span> <span class="code">defaults write com.apple.dock no-glass -bool NO</span><br><span class="body"> $</span> <span class="code">killall Dock</span><br>
+  <br>
+  <span class="body"> Disable Bouncing dock icons<br>
+  $</span> <span class="code">defaults write com.apple.dock no-bouncing -bool True</span><br>
+  <span class="body"> $</span> <span class="code">killall Dock</span><br>
+<span class="body"> To re-enable, set this back to False</span></p>
+<p>Dim the Dock Icon of any 'Hidden' Applications<br>
+$ 
+<span class="code">defaults write com.apple.Dock showhidden -bool YES </span><br>
+<span class="body">$</span> <span class="code">killall Dock</span><br>
+  <br>
+  <span class="body"> Add a 'Recent Applications' stack to the Dock.<br>
+  $</span> <span class="code">defaults write com.apple.dock persistent-others -array-add '{ "tile-data" = { "list-type" = 1; }; "tile-type" = "recents-tile"; }'</span><br>
+  <span class="body"> $</span> <span class="code">killall Dock</span><br>
+  <span class="body"> To remove - just drag out of the dock again<br>
+  <br>
+  Change login screen background<br>
+  $</span> <span class="code">sudo defaults write /Library/Preferences/com.apple.loginwindow DesktopPicture "/Library/Desktop Pictures/Aqua Blue.jpg"</span><br>
+  <br>
+  <span class="body">Stacks, Activate Mouse Over Gradient:<br>
+  $</span> <span class="code">defaults write com.apple.dock mouse-over-hilte-stack -boolean YES</span><br><span class="body"> $</span> <span class="code">killall Dock</span><br>
+  To deactivate set back to NO<br>
+</p>
+<h2>Terminal<br>
+</h2>
+<p><span class="body">  Terminal windows take focus with mouse over window:<br>
+  $</span> <span class="code">defaults write com.apple.terminal FocusFollowsMouse -string YES</span><br>
+  <span class="body">Terminal windows take focus with click (default)<br>
+$</span> <span class="code">defaults write com.apple.terminal FocusFollowsMouse -string NO</span><br>
+</p>
+<pre>
+<b>Options:</b>
+     Specifying domains:
+
+     <i>domain</i>    A full domain name of the form com.companyname.appname. 
+
+                     defaults read com.apple.TextEdit
+
+     -app <i>application</i>
+               The name of an application:
+
+                     defaults read -app TextEdit
+
+     <i>filepath</i>  Domains may also be specified as a path to an arbitrary plist
+               file, omitting the '.plist' extension. For example:
+
+                     defaults read ~/Library/Preferences/com.apple.TextEdit
+
+               normally gives the same result as the two previous examples.
+
+               In the following example:
+
+                     defaults write ~/Desktop/TestFile foo bar
+
+               will write the key 'foo' with the value 'bar' into the plist
+               file 'TestFile.plist' that is on the user's desktop. If the
+               file does not exist, it will be created. If it does exist, the
+               key-value pair will be added, overwriting the value of 'foo' if
+               it already existed.
+
+               WARNING: The defaults command will be changed in an upcoming
+               major release to only operate on preferences domains. General
+               plist manipulation utilities will be folded into a different
+               command-line program.
+
+     -g | -globalDomain | NSGlobalDomain
+               Specify the global domain.
+               '-g' and '-globalDomain' may be used as synonyms for NSGlobalDomain.
+
+     Specifying value types for preference keys:
+
+                 If no type flag is provided, defaults will assume the value
+                 is a string. For best results, use one of the type flags,
+                 listed below.
+
+     -string     Allows the user to specify a string as the value for the
+                 given preference key.
+
+     -data       Allows the user to specify a bunch of raw data bytes as the
+                 value for the given preference key.  The data must be provided
+                 in hexadecimal.
+
+     -int[eger]  Allows the user to specify an integer as the value for the
+                 given preference key.
+
+     -float      Allows the user to specify a floating point number as the
+                 value for the given preference key.
+
+     -bool[ean]  Allows the user to specify a boolean as the value for the
+                 given preference key.  Value must be TRUE, FALSE, YES, or NO.
+
+     -date       Allows the user to specify a date as the value for the given
+                 preference key.
+
+     -array      Allows the user to specify an array as the value for the
+                 given preference key:
+
+                       defaults write somedomain preferenceKey -array element1 element2 element3
+
+                 The specified array overwrites the value of the key if the
+                 key was present at the time of the write. If the key was not
+                 present, it is created with the new value.
+
+     -array-add  Allows the user to add new elements to the end of an array
+                 for a key which has an array as its value. Usage is the same
+                 as -array above. If the key was not present, it is created
+                 with the specified array as its value.
+
+     -dict       Allows the user to add a dictionary to the defaults database
+                 for a domain.  Keys and values are specified in order:
+
+                       defaults write somedomain preferenceKey -dict key1 value1 key2 value2
+
+                 The specified dictionary overwrites the value of the key if
+                 the key was present at the time of the write. If the key was
+                 not present, it is created with the new value.
+
+     -dict-add   Allows the user to add new key/value pairs to a dictionary
+                 for a key which has a dictionary as its value. Usage is the
+                 same as -dict above. If the key was not present, it is cre-ated created
+                 ated with the specified dictionary as its value.</pre>
+<p>Defaults allows users to read, write, and delete Mac OS X user defaults from a command-line shell. Mac OS X applications and other programs use the defaults system to record user preferences and other information that
+must be maintained when the applications aren't running (such as default font for new documents, or the position of an Info panel). Many settings can be changed through an application&rsquo;s Preferences, but many settings are not shown in the GUI but can still bechanged using <span class="code">defaults</span>. </p>
+<p>In most cases the current value can be read with <span class="code">defaults read&hellip;</span> it is worth checking the current setting before writing a new default (with <span class="code">defaults write&hellip;</span>) just in case you want to revert to the old settings. If <span class="code">defaults read&hellip;</span> returns 'does not exist' that means there is no setting currently stored, you can remove a setting with <span class="code">defaults delete&hellip;</span></p>
+<p>User defaults belong to domains, which typically correspond to individual applications. Each domain has a dictionary of keys and values represent-ing representing
+ ing its defaults; for example, "Default Font" = "Helvetica". Keys are always strings, but values can be complex data structures comprising
+ arrays, dictionaries, strings, and binary data. These data structures are stored as XML Property Lists. </p>
+<p>Though all applications, system services, and other programs have their own domains, they also share a domain named NSGlobalDomain.  If a default
+ isn't specified in the application's domain, but is specified in NSGlobalDomain, then the application uses the value in that domain.</p>
+<pre>A property list (or plist) can contain multiple values                  
+
+e.g. to write a single value:
+  defaults write com.ss64.myapp "Default Color" '(255, 0, 0)'
+
+to write two values (plist)
+  defaults write com.ss64.myapp '{ "Default Color" = (255, 0, 0);
+                                   "Default Font" = Helvetica; }';</pre>
+<p> Defaults can be structured in very complex ways, making it difficult for the user to decipher or modify them.</p>
+<p class="quote"><i>&ldquo;I am a leader by default, only because nature does not allow a vacuum&rdquo; ~ Desmond Tutu</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/defaults.1.html">defaults man page</a> - Apple.com<br>
+<a href="https://github.com/mathiasbynens/dotfiles/blob/master/.osx">Long list of OS X and App defaults</a> from Mathias Bynens (+ older fork <a href="https://gist.github.com/2260182">github)</a><br>
+<a href="http://secrets.blacktree.com/?show=all">secrets.blacktree.com</a> - Another extensive list of defaults<br>  
+<a href="defaults-show-hidden_scpt.txt">Show hidden files.scpt</a> - Toggle the display of hidden files in Finder (will restart finder)</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="defaults.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

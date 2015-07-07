@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta content="width=1024" name="viewport">
+    
+    
+    <title>Частые ошибки программирования на Bash (продолжение) / Хабрахабр</title>
+    
+    <meta name="yandex-verification" content="67d46b975fa41645"> <!-- яндекс вебмастер - верификация -->
+
+    <meta name="description" content="Продолжаю знакомить сообщество с переводом Bash Pitfalls. 
+Часть первая.
+Первоначальная публикация перевода.
+
+11. cat file | sed s/foo/bar/ &amp;gt; file
+Нельзя читать из файла и писать в него в...">    
+    <meta name="keywords" content="bash, sh, оболочки, скрипты, частые ошибки">
+    
+    	<meta property="fb:app_id" content="444736788986613"> 
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="http://habrahabr.ru/post/47915/"> 
+<meta property="og:title" content="Частые ошибки программирования на Bash (продолжение)"> 
+	
+	<meta property="og:image" content="http://habrahabr.ru/i/habralogo.jpg">
+	<link rel="image_src" href="http://habrahabr.ru/i/habralogo.jpg">
+<meta property="og:description" content="Продолжаю знакомить сообщество с переводом Bash Pitfalls.  Часть первая. Первоначальная публикация перевода.  11. cat file | sed s/foo/bar/ &gt; file Нельзя читать...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@habrahabr">
+	<meta property="al:ios:url" content="habrahabr://post/47915">
+<meta property="al:ios:app_store_id" content="778613673">
+<meta property="al:ios:app_name" content="Habrahabr">
+<meta property="al:android:url" content="habrahabr://post/47915">
+<meta property="al:android:app_name" content="Habrahabr">
+<meta property="al:android:package" content="ru.habrahabr">
+<meta property="al:windows_phone:url" content="habrahabr://post/47915">
+<meta property="al:windows_phone:app_name" content="Habrahabr">
+<meta property="al:windows_phone:app_id" content="460a6bd6-8955-470f-935e-9ea1726a6060">
+	<link rel="canonical" href="http://habrahabr.ru/post/47915/">
+
+
+
+    <link href="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/global_main.css" rel="stylesheet" media="all">
+    <script src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/watch.js" async="" type="text/javascript"></script><script src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/analytics.js" async=""></script><script type="text/javascript" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/global_main.js"></script>
+      <link href="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/post_common_css.css" rel="stylesheet" media="all">
+
+    <link href="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/printer.css" rel="stylesheet" media="print">
+
+    
+    
+
+    
+
+
+      <script type="text/javascript" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/post_common_js.js"></script>
+
+
+      <!-- www.criteo.com/ru -->
+<script type="text/javascript">
+  var crtg_nid="2580";
+  var crtg_cookiename="cto_rtt";
+  var crtg_varname="crtg_content";
+  function crtg_getCookie(c_name){
+    var i,x,y,ARRCookies=document.cookie.split(";");
+    for(i=0;i<ARRCookies.length;i++){
+      x=ARRCookies[i].substr(0,ARRCookies[i].indexOf("="));
+      y=ARRCookies[i].substr(ARRCookies[i].indexOf("=")+1);
+      x=x.replace(/^\s+|\s+$/g,"");
+      if(x==c_name){return unescape(y);}
+    }
+    return'';
+  }
+  var crtg_content = crtg_getCookie(crtg_cookiename);var crtg_rnd=Math.floor(Math.random()*99999999999);
+  var crtg_url=location.protocol+'//rtax.criteo.com/delivery/rta/rta.js?netId='+escape(crtg_nid);crtg_url+='&cookieName='+escape(crtg_cookiename);crtg_url+='&rnd='+crtg_rnd;crtg_url+='&varName=' + escape(crtg_varname);
+  var crtg_script=document.createElement('script');crtg_script.type='text/javascript';crtg_script.src=crtg_url;crtg_script.async=true;
+  if(document.getElementsByTagName("head").length>0)document.getElementsByTagName("head")[0].appendChild(crtg_script);
+  else
+  if(document.getElementsByTagName("body").length>0)document.getElementsByTagName("body")[0].appendChild(crtg_script);
+</script><script async="" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/rta.js" type="text/javascript"></script>
+      <script>
+        var N = 5;
+        var ar_duo1 = Math.floor(Math.random()*N+1);
+      </script>
+      <script type="text/javascript" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/adriver.js"></script>
+
+    <link title="Хабрахабр / Комментарии к публикации «Частые ошибки программирования на Bash (продолжение)»" type="application/rss+xml" rel="alternate" href="http://habrahabr.ru/rss/post/47915/">
+    
+    
+<script type="text/javascript">
+
+    var user_type = "guest";
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  
+    ga('create', 'UA-726094-1',  'auto' ); 
+
+  ga('require', 'displayfeatures');
+  ga('set', 'dimension1', user_type); // user type - guest/readonly/habrauser
+  //ga('set', 'dimension2', username); // username
+
+
+  ga('send', 'pageview');
+  
+</script>
+
+
+
+
+
+
+
+
+
+
+    <meta content="Хабрахабр" name="apple-mobile-web-app-title">
+<link href="http://habrahabr.ru/images/apple-touch-icon_142x142.png" rel="apple-touch-icon" type="image/png">
+  </head>
+
+  <body><style type="text/css">#navbar .nav_panel .tab.tab_print:hover path,#navbar .nav_panel .tab.tab_print:hover text { fill: #c62b45; } </style>
+    <div id="TMpanel">
+  <div class="container">
+    <div class="menu">
+      <a href="http://habrahabr.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo" class="current">Хабрахабр</a>
+      <a href="http://geektimes.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Geektimes</a>
+      <a href="http://toster.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Тостер</a>
+      <a href="http://brainstorage.me/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Brainstorage</a>
+      <a href="http://freelansim.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Фрилансим</a>
+      <a href="http://habrastorage.org/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Habrastorage</a>
+    </div>
+    <div class="menu special"><a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=1&amp;ad=501706&amp;bt=21&amp;pid=1836849&amp;bid=3676858&amp;bn=3676858&amp;rnd=540624762" target="_blank" style="color: black">Выиграй iPhone 6</a><a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=1&amp;ad=500505&amp;bt=21&amp;pid=1833154&amp;bid=3669802&amp;bn=3669802&amp;rnd=1177935830" target="_blank" style="color: red">Выиграй EOS 70D KIT</a></div>
+  </div>
+</div>
+
+
+    <div id="layout">
+      <div id="navbar_overlay" class="hidden"></div>
+<div class="fixed" style="bottom: 0px;" id="navbar">
+    <div class="nav_panel">
+        <a href="http://habrahabr.ru/" class="logo"></a>
+
+            <a href="http://habrahabr.ru/posts/" class="tab tab_menu" data-tab="menu_tab" title="Меню"><span class="g-icon g-icon-burger"></span></a>
+            <a href="https://habrahabr.ru/auth/login/" class="tab tab_login" id="login" title="Войти"><span class="g-icon g-icon-lock"></span></a>
+
+        <a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=1&amp;ad=500505&amp;bt=21&amp;pid=1833154&amp;bid=3677014&amp;bn=3677014&amp;rnd=1367068122" class="tab tab_print" id="print_tab" target="_blank" data-post-id="47915"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 571 571" enable-background="new 0 0 571 571" xml:space="preserve">
+<g>
+	<path fill="#C1C1C1" d="M285.5,68c-88.2,0-159.6,71.4-159.6,159.6s71.4,159.6,159.6,159.6s159.6-71.4,159.6-159.6
+		S373.7,68,285.5,68z M285.5,352.6c-69,0-124.9-55.9-124.9-125c0-69,55.9-125,124.9-125s125,55.9,125,125
+		C410.5,296.6,354.5,352.6,285.5,352.6z"></path>
+	<circle fill="#C1C1C1" cx="241.2" cy="188.5" r="23.5"></circle>
+	<path fill="#C1C1C1" d="M360.5,255c-7.3-4.5-16.9-2.2-21.4,5.2c-9.4,15.3-29.4,25.3-50.9,25.3s-41.5-10-50.9-25.3
+		c-4.5-7.3-14.1-9.7-21.4-5.2c-7.3,4.5-9.7,14.1-5.2,21.4c15.2,24.8,44.9,40.2,77.5,40.2s62.3-15.4,77.5-40.2
+		C370.2,269.1,367.8,259.5,360.5,255z"></path>
+	<path fill="#C1C1C1" d="M311.9,202.9h33.6c7.7,0,13.8-6.2,13.8-13.8s-6.2-13.8-13.8-13.8h-33.6c-7.7,0-13.8,6.2-13.8,13.8
+		S304.2,202.9,311.9,202.9z"></path>
+	<path fill="#C1C1C1" d="M183.5,487.6c-2,1.4-4.7,2.4-8,3.1c-3.3,0.6-6.7,1-10.2,1c-4.1,0-8-0.6-11.8-1.8s-7.1-3.2-10-5.9
+		c-2.9-2.7-5.2-6.1-6.9-10.3c-1.7-4.2-2.6-9.3-2.6-15.3c0-6.2,1-11.4,2.9-15.7c2-4.2,4.4-7.6,7.5-10.2c3-2.6,6.4-4.5,10.1-5.6
+		c3.7-1.2,7.4-1.7,11-1.7c4,0,7.3,0.2,10,0.7s5,1.1,6.7,1.7l-2.7,11.3c-1.5-0.7-3.3-1.2-5.3-1.5s-4.6-0.5-7.7-0.5
+		c-2.7,0-5.2,0.4-7.5,1.3c-2.2,0.9-4.1,2.2-5.7,4c-1.6,1.8-2.8,4-3.7,6.7s-1.3,5.8-1.3,9.4c0,3.2,0.4,6.1,1.2,8.7s2,4.9,3.6,6.8
+		s3.6,3.4,6,4.4s5.3,1.6,8.5,1.6c3,0,5.5-0.3,7.5-0.8s3.9-1.2,5.4-2.1L183.5,487.6z"></path>
+	<path fill="#C1C1C1" d="M223,476.8h-21.6l-5.2,13.6h-13.5l25.1-64.5h10l25.1,64.5h-14.4L223,476.8z M205.1,466.1h14.6l-4.9-13.4
+		l-2.2-10.2h-0.5l-2.2,10.2L205.1,466.1z"></path>
+	<path fill="#C1C1C1" d="M266.9,457l-5.5-9.6H261l1.5,9.7v33.3h-12.8v-64.5h9.8l26.4,34.1l5.2,9.3h0.5l-1.5-9.4v-33.6H303v64.5h-9.8
+		L266.9,457z"></path>
+	<path fill="#C1C1C1" d="M313.5,458.4c0-5.2,0.7-9.9,2-14.1c1.3-4.1,3.3-7.6,5.8-10.5c2.5-2.8,5.6-5,9.3-6.5
+		c3.7-1.5,7.8-2.2,12.4-2.2c4.9,0,9.2,0.8,12.9,2.4c3.7,1.6,6.8,3.9,9.2,6.8c2.5,2.9,4.3,6.4,5.6,10.5c1.2,4.1,1.9,8.6,1.9,13.5
+		c0,5.2-0.7,9.9-2.1,14.1c-1.4,4.1-3.3,7.6-5.9,10.5c-2.6,2.8-5.7,5-9.3,6.5c-3.7,1.5-7.8,2.2-12.3,2.2c-4.9,0-9.3-0.8-12.9-2.4
+		c-3.7-1.6-6.8-3.9-9.2-6.8c-2.5-2.9-4.3-6.4-5.5-10.5C314.1,467.8,313.5,463.3,313.5,458.4z M327.8,458.4c0,3.2,0.3,6.1,0.9,8.7
+		s1.5,4.9,2.7,6.8s2.8,3.4,4.7,4.4c1.9,1,4.2,1.6,6.8,1.6c4.8,0,8.6-1.6,11.2-4.9c2.7-3.3,4-8.8,4-16.5c0-3-0.3-5.9-0.8-8.5
+		s-1.4-4.9-2.7-6.8c-1.2-1.9-2.8-3.4-4.8-4.5c-1.9-1.1-4.3-1.6-7-1.6c-4.8,0-8.5,1.7-11.2,5.1C329.2,445.5,327.8,450.9,327.8,458.4z
+		"></path>
+	<path fill="#C1C1C1" d="M400.4,457l-5.5-9.6h-0.5l1.5,9.7v33.3h-12.8v-64.5h9.8l26.4,34.1l5.2,9.3h0.5l-1.5-9.4v-33.6h12.8v64.5
+		h-9.8L400.4,457z"></path>
+</g>
+</svg></a>
+
+        <a href="#" class="scroll_to_up scroll_to_up_for_guest" id="scroll_to_top" title="Наверх"></a>
+    </div>
+    <div class="nav_tabs_content ">
+
+        <div class="nav_tab hidden" id="menu_tab">
+            <div class="title">Разделы</div>
+            <form action="/search/" method="get" class="global_search_form">
+                <div>
+                    <input name="q" placeholder="Поиск" type="text">
+                </div>
+            </form>
+            <div class="menu">
+                <a href="http://habrahabr.ru/posts/top/">Публикации</a>
+                <a href="http://habrahabr.ru/hubs/">Хабы</a>
+                <a href="http://habrahabr.ru/companies/">Компании</a>
+                <a href="http://habrahabr.ru/users/">Пользователи</a>
+                <a href="http://toster.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_menu&amp;utm_campaign=tm_promo" class="new_window">Q&amp;A</a>
+                <a href="http://habrahabr.ru/sandbox/">Песочница</a>
+                <a href="http://habrahabr.ru/exchange/">Биржа авторов</a>
+
+
+
+            </div>
+
+            
+
+                    <div class="line"></div>
+                    <div class="title">Спецпроекты</div>
+                    <div class="menu">
+
+                    <a href="http://habrahabr.ru/lnk/127/" target="_blank">Конкурс приложений</a>
+
+                    <a href="http://habrahabr.ru/lnk/119/" target="_blank">Биржа статей</a>
+
+                    <a href="http://habrahabr.ru/lnk/123/" target="_blank">Дарите улыбки</a>
+                    </div>
+
+
+        </div>
+
+
+    </div>
+</div>
+
+      <div class="inner">
+        
+                
+        
+
+          <div class="content_left">
+  	
+
+
+
+
+
+    <div class="post_show">
+  	  
+  <div class="post translation shortcuts_item" id="post_47915">
+  	<div class="published">27 декабря 2008 в 13:41</div>  
+    <h1 class="title">
+	      
+      
+
+
+        <span class="post_title">Частые ошибки программирования на Bash (продолжение)</span>
+
+			<span class="flag flag_translation">перевод</span>
+			
+			
+			
+			
+
+  	</h1>
+  	
+  	<div class="hubs">
+		<a href="http://habrahabr.ru/hub/shells/" class="hub " title="Вы не подписаны на этот хаб">Оболочки</a><span class="profiled_hub" title="Профильный хаб">*</span>
+</div>
+
+  	
+    <div class="content html_format">
+      Продолжаю знакомить сообщество с переводом <a href="http://wooledge.org:8000/BashPitfalls">Bash Pitfalls</a>. <br>
+<a href="http://habrahabr.ru/blogs/shells/47706/">Часть первая</a>.<br>
+<a href="http://bappoy.pp.ru/tag/bash-pitfalls">Первоначальная публикация перевода</a>.<br>
+<br>
+<h3>11. cat file | sed s/foo/bar/ &gt; file</h3><br>
+Нельзя читать из файла и писать в него в одном и том же конвейере. В 
+зависимости от того, как построен конвейер, файл может обнулиться (или 
+оказаться усечённым до размера, равному объёму буфера, выделяемого 
+операционной системой для конвейера), или неограниченно увеличиваться до
+ тех пор, пока он не займёт всё доступное пространство на диске, или не 
+достигнет ограничения на размер файла, заданного операционной системой 
+или квотой, и т.д.<br>
+<a name="habracut"></a><br>
+Если вы хотите произвести изменение в файле, отличное от добавления 
+данных в его конец, вы должны в какой-то промежуточный момент создать 
+временный файл. Например (этот код работает во всех шеллах):<br>
+<br>
+<pre>sed 's/foo/bar/g' file &gt; tmpfile &amp;&amp; mv tmpfile file</pre><br>
+Следующий фрагмент будет работать только при использовании GNU sed 4.x и выше:<br>
+<br>
+<pre>sed -i 's/foo/bar/g' file</pre><br>
+Обратите внимание, что при этом тоже создаётся временный файл и затем происходит переименование — просто это делается незаметно.<br>
+<br>
+В BSD-версии sed необходимо обязательно указывать расширение, 
+добавляемое к запасной копии файла. Если вы уверены в своем скрипте, 
+можно указать нулевое расширение:<br>
+<br>
+<pre>sed -i '' 's/foo/bar/g' file</pre><br>
+Также можно воспользоваться perl 5.x, который, возможно, встречается чаще, чем sed 4.x:<br>
+<br>
+<pre>perl -pi -e 's/foo/bar/g' file</pre><br>
+Различные аспекты задачи массовой замены строк в куче файлов обсуждаются в <a href="http://wooledge.org:8000/BashFAQ/021">Bash FAQ #21</a>.<br>
+<br>
+<h3>12. echo $foo</h3><br>
+Эта относительно невинно выглядящая команда может привести к неприятным последствиям. Поскольку переменная <code>$foo</code>
+ не заключена в кавычки, она будет не только разделена на слова, но и 
+возможно содержащийся в ней шаблон будет преобразован в имена 
+совпадающих с ним файлов. Из-за этого bash-программисты иногда ошибочно 
+думают, что их переменные содержат неверные значения, тогда как с 
+переменными всё в порядке — это команда <code>echo</code> отображает их согласно логике bash, что приводит к недоразумениям.<br>
+<br>
+<pre>MSG="Please enter a file name of the form *.zip"
+echo $MSG</pre><br>
+Это сообщение разбивается на слова и все шаблоны, такие, как <code>*.zip</code>, раскрываются. Что подумают пользователи вашего скрипта, когда увидят фразу:<br>
+<br>
+<pre>Please enter a file name of the form freenfss.zip lw35nfss.zip</pre><br>
+Вот ещё пример:<br>
+<br>
+<pre>VAR=*.zip       # VAR содержит звёздочку, точку и слово "zip"
+echo "$VAR"     # выведет *.zip
+echo $VAR       # выведет список файлов, чьи имена заканчиваются на .zip</pre><br>
+На самом деле, команда echo вообще не может быть использована абсолютно 
+безопасно. Если переменная содержит только два символа "-n", команда <code>echo</code>
+ будет рассматривать их как опцию, а не как данные, которые нужно 
+вывести на печать, и абсолютно ничего не выведет. Единственный надёжный 
+способ напечатать значение переменной — воспользоваться командой <code>printf</code>:<br>
+<code>printf "%s\n" "$foo"</code>.<br>
+<br>
+<h3>13. $foo=bar</h3><br>
+Нет, вы не можете создать переменную, поставив "$" в начале её названия. Это не Perl. Достаточно написать:<br>
+<br>
+<pre>foo=bar</pre><br>
+<h3>14. foo = bar</h3><br>
+Нет, нельзя оставлять пробелы вокруг "=", присваивая значение переменной. Это не C. Когда вы пишете <code>foo&nbsp;=&nbsp;bar</code>, оболочка разбивает это на три слова, первое из которых, <code>foo</code>, воспринимается как название команды, а оставшиеся два — как её аргументы.<br>
+<br>
+По этой же причине нижеследующие выражения также неправильны:<br>
+<br>
+<pre>foo= bar    # НЕПРАВИЛЬНО!
+foo =bar    # НЕПРАВИЛЬНО!
+$foo = bar  # АБСОЛЮТНО НЕПРАВИЛЬНО!</pre><br>
+<pre>foo=bar     # Правильно.</pre><br>
+<h3>15. echo &lt;&lt;EOF</h3><br>
+Встроенные документы полезны для внедрения больших блоков текстовых 
+данных в скрипт. Когда интерпретатор встречает подобную конструкцию, он 
+направляет строки вплоть до указанного маркера (в данном случае — <code>EOF</code>) на входной поток команды. К сожалению, echo не принимает данные с STDIN.<br>
+<br>
+<pre># Неправильно:
+echo &lt;&lt;EOF
+Hello world
+EOF</pre><br>
+<pre># Правильно:
+cat &lt;&lt;EOF
+Hello world
+EOF</pre><br>
+<h3>16. su -c 'some command'</h3><br>
+В Linux этот синтаксис корректен и не вызовет ошибки. Проблема в том, 
+что в некоторых системах (например, FreeBSD или Solaris) аргумент <code>-c</code> команды <code>su</code> имеет совершенно другое назначение. В частности, в FreeBSD ключ <code>-c</code>
+ указывает класс, ограничения которого применяются при выполнении 
+команды, а аргументы шелла должны указываться после имени целевого 
+пользователя. Если имя пользователя отсутствует, опция <code>-c</code> 
+будет относиться к команде su, а не к новому шеллу. Поэтому 
+рекомендуется всегда указывать имя целевого пользователя, вне 
+зависимости от системы (кто знает, на каких платформах будут выполняться
+ ваши скрипты...):<br>
+<br>
+<pre>su root -c 'some command' # Правильно.</pre><br>
+<h3>17. cd /foo; bar</h3><br>
+Если не проверить результат выполнения <code>cd</code>, в случае ошибки команда <code>bar</code> может выполниться не в том каталоге, где предполагал разработчик. Это может привести к катастрофе, если <code>bar</code> содержит что-то вроде <code>rm *</code>.<br>
+<br>
+Поэтому всегда нужно проверять код возврата команды «cd». Простейший способ:<br>
+<br>
+<pre>cd /foo &amp;&amp; bar</pre><br>
+Если за cd следует больше одной команды, можно написать так:<br>
+<br>
+<pre>cd /foo || exit 1
+bar
+baz
+bat ... # Много команд.</pre><br>
+cd сообщит об ошибке смены каталога сообщением в stderr вида <code>bash: cd: /foo: No such file or directory</code>. Если вы хотите вывести своё сообщение об ошибке в stdout, следует использовать группировку команд:<br>
+<br>
+<pre>cd /net || { echo "Can't read /net.  Make sure you've logged in to the Samba network, and try again."; exit 1; }
+do_stuff
+more_stuff</pre><br>
+Обратите внимание на пробел между <code>{</code> и <code>echo</code>, а также на точку с запятой перед закрывающей <code>}</code>.<br>
+<br>
+Некоторые добавляют в начало скрипта команду <code>set -e</code>, чтобы 
+их скрипты прерывались после каждой команды, вернувшей ненулевое 
+значение, но этот трюк нужно использовать с большой осторожностью, 
+поскольку многие распространённые команды могут возвращать ненулевое 
+значение в качестве простого предупреждения об ошибке (warning), и 
+совершенно необязательно рассматривать такие ошибки как критические.<br>
+<br>
+Кстати, если вы много работаете с директориями в bash-скрипте, перечитайте <code>man bash</code> в местах, относящихся к командам <code>pushd</code>, <code>popd</code> и <code>dirs</code>. Возможно, весь ваш код, напичканный <code>cd</code> и <code>pwd</code>, просто не нужен :).<br>
+<br>
+Вернёмся к нашим баранам. Сравните этот фрагмент:<br>
+<br>
+<pre>find ... -type d | while read subdir; do
+    cd "$subdir" &amp;&amp; whatever &amp;&amp; ... &amp;&amp; cd -
+done</pre><br>
+с этим:<br>
+<br>
+<pre>find ... -type d | while read subdir; do
+    (cd "$subdir" &amp;&amp; whatever &amp;&amp; ...)
+done</pre><br>
+Принудительный вызов подоболочки заставляет cd и последующие команды 
+выполняться в subshell'е; в следующей итерации цикла мы вернёмся в 
+начальное местонахождение вне зависимости от того, успешной ли была 
+смена директории или же она завершилась с ошибкой. Нам не нужно 
+возвращаться вручную. <br>
+<br>
+Кроме того, предпоследний пример содержит ещё одну ошибку: если одна из команд <code>whatever</code>
+ провалится, мы можем не вернуться обратно в начальный каталог. Чтобы 
+исправить это без использования субшелла, в конце каждой итерации 
+придётся делать что-то вроде <code>cd "$ORIGINAL_DIR"</code>, а это добавит ещё немного путаницы в ваши скрипты.<br>
+<br>
+<h3>18. [ bar == "$foo" ]</h3><br>
+Оператор <code>==</code> не является аргументом команды <code>[</code>. Используйте вместо него <code>=</code> или замените <code>[</code> ключевым словом <code>[[</code>:<br>
+<br>
+<pre>[ bar = "$foo" ] &amp;&amp; echo yes
+[[ bar == $foo ]] &amp;&amp; echo yes</pre><br>
+<h3>19. for i in {1..10}; do ./something &amp;; done</h3><br>
+Нельзя помещать точку с запятой ";" сразу же после &amp;. Просто удалите этот лишний символ:<br>
+<br>
+<pre> for i in {1..10}; do ./something &amp; done</pre><br>
+Символ &amp; сам по себе является признаком конца команды, так же, как ";" и перевод строки. Нельзя ставить их один за другим.<br>
+<br>
+<h3>20. cmd1 &amp;&amp; cmd2 || cmd3</h3><br>
+Многие предпочитают использовать <code>&amp;&amp;</code> и <code>||</code> в качестве сокращения для <code>if&nbsp;...&nbsp;then&nbsp;...&nbsp;else&nbsp;...&nbsp;fi</code>. В некоторых случаях это абсолютно безопасно:<br>
+<br>
+<pre>[[ -s $errorlog ]] &amp;&amp; echo "Uh oh, there were some errors." || echo "Successful."</pre><br>
+Однако в общем случае эта конструкция не может служить полным эквивалентом <code>if&nbsp;...&nbsp;fi</code>, потому что команда <code>cmd2</code> перед <code>&amp;&amp;</code> также может генерировать код возврата, и если этот код не <code>0</code>, будет выполнена команда, следующая за ||. Простой пример, способный многих привести в состояние ступора:<br>
+<br>
+<pre>i=0
+true &amp;&amp; ((i++)) || ((i--))
+echo $i   # выведет 0</pre><br>
+Что здесь произошло? По идее, переменная i должна принять значение 1, но
+ в конце скрипта она содержит 0. То есть последовательно выполняются обе
+ команды i++ и i--. Команда ((i++)) возвращает число, являющееся 
+результатом выполнения выражения в скобках в стиле C. Значение этого 
+выражения — 0 (начальное значение i), но в C выражение с целочисленным 
+значением 0 рассматривается как false. Поэтому выражение ((i++)), где i 
+равно 0, возвращает 1 (false) и выполняется команда ((i--)).<br>
+<br>
+Этого бы не случилось, если бы мы использовали оператор преинкремента, поскольку в данном случае код возврата ++i — true:<br>
+<br>
+<pre>i=0
+true &amp;&amp; (( ++i )) || (( --i ))
+echo $i    # выводит 1</pre><br>
+Но нам всего лишь повезло и наш код работает исключительно по «случайному» стечению обстоятельств. Поэтому нельзя полагаться на <code>x&nbsp;&amp;&amp;&nbsp;y&nbsp;||&nbsp;z</code>, если есть малейший шанс, что <code>y</code> вернёт false (последний фрагмент кода будет выполнен с ошибкой, если i будет равно -1 вместо 0)<br>
+<br>
+Если вам нужна безопасность, или вы сомневаетесь в механизмах, которые 
+заставляют ваш код работать, или вы ничего не поняли в предыдущих 
+абзацах, лучше не ленитесь и пишите <code>if&nbsp;...&nbsp;fi</code> в ваших скриптах:<br>
+<br>
+<pre>i=0
+if true; then
+    ((i++))
+else
+    ((i--))
+fi
+echo $i   # выведет 1. </pre><br>
+Bourne shell это тоже касается:<br>
+<br>
+<pre># Выполняются оба блока команд:
+$ true &amp;&amp; { echo true; false; } || { echo false; true; }
+true
+false</pre><br>
+<h3>21. Касательно UTF-8 и BOM (Byte-Order Mark, метка порядка байтов)</h3><br>
+В общем: в Unix тексты в кодировке UTF-8 не используют метки порядка 
+байтов. Кодировка текста определяется по локали, mime-типу файла, или по
+ каким-то другим метаданным. Хотя наличие BOM не испортит UTF-8 документ
+ в плане его читаемости человеком, могут возникнуть проблемы с 
+автоматической интерпретацией таких файлов в качестве скриптов, исходных
+ кодов, файлов конфигурации и т.д. Файлы, начинающиеся с BOM, должны 
+рассматриваться как чужеродные, так же как и файлы с DOS'овскими 
+переносами строк.<br>
+<br>
+В шелл-скриптах: «Там, где UTF-8 может прозрачно использоватся в 
+8-битных окружениях, BOM будет пересекаться с любым протоколом или 
+форматом файлов, предполагающим наличие символов ASCII в начале потока, 
+например, <code>#!</code> в начале шелл-скриптов Unix» <a href="http://unicode.org/faq/utf_bom.html#bom5">http://unicode.org/faq/utf_bom.html#bom5</a>
+  	<div class="clear"></div>
+    </div>
+    
+    
+<ul class="tags">
+	<li><a href="http://habrahabr.ru/search/?q=%5Bbash%5D&amp;target_type=posts" rel="tag">bash</a></li><li>, <a href="http://habrahabr.ru/search/?q=%5Bsh%5D&amp;target_type=posts" rel="tag">sh</a></li><li>, <a href="http://habrahabr.ru/search/?q=%5B%D0%BE%D0%B1%D0%BE%D0%BB%D0%BE%D1%87%D0%BA%D0%B8%5D&amp;target_type=posts" rel="tag">оболочки</a></li><li>, <a href="http://habrahabr.ru/search/?q=%5B%D1%81%D0%BA%D1%80%D0%B8%D0%BF%D1%82%D1%8B%5D&amp;target_type=posts" rel="tag">скрипты</a></li><li>, <a href="http://habrahabr.ru/search/?q=%5B%D1%87%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%5D&amp;target_type=posts" rel="tag">частые ошибки</a></li>
+</ul>
+
+
+    <div class="infopanel_wrapper">
+	<div class="infopanel " id="infopanel_post_47915">
+	
+				<div class="voting   ">
+	
+						<span class="plus" title="Голосовать могут только зарегистрированные пользователи."></span>
+	
+					<div class="mark positive ">
+							<span class="score" title="Всего 74: ↑70 и ↓4">+66</span>
+					</div>
+					
+						<span class="minus" title="Голосовать могут только зарегистрированные пользователи."></span>
+		
+				</div>
+	
+		<div class="pageviews" title="Просмотры публикации">6390</div>
+			
+		<div class="favorite">
+				<a class="guest" href="#" onclick="return false;" title="Только зарегистрированные пользователи могут добавлять посты в избранное"></a>
+		</div>
+		<div class="favs_count" title="Количество пользователей, добавивших пост в избранное">140</div>
+		
+		
+			<div class="original-author">
+				<a title="Автор оригинала: Greg Wooledge" href="http://b23.ru/rxz">Greg Wooledge</a>
+			</div>
+		
+	
+	
+	
+	
+				<div class="author">
+					<a title="Автор текста" href="http://habrahabr.ru/users/bappoy/">bappoy</a>
+					<span class="rating" title="рейтинг пользователя">32,8</span>
+				</div>
+		
+	
+	
+		
+			<div class="share">
+				<div class="twitter">
+					<a href="http://twitter.com/intent/tweet?text=%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5+%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8+%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F+%D0%BD%D0%B0+Bash+%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29+http://habr.ru/p/47915/+via+%40habrahabr+%23habr" title="Опубликовать ссылку в Twitter" target="_blank"></a>
+				</div>
+				<div class="vkontakte">
+					<a href="http://vk.com/share.php?url=http://habrahabr.ru/post/47915/" title="Опубликовать ссылку во ВКонтакте" onclick="window.open(this.href, 'Опубликовать ссылку во Вконтакте', 'width=800,height=300'); return false"></a>
+				</div>
+				<div class="facebook">
+					<a href="https://www.facebook.com/sharer/sharer.php?u=http://habrahabr.ru/post/47915/" title="Опубликовать ссылку в Facebook" onclick="window.open(this.href, 'Опубликовать ссылку в Facebook', 'width=640,height=436,toolbar=0,status=0'); return false"></a>
+				</div>
+				<div class="googleplus">
+					<a href="https://plus.google.com/share?url=http://habrahabr.ru/post/47915/" title="Опубликовать ссылку в Google Plus" onclick="window.open(this.href, 'Опубликовать ссылку в Google Plus', 'width=800,height=300'); return false"></a>
+				</div>
+			</div>
+	
+	</div>
+	<div class="clear"></div>
+</div>
+
+
+
+
+    
+    
+		
+		
+	</div>
+
+    </div>
+
+  	    
+  <div id="adriver_banner_132032996"></div>  
+
+  <script type="text/javascript">
+      /** Для блоков гугла **/
+      function requireAdsafe(file){
+          var head = document.getElementsByTagName("head")[0];
+          var script = document.createElement('script');
+          script.src = file;
+          script.type = 'text/javascript';
+          head.appendChild(script);
+      }
+
+      function show_inner_banner_block(name, url){
+          if( typeof(name) !== 'undefined'){
+              //$.get('/html/'+name+'/1418904221/', function(html){
+              $.get('http://special.habrahabr.ru/api/htmlblock/'+name+'/', function(html){
+                  $('#adriver_banner_132032996').html(html);
+                  $('.'+name+'_inner_banner').removeClass('hidden');
+                  if( typeof(url) !== 'undefined'){
+                      $('.'+name+'_inner_banner .block_url').attr('href', url);
+                  }
+              }, 'html')
+          }
+      }
+
+        $(function(){
+          var check_scroll_position = function() {
+            var height = $(window).height();
+            var scrollTop = $(window).scrollTop();
+            var scrollBottom = $(window).scrollTop() + height;
+            var blockTop = $('#adriver_banner_132032996').position().top;
+            var show = scrollTop < blockTop && blockTop < scrollBottom;
+            
+            if( show ){
+                $( window ).off('scroll', check_scroll_position);
+                $( window ).trigger('show_bn3');
+            }
+          };
+          //$( window ).on('scroll', check_scroll_position);
+          
+          $( window ).on('show_bn3', function(){
+            var keyword = '';
+            if (typeof crtg_content !== 'undefined' && crtg_content) { keyword = crtg_content; }
+            var custom = { 4:ar_duo1 };
+                custom[1] = 'shells';
+
+            //if (true)
+            //    show_inner_banner_block('raiffaizen2');
+            //else
+                new adriver("adriver_banner_132032996", {sid: 176776, bt: 52, bn: 3, custom: custom, keyword: keyword});
+          });      
+
+          $( window ).trigger('show_bn3');          
+        });
+    </script>
+    
+
+
+  	
+      
+      <div class="block_after_post">
+        
+
+
+<div class="block similar_posts">
+
+    <div class="title">Похожие публикации</div>
+    <div class="posts_list">
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/221335/">Чистый Android: частые ошибки портирования с iOS</a>
+            <span class="when">29 апреля в 15:21</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/154683/">Оптимизация изображений bash-скриптом</a>
+            <span class="when"> 8 августа 2013 в 05:04</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/174369/">Частые ошибки при разработке lockfree-алгоритмов и их решения</a>
+            <span class="when">27 марта 2013 в 03:21</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/153485/">Частые ошибки при организации PR-мероприятий</a>
+            <span class="when"> 4 октября 2012 в 11:25</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/140788/">Срочно переезжаем в «облако»: частые ошибки</a>
+            <span class="when">27 марта 2012 в 13:12</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/125727/">Ликбез по уязвимостям в веб-приложениях, а также самые частые ошибки разработчиков</a>
+            <span class="when"> 5 августа 2011 в 14:46</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/122029/">Учим bash-скрипты, пишем Xonix</a>
+            <span class="when">17 июня 2011 в 05:21</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/113363/">Три частых ошибки в общении с клиентом</a>
+            <span class="when"> 8 февраля 2011 в 13:21</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/48053/">Частые ошибки программирования на Bash (окончание)</a>
+            <span class="when">29 декабря 2008 в 16:57</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/47706/">Частые ошибки программирования на Bash</a>
+            <span class="when">26 декабря 2008 в 16:13</span>
+        </div>
+    </div>
+</div>
+
+
+
+      </div>
+
+  		<div class="comments_list " id="comments">
+
+  <h2 class="title ">Комментарии (<span id="comments_count">19</span>)
+  
+  
+  </h2>
+
+    <div class="comment_item" id="comment_1233571">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233571">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233571" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark positive ">
+                    <span class="score" title="Всего 4: ↑4 и ↓0">+4</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/rasdol/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/224285fe83970efd3b8862255d3fdfca_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/rasdol/" class="username">rasdol</a>
+            <time>27 декабря 2008 в 14:38</time>
+
+            <a href="#comment_1233571" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Однозначно в избранное! Хау ту для ленивых
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233571">
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1233579">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233579">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233579" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Beerlander/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/fbb43f77cbb1f15792d9a1c7d7b3bab5_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Beerlander/" class="username">Beerlander</a>
+            <time>27 декабря 2008 в 14:44</time>
+
+            <a href="#comment_1233579" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Сам не раз в свое время наступал по забывчивости на описанные выше грабли :)<br>
+<br>
+Хорошая статья! Для новичков будет просто незаменима.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233579">
+        <div class="comment_item" id="comment_1233637">
+
+    <span class="parent_id" data-parent_id="1233579"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233637">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233637" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/mr_smile/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/mr_smile/" class="username">mr_smile</a>
+            <time>27 декабря 2008 в 15:24</time>
+
+            <a href="#comment_1233637" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1233637" data-parent_id="1233579" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233579" data-id="1233637" data-parent_id="1233579" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            я бы даже сказал, что статья больше полезна как раз не 
+новичкам, а людям, которые имеют какой-то опыт в написании bash-скриптов
+ :)
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233637">
+        <div class="comment_item" id="comment_1233647">
+
+    <span class="parent_id" data-parent_id="1233637"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233647">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233647" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Beerlander/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/fbb43f77cbb1f15792d9a1c7d7b3bab5_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Beerlander/" class="username">Beerlander</a>
+            <time>27 декабря 2008 в 15:30</time>
+
+            <a href="#comment_1233647" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1233647" data-parent_id="1233637" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233637" data-id="1233647" data-parent_id="1233637" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            те, у кого есть опыт, часть этих советов и ошибок уже испытали на собственной шкуре, у новичков — все впереди :)
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233647">
+        <div class="comment_item" id="comment_1233816">
+
+    <span class="parent_id" data-parent_id="1233647"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233816">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233816" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/mr_smile/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/mr_smile/" class="username">mr_smile</a>
+            <time>27 декабря 2008 в 17:33</time>
+
+            <a href="#comment_1233816" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1233816" data-parent_id="1233647" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233647" data-id="1233816" data-parent_id="1233647" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            не, ну я могу судить только по себе)<br>
+опыт в bash-скриптах у меня относительно большой, но многие ньюансы я для себя открыл :)
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233816">
+        <div class="comment_item" id="comment_1233818">
+
+    <span class="parent_id" data-parent_id="1233816"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233818">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233818" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Beerlander/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/fbb43f77cbb1f15792d9a1c7d7b3bab5_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Beerlander/" class="username">Beerlander</a>
+            <time>27 декабря 2008 в 17:35</time>
+
+            <a href="#comment_1233818" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1233818" data-parent_id="1233816" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233816" data-id="1233818" data-parent_id="1233816" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            пару нюансов и я для себя открыл :)
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233818">
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1233585">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233585">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233585" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Frosty/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/d44f3f6e957d7080663e29a18494275d_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Frosty/" class="username">Frosty</a>
+            <time>27 декабря 2008 в 14:46</time>
+
+            <a href="#comment_1233585" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Спасибо за перевод, нашел в списке пару ошибок, которые 
+совершал, еще несколько наверное бы совершил, представься возможность :)
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233585">
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1233603">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233603">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233603" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/SkazochNik/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/bc377934476fc269f138a326e9ee48dd_small.png" alt=""></a>
+            <a href="http://habrahabr.ru/users/SkazochNik/" class="username">SkazochNik</a>
+            <time>27 декабря 2008 в 14:58</time>
+
+            <a href="#comment_1233603" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Мне теперь никогда не наступить на эти грабли :( Ну спасибо!
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233603">
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1233634">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="author_banned">НЛО прилетело и опубликовало эту надпись здесь</div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233634">
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1233649">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233649">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233649" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/smartov/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/29596e53c183a68a5c7533b9a8cdfbc3_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/smartov/" class="username">smartov</a>
+            <time>27 декабря 2008 в 15:31</time>
+
+            <a href="#comment_1233649" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Спасибо, полезно. <br>
+Правда самое первое легко решается <br>
+sed «s/foo/bar» file --in-place :)
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233649">
+        <div class="comment_item" id="comment_1233662">
+
+    <span class="parent_id" data-parent_id="1233649"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1233662">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233662" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 2: ↑1 и ↓1">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/bappoy/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/bappoy/" class="username">bappoy</a>
+            <time>27 декабря 2008 в 15:39</time>
+
+            <a href="#comment_1233662" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1233662" data-parent_id="1233649" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233649" data-id="1233662" data-parent_id="1233649" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            sed выведет изменённое содержимое файла и добавит в конце:<br>
+<pre>sed: --in-place: No such file or directory</pre><br>
+<br>
+О том, как правильно использовать опцию -i, написано в том же пункте, читайте внимательнее.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233662">
+        <div class="comment_item" id="comment_1233686">
+
+    <span class="parent_id" data-parent_id="1233662"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233686">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233686" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  negative">
+                    <span class="score" title="Всего 3: ↑1 и ↓2">–1</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/smartov/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/29596e53c183a68a5c7533b9a8cdfbc3_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/smartov/" class="username">smartov</a>
+            <time>27 декабря 2008 в 16:02</time>
+
+            <a href="#comment_1233686" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1233686" data-parent_id="1233662" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233662" data-id="1233686" data-parent_id="1233662" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format bad bad1">
+            Я мог бы съязвить разными способами, но вместо этого 
+предлагаю вам пройти в консоль, набрать sed --version, убедиться что она
+ выше 4, после чего выполнить 3 простые команды<br>
+[code]echo «foo»&gt;/tmp/file<br>
+sed «s/foo/bar/» /tmp/file --in-place<br>
+cat /tmp/file[/code]<br>
+после чего начать срочно извиняться и говорить что будете в следующий раз проверять свои слова перед тем, как что-то говорить.<br>
+<br>
+Более того, вы втихую подправили статью. Это некрасиво
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233686">
+        <div class="comment_item" id="comment_1233705">
+
+    <span class="parent_id" data-parent_id="1233686"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1233705">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233705" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark positive ">
+                    <span class="score" title="Всего 1: ↑1 и ↓0">+1</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/bappoy/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/bappoy/" class="username">bappoy</a>
+            <time>27 декабря 2008 в 16:15</time>
+
+            <a href="#comment_1233705" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1233705" data-parent_id="1233686" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233686" data-id="1233705" data-parent_id="1233686" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Правда Ваша, Алексей: в GNU sed действительно можно ставить 
+опцию --in-place после имени файла, но в FreeBSD, в которой я проверял 
+работу sed описанным Вами способом — нет.<br>
+<br>
+Статью я не правил, то, что Вы видите и есть то, что было опубликовано. И в <a href="http://wooledge.org:8000/BashPitfalls#catfile.7Cseds.2BAC8-foo.2BAC8-bar.2BAC8.3Efile">оригинале статьи</a>, и в версии перевода на моем сайте абзац про sed -i тоже присутствует.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233705">
+        <div class="comment_item" id="comment_1234748">
+
+    <span class="parent_id" data-parent_id="1233705"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1234748">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1234748" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark positive ">
+                    <span class="score" title="Всего 1: ↑1 и ↓0">+1</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/smartov/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/29596e53c183a68a5c7533b9a8cdfbc3_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/smartov/" class="username">smartov</a>
+            <time>28 декабря 2008 в 01:27</time>
+
+            <a href="#comment_1234748" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1234748" data-parent_id="1233705" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1233705" data-id="1234748" data-parent_id="1233705" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            О! Респект Вам огромный. Вы написали что не правы. Не многие так сделают.<br>
+Простите, если был резковат.<br>
+Еще раз спасибо за статью.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1234748">
+        <div class="comment_item" id="comment_1234751">
+
+    <span class="parent_id" data-parent_id="1234748"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1234751">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1234751" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/smartov/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/29596e53c183a68a5c7533b9a8cdfbc3_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/smartov/" class="username">smartov</a>
+            <time>28 декабря 2008 в 01:28</time>
+
+            <a href="#comment_1234751" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1234751" data-parent_id="1234748" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1234748" data-id="1234751" data-parent_id="1234748" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            p.s. По поводу правки — значит уже мне начало мерещиться :)
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1234751">
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1233740">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1233740">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1233740" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/selitskas/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/43d25ebc2844e6a0be68b027f1a9bed6_small.png" alt=""></a>
+            <a href="http://habrahabr.ru/users/selitskas/" class="username">selitskas</a>
+            <time>27 декабря 2008 в 16:41</time>
+
+            <a href="#comment_1233740" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            О, большое спасибо! Часто сталкивался с пунктом 11, когда 
+файл обнулялся (благо меня приучили делать бекапы), я выходил из 
+положения использованием временного файла…
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1233740">
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1234201">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1234201">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1234201" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/paul7/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/c6f7150f6c8d2417fdc4184f0be63457_small.png" alt=""></a>
+            <a href="http://habrahabr.ru/users/paul7/" class="username">paul7</a>
+            <time>27 декабря 2008 в 20:39</time>
+
+            <a href="#comment_1234201" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Действительно хорошая статья. В отличие от большинства здесь по этой тематике. Спасибо!
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1234201">
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1235123">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1235123">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1235123" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/avsmal/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/6742ce947d8fa02ec3f96618c9000759_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/avsmal/" class="username">avsmal</a>
+            <time>28 декабря 2008 в 11:32</time>
+
+            <a href="#comment_1235123" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Спасибо. Много интересного.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1235123">
+    </div>
+</div>
+
+    <div class="comment_item" id="comment_1235677">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1235677">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1235677" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  negative">
+                    <span class="score" title="Всего 2: ↑0 и ↓2">–2</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/sylvio/" class="avatar"><img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/9bbbe44c110b5da9d9d8da73b71e823d_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/sylvio/" class="username">sylvio</a>
+            <time>28 декабря 2008 в 15:44</time>
+
+            <a href="#comment_1235677" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format bad bad2">
+            Такое чувство, что bash делали не для людей, ну блин, «foo =
+ bar» и «foo=bar» разные команды, ну как так можно &gt;_&lt;
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1235677">
+    </div>
+</div>
+
+</div>
+
+  					<p class="for_users_only_msg">Только зарегистрированные пользователи могут оставлять комментарии. <a href="https://habrahabr.ru/auth/login/">Войдите</a>, пожалуйста.</p>
+
+
+  	
+<form action="/json/favorites/" method="post" id="edit_tags_form" class="hidden">
+  <input name="action" value="add" type="hidden">
+  <input name="ti" value="0" type="hidden">
+  <input name="tt" value="0" type="hidden">
+  <label>Пометьте топик понятными вам метками, если хотите</label>
+  <input autocomplete="off" name="tags_string" class="tags_string" type="text">
+  <div class="description">Метки лучше разделять запятой. Например: <i>общение, социальные сети, myspace.com, подростки, мердок</i></div>
+  <input value="Сохранить" class="submit" type="submit"> или <a href="#" class="close" onclick="return close_edit_tags()">закрыть</a>
+</form>
+    
+    
+
+  </div>
+  <div class="sidebar_right">
+  			<div class="banner_300x500">
+		<div id="adriver_banner_1863387959"></div>
+		<script type="text/javascript">
+            function show_bn1_block(name, url){
+                console.log('show' + name);
+                if( typeof(name) !== 'undefined'){
+                    $.get('/html/'+name+'/1418904221/', function(html){
+                        $('#adriver_banner_1863387959').html(html);
+                        if( typeof(url) !== 'undefined'){
+                            $('.'+name+'_inner_banner .block_url').attr('href', url);
+                        }
+                    })
+                }
+            }
+
+
+
+			$(function(){
+
+                // конвертирут кириллицу в cp1251
+                // doc: http://www.adriver.ru/doc/edu-n/pub/settargt/standtrgt/scentrgt/scentrgt.html#9
+				function esc(s){
+                    for(var i=0,l=s.length,r='';i<l;i++){
+                        var c = s.charCodeAt(i);r += String.fromCharCode(c>1039&&c<1104 ? c-848 : c==1105 ? 184 : c==1025 ? 168 : c);
+                    }
+                    return r;
+                }
+
+                var keyword = '';
+
+                if (typeof crtg_content !== 'undefined' && crtg_content) { keyword = crtg_content; }
+                
+                
+
+				var custom = {4:ar_duo1};
+					custom[1] = 'shells';
+
+                 new adriver("adriver_banner_1863387959", {sid: 176776, bt: 52, bn: 1, custom: custom, keyword: keyword});
+			}());
+
+
+
+            
+		</script>
+	</div>
+
+  		
+  		
+<div class="block daily_best_posts">
+  <div class="title">Популярное за сутки</div>
+  <div class="posts_list">
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/246349/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Yeoman для новичков</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/papabubadiop/blog/246369/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">6 игр за 6 недель — игра четвертая</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/246377/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Уязвимость в Git: выполнение произвольных команд</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/246371/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Семь истин об инди-разработке</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/246341/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">IPv6, miredo, dynamic DNS AAAA</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/246343/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Дайджест интересных материалов о создании контента, маркетинге и Growth Hacking #6</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/eset/blog/244853/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">ФБР: компанию Sony атаковали хакеры из Северной Кореи</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/wargaming/blog/246365/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Финальное мероприятие WGDC глазами организатора</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/246353/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Внедрение через URL: www.site.ru/?jn=xxxxxxxx</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/246351/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Универсальный обмен сообщениями между страницами в расширениях</a>
+      </div>
+  </div>
+  <div class="all"><a href="http://habrahabr.ru/top/">все лучшие</a></div>
+</div>
+
+	    
+
+<div class="block geektimes_top">
+	<a href="http://geektimes.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo" class="title">Лучшее на Geektimes</a>
+	<div class="posts_list">
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243273/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Цензура в Facebook и Вконтакте для российских пользователей</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243257/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">В Беларуси приняты поправки к закону о СМИ, позволяющие блокировать неугодные интернет-ресурсы (статья дополняется)</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243269/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">ОАЦ Беларуси разделегировал домен второго по популярности сайта страны</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243261/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Сеть Tor может подвергнуться атаке в ближайшие дни</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243277/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Субъективные ощущения после месяца использования Pebble Watch</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243283/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Будущее здесь: астронавту нужен гаечный ключ, НАСА высылает модель для его печати</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243279/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Амазон доставляет заказы в течение одного часа</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243263/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">А Вы знали, что муравьи умеют считать…</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/243255/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Зимнее или летнее время? Что говорят математика и астрономия</a>
+  		</div>
+
+	</div>
+	<div class="all"><a href="http://geektimes.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">все посты</a></div>
+</div>
+
+
+  	  
+<div class="block similar_questions">
+	<div class="title">Вопросы по теме</div>
+
+	<div class="posts_list">
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/123599?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Можно ли в скрипте bash узнать как он был запущен?</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/115069?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как с помощью printf конвертировать hex в dec, выровнять влево и задать фикс. ширину одним разом?</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/111783?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как написать скрипт, который проконтролирует себя на предмет зависания/долгого выполнения?</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/101593?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как узнать размер директории через Python?</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/96989?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Скрипт на bash/sh/csh</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/94723?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Bash-скрипт - как разделить данные?</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/84088?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Скрипт на bash для кодирования видео</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/69760?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как провести автоматический перевод из bash в bat</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/66790?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как автоматически производить поиск определенного сигнала в видеофайлах?</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/50476?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Проблема при вводе русских букв в консоли</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/41652?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Помогите написать простой скрипт</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/40980?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Запуск bash скрипта по хоткею</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/40557?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Удаленный запуск скриптов</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/31433?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Bacula, выполнение скриптов после бекапа</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/20362?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как сграбить то что по неоднозначной ссылке?</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/16756?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Вопрос по shell скрипту: непрерывная обработка tail -f</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/15525?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Monit</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/15507?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Bash&amp;Screen</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/10702?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Знатокам imagemagick</a>
+		</div>
+    	<div class="post_item">
+    	    <a class="post_name" href="http://toster.ru/q/9677?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Выполнение sh файла из сети при загрузке ubuntu</a>
+		</div>
+  </div>			
+		
+</div>
+
+  		
+  		
+
+	<div class="block live_broadcast">
+		<div class="title">Что обсуждают? </div>
+
+		<div class="live_broadcast_activity">
+				<div class="posts_list">
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/244853#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">ФБР: компанию Sony атаковали хакеры из Северной Кореи</a>&nbsp;<span class="count">11</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246349#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Yeoman для новичков</a>&nbsp;<span class="count">28</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246293#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">6 игр за 6 недель — игра третья</a>&nbsp;<span class="count">20</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246357#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">PhpStorm в Ubuntu 14 с использованием в Windows 7 через Xming</a>&nbsp;<span class="count">17</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246369#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">6 игр за 6 недель — игра четвертая</a>&nbsp;<span class="count">15</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246359#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Экономим на Интернете в небольшом офисе</a>&nbsp;<span class="count">57</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/240121#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Контроль диапазонов целых чисел в FindBugs</a>&nbsp;<span class="count">17</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246379#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Resharper v9 и C# v6</a>&nbsp;<span class="count">4</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246237#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">И ИТ, и ИП: рассказываем, где небольшому бизнесу взять денег на развитие</a>&nbsp;<span class="count">5</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/246377#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Уязвимость в Git: выполнение произвольных команд</a>&nbsp;<span class="count">11</span>
+							</div>
+				</div>
+				<div class="all"><a href="http://habrahabr.ru/posts/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'all_posts'); }">все публикации</a></div>
+		</div>
+
+	</div>
+  
+  		<!--  AdRiver code START. Type:AjaxJS Site: habrahabr PZ: 0 BN: 2 -->
+
+<div id="adriver_banner_480931290" class="adbanner"></div>
+
+
+<script type="text/javascript">
+    function show_bn2_block(name, url){
+        if( typeof(name) !== 'undefined'){
+            $.get('/html/'+name+'/1418904221/', function(html){
+                $('#adriver_banner_480931290').html(html);
+                if( typeof(url) !== 'undefined'){
+                    $('.'+name+'_inner_banner .block_url').attr('href', url);
+                }
+            })
+        }
+    }
+
+    $(function(){
+
+        var check_scroll_position = function() {
+            var height = $(window).height();
+            var scrollTop = $(window).scrollTop();
+            var scrollBottom = $(window).scrollTop() + height;
+            var blockTop = $('#adriver_banner_480931290').position().top;
+            var show = scrollTop < blockTop && blockTop < scrollBottom;
+            if( show ){
+                $( window ).off('scroll', check_scroll_position);
+                $( window ).trigger('show_bn2');
+            }
+        };
+        $( window ).on('scroll', check_scroll_position);
+
+        $( window ).on('show_bn2', function(){
+            var keyword = '';
+            if (typeof crtg_content !== 'undefined' && crtg_content) { keyword = crtg_content; }
+            var custom = {4:ar_duo1};
+            custom[1] = 'shells';
+            new adriver("adriver_banner_480931290", {sid: 176776, bt: 52, bn: 2, custom: custom, keyword: keyword});
+        });
+    });
+    </script>
+<!--  AdRiver code END  -->
+
+  		
+<div class="block best_company">
+
+		<div class="title">Компания дня <img src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/bg_cicle_help.png" class="help-tip"></div>
+
+		<div class="company_info">
+			<div class="name">
+			 <img class="favicon" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/41b9a050e83c0d6549577b107ba1a216_small.png" alt="Web-payment.ru" height="16" width="16">
+			 <div class="company_name"><a href="http://habrahabr.ru/company/web_payment_ru/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'best_company', 'title'); }" class="title">Web-payment.ru</a></div>
+			</div>
+
+			<p>Последняя публикация:
+				<a href="http://habrahabr.ru/company/web_payment_ru/blog/246081/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'best_company', 'post'); }">О медленном программировании</a>
+			</p>
+
+			<div class="buttons">
+  			<div id="fans_count">118 подписчиков</div>
+			</div>
+		</div>
+
+	</div>
+
+
+  		
+  		
+  		
+  </div>
+  <div class="clear"></div>
+
+  <script>
+    // hubs to GA
+      ga('send', 'event', 'Post_view', 'shells (Оболочки)',  window.location.pathname + window.location.search);
+  </script>
+
+
+
+        
+        	
+	<div class="rotated_posts">
+			<div class="rotated_post ">
+				<a href="http://habrahabr.ru/post/236147/" class="grey" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'posts_rotation_block'); }">Как делают гигантские зеркала для телескопов</a>
+			</div>
+			<div class="rotated_post ">
+				<a href="http://habrahabr.ru/post/232949/" class="grey" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'posts_rotation_block'); }">Техподдержка всего мира: местный колорит IT, сдобренный своей версией английского</a>
+			</div>
+			<div class="rotated_post last">
+				<a href="http://habrahabr.ru/post/235837/" class="grey" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'posts_rotation_block'); }">Оператор связи. 12 лет эволюции</a>
+			</div>
+		<div class="clear"></div>
+	</div>
+
+        <div class="bottom_promo_blocks">
+    <div class="left">
+            
+	<div class="block new_vacanies">
+  <a href="http://brainstorage.me/jobs?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo" class="title">Brainstorage</a>
+  <div class="vacancies">
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/23445?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Senior Server Programmer C++ (WoT)</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/24311?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Creative Director (World of Tanks Blitz) </a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/22239?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Senior Python Developer </a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/25553?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Senior Graphic designer / Графический дизайнер </a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/24315?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">UX Designer (ToolSet)</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/24317?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">UX Designer</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/24675?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Project Manager (ART) </a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/24679?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Администратор баз данных (DBA)</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/24681?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Data Warehouse Architect</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/24683?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Data Warehouse Team Lead</a>
+		</div>
+  </div>
+  <div class="all"><a href="http://brainstorage.me/jobs?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">все вакансии</a></div>
+</div>
+
+    </div>
+    <div class="right">
+        
+	<div class="block freelansim">
+	  <a href="http://freelansim.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo" class="title"></a>
+	  <div class="tasks">
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95433?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Html/javascript_or_hta/vbscript_or_Excel/vba</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95431?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Агрегатор доставки букетов, "копия" bloomnation.com</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95427?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Верстка и кодинг одностраничного лэндинга на Wordpress</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95423?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Переработать корзину в CMS Bitrix</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95419?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Доработать верстку (фон)</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95405?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Установить и настроить CloudStack</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95401?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Расширение для браузеров с взаимодействием по API с сайтом</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95399?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Ищу софт: Создание копии сайта. Сменить контент, цвета, копирайты</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95305?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Интернет-магазин на Drupal</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/95373?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Адаптивный js слайдер для просмотра картинок и видео</a>
+				</div>
+
+	  </div>
+	  <div class="all"><a href="http://freelansim.ru/tasks?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">все заказы</a></div>
+	</div>
+
+    </div>
+    <div class="clear"></div>
+</div>
+
+
+        
+        <div class="clear"></div>
+
+        <div class="footer_panel">
+          <div id="footer">
+	<dl>
+		<dd><a href="https://habrahabr.ru/auth/login/">Войти</a></dd>
+		<dd><a href="https://habrahabr.ru/auth/register/">Регистрация</a></dd>
+	</dl>
+	<dl>
+		<dt>Разделы</dt>
+		<dd><a href="http://habrahabr.ru/posts/top/">Публикации</a></dd>
+		<dd><a href="http://habrahabr.ru/hubs/">Хабы</a></dd>
+		<dd><a href="http://habrahabr.ru/companies/">Компании</a></dd>
+		<dd><a href="http://habrahabr.ru/users/">Пользователи</a></dd>
+		<dd><a href="http://toster.ru/?_aa=press_anykey">Q&amp;A</a></dd>
+		<dd><a href="http://habrahabr.ru/sandbox/">Песочница</a></dd>
+		
+	</dl>	
+	<dl>
+		<dt>Инфо</dt>
+		<dd><a href="http://habrahabr.ru/info/about/">О сайте</a></dd>
+		<dd><a href="http://habrahabr.ru/info/help/rules/">Правила</a></dd>
+		<dd><a href="http://habrahabr.ru/info/help/">Помощь</a></dd>
+		<dd><a href="http://habrahabr.ru/info/agreement/">Соглашение</a></dd>
+	</dl>
+	<dl>
+		<dt>Услуги</dt>
+		<dd><a href="http://habrahabr.ru/info/advertising/">Реклама</a></dd>
+		<dd><a href="http://habrahabr.ru/info/advertising/corporate/">Тарифы</a></dd>
+		<dd><a href="http://habrahabr.ru/info/advertising/workshops/">Семинары</a></dd>
+		<dd><a href="http://special.habrahabr.ru/">Спецпроекты</a></dd>
+	</dl>
+	<dl>
+		<dt>Разное</dt>
+		<dd><a href="http://habrahabr.ru/apps/">Приложения</a></dd>
+		<dd><a href="http://habrahabr.ru/special/testdrive/">Тест-драйвы</a></dd>
+		<dd><a href="http://special.habrahabr.ru/hello_startup/bizspark/">Помощь стартапам</a></dd>
+	</dl>
+	<div class="copyright">
+
+		<div class="about">
+			<a href="http://tmtm.ru/">TM</a>
+			© 2006–2014
+			<br><br>
+			<a href="http://habrahabr.ru/feedback/">Служба поддержки</a><br><br>
+                <a href="http://m.habrahabr.ru/post/47915/?mobile=yes">Мобильная версия</a><br><br>
+			
+
+			<div class="social_accounts">
+				<a href="https://twitter.com/habrahabr" class="tw"></a>
+				<a href="https://www.facebook.com/habrahabr.ru" class="fb"></a>
+				<a href="http://vk.com/habr" class="vk"></a>
+				<!-- <a href="" class="gp"></a> //-->
+			</div>
+
+		</div>
+	</div>
+
+</div>    
+          
+        </div>
+      </div>
+    </div>
+  
+
+      <script type="text/javascript" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/jquery.js"></script>
+      <script type="text/javascript">
+        $(document).ready( function(){
+          window.tmidLogin = function(){ return false; };
+          if( $.cookie('tmid_no_check') == undefined ) {
+            var expire = new Date();
+            expire.setMinutes(expire.getMinutes() + 10 );
+            $.cookie('tmid_no_check', 1, { expires: expire } );
+            $.getScript("https://id.tmtm.ru/checklogin", function(){
+              if( window.tmidLogin() ) {
+
+                  var href = $('#login').attr('href');
+
+                  if( href !== undefined ) {
+                      window.location.href = href;
+                  }
+              }
+            });
+          }
+        });
+      </script>
+
+    <script type="text/javascript">
+  // global vars
+  var g_base_url = 'habrahabr.ru';
+  var g_show_xpanel = false;
+  var g_base_fullurl = 'http://habrahabr.ru/';
+  var g_is_guest = false;
+</script> 
+
+      <script type="text/javascript" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/shortcuts.js"></script>
+    
+    <script type="text/javascript" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/global_footer_main.js"></script>
+
+    	<script type="text/javascript" src="%D0%A7%D0%B0%D1%81%D1%82%D1%8B%D0%B5%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8%20%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%20Bash%20%28%D0%BF%D1%80%D0%BE%D0%B4%D0%BE%D0%BB%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%29%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/a"></script>
+
+    
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+(function (d, w, c) {
+    (w[c] = w[c] || []).push(function() {
+        try {
+            w.yaCounter24049213 = new Ya.Metrika({id:24049213,
+                    webvisor:true,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true});
+        } catch(e) { }
+    });
+
+    var n = d.getElementsByTagName("script")[0],
+        s = d.createElement("script"),
+        f = function () { n.parentNode.insertBefore(s, n); };
+    s.type = "text/javascript";
+    s.async = true;
+    s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+    if (w.opera == "[object Opera]") {
+        d.addEventListener("DOMContentLoaded", f, false);
+    } else { f(); }
+})(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
+    
+
+    <!-- Хабр не резиновый! -->
+  
+
+<div id="tiptip_holder" style="max-width:auto;"><div id="tiptip_arrow"><div id="tiptip_arrow_inner"></div></div><div id="tiptip_content"></div></div><div id="AutocompleteContainter_154c2" style="position: absolute; z-index: 9999; top: 2px; left: 0px;"><div class="autocomplete-w1"><div class="autocomplete" id="Autocomplete_154c2" style="display: none; width: 300px; max-height: 400px;"></div></div></div><div id="AutocompleteContainter_abbc0" style="position: absolute; z-index: 9999; top: 2px; left: 0px;"><div class="autocomplete-w1"><div class="autocomplete" id="Autocomplete_abbc0" style="display: none; width: 300px; max-height: 400px;"></div></div></div></body></html>

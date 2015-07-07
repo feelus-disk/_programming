@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 28. Of Zeros and Nulls</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch27s02.html" title="/proc"/><link rel="next" href="ch29.html" title="Глава 29. Debugging"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 28. Of Zeros and Nulls</th></tr><tr><td align="left"><a accesskey="p" href="ch27s02.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch29.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 28. Of Zeros and Nulls"><div class="titlepage"><div><div><h2 class="title"><a id="zeros"/>Глава 28. Of Zeros and Nulls</h2></div></div></div><div class="epigraph"><p>Faultily faultless, icily regular, splendidly null</p><p>Dead perfection; no more.</p><p>--Alfred Lord Tennyson</p></div><p><a id="zerosref"/></p><div class="variablelist" title="/dev/zero ... /dev/null"><a id="zeronull"/><p class="title"><b><a id="zeronull1"/><code class="filename">/dev/zero</code>
+          ... <code class="filename">/dev/null</code></b></p><dl><dt><span class="term"><a id="devnullref"/>Uses of
+      <code class="filename">/dev/null</code></span></dt><dd><p>Think of <code class="filename">/dev/null</code> as a <em class="firstterm">black
+    hole</em>. It is essentially the equivalent of
+    a write-only file. Everything written to it disappears.
+    Attempts to read or output from it result in nothing. All
+    the same, <code class="filename">/dev/null</code> can be quite
+    useful from both the command-line and in scripts.</p><p>Suppressing <code class="filename">stdout</code>.
+        </p><pre class="programlisting">cat $filename &gt;/dev/null
+# Contents of the file will not list to stdout.</pre><p>
+            </p><p>Suppressing <code class="filename">stderr</code>
+        (from <a class="xref" href="ch15s02.html#ex57" title="Пример 15.3. Badname, eliminate file names in current directory containing bad characters and whitespace.">Пример 15.3, «<em class="firstterm">Badname</em>, eliminate file names
+    in current directory containing bad characters and whitespace.»</a>).
+        </p><pre class="programlisting">rm $badname 2&gt;/dev/null
+#           So error messages [stderr] deep-sixed.</pre><p>
+      </p><p>Suppressing output from <span class="emphasis"><em>both</em></span>
+        <code class="filename">stdout</code> and <code class="filename">stderr</code>.
+        </p><pre class="programlisting">cat $filename 2&gt;/dev/null &gt;/dev/null
+# If "$filename" does not exist, there will be no error message output.
+# If "$filename" does exist, the contents of the file will not list to stdout.
+# Therefore, no output at all will result from the above line of code.
+#
+#  This can be useful in situations where the return code from a command
+#+ needs to be tested, but no output is desired.
+#
+# cat $filename &amp;&gt;/dev/null
+#     also works, as Baris Cicek points out.</pre><p>
+      </p><p>Deleting contents of a file, but preserving the file itself, with
+        all attendant permissions (from <a class="xref" href="ch02.html#ex1" title="Пример 2.1. Очистка: Скрипт для очистки файлов в /var/log">Пример 2.1, «<em class="firstterm">Очистка</em>: Скрипт для очистки файлов в 
+      /var/log »</a> and <a class="xref" href="ch02.html#ex2" title="Пример 2.3. Очистка: Расширенная, и более универсальная версия скрипта.">Пример 2.3, «<em class="firstterm">Очистка</em>: Расширенная, и более
+      универсальная версия скрипта.»</a>):
+        </p><pre class="programlisting">cat /dev/null &gt; /var/log/messages
+#  : &gt; /var/log/messages   has same effect, but does not spawn a new process.
+
+cat /dev/null &gt; /var/log/wtmp</pre><p>
+        </p><p>Automatically emptying the contents of a logfile
+        (especially good for dealing with those nasty
+        <span class="quote">«<span class="quote">cookies</span>»</span> sent by commercial Web sites):</p><div class="example"><a id="cookies"/><p class="title"><b>Пример 28.1. Hiding the cookie jar</b></p><div class="example-contents"><pre class="programlisting"># Obsolete Netscape browser.
+# Same principle applies to newer browsers.
+
+if [ -f ~/.netscape/cookies ]  # Remove, if exists.
+then
+  rm -f ~/.netscape/cookies
+fi
+
+ln -s /dev/null ~/.netscape/cookies
+# All cookies now get sent to a black hole, rather than saved to disk.</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="zerosref1"/>Uses of <code class="filename">/dev/zero</code></span></dt><dd><p>Like <code class="filename">/dev/null</code>,
+        <code class="filename">/dev/zero</code> is a pseudo-device file, but
+        it actually produces a stream of nulls
+        (<span class="emphasis"><em>binary</em></span> zeros, not the ASCII
+        kind). Output written to <code class="filename">/dev/zero</code>
+        disappears, and it is fairly difficult to actually read
+        the nulls emitted there, though it can be done with <a class="link" href="ch15s09.html#odref">od</a> or a hex editor. <a id="swapfileref"/>The chief use of
+        <code class="filename">/dev/zero</code> is creating an initialized
+        dummy file of predetermined length intended as a temporary
+        swap file.</p><div class="example"><a id="ex73"/><p class="title"><b>Пример 28.2. Setting up a swapfile using <code class="filename">/dev/zero</code></b></p><div class="example-contents"><pre class="programlisting">&amp;ex73;</pre></div></div><br class="example-break"/><p>Another application of <code class="filename">/dev/zero</code>
+        is to <span class="quote">«<span class="quote">zero out</span>»</span> a file of a designated
+        size for a special purpose, such as mounting a filesystem
+        on a <a class="link" href="ch27.html#loopbackref">loopback device</a>
+        (see <a class="xref" href="ch16.html#createfs" title="Пример 16.8. Creating a filesystem in a file">Пример 16.8, «Creating a filesystem in a file»</a>) or <span class="quote">«<span class="quote">securely</span>»</span>
+        deleting a file (see <a class="xref" href="ch15s09.html#blotout" title="Пример 15.60. Securely deleting a file">Пример 15.60, «Securely deleting a file»</a>).</p><div class="example"><a id="ramdisk"/><p class="title"><b>Пример 28.3. Creating a ramdisk</b></p><div class="example-contents"><pre class="programlisting">&amp;ramdisk;</pre></div></div><br class="example-break"/><p>In addition to all the above,
+        <code class="filename">/dev/zero</code> is needed by ELF
+        (<em class="firstterm">Executable and Linking Format</em>)
+        UNIX/Linux binaries.</p></dd></dl></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch27s02.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch29.html">След.</a></td></tr><tr><td align="left" valign="top"><code class="filename">/proc</code> </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 29. Debugging</td></tr></table></div></body></html>

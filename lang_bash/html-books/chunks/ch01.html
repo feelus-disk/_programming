@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 1. Программирование на Shell!</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt01.html" title="Часть Часть 1. Введение"/><link rel="prev" href="pt01.html" title="Часть Часть 1. Введение"/><link rel="next" href="ch02.html" title="Глава 2. Для начала о Sha-Bang"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 1. Программирование на Shell!</th></tr><tr><td align="left"><a accesskey="p" href="pt01.html">Пред.</a> </td><th width="60%" align="center">Часть Часть 1. Введение</th><td align="right"> <a accesskey="n" href="ch02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 1. Программирование на Shell!"><div class="titlepage"><div><div><h2 class="title"><a id="why-shell"/>Глава 1. Программирование на Shell!</h2></div></div></div><div class="epigraph"><p>Ни один из языков программирования не совершенен. Нет даже лучшего языка —
+      есть только языки хорошо или плохо подходящие для решения конкретной задачи.</p><p>--Herbert Mayer</p></div><p>Вы должны достаточно хорошо знать shell-скриптинг , чтобы
+    без затруднений заниматься системным администрированием, даже если 
+    вы не предполагаете писать собственные скрипты. Во время загрузки,
+    Linux исполняет множество сценариев, находящихся
+    <code class="filename">/etc/rc.d</code>, которые настраивают систему 
+    и запускают необходимые для работы сервисы. Детальное понимание этих 
+    стартовых скриптов даст вам возможность анализировать, и, если появится необходимость,
+    менять поведение системы.</p><p>Искусство скриптинга не является сложным для изучения, т.к. мы имеем
+    совсем немного shell-специфичных операторов и языковых конструкций.
+
+
+      <sup>[<a id="idp1778320" href="#ftn.idp1778320" class="footnote">1</a>]</sup>
+        Синтаксис языка прост и прямолинеен, 
+        он очень напоминает команды, которые приходится вводить 
+        в командной строке. 
+        Большинство коротких скриптов работают правильно при первом же запуске,
+        не нуждаясь в отладке, а отладка длинных скриптов достаточно проста.
+        
+      </p><p>
+      </p><div class="blockquote"><blockquote class="blockquote"><div class="literallayout"><p><br/>
+        В семидесятых язык программирования <em class="wordasword">BASIC</em> <br/>
+        позволил многим писать программы начального уровня для микрокомпьютеров. <br/>
+        Десятилетия спустя,  <em class="wordasword">Bash</em> позволяет людям с элементартыми <br/>
+        знаниями Linux или UNIX делать то же самое для гораздо более мощных машин.<br/>
+       </p></div></blockquote></div><p>
+    </p><p>Shell скрипты хорошо подходят для быстрого создания прототипов 
+    сложных приложений. Даже будучи ограниченными в функциональности, скрипты
+    часто используются на первой стадии разработки проекта. На этом этапе
+    может быть создана и опробована структура будущего приложения.
+    Так же могут быть выявлены возможные «ловушки»,
+    перед тем как начнется финальная разработка на
+    <em class="firstterm">C</em>, <em class="firstterm">C++</em>,
+      <em class="firstterm">Java</em>, <a class="link" href="ch33s03.html#perlref">Perl</a>,
+      или <em class="firstterm">Python</em>.</p><p>Скрипты возвращают нас к классической философии UNIX,
+    где принято разбивать сложные проекты на ряд простых подзадач.
+    Многие считают такой подход наилучшим или, по меньшей мере, 
+    наиболее эстетичным способом решения возникающих проблем, 
+    нежели использование нового поколения языков — «все-в-одном», 
+    таких как  <em class="firstterm">Perl</em>, которые пытаются 
+    быть соответственными любой задаче, и требующие взамен подстраивать процесс
+    мышления пользователя под инструмент. </p><p>Цитируя <a class="link" href="bi01.html#mayerref">Герберта Мейера(Herbert Mayer)</a>,
+      <span class="quote">«<span class="quote">Удобный язык должен иметь массивы, указатели,
+      общий механизм создания структур данных. </span>»</span>
+    Shell-скриптинг частично не подходит под эти критерии, и потому не всегда 
+    может быть  <span class="quote">«<span class="quote">удобным.</span>»</span> Хотя кто знает . . .</p><p>Когда не нужно использовать shell-скрипты
+ </p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>Задачи, интенсивно использующие ресурсы машины.
+    Например, когда критерием качества является скорость работы 
+    (поиск,сортировка, хэширование, рекурсии
+     <sup>[<a id="idp391888" href="#ftn.idp391888" class="footnote">2</a>]</sup>
+      ...)</p></li><li class="listitem"><p>Процедуры, исполняющие сложные математические вычисления,
+    как например вычисления с плавающей точкой, вычисления с произвольной точностью,
+      или комплексные числа (здесь лучше использовать
+      <em class="firstterm">C++</em> или <em class="firstterm">FORTRAN</em>)</p></li><li class="listitem"><p>Задачи, где требуется переносимость на разные платформы 
+    (здесь лучше использовать 
+      <em class="firstterm">C</em> или <em class="firstterm">Java</em>)
+      </p></li><li class="listitem"><p>Сложные приложения, где необходим структурный подход
+    (проверка типов переменных, прототипиорование функций, и т.д.)</p></li><li class="listitem"><p>Критически-важные задачи, от которых может зависеть успех предприятия.</p></li><li class="listitem"><p>Ситуации, где <span class="emphasis"><em>безопасность</em></span> является
+      важной, где вы должны быть уверены в целостности вашей системы
+      и защищенности против вторжений, взломов и т.п.</p></li><li class="listitem"><p>Проекты, состоящие из подкомпонентов со взаимными зависимостями</p></li><li class="listitem"><p>Обширное использование файловых операций
+      (<em class="firstterm">Bash</em> ограничена лишь последователным доступом к данным файлов
+      — строка за строкой).</p></li><li class="listitem"><p>Работа с многомерными массивами</p></li><li class="listitem"><p>Работа с такими структурами данных, как связанные списки или деревья.</p></li><li class="listitem"><p>Работа с графикой или GUI(Графическим Интерфейсом Пользователя)</p></li><li class="listitem"><p>Непосредственный доступ к устройствам в системе.</p></li><li class="listitem"><p>Ввод-вывод через порты или <a class="link" href="ch27.html#socketref">сокеты</a>.</p></li><li class="listitem"><p>Использование внешних библиотек.</p></li><li class="listitem"><p>Создание проприетарных приложений, с закрытым исходным кодом
+    (Shell-скрипты представляют из себя исходные тексты программ, доступные для всеобщего обозрения).</p></li></ul></div><p>Если вы предъявляете к программе одно из вышеперечисленных требований, 
+    рассмотрите возможность использования более мощного скриптового языка — 
+    например <em class="firstterm">Perl</em>,
+      <em class="firstterm">Tcl</em>, <em class="firstterm">Python</em>,
+      <em class="firstterm">Ruby</em> -- или возможно компилируемого языка, 
+      такого как <em class="firstterm">C</em>,
+      <em class="firstterm">C++</em>, или <em class="firstterm">Java</em>.
+      Но даже в этом случае, создание прототипа приложения на языке shell может 
+      существенно облегчить разработку.</p><p><a id="bashdef"/>
+    Название <acronym class="acronym">Bash</acronym> -- это аббревиатура от "Bourne-Again Shell" и игра слов от, ставшего уже классикой, "Bourne Shell" Стефена Борна (Stephen Bourne). В последние годы BASH достиг такой популярности, что стал стандартном <em class="firstterm">de facto</em> для многих разновидностей Unix. Большинство принципов программирования на BASH одинаково хорошо применимы и в других командных оболочках, таких как <em class="firstterm">Korn Shell (ksh)</em>, от которой Bash позаимствовал некоторые особенности 
+    
+       <sup>[<a id="idp6939584" href="#ftn.idp6939584" class="footnote">3</a>]</sup>,
+   
+    и C Shell и его производных. (Примечательно, что C Shell не рекомендуется к использованию из-за отдельных проблем, отмеченных Томом Кристиансеном (Tom Christiansen) в октябре 1993 года на <a class="ulink" href="http://www.etext.org/Quartz/computer/unix/csh.harmful.gz">Usenet
+      post</a>.)
+    </p><p>
+    Далее, в тексте документа вы найдете большое количество примеров скриптов, 
+    иллюстрирующих возможности shell. Все примеры — работающие. 
+    Они были протестированы, причем некоторые из них могут 
+    пригодиться в реальной жизни. Читатель может «поиграть» с рабочим 
+    кодом скриптов, сохраняя их в файлы, с именами <code class="filename">scriptname.sh</code> или
+      <code class="filename">scriptname.bash</code>. 
+    
+         <sup>[<a id="idp6945184" href="#ftn.idp6945184" class="footnote">4</a>]</sup>
+   
+    [3] Не забудьте выдать этим файлам право на <em class="firstterm">исполнение</em> 
+    (<strong class="userinput"><code>chmod u+rx scriptname</code></strong>), после чего сценарии 
+    можно будет запустить и проверить результат их работы. 
+    Обратите внимание, что описание некоторых примеров следует после 
+    исходного кода этого примера, будьте осторожны — прежде чем запустить сценарий 
+    на своей системе — ознакомьтесь с его описанием.</p><p>Скрипты были написаны <a class="ulink" href="mailto:thegrendel.abs@gmail.com">автором книги</a>, если не оговаривается иное.</p><div class="epigraph"><p>His countenance was bold and bashed not.</p><p>--Edmund Spenser</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp1778320" href="#idp1778320" class="para">1</a>] </sup>These are referred to as <a class="link" href="ch14.html#builtinref">builtins</a>, features internal to the
+        shell.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp391888" href="#idp391888" class="para">2</a>] </sup>Тем не менее  <a class="link" href="ch23s02.html#recursionref0">рекурсии
+        <span class="emphasis"><em>возможны</em></span> и в shell-скриптах</a>,
+        но они медленны и часто их реализация
+         <a class="link" href="ch23s03.html#fiboref">уродлива</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp6939584" href="#idp6939584" class="para">3</a>] </sup>Большинство возможностей  <em class="firstterm">ksh88</em>,
+   и только немного из обновленного <em class="firstterm">ksh93</em>
+   были объединены в Bash.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp6945184" href="#idp6945184" class="para">4</a>] </sup>By convention, user-written shell scripts that are
+   Bourne shell compliant generally take a name with a
+   <code class="filename">.sh</code> extension.  System scripts, such as
+   those found in <code class="filename">/etc/rc.d</code>,
+   do not conform to this nomenclature.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="pt01.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt01.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch02.html">След.</a></td></tr><tr><td align="left" valign="top">Часть Часть 1. Введение </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 2. Для начала о Sha-Bang</td></tr></table></div></body></html>

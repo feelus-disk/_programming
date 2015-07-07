@@ -1,0 +1,348 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>tcpdump OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>tcpdump</h1> 
+<p>Dump traffic on a network</p>
+<pre>Syntax
+      tcpdump [ -AdDefgIKlLnNOpqRStuUvxX ] [ -B <i>buffer_size</i> ] [ -c <i>count</i> ]
+                 [ -C <i>file_size</i> ] [ -G <i>rotate_seconds</i> ] [ -F <i>file</i> ] [ -i <i>interface</i> ] 
+                    [ -m <i>module</i> ] [ -M <i>secret</i> ] [ -r <i>file</i> ] [ -s <i>snaplen</i> ]
+                       [ -T <i>type</i> ] [ -w <i>file</i> ] [ -W <i>filecount</i> ] [ -E <i>spi@ipaddr</i> algo:secret,...  ]
+                          [ -y <i>datalinktype</i> ] [ -z <i>postrotate-command</i> ] [ -Z <i>user</i> ] [ <i>expression</i> ]
+
+Options:
+       -A     Print each packet (minus its link level header) in ASCII.  Handy for capturing web pages.
+
+       -B     Set the operating system capture buffer size to buffer_size.
+
+       -c     Exit after receiving count packets.
+
+       -C     Before  writing  a  raw  packet to a savefile, check whether the file is currently larger than
+              file_size and, if so, close the current savefile and open a  new  one.   Savefiles  after  the
+              first savefile will have the name specified with the -w flag, with a number after it, starting
+              at 1 and continuing upward.  The units of file_size are millions of  bytes  (1,000,000  bytes,
+              not 1,048,576 bytes).
+
+       -d     Dump the compiled packet-matching code in a human readable form to standard output and stop.
+
+       -dd    Dump packet-matching code as a C program fragment.
+
+       -ddd   Dump packet-matching code as decimal numbers (preceded with a count).
+
+       -D     Print the list of the network interfaces available on the system and on which tcpdump can capture
+              packets.  For each network interface, a number and an interface name,  possibly  followed
+              by  a  text description of the interface, is printed.  The interface name or the number can be
+              supplied to the -i flag to specify an interface on which to capture.
+
+              This can be useful on systems that don't have a command to list them (e.g.,  Windows  systems,
+              or  UNIX systems lacking ifconfig -a); the number can be useful on Windows 2000 and later systems,
+              where the interface name is a somewhat complex string.
+
+              The -D flag will not be supported if tcpdump was built with an older version of  libpcap  that
+              lacks the pcap_findalldevs() function.
+
+       -e     Print the link-level header on each dump line.
+
+       -E     Use  spi@ipaddr  algo:secret  for  decrypting IPsec ESP packets that are addressed to addr and
+              contain Security Parameter Index value spi. This combination may be  repeated  with  comma  or
+              newline seperation.
+
+              Note that setting the secret for IPv4 ESP packets is supported at this time.
+
+              Algorithms may be des-cbc, 3des-cbc, blowfish-cbc, rc3-cbc, cast128-cbc, or none.  The default
+              is des-cbc.  The ability to decrypt packets is only present if tcpdump was compiled with cryptography
+              enabled.
+
+              secret  is  the  ASCII  text for ESP secret key.  If preceeded by 0x, then a hex value will be
+              read.
+
+              The option assumes RFC2406 ESP, not RFC1827 ESP.  The option is only for  debugging  purposes,
+              and  the  use  of  this  option  with a true `secret' key is discouraged.  By presenting IPsec
+              secret key onto command line you make it visible to others, via ps(1) and other occasions.
+
+              In addition to the above syntax, the syntax file name may be used to  have  tcpdump  read  the
+              provided  file in. The file is opened upon receiving the first ESP packet, so any special permissions
+              that tcpdump may have been given should already have been given up.
+
+       -f     Print `foreign' IPv4 addresses numerically rather than symbolically (this option  is  intended
+              to get around serious brain damage in Sun's NIS server -- usually it hangs forever translating
+              non-local internet numbers).
+
+              The test for `foreign' IPv4 addresses is done using the IPv4 address and netmask of the interface
+               on which capture is being done.  If that address or netmask are not available, available,
+              either because the interface on which capture is being done  has  no  address  or  netmask  or
+              because the capture is being done on the Linux "any" interface, which can capture on more than
+              one interface, this option will not work correctly.
+
+       -F     Use file as input for the filter expression.  An additional expression given  on  the  command
+              line is ignored.
+
+       -g     Do not insert line break after IP header in verbose mode for easier parsing.
+
+       -G     If specified, rotates the dump file specified with the -w option every rotate_seconds seconds.
+              Savefiles will have the name specified by -w which should include a time format as defined  by
+              strftime(3).  If no time format is specified, each new file will overwrite the previous.
+
+              If used in conjunction with the -C option, filenames will take the form of `file<i>count</i>'.
+
+       -i     Listen  on interface.  If unspecified, tcpdump searches the system interface list for the lowest
+              numbered, configured up interface (excluding loopback).  Ties are broken by  choosing  the
+              earliest match.
+              On  Linux  systems  with 2.2 or later kernels, an interface argument of ``any' can be used to
+              capture packets from all interfaces.  Note that captures on the ``any''  device  will  not  be
+              done in promiscuous mode.
+
+              If  the  -D  flag is supported, an interface number as printed by that flag can be used as the
+              interface argument.
+
+       -I     Put the interface in "monitor mode"; this is supported only on IEEE 802.11  Wi-Fi  interfaces,
+              and supported only on some operating systems.
+
+              Note  that  in  monitor  mode  the adapter might disassociate from the network with which it's
+              associated, so that you will not be able to use any wireless networks with that adapter.  This
+              could  prevent  accessing  files  on  a  network  server,  or  resolving host names or network
+              addresses, if you are capturing in monitor mode and are not connected to another network  with
+              another adapter.
+
+       -K     Don't attempt to verify TCP, UDP and IP checksums.  This is useful for interfaces that perform
+              the checksum calculation in hardware; otherwise, all outgoing checksums  will  be  flagged  as
+              bad.
+
+       -l     Make stdout line buffered.  Useful if you want to see the data while capturing it.  E.g.,
+              `tcpdump  -l  |  tee dat' or `tcpdump  -l   > dat  &amp;  tail  -f  dat'.
+
+       -L     List the known data link types for the interface and exit.
+
+       -m     Load  SMI  MIB  module definitions from file module.  This option can be used several times to
+              load several MIB modules into tcpdump.
+
+       -M     Use secret as a shared secret for validating the digests found in TCP segments with  the  TCP-MD5
+              MD5 option (RFC 2385), if present.
+
+       -n     Don't convert addresses (i.e., host addresses, port numbers, etc.) to names.
+
+       -N     Don't print domain name qualification of host names.  E.g., if you give this flag then tcpdump
+              will print `nic' instead of `nic.ddn.mil'.
+
+       -O     Do not run the packet-matching code optimizer.  This is useful only if you suspect a bug in
+              the optimizer.
+
+       -p     Don't  put the interface into promiscuous mode.  Note that the interface might be in promiscuous
+              mode for some other reason; hence, `-p' cannot be used as an abbreviation for `ether  host
+              {local-hw-addr} or ether broadcast'.
+
+       -q     Quick (quiet?) output. Print less protocol information so output lines are shorter.
+
+       -R     Assume  ESP/AH  packets  to be based on old specification (RFC1825 to RFC1829).  If specified,
+              tcpdump will not print replay prevention field.  Since there is no protocol version  field  in
+              ESP/AH specification, tcpdump cannot deduce the version of ESP/AH protocol.
+
+       -r     Read packets from file (which was created with the -w option). Standard input is used if file
+              is `-'.
+
+       -S     Print absolute, rather than relative, TCP sequence numbers.
+
+       -s     Snarf snaplen bytes of data from each packet rather than the default of  64K  bytes. Packets
+              truncated  because  of a limited snapshot are indicated in the output with `[|proto]', where
+              proto is the name of the protocol level at which the truncation has occurred.  Note that taking
+              larger snapshots both increases the amount of time it takes to process packets and,effectively,
+              decreases the amount of packet buffering. This may cause packets to  be lost. You
+              should  limit snaplen to the smallest number that will capture the protocol information you're
+              interested in. Setting snaplen to 0 means use the required length to catch whole packets.
+
+       -T     Force packets selected by "expression" to be interpreted the specified type.  Currently  known
+              types are aodv (Ad-hoc On-demand Distance Vector protocol), cnfp (Cisco NetFlow protocol), rpc
+              (Remote Procedure Call), rtp (Real-Time Applications protocol), rtcp  (Real-Time  Applications
+              control protocol), snmp (Simple Network Management Protocol), tftp (Trivial File Transfer Protocol),
+              , vat (Visual Audio Tool), and wb (distributed White Board).
+
+       -t     Don't print a timestamp on each dump line.
+
+       -tt    Print an unformatted timestamp on each dump line.
+
+       -ttt   Print a delta (micro-second resolution) between current and previous line on each dump line.
+
+       -tttt  Print a timestamp in default format proceeded by date on each dump line.
+
+       -ttttt Print a delta (micro-second resolution) between current and first line on each dump line.
+
+       -u     Print undecoded NFS handles.
+
+       -U     Make output saved via the -w option `packet-buffered'; i.e., as each  packet  is  saved,  it
+              will  be  written  to  the  output file, rather than being written only when the output buffer
+              fills.
+
+              The -U flag will not be supported if tcpdump was built with an older version of  libpcap  that
+              lacks the pcap_dump_flush() function.
+
+       -v     When  parsing  and printing, produce (slightly more) verbose output.  For example, the time to
+              live, identification, total length and options in an IP  packet  are  printed.   Also  enables
+              additional packet integrity checks such as verifying the IP and ICMP header checksum.
+
+              When  writing  to  a  file with the -w option, report, every 10 seconds, the number of packets
+              captured.
+
+       -vv    Even more verbose output.  For example, additional fields are printed from NFS reply  packets,
+              and SMB packets are fully decoded.
+
+       -vvv   Even more verbose output.  For example, telnet SB ... SE options are printed in full.  With -X
+              Telnet options are printed in hex as well.
+
+       -w     Write the raw packets to file rather than parsing and printing them out.  They  can  later  be
+              printed with the -r option.  Standard output is used if file is `-'.
+
+       -W     Used  in  conjunction  with  the -C option, this will limit the number of files created to the
+              specified number, and begin overwriting files from the beginning, thus creating  a  'rotating'
+              buffer.   In  addition,  it  will name the files with enough leading 0s to support the maximum
+              number of files, allowing them to sort correctly.
+
+              Used in conjunction with the -G option, this will limit the number of rotated dump files  that
+              get  created,  exiting  with  status  0  when reaching the limit. If used with -C as well, the
+              behavior will result in cyclical files per timeslice.
+
+       -x     When parsing and printing, in addition to printing the headers of each packet, print the  data
+              of  each  packet  (minus  its  link level header) in hex.  The smaller of the entire packet or
+              snaplen bytes will be printed.  Note that this is the entire link-layer packet,  so  for  link
+              layers  that pad (e.g. Ethernet), the padding bytes will also be printed when the higher layer
+              packet is shorter than the required padding.
+
+       -xx    When parsing and printing, in addition to printing the headers of each packet, print the  data
+              of each packet, including its link level header, in hex.
+
+       -X     When  parsing and printing, in addition to printing the headers of each packet, print the data
+              of each packet (minus its link level header) in  hex  and  ASCII.   This  is  very  handy  for
+              analysing new protocols.
+
+       -XX    When  parsing and printing, in addition to printing the headers of each packet, print the data
+              of each packet, including its link level header, in hex and ASCII.
+
+       -y     Set the data link type to use while capturing packets to datalinktype.
+
+       -z     Used in conjunction with the -C or -G options, this will make tcpdump run  "  command  file  "
+              where  file  is the savefile being closed after each rotation. For example, specifying -z gzip
+              or -z bzip2 will compress each savefile using gzip or bzip2.
+
+              Note that tcpdump will run the command in parallel to the capture, using the  lowest  priority
+              so that this doesn't disturb the capture process.
+
+              And  in  case  you would like to use a command that itself takes flags or different arguments,
+              you can always write a shell script that will take the savefile name  as  the  only  argument,
+              make the flags &amp; arguments arrangements and execute the command that you want.
+
+       -Z     Drops  privileges  (if root) and changes user ID to user and the group ID to the primary group
+              of user.
+
+              This behavior can also be enabled by default at compile time.
+
+       <i>expression</i>
+              selects which packets will be dumped.  If no expression is given, all packets on the net  will
+              be dumped.  Otherwise, only packets for which expression is `true' will be dumped.
+
+              For the expression syntax, see pcap-filter(4).
+
+              Expression arguments can be passed to tcpdump as either a single argument or as multiple arguments,
+              whichever is more convenient.  Generally, if the expression contains Shell  metacharacters,
+              it  is easier to pass it as a single, quoted argument.  Multiple arguments are concatenated
+              with spaces before being parsed.
+</pre>
+<p>Tcpdump prints out a description of the contents of packets on a network interface that match the
+boolean expression. It can also be run with the -w flag, which causes it to save the packet data to
+a file for later analysis, and/or with the <span class="code">-r</span> flag, which causes it to read from a saved packet file
+rather than to read packets from a network interface. In all cases, only packets that match <i>expression </i>will be processed by tcpdump.</p>
+<p> Tcpdump will, if not run with the <span class="code">-c</span> flag, continue capturing packets until it is interrupted by a
+SIGINT signal (generated, for example, by typing your interrupt character, typically control-C) or a
+SIGTERM signal (typically generated with the kill(1) command); if run with the <span class="code">-c</span> flag, it will capture
+packets until it is interrupted by a SIGINT or SIGTERM signal or the specified number of packets
+have been processed.</p>
+<p>Typing ctrl-q and ctrl-s will pause and unpause the output.</p>
+<p> When tcpdump finishes capturing packets, it will report counts of:</p>
+<ul>
+<li> packets `captured' (this is the number of packets that tcpdump has received and processed);</li>
+<li> packets `received by filter' (the meaning of this depends on the OS on which you're running
+tcpdump, and possibly on the way the OS was configured - if a filter was specified on the com-mand command line, on some OSes it counts packets regardless of whether they were matched by the filter expression and, even if they were matched by the filter expression, regardless of whether
+tcpdump has read and processed them yet, on other OSes it counts only packets that were<br>
+matched by the filter expression regardless of whether tcpdump has read and processed them
+yet, and on other OSes it counts only packets that were matched by the filter expression and
+were processed by tcpdump);</li>
+<li> packets ``dropped by kernel'' (this is the number of packets that were dropped, due to a lack
+of buffer space, by the packet capture mechanism in the OS on which tcpdump is running, if the
+OS reports that information to applications; if not, it will be reported as 0).</li>
+</ul>
+<p> On platforms that support the SIGINFO signal, such as most BSDs (including Mac OS X) and Digital/Tru64  UNIX, it will report those counts when it receives a SIGINFO signal (generated, for example, by typing your `status' character, typically control-T, although on some platforms, such as
+Mac OS X, the `status' character is not set by default, so you must set it with stty(1) in order to
+use it) and will continue capturing packets.</p>
+<p> Reading packets from a network interface may require that you have special privileges; see the pcap
+(3PCAP) man page for details. Reading a saved packet file doesn't require special privileges.</p>
+<p>Example:</p>
+<pre>       To print all tcp traffic for interface &quot;en1&quot; (typically the Airport):
+              sudo tcpdump -i en1
+
+       To print all packets arriving at or departing from sundown:
+              tcpdump host sundown
+
+       To print traffic between helios and either hot or ace:
+              tcpdump host helios and \( hot or ace \)
+
+       To print all IP packets between ace and any host except helios:
+              tcpdump ip host ace and not helios
+
+       To print all traffic between local hosts and hosts at Berkeley:
+              tcpdump net ucb-ether
+
+       To print all ftp traffic through internet gateway snup: (note that the expression is quoted  to  pre-vent prevent
+       vent the shell from (mis-)interpreting the parentheses):
+              tcpdump 'gateway snup and (port ftp or ftp-data)'
+
+       To  print traffic neither sourced from nor destined for local hosts (if you gateway to one other net,
+       this stuff should never make it onto your local net).
+              tcpdump ip and not net localnet
+
+       To print the start and end packets (the SYN and FIN packets) of each TCP conversation that involves a
+       non-local host.
+              tcpdump 'tcp[tcpflags] &amp; (tcp-syn|tcp-fin) != 0 and not src and dst net localnet'
+
+       To  print  all IPv4 HTTP packets to and from port 80, i.e. print only packets that contain data, not,
+       for example, SYN and FIN packets and ACK-only packets.  (IPv6 is left as an exercise for the reader.)
+              tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&amp;0xf)&lt;&lt;2)) - ((tcp[12]&amp;0xf0)&gt;&gt;2)) != 0)'
+
+       To print IP packets longer than 576 bytes sent through gateway snup:
+              tcpdump 'gateway snup and ip[2:2] &gt; 576'
+
+       To print IP broadcast or multicast packets that were not sent via Ethernet broadcast or multicast:
+              tcpdump 'ether[0] &amp; 1 = 0 and ip[16] &gt;= 224'
+
+       To print all ICMP packets that are not echo requests/replies (i.e., not ping packets):
+              tcpdump 'icmp[icmptype] != icmp-echo and icmp[icmptype] != icmp-echoreply'</pre>
+ <p class="quote"><i>&ldquo;Facts which at first seem improbable will, even on scant explanation, drop the cloak which has hidden them and stand forth in naked and simple beauty&rdquo; ~ Galileo Galilei</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/tcpdump.1.html">tcpdump man page</a> - Apple.com<br>
+<a href="traceroute.html">traceroute</a> - Trace Route to Host</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="tcpdump.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

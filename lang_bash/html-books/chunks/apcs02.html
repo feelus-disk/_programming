@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Awk</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="apc.html" title="Приложение C. A Sed and Awk Micro-Primer"/><link rel="prev" href="apc.html" title="Приложение C. A Sed and Awk Micro-Primer"/><link rel="next" href="apd.html" title="Приложение D. Exit Codes With Special Meanings"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Awk</th></tr><tr><td align="left"><a accesskey="p" href="apc.html">Пред.</a> </td><th width="60%" align="center">Приложение C. A Sed and Awk Micro-Primer</th><td align="right"> <a accesskey="n" href="apd.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Awk"><div class="titlepage"><div><div><h2 class="title"><a id="awk"/>Awk</h2></div></div></div><p><a id="awkref"/></p><p><em class="firstterm">Awk</em>
+       <sup>[<a id="idp19016832" href="#ftn.idp19016832" class="footnote">132</a>]</sup>
+       is a full-featured text processing language with a syntax
+       reminiscent of <em class="firstterm">C</em>.  While it possesses an
+       extensive set of operators and capabilities, we will cover only
+       a few of these here - the ones most useful in shell scripts.</p><p>Awk breaks each line of input passed to it into
+       <a id="fieldref2"/>
+       <a class="link" href="ch03.html#fieldref">fields</a>. By default, a field
+       is a string of consecutive characters delimited by <a class="link" href="ch03.html#whitespaceref">whitespace</a>, though there are options
+       for changing this. Awk parses and operates on each separate
+       field. This makes it ideal for handling structured text files
+       -- especially tables -- data organized into consistent chunks,
+       such as rows and columns.</p><p><a class="link" href="ch04.html#snglquo">Strong quoting</a> and <a class="link" href="ch03.html#codeblockref">curly brackets</a> enclose blocks of
+       awk code within a shell script.</p><pre class="programlisting"># $1 is field #1, $2 is field #2, etc.
+
+echo one two | awk '{print $1}'
+# one
+
+echo one two | awk '{print $2}'
+# two
+
+# But what is field #0 ($0)?
+echo one two | awk '{print $0}'
+# one two
+# All the fields!
+
+
+awk '{print $3}' $filename
+# Prints field #3 of file $filename to stdout.
+
+awk '{print $1 $5 $6}' $filename
+# Prints fields #1, #5, and #6 of file $filename.
+
+awk '{print $0}' $filename
+# Prints the entire file!
+# Same effect as:   cat $filename . . . or . . . sed '' $filename</pre><p>We have just seen the awk <em class="firstterm">print</em> command
+       in action. The only other feature of awk we need to deal with
+       here is variables. Awk handles variables similarly to shell
+       scripts, though a bit more flexibly.</p><pre class="programlisting">{ total += ${column_number} }</pre><p>
+       This adds the value of <em class="parameter"><code>column_number</code></em> to
+       the running total of <em class="parameter"><code>total</code></em>&gt;. Finally, to print
+       <span class="quote">«<span class="quote">total</span>»</span>, there is an <span class="command"><strong>END</strong></span> command
+       block, executed after the script has processed all its input.
+       </p><pre class="programlisting">END { print total }</pre><p>Corresponding to the <span class="command"><strong>END</strong></span>, there is a
+       <span class="command"><strong>BEGIN</strong></span>, for a code block to be performed before awk
+       starts processing its input.</p><p>The following example illustrates how <span class="command"><strong>awk</strong></span> can
+       add text-parsing tools to a shell script.</p><div class="example"><a id="lettercount2"/><p class="title"><b>Пример C.1. Counting Letter Occurrences</b></p><div class="example-contents"><pre class="programlisting">&amp;lettercount2;</pre></div></div><br class="example-break"/><p>For simpler examples of awk within shell scripts, see:
+       </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p><a class="xref" href="ch14.html#ex44" title="Пример 14.14. Forcing a log-off">Пример 14.14, «Forcing a log-off»</a></p></li><li class="listitem"><p><a class="xref" href="ch19s02.html#redir4" title="Пример 19.8. Redirected for loop">Пример 19.8, «Redirected <em class="firstterm">for</em> loop»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s05.html#stripc" title="Пример 15.32. Stripping comments from C program files">Пример 15.32, «Stripping comments from C program files»</a></p></li><li class="listitem"><p><a class="xref" href="ch33s03.html#coltotaler" title="Пример 33.5. A shell wrapper around another awk script">Пример 33.5, « A <em class="firstterm">shell wrapper</em> around another
+  awk script»</a></p></li><li class="listitem"><p><a class="xref" href="ch09s05.html#coltotaler2" title="Пример 9.25. Passing an indirect reference to awk">Пример 9.25, «Passing an indirect reference to <em class="firstterm">awk</em>»</a></p></li><li class="listitem"><p><a class="xref" href="ch14.html#coltotaler3" title="Пример 14.20. Using export to pass a variable to an embedded awk script">Пример 14.20, «Using <em class="firstterm">export</em> to pass a variable to an
+        embedded <em class="firstterm">awk</em> script»</a></p></li><li class="listitem"><p><a class="xref" href="ch27s02.html#pidid" title="Пример 27.3. Finding the process associated with a PID">Пример 27.3, «Finding the process associated with a PID»</a></p></li><li class="listitem"><p><a class="xref" href="ch27s02.html#constat" title="Пример 27.4. On-line connect status">Пример 27.4, «On-line connect status»</a></p></li><li class="listitem"><p><a class="xref" href="ch10.html#fileinfo" title="Пример 10.3. Fileinfo: обработка списка файлов, содержащегося в переменной">Пример 10.3, «<span class="emphasis"><em>Fileinfo:</em></span> обработка списка файлов, содержащегося в переменной»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s09.html#blotout" title="Пример 15.60. Securely deleting a file">Пример 15.60, «Securely deleting a file»</a></p></li><li class="listitem"><p><a class="xref" href="ch09s06.html#seedingrandom" title="Пример 9.31. Reseeding RANDOM">Пример 9.31, «Reseeding RANDOM»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s02.html#idelete" title="Пример 15.4. Deleting a file by its inode number">Пример 15.4, «Deleting a file by its <em class="firstterm">inode</em>
+          number»</a></p></li><li class="listitem"><p><a class="xref" href="ch09s02.html#substringex" title="Пример 9.15. Alternate ways of extracting and locating substrings">Пример 9.15, «Alternate ways of extracting and locating substrings»</a></p></li><li class="listitem"><p><a class="xref" href="ch33s08.html#sumproduct" title="Пример 33.17. Even more return value trickery">Пример 33.17, «Even more return value trickery»</a></p></li><li class="listitem"><p><a class="xref" href="ch10.html#userlist" title="Пример 10.8. Список всех пользователей системы">Пример 10.8, «Список всех пользователей системы»</a></p></li><li class="listitem"><p><a class="xref" href="ch33s03.html#prasc" title="Пример 33.4. A shell wrapper around an awk script">Пример 33.4, « A <em class="firstterm">shell wrapper</em> around an awk
+  script»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s08.html#hypot" title="Пример 15.53. Calculating the hypotenuse of a triangle">Пример 15.53, «Calculating the hypotenuse of a triangle»</a></p></li></ol></div><p>
+      </p><p>That's all the awk we'll cover here, folks, but there's lots
+       more to learn. See the appropriate references in the <a class="xref" href="bi01.html" title="Литература">Литература</a>.</p><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp19016832" href="#idp19016832" class="para">132</a>] </sup>Its name derives from the initials of its authors,
+       <span class="command"><strong>A</strong></span>ho, <span class="command"><strong>W</strong></span>einberg, and
+       <span class="command"><strong>K</strong></span>ernighan.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="apc.html">Пред.</a> </td><td align="center"><a accesskey="u" href="apc.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="apd.html">След.</a></td></tr><tr><td align="left" valign="top">Приложение C. A Sed and Awk Micro-Primer </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Приложение D. Exit Codes With Special Meanings</td></tr></table></div></body></html>

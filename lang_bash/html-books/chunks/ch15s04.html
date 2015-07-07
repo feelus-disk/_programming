@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Text Processing Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/><link rel="prev" href="ch15s03.html" title="Time / Date Commands"/><link rel="next" href="ch15s05.html" title="File and Archiving Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Text Processing Commands</th></tr><tr><td align="left"><a accesskey="p" href="ch15s03.html">Пред.</a> </td><th width="60%" align="center">Глава 15. External Filters, Programs and Commands</th><td align="right"> <a accesskey="n" href="ch15s05.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Text Processing Commands"><div class="titlepage"><div><div><h2 class="title"><a id="textproc"/>Text Processing Commands</h2></div></div></div><div class="variablelist" title="Commands affecting text and text files"><a id="tpcommandlisting"/><p class="title"><b><a id="tpcommandlisting1"/>Commands affecting text and
+     text files</b></p><dl><dt><span class="term"><a id="sortref"/><span class="command"><strong>sort</strong></span></span></dt><dd><p>File sort utility, often used as a filter in a pipe. This
+        command sorts a <em class="firstterm">text stream</em>
+        or file forwards or backwards, or according to various
+        keys or character positions. Using the <code class="option">-m</code>
+        option, it merges presorted input files.  The <em class="firstterm">info
+        page</em> lists its many capabilities and options. See
+        <a class="xref" href="ch10.html#findstring" title="Пример 10.9. Проверка авторства всех бинарных файлов в каталоге">Пример 10.9, «Проверка авторства всех бинарных файлов в каталоге»</a>, <a class="xref" href="ch10.html#symlinks" title="Пример 10.10. Список символических ссылок в каталоге.">Пример 10.10, «Список <em class="firstterm">символических ссылок</em> в каталоге.»</a>,
+        and <a class="xref" href="apa.html#makedict" title="Пример A.8. Making a dictionary">Пример A.8, «Making a <em class="firstterm">dictionary</em>»</a>.</p></dd><dt><span class="term"><a id="tsortref"/><span class="command"><strong>tsort</strong></span></span></dt><dd><p><em class="firstterm">Topological sort</em>, reading in
+        pairs of whitespace-separated strings and sorting
+        according to input patterns. The original purpose of
+        <span class="command"><strong>tsort</strong></span> was to sort a list of dependencies
+        for an obsolete version of the <em class="firstterm">ld</em>
+        linker in an <span class="quote">«<span class="quote">ancient</span>»</span> version of UNIX.</p><p>The results of a <em class="firstterm">tsort</em> will usually
+        differ markedly from those of the standard
+        <span class="command"><strong>sort</strong></span> command, above.</p></dd><dt><span class="term"><a id="uniqref"/><span class="command"><strong>uniq</strong></span></span></dt><dd><p>This filter removes duplicate lines from a sorted
+        file. It is often seen in a pipe coupled with
+        <a class="link" href="ch15s04.html#sortref">sort</a>.</p><pre class="programlisting">cat list-1 list-2 list-3 | sort | uniq &gt; final.list
+# Concatenates the list files,
+# sorts them,
+# removes duplicate lines,
+# and finally writes the result to an output file.</pre><p>The useful <code class="option">-c</code> option prefixes each line of
+         the input file with its number of occurrences.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat testfile</code></strong>
+<code class="computeroutput">This line occurs only once.
+ This line occurs twice.
+ This line occurs twice.
+ This line occurs three times.
+ This line occurs three times.
+ This line occurs three times.</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>uniq -c testfile</code></strong>
+<code class="computeroutput">      1 This line occurs only once.
+       2 This line occurs twice.
+       3 This line occurs three times.</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>sort testfile | uniq -c | sort -nr</code></strong>
+<code class="computeroutput">      3 This line occurs three times.
+       2 This line occurs twice.
+       1 This line occurs only once.</code>
+        </pre><p>
+       </p><p>The <strong class="userinput"><code>sort INPUTFILE | uniq -c | sort -nr</code></strong>
+         command string produces a <em class="firstterm">frequency
+         of occurrence</em> listing on the
+         <code class="filename">INPUTFILE</code> file (the
+         <code class="option">-nr</code> options to <span class="command"><strong>sort</strong></span>
+         cause a reverse numerical sort). This template finds
+         use in analysis of log files and dictionary lists, and
+         wherever the lexical structure of a document needs to
+         be examined.</p><div class="example"><a id="wf"/><p class="title"><b>Пример 15.12. Word Frequency Analysis</b></p><div class="example-contents"><pre class="programlisting">&amp;wf;</pre></div></div><br class="example-break"/><p>
+         </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat testfile</code></strong>
+<code class="computeroutput">This line occurs only once.
+ This line occurs twice.
+ This line occurs twice.
+ This line occurs three times.
+ This line occurs three times.
+ This line occurs three times.</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>./wf.sh testfile</code></strong>
+<code class="computeroutput">      6 this
+       6 occurs
+       6 line
+       3 times
+       3 three
+       2 twice
+       1 only
+       1 once</code>
+         </pre><p>
+       </p></dd><dt><span class="term"><a id="expandref"/><span class="command"><strong>expand</strong></span>, </span><span class="term"><span class="command"><strong>unexpand</strong></span></span></dt><dd><p>The <span class="command"><strong>expand</strong></span> filter converts tabs to
+        spaces. It is often used in a <a class="link" href="ch03.html#piperef">pipe</a>.</p><p>The <span class="command"><strong>unexpand</strong></span> filter
+        converts spaces to tabs. This reverses the effect of
+        <span class="command"><strong>expand</strong></span>.</p></dd><dt><span class="term"><a id="cutref"/><span class="command"><strong>cut</strong></span></span></dt><dd><p>A tool for extracting <a class="link" href="ch03.html#fieldref">fields</a> from files. It is similar
+        to the <strong class="userinput"><code>print $N</code></strong> command set in <a class="link" href="apcs02.html#awkref">awk</a>, but more limited. It may be
+        simpler to use <em class="firstterm">cut</em> in a script than
+        <em class="firstterm">awk</em>. Particularly important are the
+        <code class="option">-d</code> (delimiter) and <code class="option">-f</code>
+        (field specifier) options.</p><p>Using <span class="command"><strong>cut</strong></span> to obtain a listing of the
+        mounted filesystems: 
+        </p><pre class="programlisting">cut -d ' ' -f1,2 /etc/mtab</pre><p>Using <span class="command"><strong>cut</strong></span> to list the OS and kernel version:
+        </p><pre class="programlisting">uname -a | cut -d" " -f1,3,11,12</pre><p>Using <span class="command"><strong>cut</strong></span> to extract message headers from
+        an e-mail folder:
+
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep '^Subject:' read-messages | cut -c10-80</code></strong>
+<code class="computeroutput">Re: Linux suitable for mission-critical apps?
+ MAKE MILLIONS WORKING AT HOME!!!
+ Spam complaint
+ Re: Spam complaint</code></pre><p>
+      </p><p>Using <span class="command"><strong>cut</strong></span> to parse a file:
+        </p><pre class="programlisting"># List all the users in /etc/passwd.
+
+FILENAME=/etc/passwd
+
+for user in $(cut -d: -f1 $FILENAME)
+do
+  echo $user
+done
+
+# Thanks, Oleg Philon for suggesting this.</pre><p><strong class="userinput"><code>cut -d ' ' -f2,3 filename</code></strong> is equivalent to
+        <strong class="userinput"><code>awk -F'[ ]' '{ print $2, $3 }' filename</code></strong></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>It is even possible to specify a linefeed as a
+        delimiter. The trick is to actually embed a linefeed
+        (<span class="keycap"><strong>RETURN</strong></span>) in the command sequence.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>cut -d'
+ ' -f3,7,19 testfile</code></strong>
+<code class="computeroutput">This is line 3 of testfile.
+ This is line 7 of testfile.
+ This is line 19 of testfile.</code>
+        </pre><p>
+    </p><p>Thank you, Jaka Kranjc, for pointing this out.</p></div><p>See also <a class="xref" href="ch15s08.html#base" title="Пример 15.48. Base Conversion">Пример 15.48, «Base Conversion»</a>.</p></dd><dt><span class="term"><a id="pasteref"/><span class="command"><strong>paste</strong></span></span></dt><dd><p>Tool for merging together different files into a single,
+        multi-column file.  In combination with
+        <a class="link" href="ch15s04.html#cutref">cut</a>, useful for creating system log
+        files.
+      </p></dd><dt><span class="term"><a id="joinref"/><span class="command"><strong>join</strong></span></span></dt><dd><p>Consider this a special-purpose cousin of
+        <span class="command"><strong>paste</strong></span>. This powerful utility allows
+        merging two files in a meaningful fashion, which essentially
+        creates a simple version of a relational database.</p><p>The <span class="command"><strong>join</strong></span> command operates on
+        exactly two files, but pastes together only those lines
+        with a common tagged <a class="link" href="ch03.html#fieldref">field</a>
+        (usually a numerical label), and writes the result to
+        <code class="filename">stdout</code>.  The files to be joined should
+        be sorted according to the tagged field for the matchups
+        to work properly.</p><pre class="programlisting">File: 1.data
+
+100 Shoes
+200 Laces
+300 Socks</pre><pre class="programlisting">File: 2.data
+
+100 $40.00
+200 $1.00
+300 $2.00</pre><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>join 1.data 2.data</code></strong>
+<code class="computeroutput">File: 1.data 2.data
+
+ 100 Shoes $40.00
+ 200 Laces $1.00
+ 300 Socks $2.00</code>
+        </pre><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The tagged field appears only once in the
+        output.</p></div></dd><dt><span class="term"><a id="headref"/><span class="command"><strong>head</strong></span></span></dt><dd><p>lists the beginning of a file to <code class="filename">stdout</code>.
+        The default is <code class="literal">10</code> lines, but a different
+        number can be specified. The command has a number of
+        interesting options.
+
+      </p><div class="example"><a id="scriptdetector"/><p class="title"><b>Пример 15.13. Which files are scripts?</b></p><div class="example-contents"><pre class="programlisting">&amp;scriptdetector;</pre></div></div><p><br class="example-break"/>      
+
+      </p><div class="example"><a id="rnd"/><p class="title"><b>Пример 15.14. Generating 10-digit random numbers</b></p><div class="example-contents"><pre class="programlisting">&amp;rnd;</pre></div></div><p><br class="example-break"/>      
+
+        See also <a class="xref" href="ch15s05.html#ex52" title="Пример 15.39. Uudecoding encoded files">Пример 15.39, «Uudecoding encoded files»</a>.</p></dd><dt><span class="term"><a id="tailref"/><span class="command"><strong>tail</strong></span></span></dt><dd><p>lists the (tail) end of a file to <code class="filename">stdout</code>.
+        The default is <code class="literal">10</code> lines, but this can
+        be changed with the <code class="option">-n</code> option.
+        Commonly used to keep track of
+        changes to a system logfile, using the <code class="option">-f</code>
+        option, which outputs lines appended to the file.</p><div class="example"><a id="ex12"/><p class="title"><b>Пример 15.15. Using <em class="firstterm">tail</em> to monitor the system log</b></p><div class="example-contents"><pre class="programlisting">&amp;ex12;</pre></div></div><br class="example-break"/><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>To list a specific line of a text file,
+          <a class="link" href="ch03.html#piperef">pipe</a> the output of
+          <span class="command"><strong>head</strong></span> to <span class="command"><strong>tail -n 1</strong></span>.
+    For example <strong class="userinput"><code>head -n 8 database.txt | tail
+    -n 1</code></strong> lists the 8th line of the file
+    <code class="filename">database.txt</code>.</p><p>To set a variable to a given block of a text file:
+          </p><pre class="programlisting">var=$(head -n $m $filename | tail -n $n)
+
+# filename = name of file
+# m = from beginning of file, number of lines to end of block
+# n = number of lines to set variable to (trim from end of block)</pre></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Newer implementations of <span class="command"><strong>tail</strong></span>
+          deprecate the older <span class="command"><strong>tail -$LINES
+          filename</strong></span> usage. The standard <span class="command"><strong>tail -n $LINES
+          filename</strong></span> is correct.</p></div><p>See also <a class="xref" href="ch15s02.html#ex41" title="Пример 15.5. Logfile: Using xargs to monitor system log">Пример 15.5, «Logfile: Using <em class="firstterm">xargs</em> to monitor system log»</a>, <a class="xref" href="ch15s05.html#ex52" title="Пример 15.39. Uudecoding encoded files">Пример 15.39, «Uudecoding encoded files»</a> and
+    <a class="xref" href="ch29.html#online" title="Пример 29.6. Cleaning up after Control-C">Пример 29.6, «Cleaning up after <span class="keycap">Control-C</span>»</a>.</p></dd><dt><span class="term"><a id="grepref"/><span class="command"><strong>grep</strong></span></span></dt><dd><p>A multi-purpose file search tool that uses
+        <a class="link" href="ch17.html#regexref">Regular Expressions</a>.
+        It was originally a command/filter in the
+        venerable <span class="command"><strong>ed</strong></span> line editor:
+        <strong class="userinput"><code>g/re/p</code></strong> -- <em class="firstterm">global -
+        regular expression - print</em>.</p><div class="cmdsynopsis"><p><code class="command">grep</code>   <em class="replaceable"><code>pattern</code></em>  [<em class="replaceable"><code>file</code></em>...]</p></div><p>Search the target file(s) for
+        occurrences of <em class="replaceable"><code>pattern</code></em>, where
+        <em class="replaceable"><code>pattern</code></em> may be literal text
+        or a Regular Expression.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep '[rst]ystem.$' osinfo.txt</code></strong>
+<code class="computeroutput">The GPL governs the distribution of the Linux operating system.</code>
+        </pre><p>
+        </p><p>If no target file(s) specified, <span class="command"><strong>grep</strong></span>
+        works as a filter on <code class="filename">stdout</code>, as in
+        a <a class="link" href="ch03.html#piperef">pipe</a>.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ps ax | grep clock</code></strong>
+<code class="computeroutput">765 tty1     S      0:00 xclock
+ 901 pts/1    S      0:00 grep clock</code>
+        </pre><p>
+        </p><p>The <code class="option">-i</code> option causes a case-insensitive
+        search.</p><p>The <code class="option">-w</code> option matches only whole
+        words.</p><p>The <code class="option">-l</code> option lists only the files in which
+        matches were found, but not the matching lines.</p><p>The <code class="option">-r</code> (recursive) option searches files in
+        the current working directory and all subdirectories below
+        it.</p><p>The <code class="option">-n</code> option lists the matching lines,
+        together with line numbers.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep -n Linux osinfo.txt</code></strong>
+<code class="computeroutput">2:This is a file containing information about Linux.
+ 6:The GPL governs the distribution of the Linux operating system.</code>
+        </pre><p>
+        </p><p>The <code class="option">-v</code> (or <code class="option">--invert-match</code>)
+        option <em class="firstterm">filters out</em> matches.
+        </p><pre class="programlisting">grep pattern1 *.txt | grep -v pattern2
+
+# Matches all lines in "*.txt" files containing "pattern1",
+# but ***not*** "pattern2".       
+</pre><p>The <code class="option">-c</code> (<code class="option">--count</code>)
+        option gives a numerical count of matches, rather than
+        actually listing the matches.
+
+          </p><pre class="programlisting">grep -c txt *.sgml   # (number of occurrences of "txt" in "*.sgml" files)
+
+
+#   grep -cz .
+#            ^ dot
+# means count (-c) zero-separated (-z) items matching "."
+# that is, non-empty ones (containing at least 1 character).
+# 
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -cz .     # 3
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -cz '$'   # 5
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -cz '^'   # 5
+#
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -c '$'    # 9
+# By default, newline chars (\n) separate items to match. 
+
+# Note that the -z option is GNU "grep" specific.
+
+
+# Thanks, S.C.</pre><p>
+            </p><p>The <code class="option">--color</code> (or <code class="option">--colour</code>)
+        option marks the matching string in color (on the console
+        or in an <em class="firstterm">xterm</em> window). Since
+        <em class="firstterm">grep</em> prints out each entire line
+        containing the matching pattern, this lets you see exactly
+        <span class="emphasis"><em>what</em></span> is being matched. See also
+        the <code class="option">-o</code> option, which shows only the
+        matching portion of the line(s).</p><div class="example"><a id="fromsh"/><p class="title"><b>Пример 15.16. Printing out the <em class="firstterm">From</em> lines in
+          stored e-mail messages</b></p><div class="example-contents"><pre class="programlisting">&amp;fromsh;</pre></div></div><br class="example-break"/><p>When invoked with more than one target file given,
+        <span class="command"><strong>grep</strong></span> specifies which file contains
+        matches.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep Linux osinfo.txt misc.txt</code></strong>
+<code class="computeroutput">osinfo.txt:This is a file containing information about Linux.
+ osinfo.txt:The GPL governs the distribution of the Linux operating system.
+ misc.txt:The Linux operating system is steadily gaining in popularity.</code>
+        </pre><p>
+      </p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>To force <span class="command"><strong>grep</strong></span> to show the filename
+        when searching only one target file, simply give
+        <code class="filename">/dev/null</code> as the second file.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep Linux osinfo.txt /dev/null</code></strong>
+<code class="computeroutput">osinfo.txt:This is a file containing information about Linux.
+ osinfo.txt:The GPL governs the distribution of the Linux operating system.</code>
+        </pre><p>
+      </p></div><p>If there is a successful match, <span class="command"><strong>grep</strong></span>
+        returns an <a class="link" href="ch06.html#exitstatusref">exit status</a>
+        of 0, which makes it useful in a condition test in a
+        script, especially in combination with the <code class="option">-q</code>
+        option to suppress output.
+          </p><pre class="programlisting">SUCCESS=0                      # if grep lookup succeeds
+word=Linux
+filename=data.file
+
+grep -q "$word" "$filename"    #  The "-q" option
+                               #+ causes nothing to echo to stdout.
+if [ $? -eq $SUCCESS ]
+# if grep -q "$word" "$filename"   can replace lines 5 - 7.
+then
+  echo "$word found in $filename"
+else
+  echo "$word not found in $filename"
+fi</pre><p>
+            </p><p><a class="xref" href="ch29.html#online" title="Пример 29.6. Cleaning up after Control-C">Пример 29.6, «Cleaning up after <span class="keycap">Control-C</span>»</a> demonstrates how to use
+        <span class="command"><strong>grep</strong></span> to search for a word pattern in
+        a system logfile.</p><div class="example"><a id="grp"/><p class="title"><b>Пример 15.17. Emulating <em class="firstterm">grep</em> in a script</b></p><div class="example-contents"><pre class="programlisting">&amp;grp;</pre></div></div><br class="example-break"/><p>How can <span class="command"><strong>grep</strong></span> search for two (or
+        more) separate patterns? What if you want
+        <span class="command"><strong>grep</strong></span> to display all lines in a file
+        or files that contain both <span class="quote">«<span class="quote">pattern1</span>»</span>
+        <span class="emphasis"><em>and</em></span> <span class="quote">«<span class="quote">pattern2</span>»</span>?</p><p>One method is to <a class="link" href="ch03.html#piperef">pipe</a> the result of <span class="command"><strong>grep
+        pattern1</strong></span> to <span class="command"><strong>grep pattern2</strong></span>.</p><p>For example, given the following file:</p><p>
+      </p><pre class="programlisting"># Filename: tstfile
+
+This is a sample file.
+This is an ordinary text file.
+This file does not contain any unusual text.
+This file is not unusual.
+Here is some text.</pre><p>
+            </p><p>Now, let's search this file for lines containing
+        <span class="emphasis"><em>both</em></span> <span class="quote">«<span class="quote">file</span>»</span> and
+        <span class="quote">«<span class="quote">text</span>»</span> . . . </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep file tstfile</code></strong>
+<code class="computeroutput"># Filename: tstfile
+ This is a sample file.
+ This is an ordinary text file.
+ This file does not contain any unusual text.
+ This file is not unusual.</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>grep file tstfile | grep text</code></strong>
+<code class="computeroutput">This is an ordinary text file.
+ This file does not contain any unusual text.</code></pre><p>Now, for an interesting recreational use
+        of <em class="firstterm">grep</em> . . .</p><div class="example"><a id="cwsolver"/><p class="title"><b>Пример 15.18. Crossword puzzle solver</b></p><div class="example-contents"><pre class="programlisting">&amp;cwsolver;</pre></div></div><br class="example-break"/><p><a id="egrepref"/><span class="command"><strong>egrep</strong></span>
+        -- <em class="firstterm">extended grep</em> -- is the same
+        as <span class="command"><strong>grep -E</strong></span>. This uses a somewhat
+        different, extended set of <a class="link" href="ch17.html#regexref">Regular
+        Expressions</a>, which can make the search a bit more
+        flexible. It also allows the boolean |
+        (<em class="firstterm">or</em>) operator.
+        </p><pre class="screen"><code class="prompt">bash $ </code><strong class="userinput"><code>egrep 'matches|Matches' file.txt</code></strong>
+<code class="computeroutput">Line 1 matches.
+ Line 3 Matches.
+ Line 4 contains matches, but also Matches</code>
+              </pre><p>
+        </p><p><a id="fgrepref"/><span class="command"><strong>fgrep</strong></span> --
+        <em class="firstterm">fast grep</em> -- is the same as
+        <span class="command"><strong>grep -F</strong></span>. It does a literal string search
+        (no <a class="link" href="ch17.html#regexref">Regular Expressions</a>),
+        which generally speeds things up a bit.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>On some Linux distros, <span class="command"><strong>egrep</strong></span> and
+        <span class="command"><strong>fgrep</strong></span> are symbolic links to, or aliases for
+        <span class="command"><strong>grep</strong></span>, but invoked with the
+        <code class="option">-E</code> and <code class="option">-F</code> options,
+        respectively.</p></div><div class="example"><a id="dictlookup"/><p class="title"><b>Пример 15.19. Looking up definitions in <em class="citetitle">Webster's 1913 Dictionary</em></b></p><div class="example-contents"><pre class="programlisting">&amp;dictlookup;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>See also <a class="xref" href="apa.html#qky" title="Пример A.41. Quacky: a Perquackey-type word game">Пример A.41, «Quacky: a Perquackey-type word game»</a> for an example
+        of speedy <em class="firstterm">fgrep</em> lookup on a large
+        text file.</p></div><p><a id="agrepref"/></p><p><span class="command"><strong>agrep</strong></span> (<em class="firstterm">approximate
+        grep</em>) extends the capabilities of
+        <span class="command"><strong>grep</strong></span> to approximate matching. The search
+        string may differ by a specified number of characters
+        from the resulting matches. This utility is not part of
+        the core Linux distribution.</p><p><a id="zegrepref"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>To search compressed files, use
+        <span class="command"><strong>zgrep</strong></span>, <span class="command"><strong>zegrep</strong></span>, or
+        <span class="command"><strong>zfgrep</strong></span>. These also work on non-compressed
+        files, though slower than plain <span class="command"><strong>grep</strong></span>,
+        <span class="command"><strong>egrep</strong></span>, <span class="command"><strong>fgrep</strong></span>.
+        They are handy for searching through a mixed set of files,
+        some compressed, some not.</p><p><a id="bzgrepref"/></p><p>To search <a class="link" href="ch15s05.html#bzipref">bzipped</a>
+        files, use <span class="command"><strong>bzgrep</strong></span>.</p></div></dd><dt><span class="term"><a id="lookref"/><span class="command"><strong>look</strong></span></span></dt><dd><p>The command <span class="command"><strong>look</strong></span> works like
+        <span class="command"><strong>grep</strong></span>, but does a lookup on
+        a <span class="quote">«<span class="quote">dictionary,</span>»</span> a sorted word list.
+        By default, <span class="command"><strong>look</strong></span> searches for a match
+        in <code class="filename">/usr/dict/words</code>, but a different
+        dictionary file may be specified.</p><div class="example"><a id="lookup"/><p class="title"><b>Пример 15.20. Checking words in a list for validity</b></p><div class="example-contents"><pre class="programlisting">&amp;lookup;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><span class="command"><strong>sed</strong></span>, </span><span class="term"><span class="command"><strong>awk</strong></span></span></dt><dd><p>Scripting languages especially suited for parsing text
+        files and command output. May be embedded singly or in
+        combination in pipes and shell scripts.</p></dd><dt><span class="term"><span class="command"><strong><a class="link" href="apc.html#sedref">sed</a></strong></span></span></dt><dd><p>Non-interactive <span class="quote">«<span class="quote">stream editor</span>»</span>, permits using
+        many <span class="command"><strong>ex</strong></span> commands in <a class="link" href="ch15s03.html#batchprocref">batch</a> mode. It finds many
+        uses in shell scripts.</p></dd><dt><span class="term"><span class="command"><strong><a class="link" href="apcs02.html#awkref">awk</a></strong></span></span></dt><dd><p>Programmable file extractor and formatter, good for
+        manipulating and/or extracting <a class="link" href="ch03.html#fieldref">fields</a> (columns) in structured
+        text files. Its syntax is similar to C.</p></dd><dt><span class="term"><a id="wcref"/><span class="command"><strong>wc</strong></span></span></dt><dd><p><em class="firstterm">wc</em> gives a <span class="quote">«<span class="quote">word
+        count</span>»</span> on a file or I/O stream:
+
+        </p><pre class="screen"><code class="prompt">bash $ </code><strong class="userinput"><code>wc /usr/share/doc/sed-4.1.2/README</code></strong>
+<code class="computeroutput">13  70  447 README</code>
+[13 lines  70 words  447 characters]</pre><p><strong class="userinput"><code>wc -w</code></strong> gives only the word count.</p><p><strong class="userinput"><code>wc -l</code></strong> gives only the line count.</p><p><strong class="userinput"><code>wc -c</code></strong> gives only the byte count.</p><p><strong class="userinput"><code>wc -m</code></strong> gives only the character count.</p><p><strong class="userinput"><code>wc -L</code></strong> gives only the length of the longest line.</p><p>Using <span class="command"><strong>wc</strong></span> to count how many
+      <code class="filename">.txt</code> files are in current working directory:
+        </p><pre class="programlisting">$ ls *.txt | wc -l
+#  Will work as long as none of the "*.txt" files
+#+ have a linefeed embedded in their name.
+
+#  Alternative ways of doing this are:
+#      find . -maxdepth 1 -name \*.txt -print0 | grep -cz .
+#      (shopt -s nullglob; set -- *.txt; echo $#)
+
+#  Thanks, S.C.</pre><p>
+      </p><p>Using <span class="command"><strong>wc</strong></span> to total up the size of all the
+        files whose names begin with letters in the range d - h
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>wc [d-h]* | grep total | awk '{print $3}'</code></strong>
+<code class="computeroutput">71832</code>
+        </pre><p>
+      </p><p>Using <span class="command"><strong>wc</strong></span> to count the instances of the
+        word <span class="quote">«<span class="quote">Linux</span>»</span> in the main source file for
+        this book.
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>grep Linux abs-book.sgml | wc -l</code></strong>
+<code class="computeroutput">50</code>
+        </pre><p>
+      </p><p>See also <a class="xref" href="ch15s05.html#ex52" title="Пример 15.39. Uudecoding encoded files">Пример 15.39, «Uudecoding encoded files»</a> and <a class="xref" href="ch19s02.html#redir4" title="Пример 19.8. Redirected for loop">Пример 19.8, «Redirected <em class="firstterm">for</em> loop»</a>.</p><p>Certain commands include some of the
+        functionality of <span class="command"><strong>wc</strong></span> as options.
+        
+      </p><pre class="programlisting">... | grep foo | wc -l
+# This frequently used construct can be more concisely rendered.
+
+... | grep -c foo
+# Just use the "-c" (or "--count") option of grep.
+
+# Thanks, S.C.</pre></dd><dt><span class="term"><a id="trref"/><span class="command"><strong>tr</strong></span></span></dt><dd><p>character translation filter.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p><a class="link" href="ch03.html#ucref">Must use quoting and/or
+        brackets</a>, as appropriate. Quotes prevent the
+        shell from reinterpreting the special characters in
+        <span class="command"><strong>tr</strong></span> command sequences. Brackets should be
+        quoted to prevent expansion by the shell.  </p></div><p>Either <strong class="userinput"><code>tr "A-Z" "*" &lt;filename</code></strong>
+        or <strong class="userinput"><code>tr A-Z \* &lt;filename</code></strong> changes
+        all the uppercase letters in <code class="filename">filename</code>
+        to asterisks (writes to <code class="filename">stdout</code>).
+        On some systems this may not work, but <strong class="userinput"><code>tr A-Z
+        '[**]'</code></strong> will.</p><p><a id="troptions"/></p><p>The <code class="option">-d</code> option deletes a range of
+        characters.
+      </p><pre class="programlisting">echo "abcdef"                 # abcdef
+echo "abcdef" | tr -d b-d     # aef
+
+
+tr -d 0-9 &lt;filename
+# Deletes all digits from the file "filename".</pre><p>The <code class="option">--squeeze-repeats</code> (or
+              <code class="option">-s</code>) option deletes all but the
+              first instance of a string of consecutive characters.
+              This option is useful for removing excess <a class="link" href="ch03.html#whitespaceref">whitespace</a>.
+
+
+
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo "XXXXX" | tr --squeeze-repeats 'X'</code></strong>
+<code class="computeroutput">X</code></pre><p>The <code class="option">-c</code> <span class="quote">«<span class="quote">complement</span>»</span>
+        option <em class="firstterm">inverts</em> the character set to
+        match. With this option, <span class="command"><strong>tr</strong></span> acts only
+        upon those characters <span class="emphasis"><em>not</em></span> matching
+        the specified set.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo "acfdeb123" | tr -c b-d +</code></strong>
+<code class="computeroutput">+c+d+b++++</code></pre><p>
+            </p><p>Note that <span class="command"><strong>tr</strong></span> recognizes <a class="link" href="ch17.html#posixref">POSIX character classes</a>.
+           <sup>[<a id="idp12582640" href="#ftn.idp12582640" class="footnote">65</a>]</sup>
+        </p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo "abcd2ef1" | tr '[:alpha:]' -</code></strong>
+<code class="computeroutput">----2--1</code>
+        </pre><p>
+      </p><div class="example"><a id="ex49"/><p class="title"><b>Пример 15.21. <em class="firstterm">toupper</em>: Transforms a file
+        to all uppercase.</b></p><div class="example-contents"><pre class="programlisting">&amp;ex49;</pre></div></div><br class="example-break"/><div class="example"><a id="lowercase"/><p class="title"><b>Пример 15.22. <em class="firstterm">lowercase</em>: Changes all
+        filenames in working directory to lowercase.</b></p><div class="example-contents"><pre class="programlisting">&amp;lowercase;</pre></div></div><br class="example-break"/><p><a id="trd2u"/></p><div class="example"><a id="du"/><p class="title"><b>Пример 15.23. <em class="firstterm">du</em>: DOS to UNIX text file conversion.</b></p><div class="example-contents"><pre class="programlisting">&amp;du;</pre></div></div><br class="example-break"/><div class="example"><a id="rot13"/><p class="title"><b>Пример 15.24. <em class="firstterm">rot13</em>: ultra-weak encryption.</b></p><div class="example-contents"><pre class="programlisting">&amp;rot13;</pre></div></div><br class="example-break"/><div class="example"><a id="cryptoquote"/><p class="title"><b>Пример 15.25. Generating <span class="quote">«<span class="quote">Crypto-Quote</span>»</span> Puzzles</b></p><div class="example-contents"><pre class="programlisting">&amp;cryptoquote;</pre></div></div><br class="example-break"/><p><a id="trvariants"/></p><div class="sidebar" title="tr variants"><p class="title"><b><em class="firstterm">tr</em> variants</b></p><p>
+      The <span class="command"><strong>tr</strong></span> utility has two historic
+      variants. The BSD version does not use brackets
+      (<strong class="userinput"><code>tr a-z A-Z</code></strong>), but the SysV one does
+      (<strong class="userinput"><code>tr '[a-z]' '[A-Z]'</code></strong>). The GNU version
+      of <span class="command"><strong>tr</strong></span> resembles the BSD one.
+      </p></div></dd><dt><span class="term"><a id="foldref"/><span class="command"><strong>fold</strong></span></span></dt><dd><p>A filter that wraps lines of input to a specified width.
+        This is especially useful with the <code class="option">-s</code>
+        option, which breaks lines at word spaces (see <a class="xref" href="ch15s04.html#ex50" title="Пример 15.26. Formatted file listing.">Пример 15.26, «Formatted file listing.»</a> and <a class="xref" href="apa.html#mailformat" title="Пример A.1. mailformat: Formatting an e-mail message">Пример A.1, «<em class="firstterm">mailformat</em>: Formatting an e-mail
+      message»</a>).</p></dd><dt><span class="term"><a id="fmtref"/><span class="command"><strong>fmt</strong></span></span></dt><dd><p>Simple-minded file formatter, used as a filter in a
+        pipe to <span class="quote">«<span class="quote">wrap</span>»</span> long lines of text
+        output.</p><div class="example"><a id="ex50"/><p class="title"><b>Пример 15.26. Formatted file listing.</b></p><div class="example-contents"><pre class="programlisting">&amp;ex50;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="ch15s02.html#ex41" title="Пример 15.5. Logfile: Using xargs to monitor system log">Пример 15.5, «Logfile: Using <em class="firstterm">xargs</em> to monitor system log»</a>.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>A powerful alternative to <span class="command"><strong>fmt</strong></span> is
+        Kamil Toman's <span class="command"><strong>par</strong></span>
+        utility, available from <a class="ulink" href="http://www.cs.berkeley.edu/~amc/Par/">http://www.cs.berkeley.edu/~amc/Par/</a>.
+        </p></div></dd><dt><span class="term"><a id="colref"/><span class="command"><strong>col</strong></span></span></dt><dd><p>This deceptively named filter removes reverse line feeds
+        from an input stream. It also attempts to replace
+        whitespace with equivalent tabs. The chief use of
+        <span class="command"><strong>col</strong></span> is in filtering the output
+        from certain text processing utilities, such as
+        <span class="command"><strong>groff</strong></span> and <span class="command"><strong>tbl</strong></span>.</p></dd><dt><span class="term"><a id="columnref"/><span class="command"><strong>column</strong></span></span></dt><dd><p>Column formatter. This filter transforms list-type
+        text output into a <span class="quote">«<span class="quote">pretty-printed</span>»</span> table
+        by inserting tabs at appropriate places.</p><div class="example"><a id="col"/><p class="title"><b>Пример 15.27. Using <em class="firstterm">column</em> to format a directory
+          listing</b></p><div class="example-contents"><pre class="programlisting">&amp;colm;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="colrmref"/><span class="command"><strong>colrm</strong></span></span></dt><dd><p>Column removal filter. This removes columns (characters)
+        from a file and writes the file, lacking the range of
+        specified columns, back to <code class="filename">stdout</code>.
+        <strong class="userinput"><code>colrm 2 4 &lt;filename</code></strong> removes the
+        second through fourth characters from each line of the
+        text file <code class="filename">filename</code>.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>If the file contains tabs or nonprintable
+        characters, this may cause unpredictable
+        behavior. In such cases, consider using
+        <a class="link" href="ch15s04.html#expandref">expand</a> and
+        <span class="command"><strong>unexpand</strong></span> in a pipe preceding
+        <span class="command"><strong>colrm</strong></span>.</p></div></dd><dt><span class="term"><a id="nlref"/><span class="command"><strong>nl</strong></span></span></dt><dd><p>Line numbering filter: <strong class="userinput"><code>nl filename</code></strong>
+      lists <code class="filename">filename</code> to
+      <code class="filename">stdout</code>, but inserts consecutive
+      numbers at the beginning of each non-blank line. If
+      <code class="filename">filename</code> omitted, operates on
+      <code class="filename">stdin.</code></p><p>The output of <span class="command"><strong>nl</strong></span> is very similar to
+        <strong class="userinput"><code>cat -b</code></strong>, since, by default
+        <span class="command"><strong>nl</strong></span> does not list blank lines.</p><div class="example"><a id="lnum"/><p class="title"><b>Пример 15.28. <em class="firstterm">nl</em>: A self-numbering script.</b></p><div class="example-contents"><pre class="programlisting">&amp;lnum;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="prref"/><span class="command"><strong>pr</strong></span></span></dt><dd><p>Print formatting filter. This will paginate files
+        (or <code class="filename">stdout</code>) into sections suitable for
+        hard copy printing or viewing on screen.  Various options
+        permit row and column manipulation, joining lines, setting
+        margins, numbering lines, adding page headers, and merging
+        files, among other things. The <span class="command"><strong>pr</strong></span>
+        command combines much of the functionality of
+        <span class="command"><strong>nl</strong></span>, <span class="command"><strong>paste</strong></span>,
+        <span class="command"><strong>fold</strong></span>, <span class="command"><strong>column</strong></span>, and
+        <span class="command"><strong>expand</strong></span>.</p><p><strong class="userinput"><code>pr -o 5 --width=65 fileZZZ | more</code></strong>
+       gives a nice paginated listing to screen of
+       <code class="filename">fileZZZ</code> with margins set at 5 and
+       65.</p><p>A particularly useful option is <code class="option">-d</code>,
+        forcing double-spacing (same effect as <span class="command"><strong>sed
+        -G</strong></span>).</p></dd><dt><span class="term"><a id="gettextref"/><span class="command"><strong>gettext</strong></span></span></dt><dd><p>The GNU <span class="command"><strong>gettext</strong></span> package is a set of
+        utilities for <a class="link" href="apj.html" title="Приложение J. Localization">localizing</a>
+        and translating the text output of programs into foreign
+        languages. While originally intended for C programs, it
+        now supports quite a number of programming and scripting
+        languages.</p><p>The  <span class="command"><strong>gettext</strong></span>
+        <span class="emphasis"><em>program</em></span> works on shell scripts. See
+        the <em class="replaceable"><code>info page</code></em>.</p></dd><dt><span class="term"><a id="msgfmtref"/><span class="command"><strong>msgfmt</strong></span></span></dt><dd><p>A program for generating binary
+        message catalogs. It is used for <a class="link" href="apj.html" title="Приложение J. Localization">localization</a>.</p></dd><dt><span class="term"><a id="iconvref"/><span class="command"><strong>iconv</strong></span></span></dt><dd><p>A utility for converting file(s) to a different encoding
+        (character set). Its chief use is for <a class="link" href="apj.html" title="Приложение J. Localization">localization</a>.</p><p>
+      </p><pre class="programlisting"># Convert a string from UTF-8 to UTF-16 and print to the BookList
+function write_utf8_string {
+    STRING=$1
+    BOOKLIST=$2
+    echo -n "$STRING" | iconv -f UTF8 -t UTF16 | \
+    cut -b 3- | tr -d \\n &gt;&gt; "$BOOKLIST"
+}
+
+#  From Peter Knowles' "booklistgen.sh" script
+#+ for converting files to Sony Librie/PRS-50X format.
+#  (http://booklistgensh.peterknowles.com)</pre><p>
+      </p></dd><dt><span class="term"><a id="recoderef"/><span class="command"><strong>recode</strong></span></span></dt><dd><p>Consider this a fancier version of
+        <span class="command"><strong>iconv</strong></span>, above. This very versatile utility
+        for converting a file to a different encoding scheme.
+        Note that <em class="firstterm">recode</em> is not part of the
+        standard Linux installation.</p></dd><dt><span class="term"><a id="texref"/><span class="command"><strong>TeX</strong></span>, </span><span class="term"><a id="gsref"/><span class="command"><strong>gs</strong></span></span></dt><dd><p><span class="command"><strong>TeX</strong></span> and <span class="command"><strong>Postscript</strong></span>
+        are text markup languages used for preparing copy for
+        printing or formatted video display.</p><p><span class="command"><strong>TeX</strong></span> is Donald Knuth's elaborate
+    typsetting system. It is often convenient to write a
+    shell script encapsulating all the options and arguments
+    passed to one of these markup languages.</p><p><em class="firstterm">Ghostscript</em>
+    (<span class="command"><strong>gs</strong></span>) is a GPL-ed Postscript
+    interpreter.</p></dd><dt><span class="term"><a id="texexecref"/><span class="command"><strong>texexec</strong></span></span></dt><dd><p>Utility for processing <em class="firstterm">TeX</em> and
+        <em class="firstterm">pdf</em> files. Found in
+        <code class="filename">/usr/bin</code>
+        on many Linux distros, it is actually a <a class="link" href="ch33s03.html#shwrapper">shell wrapper</a> that
+        calls <a class="link" href="ch33s03.html#perlref">Perl</a> to invoke
+        <em class="firstterm">Tex</em>.</p><p>
+      </p><pre class="programlisting">texexec --pdfarrange --result=Concatenated.pdf *pdf
+
+#  Concatenates all the pdf files in the current working directory
+#+ into the merged file, Concatenated.pdf . . .
+#  (The --pdfarrange option repaginates a pdf file. See also --pdfcombine.)
+#  The above command-line could be parameterized and put into a shell script.</pre><p> 
+            </p></dd><dt><span class="term"><a id="enscriptref"/><span class="command"><strong>enscript</strong></span></span></dt><dd><p>Utility for converting plain text file to PostScript</p><p>For example, <span class="command"><strong>enscript filename.txt -p filename.ps</strong></span>
+        produces the PostScript output file
+        <code class="filename">filename.ps</code>.</p></dd><dt><span class="term"><a id="groffref"/><span class="command"><strong>groff</strong></span>, </span><span class="term"><a id="tblref"/><span class="command"><strong>tbl</strong></span>, </span><span class="term"><a id="eqnref"/><span class="command"><strong>eqn</strong></span></span></dt><dd><p>Yet another text markup and display formatting language
+        is <span class="command"><strong>groff</strong></span>. This is the enhanced GNU version
+        of the venerable UNIX <span class="command"><strong>roff/troff</strong></span> display
+        and typesetting package. <a class="link" href="ch15.html#manref">Manpages</a>
+        use <span class="command"><strong>groff</strong></span>.</p><p>The <span class="command"><strong>tbl</strong></span> table processing utility
+        is considered part of <span class="command"><strong>groff</strong></span>, as its
+        function is to convert table markup into
+        <span class="command"><strong>groff</strong></span> commands.</p><p>The <span class="command"><strong>eqn</strong></span> equation processing utility
+        is likewise part of <span class="command"><strong>groff</strong></span>, and
+        its function is to convert equation markup into
+        <span class="command"><strong>groff</strong></span> commands.</p><div class="example"><a id="manview"/><p class="title"><b>Пример 15.29. <em class="firstterm">manview</em>: Viewing formatted manpages</b></p><div class="example-contents"><pre class="programlisting">&amp;manview;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="apa.html#maned" title="Пример A.39. A man page editor">Пример A.39, «A <em class="firstterm">man page</em> editor»</a>.</p></dd><dt><span class="term"><a id="lexref"/><span class="command"><strong>lex</strong></span>, </span><span class="term"><a id="yaccref"/><span class="command"><strong>yacc</strong></span></span></dt><dd><p><a id="flexref"/></p><p>The <span class="command"><strong>lex</strong></span> lexical analyzer produces
+        programs for pattern matching. This has been replaced
+        by the nonproprietary <span class="command"><strong>flex</strong></span> on Linux
+        systems.</p><p><a id="bisonref"/></p><p>The <span class="command"><strong>yacc</strong></span> utility creates a
+        parser based on a set of specifications. This has been
+        replaced by the nonproprietary <span class="command"><strong>bison</strong></span>
+        on Linux systems.</p></dd></dl></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp12582640" href="#idp12582640" class="para">65</a>] </sup>This is only true of the GNU version of
+     <span class="command"><strong>tr</strong></span>, not the generic version often found on
+     commercial UNIX systems.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch15s03.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch15.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch15s05.html">След.</a></td></tr><tr><td align="left" valign="top">Time / Date Commands </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> File and Archiving Commands</td></tr></table></div></body></html>

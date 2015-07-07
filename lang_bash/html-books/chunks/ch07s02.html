@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Операторы проверки файлов</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch07.html" title="Глава 7. Проверка условий"/><link rel="prev" href="ch07.html" title="Глава 7. Проверка условий"/><link rel="next" href="ch07s03.html" title="Другие операторы сравнения"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Операторы проверки файлов</th></tr><tr><td align="left"><a accesskey="p" href="ch07.html">Пред.</a> </td><th width="60%" align="center">Глава 7. Проверка условий</th><td align="right"> <a accesskey="n" href="ch07s03.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Операторы проверки файлов"><div class="titlepage"><div><div><h2 class="title"><a id="fto"/>Операторы проверки файлов</h2></div></div></div><div class="variablelist" title="Возвращается true в случае, если..."><p class="title"><b><a id="rtif"/>Возвращается true в случае, если...</b></p><dl><dt><span class="term"><span class="token">-e</span></span></dt><dd><p>файл существует</p></dd><dt><span class="term"><span class="token">-a</span></span></dt><dd><p>файл существует</p><p>Эффект идентичен использованию <span class="token">-e</span>.
+	      Опция является <span class="quote">«<span class="quote">устаревшей</span>»</span>,
+
+	        <sup>[<a id="idp8483248" href="#ftn.idp8483248" class="footnote">30</a>]</sup>
+	      
+	      использование нежелательно.</p></dd><dt><span class="term"><a id="regularfile"/><span class="token">-f</span></span></dt><dd><p><em class="replaceable"><code>обычный</code></em>
+		файл (не директория и не <a class="link" href="ch27.html#devfileref">
+		файл-устройство</a>)</p></dd><dt><span class="term"><span class="token">-s</span></span></dt><dd><p>файл ненулевого размера</p></dd><dt><span class="term"><span class="token">-d</span></span></dt><dd><p>файл является директорией</p></dd><dt><span class="term"><span class="token">-b</span></span></dt><dd><p>файл является <a class="link" href="ch27.html#blockdevref">блочным
+		устройством</a></p><p><a id="blockdevtest"/></p></dd><dt><span class="term"><span class="token">-c</span></span></dt><dd><p><a id="chardevtest"/>файл является <a class="link" href="ch27.html#chardevref">символьным устройством</a></p><pre class="programlisting">device0="/dev/sda2"    # /   (корневой каталог)
+if [ -b "$device0" ]
+then
+  echo "$device0 - блочное устройство."
+fi
+
+# /dev/sda2 - блочное устройство.
+
+
+
+device1="/dev/ttyS1"   # PCMCIA-модем.
+if [ -c "$device1" ]
+then
+  echo "$device1 - символьное устройство."
+fi
+
+# /dev/ttyS1 - символьное устройство.</pre></dd><dt><span class="term"><span class="token">-p</span></span></dt><dd><p>файл является <a class="link" href="ch03.html#piperef">каналом</a> (pipe)</p></dd><dt><span class="term"><span class="token">-h</span></span></dt><dd><p>файл является <a class="link" href="ch15.html#symlinkref">символической ссылкой</a></p></dd><dt><span class="term"><span class="token">-L</span></span></dt><dd><p>файл является символической ссылкой</p></dd><dt><span class="term"><span class="token">-S</span></span></dt><dd><p>файл является <a class="link" href="ch27.html#socketref">сокетом</a></p></dd><dt><span class="term"><span class="token">-t</span></span></dt><dd><p><a id="termtest"/>файл (<a class="link" href="ch19.html#fdref">дескриптор</a>) ассоциирован с терминальным устройством</p><p>Эта опция <a class="link" href="ch33.html#ii2test"> может быть
+	    использована для проверки</a> — <code class="filename">stdin</code>
+	    <strong class="userinput"><code>[ -t 0 ]</code></strong> или
+	    <code class="filename">stdout</code> <strong class="userinput"><code>[ -t 1 ]</code></strong>
+	    в данном скрипте является терминалом.</p></dd><dt><span class="term"><span class="token">-r</span></span></dt><dd><p>имеется право на чтение файла (<span class="emphasis"><em>для
+	      пользователя вызвавшего проверку</em></span>)</p></dd><dt><span class="term"><span class="token">-w</span></span></dt><dd><p>имеется право на запись файла (для пользователя
+	      вызвавшего проверку)</p></dd><dt><span class="term"><span class="token">-x</span></span></dt><dd><p>имеется право на исполнение файла (для пользователя
+	      вызвавшего проверку)</p></dd><dt><span class="term"><span class="token">-g</span></span></dt><dd><p>флаг set-group-id (sgid) установлен для директории или файла</p><p>Если для директории установлен флаг <em class="replaceable"><code>sgid</code></em>,
+		то файл, созданный внутри неё, унаследует группу, которой принадлежит
+		сама директория (необязательно группу пользователя, создавшего файл).
+		Это может быть полезно для каталогов, предназначенных для групповой работы.</p></dd><dt><span class="term"><span class="token">-u</span></span></dt><dd><p><a id="suidref"/></p><p>флаг set-user-id (suid) установлен для файла</p><p>Бинарный файл принадлежащий <em class="firstterm">root</em>-у
+		и имеющий установленный флаг <em class="replaceable"><code>set-user-id</code></em>
+		запускается с привилегиями <em class="firstterm">root</em>-а, даже если был
+		вызван обычным пользователем.
+	      
+		<sup>[<a id="idp8532208" href="#ftn.idp8532208" class="footnote">31</a>]</sup>
+
+		Флаг полезен для исполняемых файлов (например, <span class="command"><strong>pppd</strong></span>
+		или <span class="command"><strong>cdrecord</strong></span>), которым необходим доступ к
+		оборудованию системы. В случае отсутствия бита <em class="firstterm">suid</em>,
+		эти файлы не смогут работать от имени обычного пользователя.</p><p>
+	      </p><pre class="screen">
+	      <code class="computeroutput">-rwsr-xr-t    1 root       178236 Oct  2  2000 /usr/sbin/pppd</code>
+	      </pre><p>
+	      </p><p>У файла с установленным флагом <em class="replaceable"><code>suid</code></em>
+		 отображается символ <em class="firstterm">s</em> в списке прав.</p></dd><dt><span class="term"><span class="token">-k</span></span></dt><dd><p>Установлен <em class="replaceable"><code>sticky bit</code></em> (липкий бит) </p><p>Обычно известный как <em class="firstterm">sticky bit</em>,
+	 флаг <em class="firstterm">save-text-mode</em> представляет собой
+	 специальный тип прав. Если у файла установлен данный флаг,
+	 то этот файл будет закэширован в памяти для более
+	 быстрого доступа к нему.
+        <sup>[<a id="idp8543168" href="#ftn.idp8543168" class="footnote">32</a>]</sup>
+	При установке этого бита на директорию производится
+	ограничение прав на запись. В списке файлов и каталогов
+	sticky bit отображается в поле прав в виде буквы 
+	<em class="firstterm">t</em>.
+        </p><p>
+        </p><pre class="screen">
+        <code class="computeroutput">drwxrwxrwt    7 root         1024 May 19 21:26 tmp/</code>
+        </pre><p>
+        </p><p>Пользователь, не являющийся владельцем директории с
+	установленным sticky bit, но имеющий права на запись в данный
+	каталог, может удалять из него только те файлы, владельцем
+	которых он является. Это помогает избежать случайного удаления
+	или перезаписи других файлов в папке с общим доступом, такой как
+	<code class="filename">/tmp</code>. (<em class="firstterm">Владелец</em> 
+	директории или <em class="firstterm">root</em>, несомненно, могут переименовывать и удалять
+	файлы в ней).</p></dd><dt><span class="term"><span class="token">-O</span></span></dt><dd><p>Вы являетесь владельцем файла</p></dd><dt><span class="term"><span class="token">-G</span></span></dt><dd><p>group-id файла совпадает с Вашим </p></dd><dt><span class="term"><span class="token">-N</span></span></dt><dd><p>файл изменён со времени последнего чтения</p></dd><dt><span class="term"><span class="token">f1 -nt f2</span></span></dt><dd><p>файл <em class="replaceable"><code>f1</code></em> новее файла 
+    <em class="replaceable"><code>f2</code></em></p></dd><dt><span class="term"><span class="token">f1 -ot f2</span></span></dt><dd><p>файл <em class="replaceable"><code>f1</code></em> старше файла
+    <em class="replaceable"><code>f2</code></em></p></dd><dt><span class="term"><span class="token">f1 -ef f2</span></span></dt><dd><p>файлы <em class="replaceable"><code>f1</code></em> и
+    <em class="replaceable"><code>f2</code></em> являются жёсткими ссылками на один и тот же файл
+    		</p></dd><dt><span class="term"><span class="token">!</span></span></dt><dd><p><span class="quote">«<span class="quote">not</span>»</span> (отрицание) -- инвертирует смысл вышеуказанных проверок
+	(возвращает "истину" в случае отсутствия условий)
+      </p></dd></dl></div><div class="example"><a id="brokenlink"/><p class="title"><b>Пример 7.4. Проверка ссылок на корректность</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# broken-link.sh
+# Автор: Lee bigelow &lt;ligelowbee@yahoo.com&gt;
+# Использовано в данном руководстве (ABS Guide) с разрешения.
+
+#  Безупречный shell-скрипт, предназначенный для поиска "мертвых" символических
+#+ ссылок и вывода их имён в кавычках. Кавычки необходимы для того, чтобы 
+#+ можно было скормить ссылки команде xargs, которая сама с ними разберётся:
+#+ sh broken-link.sh /somedir /someotherdir|xargs rm
+#
+#  Это, однако, лучший метод:
+#
+#  find "somedir" -type l -print0|\
+#  xargs -r0 file|\
+#  grep "broken symbolic"|
+#  sed -e 's/^\|: *broken symbolic.*$/"/g'
+#
+#+ но это не чистый Bash; мы это исправим.
+#  Предупреждение: опасайтесь файловой системы /proc и любых циклических ссылок!
+################################################################
+
+
+#  Если не было передано ни одного параметра, то директорией поиска считается текущая директория.
+#+ В ином случае пути для поиска передаются с помощью аргументов.
+######################
+
+[ $# -eq 0 ] &amp;&amp; directorys=`pwd` || directorys=$@
+
+
+#  Устанавливается функция linkchk проверяющая переданный ей с помощью
+#+ аргумента каталог на наличие символических ссылок на несуществующие файлы
+#+ и выводящая имена этих ссылок в кавычках. 
+#  Если элемент директории - поддиректория, то он передается
+#+ функции linkchk для обработки.
+##########
+
+linkchk () {
+    for element in $1/*; do
+      [ -h "$element" -a ! -e "$element" ] &amp;&amp; echo \"$element\"
+      [ -d "$element" ] &amp;&amp; linkchk $element
+    # Конечно же, опция '-h' используется для проверки является ли файл ссылкой, а '-d' - является ли файл директорией.
+    done
+}
+
+#  Каждый полученный аргумент, который является корректной директорией, отправляется на
+#+ обработку функции linkchk(). Если аргумент - не директория, то выводится сообщение об ошибке и 
+#+ информация по использованию скрипта.
+##################
+for directory in $directorys; do
+    if [ -d $directory ]
+	then linkchk $directory
+	else 
+	    echo "$directory is not a directory"
+	    echo "Usage: $0 dir1 dir2 ..."
+    fi
+done
+
+exit $?
+
+
+</pre></div></div><br class="example-break"/><p><a class="xref" href="ch28.html#cookies" title="Пример 28.1. Hiding the cookie jar">Пример 28.1, «Hiding the cookie jar»</a>, <a class="xref" href="ch10.html#bingrep" title="Пример 10.7. grep для бинарных файлов">Пример 10.7, «<em class="firstterm">grep</em> для бинарных файлов»</a>,
+    <a class="xref" href="ch10.html#fileinfo" title="Пример 10.3. Fileinfo: обработка списка файлов, содержащегося в переменной">Пример 10.3, «<span class="emphasis"><em>Fileinfo:</em></span> обработка списка файлов, содержащегося в переменной»</a>, <a class="xref" href="ch28.html#ramdisk" title="Пример 28.3. Creating a ramdisk">Пример 28.3, «Creating a ramdisk»</a> и <a class="xref" href="apa.html#mailformat" title="Пример A.1. mailformat: Formatting an e-mail message">Пример A.1, «<em class="firstterm">mailformat</em>: Formatting an e-mail
+      message»</a> также иллюстрируют применение операторов
+    проверки файлов.</p><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp8483248" href="#idp8483248" class="para">30</a>] </sup>
+		Согласно 1913 выпуску <span class="emphasis"><em>Webster's
+		Dictionary</em></span>:
+		<pre class="programlisting">Deprecate
+...
+
+желать обратного;
+стремиться отказать в просьбе;
+желать удаления;
+искать избавления от чего-то;
+выражать глубокое сожаление чему-то;
+отнестись строго неодобрительно.</pre>
+	        </p></div><div class="footnote"><p><sup>[<a id="ftn.idp8532208" href="#idp8532208" class="para">31</a>] </sup>Знайте, что бинарные файлы с флагом <em class="firstterm">suid</em>
+		  могут оказаться брешью в безопасности системы. Флаг
+		  <em class="firstterm">suid</em> не влияет на выполнение shell-скриптов.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp8543168" href="#idp8543168" class="para">32</a>] </sup>В современных UNIX-системах sticky
+	bit больше не используется для файлов - только для директорий.
+	</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch07.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch07.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch07s03.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 7. Проверка условий </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Другие операторы сравнения</td></tr></table></div></body></html>

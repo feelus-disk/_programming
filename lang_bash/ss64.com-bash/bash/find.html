@@ -1,0 +1,505 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>find Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>find</h1> 
+<p>Search a folder hierarchy for filename(s) that meet a desired 
+criteria: Name, Size, File Type - see <a href="find.html#examples">examples</a>.</p>
+<pre>Syntax
+      find [-H] [-L] [-P] [<i>path</i>...] [<i>expression</i>]</pre>
+<p>  GNU find searches the directory tree rooted at each given file name by evaluating the given <i>expression</i> from left to right, according to the rules of precedence (<a href="find.html#operators">see Operators</a>), until the outcome is known (the left hand side is	
+false for <b>AND</b> operations, true for <b>OR</b>), at which point find moves on to the next file name. </p>
+<p><b>Options</b></p>
+<p>The '-H', '-L' and '-P' options control the treatment of symbolic links. Command-line arguments following these are taken to be names of files or directories to be examined, up to the first argument that begins with <span class="code">'-', '(', ')', ',', or '!'</span>. That argument and any following arguments are taken to be the expression describing what is to be searched for. If no paths are given, the current directory is used. If no expression is given, the expression '-print' is used (but you should probably consider using '-print0' instead, anyway).</p>
+<p>This manual page talks about 'options' within the expression list. These options control the behaviour of find but are specified immediately after the last path name. The three 'real' options '-H', '-L' and '-P' must appear before the first path name, if at all.</p>
+<blockquote>
+<p class="code">-P</p>
+<p>Never follow symbolic links. This is the default behaviour. When find examines or prints information a file, and the file is a symbolic link, the information used shall be taken from the properties of the symbolic link itself.</p>
+<p class="code">-L</p>
+<p>Follow symbolic links. When find examines or prints information about files, the information used shall be taken from the properties of the file to which the link points, not from the link itself (unless it is a broken symbolic link or find is unable to examine the file to which the link points). Use of this option implies -noleaf. If you later use the -P option, -noleaf will still be in effect. If -L is in effect and finddiscovers a symbolic link to a subdirectory during its search, the subdirectory pointed to by the symbolic link will be searched.<br>
+When the -L option is in effect, the -type predicate will always match against the type of the file that a symbolic link points to rather than the link itself (unless the symbolic link is broken). Using -L causes the -lname and -ilname predicates always to return false. </p>
+<p class="code">-H</p>
+<p>Do not follow symbolic links, except while processing the command line arguments. When find examines or prints information about files, the information used shall be taken from the properties of the symbolic link itself. The only exception to this behaviour is when a file specified on the command line is a symbolic link, and the link can be resolved. For that situation, the information used is taken from whatever the link points to (that is, the link is followed). The information about the link itself is used as a fallback if the file pointed to by the symbolic link cannot be examined. If -H is in effect and one of the paths specified on the command line is a symbolic link to a directory, the contents of that directory will be examined (though of course -maxdepth 0 would prevent this).<br>
+If more than one of -H, -L and -P is specified, each overrides the others; the last one appearing on the command line takes effect. Since it is the default, the -P option should be considered to be in effect unless either -H or -L is specified.</p>
+</blockquote>
+<p>GNU find frequently stats files during the processing of the command line itself, before any searching has begun. These options also affect how those arguments are processed. Specifically, there are a number of tests that compare files listed on the command line against a file we are currently considering. In each case, the file specified on the command line will have been examined and some of its properties will have been saved. If the named file is in fact a symbolic link, and the -P option is in effect (or if neither -H nor -L were specified), the information used for the comparison will be taken from the properties of the symbolic link. Otherwise, it will be taken from the properties of the file the link points to. If find cannot follow the link (for example because it has insufficient privileges or the link points to a nonexistent file) the properties of the link itself will be used.</p>
+<p>When the -H or -L options are in effect, any symbolic links listed as the argument of -newer will be dereferenced, and the timestamp will be taken from the file to which the symbolic link points. The same consideration applies to -anewer and -cnewer.</p>
+<p>The -follow option has a similar effect to -L, though it takes effect at the point where it appears (that is, if -L is not used but -follow is, any symbolic links appearing after -follow on the command line will be dereferenced, and those before it will not).</p>
+<p>Expressions</p>
+<p>The expression is made up of <b>options</b> (which affect overall operation rather than the processing of a specific file, and always return true), <b>tests</b> (which return a true or false value), and <b>actions</b> (which have side effects and return a true or false value), all separated by operators. -and is assumed where the operator is omitted.</p>
+<p>If the expression contains no actions other than -prune, -print is performed on all files for which the expression is true.</p>
+<p><b><a id="options"></a>OPTIONS</b></p>
+<p>All options always return true. Except for -follow and -daystart, they always take effect, rather than being processed only when their place in the expression is reached. Therefore, for clarity, it is best to place them at the beginning of the expression. A warning is issued if you don't do this.</p>
+<p><span class="code">-daystart</span><br>
+Measure times (for <span class="code">-amin, -atime, -cmin, -ctime, -mmin</span>, and<span class="code"> -mtime</span>) from the beginning of today rather than from 24 hours ago. This option only affects tests which appear later on the command line. </p>
+<p><span class="code">-depth<br>
+</span>Process each directory's contents before the directory itself.</p>
+<p><span class="code">-d<br>
+</span>A synonym for -depth, for compatibility with FreeBSD, NetBSD, MacOS X and OpenBSD.</p>
+<p><span class="code">-follow</span><br>
+Deprecated; use the -L option instead. Dereference symbolic links. Implies -noleaf. The -follow option affects only those tests which appear after it on the command line. Unless the -H or -L option has been specified, the position of the -follow option changes the behaviour of the -newer predicate; any files listed as the argument of -newer will be dereferenced if they are symbolic links. The same consideration applies to -anewer and -cnewer. Similarly, the -type predicate will always match against the type of the file that a symbolic link points to rather than the link itself. Using -follow causes the -lname and -ilname predicates always to return false. </p>
+<p><span class="code">-help, --help</span><br>
+Print a summary of the command-line usage of find and exit. </p>
+<p><span class="code">-ignore_readdir_race</span><br>
+Normally, find will emit an error message when it fails to stat a file. If you give this option and a file is deleted between the time findreads the name of the file from the directory and the time it tries to stat the file, no error message will be issued. This also applies to files or directories whose names are given on the command line. This option takes effect at the time the command line is read, which means that you cannot search one part of the filesystem with this option on and part of it with this option off (if you need to do that, you will need to issue two find commands instead, one with the option and one without it). </p>
+<p><span class="code">-maxdepth <i>levels</i></span><br>
+Descend at most levels (a non-negative integer) levels of directories below the command line arguments. '-maxdepth 0' means only apply the tests and actions to the command line arguments. </p>
+<p><span class="code">-mindepth <i>levels</i></span><br>
+Do not apply any tests or actions at levels less than levels (a non-negative integer). '-mindepth 1' means process all files except the command line arguments. </p>
+<p><span class="code">-mount</span><br>
+Don't descend directories on other filesystems. An alternate name for -xdev, for compatibility with some other versions of find.</p>
+<p><span class="code">-noignore_readdir_race</span><br>
+Turns off the effect of -ignore_readdir_race. <br>
+<br>
+<span class="code">-noleaf</span><br>
+Do not optimize by assuming that directories contain 2 fewer subdirectories than their hard link count. This option is needed when searching filesystems that do not follow the Unix directory-link convention, such as CD-ROM or MS-DOS filesystems or AFS volume mount points. Each directory on a normal Unix filesystem has at least 2 hard links: its name and its '.' entry. Additionally, its subdirectories (if any) each have a '..' entry linked to that directory. When find is examining a directory, after it has statted 2 fewer subdirectories than the directory's link count, it knows that the rest of the entries in the directory are non-directories ('leaf' files in the directory tree). If only the files' names need to be examined, there is no need to stat them; this gives a significant increase in search speed. </p>
+<p><span class="code">-regextype <i>type</i></span><br>
+Changes the regular expression syntax understood by <b>-regex</b> and <b>-iregex</b> tests which occur later on the command line. Currently-implemented types are emacs (this is the default), posix-awk, posix-basic, posix-egrep and posix-extended.</p>
+<p><span class="code">-version, --version</span><br>
+Print the find version number and exit. </p>
+<p><span class="code">-warn, -nowarn</span><br>
+Turn warning messages on or off. These warnings apply only to the command line usage, not to any conditions that find might encounter when it searches directories. The default behaviour corresponds to -warn if standard input is a tty, and to -nowarn otherwise. </p>
+<p><span class="code">-xdev</span><br>
+Don't descend directories on other filesystems.</p>
+<p><b><a id="tests"></a>TESTS</b></p>
+<p>Numeric arguments can be specified as</p>
+<blockquote>
+<p><span class="code">+n 
+</span>for greater than n,<br>
+<span class="code">-n 
+</span>for less than n,<br>
+<span class="code">n</span> 
+for exactly n.</p>
+</blockquote>
+<p><span class="code">-amin <i>n</i></span> File was last accessed n minutes ago. <br>
+<span class="code">-anewer <i>file</i></span> File was last accessed more recently than file was modified. If file is a symbolic link and the -H option or the -L option is in effect, the access time of the file it points to is always used. <br>
+<br>
+<span class="code">-atime <i>n</i></span> File was last accessed n*24 hours ago. When find figures out how many 24-hour periods ago the file was last accessed, any fractional part is ignored:</p>
+<blockquote>
+<p>+7 = more than 7 days ago<br>
+
+2 = between 2 and 3 days ago<br>
+-2 = within the past 2 days<br>
++1 = more than 1 day old<br>
+1 = between 1 and 2 days ago<br>
+
+-1 = within the past 1 day <br>
+0 = within the past 1 day</p>
+<p>A file 47.99 hours old will round down to 1 day,  for this to have matched <b>-atime +1</b>, the file would have to have been accessed <b> more </b>than one <b>day </b>ago i.e two days ago or longer. To match a date range you can specify more than one test. </p>
+</blockquote>
+<p><span class="code">-cmin <i>n</i></span> 
+File's status was last changed n minutes ago. </p>
+<p><span class="code">-cnewer <i>file</i></span> 
+File's status was last changed more recently than file was modified. If file is a symbolic link and the -H option or the -L option is in effect, the status-change time of the file it points to is always used. </p>
+<p><span class="code">-ctime n</span> 
+File's status was last changed n*24 hours ago. See the comments for -atime to understand how rounding affects the interpretation of file status change times. </p>
+<p><span class="code">-empty</span> File is empty and is either a regular file or a directory.</p>
+<p><span class="code">-false</span> 
+Always false.</p>
+<p><span class="code">-fstype <i>type</i></span> 
+File is on a filesystem of type type. The valid filesystem types vary among different versions of Unix; an incomplete list of filesystem types that are accepted on some version of Unix or another is: ufs, 4.2, 4.3, nfs, tmp, mfs, S51K, S52K. You can use -printf with the %F directive to see the types of your filesystems. </p>
+<p><span class="code">-gid n</span> File's numeric group ID is n.</p>
+<p><span class="code">-group <i>gname</i></span> 
+File belongs to group gname (numeric group ID allowed). </p>
+<p><span class="code">-ilname <i>pattern</i></span> 
+Like -lname, but the match is case insensitive. If the -L option or the -follow option is in effect, this test returns false unless the symbolic link is broken. </p>
+<p><span class="code">-iname <i>pattern</i></span> 
+Like -name, but the match is case insensitive. For example, the patterns 'fo*' and 'F??' match the file names 'Foo', 'FOO', 'foo', 'fOo', etc. In these patterns, unlike filename expansion by the shell, an initial '.' can be matched by '*'. That is, find -name *bar will match the file '.foobar'. Please note that you should quotepatterns as a matter of course, otherwise the shell will expand any wildcard characters in them. </p>
+<p><span class="code">-inum <i>n</i></span> 
+File has inode number <i>n</i>. It is normally easier to use the -<b>samefile</b> test instead. </p>
+<p><span class="code">-ipath <i>pattern</i></span> 
+Behaves in the same way as -iwholename. This option is deprecated, so please do not use it. </p>
+<p><span class="code">-iregex <i>pattern</i></span> 
+Like -regex, but the match is case insensitive. </p>
+<p><span class="code">-iwholename <i>pattern</i></span> 
+Like -wholename, but the match is case insensitive. </p>
+<p><span class="code">-links n</span> 
+File has n links. </p>
+<p><span class="code">-lname <i>pattern</i></span> 
+File is a symbolic link whose contents match shell pattern pattern. The metacharacters do not treat '/' or '.' specially. If the -L option or the -follow option is in effect, this test returns false unless the symbolic link is broken. </p>
+<p><span class="code">-mmin <i>n</i></span> 
+File's data was last modified <i>n</i> minutes ago. e.g. <span class="code">find . -mmin +5 -mmin -10</span> # find files modifed between 5 and 10 minutes ago</p>
+<p><span class="code">-mtime <i>n</i></span> 
+File's data was last modified n*24 hours ago. See the comments for -atime to understand how rounding affects the interpretation of file modification times. </p>
+<p><span class="code"><i>-</i>name<i> pattern</i></span><br>
+Base of file name (the path with the leading directories removed) matches shell pattern pattern. The metacharacters ('*', '?', and '[]') match a '.' at the start of the base name (this is a change in findutils-4.2.2; see section <a href="find.html#standards">STANDARDS CONFORMANCE</a> below). To ignore a directory and the files under it, use -prune; see an example in the description of -wholename. Braces are not recognised as being special, despite the fact that some shells including Bash imbue braces with a special meaning in shell patterns. The filename matching is performed with the use of the <b>fnmatch</b>(3) library function. Don't forget to enclose the pattern in quotes in order to protect it from expansion by the shell. </p>
+<p><span class="code">-newer <i>file</i></span> 
+File was modified more recently than file. If file is a symbolic link and the -H option or the -L option is in effect, the modification time of the file it points to is always used. </p>
+<p><span class="code">-nouser</span> 
+No user corresponds to file's numeric user ID. </p>
+<p><span class="code">-nogroup</span> 
+No group corresponds to file's numeric group ID. </p>
+<p><span class="code">-path <i>pattern</i></span> 
+See -wholename. The predicate -path is also supported by HP-UX find. </p>
+<p><span class="code">-perm <i>mode</i></span><br>
+File's permission bits are exactly mode (octal or symbolic). Since an exact match is required, if you want to use this form for symbolic modes, you may have to specify a rather complex mode string. For example '-perm g=w' will only match files which have mode 0020 (that is, ones for which group write permission is the only permission set). It is more likely that you will want to use the '/' or '-' forms, for example '-perm -g=w', which matches any file with group write permission. See the <a href="find.html#examples">EXAMPLES</a> section for some illustrative examples. </p>
+<p><span class="code">-perm -<i>mode</i></span><br>
+All of the permission bits mode are set for the file. Symbolic modes are accepted in this form, and this is usually the way in which would want to use them. You must specify 'u', 'g' or 'o' if you use a symbolic mode. See the <a href="find.html#examples">EXAMPLES</a> section for some illustrative examples. </p>
+<p><span class="code">-perm /<i>mode</i></span><br>
+Any of the permission bits mode are set for the file. Symbolic modes are accepted in this form. You must specify 'u', 'g' or 'o' if you use a symbolic mode. See the <a href="find.html#examples">EXAMPLES</a> section for some illustrative examples. If no permission bits in mode are set, this test currently matches no files. However, it will soon be changed to match any file (the idea is to be more consistent with the behaviour of <b>perm -000</b>). </p>
+<p><span class="code">-perm +<i>mode</i></span><br>
+Deprecated, old way of searching for files with any of the permission bits in mode set. You should use <b>-perm </b>/mode instead. Trying to use the '+' syntax with symbolic modes will yield surprising results. For example, '+u+x' is a valid symbolic mode (equivalent to +u,+x, i.e. 0111) and will therefore not be evaluated as <b>-perm</b> +mode but instead as the exact mode specifier <b>-perm</b> mode and so it matches files with exact permissions 0111 instead of files with any execute bit set. If you found this paragraph confusing, you're not alone - just use -perm /mode. This form of the <b>-perm</b> test is deprecated because the POSIX specification requires the interpretation of a leading '+' as being part of a symbolic mode, and so we switched to using '/' instead. </p>
+<p><span class="code">-regex <i>pattern</i></span><br>
+File name matches regular expression pattern. This is a match on the whole path, not a search. For example, to match a file named './fubar3', you can use the regular expression '.*bar.' or '.*b.*3', but not 'f.*r3'. The regular expressions understood by <b>find</b> are by default Emacs Regular Expressions, but this can be changed with the <b>-regextype</b> option. </p>
+<p><span class="code">-samefile <i>name</i></span><br>
+File refers to the same inode as name. When -L is in effect, this can include symbolic links. </p>
+<p><span class="code">-size n[cwbkMG]</span> 
+File uses n units of space. The following suffixes can be used: </p>
+<blockquote>
+<p><span class="code">'b'</span> 
+for 512-byte blocks (this is the default if no suffix is used)<br>
+<span class="code">'c'</span> 
+for bytes<br>
+<span class="code">'w'</span> 
+for two-byte words<br>
+<span class="code">'k'</span> 
+for Kilobytes (units of 1024 bytes)<br> 
+<span class="code">'M'</span> 
+for Megabytes (units of 1048576 bytes)<br> 
+<span class="code">'G'</span> 
+for Gigabytes (units of 1073741824 bytes) <br>
+The size does not count indirect blocks, but it does count blocks in sparse files that are not actually allocated. Bear in mind that the '%k' and '%b' format specifiers of -printf handle sparse files differently. The 'b' suffix always denotes 512-byte blocks and never 1 Kilobyte blocks, which is different to the behaviour of -ls. </p>
+</blockquote>
+<p><span class="code">-true</span> 
+Always true.</p>
+<p><span class="code">-type c</span> 
+File is of type c: </p>
+<p><span class="code">b</span> 
+block (buffered) special</p>
+<p><span class="code">c</span> 
+character (unbuffered) special</p>
+<p><span class="code">d</span> 
+directory</p>
+<p><span class="code">p</span> 
+named pipe (FIFO)</p>
+<p><span class="code">f</span> 
+regular file</p>
+<p><span class="code">l</span> 
+symbolic link; this is never true if the -L option or the -follow option is in effect, unless the symbolic link is broken. If you want to search for symbolic links when -L is in effect, use -xtype.</p>
+<p><span class="code">s</span> 
+socket</p>
+<p><span class="code">D</span> 
+door (Solaris)</p>
+<p><span class="code">-uid <i>n</i></span> 
+File's numeric user ID is n.</p>
+<p><span class="code">-used <i>n </i></span>
+File was last accessed n days after its status was last changed. </p>
+<p><span class="code">-user <i>uname</i></span> 
+File is owned by user uname (numeric user ID allowed). </p>
+<p><span class="code">-wholename <i>pattern</i></span><br>
+File name matches shell pattern pattern. The metacharacters do not treat '/' or '.' specially; so, for example,<br>
+<span class="code"> find . -wholename './sr*sc'</span><br>
+will print an entry for a directory called './src/misc' (if one exists). To ignore a whole directory tree, use -prune rather than checking every file in the tree. For example, to skip the directory 'src/emacs' and all files and directories under it, and print the names of the other files found, do something like this: <br> 
+<span class="code">find . -wholename './src/emacs' -prune -o -print</span></p>
+<p><span class="code">-xtype c</span><br>
+The same as -type unless the file is a symbolic link. For symbolic links: if the -H or -P option was specified, true if the file is a link to a file of type c; if the -L option has been given, true if c is 'l'. In other words, for symbolic links, -xtype checks the type of the file that -type does not check. </p>
+<p><span class="code">-context pattern</span><br>
+(SELinux only) Security context of the file matches glob pattern. </p>
+<p><b><a id="actions"></a>ACTIONS</b></p>
+<p>Use <a href="find.html#operators">operators</a> to separate multiple actions. If the operator is omitted, -<b>and</b> is assumed.<br>
+The default action is to -print all files  for  which  the  expression  is true.</p>
+<p><span class="code">-delete</span><br>
+Delete files; true if removal succeeded. If the removal failed, an error message is issued. Use of this action automatically turns on the '-depth' option. </p>
+<p><span class="code">-exec <i>command</i> ;</span><br>
+Execute command; true if 0 status is returned. All following arguments to <b>find</b> are taken to be arguments to the command until an argument consisting of ';' is encountered. The string '{}' is replaced by the current file name being processed everywhere it occurs in the arguments to the command, not just in arguments where it is alone, as in some versions of <b>find</b>. Both of these constructions might need to be escaped (with a '\') or quoted to protect them from expansion by the shell. See the <a href="find.html#examples">EXAMPLES</a> section for examples of the use of the '-exec' option. The specified command is run once for each matched file. The command is executed in the starting directory. There are unavoidable security problems surrounding use of the -exec option; you should use the -execdir option instead. </p>
+<p><span class="code">-exec <i>command</i> {} +</span><br>
+This variant of the -exec option runs the specified command on the selected files, but the command line is built by appending each selected file name at the end; the total number of invocations of the command will be much less than the number of matched files. The command line is built in much the same way that xargs builds its command lines. Only one instance of '{}' is allowed within the command. The command is executed in the starting directory. </p>
+<p><span class="code">-execdir <i>command</i> ;<br>
+-execdir <i>command</i> {} +</span><br>
+Like -exec, but the specified command is run from the subdirectory containing the matched file, which is not normally the directory in which you started find. This a much more secure method for invoking commands, as it avoids race conditions during resolution of the paths to the matched files. As with the -exec option, the '+' form of -execdir will build a command line to process more than one matched file, but any given invocation of command will only list files that exist in the same subdirectory. If you use this option, you must ensure that your <b>$PATH</b> environment variable does not reference the current directory; otherwise, an attacker can run any commands they like by leaving an appropriately-named file in a directory in which you will run -execdir. </p>
+<p><span class="code">-fls <i>file</i></span><br>
+True; like -ls but write to file like -fprint. The output file is always created, even if the predicate is never matched. See the <a href="find.html#unusual">UNUSUAL FILENAMES</a> section for information about how unusual characters in filenames are handled. </p>
+<p><span class="code">-fprint <i>file</i></span><br>
+True; print the full file name into file file. If file does not exist when find is run, it is created; if it does exist, it is truncated. The file names ''/dev/stdout'' and ''/dev/stderr'' are handled specially; they refer to the standard output and standard error output, respectively. The output file is always created, even if the predicate is never matched. See the <a href="find.html#unusual">UNUSUAL FILENAMES</a> section for information about how unusual characters in filenames are handled. </p>
+<p><span class="code">-fprint0 <i>file</i></span><br>
+True; like -print0 but write to file like -fprint. The output file is always created, even if the predicate is never matched. See the <a href="find.html#unusual">UNUSUAL FILENAMES</a> section for information about how unusual characters in filenames are handled. </p>
+<p><span class="code">-fprintf <i>file format</i></span><br>
+True; like -printf but write to file like -fprint. The output file is always created, even if the predicate is never matched. See the <a href="find.html#unusual">UNUSUAL FILENAMES</a> section for information about how unusual characters in filenames are handled. </p>
+<p><span class="code">-ok <i>command</i> ;</span><br>
+Like -exec but ask the user first (on the standard input); if the response does not start with 'y' or 'Y', do not run the command, and return false. If the command is run, its standard input is redirected from <b>/dev/null</b>. </p>
+<p class="code">-print</p>
+<p><span class="code">True;</span> print the full file name on the standard output, followed by a newline. If you are piping the output of find into another program and there is the faintest possibility that the files which you are searching for might contain a newline, then you should seriously consider using the '-print0' option instead of '-print'. See the UNUSUAL FILENAMES section for information about how unusual characters in filenames are handled.</p>
+<p><span class="code">-okdir <i>command</i> ;</span><br>
+Like -execdir but ask the user first (on the standard input); if the response does not start with 'y' or 'Y', do not run the command, and return false. If the command is run, its standard input is redirected from /dev/null. </p>
+<p><span class="code">-print0</span><br>
+<span class="code">True; </span>print the full file name on the standard output, followed by a null character (instead of the newline character that '-print' uses). This allows file names that contain newlines or other types of white space to be correctly interpreted by programs that process the find output. This option corresponds to the '-0' option of xargs. </p>
+<p><span class="code">-printf <i>format</i></span><br>
+<span class="code">True; </span>print format on the standard output, interpreting '<span class="code">\</span>' escapes and '<span class="code">%</span>' directives. Field widths and precisions can be specified as with the 'printf' C function. Please note that many of the fields are printed as %s rather than %d, and this may mean that flags don't work as you might expect. This also means that the '<span class="code">-</span>' flag does work (it forces fields to be left-aligned). Unlike -print, -printf does not add a newline at the end of the string. <br>
+The escapes and directives are: <br>
+<span class="code">\a </span>Alarm bell.<br> 
+<span class="code">\b </span>Backspace.<br>
+<span class="code">\c </span>Stop printing from this format immediately and flush the output.<br> 
+<span class="code">\f </span>Form feed.<br>
+<span class="code">\n </span>Newline.<br>
+<span class="code">\r </span>Carriage return.<br> 
+<span class="code">\t </span>Horizontal tab.<br>
+<span class="code">\v </span>Vertical tab.<br> 
+<span class="code">\&nbsp;&nbsp;</span>ASCII NUL.<br> 
+<span class="code">\\ </span>A literal backslash ('\').<br> 
+<span class="code">\NNN </span>The character whose ASCII code is NNN (octal). <br>
+A '<span class="code">\</span>' character followed by any other character is treated as an ordinary character, so they both are printed. <br>
+<span class="code">%% </span>A literal percent sign.<br> 
+<span class="code">%a </span>File's last access time in the format returned by the C 'ctime' function.<br> 
+<span class="code">%A<i>k</i> </span>File's last access time in the format specified by k, which is either '@' or a directive for the C 'strftime' function. </p>
+<blockquote>
+<p>The possible values for <i>k</i> are listed below; some of them might not be available on all systems, due to differences in 'strftime' between systems. </p>
+<p>Time fields:<br>
+<span class="code">@ </span>seconds since Jan. 1, 1970, 00:00 GMT.<br>
+<span class="code">H </span>hour (00..23)<br>
+<span class="code">I </span>hour (01..12)<br>
+<span class="code">k </span>hour ( 0..23)<br>
+<span class="code">l </span>hour ( 1..12)<br> 
+<span class="code">M </span>minute (00..59)<br> 
+<span class="code">p</span> locale's AM or PM<br>
+<span class="code">r </span>time, 12-hour (hh:mm:ss [AP]M)<br>
+<span class="code">S </span>second (00..61)<br>
+<span class="code">T </span>time, 24-hour (hh:mm:ss)<br>
+<span class="code">+ </span>Date and time, separated by '+', for example '2004-04-28+22:22:05'. The time is given in the current timezone (which may be affected by setting the TZ environment variable). This is a GNU extension.<br>
+<span class="code">X</span> locale's time representation (H:M:S)<br>
+<span class="code">Z</span> time zone (e.g., EDT), or nothing if no time zone is determinable</p>
+<p>Date fields:<br> 
+<span class="code">a </span>locale's abbreviated weekday name (Sun..Sat)<br> 
+<span class="code">A </span>locale's full weekday name, variable length (Sunday..Saturday)<br> 
+<span class="code">b </span>locale's abbreviated month name (Jan..Dec)<br> 
+<span class="code">B </span>locale's full month name, variable length (January..December)<br> 
+<span class="code">c </span>locale's date and time (Sat Nov 04 12:02:33 EST 1989)<br> 
+<span class="code">d </span>day of month (01..31)<br> 
+<span class="code">D </span>date (mm/dd/yy)<br> 
+<span class="code">h </span>same as b<br> 
+<span class="code">j </span>day of year (001..366)<br> 
+<span class="code">m </span>month (01..12)<br> 
+<span class="code">U </span>week number of year with Sunday as first day of week (00..53)<br> 
+<span class="code">w </span>day of week (0..6)<br> 
+<span class="code">W </span>week number of year with Monday as first day of week (00..53)<br> 
+<span class="code">x </span>locale's date representation (mm/dd/yy)<br> 
+<span class="code">y </span>last two digits of year (00..99)<br> 
+<span class="code">Y </span>year (1970...)</p>
+</blockquote>
+<p><span class="code">%b </span>The amount of disk space used for this file in 
+512-byte blocks. Since disk space is allocated in multiples of the filesystem block size this is usually greater than %s/1024, but it can also be smaller if the file is a sparse file. <br>
+<span class="code">%c </span>File's last status change time in the format returned by the C 'ctime' function.<br> 
+<span class="code">%C<i>k</i> </span>File's last status change time in the format specified by k, which is the same as for %A.<br>
+<span class="code">%d </span>File's depth in the directory tree; 0 means the file is a command line argument.<br> 
+<span class="code">%D </span>The device number on which the file exists (the st_dev field of struct stat), in decimal.<br> 
+<span class="code">%f </span>File's name with any leading directories removed (only the last element).<br> 
+<span class="code">%F </span>Type of the filesystem the file is on; this value can be used for -fstype.<br> 
+<span class="code">%g </span>File's group name, or numeric group ID if the group has no name.<br> 
+<span class="code">%G </span>File's numeric group ID.<br> 
+<span class="code">%h </span>Leading directories of file's name (all but the last element). If the file name contains no slashes (since it is in the current directory) the %h specifier expands to &quot;.&quot;.<br> 
+<span class="code">%H </span>Command line argument under which file was found.<br> 
+<span class="code">%i </span>File's inode number (in decimal).<br> 
+<span class="code">%k </span>The amount of disk space used for this file in 1K blocks. Since disk space is allocated in multiples of the filesystem block size this is usually greater than %s/1024, but it can also be smaller if the file is a sparse file.<br> 
+<span class="code">%l </span>Object of symbolic link (empty string if file is not a symbolic link).<br> 
+<span class="code">%m </span>File's permission bits (in octal). This option uses the 'traditional' numbers which most Unix implementations use, but if your particular implementation uses an unusual ordering of octal permissions bits, you will see a difference between the actual value of the file's mode and the output of %m. Normally you will want to have a leading zero on this number, and to do this, you should use the # flag (as in, for example, '%#m').<br> 
+<span class="code">%M </span>File's permissions (in symbolic form, as for ls). This directive is supported in findutils 4.2.5 and later.<br> 
+<span class="code">%n </span>Number of hard links to file.<br> 
+<span class="code">%p </span>File's name.<br> 
+<span class="code">%P </span>File's name with the name of the command line argument under which it was found removed.<br> 
+<span class="code">%s </span>File's size in bytes.<br> 
+<span class="code">%t </span>File's last modification time in the format returned by the C 'ctime' function.<br> 
+<span class="code">%T<i>k</i> </span>File's last modification time in the format specified by k, which is the same as for %A.<br> 
+<span class="code">%u </span>File's user name, or numeric user ID if the user has no name.<br> 
+<span class="code">%U </span>File's numeric user ID.<br> 
+<span class="code">%y </span>File's type (like in ls -l), U=unknown type (shouldn't happen)<br> 
+<span class="code">%Y </span>File's type (like %y), plus follow symlinks: L=loop, N=nonexistent<br> 
+<span class="code">%Z </span>(SELinux only) file's security context. <br>
+A '<span class="code">%</span>' character followed by any other character is discarded (but the other character is printed).</p>
+<blockquote>
+<p> The %m and %d directives support the # , 0 and + flags, but the other directives do not, even if they print numbers. Numeric directives that do not support these flags include G, U, b, D, k and n. The '-' format flag is supported and changes the alignment of a field from right-justified (which is the default) to left-justified.<br> 
+See the <a href="find.html#unusual">UNUSUAL FILENAMES</a> section for information about how unusual characters in filenames are handled. </p>
+</blockquote>
+<p><span class="code">-prune </span>If -depth is not given, true; if the file is a directory, do not descend into it. 
+If <b>-depth</b> is given, false; no effect. <br>
+<span class="code">-quit </span>Exit immediately. No child processes will be left running, but no more paths specified on the command line will be processed. For example, find /tmp/foo /tmp/bar -print -quit will print only /tmp/foo. Any command lines which have been built up with -execdir ... {} + will be invoked before find exits. The exit status may or may not be zero, depending on whether an error has already occurred.<br>
+<span class="code">-ls </span>True; list current file in 'ls -dils' format on standard output. The block counts are of 1K blocks, unless the environment variable POSIXLY_CORRECT is set, in which case 512-byte blocks are used. See the <a href="find.html#unusual">UNUSUAL FILENAMES</a> section for information about how unusual characters in filenames are handled.</p>
+<p><a id="unusual"></a><b>UNUSUAL FILENAMES</b></p>
+<p>Many of the actions of <b>find</b> result in the printing of data which is under the control of other users. This includes file names, sizes, modification times and so forth. File names are a potential problem since they can contain any character except '\0' and '/'. </p>
+<p>Unusual characters in file names can do unexpected and often undesirable things to your terminal (for example, changing the settings of your function keys on some terminals). Unusual characters are handled differently by various actions, as described below.</p>
+<p><span class="code">-print0, -fprint0</span></p>
+<blockquote>
+<p>Always print the exact filename, unchanged, even if the output is going to a terminal. </p>
+</blockquote>
+<p><span class="code">-ls, -fls </span></p>
+<blockquote>
+<p>Unusual characters are always escaped. White space, backslash, and double quote characters are printed using C-style escaping (for example '\f', '\&quot;'). Other unusual characters are printed using an octal escape. Other printable characters (for -ls and -fls these are the characters between octal 041 and 0176) are printed as-is. </p>
+</blockquote>
+<p><span class="code">-printf, -fprintf</span></p>
+<blockquote>
+<p> If the output is not going to a terminal, it is printed as-is. Otherwise, the result depends on which directive is in use. The directives %D, %F, %g, %G, %H, %Y, and %y expand to values which are not under control of files' owners, and so are printed as-is. The directives %a, %b, %c, %d, %i, %k, %m, %M, %n, %s, %t, %u and %U have values which are under the control of files' owners but which cannot be used to send arbitrary data to the terminal, and so these are printed as-is. The directives %f, %h, %l, %p and %P are quoted. This quoting is performed in the same way as for GNU ls. This is not the same quoting mechanism as the one used for -ls and -fls. If you are able to decide what format to use for the output of find then it is normally better to use '\0' as a terminator than to use newline, as file names can contain white space and newline characters. </p>
+</blockquote>
+<p><span class="code">-print, -fprint </span></p>
+<blockquote>
+<p>Quoting is handled in the same way as for -printf and -fprintf. If you are using find in a script or in a situation where the matched files might have arbitrary names, you should consider using -print0 instead of -print. </p>
+</blockquote>
+<p>The -ok and -okdir actions print the current filename as-is. This may change in a future release.</p>
+<p><a id="operators"></a><b>OPERATORS</b></p>
+<p>Listed in order of decreasing precedence:<br>
+<span class="code">( expr )</span> 
+Force precedence. <br>
+<span class="code"><b>!</b> expr </span>True if expr is false.<br>
+<span class="code"><b>-not</b> expr</span> 
+Same as ! expr, but not POSIX compliant. <br>
+<span class="code">expr1 expr2 </span>Two expressions in a row are taken to be joined with an implied &quot;<b>and</b>&quot;; expr2 is not evaluated if expr1 is false. <br>
+<span class="code">expr1 <b>-a</b> expr2</span> 
+Same as expr1 expr2. <br>
+<span class="code">expr1 <b>-and</b> expr2 </span>Same as expr1 expr2, but not POSIX compliant. <br>
+<span class="code">expr1 <b>-o</b> expr2 </span>Or; expr2 is not evaluated if expr1 is true. <br>
+<span class="code">expr1 <b>-or</b> expr2 </span>Same as expr1 -o expr2, but not POSIX compliant. <br>
+<span class="code">expr1 <b>,</b> expr2 </span>List; both expr1 and expr2 are always evaluated. The value of expr1 is discarded; the value of the list is the value of expr2.</p>
+<p> The comma operator can be useful for searching for several different types of thing, but traversing the filesystem hierarchy only once. The -fprintf action can be used to list the various matched items into several different output files. </p>
+<p><b><a id="standards"></a>Standards Conformance</b></p>
+<p>The following options are specified in the POSIX standard (IEEE Std 1003.1, 2003 Edition):</p>
+<p><span class="code">-H </span>This option is supported.<br>
+<span class="code">-L </span>This option is supported.<br>
+<span class="code">-name </span>This option is supported, but POSIX conformance depends on the POSIX conformance of the system's fnmatch(3) library function. As of findutils-4.2.2, shell metacharacters ('*'. '?' or '[]' for example) will match a leading '.', because IEEE PASC interpretation 126 requires this. This is a change from previous versions of findutils.<br>
+<span class="code">-type</span> Supported. POSIX specifies 'b', 'c', 'd', 'l', 'p', 'f' and 's'. GNU find also supports 'D', representing a Door, where the OS provides these.<br>
+<span class="code">-ok </span>Supported. Interpretation of the response is not locale-dependent (see <a href="find.html#variables">ENVIRONMENT VARIABLES</a>).<br>
+<span class="code">-newer </span>Supported. If the file specified is a symbolic link, it is always dereferenced. This is a change from previous behaviour, which used to take the relevant time from the symbolic link; see the HISTORY section below.</p>
+<p>Other predicates - 
+the predicates '-atime', '-ctime', '-depth', '-group', '-links', '-mtime', '-nogroup', '-nouser', '-perm', '-print', '-prune', '-size', '-user' and '-xdev', are all supported. 
+The POSIX standard specifies parentheses '(', ')', negation '!' and the 'and' and 'or' operators ('-a', '-o').</p>
+<p>All other options, predicates, expressions and so forth are extensions beyond the POSIX standard. Many of these extensions are not unique to GNU find, however.</p>
+<p>The POSIX standard requires that
+the find utility shall detect infinite loops; that is, entering a previously visited directory that is an ancestor of the last file encountered. When it detects an infinite loop, find shall write a diagnostic message to standard error and shall either recover its position in the hierarchy or terminate. <br>
+The link count of directories which contain entries which are hard links to an ancestor will often be lower than they otherwise should be. This can mean that GNU find will sometimes optimise away the visiting of a subdirectory which is actually a link to an ancestor. Since find does not actually enter such a subdirectory, it is allowed to avoid emitting a diagnostic message. Although this behaviour may be somewhat confusing, it is unlikely that anybody actually depends on this behaviour. If the leaf optimisation has been turned off with -noleaf, the directory entry will always be examined and the diagnostic message will be issued where it is appropriate. Symbolic links cannot be used to create filesystem cycles as such, but if the -L option or the -follow option is in use, a diagnostic message is issued when find encounters a loop of symbolic links. As with loops containing hard links, the leaf optimisation will often mean that find knows that it doesn't need to call stat() or chdir() on the symbolic link, so this diagnostic is frequently not necessary.</p>
+<p>The -d option is supported for compatibility with various BSD systems, but you should use the POSIX-compliant option -depth instead.</p>
+<p>The POSIXLY_CORRECT environment variable does not affect the behaviour of the -regex or -iregex tests because those tests aren't specified in the POSIX standard.</p>
+<p><b><a id="variables"></a>Environment Variables</b></p>
+<p><span class="code">LANG </span>Provides a default value for the internationalization variables that are unset or null.<br>
+<span class="code">LC_ALL</span> If set to a non-empty string value, override the values of all the other internationalization variables.<br>
+<span class="code">LC_COLLATE </span>The POSIX standard specifies that this variable affects the pattern matching to be used for the '-name' option. GNU find uses the fnmatch(3) library function, and so support for 'LC_COLLATE' depends on the system library. <br>
+POSIX also specifies that the 'LC_COLLATE' environment variable affects the interpretation of the user's response to the query issued by '-ok', but this is not the case for GNU find. <br>
+<span class="code">LC_CTYPE </span>This variable affects the treatment of character classes used with the '-name' test, if the system's fnmatch(3) library function supports this. It has no effect on the behaviour of the '-ok' expression. <br>
+<span class="code">LC_MESSAGES </span>Determines the locale to be used for internationalised messages. <br>
+<span class="code">NLSPATH </span>Determines the location of the internationalisation message catalogues. <br>
+<span class="code">PATH </span>Affects the directories which are searched to find the executables invoked by '-exec', '-execdir', '-ok' and '-okdir'.<br>
+<span class="code">POSIXLY_CORRECT </span>Determines the block size used by '-ls' and '-fls'. If 'POSIXLY_CORRECT' is set, blocks are units of 512 bytes. Otherwise they are units of 1024 bytes. <br>
+<span class="code">TZ </span>Affects the time zone used for some of the time-related format directives of -printf and -fprintf.</p>
+<p><b><a id="examples"></a>Examples</b></p>
+<p>List  filenames ending in .mp3, searching in the current folder and all subfolders: <br>
+<span class="code">$ find . -name &quot;*.mp3&quot;</span></p>
+<p>List  filenames matching the name Alice or ALICE (case insensitive), search in the current folder (.) and all subfolders:<br>
+<span class="code">$ find . -iname &quot;alice&quot; -print0</span></p>
+<p>List filenames matching the name Alice or ALICE (case insensitive), search in the current folder (.) only:<br>
+<span class="code">$ find . -maxdepth 1 -iname &quot;alice&quot; -print0</span></p>
+<p>List  filenames ending in .mp3, searching in the music folder and subfolders: <br>
+<span class="code">$ find ./music -name &quot;*.mp3&quot; </span></p>
+<p>List files with the exact name: Sales_document.doc in ./work and subfolders: <br>
+<span class="code">$ find ./work -name Sales_document.doc </span></p>
+<p>List all files that belong to the user Maude: <br>
+<span class="code">$ find . -user Maude -print0</span></p>
+<p>List all the directory and sub-directory names: <br>
+<span class="code">$ find . -type d </span></p>
+<p>List all files in those sub-directories (but not the directory names) <br>
+<span class="code">$ find . -type f </span></p>
+<p>List all the file links: <br>
+<span class="code">$ find . -type l </span></p>
+<p>List all files (and subdirectories) in your home directory: <br>
+<span class="code">$ find $HOME</span> </p>
+<p>Find files that are over a gigabyte in size:<br>
+<span class="code">$ find ~/Movies -size +1024M</span></p>
+<p>Find files that are over 1 GB but less than 20 GB in size:<br>
+<span class="code">$ find ~/Movies -size +1024M -size -20480M -print0</span></p>
+<p>Find all .gif files, pipe to xargs to get the size and then pipe into tail to display only the grand total:<br>
+<span class="code">$ find . -iname &quot;*.gif&quot; -print0 | xargs -0 du -ch | tail -1</span></p>
+<p>Find files have been modified within the last day: <br>
+<span class="code">$ find ~/Movies -mtime -1 </span></p>
+<p>Find files have been modified within the last 30 minutes: <br>
+<span class="code">$ find ~/Movies -mmin -30 </span></p>
+<p>Find .doc files that also start with 'questionnaire' (AND) <br>
+<span class="code">$ 
+find . -name '*.doc' -name questionnaire*</span> </p>
+<p>Then delete them... <br>
+<span class="code">$ </span><span class="code"> find . -name '*.doc' -name questionnaire* -delete</span></p>
+<p>List all files beginning with 'memo' and owned by Maude (AND) <br>
+<span class="code">$ find . -name 'memo*' -user Maude </span></p>
+<p> Find .doc files that do NOT start with 'Accounts' (NOT)<br>
+<span class="code">$ 
+find . -name '*.doc' ! -name Accounts*</span></p>
+<p>Find files named 'secrets' in or below the directory /tmp and delete them. Note that this will work incorrectly if there are any filenames containing newlines, single or double quotes, or spaces:<br>
+<span class="code">$ find /tmp -name secrets -type f -print | xargs /bin/rm -f</span></p>
+<p>Find files named 'secrets' in or below the directory /tmp and delete them, processing filenames in such a way that file or directory names containing single or double quotes, spaces or newlines are correctly handled. The -name test comes before the -type test in order to avoid having to call stat(2) on every file.
+<br>
+<span class="code">$ find /tmp -name secrets -type f -print0 | xargs -0 /bin/rm -f</span>
+<p>Run 'myapp' on every file in or below the current directory. Notice that the braces are enclosed in single quote marks to protect them from interpretation as shell script punctuation. The semicolon is similarly protected by the use of a backslash, though ';' could have been used in that case also.</p>
+<p class="code">find . -type f -exec myapp '{}' \;</p>
+<p> Traverse the filesystem just once, listing setuid files and directories into /root/suid.txt and large files into /root/big.txt.</p>
+<p><span class="code">find / \( -perm -4000 -fprintf /root/suid.txt '%#m %u %p\n' \) , \<br>
+\( -size +100M -fprintf /root/big.txt '%-10s %p\n' \)</span></p>
+<p>Search for files in your home directory which have been modified in the last twenty-four hours. This command works this way because the time since each file was last modified is divided by 24 hours and any remainder is discarded. That means that to match -mtime 0, a file will have to have a modification in the past which is less than 24 hours ago.</p>
+<p class="code">find $HOME -mtime 0</p>
+<p>Search for files which have read and write permission for their owner, and group, but which other users can read but not write to (<a href="chmod.html">664</a>). Files which meet these criteria but have other permissions bits set (for example if someone can execute the file) will not be matched.</p>
+<p><span class="code">find . -perm 664</span></p>
+<p>Search for files which have read and write permission for their owner and group, and which other users can read, without regard to the presence of any extra permission bits (for example the executable bit). This will match a file which has mode 0777, for example.</p>
+<p><span class="code">find . -perm -664</span></p>
+<p>Search for files which are writable by somebody (their owner, or their group, or anybody else).</p>
+<p><span class="code">find . -perm /222</span></p>
+<p>All three of these commands do the same thing, but the first one uses the octal representation of the file mode, and the other two use the symbolic form. These commands all search for files which are writable by either their owner or their group. The files don't have to be writable by both the owner and group to be matched; either will do.</p>
+<p><span class="code">find . -perm /220<br>
+find . -perm /u+w,g+w<br>
+find . -perm /u=w,g=w</span></p>
+<p>Both these commands do the same thing; search for files which are writable by both their owner and their group.</p>
+<p><span class="code">find . -perm -220<br>
+find . -perm -g+w,u+w</span></p>
+<p>These two commands both search for files that are readable for everybody (-perm -444 or -perm -a+r), have at least on write bit set (-perm /222 or -perm /a+w) but are not executable for anybody (! -perm /111 and ! -perm /a+x respectively)</p>
+<p><span class="code">find . -perm -444 -perm /222 ! -perm /111<br>
+find . -perm -a+r -perm /a+w ! -perm /a+x</span></p>
+<p><b><a id="performance"></a>Performance</b></p>
+<p>If you need to run an action against a large quantity of files, an alternative and often much faster method is to execute the command by simply piping <span class="code">find</span> into <a href="xargs.html">xargs</a> rather than specifying a <b>find <a href="find.html#actions">action</a></b> against each file.<br>
+<br>
+<span class="code">xargs</span>, will bundle up the files and (almost always) run them through a single instance of the called program<br>
+<span class="code">find -exec</span>, will run a separate instance of the called program for each file.</p>
+<p><b><a id="exit"></a>Exit Status</b></p>
+<p>find exits with status 0 if all files are processed successfully, greater than 0 if errors occur. This is deliberately a very broad description, but if the return value is non-zero, you should not rely on the correctness of the results of find.<br>
+</p>
+<p>As of findutils-4.2.2, shell metacharacters ('*'. '?' or '[]' for example) used in filename patterns will match a leading '.', because IEEE POSIX interpretation 126 requires this.</p>
+<p><b><a id="nonbugs"></a>Non-bugs</b></p>
+<p class="code">$ find . -name *.c -print<br>
+find: paths must precede expression<br>
+Usage: find [-H] [-L] [-P] [path...] [expression]</p>
+<p>This happens because *.c has been expanded by the shell resulting in find actually receiving a command line like this:</p>
+<p><span class="code">find . -name bigram.c code.c frcode.c locate.c -print</span></p>
+<p>That command is of course not going to work. Instead of doing things this way, you should enclose the pattern in quotes:</p>
+<p class="code">$ find . -name &acute;*.c&acute; -print</p>
+<p><b><a id="bugs"></a>Bugs</b></p>
+<p>The test -perm /000 currently matches no files, but for greater consistency with -perm -000, this will be changed to match all files; this change will probably be made in early 2006. Meanwhile, a warning message is given if you do this.</p>
+<p>There are security problems inherent in the behaviour that the POSIX standard specifies for find, which therefore cannot be fixed. For example, the -exec action is inherently insecure, and -execdir should be used instead. Please see Finding Files for more information.</p>
+<p>The best way to report a bug is to use the form at http://savannah.gnu.org/bugs/?group=findutils. The reason for this is that you will then be able to track progress in fixing the problem. Other comments about find(1) and about the findutils package in general can be sent to the bug-findutils mailing list. To join the list, send email to bug-findutils-request@gnu.org. </p>
+<p>This page documents the GNU version of find. If you are using find in an environment where security is important (for example if you are using it to seach directories that are writable by other users), you should read the &quot;Security Considerations&quot; chapter of the findutils documentation, which is called Finding Files and comes with findutils. </p>
+<p><i class="quote">&quot;Instead of getting married again, I'm going to find a woman I don't like and just give her a house&quot; ~ Lewis Grizzard </i><br>
+<br>
+<b>Related:</b></p>
+<p><a href="awk.html">awk</a> - Find and Replace text within file(s)<br>  
+<a href="chmod.html">chmod</a> - Change access permissions<br>
+fnmatch - Filename match <br>
+findutils documentation - 'Finding Files'  doc with more detail on security considerations<br>
+<a href="grep.html">grep</a> - Search file(s) for lines that match a given pattern<br>
+<a href="history.html">history</a> - Command History<br>
+<a href="locate.html">locate</a> - Find files - simple but fast <br>
+
+<a href="whereis.html">whereis</a> - Search the user's <span class="code">$path</span>, man pages and source files for a program<br>
+<a href="xargs.html">xargs</a> - <span class="body">Execute utility, passing constructed argument list(s)</span><br>
+Equivalent Windows command: <a href="http://ss64.com/nt/forfiles.html">FORFILES</a> - Batch process multiple files</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="find.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

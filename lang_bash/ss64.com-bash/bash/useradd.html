@@ -1,0 +1,341 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>useradd Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>useradd</h1> 
+<p>Create a new user or update default new user information . </p>
+<pre>Syntax
+      useradd [<i>options</i>] <i>LOGIN</i>
+
+      useradd -D
+
+      useradd -D [<i>options</i>] </pre>
+<p>When invoked without the -D option, the useradd command creates a new user account using the values specified on the command line plus the default values from the system. Depending on command line options, the useradd command will update system files and may also create the new user's home directory and copy initial files.<br>
+<br>
+By default, a group will also be created for the new user (see -g, -N, -U, and USERGROUPS_ENAB).</p>
+<pre>Options
+
+
+   -b, --base-dir <i>BASE_DIR</i>
+       The default base directory for the system if -d HOME_DIR is not specified.
+       BASE_DIR is concatenated with the account name to define the home directory.
+       If the -m option is not used, BASE_DIR must exist.
+       If this option is not specified, useradd will use the base directory
+       specified by the HOME variable in /etc/default/useradd, or /home by default.
+
+   -c, --comment <i>COMMENT</i>
+       Any text string. It is generally a short description of the login, and is
+       currently used as the field for the user's full name. 
+
+   -d, --home <i>HOME_DIR</i>
+       The new user will be created using HOME_DIR as the value for the user's
+       login directory. The default is to append the LOGIN name to BASE_DIR and
+       use that as the login directory name. The directory HOME_DIR does not have
+       to exist but will not be created if it is missing.
+
+   -D, --defaults
+       See below, the subsection "Changing the default values".
+
+   -e, --expiredate <i>EXPIRE_DATE</i>
+       The date on which the user account will be disabled.
+       The date is specified in the format YYYY-MM-DD (<a href="http://ss64.com/dates.html">ISO 8601</a>).
+
+       If not specified, useradd will use the default expiry date specified by
+       the EXPIRE variable in /etc/default/useradd, or an empty string
+       (no expiry) by default.
+
+   -f, --inactive <i>INACTIVE</i>
+       The number of days after a password expires until the account is
+       permanently disabled. A value of 0 disables the account as soon as the
+       password has expired, and a value of -1 disables the feature.
+
+       If not specified, useradd will use the default inactivity period
+       specified by the INACTIVE variable in /etc/default/useradd,
+       or -1 by default.
+
+   -g, --gid <i>GROUP</i>
+       The group name or number of the user's initial login group.
+       The group name must exist.
+       A group number must refer to an already existing group.
+
+       If not specified, the bahavior of useradd will depend on the
+       USERGROUPS_ENAB variable in /etc/login.defs. If this variable is
+       set to yes (or -U/--user-group is specified on the command line),
+       a group will be created for the user, with the same name as her
+       loginname.
+       If the variable is set to no (or -N/--no-user-group is specified
+       on the command line), useradd will set the primary group of the
+       new user to the value specified by the GROUP variable
+       in /etc/default/useradd, or 100 by default.
+
+   -G, --groups <i>GROUP1</i>[,<i>GROUP2</i>,...[,<i>GROUPN</i>]]]
+       A list of supplementary groups which the user is also a member of.
+       Each group is separated from the next by a comma, with no
+       intervening whitespace. The groups are subject to the same
+       restrictions as the group given with the -g option.
+       The default is for the user to belong only to the initial group.
+
+   -h, --help
+       Display help message and exit.
+
+   -k, --skel <i>SKEL_DIR</i>
+       The skeleton directory, which contains files and directories to
+       be copied in the user's home directory, when the home directory is created by useradd.
+
+       This option is only valid if the -m (or --create-home) option is specified.
+
+       If this option is not set, the skeleton directory is defined
+       by the SKEL variable in /etc/default/useradd or, by default, /etc/skel.
+
+   -K, --key <i>KEY</i>=<i>VALUE</i>
+       Overrides /etc/login.defs defaults
+       (UID_MIN, UID_MAX, UMASK, PASS_MAX_DAYS and others).
+
+       Example: -K PASS_MAX_DAYS=-1 can be used when creating system account
+       to turn off password ageing, even though system account has no password
+       at all. Multiple -K options can be specified, e.g.: -K UID_MIN=100 -K UID_MAX=499
+
+       Note: -K UID_MIN=10,UID_MAX=499 doesn't work yet.
+
+   -l, --no-log-init
+       Do not add the user to the lastlog and faillog databases.
+
+       By default, the user's entries in the lastlog and faillog databases
+       are resetted to avoid reusing the entry from a previously deleted user.
+
+   -m, --create-home
+       Create the user's home directory if it does not exist.
+       The files and directories contained in the skeleton directory
+       (which can be defined with the -k option) will be copied to the home directory.
+
+       By default, no home directories are created.
+
+   -M
+       Do not create the user's home directory, even if the system wide
+       setting from /etc/login.defs (CREATE_HOME) is set to yes.
+
+   -N, --no-user-group
+       Do not create a group with the same name as the user, but add
+       the user to the group specified by the -g option or by the
+       GROUP variable in /etc/default/useradd.
+
+       The default behavior (if the -g, -N, and -U options are not specified)
+       is defined by the USERGROUPS_ENAB variable in /etc/login.defs.
+
+   -o, --non-unique
+       Allow the creation of a user account with a duplicate (non-unique) UID.
+
+       This option is only valid in combination with the -o option.
+
+   -p, --password <i>PASSWORD</i>
+       The encrypted password, as returned by crypt(3).
+       The default is to disable the password.
+
+       Note: This option is not recommended because the password
+       (or encrypted password) will be visible by users listing the processes.
+
+       You should make sure the password respects the system's password policy.
+
+   -r, --system
+       Create a system account.
+
+       System users will be created with no aging information in /etc/shadow,
+       and their numeric identifiers are choosen in the
+       SYS_UID_MIN-SYS_UID_MAX range, defined in /etc/login.defs, instead of
+       UID_MIN-UID_MAX (and their GID counterparts for the creation of groups).
+
+       Note that useradd will not create a home directory for such an user,
+       regardless of the default setting in /etc/login.defs (CREATE_HOME).
+       You have to specify the -m options if you want a home directory for
+       a system account to be created.
+
+   -s, --shell SHELL
+       The name of the user's login shell.
+       The default is to leave this field blank, which causes the system to
+       select the default login shell specified by the SHELL variable in
+       /etc/default/useradd, or an empty string by default.
+
+   -u, --uid UID
+       The numerical value of the user's ID.
+       This value must be unique, unless the -o option is used.
+       The value must be non-negative. The default is to use the smallest
+       ID value greater than 999 and greater than every other user.
+       Values between 0 and 999 are typically reserved for system accounts.
+
+   -U, --user-group
+       Create a group with the same name as the user, and add the user to this group.
+   
+       The default behavior (if the -g, -N, and -U options are not specified)
+       is defined by the USERGROUPS_ENAB variable in /etc/login.defs.
+
+   -Z, --selinux-user <i>SEUSER</i>
+       The SELinux user for the user's login.
+       The default is to leave this field blank, which causes the system to
+       select the default SELinux user. 
+
+   Changing the default values
+
+   When invoked with only the -D option, useradd will display the current
+   default values. When invoked with -D plus other options, useradd will
+   update the default values for the specified options.
+
+   Valid default-changing options are:
+
+   -b, --base-dir <i>BASE_DIR</i>
+       The path prefix for a new user's home directory.
+       The user's name will be affixed to the end of BASE_DIR to form
+       the new user's home directory name, if the -d option is not used
+       when creating a new account.
+
+       This option sets the HOME variable in /etc/default/useradd. 
+   -e, --expiredate <i>EXPIRE_DATE</i>
+       The date on which the user account is disabled.
+
+       This option sets the EXPIRE variable in /etc/default/useradd. 
+   -f, --inactive <i>INACTIVE</i>
+       The number of days after a password has expired before the
+       account will be disabled.
+
+       This option sets the INACTIVE variable in /etc/default/useradd.
+
+   -g, --gid <i>GROUP</i>
+       The group name or ID for a new user's initial group
+       (when the -N/--no-user-group is used or when the USERGROUPS_ENAB
+       variable is set to no in /etc/login.defs.
+       The named group must exist, and a numerical group ID must have an existing entry.
+
+       This option sets the GROUP variable in /etc/default/useradd.
+
+   v-s, --shell <i>SHELL</i>
+       The name of a new user's login shell.
+
+       This option sets the SHELL variable in /etc/default/useradd. 
+</pre>
+<h2>Notes</h2>
+<p>The system administrator is responsible for placing the default user files in the /etc/skel/ directory (or any other skeleton directory specified in /etc/default/useradd or on the command line).</p>
+<p>Caveats</p>
+<p>You may not add a user to a NIS or LDAP group. This must be performed on the corresponding server.<br>
+<br>
+Similarly, if the username already exists in an external user database such as NIS or LDAP, useradd will deny the user account creation request.<br>
+<br>
+Usernames may only be up to 32 characters long.</p>
+<p>Configuration<br>
+<br>
+The following configuration variables in /etc/login.defs change the behavior of this tool:<br>
+<br>
+<span class="code">CREATE_HOME</span> (boolean)<br>
+Indicate if a home directory should be created by default for new users.<br>
+This setting does not apply to system users, and can be overriden on the command line. </p>
+<p><span class="code">GID_MAX</span> (number), <span class="code">GID_MIN</span> (number)<br>
+Range of group IDs used for the creation of regular groups by useradd, groupadd, or newusers. </p>
+<p><span class="code">MAIL_DIR</span> (string)<br>
+The mail spool directory. This is needed to manipulate the mailbox when its corresponding user account is modified or deleted. If not specified, a compile-time default is used.</p>
+<p><span class="code">MAIL_FILE</span> (string)<br>
+Defines the location of the users mail spool files relatively to their home directory. <br>
+The MAIL_DIR and MAIL_FILE variables are used by useradd, usermod, and userdel to create, move, or delete the user's mail spool.<br>
+<br>
+If MAIL_CHECK_ENAB is set to yes, they are also used to define the MAIL environment variable.<br>
+<br>
+<span class="code">MAX_MEMBERS_PER_GROUP</span> (number)<br>
+Maximum members per group entry. When the maximum is reached, a new group entry (line) is started in /etc/group (with the same name, same password, and same GID).<br>
+<br>
+The default value is 0, meaning that there are no limits in the number of members in a group.<br>
+<br>
+This feature (split group) permits to limit the length of lines in the group file. This is useful to make sure that lines for NIS groups are not larger than 1024 characters.<br>
+<br>
+If you need to enforce such limit, you can use 25.<br>
+<br>
+Note: split groups may not be supported by all tools (even in the Shadow toolsuite). You should not use this variable unless you really need it.</p>
+<p><span class="code">PASS_MAX_DAYS</span> (number)<br>
+The maximum number of days a password may be used. If the password is older than this, a password change will be forced. If not specified, -1 will be assumed (which disables the restriction). </p>
+<p><span class="code">PASS_MIN_DAYS</span> (number)<br>
+The minimum number of days allowed between password changes. Any password changes attempted sooner than this will be rejected. If not specified, -1 will be assumed (which disables the restriction). </p>
+<p><span class="code">PASS_WARN_AGE</span> (number)<br>
+The number of days warning given before a password expires. A zero means warning is given only upon the day of expiration, a negative value means no warning is given. If not specified, no warning will be provided.</p>
+<p><span class="code">SYS_GID_MAX</span> (number), <span class="code">SYS_GID_MIN</span> (number)<br>
+Range of group IDs used for the creation of system groups by useradd, groupadd, or newusers.</p>
+<p><span class="code">SYS_UID_MAX</span> (number), <span class="code">SYS_UID_MIN</span> (number)<br>
+Range of user IDs used for the creation of system users by useradd or newusers.</p>
+<p><span class="code">UID_MAX</span> (number), <span class="code">UID_MIN</span> (number)<br>
+Range of user IDs used for the creation of regular users by useradd or newusers.</p>
+<p><span class="code">UMASK</span> (number)<br>
+The file mode creation mask is initialized to this value. If not specified, the mask will be initialized to 022.<br>
+<br>
+useradd and newusers use this mask to set the mode of the home directory they create<br>
+<br>
+It is also used by login to define users' initial umask. Note that this mask can be overriden by the user's GECOS line (if QUOTAS_ENAB is set) or by the specification of a limit with the K identifier in limits(5). <br>
+USERGROUPS_ENAB (boolean)<br>
+Enable setting of the umask group bits to be the same as owner bits (examples: 022 -> 002, 077 -> 007) for non-root users, if the uid is the same as gid, and username is the same as the primary group name.<br>
+<br>
+If set to yes, userdel will remove the user's group if it contains no more members, and useradd will create by default a group with the name of the user. </p>
+<pre>Files
+
+/etc/passwd
+    User account information. 
+/etc/shadow
+    Secure user account information. 
+/etc/group
+    Group account information. 
+/etc/gshadow
+    Secure group account information. 
+/etc/default/useradd
+    Default values for account creation. 
+/etc/skel/
+    Directory containing default files. 
+/etc/login.defs
+    Shadow password suite configuration.
+
+Exit Values:
+
+0    success 
+1    can't update password file 
+2    invalid command syntax 
+3    invalid argument to option 
+4    UID already in use (and no -o) 
+6    specified group doesn't exist 
+9    username already in use 
+10   can't update group file 
+12   can't create home directory 
+13   can't create mail spool </pre>
+<p> <b>Examples</b></p>
+<p> Create a new user and set a password:</p>
+<p class="code"> $ useradd johng<br>
+$ passwd johng</p>
+<p>Create a new user and set an account expiry date :</p>
+<p class="code"> $ useradd -e 2021-12-31 johng</p>
+<p>Create a new user and set a 30 day password expiry (30 days after the password expires the account will expire unless the password is changed):</p>
+<p class="code"> $ useradd -f 30 johng</p>
+<p>Create a new user and set an account and password expiry:</p>
+<p class="code"> $ useradd -e 2021-12-31 -f 30 johng</p>
+<p class="quote"><i class="quote">&ldquo;For a list of all the ways technology has failed to improve the quality of life, press three&rdquo; ~ Alice Kahn</i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="usermod.html">usermod</a> - Modify user account<br>
+<a href="userdel.html">userdel</a> - Delete a user account<br>
+<a href="passwd.html">passwd</a> - Modify a user password<br>
+crypt(3)<br>
+<a href="groupadd.html">groupadd</a> - Add a new group<br>
+Equivalent Windows command: <a href="http://ss64.com/nt/dsadd-user.html">dsadd</a> - Add active directory object.</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="useradd.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

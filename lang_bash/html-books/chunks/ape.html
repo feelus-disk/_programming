@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Приложение E. A Detailed Introduction to I/O and I/O Redirection</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="prev" href="apd.html" title="Приложение D. Exit Codes With Special Meanings"/><link rel="next" href="apf.html" title="Приложение F. Command-Line Options"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Приложение E. A Detailed Introduction to I/O and I/O Redirection</th></tr><tr><td align="left"><a accesskey="p" href="apd.html">Пред.</a> </td><th width="60%" align="center"> </th><td align="right"> <a accesskey="n" href="apf.html">След.</a></td></tr></table><hr/></div><div class="appendix" title="Приложение E. A Detailed Introduction to I/O and I/O Redirection"><div class="titlepage"><div><div><h2 class="title"><a id="ioredirintro"/>Приложение E. A Detailed Introduction to I/O and I/O Redirection</h2></div></div></div><p><span class="emphasis"><em>written by Stéphane Chazelas, and revised
+        by the document author</em></span></p><p><a id="stdinoutdef"/></p><p>A command expects the first three <a class="link" href="ch19.html#fdref">file
+        descriptors</a> to be available. The first, <em class="firstterm">fd
+        0</em> (standard input, <code class="filename">stdin</code>),
+        is for reading. The other two (<em class="firstterm">fd 1</em>,
+        <code class="filename">stdout</code> and <em class="firstterm">fd 2</em>,
+        <code class="filename">stderr</code>) are for writing.</p><p>There is a <code class="filename">stdin</code>, <code class="filename">stdout</code>,
+        and a <code class="filename">stderr</code> associated with each command.
+        <strong class="userinput"><code>ls 2&gt;&amp;1</code></strong> means temporarily connecting the
+        <code class="filename">stderr</code> of the <span class="command"><strong>ls</strong></span> command to the
+        same <span class="quote">«<span class="quote">resource</span>»</span> as the shell's
+        <code class="filename">stdout</code>.</p><p>By convention, a command reads its input from fd 0
+        (<code class="filename">stdin</code>), prints normal output to fd
+        1 (<code class="filename">stdout</code>), and error ouput to fd 2
+        (<code class="filename">stderr</code>). If one of those three fd's is
+        not open, you may encounter problems:</p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>cat /etc/passwd &gt;&amp;-</code></strong>
+<code class="computeroutput">cat: standard output: Bad file descriptor</code>
+      </pre><p>For example, when <span class="command"><strong>xterm</strong></span> runs, it first
+        initializes itself.  Before running the user's shell,
+        <span class="command"><strong>xterm</strong></span> opens the terminal device
+        (/dev/pts/&lt;n&gt; or something similar) three times.</p><p>At this point, Bash inherits these three file descriptors,
+        and each command (child process) run by Bash inherits
+        them in turn, except when you redirect the command.  <a class="link" href="ch19.html#ioredirref">Redirection</a> means reassigning
+        one of the file descriptors to another file (or a pipe, or
+        anything permissible). File descriptors may be reassigned
+        locally (for a command, a command group, a <a class="link" href="ch20.html#subshellsref">subshell</a>, a <a class="link" href="ch19s02.html#redirref">while or if or case or for loop</a>...),
+        or globally, for the remainder of the shell (using <a class="link" href="ch14.html#execref">exec</a>).</p><p><strong class="userinput"><code>ls &gt; /dev/null</code></strong> means
+        running <span class="command"><strong>ls</strong></span> with its fd 1 connected to
+        <code class="filename">/dev/null</code>.</p><p>
+      </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>lsof -a -p $$ -d0,1,2</code></strong>
+<code class="computeroutput">COMMAND PID     USER   FD   TYPE DEVICE SIZE NODE NAME
+ bash    363 bozo        0u   CHR  136,1         3 /dev/pts/1
+ bash    363 bozo        1u   CHR  136,1         3 /dev/pts/1
+ bash    363 bozo        2u   CHR  136,1         3 /dev/pts/1</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>exec 2&gt; /dev/null</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>lsof -a -p $$ -d0,1,2</code></strong>
+<code class="computeroutput">COMMAND PID     USER   FD   TYPE DEVICE SIZE NODE NAME
+ bash    371 bozo        0u   CHR  136,1         3 /dev/pts/1
+ bash    371 bozo        1u   CHR  136,1         3 /dev/pts/1
+ bash    371 bozo        2w   CHR    1,3       120 /dev/null</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>bash -c 'lsof -a -p $$ -d0,1,2' | cat</code></strong>
+<code class="computeroutput">COMMAND PID USER   FD   TYPE DEVICE SIZE NODE NAME
+ lsof    379 root    0u   CHR  136,1         3 /dev/pts/1
+ lsof    379 root    1w  FIFO    0,0      7118 pipe
+ lsof    379 root    2u   CHR  136,1         3 /dev/pts/1</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo "$(bash -c 'lsof -a -p $$ -d0,1,2' 2&gt;&amp;1)"</code></strong>
+<code class="computeroutput">COMMAND PID USER   FD   TYPE DEVICE SIZE NODE NAME
+ lsof    426 root    0u   CHR  136,1         3 /dev/pts/1
+ lsof    426 root    1w  FIFO    0,0      7520 pipe
+ lsof    426 root    2w  FIFO    0,0      7520 pipe</code>
+</pre><p>
+</p><p>This works for different types of redirection.</p><p><strong class="userinput"><code>Exercise:</code></strong> Analyze the following script.
+
+</p><pre class="programlisting">#! /usr/bin/env bash
+
+mkfifo /tmp/fifo1 /tmp/fifo2
+while read a; do echo "FIFO1: $a"; done &lt; /tmp/fifo1 &amp;amp; exec 7&gt; /tmp/fifo1
+exec 8&gt; &gt;(while read a; do echo "FD8: $a, to fd7"; done &gt;&amp;7)
+
+exec 3&gt;&amp;1
+(
+ (
+  (
+   while read a; do echo "FIFO2: $a"; done &lt; /tmp/fifo2 | tee /dev/stderr \
+   | tee /dev/fd/4 | tee /dev/fd/5 | tee /dev/fd/6 &gt;&amp;7 &amp; exec 3&gt; /tmp/fifo2
+
+   echo 1st, to stdout
+   sleep 1
+   echo 2nd, to stderr &gt;&amp;2
+   sleep 1
+   echo 3rd, to fd 3 &gt;&amp;3
+   sleep 1
+   echo 4th, to fd 4 &gt;&amp;4
+   sleep 1
+   echo 5th, to fd 5 &gt;&amp;5
+   sleep 1
+   echo 6th, through a pipe | sed 's/.*/PIPE: &amp;, to fd 5/' &gt;&amp;5
+   sleep 1
+   echo 7th, to fd 6 &gt;&amp;6
+   sleep 1
+   echo 8th, to fd 7 &gt;&amp;7
+   sleep 1
+   echo 9th, to fd 8 &gt;&amp;8
+
+  ) 4&gt;&amp;1 &gt;&amp;3 3&gt;&amp;- | while read a; do echo "FD4: $a"; done 1&gt;&amp;3 5&gt;&amp;- 6&gt;&amp;-
+ ) 5&gt;&amp;1 &gt;&amp;3 | while read a; do echo "FD5: $a"; done 1&gt;&amp;3 6&gt;&amp;-
+) 6&gt;&amp;1 &gt;&amp;3 | while read a; do echo "FD6: $a"; done 3&gt;&amp;-
+
+rm -f /tmp/fifo1 /tmp/fifo2
+
+
+# For each command and subshell, figure out which fd points to what.
+# Good luck!
+
+exit 0</pre><p>
+      </p></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="apd.html">Пред.</a> </td><td align="center"> </td><td align="right"> <a accesskey="n" href="apf.html">След.</a></td></tr><tr><td align="left" valign="top">Приложение D. Exit Codes With Special Meanings </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Приложение F. Command-Line Options</td></tr></table></div></body></html>

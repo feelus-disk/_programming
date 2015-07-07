@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>«Colorizing» Scripts</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch33.html" title="Глава 33. Miscellany"/><link rel="prev" href="ch33s05.html" title="A script calling itself (recursion)"/><link rel="next" href="ch33s07.html" title="Optimizations"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center"><span class="quote">«<span class="quote">Colorizing</span>»</span> Scripts</th></tr><tr><td align="left"><a accesskey="p" href="ch33s05.html">Пред.</a> </td><th width="60%" align="center">Глава 33. Miscellany</th><td align="right"> <a accesskey="n" href="ch33s07.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="«Colorizing» Scripts"><div class="titlepage"><div><div><h2 class="title"><a id="colorizing"/><span class="quote">«<span class="quote">Colorizing</span>»</span> Scripts</h2></div></div></div><p><a id="colorizingref"/></p><p>The ANSI
+     <sup>[<a id="idp17598432" href="#ftn.idp17598432" class="footnote">115</a>]</sup>
+     escape sequences set screen attributes, such as bold
+     text, and color of foreground and background. <a class="link" href="apm.html#dosbatch1">DOS batch files</a> commonly used
+     ANSI escape codes for <span class="emphasis"><em>color</em></span> output,
+     and so can Bash scripts.</p><div class="example"><a id="ex30a"/><p class="title"><b>Пример 33.11. A <span class="quote">«<span class="quote">colorized</span>»</span> address database</b></p><div class="example-contents"><pre class="programlisting">&amp;ex30a;</pre></div></div><br class="example-break"/><div class="example"><a id="draw-box"/><p class="title"><b>Пример 33.12. Drawing a box</b></p><div class="example-contents"><pre class="programlisting">&amp;drawbox;</pre></div></div><br class="example-break"/><p>The simplest, and perhaps most useful ANSI escape sequence is
+    bold text, <span class="command"><strong>\033[1m ... \033[0m</strong></span>. The
+    <span class="token">\033</span> represents an <a class="link" href="ch05s02.html#escp">escape</a>, the <span class="quote">«<span class="quote">[1</span>»</span> turns on the
+    bold attribute, while the <span class="quote">«<span class="quote">[0</span>»</span> switches it off. The
+    <span class="quote">«<span class="quote">m</span>»</span> terminates each term of the escape sequence.
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e "\033[1mThis is bold text.\033[0m"</code></strong>
+        </pre><p>
+  </p><p>A similar escape sequence switches on the underline
+    attribute (on an <em class="firstterm">rxvt</em> and an
+    <em class="firstterm">aterm</em>).
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e "\033[4mThis is underlined text.\033[0m"</code></strong>
+        </pre><p>
+  </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>With an <span class="command"><strong>echo</strong></span>, the
+    <code class="option">-e</code> option enables the escape
+    sequences.</p></div><p>Other escape sequences change the text and/or background
+    color.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e '\E[34;47mThis prints in blue.'; tput sgr0</code></strong>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e '\E[33;44m'"yellow text on blue background"; tput sgr0</code></strong>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -e '\E[1;33;44m'"BOLD yellow text on blue background"; tput sgr0</code></strong>
+        </pre><p>
+        </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>It's usually advisable to set the
+    <em class="firstterm">bold</em> attribute for light-colored foreground
+    text.</p></div><p>The <span class="command"><strong>tput sgr0</strong></span> restores the
+    terminal settings to normal. Omitting this lets all
+          subsequent output from that particular terminal remain
+          blue.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Since <span class="command"><strong>tput sgr0</strong></span> fails to restore
+          terminal settings under certain circumstances,
+    <span class="command"><strong>echo -ne \E[0m</strong></span> may be a better choice.</p></div><p><a id="coloriztempl"/></p><div class="sidebar"><p class="title"><b/></p><p>Use the following template for writing colored text on a colored
+  background.</p><p>
+    <strong class="userinput"><code>echo -e '\E[COLOR1;COLOR2mSome text goes here.'</code></strong>
+        </p><p>The <span class="quote">«<span class="quote">\E[</span>»</span> begins the escape sequence.
+    The semicolon-separated numbers <span class="quote">«<span class="quote">COLOR1</span>»</span> and
+    <span class="quote">«<span class="quote">COLOR2</span>»</span> specify a foreground and a background
+    color, according to the table below. (The order of the
+    numbers does not matter, since the foreground and background
+    numbers fall in non-overlapping ranges.) The <span class="quote">«<span class="quote">m</span>»</span>
+    terminates the escape sequence, and the text begins immediately
+    after that.</p><p>Note also that <a class="link" href="ch04.html#snglquo">single quotes</a>
+    enclose the remainder of the command sequence following the
+    <span class="command"><strong>echo -e</strong></span>.</p></div><p>The numbers in the following table work for an
+    <em class="firstterm">rxvt</em> terminal. Results may vary for other
+    terminal emulators.</p><p><a id="coloriztable"/></p><div class="table"><a id="idp17635056"/><p class="title"><b>Таблица 33.1. Numbers representing colors in Escape Sequences</b></p><div class="table-contents"><table summary="Numbers representing colors in Escape Sequences" border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th>Color</th><th>Foreground</th><th>Background</th></tr></thead><tbody><tr><td><code class="option">black</code></td><td>30</td><td>40</td></tr><tr><td><code class="option">red</code></td><td>31</td><td>41</td></tr><tr><td><code class="option">green</code></td><td>32</td><td>42</td></tr><tr><td><code class="option">yellow</code></td><td>33</td><td>43</td></tr><tr><td><code class="option">blue</code></td><td>34</td><td>44</td></tr><tr><td><code class="option">magenta</code></td><td>35</td><td>45</td></tr><tr><td><code class="option">cyan</code></td><td>36</td><td>46</td></tr><tr><td><code class="option">white</code></td><td>37</td><td>47</td></tr></tbody></table></div></div><br class="table-break"/><div class="example"><a id="colorecho"/><p class="title"><b>Пример 33.13. Echoing colored text</b></p><div class="example-contents"><pre class="programlisting">&amp;colorecho;</pre></div></div><br class="example-break"/><p><a id="horseraceref"/></p><div class="example"><a id="horserace"/><p class="title"><b>Пример 33.14. A <span class="quote">«<span class="quote">horserace</span>»</span> game</b></p><div class="example-contents"><pre class="programlisting">&amp;horserace;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="apa.html#hashexample" title="Пример A.21. Colorizing text using hash functions">Пример A.21, «Colorizing text using hash functions»</a>, <a class="xref" href="apa.html#homework" title="Пример A.44. An all-purpose shell scripting homework assignment solution">Пример A.44, «An all-purpose shell scripting homework assignment solution»</a>, <a class="xref" href="apa.html#showallc" title="Пример A.52. Cycling through all the possible color backgrounds">Пример A.52, «Cycling through all the possible color backgrounds»</a>, and <a class="xref" href="apa.html#petals" title="Пример A.40. Petals Around the Rose">Пример A.40, «Petals Around the Rose»</a>.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>There is, however, a major problem with all
+    this. <span class="emphasis"><em>ANSI escape sequences are emphatically
+    non-portable.</em></span> What works fine on some terminal
+    emulators (or the console) may work differently, or not
+    at all, on others. A <span class="quote">«<span class="quote">colorized</span>»</span> script that
+    looks stunning on the script author's machine may produce
+    unreadable output on someone else's. This somewhat compromises
+    the usefulness of colorizing scripts, and possibly relegates
+    this technique to the status of a gimmick. Colorized scripts
+    are probably inappropriate in a commercial setting, i.e., your
+    supervisor might disapprove.</p></div><p>Moshe Jacobson's <span class="command"><strong>color</strong></span> utility  
+    (<a class="ulink" href="http://runslinux.net/projects.html#color">http://runslinux.net/projects.html#color</a>)
+    considerably simplifies using ANSI escape sequences. It
+    substitutes a clean and logical syntax for the clumsy constructs
+    just discussed.</p><p>Henry/teikedvl has likewise created a utility (<a class="ulink" href="http://scriptechocolor.sourceforge.net/">http://scriptechocolor.sourceforge.net/</a>) to simplify creation of colorized scripts.</p><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp17598432" href="#idp17598432" class="para">115</a>] </sup><acronym class="acronym">ANSI</acronym> is, of course, the
+       acronym for the American National Standards
+       Institute. This august body establishes and maintains
+       various technical and industrial standards.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch33s05.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch33.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch33s07.html">След.</a></td></tr><tr><td align="left" valign="top">A script calling itself (recursion) </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Optimizations</td></tr></table></div></body></html>

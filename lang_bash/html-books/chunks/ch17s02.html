@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глоббинг</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch17.html" title="Глава 17. Регулярные выражения"/><link rel="prev" href="ch17.html" title="Глава 17. Регулярные выражения"/><link rel="next" href="ch18.html" title="Глава 18. Встроенные документы"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глоббинг</th></tr><tr><td align="left"><a accesskey="p" href="ch17.html">Пред.</a> </td><th width="60%" align="center">Глава 17. Регулярные выражения</th><td align="right"> <a accesskey="n" href="ch18.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Глоббинг"><div class="titlepage"><div><div><h2 class="title"><a id="globbingref"/>Глоббинг</h2></div></div></div><p><a id="globbingref2"/></p><p>Bash сам по себе не может распознать регулярные выражения. В
+    сценариях встречаются команды и утилиты -- такие, как например
+    <a class="link" href="apc.html#sedref">sed</a> и <a class="link" href="apcs02.html#awkref">awk</a> -- которые могут интерпретировать регулярные выражения.</p><p>Bash <span class="emphasis"><em>осуществляет</em></span> <em class="firstterm"> раскрытие имен файлов</em>
+
+            <sup>[<a id="idp15819248" href="#ftn.idp15819248" class="footnote">90</a>]</sup>
+    
+    -- процесс, известный как <em class="firstterm">глоббинг</em> -- но
+    он <span class="emphasis"><em>не</em></span> использует стандартный набор регулярных выражений.
+   Вместо этого глоббинг распознает и раскрывает <em class="firstterm">шаблоны</em> (wildcards). Глоббинг интерпретирует стандартные символы 
+    шаблонов
+        <sup>[<a id="idp15824784" href="#ftn.idp15824784" class="footnote">91</a>]</sup>
+    -- <a class="link" href="ch03.html#asteriskref">*</a> и
+    <a class="link" href="ch03.html#wildcardqu">?</a>, списки символов в
+    квадратных скобках и некоторые другие специальные символы (такие,
+    как <span class="token">^</span> для инвертирования совпадающего значения) .
+          <a id="wdotfilewc"/>Однако, имеются важные ограничения для шаблонных символов
+          в глоббинге. Строки, содержащие
+    <em class="replaceable"><code>*</code></em>, не будут совпадать с именами файлов
+    , начинающиxся с точки, как, например, <a class="link" href="apl.html" title="Приложение L. A Sample .bashrc File"><code class="filename">.bashrc</code></a>.
+
+      <sup>[<a id="idp15831760" href="#ftn.idp15831760" class="footnote">92</a>]</sup>
+    
+    Аналогично, символ <em class="replaceable"><code>?</code></em> имеет различное 
+    значение для глоббинга, в отличие от случая, когда он является частью регулярного выражения.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l</code></strong>
+<code class="computeroutput">total 2
+ -rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 a.1
+ -rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1
+ -rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1
+ -rw-rw-r--    1 bozo  bozo       466 Aug  6 17:48 t2.sh
+ -rw-rw-r--    1 bozo  bozo       758 Jul 30 09:02 test1.txt</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l t?.sh</code></strong>
+<code class="computeroutput">-rw-rw-r--    1 bozo  bozo       466 Aug  6 17:48 t2.sh</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l [ab]*</code></strong>
+<code class="computeroutput">-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 a.1
+ -rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l [a-c]*</code></strong>
+<code class="computeroutput">-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 a.1
+ -rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1
+ -rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l [^ab]*</code></strong>
+<code class="computeroutput">-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1
+ -rw-rw-r--    1 bozo  bozo       466 Aug  6 17:48 t2.sh
+ -rw-rw-r--    1 bozo  bozo       758 Jul 30 09:02 test1.txt</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>ls -l {b*,c*,*est*}</code></strong>
+<code class="computeroutput">-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1
+ -rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1
+ -rw-rw-r--    1 bozo  bozo       758 Jul 30 09:02 test1.txt</code>
+        </pre><p>
+        </p><p>Bash выполняет раскрытие имен для не взятых в кавычки аргументов
+      командной строки. Команда <a class="link" href="ch14.html#echoref">echo</a> 
+      демонстрирует это.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo *</code></strong>
+<code class="computeroutput">a.1 b.1 c.1 t2.sh test1.txt</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo t*</code></strong>
+<code class="computeroutput">t2.sh test1.txt</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo t?.sh</code></strong>
+<code class="computeroutput">t2.sh</code>
+        </pre><p>
+     </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Возможно изменение способа, с помощью которого Bash интерпретирует
+      специальные символы для глоббинга. Команда <span class="command"><strong>set -f</strong></span>
+      выключает глоббинг, а опции
+      <code class="option">nocaseglob</code> и <code class="option">nullglob</code>
+      команды <a class="link" href="ch14.html#shoptref">shopt</a> изменяют
+      поведение для глоббинга.</p></div><p>См. также <a class="xref" href="ch10.html#listglob" title="Пример 10.4. Обработка списка файлов в цикле for">Пример 10.4, «Обработка списка файлов в цикле <em class="firstterm">for</em>»</a>.</p><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp15819248" href="#idp15819248" class="para">90</a>] </sup><em class="firstterm">Раскрытие имен файлов</em>
+            означает раскрытие образцов с именами файлов или
+            образцов со специальными символами. Например,
+            <code class="filename">example.???</code> мог бы раскрыться
+            в <code class="filename">example.001</code> и/или
+            <code class="filename">example.txt</code>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp15824784" href="#idp15824784" class="para">91</a>] </sup><a id="wildcarddef"/><em class="firstterm">Шаблонные
+        </em> символы, аналогично джокеру в покере,
+        могут представлять (почти) любой другой символ.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp15831760" href="#idp15831760" class="para">92</a>] </sup>
+      Раскрытие файла <span class="emphasis"><em>может</em></span>
+      совпадать с файлами, начинающимися с точки, но только если образец явно включает точку
+      как литеральный символ.
+          <pre class="programlisting">~/[.]bashrc    #  не будет раскрыто как ~/.bashrc
+~/?bashrc      #  Также не будет раскрыто .
+               #  Шаблоны и метасимволы не
+               #+ раскрывают точку для глоббинга.
+
+~/.[b]ashrc    #  Будет раскрываться в ~/.bashrc
+~/.ba?hrc      #  Аналогично.
+~/.bashr*      #  Также.
+
+# Установка опции "dotglob" выключает такое поведение.
+
+# Спасибо S.C.</pre>
+      </p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch17.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch17.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch18.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 17. Регулярные выражения </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 18. Встроенные документы</td></tr></table></div></body></html>

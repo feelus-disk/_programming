@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Проверки и ветвления</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch10.html" title="Глава 10. Циклы и ветвления"/><link rel="prev" href="ch10s03.html" title="Управление ходом выполнения цикла"/><link rel="next" href="ch11.html" title="Глава 11. Command Substitution"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Проверки и ветвления</th></tr><tr><td align="left"><a accesskey="p" href="ch10s03.html">Пред.</a> </td><th width="60%" align="center">Глава 10. Циклы и ветвления</th><td align="right"> <a accesskey="n" href="ch11.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Проверки и ветвления"><div class="titlepage"><div><div><h2 class="title"><a id="testbranch"/>Проверки и ветвления</h2></div></div></div><p>Конструкции <span class="command"><strong>case</strong></span> и <span class="command"><strong>select</strong></span>
+    формально не являются циклами, так как они не итерируют
+    выполнение блока кода. Тем не менее, как и циклы, они управляют
+    ходом выполнения программы в соответствии с условием в начале или конце
+    блока команд.</p><div class="variablelist" title="Управление последовательностью команд программы в блоке кода"><a id="caseesac"/><p class="title"><b><a id="caseesac1"/>Управление последовательностью команд программы в блоке кода</b></p><dl><dt><span class="term"><span class="command"><strong>case (in) / esac</strong></span></span></dt><dd><p>Конструкция <span class="command"><strong>case</strong></span> - это аналог
+        команды <em class="firstterm">switch</em> в C/C++.
+        Она позволяет выполнять тот или иной участок кода
+        в зависимости от результатов проверки условий. Она является своего рода краткой формой записи большого количества операторов <span class="token">if/then/else</span>
+        и может быть подходящим инструментом для создания
+        меню.</p><div class="cmdsynopsis"><p><code class="command">case</code>   "$<em class="replaceable"><code>переменная</code></em>"   in <br/><br/>  "$<em class="replaceable"><code>условие1</code></em>" ) <br/>  <em class="replaceable"><code>команда</code></em>... <br/>  ;; <br/><br/>  "$<em class="replaceable"><code>условие2</code></em>" ) <br/>  <em class="replaceable"><code>команда</code></em>... <br/>  ;; <br/><br/><br/><code class="command">esac</code> </p></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>
+        </p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>Кавычки для переменных не обязательны,
+    так как здесь не производится разбиение на отдельные слова.</p></li><li class="listitem"><p><a id="caseparen"/>Каждая строка с условием должна завершаться правой (закрывающей) круглой скобкой <span class="token">")"</span>.</p></li><li class="listitem"><p>Каждый блок команд, выполняющихся при данном условии, должен
+    заканчиваться <span class="emphasis"><em>двумя</em></span> символами "точка с запятой"
+    <span class="token">";;"</span>.</p></li><li class="listitem"><p>Если условие
+                <em class="firstterm">истинно</em>, соответствующий блок команд
+    выполняется и затем команда <span class="command"><strong>case</strong></span>
+    завершает свою работу.</p></li><li class="listitem"><p>Весь блок <span class="command"><strong>case</strong></span>
+    завершается ключевым словом <span class="command"><strong>esac</strong></span>
+    (<em class="wordasword">case</em>, записанное наоборот).</p></li></ul></div><p>
+      </p></div><div class="example"><a id="ex29"/><p class="title"><b>Пример 10.24. Использование <em class="firstterm">case</em></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Проверка диапазонов символов.
+
+echo; echo "Нажмите клавишу и затем нажмите Return (Enter)."
+read Keypress
+
+case "$Keypress" in
+  [[:lower:]]   ) echo "Буква в нижнем регистре";;
+  [[:upper:]]   ) echo "Буква в верхнем регистре";;
+  [0-9]         ) echo "Цифра";;
+  *             ) echo "Знак пунктуации, пробел или что-то другое";;
+esac      #  Допускаются диапазоны символов в [квадратных скобках]
+          #+ или POSIX-диапазоны в [[двойных квадратных скобках]].
+
+#  В первой версии этого примера,
+#+ проверка для символов в верхнем или нижнем регистре учитывала только символы
+#+ [a-z] и [A-Z].
+#  Это вообще не работает для определенных локалей и/или дистрибутивов Linux.
+#  Классы символов POSIX (см. BRE - Basic Regular Expressions - прим. перев.) более переносимы.
+#  Спасибо Франку Вангу (Frank Wang) за то, что указал на этот момент.
+
+#  Упражнение:
+#  --------
+#  Данный сценарий ожидает одиночный символ при вводе, после чего завершает работу.
+#  Измените скрипт таким образом, чтобы он продолжал ожидать ввод клавиш,
+#+ выводя результаты каждого нажатия, но завершался бы только после нажатия "X".
+#  Подсказка: заключите все в цикл "while".
+.
+
+exit 0
+</pre></div></div><br class="example-break"/><div class="example"><a id="ex30"/><p class="title"><b>Пример 10.25. Создание меню, используя <em class="firstterm">case</em></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+# Грубый аналог базы данных адресов
+
+clear # Очистить экран.
+
+echo "          Список контактов"
+echo "          ------- ----"
+echo "Выберите одну из следующих персон:" 
+echo
+echo "[E]vans, Roland"
+echo "[J]ones, Mildred"
+echo "[S]mith, Julie"
+echo "[Z]ane, Morris"
+echo
+
+read person
+
+case "$person" in
+# Обратите внимание: переменная взята в кавычки.
+
+  "E" | "e" )
+  # Допускается ввод символа как в верхнем, так и в нижнем регистре.
+  echo
+  echo "Roland Evans"
+  echo "4321 Flash Dr."
+  echo "Hardscrabble, CO 80753"
+  echo "(303) 734-9874"
+  echo "(303) 734-9892 (факс)"
+  echo "revans@zzy.net"
+  echo "Партнер по бизнесу и старый друг"
+  ;;
+# Обратите внимание: блок кода, выводящийся после выбора символа, завершается двумя символами "точка с запятой".
+
+  "J" | "j" )
+  echo
+  echo "Mildred Jones"
+  echo "249 E. 7th St., Apt. 19"
+  echo "New York, NY 10009"
+  echo "(212) 533-2814"
+  echo "(212) 533-9972 (факс)"
+  echo "milliej@loisaida.com"
+  echo "Экс-подруга"
+  echo "День рождения: 11 февраля"
+  ;;
+
+# Информация о Smith и Zane будет добавлена позднее.
+
+          * )
+   # Выбор по умолчанию.	  
+   # Пустой ввод (после нажатия RETURN (ENTER)) тоже обрабатывается здесь.
+   echo
+   echo "Таких данных в базе нет."
+  ;;
+
+esac
+
+echo
+
+#  Упражнение:
+#  --------
+#  Измените сценарий так, чтобы он позволял множественный ввод
+#+ вместо того, чтобы завершаться после вывода на экран одного адреса
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="casecl"/></p><p>Исключительно грамотное использование <span class="command"><strong>case</strong></span>
+        включает в себя проверку для параметров командной строки:
+        </p><pre class="programlisting">#! /bin/bash
+
+case "$1" in
+  "") echo "Использование: ${0##*/} &lt;имя файла&gt;"; exit $E_PARAM;;
+                      # никаких параметров командной строки,
+                      # или пустой первый параметр.
+# Заметьте, что ${0##*/} - это подстановка параметра ${var##шаблон}.
+                      # Получаемый результат - $0.
+
+  -*) FILENAME=./$1;;   #  Если имя файла (аргумент $1)
+                      #+ начинается с символа "-",
+                      #+ заменить его на ./$1
+                      #+ в этом случае последующий текст не будет интерпретироваться
+                      #+ как ключ команды.
+
+  * ) FILENAME=$1;;     # В противном случае - $1.
+esac</pre><p>Вот более прямолинейный пример обработки параметров командной строки:
+        </p><pre class="programlisting">#! /bin/bash
+
+
+while [ $# -gt 0 ]; do    # Пока не закончились параметры командной строки . . .
+  case "$1" in
+    -d|--debug)
+              # "-d" или "--debug" параметр?
+              DEBUG=1
+              ;;
+    -c|--conf)
+              CONFFILE="$2"
+              shift
+              if [ ! -f $CONFFILE ]; then
+                echo "Ошибка: исходный файл не существует!"
+                exit $E_CONFFILE     # Ошибка "Файл не найден".
+              fi
+              ;;
+  esac
+  shift       # Проверка следующего набора параметров.
+done
+
+#  Из сценария "Log2Rot" Стефано Фальцетто (Stefano Falsetto),
+#+ являющегося частью его пакета "rottlog".
+#  Используется с его любезного разрешения.</pre><div class="example"><a id="casecmd"/><p class="title"><b>Пример 10.26. Использование <em class="firstterm">подстановки команды</em>
+       для генерирования значения переменной для <em class="firstterm">case</em>.</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# case-cmd.sh: Использование подстановки команды для генерирования значения переменной для case.
+
+case $( arch ) in   # Команда "arch" возвращает тип архитектуры.
+                    # Эквивалентна команде 'uname -m' ...
+                    # (На некоторых системах (например Ubuntu 7.10 и выше) команда arch может отсутствовать, прим. перев.)
+  i386 ) echo "Машина на базе процессора 80386";;
+  i486 ) echo "Машина на базе процессора 80486";;
+  i586 ) echo "Машина на базе процессора Pentium";;
+  i686 ) echo "Машина на базе процессора Pentium 2 или выше";;
+  *    ) echo "Другой тип процессора";;
+esac
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="csglob"/></p><p>Конструкция <span class="command"><strong>case</strong></span> может отфильтровывать строки с использованием шаблонов (см.
+        <a class="link" href="ch17s02.html" title="Глоббинг">globbing</a>).</p><div class="example"><a id="matchstring"/><p class="title"><b>Пример 10.27. Простое сравнение строк</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# match-string.sh: Простое сравнение строк.
+
+match_string ()
+{ # Точное сравнение строк.
+  MATCH=0
+  E_NOMATCH=90
+  PARAMS=2     # Функция требует два аргумента.
+  E_BAD_PARAMS=91
+
+  [ $# -eq $PARAMS ] || return $E_BAD_PARAMS
+
+  case "$1" in
+  "$2") return $MATCH;;
+  *   ) return $E_NOMATCH;;
+  esac
+
+}  
+
+
+a=one
+b=two
+c=three
+d=two
+
+
+match_string $a     # Неверное количество параметров.
+echo $?             # 91
+
+match_string $a $b  # Нет совпадения
+echo $?             # 90
+
+match_string $b $d  # Совпадение
+echo $?             # 0
+
+
+exit 0
+</pre></div></div><br class="example-break"/><div class="example"><a id="isalpha"/><p class="title"><b>Пример 10.28. Проверка ввода буквенных символов</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# isalpha.sh: Использование case для фильтрации строк.
+
+SUCCESS=0
+FAILURE=-1
+
+isalpha ()  # Проверка, совпадает ли *первый символ* вводимой строки с буквенным символом.
+{
+if [ -z "$1" ]                # Аргумент отсутствует?
+then
+  return $FAILURE
+fi
+
+case "$1" in
+  [a-zA-Z]*) return $SUCCESS;;  # Начинается с буквы?
+  *        ) return $FAILURE;;
+esac
+}             # Сравните эту функцию с функцией С "isalpha ()".
+
+
+isalpha2 ()   # Проверить, состоит ли вся строка из буквенных символов.
+{
+  [ $# -eq 1 ] || return $FAILURE
+
+  case $1 in
+  *[!a-zA-Z]*|"") return $FAILURE;;
+               *) return $SUCCESS;;
+  esac
+}
+
+isdigit ()    # Проверить, состоит ли вся строка из цифровых символов.
+{             # Другими словами, является ли строка целым числом.
+  [ $# -eq 1 ] || return $FAILURE
+
+  case $1 in
+    *[!0-9]*|"") return $FAILURE;;
+              *) return $SUCCESS;;
+  esac
+}
+
+
+
+check_var ()  # Фронт-энд к isalpha ().
+{
+if isalpha "$@"
+then
+  echo "\"$*\" начинается с алфавитного символа."
+  if isalpha2 "$@"
+  then        # Нет смысла проверять строку, если первый символ не алфавитный.
+    echo "\"$*\" содержит только алфавитные символы."
+  else
+    echo "\"$*\" содержит, по крайней мере, как минимум один неалфавитный символ."
+  fi  
+else
+  echo "\"$*\" начинается с неалфавитного символа."
+              # Неалфавитный и в том случае, если не передано ни одного аргумента.
+fi
+
+echo
+
+}
+
+digit_check ()  # Фронт-энд для isdigit ().
+{
+if isdigit "$@"
+then
+  echo "\"$*\" содержит только цифры [0 - 9]."
+else
+  echo "\"$*\" имеет, как минимум, один нецифровой символ."
+fi
+
+echo
+
+}
+
+a=23skidoo
+b=H3llo
+c=-What?
+d=What?
+e=`echo $b`   # Подстановка команды.
+f=AbcDef
+g=27234
+h=27a34
+i=27.34
+
+check_var $a
+check_var $b
+check_var $c
+check_var $d
+check_var $e
+check_var $f
+check_var     # Ни одного аргумента не передается, что произойдет?
+#
+digit_check $g
+digit_check $h
+digit_check $i
+
+
+exit 0        # Сценарий улучшен S.C.
+
+# Упражнение:
+# --------
+#  Напишите функцию 'isfloat ()' которая проверяет строку на предмет чисел с плавающей запятой.
+#  Подсказка: Функция дублирует 'isdigit ()',
+#+ но добавляет проверку для обязательной десятичной точки.
+</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="selectref"/><span class="command"><strong>select</strong></span></span></dt><dd><p>Конструкция <span class="command"><strong>select</strong></span> заимствована из Korn
+        Shell и является еще одним средством для создания меню.</p><div class="cmdsynopsis"><p><code class="command">select</code>   <em class="replaceable"><code>variable</code></em>  [in <em class="replaceable"><code>list</code></em>]<br/>  do <br/>  <em class="replaceable"><code>command</code></em>... <br/>   break <br/>  done </p></div><p>Эта команда приглашает ввести один из вариантов, представленных в списке для переменной variable. 
+ Заметьте, что <span class="command"><strong>select</strong></span> использует переменную <code class="varname">$PS3</code> для приглашения <code class="prompt">#? </code> по умолчанию, но это может быть изменено.
+    </p><div class="example"><a id="ex31"/><p class="title"><b>Пример 10.29. Создание меню, используя <em class="firstterm">select</em></b></p><div class="example-contents"><pre class="programlisting">&amp;
+#!/bin/bash
+
+PS3='Выберите ваш любимый овощ: ' # Строка приглашения.
+                                       #Иначе по умолчанию берется #? .
+
+echo
+
+select vegetable in "бобы" "морковь" "картофель" "лук" "брюква"
+do
+  echo
+  echo "Ваш любимый овощ: $vegetable."
+  echo "Какая гадость!"
+  echo
+  break  # Что произойдет, если break здесь будет отстутствовать?  
+done
+
+exit
+
+# Упражнение:
+# --------
+#  Поправьте этот сценарий, чтобы позволить пользователю вводить названия овощей, не перечисленные в возможных вариантах select.
+
+#  Например, если пользователь вводит "горох",
+#+ сценарий мог бы ответить "Извините. Этого овоща нет в меню."
+</pre></div></div><br class="example-break"/><p><a id="inlistomit"/></p><p>Если <strong class="userinput"><code>список <em class="replaceable"><code>list</code></em></code></strong> не
+        указан, то <span class="command"><strong>select</strong></span> использует список аргументов командной строки (<code class="varname">$@</code>) переданный из скрипта или из
+        функции, в которую встроена конструкция <span class="command"><strong>select</strong></span>.</p><p>Сравните это поведение с поведением цикла
+        </p><div class="cmdsynopsis"><p><code class="command">for</code>   <em class="replaceable"><code>variable</code></em>  [in <em class="replaceable"><code>list</code></em>]</p></div><p>
+       ,
+        <strong class="userinput"><code>в котором список <em class="replaceable"><code>list</code></em></code></strong>
+        не задан.</p><div class="example"><a id="ex32"/><p class="title"><b>Пример 10.30. Создание меню, используя <em class="firstterm">select</em>в функции</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+PS3='Выберите ваш любимый овощ: '
+
+echo
+
+choice_of()
+{
+select vegetable
+# Если [in list] не задан, то 'select' использует аргументы, переданные функции.
+do
+  echo
+  echo "Ваш любимый овощ - $vegetable."
+  echo "Фу, какая гадость!"
+  echo
+  break
+done
+}
+
+choice_of бобы рис морковь редиска помидор шпинат
+#         $1   $2   $3       $4      $5      $6
+#         передано в функцию choice_of()
+
+exit 0
+</pre></div></div><br class="example-break"/><p>См. также <a class="xref" href="ch34.html#resistor" title="Пример 34.3. Simple database application, using indirect variable referencing">Пример 34.3, «Simple database application, using indirect variable
+    referencing»</a>.</p></dd></dl></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch10s03.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch10.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch11.html">След.</a></td></tr><tr><td align="left" valign="top">Управление ходом выполнения цикла </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 11. Command Substitution</td></tr></table></div></body></html>

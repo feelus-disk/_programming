@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Приложение D. Exit Codes With Special Meanings</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="prev" href="apcs02.html" title="Awk"/><link rel="next" href="ape.html" title="Приложение E. A Detailed Introduction to I/O and I/O Redirection"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Приложение D. Exit Codes With Special Meanings</th></tr><tr><td align="left"><a accesskey="p" href="apcs02.html">Пред.</a> </td><th width="60%" align="center"> </th><td align="right"> <a accesskey="n" href="ape.html">След.</a></td></tr></table><hr/></div><div class="appendix" title="Приложение D. Exit Codes With Special Meanings"><div class="titlepage"><div><div><h2 class="title"><a id="exitcodes"/>Приложение D. Exit Codes With Special Meanings</h2></div></div></div><p><a id="exitcodesref"/></p><div class="table"><a id="idp19058304"/><p class="title"><b>Таблица D.1. <em class="firstterm">Reserved</em> Exit Codes</b></p><div class="table-contents"><table summary="Reserved Exit Codes" border="1"><colgroup><col/><col/><col/><col/></colgroup><thead><tr><th>Exit Code Number</th><th>Meaning</th><th>Example</th><th>Comments</th></tr></thead><tbody><tr><td><code class="option">1</code></td><td>Catchall for general errors</td><td>let "var1 = 1/0"</td><td>Miscellaneous errors, such as <span class="quote">«<span class="quote">divide by
+          zero</span>»</span> and other impermissible operations</td></tr><tr><td><code class="option">2</code></td><td>Misuse of shell builtins (according to Bash documentation)</td><td>empty_function() {}</td><td>Seldom seen, usually defaults to exit
+          code <span class="errorcode">1</span></td></tr><tr><td><code class="option">126</code></td><td>Command invoked cannot execute</td><td> </td><td>Permission problem or command is not an executable</td></tr><tr><td><code class="option">127</code></td><td><span class="quote">«<span class="quote">command not found</span>»</span></td><td>illegal_command</td><td>Possible problem with <code class="varname">$PATH</code> or a typo</td></tr><tr><td><code class="option">128</code></td><td>Invalid argument to <a class="link" href="ch06.html#exitcommandref">exit</a></td><td>exit 3.14159</td><td><span class="command"><strong>exit</strong></span> takes only integer args in the
+    range <span class="returnvalue">0 - 255</span> (see
+    first footnote)</td></tr><tr><td><code class="option">128+n</code></td><td>Fatal error signal <span class="quote">«<span class="quote">n</span>»</span></td><td><em class="firstterm">kill -9</em> <code class="varname">$PPID</code> of script</td><td><strong class="userinput"><code>$?</code></strong> returns
+        <span class="errorcode">137</span> (128 + 9)</td></tr><tr><td><code class="option">130</code></td><td>Script terminated by Control-C</td><td> </td><td>Control-C is fatal error signal
+        <span class="errorcode">2</span>, (130 = 128 + 2, see above)</td></tr><tr><td><code class="option">255*</code></td><td>Exit status out of range</td><td>exit <span class="returnvalue">-1</span></td><td><span class="command"><strong>exit</strong></span> takes only integer args in the
+          range <span class="errorcode">0 - 255</span></td></tr></tbody></table></div></div><br class="table-break"/><p>According to the above table, exit codes <span class="errorcode">1 - 2,
+        126 - 165, and 255</span>
+
+  <sup>[<a id="idp19088688" href="#ftn.idp19088688" class="footnote">133</a>]</sup>
+
+  have special meanings, and should therefore be avoided for
+  user-specified exit parameters. Ending a script with <em class="firstterm">exit
+  127</em> would certainly cause confusion when troubleshooting
+  (is the error code a <span class="quote">«<span class="quote">command not found</span>»</span> or a
+  user-defined one?). However, many scripts use an <em class="firstterm">exit
+  1</em> as a general bailout-upon-error. Since exit code
+  <span class="errorcode">1</span> signifies so many possible errors,
+  it is not particularly useful in debugging.</p><p><a id="sysexitsref"/></p><p>There has been an attempt to systematize exit status numbers
+  (see <code class="filename">/usr/include/sysexits.h</code>),
+  but this is intended for C and C++ programmers. A similar
+  standard for scripting might be appropriate. The author of
+  this document proposes restricting user-defined exit codes to
+  the range <span class="returnvalue">64 - 113</span> (in addition to
+  <span class="returnvalue">0</span>, for success), to conform with
+  the C/C++ standard. This would allot 50 valid codes, and make
+  troubleshooting scripts more straightforward.
+    <sup>[<a id="idp19099120" href="#ftn.idp19099120" class="footnote">134</a>]</sup>
+  All user-defined exit codes in the accompanying examples to
+  this document conform to this standard, except where overriding
+  circumstances exist, as in <a class="xref" href="ch09.html#tmdin" title="Пример 9.2. Timed Input">Пример 9.2, «Timed Input»</a>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Issuing a <a class="link" href="ch09.html#xstatvarref">$?</a> from
+  the command-line after a shell script exits gives
+  results consistent with the table above only from the
+  Bash or <em class="firstterm">sh</em> prompt. Running the
+  <em class="firstterm">C-shell</em> or <em class="firstterm">tcsh</em>
+  may give different values in some cases.</p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp19088688" href="#idp19088688" class="para">133</a>] </sup><a id="excoor"/>Out of range exit values
+    can result in unexpected exit codes. An exit value
+    greater than <span class="errorcode">255</span> returns an
+    exit code <a class="link" href="ch08.html#moduloref">modulo</a>
+    <span class="errorcode">256</span>. For example, <em class="firstterm">exit
+    3809</em> gives an exit code of <span class="errorcode">225</span>
+    (3809 % 256 = 225).</p></div><div class="footnote"><p><sup>[<a id="ftn.idp19099120" href="#idp19099120" class="para">134</a>] </sup>An update of <code class="filename">/usr/include/sysexits.h</code>
+    allocates previously unused exit codes from <span class="returnvalue">64
+    - 78</span>.  It may be anticipated that the range of
+    unallotted exit codes will be further restricted in the future.
+    The author of this document will <span class="emphasis"><em>not</em></span> do
+    fixups on the scripting examples to conform to the changing
+    standard. This should not cause any problems, since there
+    is no overlap or conflict in usage of exit codes between
+    compiled C/C++ binaries and shell scripts.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="apcs02.html">Пред.</a> </td><td align="center"> </td><td align="right"> <a accesskey="n" href="ape.html">След.</a></td></tr><tr><td align="left" valign="top">Awk </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Приложение E. A Detailed Introduction to I/O and I/O Redirection</td></tr></table></div></body></html>

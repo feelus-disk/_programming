@@ -1,0 +1,326 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>dscl OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>dscl</h1> 
+<p>Directory Service command line utility<br>
+ Create, read, and manage Directory Service data. If 
+ invoked without any commands, dscl runs in an interactive mode, reading commands 
+ from standard input. Interactive processing is terminated by the quit command. (dscl and the GUI 'Directory utility' replace the older 'NetInfo Manager')</p>
+<pre>Syntax
+      dscl [<i>options</i>] <i>datasource </i>[<i>command</i>]
+
+Options<i>
+</i>   -p           Prompt for password
+   -u <i>user</i>      Authenticate as <i>user</i>
+   -P <i>password</i>  Authentication password
+   -f <i>filepath  </i>targeted local node database file path
+   -raw         Don't strip off prefix from DirectoryService API constants
+   -plist       Print out record(s) or attribute(s) in XML plist format		     
+   -url         Print record attribute values in URL-style encoding
+   -q           quiet - no interactive prompt
+
+Commands:
+   -read [<i>path</i> [<i>key</i> ...]]
+   -readall [<i>path</i> [<i>key</i> ...]]<br>   -readpl <i>path key plist_path</i><br>   -readpli <i>path key value_index plist_path</i>
+   -list <i>path</i> [<i>key</i>]
+   -search <i>path key val</i>
+   -create <i>record_path</i> [<i>key</i> [<i>val</i> ...]]
+   -createpl <i>record_path key plist_path val1</i> [<i>val2</i> ...]<br>   -createpli <i>record_path key value_index plist_path val1 </i>[<i>val2</i>...]
+   -append <i>record_path key val</i> ...
+   -merge <i>record_path key val</i> ...
+   -delete <i>path</i> [<i>key</i> [<i>val</i> ...]]
+   -deletepl <i>record_path key plist_path</i> [<i>val</i> ...]<br>   -deletepli <i>record_path key value_index plist_path</i> [<i>val</i> ...]
+   -change <i>record_path key old_val new_val</i>
+   -changei <i>record_path key val_index new_val</i>
+   -diff <i>path1</i> <i>path2</i> [key ...]
+   -passwd <i>user_path</i> [<i>new_password</i> | <i>old_password new_password</i>]
+
+Available only in interactive mode:
+   -cd dir
+   -pushd [dir]
+   -popd
+   -auth [user [password]]
+   -authonly [user [password]]
+   -quit</pre>
+<p>Leading dashes ("-") are optional for all commands. </p>
+<p>dscl operates on a datasource specified on the command line. This 
+  may be a node name or a Mac OS X Server (10.2 or later) host specified by DNS 
+  hostname or IP address. Node names may be absolute paths beginning with a slash 
+  ("/"), or relative domain paths beginning with a dot (".") character, which 
+  specifies the local domain, or "..", specifying the local domain's parent. If 
+  the hostname or IP address form is used then the user must specify the -u option 
+  and either the -P or -p options to specify an administrative user and password 
+  on the remote host to authenticate with to the remote host. The exception to 
+  this is if "localhost" is specified.</p>
+<p>Passing passwords on the command line is inherently insecure
+and can cause password exposure. For better security do not provide the password as part of the command and you will be securely prompted.</p>
+<p>PATH SPECIFICATION<br>
+<br>     
+There are two modes of operation when specifying paths to operate on. The     
+two modes correspond to whether the datasource is a node or a host. In     
+the case of specifying a node, the top level of paths will be record     
+types. Example top level paths would be:</p>
+<pre>
+	   /Users/alice
+	   /Groups/admin</pre>
+<p>
+In the case of specifying a host as a data source, the top level of paths
+correspond to Open Directory plug-ins and Search Paths. One can specify
+the plug-in to traverse to a node name, after which the paths are equivalent to the former usage. The following might be the equivalent paths as
+the above paths:</p>
+<pre>
+	   /NetInfo/root/Users/alice
+	   /LDAPv3/10.0.1.42/Groups/admin</pre>
+<p>If path components contain keys or values with embedded slash characters,
+the slash characters must be escaped with a leading backslash character.
+Since the shell also processes escape characters, an extra backslash is
+required to correctly specify an escape.  For example, to read a mount
+record with the name "ldapserver:/Users" in the "/Mounts" path, the following path would be used:</p>
+<pre>	  dscl . -read /Mounts/ldaphost:\/Users
+
+     All pathnames are case-sensitive.</pre>
+<p>COMMANDS<br>
+<br>
+The action of each command is described below.  Some commands have
+aliases.  For example, "cat" and "." are aliases for "read".  Command<br>     
+aliases are listed in parentheses.</p>
+<pre>
+   read (cat .)
+   Usage: read [path [key ...]]</pre>
+<p>Prints a directory.  Each of the properties are printed one per line.
+The property key is followed by a colon, then a space-separated list of<br>
+the values for that property.  Note that a value which contains embedded
+spaces will appear identical to a pair of values.<br>
+<br>
+If The <span class="code">-raw</span> flag for raw output has been given, then read prints the full
+DirectoryService API constant for record and attribute types.<br>
+<br>
+If the -url flag has been specified then printed record path attribute
+values are encoded in the style of URLs. This is useful if a script or<br>
+program is trying to process the output since values will not have any
+spaces or other control characters.</p>
+<pre>   readall
+   Usage: readall [<i>path</i> [<i>key</i> ...]]</pre>
+<p> readall prints all the records of a given type. The output of readall is
+formatted in the same way as read with a &quot;-&quot; on a line as a delimeter<br>
+between records.</p>
+<pre>   readpl
+   Usage: readpl <i>path key plist_path</i></pre>
+<p> Prints the contents of plist_path. The plist_path is followed by a
+colon, then a whitespace, and then the value for the path.</p>
+<p> If the plist_path is the key for a dictionary or array, the contents of
+it are displayed in plist form after the plist_path. If plist_path is<br>
+the key for a string, number, bool, date, or data object, only the value
+is printed out after the plist_path.</p>
+<pre>   readpli
+   Usage: readpli<i> path key value_index plist_path</i></pre>
+<p> Prints the contents of plist_path for the plist at value_index of the
+key. The plist_path is followed by a colon, then a whitespace, and then<br>
+the value for the path.</p>
+<p> If the plist_path is the key for a dictionary or array, the contents of
+it are displayed in plist form after the plist_path. If plist_path is<br>
+the key for a string, number, bool, date, or data object, only the value
+is printed out after the plist_path.</p>
+<pre>   list (ls)
+   Usage: list <i>path</i></pre>
+<p>Lists the subdirectories of the given directory.  Subdirectories are
+listed one per line.  In the case of listing a search path, the names are<br>
+preceded by an index number that can act as a shortcut and used in place
+of the name when specifying a path.<br>
+<br>
+When used in interactive mode, the path is optional.  With no path given,
+the current directory will be used.</p>
+<pre>
+   search
+     path key val</pre>
+<p>Searches for records that match a pattern.	 The search is rooted at the
+given path.  The path may be a node path or a record type path.  Valid<br>
+keys are Directory Service record attribute types.</p>
+<pre>
+   create (mk)
+   Usage: create <i>record_path</i> [<i>key</i> [<i>val</i> ...]]</pre>
+<p>Creates a record, property, or value.  If only a record path is given,
+the create command will create the record if it does not exist.  If a key<br>
+is given, then a property with that key will be created.<br>
+<br>
+WARNING - If a property with the given key already exists, it will be
+destroyed and a new property will be created in its place.	 To add values<br>
+to an existing property, use the append or merge commands.<br>
+<br>
+If values are included in the command, these values will be set for the     
+given key.<br>
+<br>     
+NOTE - Not all directory nodes support a property without a value. An     
+error will be given if you attempt to create a property with no value in<br>     
+such a directory node.</p>
+<pre>   createpl
+   Usage: createpl <i>record_path key plist_path val1 </i>[<i>val2</i> ...]</pre>
+<p> Creates a string, or array of strings at plist_path.</p>
+<p> If you are creating a value at the root of a plist that is an array, simply use &quot;0&quot; as the plist_path.</p>
+<p> If only val1 is specified, a string will be created at plist_path. If
+val1 val2 ... are specified, an array of strings will be created at<br>
+plist_path.</p>
+<p> WARNING - If a value with the given plist_path already exists, it will be
+destroyed and a new value will be created in its place.</p>
+<pre>   createpli
+   Usage: createpli <i>record_path key value_index plist_path val1 </i>[<i>val2</i> ...]</pre>
+<p> Creates a string, or array of strings at plist_path for the plist at
+value_index of the key.</p>
+<p> If you are creating a value at the root of a plist that is an array, simply use &quot;0&quot; as the plist_path.</p>
+<p> If only val1 is specified, a string will be created at plist_path. If
+val1 val2 ... are specified, an array of strings will be created at<br>
+plist_path.</p>
+<p> WARNING - If a value with the given plist_path already exists, it will be
+destroyed and a new value will be created in its place.</p>
+<pre>
+   append
+   Usage: append <i>record_path key val</i> ...</pre>
+<p>Appends one or more values to a property in a given record.  The property
+is created if it does not exist.</p>
+<pre>
+   merge
+   Usage: merge <i>record_path key val </i>...</pre>
+<p>Appends one or more values to a property in a given directory if the
+property does not already have those values.  The property is created if<br>
+it does not exist.</p>
+<pre>
+   change
+   Usage: change <i>record_path key old_val new_val</i></pre>
+<p>Replaces the given old value in the list of values of the given key with
+the new value in the specified record.</p>
+<pre>
+   changi
+     Usage: changei path key index val</pre>
+<p>Replaces the value at the given index in the list of values of the given
+key with the new value in the specified record.  index is an integer<br>
+value.  An index of 1 specifies the first value.  An index greater than
+the number of values in the list will result in an error.</p>
+<pre>
+   diff<br>     Usage: diff path1 path2 key ...</pre>
+<p> Compares the data from path1 and path2 looking at the specified keys (or<br>
+all if no keys are specified).</p>
+<pre>
+
+   delete (rm)
+     Usage: delete path [key [val ...]]</pre>
+<p>Delete a directory, property, or value.  If a directory path is given,
+the delete command will delete the directory.  This can only be used on<br>
+record type and record paths.  If a key is given, then a property with
+that key will be deleted.	If one or more values are given, those values<br>
+will be removed from the property with the given key.</p>
+<pre>   deletepl
+   Usage: deletepl <i>record_path key plist_path </i>[<i>val</i> ...]</pre>
+<p> Deletes a value in a plist. If no values are given deletepl deletes the
+plist_path. If one or more values are given, deletepl deletes the values<br>
+within plist_path.</p>
+<pre>   deletepli
+   Usage: deletepli <i>record_path key value_index plist_path</i> [<i>val</i> ...]</pre>
+<p> Deletes a value for the plist at value_index of the key. If no values
+are given deletepli deletes the plist_path. If one or more values are<br>
+given, deletepli deletes the values within plist_path.</p>
+<pre>
+   passwd
+     Usage: passwd <i>user_path </i>[<i>new_pasword</i> | <i>old_password new_pasword</i>]</pre>
+<p>Changes a password for a user. The user must be specified by full path,
+not just a username.  If you are authenticated to the node (either by<br>
+specifying the -u and -P flags or by using the auth command when in
+interactive node) then you can simply specify a new password.  If you are
+not authenticated then the user's old password must be specified.	If
+passwords are not specified while in interactive mode, you will be<br>     
+prompted for them.</p>
+<p>INTERACTIVE COMMANDS
+</p>
+<pre>   cd
+   Usage: cd <i>dir</i></pre>
+<p>Sets the current directory.  Path names for other dscl commands may be
+relative to the current directory.</p>
+<pre>
+   pushd (pd)
+   Usage: pushd <i>path</i></pre>
+<p>Similar to the pushd command commonly found in Unix shells.  When a path
+is specified it sets the current directory while pushing the previous
+directory on to the directory stack.  If no path is specified it
+exchanges the top two elements of the directory stack.  It will also<br>
+print the final directory stack.</p>
+<pre>
+   popd
+   Usage: popd</pre>
+<p>Pops the directory stack and returns to the new top directory.  It will also print the final directory stack.</p>
+<pre>
+   auth (su)
+   Usage: auth [<i>user</i> [<i>password</i>]]</pre>
+<p>Authenticate as the named user, or as "root" if no user is specified.  If     
+a password is supplied, then that password is used for authentication,<br>     
+otherwise the command prompts for a password.<br>
+<br>     
+If dscl is run in host mode, then when this command is run the current     
+directory must be in the subdirectories of a node.</p>
+<pre>   authonly
+   Usage: authonly [user [password]]</pre>
+<p> Used to verify the password of a named user, or of &quot;root&quot; if no user is
+specified. If a password is supplied, then that password is used for<br>
+authentication, otherwise the command prompts for a password.</p>
+<p> If dscl is run in host mode, then when this command is run the current
+directory must be in the subdirectories of a node.</p>
+<pre>   quit (q)
+     Usage: quit</pre>
+<p>
+Ends processing of interactive commands and terminates the program.</p>
+<pre>   command history</pre>
+<p>The up and down arrow keys will scan through the command history.</p>
+<pre>
+   tab completion</pre>
+<p>When pathnames are being typed, pressing the tab key will result in a
+search to auto-complete the typed partial subdirectory name. It will also<br>
+attempt to correct capitilization in the process.</p>
+<p>EXAMPLES</p>
+<p> View a record in the local directory node<br>
+<span class="code">dscl . -read /Users/www</span></p>
+<p> Create or replace the UserShell attribute value for the <span class="code">www</span> user record
+<br>
+<span class="code">dscl . -create /Users/www UserShell /usr/bin/false</span></p>
+<p> Create or replace the test key of the <span class="code">mcx_application_data:loginwindow</span> 
+plist value for the MCXSettings attribute of the <span class="code">user1</span> user<br>
+record<br>
+<span class="code">dscl . -createpl /Users/user1 MCXSettings mcx_application_data:loginwindow:test value</span></p>
+<p> List the uniqueID values for all user records on a given node<br>
+<span class="code">dscl /LDAPv3/ldap.company.com -list /Users UniqueID</span></p>
+<p> Append a value that has spaces in it<br>
+<span class="code">dscl . -append /Users/www Comment &quot;This is a comment&quot;</span></p>
+<p>DIAGNOSTICS</p>
+<p> dscl will return -1 (255) on error.</p>
+<p class="quote"><i>&ldquo;Employees must be given responsibility; backed with investment; and provided with motivation. Good people won't stay without them&rdquo; ~ Robert Heller</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/dscl.1.html">dscl man page</a> - Apple.com<br>
+DirectoryService(8)<br>
+DirectoryServiceAttributes(7)<br>
+Equivalent (Linux) bash command:<span class="code"> ldapmodify</span> - LDAP modify entry and LDAP add entry tools</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="dscl.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

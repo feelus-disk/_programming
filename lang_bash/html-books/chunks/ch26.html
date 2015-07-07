@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 26. Arrays</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch25.html" title="Глава 25. List Constructs"/><link rel="next" href="ch27.html" title="Глава 27. /dev and /proc"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 26. Arrays</th></tr><tr><td align="left"><a accesskey="p" href="ch25.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch27.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 26. Arrays"><div class="titlepage"><div><div><h2 class="title"><a id="arrays"/>Глава 26. Arrays</h2></div></div></div><p><a id="arrayref"/></p><p>Newer versions of Bash support one-dimensional arrays.
+        <a id="brackarray"/>
+  Array elements may be initialized with the
+  <strong class="userinput"><code>variable[xx]</code></strong> notation. Alternatively,
+  a script may introduce the entire array by an explicit
+  <strong class="userinput"><code>declare -a variable</code></strong> statement. To
+  dereference (retrieve the contents of) an array element, use
+  <em class="firstterm">curly bracket</em> notation, that is,
+  <strong class="userinput"><code>${element[xx]}</code></strong>.</p><p><a id="arraynotation"/></p><div class="example"><a id="ex66"/><p class="title"><b>Пример 26.1. Simple array usage</b></p><div class="example-contents"><pre class="programlisting">&amp;ex66;</pre></div></div><br class="example-break"/><p><a id="arrayinit0"/></p><p>As we have seen, a convenient way of initializing an entire array
+        is the <code class="varname">array=( element1 element2 ... elementN )</code>
+  notation.</p><p><a id="arrayopsvars"/></p><div class="sidebar"><p class="title"><b/></p><p>Bash permits array operations on variables, even if
+        the variables are not explicitly declared as arrays.</p><pre class="programlisting">string=abcABC123ABCabc
+echo ${string[@]}               # abcABC123ABCabc
+echo ${string[*]}               # abcABC123ABCabc 
+echo ${string[0]}               # abcABC123ABCabc
+echo ${string[1]}               # No output!
+                                # Why?
+echo ${#string[@]}              # 1
+                                # One element in the array.
+                                # The string itself.
+
+# Thank you, Michael Zick, for pointing this out.</pre><p>
+      Once again this demonstrates that <a class="link" href="ch04s03.html#bvuntyped">Bash
+      variables are untyped</a>.
+      </p></div><div class="example"><a id="poem"/><p class="title"><b>Пример 26.2. Formatting a poem</b></p><div class="example-contents"><pre class="programlisting">&amp;poem;</pre></div></div><br class="example-break"/><p><a id="arraysyntax"/></p><p>Array variables have a syntax all their own, and even
+  standard Bash commands and operators have special options adapted
+  for array use.</p><div class="example"><a id="arrayops"/><p class="title"><b>Пример 26.3. Various array operations</b></p><div class="example-contents"><pre class="programlisting">&amp;arrayops;</pre></div></div><br class="example-break"/><p><a id="arraystringops"/></p><p>Many of the standard <a class="link" href="ch09s02.html#stringmanip">string
+       operations</a> work on arrays.</p><div class="example"><a id="arraystrops"/><p class="title"><b>Пример 26.4. String operations on arrays</b></p><div class="example-contents"><pre class="programlisting">&amp;arraystrops;</pre></div></div><br class="example-break"/><p><a class="link" href="ch11.html#commandsubref">Command substitution</a> can
+        construct the individual elements of an array.</p><div class="example"><a id="scriptarray"/><p class="title"><b>Пример 26.5. Loading the contents of a script into an array</b></p><div class="example-contents"><pre class="programlisting">&amp;scriptarray;</pre></div></div><br class="example-break"/><p>In an array context, some Bash <a class="link" href="ch14.html#builtinref">builtins</a> have a slightly
+  altered meaning. <a id="arrayunset"/>For example, <a class="link" href="ch14.html#unsetref">unset</a> deletes array elements, or even
+  an entire array.</p><p><a id="arrayspecialprops"/></p><div class="example"><a id="ex67"/><p class="title"><b>Пример 26.6. Some special properties of arrays</b></p><div class="example-contents"><pre class="programlisting">&amp;ex67;</pre></div></div><br class="example-break"/><p><a id="arraynumelements"/></p><p>As seen in the previous example, either
+  <span class="command"><strong>${array_name[@]}</strong></span> or
+  <span class="command"><strong>${array_name[*]}</strong></span> refers to
+  <span class="emphasis"><em>all</em></span> the elements of the array.
+  Similarly, to get a count of the number of elements in an
+  array, use either <span class="command"><strong>${#array_name[@]}</strong></span>
+  or <span class="command"><strong>${#array_name[*]}</strong></span>.
+  <span class="command"><strong>${#array_name}</strong></span> is the length (number of
+  characters) of <span class="command"><strong>${array_name[0]}</strong></span>, the first
+  element of the array.</p><p><a id="emptyarray0"/></p><div class="example"><a id="emptyarray"/><p class="title"><b>Пример 26.7. Of empty arrays and empty elements</b></p><div class="example-contents"><pre class="programlisting">&amp;emptyarray;</pre></div></div><br class="example-break"/><p>The relationship of <span class="command"><strong>${array_name[@]}</strong></span>
+  and <span class="command"><strong>${array_name[*]}</strong></span> is analogous to that
+  between <a class="link" href="ch09.html#appref">$@ and $*</a>. This powerful
+  array notation has a number of uses.</p><p><a id="copyarray0"/></p><p>
+      </p><pre class="programlisting"># Copying an array.
+array2=( "${array1[@]}" )
+# or
+array2="${array1[@]}"
+#
+#  However, this fails with "sparse" arrays,
+#+ arrays with holes (missing elements) in them,
+#+ as Jochen DeSmet points out.
+# ------------------------------------------
+  array1[0]=0
+# array1[1] not assigned
+  array1[2]=2
+  array2=( "${array1[@]}" )       # Copy it?
+
+echo ${array2[0]}      # 0
+echo ${array2[2]}      # (null), should be 2
+# ------------------------------------------
+
+
+
+# Adding an element to an array.
+array=( "${array[@]}" "new element" )
+# or
+array[${#array[*]}]="new element"
+
+# Thanks, S.C.</pre><p>
+      </p><p><a id="arrayinitcs"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>The <span class="command"><strong>array=( element1 element2 ... elementN )</strong></span>
+  initialization operation, with the help of <a class="link" href="ch11.html#commandsubref">command substitution</a>, makes it
+  possible to load the contents of a text file into an array.</p><p>    
+      </p><pre class="programlisting">#!/bin/bash
+
+filename=sample_file
+
+#            cat sample_file
+#
+#            1 a b c
+#            2 d e fg
+
+
+declare -a array1
+
+array1=( `cat "$filename"`)                #  Loads contents
+#         List file to stdout              #+ of $filename into array1.
+#
+#  array1=( `cat "$filename" | tr '\n' ' '`)
+#                            change linefeeds in file to spaces. 
+#  Not necessary because Bash does word splitting,
+#+ changing linefeeds to spaces.
+
+echo ${array1[@]}            # List the array.
+#                              1 a b c 2 d e fg
+#
+#  Each whitespace-separated "word" in the file
+#+ has been assigned to an element of the array.
+
+element_count=${#array1[*]}
+echo $element_count          # 8</pre><p>
+      </p></div><p>Clever scripting makes it possible to add array operations.</p><p><a id="arrayassign0"/></p><div class="example"><a id="arrayassign"/><p class="title"><b>Пример 26.8. Initializing arrays</b></p><div class="example-contents"><pre class="programlisting">&amp;arrayassign;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Adding a superfluous <span class="command"><strong>declare -a</strong></span>
+  statement to an array declaration may speed up execution of
+  subsequent operations on the array.</p></div><p><a id="arrayappend0"/></p><div class="example"><a id="copyarray"/><p class="title"><b>Пример 26.9. Copying and concatenating arrays</b></p><div class="example-contents"><pre class="programlisting">&amp;copyarray;</pre></div></div><br class="example-break"/><div class="example"><a id="arrayappend"/><p class="title"><b>Пример 26.10. More on concatenating arrays</b></p><div class="example-contents"><pre class="programlisting">&amp;arrayappend;</pre></div></div><br class="example-break"/><p>--</p><p>Arrays permit deploying old familiar algorithms as shell scripts.
+        Whether this is necessarily a good idea is left for the reader to
+  decide.</p><p><a id="bubblesort"/></p><div class="example"><a id="bubble"/><p class="title"><b>Пример 26.11. The Bubble Sort</b></p><div class="example-contents"><pre class="programlisting">&amp;bubble;</pre></div></div><br class="example-break"/><p>--</p><p><a id="arraynest"/></p><p>Is it possible to nest arrays within arrays?</p><pre class="programlisting">#!/bin/bash
+# "Nested" array.
+
+#  Michael Zick provided this example,
+#+ with corrections and clarifications by William Park.
+
+AnArray=( $(ls --inode --ignore-backups --almost-all \
+  --directory --full-time --color=none --time=status \
+  --sort=time -l ${PWD} ) )  # Commands and options.
+
+# Spaces are significant . . . and don't quote anything in the above.
+
+SubArray=( ${AnArray[@]:11:1}  ${AnArray[@]:6:5} )
+#  This array has six elements:
+#+     SubArray=( [0]=${AnArray[11]} [1]=${AnArray[6]} [2]=${AnArray[7]}
+#      [3]=${AnArray[8]} [4]=${AnArray[9]} [5]=${AnArray[10]} )
+#
+#  Arrays in Bash are (circularly) linked lists
+#+ of type string (char *).
+#  So, this isn't actually a nested array,
+#+ but it's functionally similar.
+
+echo "Current directory and date of last status change:"
+echo "${SubArray[@]}"
+
+exit 0</pre><p>--</p><p>Embedded arrays in combination with <a class="link" href="ch34.html#varrefnew">indirect references</a> create some fascinating
+  possibilities</p><p><a id="arrayindir"/></p><div class="example"><a id="embarr"/><p class="title"><b>Пример 26.12. Embedded arrays and indirect references</b></p><div class="example-contents"><pre class="programlisting">&amp;embarr;</pre></div></div><br class="example-break"/><p>--</p><p><a id="primes0"/></p><p>Arrays enable implementing a shell script version of the
+  <em class="firstterm">Sieve of Eratosthenes</em>. Of course, a
+  resource-intensive application of this nature should really be
+  written in a compiled language, such as C. It runs excruciatingly
+  slowly as a script.</p><div class="example"><a id="ex68"/><p class="title"><b>Пример 26.13. The Sieve of Eratosthenes</b></p><div class="example-contents"><pre class="programlisting">&amp;ex68;</pre></div></div><br class="example-break"/><div class="example"><a id="ex68a"/><p class="title"><b>Пример 26.14. The Sieve of Eratosthenes, Optimized</b></p><div class="example-contents"><pre class="programlisting">&amp;ex68a;</pre></div></div><br class="example-break"/><p>Compare these array-based prime number generators with
+        alternatives that do not use arrays, <a class="xref" href="apa.html#primes" title="Пример A.15. Generating prime numbers using the modulo operator">Пример A.15, «Generating prime numbers using the modulo operator»</a>,
+        and <a class="xref" href="ch15s08.html#primes2" title="Пример 15.46. Generating prime numbers">Пример 15.46, «Generating prime numbers»</a>.</p><p>--</p><p>Arrays lend themselves, to some extent, to emulating data
+        structures for which Bash has no native support.</p><p><a id="stackex0"/></p><div class="example"><a id="stackex"/><p class="title"><b>Пример 26.15. Emulating a push-down stack</b></p><div class="example-contents"><pre class="programlisting">&amp;stackex;</pre></div></div><br class="example-break"/><p>--</p><p>Fancy manipulation of array <span class="quote">«<span class="quote">subscripts</span>»</span> may require
+        intermediate variables. For projects involving this, again consider
+  using a more powerful programming language, such as Perl or C.</p><div class="example"><a id="qfunction"/><p class="title"><b>Пример 26.16. Complex array application:
+             <span class="emphasis"><em>Exploring a weird mathematical series</em></span></b></p><div class="example-contents"><pre class="programlisting">&amp;qfunction;</pre></div></div><br class="example-break"/><p>--</p><p><a id="arraymultidim"/></p><p>Bash supports only one-dimensional arrays, though a little
+        trickery permits simulating multi-dimensional ones.</p><div class="example"><a id="twodim"/><p class="title"><b>Пример 26.17. Simulating a two-dimensional array, then tilting it</b></p><div class="example-contents"><pre class="programlisting">&amp;twodim;</pre></div></div><br class="example-break"/><p>A two-dimensional array is essentially equivalent to a
+  one-dimensional one, but with additional addressing modes
+  for referencing and manipulating the individual elements by
+  <em class="firstterm">row</em> and <em class="firstterm">column</em>
+  position.</p><p>For an even more elaborate example of simulating a
+        two-dimensional array, see <a class="xref" href="apa.html#lifeslow" title="Пример A.10. Game of Life">Пример A.10, «<em class="firstterm">Game of Life</em>»</a>.</p><p>--</p><p>For more interesting scripts using arrays, see:
+       </p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><a class="xref" href="ch11.html#agram2" title="Пример 11.3. Finding anagrams">Пример 11.3, «Finding anagrams»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s08.html#primes2" title="Пример 15.46. Generating prime numbers">Пример 15.46, «Generating prime numbers»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#hashex2" title="Пример A.22. More on hash functions">Пример A.22, «More on hash functions»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#homework" title="Пример A.44. An all-purpose shell scripting homework assignment solution">Пример A.44, «An all-purpose shell scripting homework assignment solution»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#qky" title="Пример A.41. Quacky: a Perquackey-type word game">Пример A.41, «Quacky: a Perquackey-type word game»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#nim" title="Пример A.42. Nim">Пример A.42, «Nim»</a></p></li></ul></div><p>
+     </p></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch25.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch27.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 25. List Constructs </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 27. <code class="filename">/dev</code> and <code class="filename">/proc</code></td></tr></table></div></body></html>

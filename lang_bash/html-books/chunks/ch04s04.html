@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Специальные типы переменных</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch04.html" title="Глава 4. Введение в переменные и параметры"/><link rel="prev" href="ch04s03.html" title="Переменные Bash не типизированы"/><link rel="next" href="ch05.html" title="Глава 5. Использование кавычек"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Специальные типы переменных</th></tr><tr><td align="left"><a accesskey="p" href="ch04s03.html">Пред.</a> </td><th width="60%" align="center">Глава 4. Введение в переменные и параметры</th><td align="right"> <a accesskey="n" href="ch05.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Специальные типы переменных"><div class="titlepage"><div><div><h2 class="title"><a id="othertypesv"/>Специальные типы переменных</h2></div></div></div><div class="variablelist"><dl><dt><span class="term"><em class="replaceable"><code>Локальные переменные</code></em></span></dt><dd><p>Переменные, <a class="link" href="ch20.html#scoperef">доступные</a> только в данном <a class="link" href="ch03.html#codeblockref">блоке кода</a> или функции (смотри
+      также <a class="link" href="ch23s02.html#localref" title="Каким образом переменные делаются локальными?">локальные переменные</a> в
+      <a class="link" href="ch23.html#functionref">функциях</a>)</p></dd><dt><span class="term"><a id="envref"/><em class="replaceable"><code>Переменные окружения</code></em></span></dt><dd><p>Переменные, которые влияют на поведение командной оболочки и
+        интерфейса пользователя</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>В более общем смысле, каждый <a class="link" href="ch03.html#processref">процесс</a> имеет
+    <span class="quote">«<span class="quote">окружение</span>»</span>, то есть, набор a 
+    переменных, к которым этот процесс может обращаться. В этом смысле,
+    командная оболочка ведет себя так, как другие процессы.</p><p>При каждом запуске командной оболочки, она(оболочка) создает 
+    переменные, соответствующие переменным окружения. Изменение
+    или добавление новых переменных окружения заставляют
+    командную оболочку обновить свое окружение, и это
+    окружение наследуется 
+    <em class="firstterm">дочерними процессами</em> (командами, которые
+    оболочка выполнила).</p></div><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Пространство, выделенное для окружения, ограничено.
+          Создание большого числа переменных окружения или одной, использующей
+    слишком много пространства, может вызвать проблемы..</p><p>
+            </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>eval "`seq 10000 | sed -e 's/.*/export var&amp;=ZZZZZZZZZZZZZZ/'`"</code></strong>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>du</code></strong>
+<code class="computeroutput">bash: /usr/bin/du: Argument list too long</code>
+            </pre><p>
+        </p><p>Отметим: эта <span class="quote">«<span class="quote">ошибка</span>»</span> была исправлена еще в
+          ядре версии 2.6.23.</p><p>(Спасибо Stéphane Chazelas за пояснения
+          и приведенный выше пример.)</p></div><p>Если сценарий устанавливает переменные окружения, они должны быть
+        <span class="quote">«<span class="quote">экспортированы</span>»</span>, то есть, представлены локальному
+        <em class="firstterm">окружению</em> сценария. 
+        Эта функция осуществляется командой <a class="link" href="ch14.html#exportref">export</a>.</p><a id="childref"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Сценарий может <span class="command"><strong>экспортировать</strong></span> переменные только
+        дочернему <a class="link" href="ch03.html#processref">процессу</a>,
+        то есть, только тем командам и процессам, которые
+        выполнены в данном сценарии. Скрипт, вызываемый из
+        командной строки, <em class="replaceable"><code>не может</code></em>
+        экспортировать переменные в окружение командной строки.
+        <span class="emphasis"><em><a class="link" href="ch14.html#forkref">Дочерний процесс</a>
+        не может экспортировать переменные обратно родительскому процессу,
+        породившему его.</em></span></p><p><a id="childref2"/><strong class="userinput"><code>Определение:</code></strong>
+        <em class="firstterm">Дочерний процесс</em> - это подпроцесс,
+        запущенный другим процессом (<a class="link" href="ch14.html#parentref">родительским</a> процессом).</p></div></dd><dt><span class="term"><a id="posparamref1"/><em class="replaceable"><code>Позиционные параметры</code></em></span></dt><dd><p>Аргументы, передаваемые скрипту командной строкой
+    <sup>[<a id="idp8012720" href="#ftn.idp8012720" class="footnote">23</a>]</sup>
+        : <code class="varname">$0</code>, <code class="varname">$1</code>,
+        <code class="varname">$2</code>, <code class="varname">$3</code> . . .</p><p><a id="scrnameparam"/><code class="varname">$0</code> -
+         имя самого скрипта,
+        <code class="varname">$1</code> - первый аргумент,
+        <code class="varname">$2</code> - второй, <code class="varname">$3</code>
+        - третий, и так далее.
+
+        <sup>[<a id="idp8018240" href="#ftn.idp8018240" class="footnote">24</a>]</sup>
+
+        <a id="bracketnotation"/>
+        После <code class="varname">$9</code>, аргументы должны быть заключены
+        в фигурные скобки, например, <code class="varname">${10}</code>,
+        <code class="varname">${11}</code>, <code class="varname">${12}</code>.</p><p>Специальные переменные <a class="link" href="ch09.html#appref">$* и $@</a>
+        указывают на <span class="emphasis"><em>все</em></span> позиционные параметры.</p><div class="example"><a id="ex17"/><p class="title"><b>Пример 4.5. Позиционные параметры</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+# Вызов скрипта, содержащего, по меньшей мере, 10 параметров. Например
+# ./scriptname 1 2 3 4 5 6 7 8 9 10
+MINPARAMS=10
+
+echo
+
+echo "Имя скрипта - \"$0\"."
+# Добавляет ./ для текущего каталога
+echo "Имя скрипта - \"`basename $0`\"."
+# Уберет путь к имени файла (смотри 'basename')
+
+echo
+
+if [ -n "$1" ]              # Проверяемая переменная заключена в кавычки.
+then
+ echo "Параметр #1 - $1"    # Необходимы кавычки для экранирования #
+fi 
+
+if [ -n "$2" ]
+then
+ echo "Параметр #2 - $2"
+fi 
+
+if [ -n "$3" ]
+then
+ echo "Параметр #3 - $3"
+fi 
+
+# ...
+
+
+if [ -n "${10}" ]  # Параметры &gt; $9 должны быть заключены в {фигурные скобки}.
+then
+ echo "Параметр #10 - ${10}"
+fi 
+
+echo "-----------------------------------"
+echo "Все параметры, переданные из командной строки: "$*""
+
+if [ $# -lt "$MINPARAMS" ]
+then
+  echo
+  echo "Этот скрипт требует, по крайней мере, $MINPARAMS аргументов командной строки!"
+fi  
+
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p><em class="firstterm">Скобочная нотация</em> позиционных параметров
+        предоставляет довольно простой способ обращения к
+        <span class="emphasis"><em>последнему</em></span> аргументу, переданному сценарию
+        из командной строки. Также, это требует <a class="link" href="ch34.html#varrefnew">косвенной адресации</a>.</p><p><a id="lastargref"/></p><pre class="programlisting">args=$#           # Количество переданных аргументов
+lastarg=${!args}
+# Отметим: это *косвенная адресация* к $args ...
+
+
+# Или:       lastarg=${!#}             (Спасибо, Chris Monson.)
+# Это *косвенная адресация к $# переменной.
+# Отметим, что lastarg=${!$#} работать не будет.
+</pre><p>Некоторые скрипты могут выполнять различные операции,
+        в зависимости от того, с каким именем вызываются. Для корректной
+        работы, скрипт должен проверить <code class="varname">$0</code> -
+        имя, по которому был вызван. Также должны существовать символические
+        ссылки на все альтернативные имена скрипта. Смотри <a class="xref" href="ch15.html#hellol" title="Пример 15.2. Hello or Good-bye">Пример 15.2, «Hello or Good-bye»</a>.</p><p><a id="nullvar"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Если скрипт ожидает параметр командной строки,
+        но вызывается без него, то значения переменных могут оказаться
+        <em class="firstterm">пустыми</em> - нежелательный
+        результат. Чтобы это предотвратить, можно добавить дополнительные
+        символы с обеих сторон от присваивания
+        и использовать ожидаемый позиционный параметр.  </p></div><pre class="programlisting">variable1_=$1_  # Вместо variable1=$1
+# Это предотвратит ошибку, даже если позиционный параметр отсутствует.
+
+critical_argument01=$variable1_
+
+# Дополнительный символ может быть удален позднее, как здесь.
+variable1=${variable1_/_/}
+# Если $variable1_ начинается с символа подчеркивания, появится побочный эффект.
+# Здесь используется шаблон подстановки параметра, обсудим это позднее.
+# (Отсутствие шаблона подстановки приводит к удалению.)
+
+#  Более простой пример работы -
+#+ простая проверка (на наличие) переданных позиционных параметров.
+if [ -z $1 ]
+then
+  exit $E_MISSING_POS_PARAM
+fi
+
+
+#  Однако, как отметил Fabian Kreutz,
+#+ описанный выше метод может иметь неожиданные побочные эффекты.
+#  Лучше использовать подстановку параметров:
+#         ${1:-$DefaultVal}
+
+</pre><p>---</p><div class="example"><a id="ex18"/><p class="title"><b>Пример 4.6. <em class="firstterm">wh</em>, <em class="firstterm">
+                whois</em> просмотр имени домена</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# ex18.sh
+
+# Скрипт выполняет 'whois имя домена' для одного из 3х серверов:
+#                    org.ru, net.ru, pp.ru
+
+# Разместите этот скрипт -- названный 'wh' -- в /usr/local/bin
+
+# Требуются следующие символические ссылки:
+# ln -s /usr/local/bin/wh /usr/local/bin/wh-org
+# ln -s /usr/local/bin/wh /usr/local/bin/wh-net
+# ln -s /usr/local/bin/wh /usr/local/bin/wh-pp
+
+E_NOARGS=65
+
+
+if [ -z "$1" ]
+then
+  echo "Следует использовать: `basename $0` [имя домена]"
+  exit $E_NOARGS
+fi
+
+# Проверки имени скрипта и обращение к соответствующему серверу.
+case `basename $0` in    # Или:    case ${0##*/} in
+    "wh"    ) whois $1.org.ru;;
+    "wh-org") whois $1.org.ru;;
+    "wh-net") whois $1.net.ru;;
+    "wh-pp" ) whois $1.pp.ru;;
+    *       ) echo "Следует использовать: `basename $0` [имя домена]";;
+esac 
+
+exit $?
+</pre></div></div><br class="example-break"/><p>---</p><p><a id="shiftref"/></p><p>
+        <a id="idp8034016" class="indexterm"/>
+        <a id="idp8053008" class="indexterm"/>
+        Команда <span class="command"><strong>shift</strong></span> переназначает позиционные параметры,
+        сдвигая их влево на одну позицию.</p><p><code class="varname">$1</code> &lt;--- <code class="varname">$2</code>, <code class="varname">$2</code> &lt;--- <code class="varname">$3</code>, <code class="varname">$3</code> &lt;--- <code class="varname">$4</code>, и т.д.</p><p>Старое значение <code class="varname">$1</code> исчезнет, но
+        <span class="emphasis"><em><code class="varname">$0</code> (имя сценария)
+        не изменится</em></span>. Если в сценарии используется много
+        позиционных переменных, <span class="command"><strong>shift</strong></span>
+        позволяет получить доступ к параметрам больше <code class="literal">10</code>
+        , хотя <a class="link" href="ch04s04.html#bracketnotation">{скобочную} нотацию</a>
+        тоже можно использовать.</p><div class="example"><a id="ex19"/><p class="title"><b>Пример 4.7. Использование <em class="firstterm">shift</em></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# shft.sh: Использование 'shift' прохода по всем позиционным параметрам.
+
+#  Назовите скрипт shft.sh,
+#+ и вызовите с какими-нибудь параметрами.
+#+ Например:
+#             sh shft.sh a b c def 23 Skidoo
+
+until [ -z "$1" ]  # Пока присутствуют все параметры . . .
+do
+  echo -n "$1 "
+  shift
+done
+
+echo               # Дополнительный перевод строки.
+
+# Но что происходит с "использованными" параметрами?
+echo "$2"
+#  Пусто!
+#  Когда $2 перемещается в $1 (и нечего переместить из $3 в $2)
+#+ $2 остается пустым.
+#  Это не *копирование* параметра, а *перемещение*.
+
+exit
+
+#  Смотри также скрипт echo-params.sh для "ленивых"
+#+ Альтернативный метод сдвига позиционных параметров.
+</pre></div></div><br class="example-break"/><p>Команда <span class="command"><strong>shift</strong></span> может принимать числовой
+      параметр, обозначающий количество позиций сдвига.</p><pre class="programlisting">#!/bin/bash
+# shift-past.sh
+
+shift 3    # Переместиться на 3 позиции.
+#  n=3; shift $n
+#  Имеет тот же эффект.
+
+echo "$1"
+
+exit 0
+
+# ======================== #
+
+
+$ sh shift-past.sh 1 2 3 4 5
+4
+
+#  Однако, как отметил Eleni Fragkiadakit,
+#+ попытка сдвига последнего позиционного параметра ($#)
+#+ возвращает код завершения 1,
+#+ а сами позиционные параметры не меняются.
+#  Это чревато зацикливанием. . . .
+#  Например:
+#      until [ -z "$1" ]
+#      do
+#         echo -n "$1 "
+#         shift 20    #  Если позиционных параметров меньше 20,
+#      done           #+ цикл никогда не остановится!
+#
+# Если есть сомнения, добавьте проверку. . . .
+#           shift 20 || break
+#                    ^^^^^^^^</pre><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Команда <span class="command"><strong>shift</strong></span> подобным образом
+      работает с параметрами, передаваемыми <a class="link" href="ch23.html#functionref">функции</a>.  Смотри <a class="xref" href="ch33s08.html#multiplication" title="Пример 33.16. Return value trickery">Пример 33.16, «Return value trickery»</a>.</p></div></dd></dl></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp8012720" href="#idp8012720" class="para">23</a>] </sup>Отметим, что <a class="link" href="ch23.html#passedargs"><em class="firstterm">функции</em>
+    так же принимают позиционные параметры</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp8018240" href="#idp8018240" class="para">24</a>] </sup><a id="arg0"/>Процесс, вызывающий скрипт,
+    задает параметр <code class="varname">$0</code>. Согласовано, что
+    этот параметр является именем скрипта. Смотри
+    <a class="link" href="ch15.html#manref">мануал</a> (руководство)
+    по <span class="command"><strong>execv</strong></span>.</p><p>В <em class="firstterm">командной строке</em>, однако,
+          <code class="varname">$0</code> - это имя командной оболочки.
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo $0</code></strong>
+<code class="computeroutput">bash</code>
+
+<code class="prompt">tcsh% </code><strong class="userinput"><code>echo $0</code></strong>
+<code class="computeroutput">tcsh</code></pre></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch04s03.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch04.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch05.html">След.</a></td></tr><tr><td align="left" valign="top">Переменные Bash не типизированы </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 5. Использование кавычек</td></tr></table></div></body></html>

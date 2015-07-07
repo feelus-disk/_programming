@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 19. I/O Redirection</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch18.html" title="Глава 18. Встроенные документы"/><link rel="next" href="ch19s02.html" title="Redirecting Code Blocks"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 19. I/O Redirection</th></tr><tr><td align="left"><a accesskey="p" href="ch18.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch19s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 19. I/O Redirection"><div class="titlepage"><div><div><h2 class="title"><a id="io-redirection"/>Глава 19. I/O Redirection</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch19.html#idp16353984">Using <em class="firstterm">exec</em></a></span></dt><dt><span class="sect1"><a href="ch19s02.html">Redirecting Code Blocks</a></span></dt><dt><span class="sect1"><a href="ch19s03.html">Applications</a></span></dt></dl></div><p><a id="ioredirref"/></p><p>There are always three default <em class="firstterm">files</em>
+         <sup>[<a id="idp16040784" href="#ftn.idp16040784" class="footnote">93</a>]</sup>
+  open, <code class="filename">stdin</code> (the keyboard),
+  <code class="filename">stdout</code> (the screen), and
+  <code class="filename">stderr</code> (error messages output to the
+  screen).  These, and any other open files, can be redirected.
+  Redirection simply means capturing output from a file, command,
+  program, script, or even code block within a script (see <a class="xref" href="ch03.html#ex8" title="Пример 3.1. Code blocks and I/O redirection">Пример 3.1, «Code blocks and I/O redirection»</a> and <a class="xref" href="ch03.html#rpmcheck" title="Пример 3.2. Saving the output of a code block to a file">Пример 3.2, «Saving the output of a code block to a file»</a>) and sending it as
+  input to another file, command, program, or script.</p><p><a id="fdref"/>Each open file gets assigned a file descriptor.  
+
+               <sup>[<a id="idp16042816" href="#ftn.idp16042816" class="footnote">94</a>]</sup>
+
+  The file descriptors for <code class="filename">stdin</code>,
+  <code class="filename">stdout</code>, and <code class="filename">stderr</code> are
+  0, 1, and 2, respectively.  For opening additional files, there
+  remain descriptors 3 to 9. It is sometimes useful to assign one of
+  these additional file descriptors to <code class="filename">stdin</code>,
+  <code class="filename">stdout</code>, or <code class="filename">stderr</code>
+  as a temporary duplicate link.
+         <sup>[<a id="idp16049936" href="#ftn.idp16049936" class="footnote">95</a>]</sup>
+  This simplifies restoration to normal after complex redirection
+  and reshuffling (see <a class="xref" href="ch19.html#redir1" title="Пример 19.1. Redirecting stdin using exec">Пример 19.1, «Redirecting <code class="filename">stdin</code> using
+    <em class="firstterm">exec</em>»</a>).</p><p><a id="ioredirectionref"/></p><pre class="programlisting">   COMMAND_OUTPUT &gt;
+      # Redirect stdout to a file.
+      # Creates the file if not present, otherwise overwrites it.
+
+      ls -lR &gt; dir-tree.list
+      # Creates a file containing a listing of the directory tree.
+
+   : &gt; filename
+      # The &gt; truncates file "filename" to zero length.
+      # If file not present, creates zero-length file (same effect as 'touch').
+      # The : serves as a dummy placeholder, producing no output.
+
+   &gt; filename    
+      # The &gt; truncates file "filename" to zero length.
+      # If file not present, creates zero-length file (same effect as 'touch').
+      # (Same result as ": &gt;", above, but this does not work with some shells.)
+
+   COMMAND_OUTPUT &gt;&gt;
+      # Redirect stdout to a file.
+      # Creates the file if not present, otherwise appends to it.
+
+
+      # Single-line redirection commands (affect only the line they are on):
+      # --------------------------------------------------------------------
+
+   1&gt;filename
+      # Redirect stdout to file "filename."
+   1&gt;&gt;filename
+      # Redirect and append stdout to file "filename."
+   2&gt;filename
+      # Redirect stderr to file "filename."
+   2&gt;&gt;filename
+      # Redirect and append stderr to file "filename."
+   &amp;&gt;filename
+      # Redirect both stdout and stderr to file "filename."
+      #
+      #  Note that   &amp;&gt;&gt;filename
+      #+ -- attempting to redirect and *append*
+      #+ stdout and stderr to file "filename" --
+      #+ fails with the error message,
+      #+ syntax error near unexpected token `&gt;'.
+      #  The &amp;&gt;&gt; operator is supposed to be functional in Bash 4,
+      #+ but as of version 4.0 still is not.
+
+   M&gt;N
+     # "M" is a file descriptor, which defaults to 1, if not explicitly set.
+     # "N" is a filename.
+     # File descriptor "M" is redirect to file "N."
+   M&gt;&amp;N
+     # "M" is a file descriptor, which defaults to 1, if not set.
+     # "N" is another file descriptor.
+
+      #==============================================================================
+
+      # Redirecting stdout, one line at a time.
+      LOGFILE=script.log
+
+      echo "This statement is sent to the log file, \"$LOGFILE\"." 1&gt;$LOGFILE
+      echo "This statement is appended to \"$LOGFILE\"." 1&gt;&gt;$LOGFILE
+      echo "This statement is also appended to \"$LOGFILE\"." 1&gt;&gt;$LOGFILE
+      echo "This statement is echoed to stdout, and will not appear in \"$LOGFILE\"."
+      # These redirection commands automatically "reset" after each line.
+
+
+
+      # Redirecting stderr, one line at a time.
+      ERRORFILE=script.errors
+
+      bad_command1 2&gt;$ERRORFILE       #  Error message sent to $ERRORFILE.
+      bad_command2 2&gt;&gt;$ERRORFILE      #  Error message appended to $ERRORFILE.
+      bad_command3                    #  Error message echoed to stderr,
+                                      #+ and does not appear in $ERRORFILE.
+      # These redirection commands also automatically "reset" after each line.
+      #=======================================================================</pre><p><a id="ioredirectionref1"/></p><pre class="programlisting">
+   2&gt;&amp;1
+      # Redirects stderr to stdout.
+      # Error messages get sent to same place as standard output.
+        &gt;&gt;filename 2&gt;&amp;1
+            bad_command &gt;&gt;filename 2&gt;&amp;1
+            # Appends both stdout and stderr to the file "filename" ...
+        2&gt;&amp;1 | [command(s)]
+            bad_command 2&gt;&amp;1 | awk '{print $5}'   # found
+            #  Sends stderr through a pipe.
+            #  |&amp; was added to Bash 4 as an abbreviation for 2&gt;&amp;
+            #+ but as of version 4.0 this still does not work.
+
+   i&gt;&amp;j
+      # Redirects file descriptor <span class="emphasis"><em>i</em></span> to <span class="emphasis"><em>j</em></span>.
+      # All output of file pointed to by <span class="emphasis"><em>i</em></span> gets sent to file pointed to by <span class="emphasis"><em>j</em></span>.
+
+   &gt;&amp;j
+      # Redirects, by default, file descriptor <span class="emphasis"><em>1</em></span> (stdout) to <span class="emphasis"><em>j</em></span>.
+      # All stdout gets sent to file pointed to by <span class="emphasis"><em>j</em></span>.</pre><p><a id="ioredirectionref2"/></p><pre class="programlisting">
+   0&lt; FILENAME
+    &lt; FILENAME
+      # Accept input from a file.
+      # Companion command to <span class="quote">«<span class="quote">&gt;</span>»</span>, and often used in combination with it.
+      #
+      # grep search-word &lt;filename
+
+
+   [j]&lt;&gt;filename
+      #  Open file "filename" for reading and writing,
+      #+ and assign file descriptor "j" to it.
+      #  If "filename" does not exist, create it.
+      #  If file descriptor "j" is not specified, default to fd 0, stdin.
+      #
+      #  An application of this is writing at a specified place in a file. 
+      echo 1234567890 &gt; File    # Write string to "File".
+      exec 3&lt;&gt; File             # Open "File" and assign fd 3 to it.
+      read -n 4 &lt;&amp;3             # Read only 4 characters.
+      echo -n . &gt;&amp;3             # Write a decimal point there.
+      exec 3&gt;&amp;-                 # Close fd 3.
+      cat File                  # ==&gt; 1234.67890
+      #  Random access, by golly.
+
+
+
+   |
+      # Pipe.
+      # General purpose process and command chaining tool.
+      # Similar to <span class="quote">«<span class="quote">&gt;</span>»</span>, but more general in effect.
+      # Useful for chaining commands, scripts, files, and programs together.
+      cat *.txt | sort | uniq &gt; result-file
+      # Sorts the output of all the .txt files and deletes duplicate lines,
+      # finally saves results to <span class="quote">«<span class="quote">result-file</span>»</span>.</pre><p>Multiple instances of input and output redirection
+        and/or pipes can be combined in a single command
+        line.
+
+       </p><pre class="programlisting">command &lt; input-file &gt; output-file
+
+command1 | command2 | command3 &gt; output-file</pre><p>
+        See <a class="xref" href="ch15s05.html#derpm" title="Пример 15.31. Unpacking an rpm archive">Пример 15.31, «Unpacking an <em class="firstterm">rpm</em> archive»</a> and <a class="xref" href="apa.html#fifo" title="Пример A.14. fifo: Making daily backups, using named pipes">Пример A.14, «<em class="firstterm">fifo</em>: Making daily backups, using
+      named pipes»</a>.</p><p>Multiple output streams may be redirected to one file.
+
+         </p><pre class="programlisting">ls -yz &gt;&gt; command.log 2&gt;&amp;1
+#  Capture result of illegal options "yz" in file "command.log."
+#  Because stderr is redirected to the file,
+#+ any error messages will also be there.
+
+#  Note, however, that the following does *not* give the same result.
+ls -yz 2&gt;&amp;1 &gt;&gt; command.log
+#  Outputs an error message and does not write to file.
+
+#  If redirecting both stdout and stderr,
+#+ the order of the commands makes a difference.
+</pre><div class="variablelist" title="Closing File Descriptors"><a id="closingfiledescriptors"/><p class="title"><b><a id="cfd"/>Closing File Descriptors</b></p><dl><dt><span class="term"><span class="token">n&lt;&amp;-</span></span></dt><dd><p>Close input file descriptor
+      <em class="replaceable"><code>n</code></em>.</p></dd><dt><span class="term"><span class="token">0&lt;&amp;-</span>, </span><span class="term"><span class="token">&lt;&amp;-</span></span></dt><dd><p>Close <code class="filename">stdin</code>.</p></dd><dt><span class="term"><span class="token">n&gt;&amp;-</span></span></dt><dd><p>Close output file descriptor <em class="replaceable"><code>n</code></em>.</p></dd><dt><span class="term"><span class="token">1&gt;&gt;&amp;-</span>, </span><span class="term"><span class="token">&gt;&gt;&amp;-</span></span></dt><dd><p>Close <code class="filename">stdout</code>.</p></dd></dl></div><p><a id="fdref2"/></p><p>Child processes inherit open file descriptors. This is
+          why pipes work. To prevent an fd from being inherited, close it.
+      </p><pre class="programlisting"># Redirecting only stderr to a pipe.
+
+exec 3&gt;&amp;1                              # Save current "value" of stdout.
+ls -l 2&gt;&amp;1 &gt;&amp;3 3&gt;&amp;- | grep bad 3&gt;&amp;-    # Close fd 3 for 'grep' (but not 'ls').
+#              ^^^^   ^^^^
+exec 3&gt;&amp;-                              # Now close it for the remainder of the script.
+
+# Thanks, S.C.</pre><p>
+        </p><p>For a more detailed introduction to I/O redirection see
+    <a class="xref" href="ape.html" title="Приложение E. A Detailed Introduction to I/O and I/O Redirection">Приложение E, <i>A Detailed Introduction to I/O and I/O Redirection</i></a>.</p><div class="sect1" title="Using exec"><div class="titlepage"><div><div><h2 class="title"><a id="idp16353984"/>Using <em class="firstterm">exec</em></h2></div></div></div><p><a id="usingexecref"/></p><p>An <span class="command"><strong>exec &lt;filename</strong></span> command redirects
+    <code class="filename">stdin</code> to a file. From that point on, all
+    <code class="filename">stdin</code> comes from that file, rather than
+    its normal source (usually keyboard input). This provides a
+    method of reading a file line by line and possibly parsing
+    each line of input using <a class="link" href="apc.html#sedref">sed</a>
+    and/or <a class="link" href="apcs02.html#awkref">awk</a>.</p><div class="example"><a id="redir1"/><p class="title"><b>Пример 19.1. Redirecting <code class="filename">stdin</code> using
+    <em class="firstterm">exec</em></b></p><div class="example-contents"><pre class="programlisting">&amp;redir1;</pre></div></div><br class="example-break"/><p>Similarly, an <span class="command"><strong>exec &gt;filename</strong></span>
+    command redirects <code class="filename">stdout</code> to a designated
+    file.  This sends all command output that would normally go
+    to <code class="filename">stdout</code> to that file.</p><div class="important" title="Важно" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Важно</h3><p>
+    <span class="command"><strong>exec N &gt; filename</strong></span> affects the entire
+    script or <em class="firstterm">current shell</em>. Redirection in
+    the <a class="link" href="ch03.html#processidref">PID</a> of the script or shell
+    from that point on has changed. However . . .
+        </p><p>
+    <span class="command"><strong>N &gt; filename</strong></span> affects only the newly-forked process,
+    not the entire script or shell.
+        </p><p>Thank you, Ahmed Darwish, for pointing this out.</p></div><div class="example"><a id="reassignstdout"/><p class="title"><b>Пример 19.2. Redirecting <code class="filename">stdout</code> using
+    <em class="firstterm">exec</em></b></p><div class="example-contents"><pre class="programlisting">&amp;reassignstdout;</pre></div></div><br class="example-break"/><div class="example"><a id="upperconv"/><p class="title"><b>Пример 19.3. Redirecting both <code class="filename">stdin</code> and
+    <code class="filename">stdout</code> in the same script with
+    <em class="firstterm">exec</em></b></p><div class="example-contents"><pre class="programlisting">&amp;upperconv;</pre></div></div><br class="example-break"/><p>I/O redirection is a clever way of avoiding the dreaded <a class="link" href="ch20.html#parvis">inaccessible variables within a subshell</a>
+      problem.</p><div class="example"><a id="avoidsubshell"/><p class="title"><b>Пример 19.4. Avoiding a subshell</b></p><div class="example-contents"><pre class="programlisting">&amp;avoidsubshell;</pre></div></div><br class="example-break"/></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp16040784" href="#idp16040784" class="para">93</a>] </sup>By convention in UNIX and Linux, data streams
+   and peripherals (<a class="link" href="ch27.html#devfileref">device files</a>)
+   are treated as files, in a fashion analogous to ordinary
+   files.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16042816" href="#idp16042816" class="para">94</a>] </sup><a id="fdref1"/>A <em class="firstterm">file
+     descriptor</em> is simply a number that
+     the operating system assigns to an open file
+     to keep track of it.  Consider it a simplified
+     type of file pointer. It is analogous
+     to a <em class="firstterm">file handle</em> in
+     <span class="command"><strong>C</strong></span>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp16049936" href="#idp16049936" class="para">95</a>] </sup>Using <em class="replaceable"><code>file
+         descriptor 5</code></em> might cause problems.
+         When Bash creates a child process, as with <a class="link" href="ch14.html#execref">exec</a>, the child inherits
+         fd 5 (see Chet Ramey's archived e-mail, <a class="ulink" href="http://groups.google.com/group/gnu.bash.bug/browse_thread/thread/13955daafded3b5c/18c17050087f9f37">
+         SUBJECT: RE:  File descriptor 5 is held open</a>).
+         Best leave this particular fd alone.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch18.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch19s02.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 18. Встроенные документы </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Redirecting Code Blocks</td></tr></table></div></body></html>

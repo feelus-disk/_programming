@@ -1,0 +1,432 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>diskutil OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>diskutil</h1> 
+<p>Disk utilities - Format, Verify, Repair (local disks.) This includes options not available in the Disk utility GUI. </p>
+<pre>Syntax
+      diskutil <i>verb </i>[<i>options</i>]
+
+VERBS
+Each verb is listed with its description and individual arguments.
+
+     list [<i>device</i>]
+		List the partitions of a disk or all disks.  If no device is
+		listed, than all partitions on all disks will be displayed.
+
+     list [<i>plist</i>]
+		Print a property list
+       A script could interpret the results of the diskutil -plist output<br>       and use diskutil info on each entry for detailed information.
+
+     info | information <i>device</i>
+		Get information on a disk or volume.
+
+     unmount [force] <i>device</i>
+		Unmount a single volume.
+       Force will force unmount the volume.
+
+     unmountDisk [force] <i>device</i>
+		Unmount an entire disk (all volumes).  
+		Force will force unmount the volumes.
+
+     eject <i>device</i>
+		Eject a disk.
+
+     mount [readOnly] <i>device</i> 
+		Mount a single volume.
+       If readOnly is specified, then the file system is<br>       mounted read-only, even if the volume's underlying file system and/or device<br>       and/or media supports writing.  Even the super-user may not write to it.  This<br>       is the same as the rdonly option to mount
+
+     mountDisk <i>device</i>
+		Mount an entire disk (all mountable volumes).
+
+     rename | renameVolume<i> device name</i>
+		Rename a volume.
+
+     enableJournal <i>device</i>
+		Enable HFS+ journaling on a mounted HFS+ volume.  Ownership of
+		the affected disk is required.
+
+     disableJournal <i>device</i>
+		Disable HFS+ journaling on a mounted HFS+ volume.  Ownership
+		of the affected disk is required.
+
+     verifyVolume | verifyDisk <i>device</i>
+       Verify the data structure of a volume (e.g. fsck).
+       Ownership of the affected disk is required.
+       The synonym "verifyDisk" is allowed but deprecated.
+
+     repairVolume | repairDisk <i>device</i>
+       Repair the data structure of a volume (e.g. fsck).
+       Ownership of the affected disk is required.
+       The synomym "repairDisk" is allowed but deprecated.
+
+     verifyPermissions [-plist] <i>device</i>
+		Verify the permissions of a Mac OS X boot volume.
+
+     repairPermissions [-plist] <i>device</i>
+		Repair the permissions of a Mac OS X boot volume.
+       Ownership of the affected disk is required.
+
+     repairOS9Permissions
+		Repair the permissions of the user selected Classic System and
+		Applications folder.
+
+     eraseDisk <i>format name</i> [OS9Drivers | APMFormat | MBRFormat | GPTFormat] device
+       Erase an existing disk, removing all volumes.
+       Format is discussed below in the section for the partitionDisk verb.
+       Ownership of the affected disk is required.
+
+     eraseVolume <i>format name device</i>
+       Erase an existing volume.
+       Format is discussed below in the section for the partitionDisk verb.
+       Ownership of the affected disk is required.
+
+     reformat device
+       Reformat an existing device in the same name and format.
+       Ownership of the affected disk is required.
+
+     eraseOptical [quick] <i>device</i>
+       Erase an optical media (CD/RW, DVD/RW, etc.).  Quick specifies whether the
+       disc recording stack should do a full erase or a quick erase.  Ownership of
+       the affected disk is required.
+
+     zeroDisk <i>device</i>
+       Erase a disk, writing zeros to the media.
+       Ownership of the affected disk is required.
+
+     randomDisk [<i>times</i>] <i>device</i>
+       Erase a disk, writing random data to the media.  Times is number of times to
+       write random information.  Ownership of the affected disk is required.
+
+     secureErase [freespace] <i>level device</i>
+       Securely erase a disk or freespace on a mounted volume.
+       Ownership of the affected disk is required.
+       Level should be one of the following:
+         1 - Single pass randomly erase the disk.
+         2 - US DoD 7 pass secure erase.
+         3 - Gutmann algorithm 35 pass secure erase.
+
+     partitionDisk <i>device</i> [<i>numberOfPartitions</i>] [OS9Drivers | APMFormat |
+        MBRFormat | GPTFormat]
+           [<i>part1Format part1Name part1Size part2Format part2Name part2Size
+               part3Format part3Name part3Size</i> ...]
+
+       (re)Partition a disk, removing all volumes.  All volumes on this disk will be
+       destroyed.  The device parameter specifies which whole disk is to be parti-
+       tioned.  The optional numberOfPartitions parameter specifies the number of
+       partitions to create; if given then the number of parameter triplets (see
+       below) is expected to match; else, the number of triplets alone given will
+       determine the number of partitions created.
+
+       The optional partitioning scheme parameter forces a particular partitioning
+       scheme; if not specified, a suitable default is chosen.  They are:
+
+       o   APMFormat specifies that an Apple Partition Map scheme should be
+       used.  This is the traditional Apple partitioning scheme used to
+       start up a PowerPC-based Macintosh computer, to use the disk as a
+       non-startup disk with any Mac, or to create a multiplatform compati-
+       ble startup disk.
+
+       o   MBRFormat specifies that a Master Boot Record scheme should be used.
+           This is the DOS/Windows-compatible partitioning scheme.
+
+       o   GPTFormat specifies that a GUID Partitioning Table scheme should be
+           used.  This is the partitioning scheme used to start up an Intel-
+           based Macintosh computer.
+
+       o   OS9Drivers is a special partitioning scheme parameter that implies
+           APMFormat (and is not to be combined together with the other scheme
+           format parameters); it specifies that an Apple Partition Map scheme
+           should be used (others not supported), and laid out in a manner com-
+           patible with Mac OS 9.
+
+       For each partition, a triplet of the desired filesystem format, volume name,
+       and size must be specified.  Several other diskutil verbs allow these triplets
+       as well (and for them, the numberOfPartitions parameter is also optional).
+       The triplets must be as follows:
+
+       o   Format names are of the form HFS+, MS-DOS, etc.; a list of available
+           filesystems is printed as part of the usage text when invoking
+           diskutil partitionDisk with no parameters.  Format guides both what
+           partition type to set for the partitions (slices) as well as what
+           filesystem structures to lay down therein, e.g. with newfs (8).
+
+       o   Names are the initial volume names; they must conform to filesystem-
+           specific restrictions.  If a name of %noformat% is specified, then
+           the partition is left blank such that the partition space is carved
+           out, the partition type is set according to the filesystem format
+           name, the partition space is partially erased, but a filesystem
+           structure is not laid down; this is useful in certain cases e.g.
+           when setting up ZFS pools.
+
+       o   Sizes are floating point numbers followed by B(ytes), S(512-byte-
+           blocks), K(ilobytes), M(egabytes), G(igabytes), T(erabytes),
+           P(etabytes), or %(percent of the whole disk size), e.g.  10G (10
+           gigabytes), 4.23T (4.23 terabytes), 5M (5 megabytes), 25.4% (25.4
+           percent of whole disk size).  The S, K, M, G, T, P suffix multipli-
+           ers are powers of 2.
+
+       The last partition will be lengthened to the end of the disk; to specify an
+       exact size for the last usable partition, specify an additional partition with
+       a format name of Free Space.
+
+       Ownership of the affected disk is required.
+
+     resizeVolume <i>device size</i> [<i>numberOfPartitions</i>] [<i>part1Format part1Name part1Size
+        part2Format part2Name part2Size part3Format part3Name part3Size</i> ...]
+
+       Non-destructively resize a volume. You may increase or decrease its size.
+
+       A size of limits will print the range of valid values for the current filesys-
+       tem.
+
+       When decreasing the size, new partitions may optionally be created to fill the
+       newly-freed space.  To do this, specify the numberOfPartitions, format, name,
+       and size parameters in the same manner as the triplet description for the
+       partitionDisk verb.
+
+       Resizing a volume that is currently set as the computer's startup disk will
+       invalidate that setting; use the Startup Disk System Preferences panel or
+       bless (8) to reset the resized volume as the startup disk.
+
+       Device refers to a volume; the volume's file system must be journaled HFS+.
+       Valid sizes are a number followed by a capital letter multiplier or percent
+       sign suffix as described in the section for the partitionDisk verb.  Ownership
+       of the affected disk is required.
+
+     splitPartition device [<i>numberOfPartitions</i>] [<i>part1Format part1Name part1Size part2Format
+        part2Name part2Size part3Format part3Name part3Size</i> ...]
+
+       Destructively split a volume into multiple partitions.  You must supply a list
+       of new partitions to create in the space of the old partition; specify these
+       with the numberOfPartitions, format, name, and size parameters in the same
+       manner as the triplet description for the partitionDisk verb above.
+
+       Device refers to a volume.  Ownership of the affected disk is required.
+
+     mergePartitions [force] <i>format name fromDevice toDevice</i>
+       Merge two or more partitions on a disk.  All data on merged partitions other
+       than the first will be lost. The first will be erased if it doesn't have a
+       resizable type (e.g. JHFS+) or if the force argument is given.  Format and
+       name apply only when the first partition is being erased.  Merged partitions
+       are required to be ordered sequentially on disk (see diskutil list for the
+       actual on-disk ordering).  Ownership of the affected disk is required.</pre>
+<h2>APPLERAID</h2>
+<p>The following diskutil verbs can be used to create, manipulate and destroy AppleRAID volumes (Software RAID).  AppleRAID supports three basic types of RAID sets:</p>
+<pre>
+           "stripe" - Striped Volume (RAID 0)
+
+           "mirror" - Mirrored Volume (RAID 1)
+
+           "concat" - Concatenated Volume (Spanning)</pre>
+<p> Of these three basic types, only the "mirror" type increases fault-tolerance.  Mirrors     
+may have more than two disks to further increase their fault-tolerance.  Striped and concatentated volumes are, in fact, more vulnerable to faults than single disk volumes.<br>
+<br>
+From these basic types, "stacked" or "nested" RAID volumes can be created.  Stacked RAID     
+sets that make use of mirrored RAID sets are fault-tolerant.  For example, these are some     
+of the more common combinations of stacked RAID sets:</p>
+<ul>
+<li>RAID 50 - A striped RAID set of hardware RAID 5 disks.</li>
+<li>RAID 10 - A striped RAID set of mirrored RAID sets.</li>
+<li>RAID 0+1 - A mirrored RAID set of striped RAID sets.</li>
+<li>Concatenated Mirror - A concatenation of mirrored RAID sets.</li>
+</ul>
+<p>When creating new RAID sets or adding disks, if possible, it is better to specify the
+entire disk instead of a partition on that disk.  This allows the software to reformat
+the entire disk using the most current partition layouts.  When using whole disks, the
+type of partitioning used is selected based on the platform type (PPC = APMFormat, Intel
+= GPTFormat).  GPT and APM partition formats cannot be mixed in the same RAID set.<br>
+<br>
+In addition to whole disk and partition device names, AppleRAID uses UUIDs to refer to
+existing RAID sets and their members.  Existing RAID sets may also be specified by mount
+point (e.g.  /Volume/raidset). In many cases, using the UUID for the device argument is
+preferred because disk device names may change over time when disks are added, disks are
+removed or when the system is rebooted.  If RAID members have been physically disconnected from the system or are no longer responding, you must use the member's UUID as the
+command argument.  Messages in the system log will refer to RAID sets and their member
+disks by UUID.  For more information on specifying device arguments see the "DEVICES"<br>
+section below.<br>
+<br>
+AppleRAID is not a replacement for backing up your data.  Backups should be always be
+performed on a regular basis and before modifying any RAID set using these commands.</p>
+<pre>
+APPLERAID VERBS
+     listRAID   [UUID]
+                Display AppleRAID volumes with current status and associated member disks.
+                If UUID is specified, only list that RAID.
+
+     createRAID mirror|stripe|concat <i>setName format devices</i> ...
+                Create a new RAID set consisting of multiple disks and/or RAID sets.  setName
+                is used for both the name of the created RAID volume and the RAID set itself
+                (as displayed in listRAID). e.g. 'diskutil createRAID stripe MyArray JHFS+
+                disk1 disk2 disk3 disk4'.  Ownership of the affected disks is required.
+
+     destroyRAID <i>raidVolume</i>
+                Destroy an existing RAID set.  If the RAID set is a mirror, destroyRAID will
+                attempt to convert each of the member partitions back into a non-RAID volume
+                while retaining the contained filesystem.  For concatenated RAID sets,
+                destroyRAID will attempt to shrink the filesystem to fit on the first member
+                partition and convert that to a non-RAID volume.  Ownership of the affected
+                disks is required.
+
+     repairMirror <i>raidVolume newDevice</i>
+                Repair a degraded mirror by replacing a broken or missing member.  Broken
+                devices in the mirrored set can also be rebuilt by specifying newDevice.  When
+                replacing members of a mirrored set, the new disk must be the same size or
+                larger than the existing disks in the RAID set.  Ownership of the affected
+                disk is required.
+
+     addToRAID type <i>newDevice raidVolume</i>
+                Add a new member or hot spare to an existing RAID set.  Type can be either
+                member or spare.  New disks are added live, the RAID volume does not need to
+                be unmounted.  Mirrored volumes support adding both members and hot spares,
+                concatenated volumes only support adding members.  When adding to a mirrored
+                RAID set, the new disk must be the same size or larger than the existing disks
+                in the RAID set.  Adding a hot spare to a mirror will enable autorebuilding
+                for that mirror.  Adding a new member to a concatenated RAID set appends the
+                member and expands the RAID volume.  Ownership of the affected disk is
+                required.
+
+     removeFromRAID <i>oldDevice raidVolume</i>
+                Remove a member or spare from an existing RAID set.  Old disks are removed
+                live, the RAID volume does not need to be unmounted.  For missing devices,
+                oldDevice must be the device's UUID.  Online mirror members will be coverted
+                non-RAID volumes, spare and offline members will be marked free.  For concate-
+                nated RAID sets, only the last member can be removed.  RemoveFromRAID will
+                first attempt to shrink the concatenated RAID set so that the filesystem fits
+                on the remaining disks.  Ownership of the affected disk is required.
+
+     enableRAID mirror|concat device
+                Convert a non-RAID disk partition containing a resizable filesystem (like
+                JHFS+) into an unpaired mirror or single disk concatenated RAID set.  Disks
+                that were originally partitioned on Mac OS X 10.2 Jaguar or earlier or were
+                partitioned to be Mac OS 9 compatible may not be resizable.  Ownership of the
+                affected disk is required.
+
+     updateRAID <i>key value raidVolume</i>
+                Update the key value parameters of an existing RAID set.  Valid keys are:
+
+                      o   AutoRebuild - If true, the system attempts to rebuild degraded mir-
+                          rored volumes automatically.  When looking for devices for rebuild,
+                          AppleRAID first looks for hot spares and then degraded members.  Use
+                          a value of "1" for true and "0" for false.
+
+                      o   SetTimeout - Controls how long the system waits (in seconds) for a
+                          missing device before degrading a mirrored raid set.  Also controls
+                          the amount of time you have to disconnect all devices from an
+                          unmounted mirror without degrading it.
+
+                Ownership of the affected disk is required.
+
+     convertRAID <i>device</i>
+                Convert an AppleRAID version 1.x set (built on Mac OS X 10.3 Panther or ear-
+                lier) into an AppleRAID version 2.x set (Tiger or later).  RAID sets must be
+                converted prior to using diskutil verbs other than listRAID and destroyRAID.
+                Depending on how the original RAID was created the converted RAID set may or
+                may not be bootable.  Ownership of the affected disks is required.
+
+DEVICES
+     A device parameter to any of the above commands (except where explicitly defined other-
+     wise) is any of the following:
+
+           o   The device node entry.  Any entry of the form of /dev/disk*, e.g.  /dev/disk2.
+
+           o   The disk identifier.    Any entry of the form of disk*, e.g.  disk1s9.
+
+           o   The volume mount point. Any entry of the form of /Volumes/*, e.g.
+               /Volumes/Untitled.
+
+           o   The Universally Unique Identifier or UUID.  Any entry of the form of e.g.
+               11111111-2222-3333-4444-555555555555.
+</pre>
+<p>OS X does not guarantee assigning the same device id to the same disk at each boot.<br>
+Diskutil replaces the disktool utility found in earlier versions of OS X. (disktool is now deprecated)
+</p>
+<p>FORMAT<br>
+The format parameter of erase and partitioning (and RAID creation) is the
+filesystems name.	You can determine this name by looking in <span class="code">/System/Library/Filesystems/<i>&lt;fs&gt;</i>.fs/Contents/Info.plist</span><br>
+
+Some examples include: <span class="code">HFS+, HFS, JournaledHFS+, UFS, MS-DOS</span>, etc.<br>
+<br>
+EXAMPLES<br>
+<br>
+List the disk device names and partition identifiers:</p>
+<p><span class="code">$ diskutil list</span></p>
+<pre><b>/dev/disk0</b><br>   #:                       TYPE NAME                    SIZE       IDENTIFIER<br>   0:      GUID_partition_scheme                        *298.1 Gi   disk0<br>   1:                        EFI                         200.0 Mi   disk0s1<br>   2:                  Apple_HFS <b>Macintosh HD</b>            297.8 Gi   <b>disk0s2</b></pre>
+<p>Get the Volume UUID (disk must already be mounted) </p>
+<p class="code">$ diskutil info disk0s2</p>
+<p>Get the Volume ID of an IPOD </p>
+<p class="code">$ diskutil list |grep &quot;IPOD&quot; |grep -o '\(disk[0-9s]*\)'</p>
+<p>Mount a disk using its Volume ID<br>
+<span class="code">$ diskutil mount Disk1 </span></p>
+<p>Mount a disk using its UUID <br>
+<span class="code">$ diskutil mount B172F107-06D4-39E3-9F7C-57466CD6489B</span></p>
+<p>Erase a disk<br>
+<span class="code">$ diskutil eraseDisk UFS UntitledUFS disk3</span><br>
+<br>
+Erase a volume<br>
+<span class="code">$ diskutil eraseVolume HFS+ UntitledHFS /Volumes/SomeDisk</span><br>
+<br>
+Partition a disk</p>
+<pre># create 3 partitions:
+# one partition as HFS+, one as UFS and one as MS-DOS:
+$ sudo diskutil partitionDisk /Volumes/disk7 3 <b>HFS+ SimonsHFSPtn 20G</b> UFS SimonsUFSPtn 20G <b>MS-DOS SimonsDOS 10G</b>
+
+# create 2 partitions on an intel machine,
+# one partition as Journaled HFS+ and one partition as UFS 30G:
+$ sudo diskutil partitionDisk /Volumes/xxxx GPTFormat 2 <b>JournaledHFS+ SimonsbootPtn 20G</b> UFS SimonsUFSPtn 30G 
+
+Important: you cannot create non-HFS partitions on a disk if you intend to boot OS X on it.
+Use these partitioning commands on a second (or third) disk that you mount after booting.</pre>
+<p>Create a RAID<br>
+<span class="code">$ diskutil createRAID mirror MirroredVolume JHFS+ disk disk2</span><br>
+<br>
+Destroy a RAID<br>
+<span class="code">$ diskutil destroyRAID /Volumes/MirroredVolume</span><br>
+<br>
+Repair a damaged RAID<br>
+<span class="code">$ diskutil repairMirror /Volumes/MirroredVolume disk3</span></p>
+<p class="quote"><i>&ldquo;What you want, what you're hanging around in the world waiting for, is for something to occur to you&rdquo; - Robert  Frost</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/diskutil.8.html">diskutil man page</a> - Apple.com<br>
+<a href="asr.html">asr</a> - Apple Software Restore<br>
+<a href="http://www.apple.com/support/imac-harddrive/">iMac seagate drive failures</a> - apple support<br>
+authopen(1)<br>
+<a href="bless.html">bless</a> - Set volume bootability and startup disk options.<br>
+<a href="drutil.html">drutil</a> - Interact with CD/DVD burners<br>
+Disk Utility (GUI) - The 'Info' button displays the disk identifier, UUID etc <br>
+diskarbitrationd(8)<br>
+hdid(8)<br>
+hdiutil - Manipulate iso disk images<br>
+hfs.util - HFS/HFS+ file system utility (Mount/unmount)<br>
+<a href="mount.html">mount</a> - Mount a file system<br>
+<a href="ntfs-util.html">ntfs.util</a> - NTFS file system utility<br>
+ufs.util - UFS file system utility (Mount/unmount)<br>
+SetFile(1) - Set extended attributes (Developer Tools)</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="diskutil.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

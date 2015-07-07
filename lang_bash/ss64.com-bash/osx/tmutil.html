@@ -1,0 +1,322 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>tmutil OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>tmutil</h1> 
+<p>Time Machine utility, examine and manipulate Time Machine backups, restore data from backups, add or remove exclusions, and compare backups. Several, but not all, verbs require root privileges.</p>
+<pre>Syntax
+      tmutil <i>verb</i> [<i>options</i>]
+
+BACKUP STRUCTURE
+     Throughout this manual, specific language is used to describe particular "realms" associated with Time
+     Machine backups. It is important to understand this terminology to make effective use of tmutil and its
+     manual.
+
+     backup source
+             A volume currently being backed up by Time Machine.
+
+     backup disk
+             The HFS+ volume that contains Time Machine backups.
+
+     backup destination
+             In the case of a local destination, a synonym for backup disk. For network destinations, this
+             is the AFP share on which the backup disk image resides.
+
+     backup disk image (or backup image)
+             A sparsebundle that, when mounted, is the backing store for a volume that is a backup disk.
+
+     backup store
+             The top-level "Backups.backupdb" directory at the root of a backup disk.
+
+     machine directory
+             A directory inside a backup store that contains all the backups for a particular computer. For
+             local destinations, a backup store can contain multiple machine directories, all for separate
+             computers.
+
+     snapshot
+             A directory inside a machine directory that represents a single initial or incremental backup
+             of one computer. The word "snapshot", in most contexts, is a generic term and is not to be confused
+             with a "local Time Machine snapshot", which is simply a snapshot stored locally on the
+             computer.
+
+     snapshot volume
+             A directory inside a snapshot that represents a single initial or incremental backup of one
+             backup source. E.g.,
+
+             /Volumes/Chronoton/Backups.backupdb/thermopylae/2011-07-03-123456/Mac HD
+
+VERBS
+     Each verb is listed with its description and individual arguments.
+
+     help [<i>verb</i>]
+             Print extended usage for a given verb. If no verb is provided, print a list of verbs and usage
+             summaries.
+
+     enable
+             Turn on automatic backups. Requires root privileges.
+
+     disable
+             Turn off automatic backups. Requires root privileges.
+
+     enablelocal
+             Turn on local Time Machine snapshots. Requires root privileges.
+
+     disablelocal
+             Turn off local Time Machine snapshots and trigger automatic cleanup of accumulated local snapshot
+             data. Requires root privileges.
+
+     snapshot
+             Create new local Time Machine snapshot.
+
+     startbackup [-b | --block] [-r | --rotation] [-d | --destination <i>dest_id</i>]
+             Perform a standard backup. This is equivalent to choosing "Back Up Now" from the Time Machine
+             menu extra.
+
+             Options:
+                 --block          Wait (block) until the backup is finished before exiting.
+                 --rotation       Allow automatic destination rotation during the backup.
+                 --destination    Perform the backup to the destination corresponding to the specified ID.
+
+     stopbackup
+             Cancel a backup currently in progress.
+
+     delete <i>snapshot_path</i> ...
+             Delete one or more snapshots in an arbitrary machine directory. This verb can delete snapshots
+             from backups that were not made by, or are not claimed by, the current machine. Requires root
+             privileges.
+
+     restore [-v] <i>src</i> ... <i>dst</i>
+             Restore the item <i>src</i>, which is inside a snapshot, to the location <i>dst</i>. The <i>dst</i> argument mimics
+             the destination path semantics of the <a href="cp.html">cp</a> tool. You may provide multiple source paths to
+             restore. The last path argument must be a destination.
+
+             When using the restore verb, tmutil behaves largely like Finder. Custom Time Machine metadata
+             (extended security and other) will be removed from the restored data, and other metadata will
+             be preserved.
+
+             Root privileges are not strictly required to perform restores, but tmutil does no permissions
+             preflighting to determine your ability to restore src or its descendants. Therefore, depending
+             on what you're restoring, you may need root privileges to perform the restore, and you should
+             know this ahead of time. This is the same behavior you would encounter with other copy tools
+             such as cp or ditto. When restoring with tmutil as root, ownership of the restored items will
+             match the state of the items in the backup.
+
+     compare [-@esmugtdEX] [-D <i>depth</i>] [-I <i>name</i>] [<i>snapshot_path</i> | <i>path1 path2</i>]
+             Perform a backup diff.
+
+             If no arguments are provided, tmutil will compare the computer to the latest snapshot. If a
+             snapshot path is provided as the sole argument, tmutil will compare the computer to the specified
+             snapshot. If two path arguments are provided, tmutil will compare those two items to each
+             other.  tmutil will attempt to inform you when you have asked it to do something that doesn't
+             make sense or isn't supported.
+
+             The compare verb allows you to specify what properties to compare. If you specify no property
+             options, it is assumed that you want to compare a basic set of metadata. This default property
+             set is equivalent to the -smugt option set. Specifying any property option overrides the
+             default set.
+
+             Options:
+                 -a    Compare all supported metadata.
+                 -@    Compare extended attributes.
+                 -e    Compare ACLs.
+                 -s    Compare sizes.
+                 -m    Compare file modes.
+                 -u    Compare UIDs.
+                 -g    Compare GIDs.
+                 -t    Compare modification times.
+                 -d    Compare file data forks.
+                 -D    Limit traversal depth to depth levels from the beginning of iteration.
+                 -E    Don't take exclusions into account when comparing items inside volumes.
+                 -I    Ignore paths with a path component equal to name during iteration. This may be specified
+                       multiple times.
+                 -X    Print output in XML property list format.
+
+     setdestination [-ap] <i>arg</i>
+             Configure a local HFS+ volume or AFP share as a backup destination. Requires root privileges.
+
+             When the -a option is provided, arg will be added to the list of destinations. Time Machine
+             will automatically choose a backup destination from the list when performing backups. When the
+             -a option is not provided, the current list of destinations will be replaced by <i>arg</i>.
+
+             If you wish to set an HFS+ volume as the backup destination, <i>arg</i> should be the mount point of
+             the volume in question. When setting an AFP destination <i>arg</i> takes the form:
+
+             afp://user[:pass]@host/share
+
+             In the AFP case, the password component of the URL is optional; you may instead specify the -p
+             option to enter the password at a non-echoing interactive prompt. This is of particular interest
+             to the security-conscious, as all arguments provided to a program are visible by all users
+             on the system via the <a href="ps.html">ps</a> tool.
+
+     destinationinfo [-X]
+             Print information about destinations currently configured for use with Time Machine. For each
+             backup destination, the following information may be displayed:
+
+                 Name          The volume label as shown in Finder.
+                 Kind          Whether the destination is locally attached storage or a network device.
+                 URL           In the case of a network destination, the URL used for Time Machine configuration.
+                 Mount Point   If the volume is currently mounted, the path in the file system at which it
+                               was mounted.
+                 ID            The unique identifier for the destination.
+
+             When more than one destination is configured, the most recent backup destination will be marked
+             with the > indicator.
+
+             When the -X option is provided, output will be printed in XML property list format.
+
+     removedestination <i>identifier</i>
+             Remove the destination with the specified unique identifier from the Time Machine configuration.
+             Requires root privileges.
+
+             To obtain the unique identifier for a destination, see destinationinfo.
+
+     addexclusion [-p] <i>item</i> ...
+             Configure an exclusion that tells Time Machine not to back up a file, directory, or volume during
+             future backups.
+
+             There are two kinds of user-configurable exclusions in Time Machine. The first, which is the
+             default behavior for the addexclusion verb, is a location-independent ("sticky") exclusion that
+             follows a file or directory. When the file or directory is moved, the exclusion goes with the
+             item to the new location. Additionally, when the item is copied, the copy retains the exclusion.
+
+             The second kind of exclusion is what is known as a fixed-path exclusion. In this scenario, you
+             tell Time Machine that you want a specific path to be excluded, agnostic of the item at that
+             path. If there is no file or directory at the specified path, the exclusion has no effect; if
+             the item previously at the path has been moved or renamed, the item is not excluded, because it
+             does not currently reside at the excluded path. As a consequence of these semantics, moving a
+             file or directory to the path will cause the item to be excluded--fixed-path exclusions are not
+             automatically cleaned up when items are moved or deleted and will take effect again once an
+             item exists at an excluded path.
+
+             The -p option sets a fixed-path exclusion as described above. Requires root privileges.
+
+             Volume exclusions can be set with the addexclusion verb. The -p option is ignored for volumes;
+             exclusions set on volumes track the volume regardless of volume name or mount path changes.
+             Erasing the volume will cause it to be included in future backups. (See associatedisk.)
+             Requires root privileges.
+
+     removeexclusion [-p] <i>item</i> ...
+             Configure Time Machine to back up a file, directory, or volume during future backups. This verb
+             follows the same usage, exclusion style, and privilege semantics as addexclusion.
+
+     isexcluded [-X] <i>item</i> ...
+             Determine if a file, directory, or volume are excluded from Time Machine backups.
+
+             When the -X option is provided, output will be printed in XML property list format.
+
+             # example output for an excluded item
+             thermopylae:~ thoth$ tmutil isexcluded /Users/admin/Desktop/foo.txt
+             [Excluded]      /Users/admin/Desktop/foo.txt
+
+             # example output for an item that is not excluded
+             thermopylae:~ thoth$ tmutil isexcluded /Users/admin/Desktop/bar.txt
+             [Included]      /Users/admin/Desktop/bar.txt
+
+     inheritbackup {<i>machine_directory</i> | <i>sparsebundle</i>}
+             Claim a machine directory or sparsebundle for use by the current machine. Requires root privileges.
+
+             Machine directories and sparsebundles are owned by one computer at a time, and are tracked by
+             unique identifiers rather than computer name, host name, or ethernet address. The inheritbackup
+             verb reassigns the identity of the specified item, reconfiguring it so the current host recognizes
+             it during backups. When inheriting a sparsebundle, the machine directory within will also
+             be claimed.
+
+             Inheriting is typically only one step in the process of configuring a backup for use by a
+             machine. You may also need to use setdestination, associatedisk, or both, depending on the situation.
+
+             One machine can own multiple machine directories and sparsebundles, but it is ill-advised for
+             them to reside in the same place. In such a situation, which will be chosen during a backup is
+             undefined. As a result, inheritbackup will attempt to detect possible identity collisions
+             before making changes.
+
+     associatedisk [-a] <i>mount_point snapshot_volume</i>
+             Bind a snapshot volume directory to the specified local disk, thereby reconfiguring the backup
+             history. Requires root privileges.
+
+             In Mac OS X, HFS+ volumes have a persistent UUID that is assigned when the file system is created.
+             Time Machine uses this identifier to make an association between a source volume and a
+             snapshot volume. Erasing the source volume creates a new file system on the disk, and the previous
+              UUID is not retained. The new UUID causes the source volume -> snapshot volume assocation
+             to be broken. If one were just erasing the volume and starting over, it would likely be of no
+             real consequence, and the new UUID would not be a concern; when erasing a volume in order to
+             clone another volume to it, recreating the association may be desired.
+
+             A concrete example of when and how you would use associatedisk:
+
+             After having problems with a volume, you decide to erase it and manually restore its contents
+             from a Time Machine backup or copy of another nature. (I.e., not via the Mac OS X installer's
+             System Restore feature or Migration Assistant.) On your next incremental backup, the data will
+             be copied anew, as though none of it had been backed up before. Technically, it is true that
+             the data has not been backed up, given the new UUID. However, this is probably not what you
+             want Time Machine to do. You would then use associatedisk to reconfigure the backup so it
+             appears that this volume has been backed up previously:
+
+             Mac64:~ thoth$ sudo tmutil associatedisk [-a] "/Volumes/MyNewStuffDisk"  "/Volumes/Chronoton/Backups.backupdb/Mac64/Latest/MyStuff"
+
+             The result of the above command would associate the snapshot volume MyStuff in the specified
+             snapshot with the source volume MyNewStuffDisk. The snapshot volume would also be renamed to
+             match. The -a option tells associatedisk to find all snapshot volumes in the same machine
+             directory that match the identity of MyStuff, and then perform the association on all of them.
+
+     latestbackup
+             Print the path to the most recent snapshot for this computer.
+
+     listbackups
+             Print paths for all of this computer's completed snapshots.
+
+     machinedirectory
+             Print the path to the current machine directory for this computer.
+
+     calculatedrift <i>machine_directory</i>
+             Analyze the snapshots in a machine directory and determine the amount of change between each.
+             Averages are printed after all snapshots have been analyzed. This may require root privileges,
+             depending on the contents of the machine directory.
+
+     uniquesize <i>path</i> ...
+             Analyze the specified <i>path</i> and determine its unique size. The figure reported by uniquesize
+             represents things that only exist in the specified path; things that are hard-linked in other
+             places are not tallied.
+
+EXIT STATUS
+     In most situations, tmutil exits 0 on success, >0 otherwise.</pre>
+<p><b>Examples</b> </p>
+<p>add a directory or volume to the exclusion list:<br>
+<span class="code">$ tmutil addexclusion /ss64docs</span><br>
+<br>
+Remove a directory or volume from the exclusion list: <br>
+<span class="code">$ tmutil removeexclusion /ss64docs</span><br>
+<br>
+Manually run the backup: <br>
+<span class="code">$ tmutil startbackup<br>
+</span><br>
+<i class="quote">“People don't realize that the future is just now, but later” ~ Russell Brand</i></p>
+<p><b>Related:</b></p>
+<p><a href="http://developer.apple.com/library/mac/documentation/Darwin/Reference/Manpages/man8/tmutil.8.html">tmutil man page</a> - Apple.com</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="tmutil.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

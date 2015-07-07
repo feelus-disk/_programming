@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Communications Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/><link rel="prev" href="ch15s05.html" title="File and Archiving Commands"/><link rel="next" href="ch15s07.html" title="Terminal Control Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Communications Commands</th></tr><tr><td align="left"><a accesskey="p" href="ch15s05.html">Пред.</a> </td><th width="60%" align="center">Глава 15. External Filters, Programs and Commands</th><td align="right"> <a accesskey="n" href="ch15s07.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Communications Commands"><div class="titlepage"><div><div><h2 class="title"><a id="communications"/>Communications Commands</h2></div></div></div><p>Certain of the following commands find use in
+    network data transfer and analysis, as well as in
+    <a class="link" href="apns02.html#cspammers">chasing spammers</a>.</p><div class="variablelist" title="Information and Statistics"><a id="communinfo"/><p class="title"><b><a id="communinfo1"/>Information and Statistics</b></p><dl><dt><span class="term"><a id="hostref"/><span class="command"><strong>host</strong></span></span></dt><dd><p>Searches for information about an Internet host by name or
+        IP address, using DNS.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>host surfacemail.com</code></strong>
+<code class="computeroutput">surfacemail.com. has address 202.92.42.236</code>
+        </pre><p>
+      </p></dd><dt><span class="term"><a id="ipcalcref"/><span class="command"><strong>ipcalc</strong></span></span></dt><dd><p>Displays IP information for a host.
+        With the <code class="option">-h</code> option,
+        <span class="command"><strong>ipcalc</strong></span> does a reverse DNS lookup, finding
+        the name of the host (server) from the IP address.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ipcalc -h 202.92.42.236</code></strong>
+<code class="computeroutput">HOSTNAME=surfacemail.com</code>
+        </pre><p>
+      </p></dd><dt><span class="term"><a id="nslookupref"/><span class="command"><strong>nslookup</strong></span></span></dt><dd><p>Do an Internet <span class="quote">«<span class="quote">name server lookup</span>»</span>
+        on a host by IP address. This is essentially equivalent
+        to <span class="command"><strong>ipcalc -h</strong></span> or <span class="command"><strong>dig -x
+        </strong></span>. The command may be run either interactively
+        or noninteractively, i.e., from within a script.</p><p>The <span class="command"><strong>nslookup</strong></span> command has allegedly
+        been <span class="quote">«<span class="quote">deprecated,</span>»</span> but it is still useful.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>nslookup -sil 66.97.104.180</code></strong>
+<code class="computeroutput">nslookup kuhleersparnis.ch
+ Server:         135.116.137.2
+ Address:        135.116.137.2#53
+
+ Non-authoritative answer:
+ Name:   kuhleersparnis.ch</code>
+        </pre><p>
+    </p></dd><dt><span class="term"><a id="digref"/><span class="command"><strong>dig</strong></span></span></dt><dd><p><span class="command"><strong>D</strong></span>omain <span class="command"><strong>I</strong></span>nformation
+        <span class="command"><strong>G</strong></span>roper. Similar to
+        <span class="command"><strong>nslookup</strong></span>, <em class="firstterm">dig</em> does
+        an Internet <em class="firstterm">name server lookup</em> on a host.
+        May be run from the command-line or from within a script.</p><p>Some interesting options to <em class="firstterm">dig</em> are
+        <code class="option">+time=N</code> for setting a query timeout to
+        <em class="parameter"><code>N</code></em> seconds, <code class="option">+nofail</code> for
+        continuing to query servers until a reply is received, and
+        <code class="option">-x</code> for doing a reverse address lookup.</p><p>Compare the output of <span class="command"><strong>dig -x</strong></span> with
+        <span class="command"><strong>ipcalc -h</strong></span> and
+        <span class="command"><strong>nslookup</strong></span>.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>dig -x 81.9.6.2</code></strong>
+<code class="computeroutput">;; Got answer:
+ ;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NXDOMAIN, id: 11649
+ ;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 0
+
+ ;; QUESTION SECTION:
+ ;2.6.9.81.in-addr.arpa.         IN      PTR
+
+ ;; AUTHORITY SECTION:
+ 6.9.81.in-addr.arpa.    3600    IN      SOA     ns.eltel.net. noc.eltel.net.
+ 2002031705 900 600 86400 3600
+
+ ;; Query time: 537 msec
+ ;; SERVER: 135.116.137.2#53(135.116.137.2)
+ ;; WHEN: Wed Jun 26 08:35:24 2002
+ ;; MSG SIZE  rcvd: 91</code>
+        </pre><p>
+    </p><p><a id="spamlookup_0"/></p><div class="example"><a id="spamlookup"/><p class="title"><b>Пример 15.40. Finding out where to report a spammer</b></p><div class="example-contents"><pre class="programlisting">&amp;spamlookup;</pre></div></div><br class="example-break"/><p><a id="isspammer_0"/></p><div class="example"><a id="isspammer"/><p class="title"><b>Пример 15.41. Analyzing a spam domain</b></p><div class="example-contents"><pre class="programlisting">&amp;isspammer;</pre></div></div><br class="example-break"/><p>For a much more elaborate version of the above script, see 
+      <a class="xref" href="apa.html#isspammer2" title="Пример A.28. Spammer Identification">Пример A.28, «Spammer Identification»</a>.</p></dd><dt><span class="term"><a id="tracerouteref"/><span class="command"><strong>traceroute</strong></span></span></dt><dd><p>Trace the route taken by packets sent to a remote host. This
+        command works within a LAN, WAN, or over the
+        Internet. The remote host may be specified by an IP
+        address. The output of this command may be filtered
+        by <a class="link" href="ch15s04.html#grepref">grep</a> or <a class="link" href="apc.html#sedref">sed</a> in a pipe.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>traceroute 81.9.6.2</code></strong>
+<code class="computeroutput">traceroute to 81.9.6.2 (81.9.6.2), 30 hops max, 38 byte packets
+ 1  tc43.xjbnnbrb.com (136.30.178.8)  191.303 ms  179.400 ms  179.767 ms
+ 2  or0.xjbnnbrb.com (136.30.178.1)  179.536 ms  179.534 ms  169.685 ms
+ 3  192.168.11.101 (192.168.11.101)  189.471 ms  189.556 ms *
+ ...</code>
+        </pre><p>
+    </p></dd><dt><span class="term"><a id="pingref"/><span class="command"><strong>ping</strong></span></span></dt><dd><p>Broadcast an <em class="replaceable"><code>ICMP
+        ECHO_REQUEST</code></em> packet to another machine,
+              either on a local or remote network. This is a
+              diagnostic tool for testing network connections,
+              and it should be used with caution.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>ping localhost</code></strong>
+<code class="computeroutput">PING localhost.localdomain (127.0.0.1) from 127.0.0.1 : 56(84) bytes of data.
+ 64 bytes from localhost.localdomain (127.0.0.1): icmp_seq=0 ttl=255 time=709 usec
+ 64 bytes from localhost.localdomain (127.0.0.1): icmp_seq=1 ttl=255 time=286 usec
+
+ --- localhost.localdomain ping statistics ---
+ 2 packets transmitted, 2 packets received, 0% packet loss
+ round-trip min/avg/max/mdev = 0.286/0.497/0.709/0.212 ms</code>
+        </pre><p>
+      </p><p>A successful <em class="firstterm">ping</em> returns
+        an <a class="link" href="ch06.html#exitstatusref">exit status</a> of
+        <span class="errorcode">0</span>. This can be tested for in a
+        script.</p><pre class="programlisting">  HNAME=nastyspammer.com
+# HNAME=$HOST     # Debug: test for localhost.
+  count=2  # Send only two pings.
+
+if [[ `ping -c $count "$HNAME"` ]]
+then
+  echo ""$HNAME" still up and broadcasting spam your way."
+else
+  echo ""$HNAME" seems to be down. Pity."
+fi</pre></dd><dt><span class="term"><a id="whoisref"/><span class="command"><strong>whois</strong></span></span></dt><dd><p>Perform a DNS (Domain Name System) lookup.
+        The <code class="option">-h</code> option permits specifying which
+        particular <em class="firstterm">whois</em> server to query. See
+        <a class="xref" href="ch04s04.html#ex18" title="Пример 4.6. wh, whois просмотр имени домена">Пример 4.6, «<em class="firstterm">wh</em>, <em class="firstterm">
+                whois</em> просмотр имени домена»</a> and <a class="xref" href="ch15s06.html#spamlookup" title="Пример 15.40. Finding out where to report a spammer">Пример 15.40, «Finding out where to report a spammer»</a>.</p></dd><dt><span class="term"><a id="fingerref"/><span class="command"><strong>finger</strong></span></span></dt><dd><p>Retrieve information about users on a
+        network. Optionally, this command can display
+        a user's <code class="filename">~/.plan</code>,
+        <code class="filename">~/.project</code>, and
+        <code class="filename">~/.forward</code> files, if present.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>finger</code></strong>
+<code class="computeroutput">Login  Name           Tty      Idle  Login Time   Office     Office Phone
+ bozo   Bozo Bozeman   tty1        8  Jun 25 16:59                (:0)
+ bozo   Bozo Bozeman   ttyp0          Jun 25 16:59                (:0.0)
+ bozo   Bozo Bozeman   ttyp1          Jun 25 17:07                (:0.0)</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>finger bozo</code></strong>
+<code class="computeroutput">Login: bozo                             Name: Bozo Bozeman
+ Directory: /home/bozo                   Shell: /bin/bash
+ Office: 2355 Clown St., 543-1234
+ On since Fri Aug 31 20:13 (MST) on tty1    1 hour 38 minutes idle
+ On since Fri Aug 31 20:13 (MST) on pts/0   12 seconds idle
+ On since Fri Aug 31 20:13 (MST) on pts/1
+ On since Fri Aug 31 20:31 (MST) on pts/2   1 hour 16 minutes idle
+ Mail last read Tue Jul  3 10:08 2007 (MST) 
+ No Plan.</code>
+        </pre><p>
+      </p><p>Out of security considerations, many networks disable
+        <span class="command"><strong>finger</strong></span> and its associated daemon.
+            <sup>[<a id="idp13495472" href="#ftn.idp13495472" class="footnote">72</a>]</sup>
+        </p></dd><dt><span class="term"><a id="chfnref"/><span class="command"><strong>chfn</strong></span></span></dt><dd><p>Change information disclosed by the
+        <span class="command"><strong>finger</strong></span> command.</p></dd><dt><span class="term"><a id="vrfyref"/><span class="command"><strong>vrfy</strong></span></span></dt><dd><p>Verify an Internet e-mail address.</p><p>This command seems to be missing from newer Linux
+        distros.</p></dd></dl></div><div class="variablelist" title="Remote Host Access"><a id="commremote"/><p class="title"><b><a id="commremote1"/>Remote Host Access</b></p><dl><dt><span class="term"><a id="rxref"/><span class="command"><strong>sx</strong></span>, </span><span class="term"><span class="command"><strong>rx</strong></span></span></dt><dd><p>The <span class="command"><strong>sx</strong></span> and <span class="command"><strong>rx</strong></span>
+        command set serves to transfer files to and from a remote
+        host using the <em class="firstterm">xmodem</em> protocol. These
+        are generally part of a communications package, such as
+        <span class="command"><strong>minicom</strong></span>.</p></dd><dt><span class="term"><a id="rzref"/><span class="command"><strong>sz</strong></span>, </span><span class="term"><span class="command"><strong>rz</strong></span></span></dt><dd><p>The <span class="command"><strong>sz</strong></span> and <span class="command"><strong>rz</strong></span>
+        command set serves to transfer files to and from a remote
+        host using the <em class="firstterm">zmodem</em> protocol.
+        <em class="firstterm">Zmodem</em> has certain advantages over
+        <em class="firstterm">xmodem</em>, such as faster transmission
+        rate and resumption of interrupted file transfers.
+        Like <span class="command"><strong>sx</strong></span> and <span class="command"><strong>rx</strong></span>,
+        these are generally part of a communications package.</p></dd><dt><span class="term"><a id="ftpref"/><span class="command"><strong>ftp</strong></span></span></dt><dd><p>Utility and protocol for uploading / downloading
+        files to or from a remote host. An ftp session can be automated
+        in a script (see <a class="xref" href="ch18.html#ex72" title="Пример 18.6. Загрузить пару файлов в удаленную директорию Sunsite">Пример 18.6, «Загрузить пару файлов в удаленную директорию <em class="firstterm">Sunsite</em>
+    »</a> and <a class="xref" href="apa.html#encryptedpw" title="Пример A.4. encryptedpw: Uploading to an ftp site, using a locally encrypted password">Пример A.4, «<em class="firstterm">encryptedpw</em>: Uploading to an ftp site,
+      using a locally encrypted password»</a>).</p></dd><dt><span class="term"><a id="uucpref"/><span class="command"><strong>uucp</strong></span>, </span><span class="term"><a id="uuxref"/><span class="command"><strong>uux</strong></span>, </span><span class="term"><a id="curef"/><span class="command"><strong>cu</strong></span></span></dt><dd><p><span class="command"><strong>uucp</strong></span>: <em class="firstterm">UNIX to UNIX
+        copy</em>. This is a communications package for
+        transferring files between UNIX servers. A shell script
+        is an effective way to handle a <span class="command"><strong>uucp</strong></span>
+        command sequence.</p><p>Since the advent of the Internet and e-mail,
+        <span class="command"><strong>uucp</strong></span> seems to have faded into obscurity,
+        but it still exists and remains perfectly workable in
+        situations where an Internet connection is not available
+        or appropriate. The advantage of <span class="command"><strong>uucp</strong></span>
+        is that it is fault-tolerant, so even if there is a service
+        interruption the copy operation will resume where it left
+        off when the connection is restored.</p><p>---</p><p><span class="command"><strong>uux</strong></span>: <em class="firstterm">UNIX to UNIX
+        execute</em>. Execute a command on a remote system.
+        This command is part of the <span class="command"><strong>uucp</strong></span>
+        package.</p><p>---</p><p><span class="command"><strong>cu</strong></span>: <span class="command"><strong>C</strong></span>all
+        <span class="command"><strong>U</strong></span>p a remote system and connect as a
+        simple terminal. It is a sort of dumbed-down version of
+        <a class="link" href="ch15s06.html#telnetref">telnet</a>. This command is
+        part of the <span class="command"><strong>uucp</strong></span> package.</p></dd><dt><span class="term"><a id="telnetref"/><span class="command"><strong>telnet</strong></span></span></dt><dd><p>Utility and protocol for connecting to a remote host.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>The <em class="firstterm">telnet</em> protocol
+      contains security holes and should therefore probably be
+      avoided. Its use within a shell script is
+      <span class="emphasis"><em>not</em></span> recommended.</p></div></dd><dt><span class="term"><a id="wgetref"/><span class="command"><strong>wget</strong></span></span></dt><dd><p>The <span class="command"><strong>wget</strong></span> utility
+        <em class="firstterm">noninteractively</em> retrieves or
+        downloads files from a Web or ftp site. It works well in a
+        script.</p><pre class="programlisting">wget -p http://www.xyz23.com/file01.html
+#  The -p or --page-requisite option causes wget to fetch all files
+#+ required to display the specified page.
+
+wget -r ftp://ftp.xyz24.net/~bozo/project_files/ -O $SAVEFILE
+#  The -r option recursively follows and retrieves all links
+#+ on the specified site.
+
+wget -c ftp://ftp.xyz25.net/bozofiles/filename.tar.bz2
+#  The -c option lets wget resume an interrupted download.
+#  This works with ftp servers and many HTTP sites.</pre><div class="example"><a id="quotefetch"/><p class="title"><b>Пример 15.42. Getting a stock quote</b></p><div class="example-contents"><pre class="programlisting">&amp;quotefetch;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="apa.html#wgetter2" title="Пример A.30. Making wget easier to use">Пример A.30, «Making <em class="firstterm">wget</em> easier to use»</a> and <a class="xref" href="apa.html#bashpodder" title="Пример A.31. A podcasting script">Пример A.31, «A <em class="firstterm">podcasting</em> script»</a>.</p></dd><dt><span class="term"><a id="lynxref"/><span class="command"><strong>lynx</strong></span></span></dt><dd><p>The <span class="command"><strong>lynx</strong></span> Web and file browser
+        can be used inside a script (with the
+        <code class="option">-dump</code> option) to retrieve a file from a Web or 
+        ftp site noninteractively.</p><p>
+     </p><pre class="programlisting">lynx -dump http://www.xyz23.com/file01.html &gt;$SAVEFILE</pre><p>
+            </p><p>With the <code class="option">-traversal</code> option,
+        <span class="command"><strong>lynx</strong></span> starts at the HTTP URL specified
+        as an argument, then <span class="quote">«<span class="quote">crawls</span>»</span> through all
+        links located on that particular server. Used together
+        with the <code class="option">-crawl</code> option, outputs page text
+        to a log file.</p></dd><dt><span class="term"><a id="rloginref"/><span class="command"><strong>rlogin</strong></span></span></dt><dd><p><em class="replaceable"><code>Remote login</code></em>, initates a
+        session on a remote host. This command has security issues,
+        so use <a class="link" href="ch15s06.html#sshref">ssh</a> instead.</p></dd><dt><span class="term"><a id="rshref"/><span class="command"><strong>rsh</strong></span></span></dt><dd><p><em class="replaceable"><code>Remote shell</code></em>, executes
+        command(s) on a remote host. This has security issues,
+        so use <span class="command"><strong>ssh</strong></span> instead.</p></dd><dt><span class="term"><a id="rcpref"/><span class="command"><strong>rcp</strong></span></span></dt><dd><p><em class="replaceable"><code>Remote copy</code></em>, copies files
+        between two different networked machines.</p></dd><dt><span class="term"><a id="rsyncref"/><span class="command"><strong>rsync</strong></span></span></dt><dd><p><em class="replaceable"><code>Remote synchronize</code></em>, updates
+      (synchronizes) files
+        between two different networked machines.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>rsync -a ~/sourcedir/*txt /node1/subdirectory/</code></strong>
+        </pre><p>
+      </p><div class="example"><a id="fc4upd"/><p class="title"><b>Пример 15.43. Updating FC4</b></p><div class="example-contents"><pre class="programlisting">&amp;fc4upd;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="apa.html#nightlybackup" title="Пример A.32. Nightly backup to a firewire HD">Пример A.32, «Nightly backup to a firewire HD»</a>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Using <a class="link" href="ch15s06.html#rcpref">rcp</a>, <a class="link" href="ch15s06.html#rsyncref">rsync</a>, and similar
+        utilities with security implications in a shell
+        script may not be advisable. Consider, instead, using
+        <span class="command"><strong>ssh</strong></span>, <a class="link" href="ch15s06.html#scpref">scp</a>,
+        or an <span class="command"><strong>expect</strong></span> script.</p></div></dd><dt><span class="term"><a id="sshref"/><span class="command"><strong>ssh</strong></span></span></dt><dd><p><em class="replaceable"><code>Secure shell</code></em>, logs onto
+        a remote host and executes commands there. This
+        secure replacement for <span class="command"><strong>telnet</strong></span>,
+        <span class="command"><strong>rlogin</strong></span>, <span class="command"><strong>rcp</strong></span>, and
+        <span class="command"><strong>rsh</strong></span> uses identity authentication
+        and encryption. See its <a class="link" href="ch15.html#manref">manpage</a>
+        for details.</p><div class="example"><a id="remote"/><p class="title"><b>Пример 15.44. Using <em class="firstterm">ssh</em></b></p><div class="example-contents"><pre class="programlisting">&amp;remote;</pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Within a loop, <span class="command"><strong>ssh</strong></span> may cause
+    unexpected behavior. According to a <a class="ulink" href="http://groups-beta.google.com/group/comp.unix.shell/msg/dcb446b5fff7d230">
+    Usenet post</a> in the comp.unix shell archives,
+    <span class="command"><strong>ssh</strong></span> inherits the loop's
+    <code class="filename">stdin</code>. To remedy this, pass
+    <span class="command"><strong>ssh</strong></span> either the <code class="option">-n</code>
+    or <code class="option">-f</code> option.</p><p>Thanks, Jason Bechtel, for pointing this out.</p></div></dd><dt><span class="term"><a id="scpref"/><span class="command"><strong>scp</strong></span></span></dt><dd><p><em class="replaceable"><code>Secure copy</code></em>, similar in
+        function to <span class="command"><strong>rcp</strong></span>, copies files between
+        two different networked machines, but does so using
+        authentication, and with a security level similar to
+        <span class="command"><strong>ssh</strong></span>.</p></dd></dl></div><div class="variablelist" title="Local Network"><a id="commlocal"/><p class="title"><b><a id="commlocal1"/>Local Network</b></p><dl><dt><span class="term"><a id="writeref"/><span class="command"><strong>write</strong></span></span></dt><dd><p>This is a utility for terminal-to-terminal communication.
+        It allows sending lines from your terminal (console or
+        <em class="firstterm">xterm</em>) to that of another user. The
+        <a class="link" href="ch16.html#mesgref">mesg</a> command may, of course,
+        be used to disable write access to a terminal</p><p>Since <span class="command"><strong>write</strong></span> is interactive, it
+        would not normally find use in a script.</p></dd><dt><span class="term"><a id="netconfigref"/><span class="command"><strong>netconfig</strong></span></span></dt><dd><p>A command-line utility for configuring a network adapter
+        (using <em class="firstterm">DHCP</em>). This command is native
+        to Red Hat centric Linux distros.</p></dd></dl></div><div class="variablelist" title="Mail"><a id="commmail"/><p class="title"><b><a id="commmail1"/>Mail</b></p><dl><dt><span class="term"><span class="command"><strong>mail</strong></span></span></dt><dd><p>Send or read e-mail messages.</p><p>This stripped-down command-line mail client
+        works fine as a command embedded in a script.</p><div class="example"><a id="selfmailer"/><p class="title"><b>Пример 15.45. A script that mails itself</b></p><div class="example-contents"><pre class="programlisting">&amp;selfmailer;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="mailtoref"/><span class="command"><strong>mailto</strong></span></span></dt><dd><p>Similar to the <span class="command"><strong>mail</strong></span> command,
+        <span class="command"><strong>mailto</strong></span> sends e-mail messages
+        from the command-line or in a script. However,
+        <span class="command"><strong>mailto</strong></span> also permits sending MIME
+        (multimedia) messages.</p></dd><dt><span class="term"><a id="mailstatsref"/><span class="command"><strong>mailstats</strong></span></span></dt><dd><p>Show <em class="firstterm">mail statistics</em>. This command
+        may be invoked only by <em class="firstterm">root</em>.</p><p>
+        </p><pre class="screen"><code class="prompt">root# </code><strong class="userinput"><code>mailstats</code></strong>
+<code class="computeroutput">Statistics from Tue Jan  1 20:32:08 2008
+  M   msgsfr  bytes_from   msgsto    bytes_to  msgsrej msgsdis msgsqur  Mailer
+  4     1682      24118K        0          0K        0       0       0  esmtp
+  9      212        640K     1894      25131K        0       0       0  local
+ =====================================================================
+  T     1894      24758K     1894      25131K        0       0       0
+  C      414                    0</code>
+        </pre><p>
+      </p></dd><dt><span class="term"><a id="vacationref"/><span class="command"><strong>vacation</strong></span></span></dt><dd><p>This utility automatically replies to e-mails that
+        the intended recipient is on vacation and temporarily
+        unavailable. It runs on a network, in conjunction with
+        <span class="command"><strong>sendmail</strong></span>, and is not applicable to a
+        dial-up POPmail account.</p></dd></dl></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp13495472" href="#idp13495472" class="para">72</a>] </sup><a id="daemonref"/></p><p>A <em class="firstterm">daemon</em> is a background
+        process not attached to a terminal session. Daemons
+        perform designated services either at specified times
+        or explicitly triggered by certain events.</p><p>The word <span class="quote">«<span class="quote">daemon</span>»</span> means ghost in
+        Greek, and there is certainly something mysterious,
+        almost supernatural, about the way UNIX daemons
+        wander about behind the scenes, silently carrying
+        out their appointed tasks.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch15s05.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch15.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch15s07.html">След.</a></td></tr><tr><td align="left" valign="top">File and Archiving Commands </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Terminal Control Commands</td></tr></table></div></body></html>

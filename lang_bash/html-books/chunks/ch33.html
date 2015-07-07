@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 33. Miscellany</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch32.html" title="Глава 32. Scripting With Style"/><link rel="next" href="ch33s02.html" title="Operator Precedence"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 33. Miscellany</th></tr><tr><td align="left"><a accesskey="p" href="ch32.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch33s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 33. Miscellany"><div class="titlepage"><div><div><h2 class="title"><a id="miscellany"/>Глава 33. Miscellany</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch33.html#intandnonint">Interactive and non-interactive shells and scripts</a></span></dt><dt><span class="sect1"><a href="ch33s02.html">Operator Precedence</a></span></dt><dt><span class="sect1"><a href="ch33s03.html">Shell Wrappers</a></span></dt><dt><span class="sect1"><a href="ch33s04.html">Tests and Comparisons: Alternatives</a></span></dt><dt><span class="sect1"><a href="ch33s05.html">A script calling itself (recursion)</a></span></dt><dt><span class="sect1"><a href="ch33s06.html"><span class="quote">«<span class="quote">Colorizing</span>»</span> Scripts</a></span></dt><dt><span class="sect1"><a href="ch33s07.html">Optimizations</a></span></dt><dt><span class="sect1"><a href="ch33s08.html">Assorted Tips</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch33s08.html#idp17684160">Ideas for more powerful scripts</a></span></dt><dt><span class="sect2"><a href="ch33s08.html#idp17812480">Widgets</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch33s09.html">Security Issues</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch33s09.html#infectedscripts">Infected Shell Scripts</a></span></dt><dt><span class="sect2"><a href="ch33s09.html#hidingsource">Hiding Shell Script Source</a></span></dt><dt><span class="sect2"><a href="ch33s09.html#securitytips">Writing Secure Shell Scripts</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch33s10.html">Portability Issues</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch33s10.html#idp17908208">A Test Suite</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch33s11.html">Shell Scripting Under Windows</a></span></dt></dl></div><div class="epigraph"><p>Nobody really knows what the Bourne shell's grammar is. Even
+        examination of the source code is little help.</p><p>--Tom Duff</p></div><div class="sect1" title="Interactive and non-interactive shells and scripts"><div class="titlepage"><div><div><h2 class="title"><a id="intandnonint"/>Interactive and non-interactive shells and scripts</h2></div></div></div><p>An <em class="firstterm">interactive</em> shell reads
+     commands from user input on a <code class="filename">tty</code>. Among
+     other things, such a shell reads startup files on activation,
+     displays a prompt, and enables job control by default. The
+     user can <em class="firstterm">interact</em> with the shell.</p><p>A shell running a script is always a non-interactive
+     shell. All the same, the script can still access its
+     <code class="filename">tty</code>. It is even possible to emulate an
+     interactive shell in a script.
+
+     </p><pre class="programlisting">#!/bin/bash
+MY_PROMPT='$ '
+while :
+do
+  echo -n "$MY_PROMPT"
+  read line
+  eval "$line"
+  done
+
+exit 0
+
+# This example script, and much of the above explanation supplied by
+# Stéphane Chazelas (thanks again).</pre><p>Let us consider an <em class="firstterm">interactive</em>
+     script to be one that requires input from the user, usually
+     with <a class="link" href="ch14.html#readref">read</a> statements (see <a class="xref" href="ch14.html#ex36" title="Пример 14.3. Variable assignment, using read">Пример 14.3, «Variable assignment, using <em class="firstterm">read</em>»</a>). <span class="quote">«<span class="quote">Real life</span>»</span> is actually a
+     bit messier than that. For now, assume an interactive script
+     is bound to a tty, a script that a user has invoked from the
+     console or an <em class="firstterm">xterm</em>.</p><p>Init and startup scripts are necessarily non-interactive,
+     since they must run without human intervention. Many
+     administrative and system maintenance scripts are likewise
+     non-interactive.  Unvarying repetitive tasks cry out for
+     automation by non-interactive scripts.</p><p>Non-interactive scripts can run in the background, but
+     interactive ones hang, waiting for input that never comes.
+     Handle that difficulty by having an <span class="command"><strong>expect</strong></span>
+     script or embedded <a class="link" href="ch18.html#heredocref">here
+     document</a> feed input to an interactive script running
+     as a background job.  In the simplest case, redirect a
+     file to supply input to a <span class="command"><strong>read</strong></span> statement
+     (<span class="command"><strong>read variable &lt;file</strong></span>).  These particular
+     workarounds make possible general purpose scripts that run
+     in either interactive or non-interactive modes.</p><p>If a script needs to test whether it is running in an
+     interactive shell, it is simply a matter of finding
+     whether the <em class="firstterm">prompt</em> variable, <a class="link" href="ch09.html#ps1ref">$PS1</a> is set. (If the user is being
+     prompted for input, then the script needs to display a
+     prompt.)</p><pre class="programlisting">if [ -z $PS1 ] # no prompt?
+then
+  # non-interactive
+  ...
+else
+  # interactive
+  ...
+fi</pre><p><a id="iitest"/>Alternatively, the script can test
+     for the presence of option <span class="quote">«<span class="quote">i</span>»</span> in the <a class="link" href="ch09.html#flpref">$-</a> flag.</p><pre class="programlisting">case $- in
+*i*)    # interactive shell
+;;
+*)      # non-interactive shell
+;;
+# (Courtesy of "UNIX F.A.Q.," 1993)</pre><p><a id="ii2test"/>However, John Lange describes
+             an alternative method, using the <a class="link" href="ch07s02.html#termtest"><span class="token">-t</span>
+       <em class="firstterm">test</em> operator</a>.</p><pre class="programlisting"># Test for a terminal!
+
+fd=0   # stdin
+
+#  As we recall, the -t test option checks whether the stdin, [ -t 0 ],
+#+ or stdout, [ -t 1 ], in a given script is running in a terminal.
+if [ -t "$fd" ]
+then
+  echo interactive
+else
+  echo non-interactive
+fi
+
+
+#  But, as John points out:
+#    if [ -t 0 ] works ... when you're logged in locally
+#    but fails when you invoke the command remotely via ssh.
+#    So for a true test you also have to test for a socket.
+
+if [[ -t "$fd" || -S /dev/stdin ]]
+then
+  echo interactive
+else
+  echo non-interactive
+fi</pre><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Scripts may be forced to run in interactive
+     mode with the <span class="token">-i</span> option or with a
+     <strong class="userinput"><code>#!/bin/bash -i</code></strong> header. Be aware that
+     this can cause erratic script behavior or show error messages
+     even when no error is present.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch32.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch33s02.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 32. Scripting With Style </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Operator Precedence</td></tr></table></div></body></html>

@@ -1,0 +1,522 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>tar Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>tar</h1> 
+<p>Store, list or extract files in an archive (originally on tape - Tape ARchiver).</p>
+<pre>Syntax
+      tar [[-]<i>function</i>] [<i>options</i>] <i>filenames</i>...
+
+      tar [[-]<i>function</i>] [<i>options</i>] -C <i>directory-name</i>...
+
+   Command-line arguments that specify files to add to, extract from,
+   or list from an archive may  be given as shell pattern matching strings.
+
+Functions:<i>
+</i>       Exactly one of the following functions (shown in bold) must be specified:
+     <b>-A</b>
+     <b>--catenate</b>
+     <b>--concatenate</b>  Append the contents of named file, which must itself be a
+		    gnutar archive, to the end of the archive (erasing the old
+		    end-of-archive block).  This has the effect of adding the
+		    files contained in the named file to the first archive,
+		    rather than adding the second archive as an element of the
+		    first.  <i>Note</i>: This option requires a rewritable <i>tarfile</i>,
+		    and therefore does not work on quarter-inch cartridge
+		    tapes.  (see notes below)
+     <b>-c</b>
+     <b>--create</b>	    Create a new archive (or truncate an old one) and write
+                   the named files to it.
+     <b>-d</b>
+     <b>--diff</b>
+     <b>--compare</b>	    Find differences between files in the archive and
+                   corresponding files in the file system.
+
+     <b>--delete</b>	    Delete named files from the archive.
+                  (Does not work on quarter-inch tapes).
+     <b>-r</b>
+     <b>--append</b>	    Append files to the end of an archive.
+                  (Does not work on quarter-inch tapes).
+     <b>-t</b>
+     <b>--list</b>	    List the contents of an archive; if <i>filename</i> arguments are
+                   given, only those files are listed, otherwise the entire
+                   table of contents is listed.
+
+     <b>--test-label</b>     test the archive volume label and exit
+
+     <b>-u</b>
+     <b>--update</b>	    Append the named files if the on-disk version has a 
+                   modification date more recent than their copy in the 
+                   archive(if any).  Does not work on quarter-inch tapes.
+     <b>-x</b>
+     <b>--extract</b>
+     <b>--get</b>         Extract files from an archive.  The owner, modification
+                   time, and file permissions are restored, if possible.  If
+                   no <i>file</i> arguments are given, extract all the files in the
+                   archive.  If a <i>filename</i> argument matches the name of a
+                   directory on the tape, that directory and its contents are
+                   extracted (as well as all directories under that direc-
+                   tory).  If the archive contains multiple entries corre-
+                   sponding to the same file (see the <b>--append</b> command
+                   above), the last one extracted will overwrite all earlier
+                   versions.
+
+     <b>-C, --directory</b>=<i>DIR</i>     change to directory <i>DIR</i>
+
+     <b>-f, --file</b>=<i>ARCHIVE</i>     use archive file or device <i>ARCHIVE</i>
+
+     <b>-j, --bzip2</b>     filter the archive through <a href="bzip2.html">bzip2</a>
+
+     <b>-J, --xz</b>     filter the archive through xz
+
+     <b>-p, --preserve-permissions</b>     extract information about file permissions (default for superuser)
+
+     <b>-v, --verbose</b>     verbosely list files processed.
+
+     <b>-z, --gzip</b>     filter the archive through gzip </pre>
+<blockquote>
+  <p> You can specify an argument for  `<span class="code">--file</span> (or <span class="code">-f</span> ) whenever you use tar; this option determines 
+    the name of the archive file that `tar' will work on.<br>
+    <br>
+    If you don't specify this argument, then `tar' will use a default, usually 
+    some physical tape drive attached to your machine. If there is no tape drive 
+    attached, or the default is not meaningful, then `tar' will print an error 
+  message like one of the following:</p>
+</blockquote>
+<pre>     tar: can't open /dev/rmt8 : No such device or address
+     tar: can't open /dev/rsmt0 : I/O error</pre>
+<blockquote>
+  <p><span class="body"> To avoid confusion, we recommend that you always specify 
+    an archive file name by using `--file=ARCHIVE-NAME' (or `-f ARCHIVE-NAME') when 
+    writing your `tar' commands. </span> </p>
+</blockquote>
+<pre>     --verbose' (`-v') shows details about the results of running `tar'.</pre>
+<blockquote>
+  <p><span class="body"> This can be especially useful when the results might 
+    not be obvious. For example, if you want to see the progress of `tar' as it 
+    writes files into the archive, you can use the `--verbose' option. In the 
+    beginning, you may find it useful to use `--verbose' at all times; when you 
+    are more accustomed to `tar', you will likely want to use it at certain times 
+    but not at others. <br>
+    <br>
+    Sometimes, a single instance of `--verbose' on the command line will show 
+    a full, `ls' style listing of an archive or files, giving sizes, owners, and 
+    similar information. Other times, `--verbose' will only show files or members 
+    that the particular operation is operating on at the time. In the latter case, 
+    you can use `--verbose' twice in a command to get a listing such as that in 
+    the former case.</span> </p>
+</blockquote>
+<p><b>Options</b></p>
+<pre>--absolute-names
+-P
+     Normally when creating an archive, `tar' strips an initial `/' from
+     member names.  This option disables that behavior.
+
+--after-date
+     (See --newer.)
+
+--atime-preserve
+     Tells `tar' to preserve the access time field in a file's inode
+     when dumping it.
+
+--backup=<i>BACKUP-TYPE</i>
+     Rather than deleting files from the file system, `tar' will back
+     them up using simple or numbered backups, depending upon
+     BACKUP-TYPE.
+
+--block-number
+-R
+     With this option present, `tar' prints error messages for read
+     errors with the block number in the archive file.
+
+--blocking-factor=<i>BLOCKING</i>
+-b <i>BLOCKING</i>
+     Sets the blocking factor `tar' uses to BLOCKING x 512 bytes per
+     record.
+
+--bzip2
+-I
+     This option tells `tar' to read or write archives through `bzip2'.
+
+--checkpoint
+     This option directs `tar' to print periodic checkpoint messages as
+     it reads through the archive.  Its intended for when you want a
+     visual indication that `tar' is still running, but don't want to
+     see --verbose' output.
+
+--compress
+--uncompress
+-Z
+     `tar' will use the `compress' program when reading or writing the
+     archive.  This allows you to directly act on archives while saving
+     space.
+
+--confirmation
+     (See --interactive.)
+
+--dereference
+-h
+     When creating a `tar' archive, `tar' will archive the file that a
+     symbolic link points to, rather than archiving the symlink.
+
+--directory=<i>DIR</i>
+-C <i>DIR</i>
+     When this option is specified, `tar' will change its current
+     directory to DIR before performing any operations.  When this
+     option is used during archive creation, it is order sensitive.
+
+--exclude=<i>PATTERN</i>
+     When performing operations, `tar' will skip files that match
+     PATTERN.
+
+--exclude-from=<i>FILE</i>
+-X <i>FILE</i>
+     Similar to --exclude, except `tar' will use the list of patterns
+     in the file <i>FILE</i>.
+
+--file=<i>ARCHIVE</i>
+-f <i>ARCHIVE</i>
+     `tar' will use the file ARCHIVE as the `tar' archive it performs
+     operations on, rather than `tar''s compilation dependent default.
+
+--files-from=<i>FILE</i>
+-T <i>FILE</i>
+     `tar' will use the contents of FILE as a list of archive members
+     or files to operate on, in addition to those specified on the
+     command-line.
+
+--force-local
+     Forces `tar' to interpret the filename given to --file as a local
+     file, even if it looks like a remote tape drive name.
+
+--group=<i>GROUP</i>
+     Files added to the `tar' archive will have a group id of GROUP,
+     rather than the group from the source file.  GROUP is first decoded
+     as a group symbolic name, but if this interpretation fails, it has
+     to be a decimal numeric group ID.
+
+     Also see the comments for the --owner=USER option.
+
+--gzip
+--gunzip
+--ungzip
+-z
+     This option tells `tar' to read or write archives through `gzip',
+     allowing `tar' to directly operate on several kinds of compressed
+     archives transparently.
+
+--help
+     `tar' will print out a short message summarizing the operations and
+     options to `tar' and exit.
+
+--ignore-failed-read
+     Instructs `tar' to exit successfully if it encounters an
+     unreadable file. 
+
+--ignore-umask
+     (See --preserve-permissions'; *note Writing::..)
+
+--ignore-zeros
+-i
+     With this option, `tar' will ignore zeroed blocks in the archive,
+     which normally signals EOF.  *Note Reading::.
+
+--incremental
+-G
+     Used to inform `tar' that it is working with an  old GNU-format
+     incremental backup archive.  It is intended primarily for backwards
+     compatibility only.
+
+--info-script=<i>SCRIPT-FILE</i>
+--new-volume-script=<i>SCRIPT-FILE</i>
+-F <i>SCRIPT-FILE</i>
+     When `tar' is performing multi-tape backups, <i>SCRIPT-FILE</i> is run at
+     the end of each tape.
+
+--interactive
+--confirmation
+-w
+     Specifies that `tar' should ask the user for confirmation before
+     performing potentially destructive options, such as overwriting
+     files.
+
+--keep-old-files
+-k
+     When extracting files from an archive, `tar' will not overwrite
+     existing files if this option is present.  *Note Writing::.
+
+--label=<i>NAME</i>
+-V <i>NAME</i>
+     When creating an archive, instructs `tar' to write NAME as a name
+     record in the archive.  When extracting or listing archives, `tar'
+     will only operate on archives that have a label matching the
+     pattern specified in NAME.
+
+--listed-incremental=<i>SNAPSHOT-FILE</i>
+-g <i>SNAPSHOT-FILE</i>
+     During a --create' operation, specifies that the archive that
+     `tar' creates is a new GNU-format incremental backup, using
+     SNAPSHOT-FILE to determine which files to backup.  With other
+     operations, informs `tar' that the archive is in incremental
+     format.
+
+--mode=<i>PERMISSIONS</i>
+     When adding files to an archive, `tar' will use <i>PERMISSIONS</i> for
+     the archive members, rather than the permissions from the files.
+     The program `chmod' and this `tar' option share the same syntax
+     for what <i>PERMISSIONS</i> might be.  *Note Permissions: (fileutils)File
+     permissions.  This reference also has useful information for those
+     not being overly familiar with the Unix permission system.
+
+     Of course, <i>PERMISSIONS</i> might be plainly specified as an octal
+     number.  However, by using generic symbolic modifications to mode
+     bits, this allows more flexibility.  For example, the value `a+rw'
+     adds read and write permissions for everybody, while retaining
+     executable bits on directories or on any other file already marked
+     as executable.
+
+--multi-volume
+-M
+     Informs `tar' that it should create or otherwise operate on a
+     multi-volume `tar' archive.
+
+--new-volume-script
+     (see -info-script)
+
+--newer=<i>DATE</i>
+--after-date=<i>DATE</i>
+-N
+     When creating an archive, `tar' will only add files that have
+     changed since <i>DATE</i>.
+
+--newer-mtime
+     In conjunction with --newer', `tar' will only add files whose
+     contents have changed (as opposed to just --newer', which will
+     also back up files for which any status information has changed).
+
+--no-recursion
+     With this option, `tar' will not recurse into directories unless a
+     directory is explicitly named as an argument to `tar'.
+
+--null
+     When `tar' is using the --files-from' option, this option
+     instructs `tar' to expect filenames terminated with `NUL', so
+     `tar' can correctly work with file names that contain newlines.
+
+--numeric-owner
+     This option will notify `tar' that it should use numeric user and
+     group IDs when creating a `tar' file, rather than names.
+
+--old-archive
+     (See --portability.)
+
+--one-file-system
+-l
+     Used when creating an archive.  Prevents `tar' from recursing into
+     directories that are on different file systems from the current
+     directory.
+
+--owner=<i>USER</i>
+     Specifies that `tar' should use USER as the owner of members when
+     creating archives, instead of the user associated with the source
+     file.  USER is first decoded as a user symbolic name, but if this
+     interpretation fails, it has to be a decimal numeric user ID.
+
+     There is no value indicating a missing number, and `0' usually
+     means `root'.  Some people like to force `0' as the value to offer
+     in their distributions for the owner of files, because the `root'
+     user is anonymous anyway, so that might as well be the owner of
+     anonymous archives.
+
+--portability
+--old-archive
+-o
+     Tells `tar' to create an archive that is compatible with Unix V7
+     `tar'.
+
+--posix
+     Instructs `tar' to create a POSIX compliant `tar' archive.
+
+--preserve
+     Synonymous with specifying both --preserve-permissions' and
+     --same-order.
+
+--preserve-order
+     (See --same-order; *note Reading::..)
+
+--preserve-permissions
+--same-permissions
+-p
+     When `tar' is extracting an archive, it normally subtracts the
+     users' umask from the permissions specified in the archive and
+     uses that number as the permissions to create the destination
+     file.  Specifying this option instructs `tar' that it should use
+     the permissions directly from the archive.  *Note Writing::.
+
+--read-full-records
+-B
+     Specifies that `tar' should reblock its input, for reading from
+     pipes on systems with buggy implementations.  *Note Reading::.
+
+--record-size=<i>SIZE</i>
+     Instructs `tar' to use SIZE bytes per record when accessing the
+     archive.
+
+--recursive-unlink
+     Similar to the --unlink-first option, removing existing
+     directory hierarchies before extracting directories of the same
+     name from the archive.  *Note Writing::.
+
+--remove-files
+     Directs `tar' to remove the source file from the file system after
+     appending it to an archive.
+
+--rsh-command=<i>CMD</i>
+     Notifies `tar' that is should use CMD to communicate with remote
+     devices.
+
+--same-order
+--preserve-order
+-s
+     This option is an optimization for `tar' when running on machines
+     with small amounts of memory.  It informs `tar' that the list of
+     file arguments has already been sorted to match the order of files
+     in the archive.  *Note Reading::.
+
+--same-owner
+     When extracting an archive, `tar' will attempt to preserve the
+     owner specified in the `tar' archive with this option present.
+
+--same-permissions
+     (See --preserve-permissions; *note Writing::..)
+
+--show-omitted-dirs
+     Instructs `tar' to mention directories its skipping over when
+     operating on a `tar' archive.
+
+--sparse
+-S
+     Invokes a GNU extension when adding files to an archive that
+     handles sparse files efficiently.
+
+--starting-file=<i>NAME</i>
+-K <i>NAME</i>
+     This option affects extraction only; `tar' will skip extracting
+     files in the archive until it finds one that matches NAME.  *Note
+     Scarce::.
+
+--suffix=<i>SUFFIX</i>
+     Alters the suffix `tar' uses when backing up files from the default
+     `~'.
+
+--tape-length=<i>NUM</i>
+-L <i>NUM</i>
+     Specifies the length of tapes that `tar' is writing as being
+     NUM x 1024 bytes long.
+
+--to-stdout
+-O
+     During extraction, `tar' will extract files to stdout rather than
+     to the file system.  *Note Writing::.
+
+--totals
+     Displays the total number of bytes written after creating an
+     archive.
+
+--touch
+-m
+     Sets the modification time of extracted files to the extraction
+     time, rather than the modification time stored in the archive.
+     *Note Writing::.
+
+--uncompress
+     (See --compress.)
+
+--ungzip
+     (See --gzip.)
+
+--unlink-first
+-U
+     Direct `tar' to remove the corresponding file from the file system
+     before extracting it from the archive.  *Note Writing::.
+
+--use-compress-program=<i>PROG</i>
+     Instruct `tar' to access the archive through <i>PROG</i>, which is
+     presumed to be a compression program of some sort.
+
+--verbose
+-v
+     Be more verbose about the operation.
+     This option can be specified multiple times (for some operations)
+     to increase the amount of information displayed.
+
+--verify
+-W
+     Verify that the archive was correctly written.
+
+--version
+     `tar' will print an informational message about what version it is
+     and a copyright message, some credits, and then exit.
+
+--volno-file=FILE
+     Used in conjunction with --multi-volume'.  `tar' will keep track
+     of which volume of a multi-volume archive its working in FILE.</pre>
+<p><b>Examples</b></p>
+<p>Create a  tar and zip the  file (using the <i>create function</i>)</p>
+<pre>  tar -czvf MyArchive Source_file 
+or
+  tar --<b>c</b>reate --g<b>z</b>ip --<b>v</b>erbose --<b>f</b>ile=MyArchive Source_file</pre>
+<p>Extract the zip file created above:</p>
+<pre>  tar <b>-x</b>zvf MyArchive Source_file 
+or
+  tar --e<b>x</b>tract --gun<b>z</b>ip --<b>v</b>erbose --<b>f</b>ile=MyArchive Source_file</pre>
+<p>Create a  tar in zip format with the  file named as todays date/time:</p>
+<pre>tar czvf my_backup.$(date +%Y%m%d-%H%M%S).tgz /users/simon
+</pre>
+<p>A simple shell script for the above:</p>
+<pre>
+#!/bin/bash<br>tar czvf $1.$(date +%Y%m%d-%H%M%S).tgz $1<br>exit $?</pre>
+<p>Save the script as 'arc',  use chmod to make it executable and then run it passing a single file or foldername:</p>
+<pre>chmod 700 arc
+./arc /users/simon</pre>
+<p><b>Notes</b></p>
+<p>Always <b>tar -t </b>before<b> tar -x </b>to check if the archive contents have been placed inside one subdirectory or will just spill all over the current directory.</p>
+<p>The -C feature does not work like historical gnutar programs, and is probably 
+    untrustworthy.</p>
+<p> The -A command should work to join an arbitrary number of gnutar 
+  archives together, but it does not; attempting to do so leaves the end-of-archive 
+  blocks in place for the second and subsequent archives. </p>
+<p>The gnutar file format is a semi fixed width field format, and 
+  the field for device numbers were designed for 16 bit (8 major, 8 minor) and 
+  can not absorb our 32 bit (8 major, 16+8 minor) numbers. </p>
+<p class="quote"><i>&quot;To disarm the bomb simply enter a valid tar command on your first try. No Googling&quot; ~ <a href="http://xkcd.com/1168/">XKCD</a></i></p>
+<p> <b> Related:</b><br>
+<br>
+<a href="gzip.html">gzip</a> - Compress or decompress named file(s)<br>
+<a href="sum.html">sum</a> - Print a checksum for a file <br>
+<a href="unshar.html">unshar</a> - Unpack shell archive scripts <br>
+<a href="zip.html">zip</a> - Package and compress (archive) files.<br>
+Equivalent Windows command:  ZIP - compress files</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="tar.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

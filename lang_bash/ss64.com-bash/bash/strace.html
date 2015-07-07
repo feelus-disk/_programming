@@ -1,0 +1,245 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>strace Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem -->
+<h1>strace</h1> 
+<p>Trace system calls and signals. </p>
+<pre>Syntax
+      strace [ -dDffhiqrtttTvVxx ] [ -a <i>column</i> ] [ -e <i>expr</i> ]... [ -o <i>file</i> ] [ -p <i>pid</i> ]... 
+         [ -s <i>strsize</i> ] [ -u <i>username</i> ] [ -E <i>var</i>=<i>val</i> ]... [ -E <i>var</i> ]... [ <i>command</i> [ <i>arg</i>... ] ]
+
+      strace -c [ -D ] [ -e <i>expr</i> ]... [ -O <i>overhead</i> ] [ -S <i>sortby</i> ] [ <i>command</i> [ <i>arg</i>... ] ] 
+
+Key
+   -a <i>column
+</i>       Align return values in a specific column (default column 40).
+
+   -c  Count time, calls, and errors for each system call and report a summary on program exit.
+       On Linux, this attempts to show system time (CPU time spent running in the kernel)
+       independent of wall clock time. If -c is used with -f or -F (below), only aggregate
+       totals for all traced processes are kept.
+
+   -D  (Not available on SVR4 and FreeBSD.) Run tracer process as a detached grandchild,
+       not as parent of the tracee. This reduces the visible effect of strace by keeping the
+       tracee a direct child of the calling process.
+
+   -d  Show some debugging output of strace itself on the standard error.
+
+   -e <i>expr</i>
+       A qualifying expression which modifies which events to trace or how to trace them.
+       The format of the expression is:
+          [qualifier=][!]value1[,value2]...
+       where qualifier is one of trace, abbrev, verbose, raw, signal, read, or write and value
+       is a qualifier-dependent symbol or number. The default qualifier is trace. Using an
+       exclamation mark negates the set of values. For example, -eopen means literally
+          -e trace=open which in turn means trace only the open system call.
+       By contrast, -etrace=!open means to trace every system call except open.
+       In addition, the special values all and none have the obvious meanings.
+
+       Note that some shells use the exclamation point for history expansion even inside quoted
+       arguments. If so, you must escape the exclamation point with a backslash.
+   -e trace=<i>set</i>
+       Trace only the specified set of system calls.
+       The -c option is useful for determining which system calls might be useful to trace.
+       For example, trace=open,close,read,write means to only trace those four system calls.
+       Be careful when making inferences about the user/kernel boundary if only a subset of
+       system calls are being monitored. The default is trace=all.
+   -e trace=<i>file</i>
+       Trace all system calls which take a file name as an argument.
+       You can think of this as an abbreviation for -e trace=open,stat,chmod,unlink,... which is
+       useful to seeing what files the process is referencing. Furthermore, using the
+       abbreviation will ensure that you don't accidentally forget to include a call like lstat
+       in the list. Betchya woulda forgot that one.
+   -e trace=<i>process</i>
+       Trace all system calls which involve process management. This is useful for watching
+       the fork, wait, and exec steps of a process. 
+   -e trace=<i>network</i>
+       Trace all the network related system calls. 
+   -e trace=<i>signal</i>
+       Trace all signal related system calls. 
+   -e trace=<i>ipc</i>
+       Trace all IPC related system calls. 
+   -e trace=<i>desc</i>
+       Trace all file descriptor related system calls. 
+   -e abbrev=<i>set</i>
+       Abbreviate the output from printing each member of large structures.
+       The default is abbrev=all. The -v option has the effect of abbrev=none. 
+   -e verbose=<i>set</i>
+       Dereference structures for the specified set of system calls. The default is verbose=all. 
+   -e raw=<i>set</i>
+       Print raw, undecoded arguments for the specified set of system calls. This option has
+       the effect of causing all arguments to be printed in hexadecimal. This is mostly
+       useful if you don't trust the decoding or you need to know the actual numeric value
+       of an argument.
+   -e signal=<i>set</i>
+       Trace only the specified subset of signals. The default is signal=all.
+       For example, signal=!SIGIO (or signal=!io) causes SIGIO signals not to be traced. 
+   -e read=<i>set</i>
+       Perform a full hexadecimal and ASCII dump of all the data read from file descriptors
+       listed in the specified set. For example, to see all input activity on file
+       descriptors 3 and 5 use -e read=3,5. Note that this is independent from the normal
+       tracing of the read(2) system call which is controlled by the option -e trace=read.
+   -e write=<i>set</i>
+       Perform a full hexadecimal and ASCII dump of all the data written to file descriptors
+       listed in the specified set. For example, to see all output activity on file
+       descriptors 3 and 5 use -e write=3,5. Note that this is independent from the normal
+       tracing of the write(2) system call which is controlled by the option -e trace=write. 
+
+   -E var=<i>val</i>
+       Run command with var=val in its list of environment variables.
+   -E <i>var</i>
+       Remove var from the inherited list of environment variables before passing it on to the command. 
+
+   -f  Trace child processes as they are created by currently traced processes as a result of
+       the fork(2) system call.  On non-Linux platforms the new process is attached to as
+       soon as its pid is known (through the return value of fork(2) in the parent process).
+       This means that such children may run uncontrolled for a while (especially in the case
+       of a vfork(2)), until the parent is scheduled again to complete its (v)fork(2) call.
+       On Linux the child is traced from its first instruction with no delay. If the parent
+       process decides to wait(2) for a child that is currently being traced, it is suspended
+       until an appropriate child process either terminates or incurs a signal that would cause
+       it to terminate (as determined from the child's current signal disposition).
+
+       On SunOS 4.x the tracing of vforks is accomplished with some dynamic linking trickery.
+
+   -ff If the -o filename option is in effect, each processes trace is written to filename.pid
+       where pid is the numeric process id of each process. This is incompatible with -c, since
+       no per-process counts are kept.
+
+   -F  This option is now obsolete and it has the same functionality as -f.
+
+   -h  Print the help summary.
+
+   -i  Print the instruction pointer at the time of the system call.
+
+   -o <i>filename</i>
+       Write the trace output to the file filename rather than to stderr.
+       Use filename.pid if -ff is used. If the argument begins with '|' or with '!' then the
+       rest of the argument is treated as a command and all output is piped to it. This is
+       convenient for piping the debugging output to a program without affecting the
+       redirections of executed programs.
+
+   -O overhead
+       Set the overhead for tracing system calls to overhead microseconds. This is useful for
+       overriding the default heuristic for guessing how much time is spent in mere measuring
+       when timing system calls using the -c option. The accuracy of the heuristic can be
+       gauged by timing a given program run without tracing (using time(1)) and comparing
+       the accumulated system call time to the total produced using -c.
+
+   -p pid
+       Attach to the process with the process ID pid and begin tracing. The trace may be
+       terminated at any time by a keyboard interrupt signal ( CTRL -C). strace will respond
+       by detaching itself from the traced process(es) leaving it (them) to continue running.
+       Multiple -p options can be used to attach to up to 32 processes in addition to command
+       (which is optional if at least one -p option is given).
+
+   -q  Suppress messages about attaching, detaching etc. This happens automatically when output
+       is redirected to a file and the command is run directly instead of attaching.
+
+   -r  Print a relative timestamp upon entry to each system call. This records the time
+       difference between the beginning of successive system calls.
+
+   -s <i>strsize</i>
+       Specify the maximum string size to print (the default is 32). Note that filenames are
+       not considered strings and are always printed in full.
+
+   -S <i>sortby</i>
+       Sort the output of the histogram printed by the -c option by the specified criterion.
+       Legal values are time, calls, name, and nothing (default time).
+
+   -t  Prefix each line of the trace with the time of day.
+
+   -tt If given twice, the time printed will include the microseconds.
+
+   -ttt  If given thrice, the time printed will include the microseconds and the leading portion
+         will be printed as the number of seconds since the epoch.
+
+   -T  Show the time spent in system calls. This records the time difference between the
+       beginning and the end of each system call.
+
+   -u <i>username</i>
+       Run command with the user ID , group ID , and supplementary groups of username.
+       This option is only useful when running as root and enables the correct execution of
+       setuid and/or setgid binaries. Unless this option is used setuid and setgid programs
+       are executed without effective privileges.
+
+   -v  Print unabbreviated versions of environment, stat, termios, etc. calls. These structures
+       are very common in calls and so the default behavior displays a reasonable subset of
+       structure members. Use this option to get all of the gory details.
+
+   -V  Print the version number of strace.
+
+   -x  Print all non-ASCII strings in hexadecimal string format.
+
+   -xx Print all strings in hexadecimal string format.</pre>
+<p>In the simplest case strace runs the specified command until it exits. It intercepts and records the system calls which are called by a process and the signals which are received by a process. The name of each system call, its arguments and its return value are printed on standard error or to the file specified with the -o option.</p>
+<p> strace is a useful diagnostic, instructional, and debugging tool. System administrators, diagnosticians and trouble-shooters will find it invaluable for solving problems with programs for which the source is not readily available since they do not need to be recompiled in order to trace them. </p>
+<p>Students, hackers and the overly-curious will find that a great deal can be learned about a system and its system calls by tracing even ordinary programs. And programmers will find that since system calls and signals are events that happen at the user/kernel interface, a close examination of this boundary is very useful for bug isolation, sanity checking and attempting to capture race conditions. </p>
+<h2>Diagnostics</h2>
+<p> When <i>command </i>exits, strace exits with the same exit status. If command is terminated by a signal, strace terminates itself with the same signal, so that strace can be used as a wrapper process transparent to the invoking parent process. </p>
+<p>When using -p, the exit status of strace is zero unless there was an unexpected error in doing the tracing. </p>
+<h2>Setuid Installation </h2>
+<p> If strace is installed setuid to root then the invoking user will be able to attach to and trace processes owned by any user. In addition setuid and setgid programs will be executed and traced with the correct effective privileges. Since only users trusted with full root privileges should be allowed to do these things, it only makes sense to install strace as setuid to root when the users who can execute it are restricted to those users who have this trust. </p>
+<p>For example, it makes sense to install a special version of strace with mode 'rwsr-xr--', user root and group trace, where members of the trace group are trusted users. If you do use this feature, please remember to install a non-setuid version of strace for ordinary lusers to use. </p>
+<p><b>Examples</b></p>
+<p> Each line in the trace contains the system call name, followed by its arguments in parentheses and its return value. An example from stracing the command ''cat /dev/null'' is: :</p>
+<p class="code"> open(&quot;/dev/null&quot;, O_RDONLY) = 3 </p>
+<p>Errors (typically a return value of -1) have the errno symbol and error string appended.</p>
+<p class="code">open(&quot;/foo/bar&quot;, O_RDONLY) = -1 ENOENT (No such file or directory) </p>
+<p> Signals are printed as a signal symbol and a signal string. An excerpt from stracing and interrupting the command ''sleep 666'' is:<span class="code"><br> 
+sigsuspend([] &lt;unfinished ...&gt;<br> 
+--- SIGINT (Interrupt) ---<br>
++++ killed by SIGINT +++</span></p>
+<p>If a system call is being executed and meanwhile another one is being called from a different thread/process then strace will try to preserve the order of those events and mark the ongoing call as being unfinished. When the call returns it will be marked as resumed. </p>
+<p class="code">[pid 28772] select(4, [3], NULL, NULL, NULL &lt;unfinished <br>
+...&gt; [pid 28779] clock_gettime(CLOCK_REALTIME, {1130322148, 939977000}) = 0<br>
+[pid 28772] &lt;... select resumed&gt; )      = 1 (in [3])</p>
+<p>Interruption of a (restartable) system call by a signal delivery is processed differently as kernel terminates the system call and also arranges its immediate reexecution after the signal handler completes.</p>
+<p class="code">read(0, 0x7ffff72cf5cf, 1)              = ? ERESTARTSYS (To be restarted)<br>
+--- SIGALRM (Alarm clock) @ 0 (0) --- rt_sigreturn(0xe)                       = 0<br>
+read(0, &quot;&quot;..., 1)                       = 0</p>
+<p>Arguments are printed in symbolic form with a passion. This example shows the shell performing ''&gt;&gt;xyzzy'' output redirection:</p>
+<p class="code"> open(&quot;xyzzy&quot;, O_WRONLY|O_APPEND|O_CREAT, 0666) = 3</p>
+<p>Here the three argument form of open is decoded by breaking down the flag argument into its three bitwise-OR constituents and printing the mode value in octal by tradition. Where traditional or native usage differs from ANSI or POSIX, the latter forms are preferred. In some cases, strace output has proven to be more readable than the source. </p>
+<p>Structure pointers are dereferenced and the members are displayed as appropriate. In all cases arguments are formatted in the most C-like fashion possible. For example, the essence of the command ''ls -l /dev/null'' is captured as: </p>
+<p class="code">lstat(&quot;/dev/null&quot;, {st_mode=S_IFCHR|0666, st_rdev=makedev(1, 3), ...}) = 0</p>
+<p>Notice how the 'struct stat' argument is dereferenced and how each member is displayed symbolically. In particular, observe how the st_mode member is carefully decoded into a bitwise-OR of symbolic and numeric values. Also notice in this example that the first argument to lstat is an input to the system call and the second argument is an output. Since output arguments are not modified if the system call fails, arguments may not always be dereferenced. For example, retrying the ''ls -l'' example with a non-existent file produces the following line: </p>
+<p class="code">lstat(&quot;/foo/bar&quot;, 0xb004) = -1 ENOENT (No such file or directory)</p>
+<p>In this case the porch light is on but nobody is home. </p>
+<p>Character pointers are dereferenced and printed as C strings. Non-printing characters in strings are normally represented by ordinary C escape codes. Only the first strsize (32 by default) bytes of strings are printed; longer strings have an ellipsis appended following the closing quote. Here is a line from ''ls -l'' where the getpwuid library routine is reading the password file: </p>
+<p class="code">read(3, &quot;root::0:0:System Administrator:/&quot;..., 1024) = 422</p>
+<p>While structures are annotated using curly braces, simple pointers and arrays are printed using square brackets with commas separating elements. Here is an example from the command ''id'' on a system with supplementary group ids: </p>
+<p class="code">getgroups(32, [100, 0]) = 2</p>
+<p>On the other hand, bit-sets are also shown using square brackets but set elements are separated only by a space. Here is the shell preparing to execute an external command: </p>
+<p class="code">sigprocmask(SIG_BLOCK, [CHLD TTOU], []) = 0</p>
+<p>Here the second argument is a bit-set of two signals, SIGCHLD and SIGTTOU. In some cases the bit-set is so full that printing out the unset elements is more valuable. In that case, the bit-set is prefixed by a tilde like this: </p>
+<p class="code">sigprocmask(SIG_UNBLOCK, ~[], NULL) = 0</p>
+<p>Here the second argument represents the full set of all signals. </p>
+<p class="quote"><i>“My spelling is Wobbly. It's good spelling but it Wobbles, and the letters get in the wrong places” ~ A. A. Milne</i></p>
+<p><b>Related:</b><br>
+<br>
+btkbdd(8), dstat(1), explain(1), explain_lca2010(1), htop(1), latrace(1), xxd(1)  </p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="strace.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

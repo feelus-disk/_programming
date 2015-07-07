@@ -1,0 +1,295 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>gzip OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>gzip</h1> 
+<p>Compress or decompress files</p>
+<pre>Syntax
+       gzip [ -acdfhlLnNrtvV19 ] [-S <i>suffix</i>] [ <i>name</i> ...  ]
+
+       gunzip [ -acfhlLnNrtvV ] [-S <i>suffix</i>] [ <i>name</i> ...  ]
+
+       zcat [ -fhLV ] [ <i>name</i> ...  ]
+
+Options
+
+       -a --ascii
+              Ascii  text  mode: convert end-of-lines using local
+              conventions. This option is supported only on  some
+              non-Unix  systems. For MSDOS, CR LF is converted to
+              LF when compressing, and LF is converted to  CR  LF
+              when decompressing.
+
+       -c --stdout --to-stdout
+              Write  output  on  standard  output;  keep original
+              files unchanged.  If there are several input files,
+              the  output consists of a sequence of independently
+              compressed members. To obtain  better  compression,
+              concatenate  all  input  files  before  compressing
+              them.
+
+       -d --decompress --uncompress
+              Decompress.
+
+       -f --force
+              Force compression or decompression even if the file
+              has   multiple  links  or  the  corresponding  file
+              already exists, or if the compressed data  is  read
+              from or written to a terminal. If the input data is
+              not in a format recognized  by  gzip,  and  if  the
+              option  --stdout is also given, copy the input data
+              without change to  the  standard  ouput:  let  zcat
+              behave  as  cat.   If -f is not given, and when not
+              running in the background, gzip prompts  to  verify
+              whether an existing file should be overwritten.
+
+       -h --help
+              Display a help screen and quit.
+
+       -l --list
+              For each compressed file, list the following fields:
+
+                  compressed size:   Size of the compressed file
+                  uncompressed size: Size of the uncompressed file
+                  ratio:       Compression ratio (0.0% if unknown)
+                  uncompressed_name: Name of the uncompressed file
+</pre>
+<blockquote>
+<blockquote>
+<p>The gzip format represents the input size modulo 2^32,  so  the  --list
+option  reports incorrect uncompressed sizes and compression ratios for
+uncompressed files 4 GB and larger.  To work around this  problem,  you
+can  use  the <a href="wc.html">wc</a> command to discover a large uncompressed file's
+true size:</p>
+</blockquote>
+</blockquote>
+<pre>                  zcat file.Z | wc -c
+
+              In  combination with the --verbose option, the following
+              fields are also displayed:
+
+                  method: Compression method
+                  crc:    The 32-bit CRC of the uncompressed data
+                  date & time: time stamp for the uncompressed file</pre>
+<blockquote>
+<blockquote>
+<p>The  compression  methods  currently  supported are
+deflate, compress, lzh (SCO compress -H) and  pack.
+The crc is given as ffffffff for a file not in gzip
+format.<br>
+<br>
+With --name, the uncompressed name,  date and  time
+are  those  stored  within  the  compress  file  if
+present.<br>
+<br>
+With --verbose, the  size  totals  and  compression
+ratio  for all files is also displayed, unless some
+sizes are unknown.  With  --quiet,  the  title  and
+totals lines are not displayed.</p>
+</blockquote>
+</blockquote>
+<pre>       -L --license
+              Display the gzip license and quit.
+
+       -n --no-name
+              When  compressing,  do  not  save the original file
+              name and time stamp by default. (The original  name
+              is  always  saved if the name had to be truncated.)
+              When decompressing, do  not  restore  the  original
+              file  name  if present (remove only the gzip suffix
+              from the compressed file name) and do  not  restore
+              the  original  time  stamp if present (copy it from
+              the compressed file). This option  is  the  default
+              when decompressing.
+
+       -N --name
+              When  compressing,  always  save  the original file
+              name and time stamp;  this  is  the  default.  When
+              decompressing,  restore  the original file name and
+              time stamp if present. This  option  is  useful  on
+              systems  which  have a limit on file name length or
+              when the time stamp has  been  lost  after  a  file
+              transfer.
+
+       -q --quiet
+              Suppress all warnings.
+
+       -r --recursive
+              Travel  the directory structure recursively. If any
+              of the file names specified on the command line are
+              directories,  gzip  will descend into the directory
+              and compress all  the  files  it  finds  there  (or
+              decompress them in the case of gunzip ).
+
+       -S .suf --suffix .suf
+              Use  suffix  .suf instead of .gz. Any suffix can be
+              given, but suffixes other than .z and .gz should be
+              avoided  to  avoid  confusion when files are trans-
+              ferred to other systems.  A null suffix forces gun-
+              zip  to   try  decompression  on  all  given  files
+              regardless of suffix, as in:
+
+                  gunzip -S "" *       (*.* for MSDOS)
+
+              Previous versions of gzip used the .z suffix.  This
+              was changed to avoid a conflict with pack(1).
+
+       -t --test
+              Test. Check the compressed file integrity.
+
+       -v --verbose
+              Verbose.  Display the name and percentage reduction
+              for each file compressed or decompressed.
+
+       -V --version
+              Version. Display the version number and compilation
+              options then quit.
+
+       -# --fast --best
+              Regulate  the speed of compression using the speci-
+              fied digit #, where  -1  or  --fast  indicates  the
+              fastest  compression  method (less compression) and
+              -9 or  --best  indicates  the  slowest  compression
+              method (best compression).  The default compression
+              level is -6 (that is, biased towards high  compres-
+              sion at expense of speed).
+
+       In some rare cases, the --best option gives worse compres-
+       sion  than  the  default  compression  level (-6). On some
+       highly redundant files, compress  compresses  better  than
+       gzip.</pre>
+<p>Gzip reduces the size of the named files using Lempel-Ziv coding 
+  (LZ77). Whenever possible, each file is replaced by one with the extension .gz, 
+  while keeping the same ownership modes, access and modification times. (The 
+  default extension is -gz for VMS, z for MSDOS, OS/2 FAT, Windows NT FAT and 
+  Atari.)</p>
+<p>If no files are specified, or if a file name is "-", the standard 
+  input is compressed to the standard output. Gzip will only attempt to compress 
+  regular files. In particular, it will ignore symbolic links. </p>
+<p>If the compressed file name is too long for its file system, gzip 
+  truncates it. Gzip attempts to truncate only the parts of the file name longer 
+  than 3 characters. (a 'part' is delimited by dots.) If the name consists of small 
+  parts only, the longest parts are truncated. For example, if file names are 
+  limited to 14 characters, gzip.msdos.exe is compressed to gzi.msd.exe.gz. Names 
+  are not truncated on systems which do not have a limit on file name length.</p>
+<p> By default, gzip keeps the original file name and time stamp 
+  in the compressed file. These are used when decompressing the file with the 
+  -N option. This is useful when the compressed file name was truncated or when 
+  the time stamp was not preserved after a file transfer. </p>
+<p>Compressed files can be restored to their original form using 
+  gzip -d or gunzip or zcat. If the original name saved in the compressed file 
+  is not suitable for its file system, a new name is constructed from the original 
+  one to make it legal. gunzip takes a list of files on its command line and replaces 
+  each file whose name ends with .gz, -gz, .z, -z, _z or .Z and which begins with 
+  the correct magic number with an uncompressed file without the original extension. 
+  gunzip also recognizes the special extensions .tgz and .taz as shorthands for 
+  .tar.gz and .tar.Z respectively. </p>
+<p>When compressing, gzip uses the .tgz extension if necessary instead 
+  of truncating a file with a .tar extension. </p>
+<p>gunzip can currently decompress files created by gzip, zip, compress, 
+  compress -H or pack. The detection of the input format is automatic. When using 
+  the first two formats, gunzip checks a 32 bit CRC. For pack, gunzip checks the 
+  uncompressed length. </p>
+<p>To gzip an application bundle put it in a <a href="tar.html">tarball</a> first, otherwise you'll get the error: &quot;foo.app/ is a directory; ignored&quot;</p>
+<p>The standard compress format was not designed to allow consistency 
+  checks. However gunzip is sometimes able to detect a bad .Z file. If you get 
+  an error when uncompressing a .Z file, do not assume that the .Z file is correct 
+  simply because the standard uncompress does not complain. This generally means 
+  that the standard uncompress does not check its input, and happily generates 
+  garbage output. The SCO compress -H format (lzh compression method) does not 
+  include a CRC but also allows some consistency checks. </p>
+<p>Files created by zip can be uncompressed by gzip only if they 
+  have a single member compressed with the 'deflation' method. This feature is 
+  only intended to help conversion of tar.zip files to the tar.gz format. To extract 
+  zip files with several members, use unzip instead of gunzip. </p>
+<p>zcat is identical to gunzip -c. (On some systems, zcat may be 
+  installed as gzcat to preserve the original link to compress.) zcat uncompresses 
+  either a list of files on the command line or its standard input and writes 
+  the uncompressed data on standard output. </p>
+<p>zcat will uncompress files that have the correct magic number 
+  whether they have a .gz suffix or not. </p>
+<p>Gzip uses the Lempel-Ziv algorithm used in zip and PKZIP. The 
+  amount of compression obtained depends on the size of the input and the distribution 
+  of common substrings. Typically, text such as source code or English is reduced 
+  by 60-70%. Compression is generally much better than that achieved by LZW (as 
+  used in compress), Huffman coding (as used in pack), or adaptive Huffman coding 
+  (compact). Compression is always performed, even if the compressed file is slightly 
+  larger than the original. The worst case expansion is a few bytes for the gzip 
+  file header, plus 5 bytes every 32K block, or an expansion ratio of 0.015% for 
+  large files.Note that the actual number of used disk blocks almost never increases. 
+</p>
+<p>gzip preserves the mode, ownership and timestamps of files when 
+  compressing or decompressing.</p>
+<p>ADVANCED USAGE<br>
+<br>       
+Multiple  compressed  files  can  be concatenated. In this       
+case, gunzip will extract all members at once.  For  example:<br>             
+<span class="code">gzip -c file1 > foo.gz<br>
+gzip -c file2 >> foo.gz</span><br>
+<br>       
+Then              
+<span class="code">gunzip -c foo</span><br>
+<br>       
+is equivalent to <span class="code">cat file1 file2</span><br>
+<br>       
+In  case of damage to one member of a .gz file, other members can still be recovered  (if  the  damaged  member  is       
+removed).  However, you can get better compression by compressing all members at once:<span class="code"> cat file1 file2 | gzip > foo.gz</span><br>
+<br>       
+compresses better than<span class="code"> gzip -c file1 file2 > foo.gz</span><br>
+<br>       
+If you want to recompress concatenated files to get better<br>       
+compression, do:<span class="code"> gzip -cd old.gz | gzip > new.gz</span><br>
+<br>       
+If  a  compressed  file  consists  of several members, the       
+uncompressed size and CRC reported by  the  --list  option<br>       
+applies   to  the  last  member  only.  If  you  need  the       
+uncompressed size for all members, you can use:<br>             
+<span class="code">gzip -cd file.gz | wc -c</span><br>
+<br>       
+If you wish to create a single archive file with  multiple       
+members  so  that  members can later be extracted indepen-<br>       
+dently, use an archiver such as tar or zip. GNU  tar  supports  the -z option to invoke gzip transparently. gzip is       
+designed as a complement to tar, not as a replacement.<br>
+<br>
+ENVIRONMENT<br>
+<br>       
+The environment variable GZIP can hold a  set  of  default       
+options for gzip.  These options are interpreted first and<br>       
+can be overwritten by explicit  command  line  parameters.<br>       
+For example:</p>
+<pre>             for sh/bash: GZIP="-8v --name"; export GZIP
+             for csh:     setenv GZIP "-8v --name"</pre>
+<p class="quote"><i>"Small is beautiful&quot; ~ Schumacher's 
+  Dictum</i></p>
+<p><b>Related:</b></p>
+<p>
+ znew(1), zcmp(1), zmore(1), zforce(1), gzexe(1), zip(1), unzip(1), compress(1), 
+  pack(1), compact(1)</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="gzip.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>getopt OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>getopt</h1> 
+<p>Parse positional parameters.<br>
+  Break up the options in a command line (for easy parsing by shell procedure), 
+and check for legal options.</p>
+<pre>Syntax
+      args=`getopt <i>optstring</i> $*` ; errcode=$?; set -- $<i>args</i>
+
+Options<i>
+</i>   <i>Optstring</i>  A string of recognized option letters 
+              either individual characters or characters followed by a colon 
+              to indicate an argument is to follow.
+              e.g. an option string  x recognizes an option "-x",
+              and an option string  x: recognizes an option and argument "-x <i>argument</i>".
+              It does not matter if the argument has leading white space.
+
+   --        This special option is used to delimit the end of the options.
+     	      getopt will place  `--' in the arguments at the end of the options,
+             or recognize it if used  explicitly. 
+
+($1 $2 ...)   The shell arguments  are reset so that each
+              option is preceded by a `-' and in its own shell argument; 
+              each option argument is also in its own shell argument.
+</pre>
+<p>Examples<br>
+<br>
+The following code fragment shows how one might process the arguments for
+a command that can take the options -a and -b, and the option -o, which requires an argument.</p>
+<pre>
+	   args=`getopt abo: $*`
+	   # you should not use `getopt abo: "$@"` since that would parse
+	   # the arguments differently from what the set command below does.
+	   if [ $? != 0 ]
+	   then
+		   echo 'Usage: ...'
+		   exit 2
+	   fi
+	   set -- $args
+	   # You cannot use the set command with a backquoted getopt directly,
+	   # since the exit code from getopt would be shadowed by those of set,
+	   # which is zero by definition.
+	   for i
+	   do
+		   case "$i"
+		   in
+			   -a|-b)
+				   echo flag $i set; sflags="${i#-}$sflags";
+				   shift;;
+			   -o)
+				   echo oarg is "'"$2"'"; oarg="$2"; shift;
+				   shift;;
+			   --)
+				   shift; break;;
+		   esac
+	   done
+	   echo single-char flags: "'"$sflags"'"
+	   echo oarg is "'"$oarg"'"
+
+     This code will accept any of the following as equivalent:
+
+	   cmd -aoarg file file
+	   cmd -a -o arg file file
+	   cmd -oarg -a file file
+	   cmd -a -oarg -- file file</pre>
+<p class="quote"><i>&ldquo;You spend a good piece of your life gripping a baseball and in the end it turns out that it was the other way around all the time&rdquo; ~ Jim Bouton </i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/getopt.1.html">getopt man page</a> - Apple.com<br>
+<a href="getopts.html">getopts</a> - Parse positional parameters</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="getopt.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

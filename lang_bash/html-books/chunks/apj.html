@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Приложение J. Localization</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="prev" href="api.html" title="Приложение I. An Introduction to Programmable Completion"/><link rel="next" href="apk.html" title="Приложение K. History Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Приложение J. Localization</th></tr><tr><td align="left"><a accesskey="p" href="api.html">Пред.</a> </td><th width="60%" align="center"> </th><td align="right"> <a accesskey="n" href="apk.html">След.</a></td></tr></table><hr/></div><div class="appendix" title="Приложение J. Localization"><div class="titlepage"><div><div><h2 class="title"><a id="localization"/>Приложение J. Localization</h2></div></div></div><p>Localization is an undocumented Bash feature.</p><p>A localized shell script echoes its text output in the
+        language defined as the system's locale. A Linux user in Berlin,
+        Germany, would get script output in German, whereas his cousin
+        in Berlin, Maryland, would get output from the same script in
+        English.</p><p>To create a localized script, use the following template to
+        write all messages to the user (error messages, prompts,
+        etc.).</p><p>
+      </p><pre class="programlisting">#!/bin/bash
+# localized.sh
+#  Script by Stéphane Chazelas,
+#+ modified by Bruno Haible, bugfixed by Alfredo Pironti.
+
+. gettext.sh
+
+E_CDERROR=65
+
+error()
+{
+  printf "$@" &gt;&amp;2
+  exit $E_CDERROR
+}
+
+cd $var || error "`eval_gettext \"Can\'t cd to \\\$var.\"`"
+#  The triple backslashes (escapes) in front of $var needed
+#+ "because eval_gettext expects a string
+#+ where the variable values have not yet been substituted."
+#    -- per Bruno Haible
+read -p "`gettext \"Enter the value: \"`" var
+#  ...
+
+
+#  ------------------------------------------------------------------
+#  Alfredo Pironti comments:
+
+#  This script has been modified to not use the $"..." syntax in
+#+ favor of the "`gettext \"...\"`" syntax.
+#  This is ok, but with the new localized.sh program, the commands
+#+ "bash -D filename" and "bash --dump-po-string filename"
+#+ will produce no output
+#+ (because those command are only searching for the $"..." strings)!
+#  The ONLY way to extract strings from the new file is to use the
+# 'xgettext' program. However, the xgettext program is buggy.
+
+# Note that 'xgettext' has another bug.
+#
+# The shell fragment:
+#    gettext -s "I like Bash"
+# will be correctly extracted, but . . .
+#    xgettext -s "I like Bash"
+# . . . fails!
+#  'xgettext' will extract "-s" because
+#+ the command only extracts the
+#+ very first argument after the 'gettext' word.
+
+
+#  Escape characters:
+#
+#  To localize a sentence like
+#     echo -e "Hello\tworld!"
+#+ you must use
+#     echo -e "`gettext \"Hello\\tworld\"`"
+#  The "double escape character" before the `t' is needed because
+#+ 'gettext' will search for a string like: 'Hello\tworld'
+#  This is because gettext will read one literal `\')
+#+ and will output a string like "Bonjour\tmonde",
+#+ so the 'echo' command will display the message correctly.
+#
+#  You may not use
+#     echo "`gettext -e \"Hello\tworld\"`"
+#+ due to the xgettext bug explained above.
+
+
+
+# Let's localize the following shell fragment:
+#     echo "-h display help and exit"
+#
+# First, one could do this:
+#     echo "`gettext \"-h display help and exit\"`"
+#  This way 'xgettext' will work ok,
+#+ but the 'gettext' program will read "-h" as an option!
+#
+# One solution could be
+#     echo "`gettext -- \"-h display help and exit\"`"
+#  This way 'gettext' will work,
+#+ but 'xgettext' will extract "--", as referred to above.
+#
+# The workaround you may use to get this string localized is
+#     echo -e "`gettext \"\\0-h display help and exit\"`"
+#  We have added a \0 (NULL) at the beginning of the sentence.
+#  This way 'gettext' works correctly, as does 'xgettext.'
+#  Moreover, the NULL character won't change the behavior
+#+ of the 'echo' command.
+#  ------------------------------------------------------------------</pre><p>
+      </p><p>
+      </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>bash -D localized.sh</code></strong>
+<code class="computeroutput">"Can't cd to %s."
+ "Enter the value: "</code></pre><p>
+
+      This lists all the localized text. (The <code class="option">-D</code>
+      option lists double-quoted strings prefixed by a <span class="token">$</span>,
+      without executing the script.)</p><p>
+      </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>bash --dump-po-strings localized.sh</code></strong>
+<code class="computeroutput">#: a:6
+ msgid "Can't cd to %s."
+ msgstr ""
+ #: a:7
+ msgid "Enter the value: "
+ msgstr ""</code></pre><p>
+      
+      The <code class="option">--dump-po-strings</code> option to Bash
+      resembles the <code class="option">-D</code> option, but uses <a class="link" href="ch15s04.html#gettextref">gettext</a> <span class="quote">«<span class="quote">po</span>»</span> format.
+
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Bruno Haible points out:</p><p>Starting with gettext-0.12.2, <span class="command"><strong>xgettext -o - localized.sh</strong></span>
+      is recommended instead of <span class="command"><strong>bash --dump-po-strings
+      localized.sh</strong></span>, because <span class="command"><strong>xgettext</strong></span> . . .</p><p>1. understands the gettext and eval_gettext commands
+      (whereas bash --dump-po-strings understands only its deprecated
+      $"..." syntax)</p><p>2. can extract comments placed by the programmer, intended
+      to be read by the translator.</p><p>This shell code is then not specific to Bash any
+      more; it works the same way with Bash 1.x and other /bin/sh
+      implementations.</p></div><p>Now, build a <code class="filename">language.po</code>
+  file for each language that the script will be translated
+  into, specifying the <em class="replaceable"><code>msgstr</code></em>. Alfredo
+  Pironti gives the following example:</p><p>fr.po:
+
+      </p><pre class="programlisting">#: a:6
+msgid "Can't cd to $var."
+msgstr "Impossible de se positionner dans le repertoire $var."
+#: a:7
+msgid "Enter the value: "
+msgstr "Entrez la valeur : "
+
+#  The string are dumped with the variable names, not with the %s syntax,
+#+ similar to C programs.
+#+ This is a very cool feature if the programmer uses
+#+ variable names that make sense!</pre><p>
+      </p><p>Then, run <a class="link" href="ch15s04.html#msgfmtref">msgfmt</a>.</p><p><strong class="userinput"><code>msgfmt -o localized.sh.mo fr.po</code></strong></p><p>Place the resulting <code class="filename">localized.sh.mo</code> file in the
+        <code class="filename">/usr/local/share/locale/fr/LC_MESSAGES</code>
+        directory, and at the beginning of the script, insert the lines:
+
+    </p><pre class="programlisting">TEXTDOMAINDIR=/usr/local/share/locale
+TEXTDOMAIN=localized.sh</pre><p>
+      </p><p>If a user on a French system runs the script, she will get
+        French messages.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>With older versions of Bash or other shells, localization requires
+        <a class="link" href="ch15s04.html#gettextref">gettext</a>, using the
+  <code class="option">-s</code> option. In this case, the script becomes:</p><p><a id="gettextexample"/>
+      </p><pre class="programlisting">#!/bin/bash
+# localized.sh
+
+E_CDERROR=65
+
+error() {
+  local format=$1
+  shift
+  printf "$(gettext -s "$format")" "$@" &gt;&amp;2
+  exit $E_CDERROR
+}
+cd $var || error "Can't cd to %s." "$var"
+read -p "$(gettext -s "Enter the value: ")" var
+# ...</pre><p>
+      </p></div><p>The <code class="varname">TEXTDOMAIN</code> and
+  <code class="varname">TEXTDOMAINDIR</code> variables need to be set and
+  exported to the environment. This should be done within the
+  script itself.</p><p>---</p><p>This appendix written by Stéphane Chazelas,
+  with modifications suggested by Alfredo Pironti,
+  and by Bruno Haible, maintainer of GNU <a class="link" href="ch15s04.html#gettextref">gettext</a>.</p></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="api.html">Пред.</a> </td><td align="center"> </td><td align="right"> <a accesskey="n" href="apk.html">След.</a></td></tr><tr><td align="left" valign="top">Приложение I. An Introduction to Programmable Completion </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Приложение K. History Commands</td></tr></table></div></body></html>

@@ -1,0 +1,209 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>launchctl OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>launctl</h1> 
+<p>Interfaces with <a href="http://en.wikipedia.org/wiki/Launchd">launchd</a> to load, unload daemons/agents and generally control launchd. launchctl supports taking subcommands on the
+command line, interactively or even redirected from standard input.</p>
+<pre>Syntax
+      launchctl [<i>subcommand</i> [<i>arguments</i> ...]]
+
+SUBCOMMANDS
+
+     load [-wF] [-S <i>sessiontype</i>] [-D <i>domain</i>] <i>paths</i> ...
+              Load the specified configuration files or directories of config-
+              uration files.  Jobs that are not on-demand will be started as
+              soon as possible.  All specified jobs will be loaded before any
+              of them are allowed to start.
+
+              -w       Remove the disabled key and write the configuration
+                       files back out to disk.
+
+              -F       Force the loading of the plist. Ignore the Disabled
+                       key.
+
+              -S <i>sessiontype</i>
+                       Some jobs only make sense in certain contexts. This
+                       flag instructs launchctl to look for jobs in a differ-
+                       ent location when using the -D flag, and allows
+                       launchctl to restrict which jobs are loaded into which
+                       session types. Currently known session types include:
+                       Aqua, LoginWindow, Background, StandardIO and System.
+
+              -D <i>domain</i>
+                       Look for plist(5) files ending in *.plist in the domain
+                       given. Valid domains include "system," "local," "net-
+                       work" and "all." When providing a session type, an
+                       additional domain is available for use called "user."
+                       For example, without a session type given, "-D system"
+                       would load from property list files from /Sys-
+                       tem/Library/LaunchDaemons.  With a session type passed,
+                       it would load from /System/Library/LaunchAgents.
+
+     unload [-w] [-S <i>sessiontype</i>] [-D <i>domain</i>] <i>paths</i> ...
+              Unload the specified configuration files or directories of con-
+              figuration files.  This will also stop the job if it is running.
+
+              -w       Add the disabled key and write the configuration files
+                       back out to disk.
+
+              -S <i>sessiontype</i>
+                       Some jobs only make sense in certain contexts. This
+                       flag instructs launchctl to look for jobs in a differ-
+                       ent location when using the -D flag, and allows
+                       launchctl to restrict which jobs are loaded into which
+                       session types. Currently known session types include:
+                       Aqua, LoginWindow, Background, StandardIO and System.
+
+              -D <i>domain</i>
+                       Look for plist(5) files ending in *.plist in the domain
+                       given. Valid domains include "system," "local," "net-
+                       work" and "all." When providing a session type, an
+                       additional domain is available for use called "user."
+                       For example, without a session type given, "-D system"
+                       would load from property list files from /Sys-
+                       tem/Library/LaunchDaemons.  With a session type passed,
+                       it would load from /System/Library/LaunchAgents.
+
+     submit -l <i>label</i> [-p <i>executable</i>] [-o <i>path</i>] [-e <i>path</i>] -- <i>command</i> [<i>args</i>]
+              A simple way of submitting a program to run without a configura-
+              tion file. This mechanism also tells launchd to keep the program
+              alive in the event of failure.
+
+              -l <i>label</i>
+                       What unique label to assign this job to launchd.
+
+              -p <i>program</i>
+                       What program to really execute, regardless of what fol-
+                       lows the -- in the submit sub-command.
+
+              -o <i>path</i>  Where to send the stdout of the program.
+
+              -e <i>path</i>  Where to send the stderr of the program.
+
+     remove <i>job_label</i>
+              Remove the job from launchd by label.
+
+     start <i>job_label</i>
+              Start the specified job by label. The expected use of this sub-
+              command is for debugging and testing so that one can manually
+              kick-start an on-demand server.
+
+     stop <i>job_label</i>
+              Stop the specified job by label. If a job is on-demand, launchd
+              may immediately restart the job if launchd finds any criteria
+              that is satisfied.  Non-demand based jobs will always be
+              restarted. Use of this subcommand is discouraged.  Jobs should
+              ideally idle timeout by themselves.
+
+     list     List all of the jobs loaded into launchd.
+
+     setenv <i>key value</i>
+              Set an environmental variable inside of launchd.
+
+     unsetenv <i>key</i>
+              Unset an environmental variable inside of launchd.
+
+     getenv <i>key</i>
+              Get an environmental variable inside of launchd.
+
+     export   Export all of the environmental variables of launchd for use in
+              a shell eval statement.
+
+     getrusage self | children
+              Get the resource utilization statistics for launchd or the chil-
+              dren of launchd.
+
+     log [level <i>loglevel</i>] [only | mask <i>loglevels</i>...]
+              Get and set the syslog(3) log level mask. The available log lev-
+              els are: debug, info, notice, warning, error, critical, alert
+              and emergency.
+
+     limit [cpu | filesize | data | stack | core | rss | memlock | maxproc |
+              maxfiles] [both [soft | hard]]
+              With no arguments, this command prints all the resource limits
+              of launchd as found via getrlimit(2).  When a given resource is
+              specified, it prints the limits for that resource.  With a third
+              argument, it sets both the hard and soft limits to that value.
+              With four arguments, the third and forth argument represent the
+              soft and hard limits respectively.  See setrlimit(2).
+
+     shutdown
+              Tell launchd to prepare for shutdown by removing all jobs.
+
+     umask [newmask]
+              Get or optionally set the umask(2) of launchd.
+
+     bslist [PID]
+              This prints out Mach bootstrap services and their respective
+              states. While the namespace appears flat, it is in fact hierar-
+              chical, thus allowing for certain services to be only available
+              to a subset of processes. The three states a service can be in
+              are active ("A"), inactive ("I") and on-demand ("D").
+
+     bsexec PID command [<i>args</i>]
+              This executes the given command in the same Mach bootstrap
+              namespace hierachy as the given PID.
+
+     help     Print out a quick usage statement.
+
+ENVIRONMENTAL VARIABLES
+
+     LAUNCHD_SOCKET
+              This variable informs launchctl how to find the correct launchd
+              to talk to. If it is missing, launchctl will use a built-in
+              default.
+
+FILES
+     ~/Library/LaunchAgents         Per-user agents provided by the user.
+     /Library/LaunchAgents          Per-user agents provided by the administrator.
+     /Library/LaunchDaemons         System wide daemons provided by the administrator.
+     /System/Library/LaunchAgents   Mac OS X Per-user agents.
+     /System/Library/LaunchDaemons  Mac OS X System wide daemons.</pre>
+<p>Commands can be stored in <span class="code">$HOME/.launchd.conf</span> or <span class="code">/etc/launchd.conf </span>to be read when launchd starts.</p>
+<p>Be very wary of extra white space when running unload commands, these can easily be interpreted by launchctl as a wildcard which will disable ALL the daemons in that folder - this will prevent the machine from booting!</p>
+<p>If launchctl is run without any options you will enter  an interactive mode (similar to ftp) interactively you can use all the normal commands listed above (load, unload, start, stop, etc.)  use Control-C to exit.</p>
+<p>Run launchctl with <a href="sudo.html">sudo</a> to see system-owned tasks.</p>
+<p><b>Examples</b></p>
+<p> Display the launch scripts that are currently loaded:</p>
+<pre>$ sudo launchctl list</pre>
+<p>Stop and unload the finger daemon, and (-w) remove it  permanently from the boot sequence:<br>
+</p>
+<pre>
+sudo launchctl unload -w /System/Library/LaunchDaemons/finger.plist</pre>
+<p> Start and load the finger daemon, and (-w) add it  permanently to the boot sequence:<br>
+</p>
+<pre>
+sudo launchctl load -w /System/Library/LaunchDaemons/finger.plist</pre>
+<p class="quote"><i>&ldquo;A good rule for rocket experimenters to follow is this: always assume that it will explode&rdquo; ~ 'Astronautics,' issue 38, October 1937</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/launchctl.1.html">launchctl man page</a> - Apple.com<br>
+launchd.plist(5), launchd.conf(5), launchd(8)</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="launchctl.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

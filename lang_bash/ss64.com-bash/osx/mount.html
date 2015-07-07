@@ -1,0 +1,170 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>mount OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>mount</h1> 
+<p>mount a file system<span class="body"><br>
+  All files accessible in a Unix system are arranged in one big tree, the file 
+  hierarchy, rooted at /. These files can be spread out over several devices. 
+  The mount command serves to attach the file system found on some device to the 
+  big file tree.</span><br>
+  The system maintains a list of currently mounted file systems. If no arguments 
+are given to mount, this list is printed. </p>
+<pre>Syntax
+      mount [-adfruvw] [-t <i>ufs</i> | <i>lfs</i> | <i>external_type</i>]
+
+      mount [-dfruvw] special | node
+
+      mount [-dfruvw] [-o <i>options</i>] [-t <i>ufs</i> | <i>lfs</i> | <i>external_type</i>] special node
+
+Options
+   <b>-a</b>	All the filesystems described in <b>fstab(5)</b> are mounted.  Excep-
+	tions are those marked as ``noauto'' or are excluded by the <b>-t</b>
+        flag (see below).
+     
+
+  <b>-d</b>	Causes everything to be done except for the actual system call.
+	This option is useful in conjunction with the <b>-v</b> flag to deter-
+	mine what the <b>mount</b> command is trying to do.
+
+  <b>-f</b>	Forces the revocation of write access when trying to downgrade a
+	filesystem mount status from read-write to read-only.
+
+  <b>-o</b>	Options are specified with a <b>-o</b> flag followed by a comma sepa-
+	rated string of options.  The following options are available:
+
+	     async   All I/O to the file system should be done asynchronously.
+		     This can be somewhat dangerous with respect to losing
+		     data when faced with system crashes and power outages.
+		     This is also the default.	It can be avoided with the
+		     <i>noasync</i> option.
+
+	     force   The same as <b>-f</b>; forces the revocation of write access
+		     when trying to downgrade a filesystem mount status from
+		     read-write to read-only.
+
+	     noasync
+		     This filesystem should not force all I/O to be written
+		     asynchronously.
+
+	     noauto  This filesystem should be skipped when mount is run with
+		     the <b>-a</b> flag.
+
+	     nodev   Do not interpret character or block special devices on
+		     the file system.  This option is useful for a server that
+		     has file systems containing special devices for architec-
+		     tures other than its own.
+
+	     noexec  Do not allow execution of any binaries on the mounted
+		     file system.  This option is useful for a server that has
+		     file systems containing binaries for architectures other
+		     than its own.
+
+	     nosuid  Do not allow set-user-identifier or set-group-identifier
+		     bits to take effect.
+
+	     rdonly  The same as <b>-r</b>; mount the file system read-only (even the
+		     super-user may not write it).
+
+	     sync    All I/O to the file system should be done synchronously.
+
+	     update  The same as <b>-u</b>; indicate that the status of an already
+		     mounted file system should be changed.
+
+	     union   Causes the namespace at the mount point to appear as the
+		     union of the mounted filesystem root and the existing
+		     directory.	 Lookups will be done in the mounted filesys-
+		     tem first.	 If those operations fail due to a non-exis-
+		     tent file the underlying directory is then accessed.  All
+		     creates are done in the mounted filesystem.
+
+	     Any additional options specific to a filesystem type that is not
+	     one of the internally known types (see the <b>-t</b> option) may be
+	     passed as a comma separated list; these options are distinguished
+	     by a leading ``-'' (dash).	 Options that take a value are speci-
+	     fied using the syntax -option=value.  For example, the mount com-
+	     mand:
+		   mount -t hfs -o nosuid,-w,-m=755 /dev/disk2s9 /tmp
+
+	     causes <b>mount</b> to execute the equivalent of:
+
+		   /sbin/mount_hfs -o nosuid -w -m 755 /dev/disk2s9 /tmp
+
+  <b>-r</b>	The file system is to be mounted read-only.  Mount the file sys-
+	tem read-only (even the super-user may not write it).  The same
+	as the ``rdonly'' argument to the <b>-o</b> option.
+
+  <b>-t</b> <i>ufs</i> | <i>lfs</i> | <i>external</i> <i>type</i>
+
+	The argument following the <b>-t</b> is used to indicate the file system
+	type.  The type <i>ufs</i> is the default.  The <i>-t</i> option can be used to
+	indicate that the actions should only be taken on filesystems of
+	the specified type.  More than one type may be specified in a
+	comma separated list.  The list of filesystem types can be pre-
+	fixed with ``no'' to specify the filesystem types for which
+	action should <i>not</i> be taken.  For example, the <b>mount</b> command:
+
+	   mount -a -t nonfs,hfs
+
+	mounts all filesystems except those of type NFS and HFS.
+
+	If the type is not one of the internally known types, mount will
+	attempt to execute a program in <i>/sbin/mount</i><b>_</b><i>XXX</i> where <i>XXX</i> is
+	replaced by the type name.	 For example, nfs filesystems are
+	mounted by the program <i>/sbin/mount</i><b>_</b><i>nfs</i>.
+
+  <b>-u</b>	The <b>-u</b> flag indicates that the status of an already mounted file
+	system should be changed.	Any of the options discussed above
+	(the <b>-o</b> option) may be changed; also a file system can be changed
+	from read-only to read-write or vice versa.  An attempt to change
+	from read-write to read-only will fail if any files on the
+	filesystem are currently open for writing unless the <b>-f</b> flag is
+	also specified.  The set of options is determined by first
+	extracting the options for the file system from the fstab table,
+	then applying any options specified by the <b>-o</b> argument, and
+	finally applying the <b>-r</b> or <b>-w</b> option.
+
+  <b>-v</b>	Verbose mode.
+
+  <b>-w</b>	The file system object is to be read and write.
+
+	The options specific to NFS filesystems are described in the
+	<b>mount_nfs(8)</b> manual page.</pre>
+<p>The mount command calls the mount(2) system call to prepare and graft a special device or the remote node (rhost:path) on to the file system tree at the point node. If either <span class="code">special</span> or <span class="code">node</span> are not 
+provided, the appropriate information is taken from the fstab(5) file.<b><br><br>
+</b><i class="quote">&ldquo;The Ten Commandments and the Sermon on the Mount contain my religion&rdquo; ~ John Adams</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/mount.8.html">mount man page</a> - Apple.com<br>
+<a href="bless.html">  bless</a> - Set volume bootability and startup disk options.<br>
+<a href="diskutil.html">diskutil</a> - Disk utilities - Format, Verify, Repair<br>
+<a href="df.html">df</a> - Display free disk space<br>
+hdiutil - manipulate disk images  <br>
+<a href="umount.html"><span class="body">umount</span></a><span class="body"> - detach/u</span>nmount a device</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="mount.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

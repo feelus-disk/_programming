@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 11. Command Substitution</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt03.html" title="Часть Part 3. Углубленный материал"/><link rel="prev" href="ch10s04.html" title="Проверки и ветвления"/><link rel="next" href="ch12.html" title="Глава 12. Раскрытие арифметических выражений"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 11. Command Substitution</th></tr><tr><td align="left"><a accesskey="p" href="ch10s04.html">Пред.</a> </td><th width="60%" align="center">Часть Part 3. Углубленный материал</th><td align="right"> <a accesskey="n" href="ch12.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 11. Command Substitution"><div class="titlepage"><div><div><h2 class="title"><a id="commandsub"/>Глава 11. Command Substitution</h2></div></div></div><a id="idp10461344" class="indexterm"/><a id="idp10462384" class="indexterm"/><p>
+       <a id="commandsubref"/><span class="command"><strong>Command
+       substitution</strong></span> reassigns the output of a command
+    <sup>[<a id="idp10465312" href="#ftn.idp10465312" class="footnote">48</a>]</sup>
+       or even multiple commands; it literally plugs the command
+       output into another context.
+
+          <sup>[<a id="idp10476144" href="#ftn.idp10476144" class="footnote">49</a>]</sup>
+       </p><p><a id="backquotesref"/>The classic form of command
+        substitution uses <em class="firstterm">backquotes</em>
+        (`...`). Commands within backquotes (backticks) generate
+        command-line text.
+
+        </p><pre class="programlisting">script_name=`basename $0`
+echo "The name of this script is $script_name."</pre><p title="The output of commands can be used as arguments to another command, to set a variable, and even for generating the argument list in a for loop."><b>The output of commands can be used as arguments to
+        another command, to set a variable, and even for generating
+        the argument list in a <a class="link" href="ch10.html#forloopref1">for</a>
+        loop. </b></p><p>
+        </p><pre class="programlisting">rm `cat filename`   # <span class="quote">«<span class="quote">filename</span>»</span> contains a list of files to delete.
+#
+# S. C. points out that "arg list too long" error might result.
+# Better is              xargs rm -- &lt; filename 
+# ( -- covers those cases where <span class="quote">«<span class="quote">filename</span>»</span> begins with a <span class="quote">«<span class="quote">-</span>»</span> )
+
+textfile_listing=`ls *.txt`
+# Variable contains names of all *.txt files in current working directory.
+echo $textfile_listing
+
+textfile_listing2=$(ls *.txt)   # The alternative form of command substitution.
+echo $textfile_listing2
+# Same result.
+
+# A possible problem with putting a list of files into a single string
+# is that a newline may creep in.
+#
+# A safer way to assign a list of files to a parameter is with an array.
+#      shopt -s nullglob    # If no match, filename expands to nothing.
+#      textfile_listing=( *.txt )
+#
+# Thanks, S.C.</pre><p>
+            </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a id="cssubsh"/>Command substitution
+              invokes a <a class="link" href="ch20.html#subshellsref">subshell</a>.</p></div><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p><a id="csws"/>Command substitution may
+                result in <a class="link" href="ch05.html#wsplitref">word splitting</a>.
+          </p><pre class="programlisting">COMMAND `echo a b`     # 2 args: a and b
+
+COMMAND "`echo a b`"   # 1 arg: "a b"
+
+COMMAND `echo`         # no arg
+
+COMMAND "`echo`"       # one empty arg
+
+
+# Thanks, S.C.</pre><p><a id="cstrnl"/></p><p>Even when there is no word splitting, command
+          substitution can remove trailing newlines.
+
+    </p><pre class="programlisting"># cd "`pwd`"  # This should always work.
+# However...
+
+mkdir 'dir with trailing newline
+'
+
+cd 'dir with trailing newline
+'
+
+cd "`pwd`"  # Error message:
+# bash: cd: /tmp/file with trailing newline: No such file or directory
+
+cd "$PWD"   # Works fine.
+
+
+
+
+
+old_tty_setting=$(stty -g)   # Save old terminal setting.
+echo "Hit a key "
+stty -icanon -echo           # Disable "canonical" mode for terminal.
+                             # Also, disable *local* echo.
+key=$(dd bs=1 count=1 2&gt; /dev/null)   # Using 'dd' to get a keypress.
+stty "$old_tty_setting"      # Restore old setting. 
+echo "You hit ${#key} key."  # ${#variable} = number of characters in $variable
+#
+# Hit any key except RETURN, and the output is "You hit 1 key."
+# Hit RETURN, and it's "You hit 0 key."
+# The newline gets eaten in the command substitution.
+
+Thanks, S.C.</pre><p>
+              </p></div><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Using <span class="command"><strong>echo</strong></span> to output an
+    <em class="firstterm">unquoted</em> variable set with command
+    substitution removes trailing newlines characters from
+    the output of the reassigned command(s). This can cause
+    unpleasant surprises.
+
+    </p><pre class="programlisting">dir_listing=`ls -l`
+echo $dir_listing     # unquoted
+
+# Expecting a nicely ordered directory listing.
+
+# However, what you get is:
+# total 3 -rw-rw-r-- 1 bozo bozo 30 May 13 17:15 1.txt -rw-rw-r-- 1 bozo
+# bozo 51 May 15 20:57 t2.sh -rwxr-xr-x 1 bozo bozo 217 Mar 5 21:13 wi.sh
+
+# The newlines disappeared.
+
+
+echo "$dir_listing"   # quoted
+# -rw-rw-r--    1 bozo       30 May 13 17:15 1.txt
+# -rw-rw-r--    1 bozo       51 May 15 20:57 t2.sh
+# -rwxr-xr-x    1 bozo      217 Mar  5 21:13 wi.sh</pre><p>
+              </p></div><p>Command substitution even permits setting a variable to the
+         contents of a file, using either <a class="link" href="ch19.html#ioredirref">redirection</a> or the <a class="link" href="ch15.html#catref">cat</a> command.</p><p>
+           </p><pre class="programlisting">variable1=`&lt;file1`      #  Set "variable1" to contents of "file1".
+variable2=`cat file2`   #  Set "variable2" to contents of "file2".
+                        #  This, however, forks a new process,
+                        #+ so the line of code executes slower than the above version.
+
+#  Note that the variables may contain embedded whitespace,
+#+ or even (horrors), control characters.
+
+#  It is not necessary to explicitly assign a variable.
+echo "` &lt;$0`"           # Echoes the script itself to stdout.</pre><p>
+             </p><p>
+           </p><pre class="programlisting">#  Excerpts from system file, /etc/rc.d/rc.sysinit
+#+ (on a Red Hat Linux installation)
+
+
+if [ -f /fsckoptions ]; then
+        fsckoptions=`cat /fsckoptions`
+...
+fi
+#
+#
+if [ -e "/proc/ide/${disk[$device]}/media" ] ; then
+             hdmedia=`cat /proc/ide/${disk[$device]}/media`
+...
+fi
+#
+#
+if [ ! -n "`uname -r | grep -- "-"`" ]; then
+       ktag="`cat /proc/version`"
+...
+fi
+#
+#
+if [ $usb = "1" ]; then
+    sleep 5
+    mouseoutput=`cat /proc/bus/usb/devices 2&gt;/dev/null|grep -E "^I.*Cls=03.*Prot=02"`
+    kbdoutput=`cat /proc/bus/usb/devices 2&gt;/dev/null|grep -E "^I.*Cls=03.*Prot=01"`
+...
+fi</pre><p>
+             </p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Do not set a variable to the contents of a
+         <span class="emphasis"><em>long</em></span> text file unless you have a very good
+         reason for doing so. Do not set a variable to the contents of a
+         <em class="firstterm">binary</em> file, even as a joke.</p><div class="example"><a id="stupscr"/><p class="title"><b>Пример 11.1. Stupid script tricks</b></p><div class="example-contents"><pre class="programlisting">&amp;stupscr;</pre></div></div><br class="example-break"/><p>Notice that a <em class="firstterm">buffer overrun</em>
+         does not occur. This is one instance where an interpreted
+         language, such as Bash, provides more protection from
+         programmer mistakes than a compiled language.</p></div><p><a id="csvl"/></p><p>Command substitution permits setting a variable to the
+    output of a <a class="link" href="ch10.html#forloopref1">loop</a>. The
+    key to this is grabbing the output of an <a class="link" href="ch14.html#echoref">echo</a> command within the
+    loop.</p><div class="example"><a id="csubloop"/><p class="title"><b>Пример 11.2. Generating a variable from a loop</b></p><div class="example-contents"><pre class="programlisting">&amp;csubloop;</pre></div></div><br class="example-break"/><p><a id="cstoolset"/></p><div class="sidebar"><p class="title"><b/></p><p>Command substitution makes it possible to extend the
+    toolset available to Bash. It is simply a matter
+    of writing a program or script that outputs to
+    <code class="filename">stdout</code> (like a well-behaved UNIX
+    tool should) and assigning that output to a variable.</p><p>
+    </p><pre class="programlisting">#include &lt;stdio.h&gt;
+
+/*  "Hello, world." C program  */   
+
+int main()
+{
+  printf( "Hello, world." );
+  return (0);
+}</pre><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>gcc -o hello hello.c</code></strong>
+        </pre><p>
+    </p><p>
+                </p><pre class="programlisting">#!/bin/bash
+# hello.sh    
+
+greeting=`./hello`
+echo $greeting</pre><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>sh hello.sh</code></strong>
+<code class="computeroutput">Hello, world.</code>
+          </pre><p>
+          </p></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a id="csparens"/>The <span class="command"><strong>$(...)</strong></span>
+    form has superseded backticks for command
+    substitution.</p><pre class="programlisting">output=$(sed -n /"$1"/p $file)   # From "grp.sh"  example.
+        
+# Setting a variable to the contents of a text file.
+File_contents1=$(cat $file1)      
+File_contents2=$(&lt;$file2)        # Bash permits this also.</pre><p>The <span class="command"><strong>$(...)</strong></span> form of command substitution
+          treats a double backslash in a different way than
+    <span class="command"><strong>`...`</strong></span>.</p><p>    
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>echo `echo \\`</code></strong>
+<code class="computeroutput"/>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo $(echo \\)</code></strong>
+<code class="computeroutput">\</code>
+        </pre><p>
+              </p><p><a id="csnest"/></p><p>The <span class="command"><strong>$(...)</strong></span> form of command
+                substitution permits nesting.
+      <sup>[<a id="idp10533440" href="#ftn.idp10533440" class="footnote">50</a>]</sup>
+    
+    </p><pre class="programlisting">word_count=$( wc -w $(echo * | awk '{print $8}') )</pre><p>
+              </p><p>Or, for something a bit more elaborate . . .</p><div class="example"><a id="agram2"/><p class="title"><b>Пример 11.3. Finding anagrams</b></p><div class="example-contents"><pre class="programlisting">&amp;agram2;</pre></div></div><br class="example-break"/></div><p>Examples of command substitution in shell scripts:
+       </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p><a class="xref" href="ch10.html#bingrep" title="Пример 10.7. grep для бинарных файлов">Пример 10.7, «<em class="firstterm">grep</em> для бинарных файлов»</a></p></li><li class="listitem"><p><a class="xref" href="ch10s04.html#casecmd" title="Пример 10.26. Использование подстановки команды для генерирования значения переменной для case.">Пример 10.26, «Использование <em class="firstterm">подстановки команды</em>
+       для генерирования значения переменной для <em class="firstterm">case</em>.»</a></p></li><li class="listitem"><p><a class="xref" href="ch09s06.html#seedingrandom" title="Пример 9.31. Reseeding RANDOM">Пример 9.31, «Reseeding RANDOM»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s02.html#ex57" title="Пример 15.3. Badname, eliminate file names in current directory containing bad characters and whitespace.">Пример 15.3, «<em class="firstterm">Badname</em>, eliminate file names
+    in current directory containing bad characters and whitespace.»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s04.html#lowercase" title="Пример 15.22. lowercase: Changes all filenames in working directory to lowercase.">Пример 15.22, «<em class="firstterm">lowercase</em>: Changes all
+        filenames in working directory to lowercase.»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s04.html#grp" title="Пример 15.17. Emulating grep in a script">Пример 15.17, «Emulating <em class="firstterm">grep</em> in a script»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s09.html#ex53" title="Пример 15.54. Using seq to generate loop arguments">Пример 15.54, «Using <em class="firstterm">seq</em> to generate loop
+        arguments»</a></p></li><li class="listitem"><p><a class="xref" href="ch10.html#ex24" title="Пример 10.13. Использование команды efax в пакетном режиме">Пример 10.13, «Использование команды <em class="firstterm">efax</em> в пакетном режиме»</a></p></li><li class="listitem"><p><a class="xref" href="ch10.html#symlinks" title="Пример 10.10. Список символических ссылок в каталоге.">Пример 10.10, «Список <em class="firstterm">символических ссылок</em> в каталоге.»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s05.html#stripc" title="Пример 15.32. Stripping comments from C program files">Пример 15.32, «Stripping comments from C program files»</a></p></li><li class="listitem"><p><a class="xref" href="ch19s02.html#redir4" title="Пример 19.8. Redirected for loop">Пример 19.8, «Redirected <em class="firstterm">for</em> loop»</a></p></li><li class="listitem"><p><a class="xref" href="apa.html#tree" title="Пример A.16. tree: Displaying a directory tree">Пример A.16, «<em class="firstterm">tree</em>: Displaying a directory tree»</a></p></li><li class="listitem"><p><a class="xref" href="ch27s02.html#pidid" title="Пример 27.3. Finding the process associated with a PID">Пример 27.3, «Finding the process associated with a PID»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s08.html#monthlypmt" title="Пример 15.47. Monthly Payment on a Mortgage">Пример 15.47, «Monthly Payment on a Mortgage»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s08.html#base" title="Пример 15.48. Base Conversion">Пример 15.48, «Base Conversion»</a></p></li><li class="listitem"><p><a class="xref" href="ch15s08.html#altbc" title="Пример 15.49. Invoking bc using a here document">Пример 15.49, «Invoking <em class="firstterm">bc</em> using a <em class="firstterm">here
+          document</em>»</a></p></li></ol></div><p>
+     </p><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp10465312" href="#idp10465312" class="para">48</a>] </sup>For purposes of <em class="firstterm">command
+    substitution</em>, a <span class="command"><strong>command</strong></span>
+    may be an external system command, an internal scripting
+    <a class="link" href="ch14.html#builtinref">builtin</a>, or even <a class="link" href="ch33s08.html#rvt">a script function</a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp10476144" href="#idp10476144" class="para">49</a>] </sup>In a more technically correct sense,
+    <em class="firstterm">command substitution</em> extracts the
+    <code class="filename">stdout</code> of a command, then assigns
+    it to a variable using the <span class="token">=</span>
+    operator.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp10533440" href="#idp10533440" class="para">50</a>] </sup>
+        In fact, nesting with backticks is also possible,
+        but only by escaping the inner backticks, as John
+        Default points out.
+          <pre class="programlisting">word_count=` wc -w \`echo * | awk '{print $8}'\` `</pre>
+        </p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch10s04.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt03.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch12.html">След.</a></td></tr><tr><td align="left" valign="top">Проверки и ветвления </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 12. Раскрытие арифметических выражений</td></tr></table></div></body></html>

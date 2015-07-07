@@ -1,0 +1,110 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>bash permissions chmod | Bash | SS64.com</title>
+
+<style type="text/css">
+table.table2 {
+	border-width: 1px;
+	border-spacing: 0px;
+	border-style: none;
+	border-color: gray;
+	border-collapse: collapse;
+}
+table.table2 th {
+	border-width: 1px;
+	padding: 3px;
+	border-style: inset;
+	border-color: gray;
+	background-color: rgb(221, 221, 221);
+}
+table.table2 td {
+	border-width: 1px;
+	padding: 3px;
+	border-style: inset;
+	border-color: gray;
+	background-color: rgb(221, 221, 221);
+}
+</style></head><!-- #BeginLibraryItem "/Library/head_bashsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>bash Permissions</h1>
+<p> 
+Linux/unix system permissions allow or prevent other users from viewing, modifying or executing any particular file.</p>
+<h2>View permissions with <span class="code">ls</span></h2>
+<p>The ouptut of <a href="ls.html">ls -l</a> will show the current permissions for files and folders: </p>
+<pre>
+-<b>rwxr--rw-</b> 1 user user 0 Jan 19 12:59 file1.txt
+</pre>
+<p>The letters <span class="code">rwx</span> stand for <b>R</b>ead/<b>W</b>rite/E<b>x</b>ecute permission. These rights are shown three times, first for the Owner, then the Group and lastly Others (world)</p>
+<p>In the example above the Group permission is <b class="code">r--</b> so members of the group will have  Read permission but not Write or Execute permission to file1.txt</p>
+<table class="table2">
+<tbody><tr>  <td><b>User</b></td>
+  <td><b><i>ls</i> output</b></td>
+</tr>
+<tr>  <td>Owner</td>
+  <td class="code">-rwx------</td>
+</tr>
+<tr>  <td>Group</td>
+  <td class="code">----rwx---</td>
+</tr>
+<tr>  <td>Other</td>
+  <td class="code">-------rwx</td>
+</tr>
+</tbody></table>
+<h2>Edit permissions with <span class="code">chmod</span> </h2>
+<p>The command to modify permissions is <a href="chmod.html">chmod</a>. There are two ways to modify permissions, with numbers or with letters. Using letters is easier to understand for most people. See the <a href="chmod.html">chmod</a> page for more detail. </p>
+<p>Some files are configured to have very restrictive permissions to prevent unauthorized access. Changing these permissions can create security problems. </p>
+<p>To change or edit files that are owned by root, <a href="sudo.html">sudo chmod </a> must be used. Note that changing permissions incorrectly can quickly make your system unusable! Please be careful when using sudo!</p>
+<p class="code">$ sudo chmod o+x /usr/local/bin/somefile</p>
+<h2>Recursive Permission Changes</h2>
+<p> <a href="chmod.html">chmod -R</a> will change all the permissions of each file and folder under a specified directory at once.</p>
+<p class="code">$ chmod 777 -R /path/to/Dir</p>
+<p>To assign reasonably secure permissions to files and folders/directories, it's common to give files a permission of <span class="code">644</span>, and directories a <span class="code">755</span> permission, using the <a href="find.html">find</a> command and a <a href="syntax-redirection.html">pipe</a> we can target just files or just folders as in the following examples. </p>
+<p class="code">$ sudo find /path/to/Dir -type f -print0 | xargs -0 sudo chmod 644</p>
+<p class="code">$ sudo find /path/to/Dir -type d -print0 | xargs -0 sudo chmod 755</p>
+<p>Again if using sudo be careful, in particular watch for extra spaces in your command/path.</p>
+<h2>Changing Ownership and Group membership </h2>
+<p>A file's owner can be changed using the <a href="chown.html">chown</a> command. <span class="code"><br>
+$ sudo chown kate file1.txt</span><br>
+<br>
+A file's group can be changed using the <a href="chgrp.html">chgrp</a> or <a href="chown.html">chown</a> command.<br>
+<span class="code">$ sudo chgrp mygroup file1.txt<br>
+$ sudo chown :mygroup file1.txt</span></p>
+<p><span class="code">chown</span> can also change the owner and group in a single command:<br>
+<span class="code">$ sudo chown tux:mygroup file1.txt</span></p>
+<h2>ACLs - Access control lists</h2>
+<p>Posix ACLs are a way of achieving a finer granularity of permissions than is possible with the standard Unix file permissions.</p>
+<p>To enable Posix ACLs, install the acl package</p>
+<p class="code">$ sudo apt-get install acl</p>
+<p>Documentation can then be found in the  man pages for acl, setfacl, getfacl</p>
+<h2>Sticky Bit</h2>
+<p>The Sticky bit (<span class="code">t</span>) will prevent users from altering or replacing any other user's files. Only the file owner and the superuser may remove files from that directory. All PUBLIC directories should be configured with sticky bit. </p>
+<p>Unlike with file sticky bits, the sticky bit on directories remains there until the directory owner or superuser explicitly removes the directory or changes the permissions.</p>
+<p>The sticky bit, together with the default umask of 077, solves a big problem for less secure systems. Together, both features prevent other users from altering or replacing any file you have in a public directory. The only information they can gain from the file is its name and attributes. </p>
+<p class="code">$ chmod u+t <i>directory</i></p>
+<p> <b>Related:</b><br>
+<br>
+<a href="chgrp.html">chgrp</a> - Change group ownership<br>
+<a href="chmod.html">chmod</a> Change access permissions<br>
+<a href="chown.html">chown</a> - Change file owner and group<br>
+Windows  equivalent: <a href="http://ss64.com/nt/syntax-permissions.html">permissions</a> </p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-permissions.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body></html>

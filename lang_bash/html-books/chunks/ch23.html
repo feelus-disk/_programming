@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 23. Функции</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch22.html" title="Глава 22. Process Substitution"/><link rel="next" href="ch23s02.html" title="Локальные переменные"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 23. Функции</th></tr><tr><td align="left"><a accesskey="p" href="ch22.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch23s02.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 23. Функции"><div class="titlepage"><div><div><h2 class="title"><a id="functions"/>Глава 23. Функции</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch23.html#complexfunct">Сложные функции и сложности функций</a></span></dt><dt><span class="sect1"><a href="ch23s02.html">Локальные переменные</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch23s02.html#locvarrecur">Локальные переменные и рекурсия.</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch23s03.html">Рекурсия без локальных переменных</a></span></dt></dl></div><p><a id="functionref"/></p><p>Как и в <span class="quote">«<span class="quote">настоящих</span>»</span> языках программирования в Bash
+      существуют функции, хотя и в несколько ограниченном виде.
+  Функцией является подпрограмма -- <a class="link" href="ch03.html#codeblockref">блок кода</a>,
+  котрый реализует набор операций, некий <span class="quote">«<span class="quote">чёрный ящик</span>»</span>,
+  выполняющий поставленную задачу. Функции принято использовать там, где существует
+  повторяющийся код, когда задача повторяется с незначительными изменениями порядка
+  выполнения действий.</p><div class="cmdsynopsis"><p><code class="command">function</code>   <em class="replaceable"><code>function_name</code></em>   { <br/>  <em class="replaceable"><code>command</code></em>... <br/>  } <br/></p></div><p>
+  или 
+  </p><div class="cmdsynopsis"><p> <em class="replaceable"><code>function_name</code></em>   ()   { <br/>  <em class="replaceable"><code>command</code></em>... <br/>  } <br/></p></div><p>
+      </p><p>Вторая форма будет ближе тем, кто программирует на языке C
+        (помимо этого она является более переносимой).</p><p>Как и в C, открывающая скобка функции может стоять
+        на второй строке.</p><div class="cmdsynopsis"><p> <em class="replaceable"><code>function_name</code></em>   () <br/>  { <br/>  <em class="replaceable"><code>command</code></em>... <br/>  } <br/></p></div><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Функцию можно записать одной строкой.</p><pre class="programlisting">fun () { echo "Это функция"; echo; }
+#                                 ^     ^</pre><p>Однако, в этом случае необходимо поставить <em class="firstterm">точку с запятой</em>
+          после последней команды в функции.</p><pre class="programlisting">fun () { echo "Это функция"; echo } # Ошибка!
+#                                       ^</pre></div><p>Функции <em class="firstterm">запускаются</em> простым упоминанием
+  их имён. <span class="emphasis"><em>Вызов функции эквивалентен вызову команды.</em></span></p><div class="example"><a id="ex59"/><p class="title"><b>Пример 23.1. Простые функции</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+JUST_A_SECOND=1
+
+funky ()
+{ # Пример простой функции.
+  echo "This is a funky function."
+  echo "Now exiting funky function."
+} # Объявление функции должно предшествовать её вызову.
+
+
+fun ()
+{ # Более сложная функция.
+  i=0
+  REPEATS=30
+
+  echo
+  echo "And now the fun really begins."
+  echo
+
+  sleep $JUST_A_SECOND    # Эй, подожди секундочку!
+  while [ $i -lt $REPEATS ]
+  do
+    echo "----------FUNCTIONS----------&gt;"
+    echo "&lt;------------ARE-------------"
+    echo "&lt;------------FUN------------&gt;"
+    echo
+    let "i+=1"
+  done
+}
+
+  # Теперь вызовем функции.
+
+funky
+fun
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="functdefmust"/></p><p>Описание функции должно предшествовать её первому
+  вызову. В Bash отсутствуют методы <span class="quote">«<span class="quote">опережающего объявления</span>»</span> функции,
+  такие, например, как в C.
+    </p><pre class="programlisting">f1
+# Мы получим сообщение об ошибке, так как функция "f1" ещё не определена.
+
+declare -f f1      # Это тоже не поможет.
+f1                 # По прежнему сообщение об ошибке.
+
+# Однако...
+
+    
+f1 ()
+{
+  echo "Вызываем функцию \"f2\" из функции \"f1\"."
+  f2
+}
+
+f2 ()
+{
+  echo "Функция \"f2\"."
+}
+
+f1  #  Функция "f2" не будет вызвана до этого момента,
+    #+ несмотря на то, что мы ссылаемся на неё до того, как определили её.
+    #  Это допустимо.
+    
+    # Спасибо, К.О.</pre><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a id="emptyfunc"/>Функции не могут быть пустыми!
+        </p><pre class="programlisting">#!/bin/bash
+# empty-function.sh
+
+empty ()
+{
+}
+
+exit 0  # Выход произойдёт не здесь!
+
+# $ sh empty-function.sh
+# empty-function.sh: line 6: syntax error near unexpected token `}'
+# empty-function.sh: line 6: `}'
+
+# $ echo $?
+# 2
+
+
+
+# Однако ...
+
+not_quite_empty ()
+{
+  illegal_command
+} #  Сценарий содержащий эту функцию *не* выдаст предупреждение
+  #+ до тех пор пока не будет вызвана эта функция.
+
+
+# Спасибо, Thiemo Kellner, за указание на это.</pre><p>
+</p></div><p>Допускается даже помещать одну функцию внутрь другой,  
+       хотя пользы от этого не очень много.
+    </p><pre class="programlisting">f1 ()
+{
+
+  f2 () # вложенная
+  {
+    echo "Функция \"f2\", внутри \"f1\"."
+  }
+
+}  
+
+f2  #  Выдаёт сообщение об ошибке.
+    #  Не поможет даже предшествующее "declare -f f2".
+
+echo    
+
+f1  #  Ничего не делает, так как вызов "f1" не вызывает автоматически "f2".
+f2  #  Теперь всё готово, чтобы вызвать "f2",
+    #+ так как её определение было сделано видимым путём вызова "f1".
+
+    # Спасибо, К.О.</pre><p>
+      </p><p>Объявление функции может появляться в неожиданных местах, даже там, где
+        должна стоять команда.
+          </p><pre class="programlisting">ls -l | foo() { echo "foo"; }  # Допустимо, но бесполезно.
+
+
+
+if [ "$USER" = bozo ]
+then
+  bozo_greet ()   # Определение функции, заключённое в конструкцию if/then.
+  {
+    echo "Привет, Bozo."
+  }
+fi  
+
+bozo_greet        # Работает только для Bozo, остальные пользователи получат ошибку.
+
+
+
+# Что-то подобное может быть полезным в некоторых случаях.
+NO_EXIT=1   # Разрешим определение функции ниже.
+
+[[ $NO_EXIT -eq 1 ]] &amp;&amp; exit() { true; }     # Определение функции в "и-списке" ("and-list").
+# Если $NO_EXIT равно 1, то объявляется "exit ()".
+# Это отключает встроенную команду "exit", путём замещения её на "true".
+
+exit  # Вызывает функцию "exit ()", а не встроенную команду "exit".
+
+
+
+# Или подобное:
+filename=file1
+
+[ -f "$filename" ] &amp;&amp;
+foo () { rm -f "$filename"; echo "Файл "$filename" удалён."; } ||
+foo () { echo "Файл "$filename" не найден."; touch bar; }
+
+foo
+
+# Спасибо, К.О. и Christopher Head</pre><p>
+      </p><p>Функции могут принимать странные формы.
+        </p><pre class="programlisting">  _(){ for i in {1..10}; do echo -n "$FUNCNAME"; done; echo; }
+# ^^^         Отсутствует пробел между именем функции и круглыми скобками.
+#             Это работает не всегда. Почему?
+
+# Теперь давайте вызовем функцию.
+  _
+# "Голое" подчёркивание является допустимым именем функции.</pre><p>
+      </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Что случится, когда в сценарии встретятся различные версии
+      одинаковых функций?
+  </p><pre class="programlisting">#  Yan Chen указывает,
+#  что если функция определена несколько раз,
+#  то при вызове будет использована та версия, которая была определена последней.
+#  Однако, пользы от этого немного.
+
+func ()
+{
+  echo "Первая версия func ()."
+}
+
+func ()
+{
+  echo "Вторая версия func ()."
+}
+
+func   # Вторая версия func ().
+
+exit $?
+
+#  Возможно, даже, использовать функции для переопределения
+#+ или подавления системных команд.
+#  Конечно, это *не* желательно.</pre></div><div class="sect1" title="Сложные функции и сложности функций"><div class="titlepage"><div><div><h2 class="title"><a id="complexfunct"/>Сложные функции и сложности функций</h2></div></div></div><p>Функции могут обрабатывать переданные им аргументы и возвращать
+  <a class="link" href="ch06.html#exitstatusref">код завершения</a> в сценарий
+  для дальнейшей обработки.</p><pre class="programlisting">function_name $arg1 $arg2</pre><p><a id="passedargs"/></p><p>Функция обращается к переданным ей аргументам основываясь на их позиции (как если бы они являлись
+  <a class="link" href="ch09.html#posparamref">позиционными параметрами</a>),
+  а именно, <code class="varname">$1</code>, <code class="varname">$2</code>, и
+  так далее.</p><div class="example"><a id="ex60"/><p class="title"><b>Пример 23.2. Функция Принимающая Параметры</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Функции и параметры
+
+DEFAULT=default                             # Значение параметра по умолчанию.
+
+func2 () {
+   if [ -z "$1" ]                           # Длина параметра #1 равна нулю?
+   then
+     echo "-Parameter #1 is zero length.-"  # Или параметр не передан.
+   else
+     echo "-Param #1 is \"$1\".-"
+   fi
+
+   variable=${1-$DEFAULT}                   #  Что показывает
+   echo "variable = $variable"              #+ подстановка параметра?
+                                            #  ---------------------------
+                                            #  Она различает случаи когда 
+                                            #+ параметр не передан и когда переданный параметр пустой.
+
+   if [ "$2" ]
+   then
+     echo "-Parameter #2 is \"$2\".-"
+   fi
+
+   return 0
+}
+
+echo
+   
+echo "Nothing passed."   
+func2                          # Вызов без параметров
+echo
+
+
+echo "Zero-length parameter passed."
+func2 ""                       # Вызов с параметром нулевой длины
+echo
+
+echo "Null parameter passed."
+func2 "$uninitialized_param"   # Вызов с неинициализированным параметром
+echo
+
+echo "One parameter passed."   
+func2 first           # Вызов с одним параметром
+echo
+
+echo "Two parameters passed."   
+func2 first second    # Вызов с двумя параметрами
+echo
+
+echo "\"\" \"second\" passed."
+func2 "" second       # Вызов с двумя параметрами, где первый имеет нулевую длину,
+echo                  # а второй является строкой.
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="fshiftref"/></p><div class="important" title="Важно" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Важно</h3><p>Команда <a class="link" href="ch04s04.html#shiftref">shift</a>
+        обрабатывает  аргументы переданные в функцию (см. <a class="xref" href="ch33s08.html#multiplication" title="Пример 33.16. Return value trickery">Пример 33.16, «Return value trickery»</a>).</p></div><p>А, как насчёт аргументов переданных в сценарий? 
+        Видны ли они внутри функции? Давайте проясним ситуацию.</p><div class="example"><a id="funccmdlinearg"/><p class="title"><b>Пример 23.3. Функции и аргументы командной строки переданные в сценарий</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# func-cmdlinearg.sh
+#  Запустите этот сценарий с аргументами командной строки,
+#+ например $0 arg1 (где $0 - имя данного сценария).
+
+
+func ()
+
+{
+echo "$1"
+}
+
+echo "Первый вызов функции: аргументы не переданы."
+echo "Убедитесь, видны ли аргументы командной строки."
+func
+# Нет! Аргументы командной строки не видны.
+
+echo "============================================================"
+echo
+echo "Второй вызов функции: аргумент командной строки передан в явном виде."
+func $1
+# Теперь он виден!
+
+exit 0
+</pre></div></div><br class="example-break"/><p>В отличии от некоторых других языков программирования,
+  в shell сценариях параметры в функцию обычно передаются по значению.
+  Если имена переменных (которые фактически являются
+  <em class="firstterm">указателями</em>) будут переданы в функцию в качестве
+  параметров, то они будут обработаны, как строковые
+  литералы.  <span class="emphasis"><em>Функции обрабатывают свои аргументы, как
+  литералы.</em></span></p><p><a id="funcpointers"/></p><p><a class="link" href="ch09s05.html#ivrref">Косвенные ссылки
+      на переменные</a> (см. <a class="xref" href="ch34.html#ex78" title="Пример 34.2. Indirect variable references - the new way">Пример 34.2, «Indirect variable references - the new way»</a>) обеспечивают
+      неуклюжий механизм для передачи указателей на переменные в
+      функции.</p><div class="example"><a id="indfunc"/><p class="title"><b>Пример 23.4. Передача косвенной ссылки в функцию</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# ind-func.sh: Передача косвенной ссылки в функцию.
+
+echo_var ()
+{
+echo "$1"
+}
+
+message=Hello
+Hello=Goodbye
+
+echo_var "$message"        # Hello
+# Теперь давайте передадим в функцию косвенную ссылку.
+echo_var "${!message}"     # Goodbye
+
+echo "-------------"
+
+# Что произойдёт если мы поменяем содержимое переменной "hello"?
+Hello="Hello, again!"
+echo_var "$message"        # Hello
+echo_var "${!message}"     # Hello, again!
+
+exit 0
+</pre></div></div><br class="example-break"/><p>Следующим логичным вопросом является вопрос о возможности
+    разыменовывания параметра <span class="emphasis"><em>после</em></span> его передачи в
+    функцию.</p><div class="example"><a id="dereferencecl"/><p class="title"><b>Пример 23.5. Разыменовывание параметра переданного в функцию</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# dereference.sh
+# Разыменовывание параметра переданного в функцию.
+# Сценарий от Bruce W. Clare.
+
+dereference ()
+{
+     y=\$"$1"   # Имя переменной.
+     echo $y    # $Junk
+
+     x=`eval "expr \"$y\" "`
+     echo $1=$x
+     eval "$1=\"Некоторый Другой Текст \""  # Присваиваем новое значение.
+}
+
+Junk="Некоторый Текст"
+echo $Junk "до"    # Некоторый Текст до
+
+dereference Junk
+echo $Junk "после"     # Некоторый Другой Текст после
+
+exit 0
+</pre></div></div><br class="example-break"/><div class="example"><a id="refparams"/><p class="title"><b>Пример 23.6. Ещё одно разыменовывание параметра переданного в функцию</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# ref-params.sh: Разыменовывание параметра переданного в функцию.
+#                (Сложный пример)
+
+ITERATIONS=3  # Сколько раз считывать ввод.
+icount=1
+
+my_read () {
+  #  Вызвано с помощью my_read имя_переменной,
+  #+ выводит предыдущее значение в квадратных скобках, как значение по умолчанию,
+  #+ затем запрашивает новое значение.
+
+  local local_var
+
+  echo -n "Enter a value "
+  eval 'echo -n "[$'$1'] "'  #  Предыдущее значение.
+# eval echo -n "[\$$1] "     #  Для более простого понимания,
+                             #+ но без завершающего пробела в запросе пользовательского ввода.
+  read local_var
+  [ -n "$local_var" ] &amp;&amp; eval $1=\$local_var
+
+  # "и-список" ("And-list"): если "local_var" то присвоим "$1" значение "local_var".
+}
+
+echo
+
+while [ "$icount" -le "$ITERATIONS" ]
+do
+  my_read var
+  echo "Entry #$icount = $var"
+  let "icount += 1"
+  echo
+done  
+
+
+# Спасибо Stephane Chazelas за этот полезный пример.
+
+exit 0
+</pre></div></div><br class="example-break"/><div class="variablelist" title="Выход (Exit) и Возврат (Return)"><a id="exitreturn"/><p class="title"><b><a id="exitreturn1"/>Выход (Exit) и Возврат (Return)</b></p><dl><dt><span class="term"><span class="command"><strong>код завершения (exit status)</strong></span></span></dt><dd><p>Функция возвращает значение называемое <em class="firstterm">кодом завершения</em>.
+      Код завершения может быть указан явно
+        с помощью оператора <span class="command"><strong>return</strong></span>,
+        иначе им является код завершения последней команды
+        в функции (<span class="returnvalue">0</span> при успешном
+        завершении, и число отличное от нуля в противном случае). Данный
+        <a class="link" href="ch06.html#exitstatusref">код завершения</a>
+        может быть использован в сценарии путём обращения к переменной
+        <a class="link" href="ch09.html#xstatvarref">$?</a>.  Этот механизм
+        позволяет функциям сценария иметь <span class="quote">«<span class="quote">возвращаемое
+        значение</span>»</span> подобно функциям языка C.</p></dd><dt><span class="term"><span class="command"><strong>возврат (return)</strong></span></span></dt><dd><p><a id="returnref"/></p><p>Завершает функцию. Команда <span class="command"><strong>return</strong></span>
+         <sup>[<a id="idp16629600" href="#ftn.idp16629600" class="footnote">98</a>]</sup>
+        принимает необязательный <em class="firstterm">целочисленный</em>
+        аргумент, который возвращается в сценарий вызывающий функцию, как
+        <span class="quote">«<span class="quote">код завершения</span>»</span> этой функции, и именно
+        этот код завершения присваивается переменной <a class="link" href="ch09.html#xstatvarref">$?</a>.</p><div class="example"><a id="max"/><p class="title"><b>Пример 23.7. Максимум из двух чисел</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# max.sh: Максимум из двух целых чисел.
+
+E_PARAM_ERR=250    # Если в функцию передано менее двух параметров.
+EQUAL=251          # Возвращаемое значение в случае равенства обеих параметров.
+#  Значения кодов ошибок превосходят
+#+ все остальные значения, которые могут быть переданы в функцию.
+
+max2 ()             # Возвращает большее из двух чисел.
+{                   # Замечание: сравниваемые числа должны быть меньше чем 250.
+if [ -z "$2" ]
+then
+  return $E_PARAM_ERR
+fi
+
+if [ "$1" -eq "$2" ]
+then
+  return $EQUAL
+else
+  if [ "$1" -gt "$2" ]
+  then
+    return $1
+  else
+    return $2
+  fi
+fi
+}
+
+max2 33 34
+return_val=$?
+
+if [ "$return_val" -eq $E_PARAM_ERR ]
+then
+  echo "В функцию необходимо передать два параметра."
+elif [ "$return_val" -eq $EQUAL ]
+  then
+    echo "Два числа равны."
+else
+    echo "Большее из двух чисел: $return_val."
+fi  
+
+  
+exit 0
+
+#  Упражнение (простое):
+#  ---------------
+#  Переделайте данный сценарий в интерактивный,
+#+ так, чтобы он запрашивал у пользователя ввод двух чисел.
+</pre></div></div><br class="example-break"/><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Если вы хотите, чтобы функция возвратила строку или массив,
+        используйте отдельную переменную.
+          </p><pre class="programlisting">count_lines_in_etc_passwd()
+{
+  [[ -r /etc/passwd ]] &amp;&amp; REPLY=$(echo $(wc -l &lt; /etc/passwd))
+  #  Если файл /etc/passwd доступен для чтения, то присвоим переменной REPLY количество строк в этом файле.
+  #  Возвращает и количество строк и код завершения.
+  #  Команда 'echo' здесь кажется бесполезной, но . . .
+  #+ она предотвращает вывод лишних пробелов.
+}
+
+if count_lines_in_etc_passwd
+then
+  echo "В файле /etc/passwd $REPLY строк."
+else
+  echo "Невозможно посчитать количество строк в файле /etc/passwd."
+fi  
+
+# Спасибо, К.О.</pre><p>
+      </p></div><div class="example"><a id="ex61"/><p class="title"><b>Пример 23.8. Перевод чисел в Римские цифры</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+# Перевод Арабских чисел в Римские цифры
+# Диапазон: 0 - 200
+# Данный сценарий неидеален, но он работает.
+
+# Увеличение диапазона, а иначе говоря совершенствование данного сценария оставлено в качестве упражнения.
+
+# Использование: roman число-для-преобразования
+
+LIMIT=200
+E_ARG_ERR=65
+E_OUT_OF_RANGE=66
+
+if [ -z "$1" ]
+then
+  echo "Usage: `basename $0` number-to-convert"
+  exit $E_ARG_ERR
+fi  
+
+num=$1
+if [ "$num" -gt $LIMIT ]
+then
+  echo "Out of range!"
+  exit $E_OUT_OF_RANGE
+fi  
+
+to_roman ()   # Мы должны объявить функцию перед её первым вызовом.
+{
+number=$1
+factor=$2
+rchar=$3
+let "remainder = number - factor"
+while [ "$remainder" -ge 0 ]
+do
+  echo -n $rchar
+  let "number -= factor"
+  let "remainder = number - factor"
+done  
+
+return $number
+       # Упражнения:
+       # ---------
+       # 1) Объясните как работает эта функция.
+       #    Подсказка: деление через последовательное вычитание.
+       # 2) Расширьте диапазон функции.
+       #    Подсказка: используйте "echo" и захват вывода команды.
+}
+   
+
+to_roman $num 100 C
+num=$?
+to_roman $num 90 LXXXX
+num=$?
+to_roman $num 50 L
+num=$?
+to_roman $num 40 XL
+num=$?
+to_roman $num 10 X
+num=$?
+to_roman $num 9 IX
+num=$?
+to_roman $num 5 V
+num=$?
+to_roman $num 4 IV
+num=$?
+to_roman $num 1 I
+# Вызовы к преобразующей функции последовательны!
+# Нужно ли это на самом деле??? Можно ли упростить?
+
+echo
+
+exit
+</pre></div></div><br class="example-break"/><p>Смотрите также <a class="xref" href="ch10s04.html#isalpha" title="Пример 10.28. Проверка ввода буквенных символов">Пример 10.28, «Проверка ввода буквенных символов»</a>.</p><div class="important" title="Важно" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Важно</h3><p>255 -- это наибольшее целое положительное число, которое может возвращать функция. Команда <span class="command"><strong>return</strong></span> подчиняется принципам
+        <a class="link" href="ch06.html#exitstatusref">кода
+        завершения</a>, что и вызывает такие ограничения её
+        функционала.  К счастью, существуют различные <a class="link" href="ch33s08.html#rvt">пути обхода</a> для ситуаций,
+        где требуется, чтобы функция вернула большое целое
+        число.</p><div class="example"><a id="returntest"/><p class="title"><b>Пример 23.9. Тестирование возврата больших значений из функции</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# return-test.sh
+
+# Наибольшим целым положительным числом, которое может вернуть функция является 255.
+
+return_test ()         # Возвращает переданное ей значение.
+{
+  return $1
+}
+
+return_test 27         # o.k.
+echo $?                # возвращает 27.
+  
+return_test 255        # Еще o.k.
+echo $?                # возвращает 255.
+
+return_test 257        # Ошибка!
+echo $?                # Возвращает 1 (код возврата для различных ошибок).
+
+# ======================================================
+return_test -151896    # Работает ли данное правило для больших отрицательных чисел?
+echo $?                # Возвратит ли функция -151896?
+                       # Нет! Она возвращает 168.
+#  Версии Bash до 2.05b позволяли
+#+ возврат больших отрицательных чисел.
+#  Новые версии Bash закрыли эту лазейку.
+#  Это может нарушить работу старых сценариев.
+#  Будьте осторожны!
+# ======================================================
+
+exit 0
+</pre></div></div><br class="example-break"/><p>Решением проблемы получения больших целых чисел из функции
+      является простое присваивание <span class="quote">«<span class="quote">возвращаемого
+        значения</span>»</span> глобальной переменной.
+
+          </p><pre class="programlisting">Return_Val=   # Глобальная переменная для захвата большого возвращаемого значения функции.
+
+alt_return_test ()
+{
+  fvar=$1
+  Return_Val=$fvar
+  return   # Возвращает 0 (успех).
+}
+
+alt_return_test 1
+echo $?                              # 0
+echo "return value = $Return_Val"    # 1
+
+alt_return_test 256
+echo "return value = $Return_Val"    # 256
+
+alt_return_test 257
+echo "return value = $Return_Val"    # 257
+
+alt_return_test 25701
+echo "return value = $Return_Val"    #25701</pre><p>
+            </p><p><a id="captureretval"/></p><p>Более элегантным методом является вывод с помощью команды
+              <span class="command"><strong>echo</strong></span> её <span class="quote">«<span class="quote">возвращаемого
+              значения на <code class="filename">stdout</code></span>»</span> и
+              последующий его захват при помощи <a class="link" href="ch11.html#commandsubref">подстановки
+        команды</a>. Смотрите <a class="link" href="ch33s08.html#rvt">обсуждение этого
+        аспекта</a> в <a class="xref" href="ch33s08.html" title="Assorted Tips">«Assorted Tips»</a>.</p><div class="example"><a id="max2"/><p class="title"><b>Пример 23.10. Сравнение двух больших целых чисел</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# max2.sh: Максимум из двух БОЛЬШИХ целых чисел.
+
+#  Это предыдущий пример "max.sh",
+#+ измененный с целью сделать возможным сравнение больших целых чисел.
+
+EQUAL=0             # Возвращаемое значение если оба параметра равны.
+E_PARAM_ERR=-99999  # В функцию передано недостаточное количество параметров.
+#           ^^^^^^    Превосходит максимальное значение параметра, который может быть передан в функцию.
+
+max2 ()             # "Возвращает" наибольшее из двух чисел.
+{
+if [ -z "$2" ]
+then
+  echo $E_PARAM_ERR
+  return
+fi
+
+if [ "$1" -eq "$2" ]
+then
+  echo $EQUAL
+  return
+else
+  if [ "$1" -gt "$2" ]
+  then
+    retval=$1
+  else
+    retval=$2
+  fi
+fi
+
+echo $retval        # Выводит (на stdout), вместо того, чтобы возвращать значение.
+                    # Почему?
+}
+
+
+return_val=$(max2 33001 33997)
+#            ^^^^             Имя функции
+#                 ^^^^^ ^^^^^ Переданные параметры
+#  Это фактически и есть подстановка команды:
+#+ работает для функции, как и для команды,
+#+ присваивает вывод функции на stdout переменной "return_val."
+
+
+# ========================= ВЫВОД ========================
+if [ "$return_val" -eq "$E_PARAM_ERR" ]
+  then
+  echo "Error in parameters passed to comparison function!"
+elif [ "$return_val" -eq "$EQUAL" ]
+  then
+    echo "The two numbers are equal."
+else
+    echo "The larger of the two numbers is $return_val."
+fi
+# =========================================================
+  
+exit 0
+
+#  Упражнения:
+#  ---------
+#  1) Найдите более элегантный способ для тестирования
+#+    параметров переданных в функцию.
+#  2) Упростите конструкцию if/then в "ВЫВОДЕ."
+#  3) Перепишите сценарий, так, чтобы он брал числа для сравнения из аргументов командной строки.
+</pre></div></div><br class="example-break"/><p>Вот другой пример захвата
+        <span class="quote">«<span class="quote">возвращаемого значения</span>»</span> функции. Для его понимания потребуются некоторые
+        знания <a class="link" href="apcs02.html#awkref">awk</a>.
+
+      </p><pre class="programlisting">month_length ()  # Принимает номер месяца в качестве аргумента.
+{                # Возвращает количество дней в месяце.
+monthD="31 28 31 30 31 30 31 31 30 31 30 31"  # Объявить как local?
+echo "$monthD" | awk '{ print $'"${1}"' }'    # Ловко.
+#                             ^^^^^^^^^
+# Параметр передаётся в функцию ($1 -- номер месяца), затем в awk.
+# Для awk это выглядит, как "print $1 . . . print $12" (в зависимости от номера месяца)
+# Шаблон для передачи параметра во встроенный сценарий awk:
+#                                 $'"${script_parameter}"'
+
+#  Необходима проверка на корректность диапазона переданного параметра (1-12)
+#+ и для февраля в високосный год.
+}
+
+# ----------------------------------------------
+# Примеры использования:
+month=4        # Например апрель (4-ый месяц).
+days_in=$(month_length $month)
+echo $days_in  # 30
+# ----------------------------------------------</pre><p>Смотрите также <a class="xref" href="apa.html#daysbetween" title="Пример A.7. days-between: Days between two dates">Пример A.7, «<em class="firstterm">days-between</em>: Days between two
+        dates»</a>
+        и <a class="xref" href="apa.html#stddev" title="Пример A.37. Standard Deviation">Пример A.37, «Standard Deviation»</a>.</p><p><strong class="userinput"><code>Упражнение:</code></strong> Используя только что
+        изученный материал, усовершенствуйте предыдущий <a class="link" href="ch23.html#ex61" title="Пример 23.8. Перевод чисел в Римские цифры">пример о Римских цифрах</a>, так чтобы
+        он мог принимать большие числа.</p></div></dd></dl></div><div class="variablelist" title="Перенаправление"><a id="redstdinfunc"/><p class="title"><b><a id="redstdinfunc1"/>Перенаправление</b></p><dl><dt><span class="term"><em class="replaceable"><code>Перенаправление стандартного ввода (stdin)
+      функции</code></em></span></dt><dd><p>По существу функция является <a class="link" href="ch03.html#codeblockref">блоком кода</a>, а это означает, что её
+        <code class="filename">стандартный ввод (stdin)</code> может быть перенаправлен (как в <a class="xref" href="ch03.html#ex8" title="Пример 3.1. Code blocks and I/O redirection">Пример 3.1, «Code blocks and I/O redirection»</a>).</p><div class="example"><a id="realname"/><p class="title"><b>Пример 23.11. Настоящее имя по имени пользователя</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# realname.sh
+#
+# По имени пользователя берёт "настоящее имя" из /etc/passwd.
+
+
+ARGCOUNT=1       # Ожидается один аргумент.
+E_WRONGARGS=65
+
+file=/etc/passwd
+pattern=$1
+
+if [ $# -ne "$ARGCOUNT" ]
+then
+  echo "Usage: `basename $0` USERNAME"
+  exit $E_WRONGARGS
+fi  
+
+file_excerpt ()    #  Сканируем файл по образцу,
+{                  #+ затем печатаем нужную часть строки.
+  while read line  # "while" не требует обязательного [ условия ]
+  do
+    echo "$line" | grep $1 | awk -F":" '{ print $5 }'
+    # Заставляем awk использовать ":" в качестве разделителя.
+  done
+} &lt; $file  # Перенаправляем во входной поток функции.
+
+file_excerpt $pattern
+
+# Да, этот большой сценарий может быть сокращён до
+#       grep PATTERN /etc/passwd | awk -F":" '{ print $5 }'
+# или
+#       awk -F: '/PATTERN/ {print $5}'
+# или
+#       awk -F: '($1 == "username") { print $5 }' # настоящее имя по имени пользователя
+# В таком варианте это бы не было столь полезно в учебных целях.
+
+exit 0
+</pre></div></div><br class="example-break"/><p>Существует альтернативный, и возможно менее сбивающий с толку
+       метод перенаправления
+       <code class="filename">стандартного потока ввода (stdin)</code> функции. Перенаправляется
+       <code class="filename">stdin</code> блока кода вложенного в функцию.
+
+         </p><pre class="programlisting"># Вместо:
+Function ()
+{
+ ...
+ } &lt; file
+
+# Попробуйте это:
+Function ()
+{
+  {
+    ...
+   } &lt; file
+}
+
+# Так же,
+
+Function ()  # Это работает.
+{
+  {
+   echo $*
+  } | tr a b
+}
+
+Function ()  # Это не работает.
+{
+  echo $*
+} | tr a b   # Здесь обязательно применение вложенного блока кода.
+
+
+# Спасибо, К.О.</pre><p>
+           </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><a class="link" href="apl.html" title="Приложение L. A Sample .bashrc File">Пример файла <code class="filename">bashrc</code>
+             </a> от Emmanuel Rouat содержит некоторые полезные примеры
+             функций.</p></div></dd></dl></div></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp16629600" href="#idp16629600" class="para">98</a>] </sup>Команда <span class="command"><strong>return</strong></span> является <a class="link" href="ch14.html#builtinref">встроенной</a> в
+     Bash.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch22.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch23s02.html">След.</a></td></tr><tr><td align="left" valign="top">Глава 22. Process Substitution </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Локальные переменные</td></tr></table></div></body></html>

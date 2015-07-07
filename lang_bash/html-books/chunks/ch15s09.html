@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Miscellaneous Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/><link rel="prev" href="ch15s08.html" title="Math Commands"/><link rel="next" href="ch16.html" title="Глава 16. System and Administrative Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Miscellaneous Commands</th></tr><tr><td align="left"><a accesskey="p" href="ch15s08.html">Пред.</a> </td><th width="60%" align="center">Глава 15. External Filters, Programs and Commands</th><td align="right"> <a accesskey="n" href="ch16.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Miscellaneous Commands"><div class="titlepage"><div><div><h2 class="title"><a id="extmisc"/>Miscellaneous Commands</h2></div></div></div><div class="variablelist" title="Command that fit in no special category"><a id="misccommandlisting"/><p class="title"><b><a id="misccommandlisting1"/>Command that fit in no
+     special category</b></p><dl><dt><span class="term"><a id="jotref"/><span class="command"><strong>jot</strong></span>, </span><span class="term"><a id="seqref"/><span class="command"><strong>seq</strong></span></span></dt><dd><p>These utilities emit a sequence of integers, with a
+        user-selectable increment.</p><p>The default separator character between each integer is a
+        newline, but this can be changed with the <code class="option">-s</code>
+        option.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>seq 5</code></strong>
+<code class="computeroutput">1
+ 2
+ 3
+ 4
+ 5</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>seq -s : 5</code></strong>
+<code class="computeroutput">1:2:3:4:5</code>
+        </pre><p>
+      </p><p>Both <span class="command"><strong>jot</strong></span> and <span class="command"><strong>seq</strong></span>
+        come in handy in a <a class="link" href="ch10.html#forloopref1">for
+        loop</a>.</p><div class="example"><a id="ex53"/><p class="title"><b>Пример 15.54. Using <em class="firstterm">seq</em> to generate loop
+        arguments</b></p><div class="example-contents"><pre class="programlisting">&amp;ex53;</pre></div></div><br class="example-break"/><p>A simpler example:</p><pre class="programlisting">#  Create a set of 10 files,
+#+ named file.1, file.2 . . . file.10.
+COUNT=10
+PREFIX=file
+
+for filename in `seq $COUNT`
+do
+  touch $PREFIX.$filename
+  #  Or, can do other operations,
+  #+ such as rm, grep, etc.
+done</pre><div class="example"><a id="lettercount"/><p class="title"><b>Пример 15.55. Letter Count"</b></p><div class="example-contents"><pre class="programlisting">&amp;lettercount;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Somewhat more capable than <em class="firstterm">seq</em>,
+  <span class="command"><strong>jot</strong></span> is a classic UNIX
+  utility that is not normally included in a standard Linux
+  distro. However, the source <em class="firstterm">rpm</em>
+  is available for download from the <a class="ulink" href="http://www.mit.edu/afs/athena/system/rhlinux/athena-9.0/free/SRPMS/athena-jot-9.0-3.src.rpm">
+  MIT repository</a>.</p><p><a id="jotrandom"/></p><p>Unlike <em class="firstterm">seq</em>, <span class="command"><strong>jot</strong></span> can
+        generate a sequence of random numbers, using the <code class="option">-r</code>
+  option.</p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>jot -r 3 999</code></strong>
+<code class="computeroutput">1069
+ 1272
+ 1428</code></pre></div></dd><dt><span class="term"><a id="getopty"/><span class="command"><strong>getopt</strong></span></span></dt><dd><p>The <span class="command"><strong>getopt</strong></span> command
+        parses command-line options preceded by a <a class="link" href="ch03.html#dashref">dash</a>. This external command
+        corresponds to the <a class="link" href="ch14.html#getoptsx">getopts</a>
+        Bash builtin. Using <span class="command"><strong>getopt</strong></span> permits
+        handling long options by means of the <code class="option">-l</code>
+        flag, and this also allows parameter reshuffling.</p><div class="example"><a id="ex33a"/><p class="title"><b>Пример 15.56. Using <em class="firstterm">getopt</em> to parse command-line
+          options</b></p><div class="example-contents"><pre class="programlisting">&amp;ex33a;</pre></div></div><br class="example-break"/><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>As <span class="emphasis"><em>Peggy Russell</em></span> points out:</p><p>It is often necessary to include an <a class="link" href="ch14.html#evalref">eval</a> to correctly process
+              <a class="link" href="ch03.html#whitespaceref">whitespace</a> and
+        <em class="firstterm">quotes</em>.
+          </p><pre class="programlisting">args=$(getopt -o a:bc:d -- "$@")
+eval set -- "$args"</pre></div><p>See <a class="xref" href="ch09s02.html#getoptsimple" title="Пример 9.14. Emulating getopt">Пример 9.14, «Emulating <em class="firstterm">getopt</em>»</a> for a simplified emulation
+        of <span class="command"><strong>getopt</strong></span>.</p></dd><dt><span class="term"><a id="runpartsref"/><span class="command"><strong>run-parts</strong></span></span></dt><dd><p>The <span class="command"><strong>run-parts</strong></span> command
+
+    <sup>[<a id="idp13902896" href="#ftn.idp13902896" class="footnote">73</a>]</sup>
+        
+        executes all the scripts in a target directory, sequentially
+        in ASCII-sorted filename order. Of course, the scripts
+        need to have execute permission.</p><p>The <a class="link" href="ch16.html#cronref">cron</a> <a class="link" href="ch15s06.html#daemonref">daemon</a> invokes
+        <span class="command"><strong>run-parts</strong></span> to run the scripts in
+        the <code class="filename">/etc/cron.*</code>
+        directories.</p></dd><dt><span class="term"><a id="yesref"/><span class="command"><strong>yes</strong></span></span></dt><dd><p>In its default behavior the <span class="command"><strong>yes</strong></span>
+        command feeds a continuous string of the character
+        <code class="computeroutput">y</code> followed
+        by a line feed to <code class="filename">stdout</code>. A
+        <span class="keycap"><strong>control</strong></span>+<span class="keycap"><strong>C</strong></span>
+        terminates the run. A different output string
+        may be specified, as in <strong class="userinput"><code>yes different
+        string</code></strong>, which would continually output
+        <code class="computeroutput">different string</code> to
+        <code class="filename">stdout</code>.</p><p>One might well ask the purpose of this. From the
+        command-line or in a script, the output of
+        <span class="command"><strong>yes</strong></span> can be redirected or piped into a
+        program expecting user input. In effect, this becomes a sort
+        of poor man's version of <em class="firstterm">expect</em>.</p><p><strong class="userinput"><code>yes | fsck /dev/hda1</code></strong> runs
+        <span class="command"><strong>fsck</strong></span> non-interactively (careful!).</p><p><strong class="userinput"><code>yes | rm -r dirname</code></strong> has same effect as
+       <strong class="userinput"><code>rm -rf dirname</code></strong> (careful!).</p><div class="warning" title="Внимание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Внимание</h3><p>Caution advised when piping
+       <em class="firstterm">yes</em> to a potentially dangerous
+       system command, such as <a class="link" href="ch16.html#fsckref">fsck</a>
+       or <a class="link" href="ch16.html#fdiskref">fdisk</a>. It might have
+       unintended consequences.</p></div><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <em class="firstterm">yes</em> command parses variables,
+         or more accurately, it echoes parsed variables.
+         For example:</p><p>
+          </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>yes $BASH_VERSION</code></strong>
+<code class="computeroutput">3.1.17(1)-release
+ 3.1.17(1)-release
+ 3.1.17(1)-release
+ 3.1.17(1)-release
+ 3.1.17(1)-release
+ . . .</code>
+        </pre><p>
+          </p><p>
+         This particular <span class="quote">«<span class="quote">feature</span>»</span> may be used
+         to create a <span class="emphasis"><em>very large</em></span> ASCII file on the fly:
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>yes $PATH &gt; huge_file.txt</code></strong>
+<strong class="userinput"><code>Ctl-C</code></strong>        
+        </pre><p>
+        Hit <strong class="userinput"><code>Ctl-C</code></strong> <span class="emphasis"><em>very
+        quickly</em></span>, or you just might get more than you
+        bargained for. . . .
+        </p></div><p><a id="yesemu"/>The <em class="firstterm">yes</em>
+       command may be emulated in a very simple script <a class="link" href="ch23.html#functionref">function</a>.</p><pre class="programlisting">yes ()
+{ # Trivial emulation of "yes" ...
+  local DEFAULT_TEXT="y"
+  while [ true ]   # Endless loop.
+  do
+    if [ -z "$1" ]
+    then
+      echo "$DEFAULT_TEXT"
+    else           # If argument ...
+      echo "$1"    # ... expand and echo it.
+    fi
+  done             #  The only things missing are the
+}                  #+ --help and --version options.</pre></dd><dt><span class="term"><a id="bannerref"/><span class="command"><strong>banner</strong></span></span></dt><dd><p>Prints arguments as a large vertical banner to
+        <code class="filename">stdout</code>, using an ASCII character
+        (default '#'). This may be redirected to a printer for
+        hardcopy.</p><p>Note that <em class="firstterm">banner</em> has been
+              dropped from many Linux distros.</p></dd><dt><span class="term"><a id="printenvref"/><span class="command"><strong>printenv</strong></span></span></dt><dd><p>Show all the <a class="link" href="ch04s04.html#envref">environmental
+        variables</a> set for a particular user.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>printenv | grep HOME</code></strong>
+<code class="computeroutput">HOME=/home/bozo</code>
+        </pre><p>
+      </p></dd><dt><span class="term"><a id="lpref"/><span class="command"><strong>lp</strong></span></span></dt><dd><p>The <span class="command"><strong>lp</strong></span> and <span class="command"><strong>lpr</strong></span>
+        commands send file(s) to the print queue, to be printed as
+        hard copy.
+
+        <sup>[<a id="idp13961984" href="#ftn.idp13961984" class="footnote">74</a>]</sup>
+
+        These commands trace the origin of their names to the
+        line printers of another era.</p><p><code class="prompt">bash$ </code><strong class="userinput"><code>lp file1.txt</code></strong>
+          or <code class="prompt">bash </code><strong class="userinput"><code>lp
+    &lt;file1.txt</code></strong></p><p>It is often useful to pipe the formatted output from
+          <span class="command"><strong>pr</strong></span> to <span class="command"><strong>lp</strong></span>.</p><p><code class="prompt">bash$ </code><strong class="userinput"><code>pr -options file1.txt | lp</code></strong>
+          </p><p>Formatting packages, such as <a class="link" href="ch15s04.html#groffref">groff</a> and
+    <em class="firstterm">Ghostscript</em> may send their output
+    directly to <span class="command"><strong>lp</strong></span>.</p><p><code class="prompt">bash$ </code><strong class="userinput"><code>groff -Tascii file.tr | lp</code></strong>
+          </p><p><code class="prompt">bash$ </code><strong class="userinput"><code>gs -options | lp file.ps</code></strong>
+          </p><p>Related commands are <span class="command"><strong>lpq</strong></span>, for viewing
+          the print queue, and <span class="command"><strong>lprm</strong></span>, for removing
+    jobs from the print queue.</p></dd><dt><span class="term"><a id="teeref"/><span class="command"><strong>tee</strong></span></span></dt><dd><p>[UNIX borrows an idea from the plumbing trade.]</p><p>This is a redirection operator, but with a difference. Like the
+        plumber's <em class="firstterm">tee,</em> it permits <span class="quote">«<span class="quote">siphoning
+              off</span>»</span> <span class="emphasis"><em>to a file </em></span>the output of a command 
+        or commands within a pipe, but without affecting the result. This is
+        useful for printing an ongoing process to a file or paper, perhaps to
+        keep track of it for debugging purposes.</p><pre class="screen">
+                             (redirection)
+                            |----&gt; to file
+                            |
+  ==========================|====================
+  command ---&gt; command ---&gt; |tee ---&gt; command ---&gt; ---&gt; output of pipe
+  ===============================================
+        </pre><pre class="programlisting">cat listfile* | sort | tee check.file | uniq &gt; result.file
+#                      ^^^^^^^^^^^^^^   ^^^^    
+
+#  The file "check.file" contains the concatenated sorted "listfiles,"
+#+ before the duplicate lines are removed by 'uniq.'</pre></dd><dt><span class="term"><a id="mkfiforef"/><span class="command"><strong>mkfifo</strong></span></span></dt><dd><p><a id="namedpiperef"/>This obscure command
+        creates a <em class="firstterm">named pipe</em>, a temporary
+        <em class="firstterm">first-in-first-out buffer</em> for
+        transferring data between processes.
+
+    <sup>[<a id="idp13992672" href="#ftn.idp13992672" class="footnote">75</a>]</sup>
+
+        Typically, one process writes to the FIFO, and the other
+        reads from it. See <a class="xref" href="apa.html#fifo" title="Пример A.14. fifo: Making daily backups, using named pipes">Пример A.14, «<em class="firstterm">fifo</em>: Making daily backups, using
+      named pipes»</a>.</p><p>
+        </p><pre class="programlisting">#!/bin/bash
+# This short script by Omair Eshkenazi.
+# Used in ABS Guide with permission (thanks!).
+
+mkfifo pipe1   # Yes, pipes can be given names.
+mkfifo pipe2   # Hence the designation "named pipe."
+
+(cut -d' ' -f1 | tr "a-z" "A-Z") &gt;pipe2 &lt;pipe1 &amp;
+ls -l | tr -s ' ' | cut -d' ' -f3,9- | tee pipe1 |
+cut -d' ' -f2 | paste - pipe2
+
+rm -f pipe1
+rm -f pipe2
+
+# No need to kill background processes when script terminates (why not?).
+
+exit $?
+
+Now, invoke the script and explain the output:
+sh mkfifo-example.sh
+
+4830.tar.gz          BOZO
+pipe1   BOZO
+pipe2   BOZO
+mkfifo-example.sh    BOZO
+Mixed.msg BOZO</pre><p>
+            </p></dd><dt><span class="term"><a id="pathchkref"/><span class="command"><strong>pathchk</strong></span></span></dt><dd><p>This command checks the validity of a filename. If the
+        filename exceeds the maximum allowable length (255
+        characters) or one or more of the directories in
+        its path is not searchable, then an error message
+        results.</p><p>Unfortunately, <span class="command"><strong>pathchk</strong></span> does
+        not return a recognizable error code, and it is therefore
+        pretty much useless in a script. Consider instead the
+        <a class="link" href="ch07s02.html#rtif">file test operators</a>.</p></dd><dt><span class="term"><a id="ddref"/><span class="command"><strong>dd</strong></span></span></dt><dd><p>This is the somewhat obscure and much feared <em class="firstterm">data
+        duplicator</em> command. Originally a utility
+        for exchanging data on magnetic tapes between UNIX
+        minicomputers and IBM mainframes, this command still
+        has its uses.  The <span class="command"><strong>dd</strong></span> command simply
+        copies a file (or <code class="filename">stdin/stdout</code>), but
+        with conversions. <a id="ddconversions"/>Possible
+        conversions are ASCII/EBCDIC,
+          
+    <sup>[<a id="idp14014272" href="#ftn.idp14014272" class="footnote">76</a>]</sup>
+
+        upper/lower case, swapping of byte pairs between input
+        and output, and skipping and/or truncating the head or
+        tail of the input file.</p><p>
+        </p><pre class="programlisting"># Converting a file to all uppercase:
+
+dd if=$filename conv=ucase &gt; $filename.uppercase
+#                    lcase   # For lower case conversion</pre><p>
+            </p><p><a id="ddoptions"/></p><p>Some basic options to <span class="command"><strong>dd</strong></span> are:
+                </p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>if=INFILE</p><p>INFILE is the <em class="firstterm">source</em>
+            file.</p></li><li class="listitem"><p>of=OUTFILE</p><p>OUTFILE is the <em class="firstterm">target</em>
+            file, the file that will have the data written to it.</p></li><li class="listitem"><p>bs=BLOCKSIZE</p><p>This is the size of each block of data being read
+            and written, usually a power of 2.</p></li><li class="listitem"><p>skip=BLOCKS</p><p>How many blocks of data to skip in INFILE before
+            starting to copy. This is useful when the INFILE has
+      <span class="quote">«<span class="quote">garbage</span>»</span> or garbled data in its
+      header or when it is desirable to copy only a portion
+      of the INFILE.</p></li><li class="listitem"><p>seek=BLOCKS</p><p>How many blocks of data to skip in OUTFILE before
+            starting to copy, leaving blank data at beginning
+      of OUTFILE.</p></li><li class="listitem"><p>count=BLOCKS</p><p>Copy only this many blocks of data, rather than the
+            entire INFILE.</p></li><li class="listitem"><p>conv=CONVERSION</p><p>Type of conversion to be applied to INFILE data
+                        before copying operation.</p></li></ul></div><p>
+            </p><p>A <strong class="userinput"><code>dd --help</code></strong> lists all the
+        options this powerful utility takes.</p><div class="example"><a id="selfcopy"/><p class="title"><b>Пример 15.57. A script that copies itself</b></p><div class="example-contents"><pre class="programlisting">&amp;selfcopy;</pre></div></div><br class="example-break"/><div class="example"><a id="exercisingdd"/><p class="title"><b>Пример 15.58. Exercising <em class="firstterm">dd</em></b></p><div class="example-contents"><pre class="programlisting">&amp;exercisingdd;</pre></div></div><br class="example-break"/><p><a id="ddkeystrokes"/></p><p>To demonstrate just how versatile <span class="command"><strong>dd</strong></span> is,
+       let's use it to capture keystrokes.</p><div class="example"><a id="ddkeypress"/><p class="title"><b>Пример 15.59. Capturing Keystrokes</b></p><div class="example-contents"><pre class="programlisting">&amp;ddkeypress;</pre></div></div><br class="example-break"/><p><a id="ddrandom"/></p><p>The <span class="command"><strong>dd</strong></span> command can do random access on a
+        data stream.
+
+          </p><pre class="programlisting">echo -n . | dd bs=1 seek=4 of=file conv=notrunc
+#  The "conv=notrunc" option means that the output file
+#+ will not be truncated.
+
+# Thanks, S.C.</pre><p>
+            </p><p><a id="ddcopy"/></p><p>The <span class="command"><strong>dd</strong></span> command can copy raw data
+        and disk images to and from devices, such as floppies and
+        tape drives (<a class="xref" href="apa.html#copycd" title="Пример A.5. copy-cd: Copying a data CD">Пример A.5, «<em class="firstterm">copy-cd</em>: Copying a data CD»</a>). A common use is
+        creating boot floppies.</p><p>
+    <strong class="userinput"><code>dd if=kernel-image of=/dev/fd0H1440</code></strong>
+             </p><p>Similarly, <span class="command"><strong>dd</strong></span> can copy the entire
+         contents of a floppy, even one formatted with a
+         <span class="quote">«<span class="quote">foreign</span>»</span> OS, to the hard drive as an
+         image file.</p><p>
+    <strong class="userinput"><code>dd if=/dev/fd0 of=/home/bozo/projects/floppy.img</code></strong>
+             </p><p><a id="ddswap"/></p><p>
+        Other applications of <span class="command"><strong>dd</strong></span> include
+        initializing temporary swap files (<a class="xref" href="ch28.html#ex73" title="Пример 28.2. Setting up a swapfile using /dev/zero">Пример 28.2, «Setting up a swapfile using <code class="filename">/dev/zero</code>»</a>)
+        and ramdisks (<a class="xref" href="ch28.html#ramdisk" title="Пример 28.3. Creating a ramdisk">Пример 28.3, «Creating a ramdisk»</a>). It can even do a
+        low-level copy of an entire hard drive partition, although
+        this is not necessarily recommended.</p><p>People (with presumably nothing better to do with
+        their time) are constantly thinking of interesting
+        applications of <span class="command"><strong>dd</strong></span>.</p><p><a id="ddfdel"/></p><div class="example"><a id="blotout"/><p class="title"><b>Пример 15.60. Securely deleting a file</b></p><div class="example-contents"><pre class="programlisting">&amp;blotout;</pre></div></div><br class="example-break"/><p>See also the <a class="link" href="bi01.html#ddlink">dd
+        thread</a> entry in the <a class="link" href="bi01.html#biblioref">bibliography</a>.</p></dd><dt><span class="term"><a id="odref"/><span class="command"><strong>od</strong></span></span></dt><dd><p>The <span class="command"><strong>od</strong></span>, or <em class="firstterm">octal
+        dump</em> filter converts input (or files) to octal
+        (base-8) or other bases. This is useful for viewing or
+        processing binary data files or otherwise unreadable system
+        <a class="link" href="ch27.html#devfileref">device files</a>, such as
+        <code class="filename">/dev/urandom</code>, and as a filter for
+        binary data.</p><p>
+        </p><pre class="programlisting">head -c4 /dev/urandom | od -N4 -tu4 | sed -ne '1s/.* //p'
+# Sample output: 1324725719, 3918166450, 2989231420, etc.
+
+# From rnd.sh example script, by Stéphane Chazelas</pre><p>
+    </p><p>See also <a class="xref" href="ch09s06.html#seedingrandom" title="Пример 9.31. Reseeding RANDOM">Пример 9.31, «Reseeding RANDOM»</a> and <a class="xref" href="apa.html#insertionsort" title="Пример A.36. Insertion sort">Пример A.36, «Insertion sort»</a>.</p></dd><dt><span class="term"><a id="hexdumpref"/><span class="command"><strong>hexdump</strong></span></span></dt><dd><p>Performs a hexadecimal, octal, decimal, or ASCII
+        dump of a binary file. This command is the rough equivalent
+        of <span class="command"><strong>od</strong></span>, above, but not nearly as
+        useful. May be used to view the contents of a binary file,
+        in combination with <a class="link" href="ch15s09.html#ddref">dd</a> and <a class="link" href="ch15s05.html#lessref">less</a>.</p><p>
+    </p><pre class="programlisting">dd if=/bin/ls | hexdump -C | less
+# The -C option nicely formats the output in tabular form.</pre><p>
+      </p></dd><dt><span class="term"><a id="objdumpref"/><span class="command"><strong>objdump</strong></span></span></dt><dd><p>Displays information about an object file or binary
+        executable in either hexadecimal form or as a disassembled
+        listing (with the <code class="option">-d</code> option).</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>objdump -d /bin/ls</code></strong>
+<code class="computeroutput">/bin/ls:     file format elf32-i386
+
+ Disassembly of section .init:
+
+ 080490bc &lt;.init&gt;:
+  80490bc:       55                      push   %ebp
+  80490bd:       89 e5                   mov    %esp,%ebp
+  . . .</code>
+        </pre><p>
+      </p></dd><dt><span class="term"><a id="mcookieref"/><span class="command"><strong>mcookie</strong></span></span></dt><dd><p>This command generates a <span class="quote">«<span class="quote">magic cookie,</span>»</span> a
+        128-bit (32-character) pseudorandom hexadecimal number,
+        normally used as an authorization <span class="quote">«<span class="quote">signature</span>»</span>
+        by the X server. This also available for use in a script
+        as a <span class="quote">«<span class="quote">quick 'n dirty</span>»</span> random number.</p><pre class="programlisting">random000=$(mcookie)</pre><p>Of course, a script could use <a class="link" href="ch15s05.html#md5sumref">md5sum</a> for the same purpose.</p><pre class="programlisting"># Generate md5 checksum on the script itself.
+random001=`md5sum $0 | awk '{print $1}'`
+# Uses 'awk' to strip off the filename.</pre><p>The <span class="command"><strong>mcookie</strong></span> command gives yet another way
+        to generate a <span class="quote">«<span class="quote">unique</span>»</span> filename.</p><div class="example"><a id="tempfilename"/><p class="title"><b>Пример 15.61. Filename generator</b></p><div class="example-contents"><pre class="programlisting">&amp;tempfilename;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="unitsref"/><span class="command"><strong>units</strong></span></span></dt><dd><p>This utility converts between different <em class="firstterm">units
+        of measure</em>. While normally invoked in interactive
+        mode, <span class="command"><strong>units</strong></span> may find use in a
+        script.</p><div class="example"><a id="unitconversion"/><p class="title"><b>Пример 15.62. Converting meters to miles</b></p><div class="example-contents"><pre class="programlisting">&amp;unitconversion;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="m4ref"/><span class="command"><strong>m4</strong></span></span></dt><dd><p>A hidden treasure, <span class="command"><strong>m4</strong></span> is a
+        powerful macro
+     <sup>[<a id="idp14116624" href="#ftn.idp14116624" class="footnote">77</a>]</sup>
+        processing filter, virtually a complete language.
+        Although originally written as a pre-processor
+        for <em class="firstterm">RatFor</em>, <span class="command"><strong>m4</strong></span>
+        turned out to be useful as a stand-alone utility. In
+        fact, <span class="command"><strong>m4</strong></span> combines some of the
+        functionality of <a class="link" href="ch14.html#evalref">eval</a>,
+        <a class="link" href="ch15s04.html#trref">tr</a>, and <a class="link" href="apcs02.html#awkref">awk</a>, in addition to its extensive
+        macro expansion facilities.</p><p>The April, 2002 issue of <a class="ulink" href="http://www.linuxjournal.com"><em class="citetitle">Linux Journal</em></a>
+        has a very nice article on <span class="command"><strong>m4</strong></span> and
+        its uses.</p><div class="example"><a id="m4"/><p class="title"><b>Пример 15.63. Using <em class="firstterm">m4</em></b></p><div class="example-contents"><pre class="programlisting">&amp;m4;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="xmessageref"/><span class="command"><strong>xmessage</strong></span></span></dt><dd><p>This X-based variant of
+              <a class="link" href="ch14.html#echoref">echo</a> pops up a message/query
+        window on the desktop.</p><p>
+        </p><pre class="programlisting">xmessage Left click to continue -button okay</pre><p>
+        </p></dd><dt><span class="term"><a id="zenityref"/><span class="command"><strong>zenity</strong></span></span></dt><dd><p>The
+        <a class="ulink" href="http://freshmeat.net/projects/zenity">zenity</a>
+        utility is adept at displaying
+        <em class="firstterm">GTK+</em> dialog <a class="link" href="ch33s08.html#widgetref">widgets</a> and <a class="link" href="ch33s08.html#zenityref2">very suitable for scripting
+        purposes</a>.</p></dd><dt><span class="term"><a id="doexecref"/><span class="command"><strong>doexec</strong></span></span></dt><dd><p>The <span class="command"><strong>doexec</strong></span> command enables passing
+        an arbitrary list of arguments to a <em class="firstterm">binary
+        executable</em>. In particular, passing
+        <em class="parameter"><code>argv[0]</code></em> (which corresponds to <a class="link" href="ch04s04.html#posparamref1">$0</a> in a script) lets the
+        executable be invoked by various names, and it can then
+        carry out different sets of actions, according to the name
+        by which it was called. What this amounts to is roundabout
+        way of passing options to an executable.</p><p>For example, the <code class="filename">/usr/local/bin</code> directory might
+        contain a binary called <span class="quote">«<span class="quote">aaa</span>»</span>.  Invoking
+        <span class="command"><strong>doexec /usr/local/bin/aaa list</strong></span>
+        would <span class="emphasis"><em>list</em></span> all those files
+        in the current working directory beginning with an
+        <span class="quote">«<span class="quote">a</span>»</span>, while invoking (the same executable
+        with) <span class="command"><strong>doexec /usr/local/bin/aaa delete </strong></span>
+        would <span class="emphasis"><em>delete</em></span> those files.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The various behaviors of the executable
+              must be defined within the code of the executable itself,
+              analogous to something like the following in a shell script:
+                </p><pre class="programlisting">case `basename $0` in
+"name1" ) do_something;;
+"name2" ) do_something_else;;
+"name3" ) do_yet_another_thing;;
+*       ) bail_out;;
+esac</pre></div></dd><dt><span class="term"><span class="command"><strong>dialog</strong></span></span></dt><dd><p>The <a class="link" href="ch33s08.html#dialogref">dialog</a> family of tools
+        provide a method of calling interactive
+        <span class="quote">«<span class="quote">dialog</span>»</span> boxes from a script. The more
+        elaborate variations of <span class="command"><strong>dialog</strong></span> --
+        <span class="command"><strong>gdialog</strong></span>, <span class="command"><strong>Xdialog</strong></span>,
+        and <span class="command"><strong>kdialog</strong></span> -- actually invoke X-Windows
+        <a class="link" href="ch33s08.html#widgetref">widgets</a>.</p></dd><dt><span class="term"><a id="soxref"/><span class="command"><strong>sox</strong></span></span></dt><dd><p>The <span class="command"><strong>sox</strong></span>, or
+        <span class="quote">«<span class="quote"><span class="command"><strong>so</strong></span>und
+        e<span class="command"><strong>x</strong></span>change</span>»</span> command plays and
+        performs transformations on sound files. In fact,
+        the <code class="filename">/usr/bin/play</code> executable
+        (now deprecated) is nothing but a shell wrapper for
+        <em class="firstterm">sox</em>.</p><p>For example, <span class="command"><strong>sox soundfile.wav
+        soundfile.au</strong></span> changes a WAV sound file into a
+        (Sun audio format) AU sound file.</p><p>Shell scripts are ideally suited for batch-processing
+        <span class="command"><strong>sox</strong></span> operations on
+        sound files. For examples, see the <a class="ulink" href="http://osl.iu.edu/~tveldhui/radio/"> Linux Radio
+        Timeshift HOWTO</a> and the <a class="ulink" href="http://savannah.nongnu.org/projects/audiodo">MP3do
+        Project</a>.</p></dd></dl></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp13902896" href="#idp13902896" class="para">73</a>] </sup>This is actually a script adapted from
+    the Debian Linux distribution.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp13961984" href="#idp13961984" class="para">74</a>] </sup>The <em class="firstterm">print queue</em> is
+        the group of jobs <span class="quote">«<span class="quote">waiting in line</span>»</span> to be
+        printed.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp13992672" href="#idp13992672" class="para">75</a>] </sup>For an excellent overview of this
+      topic, see Andy Vaught's article, <a class="ulink" href="http://www2.linuxjournal.com/lj-issues/issue41/2156.html">Introduction
+      to Named Pipes</a>, in the September, 1997 issue of
+      <a class="ulink" href="http://www.linuxjournal.com"><em class="citetitle">Linux
+      Journal</em></a>.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp14014272" href="#idp14014272" class="para">76</a>] </sup><acronym class="acronym">EBCDIC</acronym> (pronounced
+      <span class="quote">«<span class="quote">ebb-sid-ick</span>»</span>) is an acronym for Extended
+      Binary Coded Decimal Interchange Code. This is an IBM
+      data format no longer in much use. A bizarre
+      application of the <code class="option">conv=ebcdic</code> option
+      of <span class="command"><strong>dd</strong></span> is as a quick 'n easy, but
+      not very secure text file encoder.
+        <pre class="programlisting">cat $file | dd conv=swab,ebcdic &gt; $file_encrypted
+# Encode (looks like gibberish).        
+# Might as well switch bytes (swab), too, for a little extra obscurity.
+
+cat $file_encrypted | dd conv=swab,ascii &gt; $file_plaintext
+# Decode.</pre>
+                </p></div><div class="footnote"><p><sup>[<a id="ftn.idp14116624" href="#idp14116624" class="para">77</a>] </sup>A <em class="firstterm">macro</em> is a
+     symbolic constant that expands into a command string
+     or a set of operations on parameters. Simply put,
+     it's a shortcut or abbreviation.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch15s08.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch15.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch16.html">След.</a></td></tr><tr><td align="left" valign="top">Math Commands </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 16. System and Administrative Commands</td></tr></table></div></body></html>

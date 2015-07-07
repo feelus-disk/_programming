@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Глава 18. Встроенные документы</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="pt05.html" title="Часть Part 5. Материал повышенной сложности"/><link rel="prev" href="ch17s02.html" title="Глоббинг"/><link rel="next" href="ch19.html" title="Глава 19. I/O Redirection"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Глава 18. Встроенные документы</th></tr><tr><td align="left"><a accesskey="p" href="ch17s02.html">Пред.</a> </td><th width="60%" align="center">Часть Part 5. Материал повышенной сложности</th><td align="right"> <a accesskey="n" href="ch19.html">След.</a></td></tr></table><hr/></div><div class="chapter" title="Глава 18. Встроенные документы"><div class="titlepage"><div><div><h2 class="title"><a id="here-docs"/>Глава 18. Встроенные документы</h2></div></div></div><div class="toc"><p><b>Содержание</b></p><dl><dt><span class="sect1"><a href="ch18.html#idp16009312">Встроенные строки</a></span></dt></dl></div><div class="epigraph"><p>Здесь и сейчас, ребята.</p><p>--Олдос Хаксли <em class="firstterm">Остров</em></p></div><p><a id="heredocref"/></p><a id="idp15866496" class="indexterm"/><a id="idp15867536" class="indexterm"/><p><em class="firstterm">Встроенный документ (here document)</em> - это особый 
+  блок кода. В нем используется разновидность <a class="link" href="ch19.html#ioredirref">перенаправления ввода-вывода</a> для передачи списка команд интерактивной программе или команде, как, например, <a class="link" href="ch15s06.html#ftpref">ftp</a>, <a class="link" href="ch15.html#catref">cat</a>,
+  или  текстовому редактору <em class="firstterm">ex</em>.</p><pre class="programlisting">COMMAND &lt;&lt;InputComesFromHERE
+...
+InputComesFromHERE</pre><p><a id="limitstringref"/></p><p> <em class="firstterm">Завершающая строка </em> устанавливает границы
+  списка команд. Специальный символ <span class="token">&lt;&lt;</span> определяет, что является
+  завершающей строкой.  Эта конструкция перенаправляет вывод файла
+  в стандартный вывод <code class="filename">stdin</code> программы
+  или команды. То есть, это аналогично выполнению команды <strong class="userinput"><code>interactive-program &lt;
+  command-file</code></strong>, где <code class="filename">command-file</code>
+  содержит список
+
+    </p><pre class="programlisting">command #1
+command #2
+...</pre><p>Иными словами,<em class="firstterm"> встроенный документ</em> выглядит
+        примерно так:</p><pre class="programlisting">#!/bin/bash
+interactive-program &lt;&lt;LimitString
+command #1
+command #2
+...
+LimitString</pre><p>Следует выбирать <em class="firstterm">завершающую строку</em> так,
+  чтобы она не использовалась в списке команд и не привела к путанице.</p><p>Заметьте, что <em class="firstterm">встроенные документы</em> могут иногда
+  использованы с большим эффектом вместе с неинтерактивными утилитами и командами,
+  такими, как, например, <a class="link" href="ch16.html#wallref">wall</a>.</p><div class="example"><a id="ex70"/><p class="title"><b>Пример 18.1. <em class="firstterm">Широковещательная рассылка</em>: Отправить сообщение всем пользователям, вошедшим
+         в систему </b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+wall &lt;&lt;zzz23EndOfMessagezzz23
+Электронное сообщение для заказа пиццы на обед для системного администратора.
+    (Добавить дополнительный доллар для верхушки с анчоусами или грибами.)
+# Дополнительное текстовое сообщение идет здесь.
+# Заметьте: 'wall' печатает закомментированные строки.
+zzz23EndOfMessagezzz23
+
+# Это могло быть сделано более эффективно командой
+#         wall &lt;message-file
+#  Однако, вставка шаблона сообщения в сценарий - 
+#+ это наспех сварганенное одноразовое решение.
+
+exit
+</pre></div></div><br class="example-break"/><p><a id="vihere"/></p><p>Даже такой невероятный кандидат, как текстовый редактор <em class="firstterm">vi</em>
+         годится для использования <em class="firstterm">встроенных документов</em>.</p><div class="example"><a id="ex69"/><p class="title"><b>Пример 18.2. <em class="firstterm">dummyfile</em>: Создание 2-х строчного
+  демонстрационного файла</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+# Неинтерактивное использование 'vi' для редактирования файла.
+# Эмулирует поведение команды 'sed'.
+
+E_BADARGS=85
+
+if [ -z "$1" ]
+then
+  echo "Использование: `basename $0` filename"
+  exit $E_BADARGS
+fi
+
+TARGETFILE=$1
+
+# Вставить 2 строки в файл и затем сохранить.
+#--------Начало встроенного документа-----------#
+vi $TARGETFILE &lt;&lt;x23LimitStringx23
+i
+Это 1 строка файла-примера.
+Это 2 строка файла-примера.
+^[
+ZZ
+x23LimitStringx23
+#----------Конец встроенного документа-----------#
+
+#  Заметьте, что сочетание "^[" выше - это управляющая конструкция,  
+#+ вызываемая клавиатурным сочетанием Control-V &lt;Esc&gt;.
+
+# Брэм Мооленар (Bram Moolenaar) отметил, что этот пример может не работать с редактором 'vim',
+#+ так как это может вызвать проблемы взаимодействия с терминалом.
+
+exit
+</pre></div></div><br class="example-break"/><p>
+         Сценарий выше мог бы просто и эффективно быть выполнен с
+ помощью команды <span class="command"><strong>ex</strong></span> - даже лучше, чем с
+  <span class="command"><strong>vi</strong></span>. <a id="exscriptref"/><em class="firstterm">Встроенные документы</em> содержат список команд <span class="command"><strong>ex</strong></span>
+   , которые формируют свою собственную категорию, известную как
+  <em class="firstterm">ex-сценарии</em>.
+
+    </p><pre class="programlisting">#!/bin/bash
+# Заменить все вхождения  "Smith" на "Jones"
+#+ в файлах, имена которых оканчиваются ".txt". 
+
+ORIGINAL=Smith
+REPLACEMENT=Jones
+
+for word in $(fgrep -l $ORIGINAL *.txt)
+do
+  # -------------------------------------
+  ex $word &lt;&lt;EOF
+  :%s/$ORIGINAL/$REPLACEMENT/g
+  :wq
+EOF
+  # :%s - это команда подстановки для "ex".
+  # :wq  - это запись измененений и выход.
+  # -------------------------------------
+done</pre><p>
+  </p><p><a id="catscriptref"/></p><p>Аналогом <span class="quote">«<span class="quote">ex-сценариев</span>»</span> являются <em class="firstterm">cat-сценарии
+       </em>.</p><div class="example"><a id="ex71"/><p class="title"><b>Пример 18.3. Многострочное сообщение, использующее <em class="firstterm">cat</em></b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+
+#  Команда 'echo' прекрасно подходит для печати однострочных выражений,
+#+  но не совсем подходит для группы сообщений.
+#   Встроенный документ, использующий команду 'cat' преодолевает это ограничение.
+
+cat &lt;&lt;End-of-message
+-------------------------------------
+Это 1 строка сообщения.
+Это 2 строка сообщения.
+Это 3 строка сообщения.
+Это 4 строка сообщения.
+Это последняя строка сообщения.
+-------------------------------------
+End-of-message
+
+#  Заменяя выше стpоку 7 строкой
+#+   cat &gt; $Newfile &lt;&lt;End-of-message
+#+       ^^^^^^^^^^
+#+  ,мы запишем вывод в файл $Newfile ранее, чем на стандартный вывод.
+
+exit 0
+
+
+#--------------------------------------------
+#  Нижеуказанный код не будет работать по причине команды "exit 0", заданной выше.
+
+# S.C. указал, что следующий код тоже работает.
+echo "-------------------------------------
+Это 1 строка сообщения.
+Это 2 строка сообщения.
+Это 3 строка сообщения.
+Это 4 строка сообщения.
+Это последняя строка сообщения.
+-------------------------------------"
+# Однако текст не может содержать двойных кавычек, пока они не будут экранированы.
+</pre></div></div><br class="example-break"/><p><a id="limitstrdash"/></p><p>Опция <code class="option">-</code> заставляет ограничивающую строку встроенного документа 
+  (<strong class="userinput"><code>&lt;&lt;-LimitString</code></strong>) подавлять предшествующие
+  символы табуляции (но не пробелы) при выводе. Это может быть полезно для придания
+  сценарию более удобочитаемого вида.</p><div class="example"><a id="ex71a"/><p class="title"><b>Пример 18.4. Многострочное выражение с исключенными символами табуляции</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# То же самое, что и в предыдущем разделе, но...
+
+#  Опция -  в встроенном документе &lt;&lt;-
+#+ подавляет предшествующие символы табуляции в теле документа,
+#+ но *не* пробелы.
+
+cat &lt;&lt;-ENDOFMESSAGE
+	Это 1 строка сообщения.
+	Это 2 строка сообщения.
+	Это 3 строка сообщения.
+	Это 4 строка сообщения.
+	Это последняя строка сообщения.
+ENDOFMESSAGE
+# Вывод сценария будет без абзацных отступов.
+# Предшествующие символы табуляции в каждой строке не будут показаны.
+
+# Указанным выше 5 строк "сообщения" предшествуют символы табуляции, а не пробелы.
+# Опция &lt;&lt;- не будет влиять на предшествующие пробелы.
+
+# Заметьте также, что эта опция не имеет никакого эффекта на замещенные пробелами символы табуляции.
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="herepassp"/></p><p> <em class="firstterm">Встроенный документ</em> поддерживает подстановку параметров и
+  команд. Следовательно, имеется возможность подставлять различные параметры в тело документа, изменяя соответственно его вывод.
+ </p><div class="example"><a id="ex71b"/><p class="title"><b>Пример 18.5. Встроенный документ с заменяемыми параметрами</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# Другой встроенный 'cat'-документ, использующий подстановку параметров.
+
+# Попробуйте его запустить без параметров,   ./scriptname
+# Попробуйте запустить его с одним параметром,   ./scriptname Mortimer
+# Попробуйте запустить его с двумя параметрами, взятыми в кавычки
+#                           ./scriptname "Mortimer Jones"
+
+CMDLINEPARAM=1     #  Ожидается как минимум один параметр в командной строке.
+
+if [ $# -ge $CMDLINEPARAM ]
+then
+  NAME=$1          #  Если задается более чем один параметр,
+                   #+ то просто берется первый.
+else
+  NAME="John Doe"  #  По умолчанию, если не задан ни один параметр.
+fi  
+
+RESPONDENT="Автор этого чудного сценария"
+  
+
+cat &lt;&lt;Endofmessage
+
+Привет, $NAME.
+Наилучших пожеланий тебе, $NAME, от $RESPONDENT.
+
+# Этот комментарий будет показан при выводе  (почему?).
+
+Endofmessage
+
+# Заметьте, что пустая строка будет показана при выводе.
+# Это делает комментарий.
+
+exit
+</pre></div></div><br class="example-break"/><p><a id="hereparamsub"/></p><p>Полезный пример, содержащий <em class="firstterm">встроенный
+        документ</em> с подстановкой параметра.</p><div class="example"><a id="ex72"/><p class="title"><b>Пример 18.6. Загрузить пару файлов в удаленную директорию <em class="firstterm">Sunsite</em>
+    </b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# upload.sh
+
+#  Загрузить пару файлов (Filename.lsm, Filename.tar.gz)
+#+ в удаленную директорию на Sunsite/UNC (ibiblio.org).
+#  Filename.tar.gz - tar-архив.
+#  Filename.lsm - файл-дескриптор.
+#  Sunsite требует "lsm"-файл, иначе выгрузка отвергается.
+
+
+E_ARGERROR=85
+
+if [ -z "$1" ]
+then
+  echo "Использование: `basename $0` Имя-файла-для-загрузки"
+  exit $E_ARGERROR
+fi  
+
+
+Filename=`basename $1`           # Отделить имя файла от полного пути.
+
+Server="ibiblio.org"
+Directory="/incoming/Linux"
+#  Эти переменные не нужно жестко задавать в сценарии,
+#+ вместо этого они могут быть изменены, используя аргументы командной строки.
+
+Password="your.e-mail.address"   # Измените на ваш соответствующий адрес.
+
+ftp -n $Server &lt;&lt;End-Of-Session
+#Опция -n option выключает автовход. 
+user anonymous "$Password"       #  Если это не работает, то попробуйте:
+                                 #  quote user anonymous "$Password"
+binary
+bell                             # Звуковой сигнал с помощью 'bell' после каждой выгрузки файла.
+cd $Directory
+put "$Filename.lsm"
+put "$Filename.tar.gz"
+bye
+End-Of-Session
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="hereesc"/></p><p>Взятие <span class="quote">«<span class="quote">завершающей строки</span>»</span> в двойные или ординарные кавычки в заголовке
+  встроенного документа исключает возможность подстановки параметра внутри его тела. Главная причина такого поведения - <em class="firstterm">кавычки или апострофы, в которые заключена
+  завершающая строка</em>, эффективно <a class="link" href="ch05s02.html#escp">экранирует</a> <a class="link" href="ch03.html#scharlist" title="Специальные символы расположенные в сценариях и где-либо еще">специальные символы</a> <span class="token">$</span>,
+  <span class="token">`</span>, и <span class="token">\</span> и заставляет их интерпретироваться 
+  буквально. (Спасибо Аллену Хэсли (Allen Halsey) за указание на этот
+  момент.)</p><div class="example"><a id="ex71c"/><p class="title"><b>Пример 18.7. Выключение подстановки параметров</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+#  Встроенный документ, подобный команде 'cat', но с выключенной возможностью подстановки параметров.
+
+NAME="John Doe"
+RESPONDENT="Автор этого прекрасного сценария"  
+
+cat &lt;&lt;'Endofmessage'
+
+Привет, $NAME.
+С наилучшими пожеланиями, $NAME, от $RESPONDENT.
+
+Endofmessage
+
+#   Никакой подстановки параметров, когда завершающая строка взята в кавычки или апострофы.
+#   Любая из двух следующих строк ниже в заголовке встроенного документа могли бы
+#+  иметь тот же эффект.
+#   cat &lt;&lt;"Endofmessage"
+#   cat &lt;&lt;\Endofmessage
+
+
+
+#   А также:
+
+cat &lt;&lt;"SpecialCharTest"
+
+Содержимое директории могло бы быть показано,
+если бы завершающая строка не была бы в кавычках.
+`ls -l`
+
+Вычисление арифметического выражения могло бы иметь место,
+если бы завершающая строка не была бы в кавычках.
+$((5 + 3))
+
+Одиночный символ обратного слэша мог бы выведен на экран,
+если бы завершающая строка не была бы в кавычках.
+\\
+
+SpecialCharTest
+
+
+exit
+</pre></div></div><br class="example-break"/><p><a id="herelit"/></p><p>Выключение подстановки параметров позволяет выводить текст буквально.
+        Генерирование сценариев или даже программного кода есть частный случай использования этой возможности.</p><div class="example"><a id="generatescript"/><p class="title"><b>Пример 18.8. Сценарий, генерирующий другой сценарий</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# generate-script.sh
+# Основан на идее Альберта Рейнера (Albert Reiner).
+
+OUTFILE=generated.sh         # Имя генерируемого файла.
+
+
+# -----------------------------------------------------------
+# 'Встроенный документ, содержащий текст генерируемого сценария.
+(
+cat &lt;&lt;'EOF'
+#!/bin/bash
+
+echo "Это генерируемый сценарий оболочки."
+#  Заметьте, что так как мы находимся внутри подоболочки,
+#+ мы не можем получить доступ к переменным во "внешнем" сценарии.
+
+echo "Генерируемый сценарий будет назван: $OUTFILE"
+#  Строка выше не будет работать как ожидается,
+#+ потому что интерполяция переменных была выключена.
+#  Вместо этого, результатом будет буквальный вывод.
+
+a=7
+b=3
+
+let "c = $a * $b"
+echo "c = $c"
+
+exit 0
+EOF
+) &gt; $OUTFILE
+# -----------------------------------------------------------
+
+#  Взятие в кавычки 'ограничивающей строки' предупреждает интерполяцию переменных
+#+ в теле вышеказанного 'встроенного  документа.'
+#  Это позволяет выводить строки литерально в выходной файл.
+
+if [ -f "$OUTFILE" ]
+then
+  chmod 755 $OUTFILE
+  # Сделать генерируемый файл исполнимым.
+else
+  echo "Проблема с созданием файла: \"$OUTFILE\""
+fi
+
+#  Этот метод может быть использован для генерирования
+#+ программ на языках C, Perl, Python, генерации  make-файлов,
+#+ и т.п.
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="herecs"/></p><p>
+        Возможно также устанавливать значение переменнной в виде вывода содержимого встроенного документа. Это в действительности хитрая форма 
+  <a class="link" href="ch11.html#commandsubref">подстановки команды</a>.
+  </p><pre class="programlisting">variable=$(cat &lt;&lt;SETVAR
+Эта переменная
+содержит несколько строк.
+SETVAR)
+
+echo "$variable"</pre><p>
+      </p><p><a id="herefunc"/></p><p>Встроенный документ может предоставлять ввод для функции в том же самом сценарии.  
+      </p><div class="example"><a id="hf"/><p class="title"><b>Пример 18.9. Встроенные документы и функции</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# here-function.sh
+
+GetPersonalData ()
+{
+  read firstname
+  read lastname
+  read address
+  read city 
+  read state 
+  read zipcode
+} # Это,несомненно, выглядит как интерактивная функция, но...
+
+
+# Предоставить вводные данные для функции выше.
+GetPersonalData &lt;&lt;RECORD001
+Bozo
+Bozeman
+2726 Nondescript Dr.
+Baltimore
+MD
+21226
+RECORD001
+
+
+echo
+echo "$firstname $lastname"
+echo "$address"
+echo "$city, $state $zipcode"
+echo
+
+exit 0
+</pre></div></div><br class="example-break"/><p><a id="anonheredoc0"/></p><p>Возможно использование <span class="token">:</span> в качестве команды-муляжа (dummy command),
+        допускающей вывод из встроенного документа. На самом деле, это создает
+  <span class="quote">«<span class="quote">анонимный</span>»</span> встроенный документ.</p><div class="example"><a id="anonheredoc"/><p class="title"><b>Пример 18.10. <span class="quote">«<span class="quote">Анонимный</span>»</span> встроенный документ</b></p><div class="example-contents"><pre class="programlisting">#!/bin/bash
+
+: &lt;&lt;TESTVARIABLES
+${HOSTNAME?}${USER?}${MAIL?}  # Печатать сообщение об ошибке, если какая-либо из переменных не определена.
+TESTVARIABLES
+
+exit $?</pre></div></div><br class="example-break"/><p><a id="cblock1"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Вариация техники, приведенной выше, разрешающая <span class="quote">«<span class="quote">комментировать
+        </span>»</span>блоки кода:</p></div><div class="example"><a id="commentblock"/><p class="title"><b>Пример 18.11. Комментирование блоков кода</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# commentblock.sh
+
+: &lt;&lt;COMMENTBLOCK
+echo "Эта строка не будет выводиться на экран."
+В этой строке комментариев отсутствует префикс "#".
+Это другая строка комментариев, где отсутствует префикс "#".
+
+&amp;*@!!++=
+Строка выше не приведет к сообщению об ошибке,
+потому что интерпретатор Bash будет игнорировать ее.
+COMMENTBLOCK
+
+echo "Код возврата для вышеприведенного \"COMMENTBLOCK\" - $?."   # 0
+# Никаких ошибок не отображается.
+echo
+
+
+#  Техника, приведенная выше, также становится полезной для комментирования
+#+ блока рабочего кода в целях отладки.
+#  Это избавляет от необходимости устанавливать символ "#" в начале каждой строки,
+#+ а затем возвращаться и удалять каждый символ "#" позднее.
+
+echo "Просто вывод до закомментированного блока кода."
+#  Строки кода между двумя двойными пунктирными линиями не будет выполнены.
+#  ===================================================================
+: &lt;&lt;DEBUGXXX
+for file in *
+do
+cat "$file"
+done
+DEBUGXXX
+#  ===================================================================
+echo "Просто вывод после закоментированного блока кода."
+
+exit 0
+
+
+
+######################################################################
+#  Заметьте, однако, что если помещенная в скобки переменная содержится внутри
+#+ закоментированного блока кода,
+#+ то это может послужить причиной проблем,
+#  например:
+
+
+#/!/bin/bash
+
+: &lt;&lt;COMMENTBLOCK
+echo "Эта строка не будет выведена на экран."
+&amp;*@!!++=
+${foo_bar_bazz?}
+$(rm -rf /tmp/foobar/)
+$(touch my_build_directory/cups/Makefile)
+COMMENTBLOCK
+
+
+$ sh commented-bad.sh
+commented-bad.sh: line 3: foo_bar_bazz: parameter null or not set
+
+#Лекарством для этого является заключение в апострофы 'COMMENTBLOCK' в строке выше.
+
+: &lt;&lt;'COMMENTBLOCK'
+
+# Спасибо Курту Пфайфлю (Kurt Pfeifle) за указание этого момента.
+</pre></div></div><br class="example-break"/><p><a id="hselfdoc"/></p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Еще один вариант этого остроумного трюка делает возможным
+        <span class="quote">«<span class="quote">самодокументирование</span>»</span> сценариев.</p></div><div class="example"><a id="selfdocument"/><p class="title"><b>Пример 18.12. Самодокументирующийся сценарий</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# self-document.sh: самодокументирующийся сценарий
+# Модификация сценария "colm.sh".
+
+DOC_REQUEST=70
+
+if [ "$1" = "-h"  -o "$1" = "--help" ]     # Вызов справки.
+then
+  echo; echo "Usage: $0 [directory-name]"; echo
+  sed --silent -e '/DOCUMENTATIONXX$/,/^DOCUMENTATIONXX$/p' "$0" |
+  sed -e '/DOCUMENTATIONXX$/d'; exit $DOC_REQUEST; fi
+
+
+: &lt;&lt;DOCUMENTATIONXX
+Список, содержащий статистику по определенным каталогам в табличной форме.
+---------------------------------------------------------------
+Параметры командной строки выдают содержимое перечисленной директории.
+Если никакой перечисленный каталог не может быть прочитан,
+то используется текущий каталог.
+
+DOCUMENTATIONXX
+
+if [ -z "$1" -o ! -r "$1" ]
+then
+  directory=.
+else
+  directory="$1"
+fi  
+
+echo "Listing of "$directory":"; echo
+(printf "PERMISSIONS LINKS OWNER GROUP SIZE MONTH DAY HH:MM PROG-NAME\n" \
+; ls -l "$directory" | sed 1d) | column -t
+
+exit 0
+</pre></div></div><br class="example-break"/><p>Использование <a class="link" href="ch18.html#catscriptref">cat-сценария</a> есть
+        альтернативный путь выполнить то же самое.</p><p>
+      </p><pre class="programlisting">DOC_REQUEST=70
+
+if [ "$1" = "-h"  -o "$1" = "--help" ]     # Вызов помощи.
+then                                       # Использовать "сценарий cat" . . .
+  cat &lt;&lt;DOCUMENTATIONXX
+Список статистики по определенному каталогу в табличной форме.
+---------------------------------------------------------------
+Параметр командной строки получает перечисленный каталог.
+Если каталог не определен или определенный каталог не может быть прочитан,
+то выдается текущий каталог.
+
+DOCUMENTATIONXX
+exit $DOC_REQUEST
+fi</pre><p>
+      </p><p>См. также <a class="xref" href="apa.html#isspammer2" title="Пример A.28. Spammer Identification">Пример A.28, «Spammer Identification»</a>, <a class="xref" href="apa.html#petals" title="Пример A.40. Petals Around the Rose">Пример A.40, «Petals Around the Rose»</a>, <a class="xref" href="apa.html#qky" title="Пример A.41. Quacky: a Perquackey-type word game">Пример A.41, «Quacky: a Perquackey-type word game»</a> и <a class="xref" href="apa.html#nim" title="Пример A.42. Nim">Пример A.42, «Nim»</a> для дополнительных примеров
+        самодокументирующихся сценариев.</p><p><a id="heretemp"/></p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Встроенные документы создают временные файлы, но эти 
+      файлы удаляются после открытия и недоступны
+      любым другим процессам.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>bash -c 'lsof -a -p $$ -d0' &lt;&lt; EOF</code></strong>
+<code class="prompt">&gt; </code><strong class="userinput"><code>EOF</code></strong>
+<code class="computeroutput">lsof    1213 bozo    0r   REG    3,5    0 30386 /tmp/t1213-0-sh (deleted)</code>
+        </pre><p>
+    </p></div><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Некоторые утилиты не будут работать внутри
+    <em class="firstterm">встроенного документа</em>.</p></div><p><a id="indentedls"/></p><div class="warning" title="Внимание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Внимание</h3><p>Закрывающая <em class="firstterm">завершающая строка</em>
+    в последней строке встроенного документа, должна начинаться в позиции
+    <span class="emphasis"><em>первого</em></span> символа. Не допускается
+    <span class="emphasis"><em>никаких предшествующих пробелов</em></span>. Завершающие пробелы
+    после завершающей строки также приводят к неожиданному поведению.
+    Пробелы предотвращают разпознавание завершающей строки.</p><p>
+   </p><pre class="programlisting">#!/bin/bash
+
+echo "----------------------------------------------------------------------"
+
+cat &lt;&lt;LimitString
+echo "Это 1 строка сообщения внутри встроенного документа."
+echo "Это 2 строка сообщения внутри встроенного документа."
+echo "Это последняя строка сообщения внутри встроенного документа."
+     LimitString
+#^^^^Ограничивающая строка с отступом. Ошибка! Этот сценарий не будет себя вести так, как ожидается.
+
+echo "----------------------------------------------------------------------"
+
+#  Этот комментарий находится вне 'встроенного документа'
+#+ и не будет выведен на экран.
+
+echo "Строка вне встроенного документа."
+
+exit 0
+
+echo "This line had better not echo."  # Следует за командой 'exit'.</pre><p>
+   </p></div><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p><a id="exclls"/>Некоторые люди очень "умно" используют
+          одиночный <span class="token">!</span> в качестве завершающей строки. И это,
+          определенно, не очень хорошая идея.</p><pre class="programlisting"># Это работает.
+cat &lt;&lt;!
+Привет!
+! Еще три восклицания !!!
+!
+
+
+# Но . . .
+cat &lt;&lt;!
+Привет!
+Одиночный восклицательный знак следует далее!
+!
+!
+# Завершается сообщением об ошибке.
+
+
+# Однако, следующий пример будет работать.
+cat &lt;&lt;EOF
+Привет!
+Одиночный восклицательный знак следует далее!
+!
+EOF
+# Это безопаснее для использования многосимвольной ограничивающей строки.</pre></div><p>Для тех трудноразрешимых задач, в которых использование <em class="firstterm">встроенных документов
+    </em> не годится, рассмотрите использование сценарного языка
+    <em class="replaceable"><code>expect</code></em>, который
+    был специально разработан для ввода данных в интерактивные
+    программы.</p><div class="sect1" title="Встроенные строки"><div class="titlepage"><div><div><h2 class="title"><a id="idp16009312"/>Встроенные строки</h2></div></div></div><p><a id="herestringsref"/></p><div class="blockquote"><blockquote class="blockquote"><div class="literallayout"><p><br/>
+<em class="firstterm">Встроенная строка</em> может считаться урезанной формой <em class="firstterm">встроенного документа</em>.<br/>
+Она заключает в себе ничего, кроме <span class="command"><strong>COMMAND &lt;&lt;&lt; $WORD</strong></span>,<br/>
+где <code class="varname">$WORD</code> раскрывается и передается на <code class="filename">stdin</code> команде <span class="command"><strong>COMMAND</strong></span>.<br/>
+       </p></div></blockquote></div><p>В качестве простого примера, рассмотрим альтернативу конструкции <a class="link" href="ch14.html#echogrepref">echo-grep</a>.</p><p>
+    </p><pre class="programlisting"># Вместо:
+if echo "$VAR" | grep -q txt   # if [[ $VAR = *txt* ]]
+# и т.д.
+
+# Попробуйте:
+if grep -q "txt" &lt;&lt;&lt; "$VAR"
+then   #         ^^^
+   echo "$VAR содержит подстроку \"txt\""
+fi
+# Спасибо Себастьяну Камински (Sebastian Kaminski) за этот совет.</pre><p>
+        </p><p><a id="hsread"/></p><p>Или, в комбинации с командой <a class="link" href="ch14.html#readref">read</a>:</p><p>
+  </p><pre class="programlisting">String="Это строка, состоящая из слов."
+
+read -r -a Words &lt;&lt;&lt; "$String"
+#  Опция -a для "read"
+#+ присваивает получаемые значения последовательным элементам массива.
+
+echo "Первое слово в Строке:    ${Words[0]}"   # Это
+echo "Второе слово в Строке:   ${Words[1]}"   # строка,
+echo "Третье слово в Строке:    ${Words[2]}"   # состоящая
+echo "Четвертое слово в Строке:   ${Words[3]}"   # из
+echo "Пятое слово в Строке:    ${Words[4]}"   # слов.
+echo "Шестое слово в Строке:    ${Words[5]}"   # (null)
+# Последняя строка -  конец $String.
+
+# Спасибо Франсиско Лобо (Francisco Lobo) за этот совет.</pre><p>
+        </p><p><a id="hspre"/></p><div class="example"><a id="prependex"/><p class="title"><b>Пример 18.13. Добавление строки в файл</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+# prepend.sh: Добавить текст в начало файла.
+#
+#  Изначально пример предоставлен Кенни Стауффером (Kenny Stauffer)
+#+ и слегка изменен автором документа.
+
+
+E_NOSUCHFILE=85
+
+read -p "File: " file   # аргумент -p для 'read' отображает приглашение командной строки.
+if [ ! -e "$file" ]
+then   # Сообщение, если нет такого файла.
+  echo "Файл $file не найден."
+  exit $E_NOSUCHFILE
+fi
+
+read -p "Заглавие: " title
+cat - $file &lt;&lt;&lt;$title &gt; $file.new
+
+echo "Измененный файл - $file.new"
+
+exit  # Заканчивает выполнение скрипта.
+
+из 'man bash':
+Встроенные Строки
+Разновидность встроенного документа, его формат:
+
+        &lt;&lt;&lt;word
+
+Word раскрывается и передает значение команде на ее стандартный ввод.
+
+
+Конечно, следующий пример тоже будет работать:
+sed -e '1i\
+Заглавие: ' $file
+</pre></div></div><br class="example-break"/><div class="example"><a id="mailboxgrep"/><p class="title"><b>Пример 18.14. Разбор файла почтового ящика</b></p><div class="example-contents"><pre class="programlisting">
+#!/bin/bash
+#  Сценарий Франсиско Лобо (Francisco Lobo),
+#+ немного измененный и прокоментированный автором этого руководства.
+#  Используется с разрешения автора сценария. (Благодарим его!)
+
+# Этот сценарий не будет работать с версией Bash &lt; 3.0.
+
+
+E_MISSING_ARG=67
+if [ -z "$1" ]
+then
+  echo "Использование: $0 mailbox-file"
+  exit $E_MISSING_ARG
+fi
+
+mbox_grep()  # Разобрать файл почтового ящика.
+{
+    declare -i body=0 match=0
+    declare -a date sender
+    declare mail header value
+
+
+    while IFS= read -r mail
+#         ^^^^                 Сбросить текущее значение $IFS.
+#  Иначе команда "read" будет убирать начальные и конечные в строке пробелы из своего ввода.
+
+   do
+       if [[ $mail =~ "^From " ]]   # Совпадает поле "From" в сообщении.
+       then
+          (( body  = 0 ))           # "Обнулить" переменные.
+          (( match = 0 ))
+          unset date
+
+       elif (( body ))
+       then
+            (( match ))
+            # echo "$mail"
+            # Раскомментируйте строку выше, если вы хотите вывести на экран тело сообщения целиком.
+
+       elif [[ $mail ]]; then
+          IFS=: read -r header value &lt;&lt;&lt; "$mail"
+          #                          ^^^  "встроенная строка"
+
+          case "$header" in
+          [Ff][Rr][Oo][Mm] ) [[ $value =~ "$2" ]] &amp;&amp; (( match++ )) ;;
+          # Совпадение строки "From".
+          [Dd][Aa][Tt][Ee] ) read -r -a date &lt;&lt;&lt; "$value" ;;
+          #                                  ^^^
+          # Совпадение строки "Date".
+          [Rr][Ee][Cc][Ee][Ii][Vv][Ee][Dd] ) read -r -a sender &lt;&lt;&lt; "$value" ;;
+          #                                                    ^^^
+          # Совпадение IP-адреса (он может быть подменен).
+          esac
+
+       else
+          (( body++ ))
+          (( match  )) &amp;&amp;
+          echo "MESSAGE ${date:+of: ${date[*]} }"
+       #     Весь массив $date             ^
+          echo "IP address of sender: ${sender[1]}"
+       #      Второе поле строки "Получено"    ^
+
+       fi
+
+
+    done &lt; "$1" # Перенаправить stdout файла в цикл.
+}
+
+
+mbox_grep "$1"  # Передать содержимое файла почтового ящика функции.
+
+exit $?
+
+# Упражнения:
+# ---------
+# 1) Разделите одиночную функцию выше на несколько функций
+#+  для целей удобочитаемости.
+# 2) Добавить дополнительный разбор сценария, проверяющий различные ключевые слова.
+
+
+
+$ mailbox_grep.sh scam_mail
+  MESSAGE of Thu, 5 Jan 2006 08:00:56 -0500 (EST) 
+  IP-адрес отправителя: 196.3.62.4
+</pre></div></div><br class="example-break"/><p>Упражнение: Найдите примеры другого использования <em class="firstterm">встроенных
+           строк</em>, например, <a class="link" href="ch15s08.html#goldenratio"> передача данных на ввод команде
+           <em class="firstterm">dc</em></a>.</p></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch17s02.html">Пред.</a> </td><td align="center"><a accesskey="u" href="pt05.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch19.html">След.</a></td></tr><tr><td align="left" valign="top">Глоббинг </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Глава 19. I/O Redirection</td></tr></table></div></body></html>

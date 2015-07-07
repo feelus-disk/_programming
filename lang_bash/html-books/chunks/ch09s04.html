@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Typing variables: declare or typeset</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch09.html" title="Глава 9. К вопросу о переменных"/><link rel="prev" href="ch09s03.html" title="Parameter Substitution"/><link rel="next" href="ch09s05.html" title="Indirect References"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Typing variables: <span class="command"><strong>declare</strong></span> or
+    <span class="command"><strong>typeset</strong></span></th></tr><tr><td align="left"><a accesskey="p" href="ch09s03.html">Пред.</a> </td><th width="60%" align="center">Глава 9. К вопросу о переменных</th><td align="right"> <a accesskey="n" href="ch09s05.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="Typing variables: declare or typeset"><div class="titlepage"><div><div><h2 class="title"><a id="declareref"/>Typing variables: <span class="command"><strong>declare</strong></span> or
+    <span class="command"><strong>typeset</strong></span></h2></div></div></div><a id="idp9838624" class="indexterm"/><a id="idp9839664" class="indexterm"/><a id="idp9840736" class="indexterm"/><a id="idp9842224" class="indexterm"/><p><a id="declare1ref"/></p><p>The <em class="firstterm">declare</em> or
+    <em class="firstterm">typeset</em> <a class="link" href="ch14.html#builtinref">builtins</a>, which are exact synonyms,
+    permit modifying the properties of variables. This is
+    a very weak form of the <em class="firstterm">typing</em>
+
+      <sup>[<a id="idp9848720" href="#ftn.idp9848720" class="footnote">43</a>]</sup>
+
+    available in certain programming languages. The
+    <em class="firstterm">declare</em> command is specific to version
+    2 or later of Bash. The <em class="firstterm">typeset</em> command
+    also works in ksh scripts.</p><div class="variablelist" title="declare/typeset options"><a id="declareopsref"/><p class="title"><b><a id="declareopsref1"/>declare/typeset options</b></p><dl><dt><span class="term"><span class="token">-r</span>
+      <em class="replaceable"><code>readonly</code></em></span></dt><dd><p>(<strong class="userinput"><code>declare -r var1</code></strong> works the same as
+    <strong class="userinput"><code>readonly var1</code></strong>)</p><p>This is the rough equivalent of the <span class="command"><strong>C</strong></span>
+    <em class="firstterm">const</em> type qualifier. An attempt
+    to change the value of a <em class="firstterm">readonly</em>
+    variable fails with an error message.</p><pre class="programlisting">declare -r var1=1
+echo "var1 = $var1"   # var1 = 1
+
+(( var1++ ))          # x.sh: line 4: var1: readonly variable</pre><p>
+              </p></dd><dt><span class="term"><span class="token">-i</span> <em class="replaceable"><code>integer</code></em></span></dt><dd><pre class="programlisting">declare -i number
+# The script will treat subsequent occurrences of "number" as an integer.   
+
+number=3
+echo "Number = $number"     # Number = 3
+
+number=three
+echo "Number = $number"     # Number = 0
+# Tries to evaluate the string "three" as an integer.</pre><p>Certain arithmetic operations are permitted
+    for declared integer variables without the need
+    for <a class="link" href="ch15s02.html#exprref">expr</a> or <a class="link" href="ch14.html#letref">let</a>.</p><pre class="programlisting">n=6/3
+echo "n = $n"       # n = 6/3
+
+declare -i n
+n=6/3
+echo "n = $n"       # n = 2</pre></dd><dt><span class="term"><a id="arraydeclare"/><span class="token">-a</span>
+      <em class="replaceable"><code>array</code></em></span></dt><dd><pre class="programlisting">declare -a indices</pre><p>The variable <em class="parameter"><code>indices</code></em> will be treated as
+    an <a class="link" href="ch26.html#arrayref">array</a>.</p></dd><dt><span class="term"><span class="token">-f</span> <em class="replaceable"><code>function(s)</code></em></span></dt><dd><pre class="programlisting">declare -f</pre><p>A <strong class="userinput"><code>declare -f</code></strong> line with no
+    arguments in a script causes a listing of all the
+    <a class="link" href="ch23.html#functionref">functions</a> previously
+    defined in that script.</p><pre class="programlisting">declare -f function_name</pre><p>A <strong class="userinput"><code>declare -f function_name</code></strong>
+    in a script lists just the function named.</p></dd><dt><span class="term"><span class="token">-x</span> <a class="link" href="ch14.html#exportref">export</a></span></dt><dd><pre class="programlisting">declare -x var3</pre><p>This declares a variable as available for exporting outside the
+    environment of the script itself.</p></dd><dt><span class="term">-x var=$value</span></dt><dd><pre class="programlisting">declare -x var3=373</pre><p>The <span class="command"><strong>declare</strong></span> command permits
+      assigning a value to a variable in the same statement
+      as setting its properties.</p></dd></dl></div><div class="example"><a id="ex20"/><p class="title"><b>Пример 9.23. Using <em class="firstterm">declare</em> to type variables</b></p><div class="example-contents"><pre class="programlisting">&amp;ex20;</pre></div></div><br class="example-break"/><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Using the <em class="firstterm">declare</em> builtin
+    restricts the <a class="link" href="ch20.html#scoperef">scope</a>
+    of a variable.
+
+
+    </p><pre class="programlisting">foo ()
+{
+FOO="bar"
+}
+
+bar ()
+{
+foo
+echo $FOO
+}
+
+bar   # Prints bar.</pre><p>However . . .
+
+    </p><pre class="programlisting">foo (){
+declare FOO="bar"
+}
+
+bar ()
+{
+foo
+echo $FOO
+}
+
+bar  # Prints nothing.
+
+
+# Thank you, Michael Iatrou, for pointing this out.</pre></div><div class="sect2" title="Another use for declare"><div class="titlepage"><div><div><h3 class="title"><a id="declare2x"/>Another use for <em class="firstterm">declare</em></h3></div></div></div><p>The <em class="firstterm">declare</em> command can be
+       helpful in identifying variables, <a class="link" href="ch04s04.html#envref">environmental</a> or otherwise.
+       This can be especially useful with <a class="link" href="ch26.html#arrayref">arrays</a>.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>declare | grep HOME</code></strong>
+<code class="computeroutput">/home/bozo</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>zzy=68</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>declare | grep zzy</code></strong>
+<code class="computeroutput">zzy=68</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>Colors=([0]="purple" [1]="reddish-orange" [2]="light green")</code></strong>
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo ${Colors[@]}</code></strong>
+<code class="computeroutput">purple reddish-orange light green</code>
+<code class="prompt">bash$ </code><strong class="userinput"><code>declare | grep Colors</code></strong>
+<code class="computeroutput">Colors=([0]="purple" [1]="reddish-orange" [2]="light green")</code>
+       </pre><p>
+     </p></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp9848720" href="#idp9848720" class="para">43</a>] </sup><a id="typingref"/>In this context,
+      <em class="firstterm">typing</em>
+      a variable means to classify it and restrict its properties.
+      For example, a variable <em class="firstterm">declared</em>
+      or <em class="firstterm">typed</em> as an integer
+      is no longer available for <a class="link" href="apb.html#stringopstab">string
+      operations</a>.</p><pre class="programlisting">declare -i intvar
+
+intvar=23
+echo "$intvar"   # 23
+intvar=stringval
+echo "$intvar"   # 0</pre></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch09s03.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch09.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch09s05.html">След.</a></td></tr><tr><td align="left" valign="top">Parameter Substitution </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Indirect References</td></tr></table></div></body></html>

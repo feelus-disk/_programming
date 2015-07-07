@@ -1,0 +1,300 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>mmv Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>mmv</h1> 
+<p>Mass Move and rename - Move, copy, append or link Multiple <b>files</b> using wildcard patterns.</p>
+<pre>Syntax
+      mmv [<i>Source_Option</i>] [-h] [-d|p] [-g|t] [-v|n] [--] [<i>from</i> <i>to</i>] 
+
+Options:
+   -h   help
+
+   -d   Delete
+   -p   Protect (don't delete or overwrite)
+   -g   Go
+   -t   Terminate
+   -v   verbose mode
+   -n   no-execute mode (display messages about what would have been done)
+
+Source_Options:
+
+   -m   <b>Move</b> source file to target name. 
+        Both must be on the same device. Will not move directories.
+        If the source file is a symbolic link, moves the link without checking
+        if the link's target from the new directory is different than the old.
+
+   -x   same as -m, except cross-device moves are done by copying, then deleting source.
+        When copying, sets the permission bits and file modification time of the target
+        file to that of the source file.
+
+   -r   <b>Rename</b> source file or directory to target name.
+        The target name must not include a path: the file remains in the same directory
+        in all cases. This option is the only way of renaming directories under mmv.
+
+   -c   <b>Copy</b> source file to target name.
+        Sets the file modification time and permission bits of the target file to that
+        of the source file, regardless of whether the target file already exists.
+        Chains and cycles (to be explained below) are not allowed.
+
+   -o   <b>Overwrite</b> target name with source file.
+        If target file exists, it is overwritten, keeping its original owner and
+        permission bits. If it does not exist, it is created, with read-write permission
+        bits set according to <a href="umask.html">umask</a>, and the execute permission bits copied from the
+        source file. In either case, the file modification time is set to the current time.
+
+   -a   <b>Append</b> contents of source file to target name.
+        Target file modification time is set to the current time. If target file does not
+        exist, it is created with permission bits set as under -o.
+        Unlike all other options, -a allows multiple source files to have the same target name,
+        e.g. "mmv -a \*.c big" will append all ".c" files to "big".
+        Chains and cycles are also allowed, so "mmv -a f f" will double up "f".
+
+   -l   <b>Link</b> target name to source file.
+        Both must be on the same device, and the source must not be a directory.
+        Chains and cycles are not allowed.
+
+   -s   Same as -l, but use symbolic links instead of hard links.
+        For the resulting link to aim back at the source, either the source name
+        must begin with a '/', or the target must reside in either the current or the
+        source directory. If none of these conditions are met, the link is refused.
+        However, source and target can reside on different devices, and the source can be a directory. 
+
+   If no <i>source_option</i> is specified, the task is given by the command name under which mmv was invoked (argv[0]):
+ 
+   command_name   default task
+ 
+   mmv            -x (Move except cross device)
+   mcp            -c (Copy)
+   mad            -a (Append)
+   mln            -l (Link)
+
+Options need not be given separately, i.e. &quot;mmv -mk&quot; is allowed.</pre>
+<p>Mmv moves (or copies, appends, or links, as specified) each source file
+matching a <b>from</b> pattern to the target name specified by the <b>to</b> pattern.</p>
+<p>This multiple action is performed safely, i.e. without any unexpected
+deletion of files due to collisions of target names with existing filenames or with other target names. Furthermore, before doing anything,
+mmv attempts to detect any errors that would result from the entire set
+of actions specified and gives the user the choice of either proceeding
+by avoiding the offending parts or aborting. </p>
+<p>mmv does support large
+files (LFS) but it does *NOT* support sparse files (i.e. it explodes
+them).</p>
+<p><b>Multiple Pattern Pairs</b><br>
+<br>
+Multiple<span class="code"> from -- to</span> pattern pairs may be specified by omitting the pattern pair on the command line, and entering them on the standard input,
+one pair per line. (If a pattern pair is given on the command line,
+the standard input is not read.) Thus,<br>
+<br>
+<span class="code">mmv<br>
+a b<br>
+c d</span><br>
+<br>
+would rename &quot;a&quot; to &quot;b&quot; and &quot;c&quot; to &quot;d&quot;. </p>
+<p>If a file can be matched to
+several of the given from patterns, the to pattern of the first matching pair is used. Thus,<br>
+<br>
+<span class="code">mmv<br>
+a b<br>
+a c</span><br>
+<br>
+would give the error message &quot;a -&gt; c : no match&quot; because file &quot;a&quot; (even
+if it exists) was already matched by the first pattern pair.<br>
+<br>
+<b>The From Pattern</b><br>
+<br>
+The <span class="code">from</span> pattern is a filename with embedded wildcards: &rsquo;<span class="code">*</span>&rsquo;, &rsquo;<span class="code">?</span>&rsquo;,
+&rsquo;<span class="code">[</span>&rsquo;...&rsquo;<span class="code">]</span>&rsquo;, and &rsquo;<span class="code">;</span>&rsquo;. The first three have their usual sh(1) meanings
+of, respectively, matching any string of characters, matching any single character, and matching any one of a set of characters.<br>
+<br>
+Between the &rsquo;[&rsquo; and &rsquo;]&rsquo;, a range from character &rsquo;a&rsquo; through character &rsquo;z&rsquo; is specified with &quot;a-z&quot;. The set of matching characters can be
+negated by inserting a &rsquo;<span class="code">^</span>&rsquo; after the &rsquo;[&rsquo;. Thus, <span class="code">&quot;[^b-e2-5_]&quot;</span> will
+match any character but &rsquo;b&rsquo; through &rsquo;e&rsquo;, &rsquo;2&rsquo; through &rsquo;5&rsquo;, and &rsquo;_&rsquo;.<br>
+<br>
+Note that paths are allowed in the patterns, and wildcards may be
+intermingled with slashes arbitrarily. The &rsquo;;&rsquo; wildcard is useful for
+matching files at any depth in the directory tree. It matches the same
+as &quot;*/&quot; repeated any number of times, including zero, and can only
+occur either at the beginning of the pattern or following a &rsquo;/&rsquo;. Thus<span class="code"> &quot;;*.c&quot;</span> will match all &quot;.c&quot; files in or below the current directory,
+while &quot;/;*.c&quot; will match them anywhere on the file system.<br>
+<br>
+In addition, if the from pattern (or the to pattern) begins with &quot;~/&quot;, 
+the &rsquo;~&rsquo; is replaced with the home directory name. (Note that the &quot;~user&quot; feature of csh(1) is not implemented.) However, the &rsquo;~&rsquo; is not
+treated as a wildcard, in the sense that it is not assigned a wildcard
+index (see below).<br>
+<br>
+Since matching a directory under a task option other than -r or -s
+would result in an error, tasks other than -r and -s match directories
+only against completely explicit from patterns (i.e. not containing
+wildcards). Under -r and -s, this applies only to &quot;.&quot; and &quot;..&quot;.<br>
+<br>
+Files beginning with &rsquo;.&rsquo; are only matched against from patterns that
+begin with an explicit &rsquo;.&rsquo;. However, if -h is specified, they are
+matched normally.<br>
+<br>
+Warning: since the shell normally expands wildcards before passing the
+command-line arguments to mmv, it is usually necessary to enclose the
+command-line from and to patterns in quotes.<br>
+<b><br>
+The To Pattern</b><br>
+<br>
+The <span class="code">to</span> pattern is a filename with embedded wildcard indexes, where an
+index consists of the character &rsquo;<span class="code">#</span>&rsquo; followed by a string of digits.</p>
+<p>When a source file matches a <span class="code">from</span> pattern, a target name for the file
+is constructed out of the <span class="code">to</span> pattern by replacing the wildcard indexes
+by the actual characters that matched the referenced wildcards in the
+source name. Thus, if the from pattern is <span class="code">&quot;abc*.*&quot;</span> and the to pattern
+is <span class="code">&quot;xyz#2.#1&quot;</span>, then &quot;abc.txt&quot; is targeted to &quot;xyztxt.&quot;. (The first &rsquo;<span class="code">*</span>&rsquo; 
+matched <span class="code">&quot;&quot;</span>, and the second matched &quot;txt&quot;.) Similarly, for the pattern
+pair <span class="code">&quot;;*.[clp]&quot; -&gt; &quot;#1#3/#2&quot;</span>, &quot;foo1/foo2/prog.c&quot; is targeted to &quot;foo1/foo2/c/prog&quot;. Note that there is no &rsquo;/&rsquo; following the &quot;#1&quot; in
+the to pattern, since the string matched by any &rsquo;;&rsquo; is always either
+empty or ends in a &rsquo;/&rsquo;. In this case, it matches &quot;foo1/foo2/&quot;.<br>
+<br>
+To convert the string matched by a wildcard to either lowercase or
+uppercase before embedding it in the target name, insert &rsquo;<span class="code">l</span>&rsquo; or &rsquo;<span class="code">u</span>&rsquo;,
+respectively, between the &rsquo;#&rsquo; and the string of digits.<br>
+<br>
+The <span class="code">to</span> pattern, like the <span class="code">from</span> pattern, can begin with a &quot;~/&quot; (see
+above). This does not necessitate enclosing the <span class="code">to</span> pattern in quotes
+on the command line since csh(1) expands the &rsquo;~&rsquo; in the exact same manner as mmv (or, in the case of sh(1), does not expand it at all).<br>
+<br>
+For all task options other than -r, if the target name is a directory,
+the real target name is formed by appending a &rsquo;/&rsquo; followed by the last
+component of the source file name. For example, <span class="code">&quot;mmv dir1/a dir2&quot;</span>
+will, if &quot;dir2&quot; is indeed a directory, actually move &quot;dir1/a&quot; to &quot;dir2/a&quot;. However, if &quot;dir2/a&quot; already exists and is itself a directory, this is considered an error.<br>
+<br>
+To strip any character (e.g. &rsquo;*&rsquo;, &rsquo;?&rsquo;, or &rsquo;#&rsquo;) of its special meaning
+to mmv, as when the actual replacement name must contain the character &rsquo;<span class="code">#</span>&rsquo;, precede the special character with a &acute;<span class="code">\</span>&rsquo; (and enclose the argument
+in quotes because of the shell). This also works to terminate a wildcard index when it has to be followed by a digit in the filename, e.g. 
+<span class="code">&quot;a#1\1&quot;</span>.<br>
+<br>
+<b>Chains and Cycles</b><br>
+<br>
+A chain is a sequence of specified actions where the target name of one
+action refers to the source file of another action. For example,<br>
+<br>
+<span class="code">mmv<br>
+a b<br>
+b c</span><br>
+<br>
+specifies the chain &quot;a&quot; -&gt; &quot;b&quot; -&gt; &quot;c&quot;. A cycle is a chain where the
+last target name refers back to the first source file, e.g. &quot;mmv a a&quot;.</p>
+<p> Mmv detects chains and cycles regardless of the order in which their
+constituent actions are actually given. Where allowed, i.e. in moving,
+renaming, and appending files, chains and cycles are handled gracefully, by performing them in the proper order. Cycles are broken by
+first renaming one of the files to a temporary name (or just remembering its original size when doing appends).<br>
+<br>
+<b>Collisions and Deletions</b><br>
+<br>
+When any two or more matching files would have to be moved, copied, or
+linked to the same target filename, mmv detects the condition as an
+error before performing any actions. Furthermore, mmv checks if any of
+its actions will result in the destruction of existing files. </p>
+<p>If the
+<span class="code">-d (delete)</span> option is specified, all file deletions or overwrites are
+done silently. </p>
+<p>Under <span class="code">-p (protect)</span>, all deletions or overwrites (except
+those specified with &quot;(*)&quot; on the standard input, see below) are
+treated as errors. And if neither option is specified, the user is
+queried about each deletion or overwrite separately. (A new stream to &quot;/dev/tty&quot; is used for all interactive queries, not the standard
+input.)<br>
+<b><br>
+Error Handling</b><br>
+<br>
+Whenever any error in the user&rsquo;s action specifications is detected, an
+error message is given on the standard output, and mmv proceeds to
+check the rest of the specified actions. Once all errors are detected,
+mmv queries the user whether he wishes to continue by avoiding the
+erroneous actions or to abort altogether. This and all other queries
+may be avoided by specifying either the <span class="code">-g (go) or -t (terminate)</span><br>
+option. The former will resolve all difficulties by avoiding the erroneous actions; the latter will abort mmv if any errors are detected.<br>
+Specifying either of them defaults mmv to -p, unless -d is specified
+(see above). Thus, -g and -t are most useful when running mmv in the
+background or in a shell script, when interactive queries are undesirable.<br>
+<b><br>
+Reports</b><br>
+<br>
+Once the actions to be performed are determined, mmv performs them
+silently, unless either the -v (verbose) or -n (no-execute) option is
+specified. The former causes mmv to report each performed action on
+the standard output as<br>
+<br>
+<span class="code">a -&gt; b : done.</span><br>
+<br>
+Here, &quot;a&quot; and &quot;b&quot; would be replaced by the source and target names,
+respectively. If the action deletes the old target, a &quot;(*)&quot; is
+inserted after the the target name. Also, the &quot;-&gt;&quot; symbol is modified
+when a cycle has to be broken: the &rsquo;&gt;&rsquo; is changed to a &rsquo;^&rsquo; on the
+action prior to which the old target is renamed to a temporary, and the&rsquo;-&rsquo; is changed to a &rsquo;=&rsquo; on the action where the temporary is used.<br>
+<br>
+Under <span class="code">-n</span>, none of the actions are performed, but messages like the
+above are printed on the standard output with the &quot;: done.&quot; omitted.<br>
+<br>
+The output generated by <span class="code">-n</span> can (after editing, if desired) be fed back
+to mmv on the standard input (by omitting the <span class="code">from -- to </span>pair on the
+mmv command line). To facilitate this, mmv ignores lines on the standard input that look like its own error and &quot;done&quot; messages, as well as
+all lines beginning with white space, and will accept pattern pairs<br>
+with or without the intervening &quot;-&gt;&quot; (or &quot;-^&quot;, &quot;=&gt;&quot;, or &quot;=^&quot;). Lines
+with &quot;(*)&quot; after the target pattern have the effect of enabling <span class="code">-d</span> for
+the files matching this pattern only, so that such deletions are done
+silently. When feeding mmv its own output, one must remember to specify again the task option (if any) originally used to generate it.<br>
+<br>
+Although mmv attempts to predict all mishaps prior to performing any
+specified actions, accidents may happen. For example, mmv does not
+check for adequate free space when copying. Thus, despite all efforts,
+it is still possible for an action to fail after some others have
+already been done. To make recovery as easy as possible, mmv reports
+which actions have already been done and which are still to be performed after such a failure occurs. It then aborts, not attempting to
+do anything else. Once the user has cleared up the problem, he can
+feed this report back to mmv on the standard input to have it complete
+the task. (The user is queried for a file name to dump this report if
+the standard output has not been redirected.)</p>
+<p>Mmv exits with status 1 if it aborts before doing anything, with status
+2 if it aborts due to failure after completing some of the actions, and
+with status 0 otherwise.<br>
+Example</p>
+<p><b>BUGS</b></p>
+<p> If the search pattern is not quoted, the shell expands the wildcards.
+Mmv then (usually) gives some error message, but can not determine that
+the lack of quotes is the cause.<br>
+<br>
+To avoid difficulties in semantics and error checking, mmv refuses to
+move or create directories.</p>
+<p>If the mmv tool is not installed on your distro, get it with: <span class="code">apt-get install mmv</span></p>
+<p><b><a id="examples"></a>Examples</b></p>
+<p>Rename the file extension of all .csv files in the current directory to .xls</p>
+<p class="code">mmv &quot;<b>*</b>.csv&quot; &quot;<b>#1</b>.xls&quot;</p>
+<p>Copy <span class="code">report6part4.txt</span> to <span class="code">./french/rapport6partie4.txt</span> along with all similarly named files: </p>
+<p class="code">mmv -c &quot;report<b>*</b>part<b>*</b>.txt&quot; &quot;./french/rapport<b>#1</b>partie<b>#2</b>.txt&quot;</p>
+<p>Append the contents of all .txt files into one file:</p>
+<p class="code">mmv -a &quot;*.txt&quot; &quot;all.txt&quot; </p>
+<p class="quote"><i>&ldquo;All things change, nothing is extinguished. There is nothing in the whole world which is permanent. Everything flows onward; all things are brought into being with a changing nature; the ages themselves glide by in constant movement&rdquo; ~ Ovid</i></p>
+<p><b>Related bash commands</b>:<br>
+<br>
+<a href="mv.html">mv</a> - Move or rename files or directories<br>
+<a href="cp.html">cp</a> - Copy one or more files to another location<br>
+<a href="ln.html">ln</a> - Make links between files<br>
+<a href="umask.html">umask</a> - Users file creation mask</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="mmv.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

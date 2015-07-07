@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>File and Archiving Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"/><link rel="home" href="index.html" title="Advanced Bash Scripting по-русски"/><link rel="up" href="ch15.html" title="Глава 15. External Filters, Programs and Commands"/><link rel="prev" href="ch15s04.html" title="Text Processing Commands"/><link rel="next" href="ch15s06.html" title="Communications Commands"/></head><body><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">File and Archiving Commands</th></tr><tr><td align="left"><a accesskey="p" href="ch15s04.html">Пред.</a> </td><th width="60%" align="center">Глава 15. External Filters, Programs and Commands</th><td align="right"> <a accesskey="n" href="ch15s06.html">След.</a></td></tr></table><hr/></div><div class="sect1" title="File and Archiving Commands"><div class="titlepage"><div><div><h2 class="title"><a id="filearchiv"/>File and Archiving Commands</h2></div></div></div><div class="variablelist" title="Archiving"><a id="faarchiving"/><p class="title"><b><a id="faarchiving1"/>Archiving</b></p><dl><dt><span class="term"><a id="tarref"/><span class="command"><strong>tar</strong></span></span></dt><dd><p>The standard UNIX archiving utility.
+
+          <sup>[<a id="idp12781552" href="#ftn.idp12781552" class="footnote">66</a>]</sup>
+
+        Originally a
+        <em class="wordasword">Tape ARchiving</em> program, it has
+        developed into a general purpose package that can handle
+        all manner of archiving with all types of destination
+        devices, ranging from tape drives to regular files to even
+        <code class="filename">stdout</code> (see <a class="xref" href="ch03.html#ex58" title="Пример 3.4. Backup of all files changed in last day">Пример 3.4, «Backup of all files changed in last day»</a>). GNU
+        <em class="firstterm">tar</em> has been patched to accept
+        various compression filters, for example: <span class="command"><strong>tar
+        czvf archive_name.tar.gz *</strong></span>, which recursively
+        archives and <a class="link" href="ch15s05.html#gzipref">gzips</a>
+        all files in a directory tree except <a class="link" href="ch15.html#dotfilesref">dotfiles</a> in the current
+        working directory (<a class="link" href="ch09.html#pwdref">$PWD</a>).
+
+    <sup>[<a id="idp12788576" href="#ftn.idp12788576" class="footnote">67</a>]</sup>
+            </p><p>Some useful <span class="command"><strong>tar</strong></span> options:  
+        </p><div class="orderedlist"><ol class="orderedlist"><li class="listitem"><p><code class="option">-c</code> create (a new
+      archive)</p></li><li class="listitem"><p><code class="option">-x</code> extract (files from
+      existing archive)</p></li><li class="listitem"><p><code class="option">--delete</code> delete (files
+      from existing archive)</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>This option will not work on magnetic tape
+      devices.</p></div></li><li class="listitem"><p><code class="option">-r</code> append (files to
+      existing archive)</p></li><li class="listitem"><p><code class="option">-A</code> append
+      (<em class="firstterm">tar</em> files to
+      existing archive)</p></li><li class="listitem"><p><code class="option">-t</code> list (contents of
+                  existing archive)</p></li><li class="listitem"><p><code class="option">-u</code> update archive</p></li><li class="listitem"><p><code class="option">-d</code> compare archive with
+      specified filesystem</p></li><li class="listitem"><p><code class="option">--after-date</code> only process
+      files with a date stamp <span class="emphasis"><em>after</em></span>
+      specified date</p></li><li class="listitem"><p><code class="option">-z</code> <a class="link" href="ch15s05.html#gzipref">gzip</a> the archive</p><p>(compress or uncompress, depending on whether
+    combined with the <code class="option">-c</code> or
+    <code class="option">-x</code>) option</p></li><li class="listitem"><p><code class="option">-j</code>
+      <a class="link" href="ch15s05.html#bzipref">bzip2</a> the
+      archive</p></li></ol></div><p>
+        </p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>It may be difficult to recover data from a
+        corrupted <em class="firstterm">gzipped</em> tar
+        archive. When archiving important files, make multiple
+        backups.</p></div></dd><dt><span class="term"><a id="sharref"/><span class="command"><strong>shar</strong></span></span></dt><dd><p><em class="firstterm">Shell archiving</em> utility.
+        The text files in a shell archive are concatenated
+        without compression, and the resultant archive
+        is essentially a shell script, complete with
+        <span class="token">#!/bin/sh</span> header, containing all the
+        necessary unarchiving commands, as well as the files
+        themselves. <em class="firstterm">Shar archives</em>
+        still show up in Usenet newsgroups, but otherwise
+        <span class="command"><strong>shar</strong></span> has been replaced by
+        <span class="command"><strong>tar</strong></span>/<span class="command"><strong>gzip</strong></span>. The
+        <span class="command"><strong>unshar</strong></span> command unpacks
+        <em class="firstterm">shar</em> archives.</p><p>The <span class="command"><strong>mailshar</strong></span> command
+        is a Bash script that uses <span class="command"><strong>shar</strong></span> to
+        concatenate multiple files into a single one for e-mailing.
+        This script supports compression and <a class="link" href="ch15s05.html#uuencoderef">uuencoding</a>.</p></dd><dt><span class="term"><a id="arref"/><span class="command"><strong>ar</strong></span></span></dt><dd><p>Creation and manipulation utility for archives, mainly
+        used for binary object file libraries.</p></dd><dt><span class="term"><a id="rpmref"/><span class="command"><strong>rpm</strong></span></span></dt><dd><p>The <em class="firstterm">Red Hat Package Manager</em>, or
+        <span class="command"><strong>rpm</strong></span> utility provides a wrapper for
+        source or binary archives. It includes commands for
+        installing and checking the integrity of packages, among
+        other things.</p><p>A simple <span class="command"><strong>rpm -i package_name.rpm</strong></span>
+        usually suffices to install a package, though there are many
+        more options available.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p><strong class="userinput"><code>rpm -qf</code></strong> identifies which package a
+        file originates from.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>rpm -qf /bin/ls</code></strong>
+<code class="computeroutput">coreutils-5.2.1-31</code>
+        </pre><p>
+      </p></div><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p><strong class="userinput"><code>rpm -qa</code></strong> gives a
+        complete list of all installed <em class="firstterm">rpm</em> packages
+        on a given system. An <strong class="userinput"><code>rpm -qa package_name</code></strong>
+        lists only the package(s) corresponding to
+        <code class="filename">package_name</code>.</p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>rpm -qa</code></strong>
+<code class="computeroutput">redhat-logos-1.1.3-1
+ glibc-2.2.4-13
+ cracklib-2.7-12
+ dosfstools-2.7-1
+ gdbm-1.8.0-10
+ ksymoops-2.4.1-1
+ mktemp-1.5-11
+ perl-5.6.0-17
+ reiserfs-utils-3.x.0j-2
+ ...</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>rpm -qa docbook-utils</code></strong>
+<code class="computeroutput">docbook-utils-0.6.9-2</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>rpm -qa docbook | grep docbook</code></strong>
+<code class="computeroutput">docbook-dtd31-sgml-1.0-10
+ docbook-style-dsssl-1.64-3
+ docbook-dtd30-sgml-1.0-10
+ docbook-dtd40-sgml-1.0-11
+ docbook-utils-pdf-0.6.9-2
+ docbook-dtd41-sgml-1.0-10
+ docbook-utils-0.6.9-2</code>
+        </pre><p>
+      </p></div></dd><dt><span class="term"><a id="cpioref"/><span class="command"><strong>cpio</strong></span></span></dt><dd><p>This specialized archiving copy command
+        (<span class="command"><strong>c</strong></span>o<span class="command"><strong>p</strong></span>y
+        <span class="command"><strong>i</strong></span>nput and <span class="command"><strong>o</strong></span>utput)
+        is rarely seen any more, having been supplanted by
+        <span class="command"><strong>tar</strong></span>/<span class="command"><strong>gzip</strong></span>. It still
+        has its uses, such as moving a directory tree. With an
+        appropriate block size (for copying) specified, it
+        can be appreciably faster than <span class="command"><strong>tar</strong></span>.</p><div class="example"><a id="ex48"/><p class="title"><b>Пример 15.30. Using <em class="firstterm">cpio</em> to move a directory tree</b></p><div class="example-contents"><pre class="programlisting">&amp;ex48;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="rpm2cpioref"/><span class="command"><strong>rpm2cpio</strong></span></span></dt><dd><p>This command extracts a
+        <span class="command"><strong>cpio</strong></span> archive from an <a class="link" href="ch15s05.html#rpmref">rpm</a> one.</p><div class="example"><a id="derpm"/><p class="title"><b>Пример 15.31. Unpacking an <em class="firstterm">rpm</em> archive</b></p><div class="example-contents"><pre class="programlisting">&amp;derpm;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="paxref"/><span class="command"><strong>pax</strong></span></span></dt><dd><p>The <em class="firstterm">pax</em>
+          <span class="command"><strong>p</strong></span>ortable <span class="command"><strong>a</strong></span>rchive
+    e<span class="command"><strong>x</strong></span>change toolkit
+    facilitates periodic file backups and is designed
+    to be cross-compatible between various flavors of UNIX.
+          It was ported from BSD to Linux.</p><p>
+    </p><pre class="programlisting">pax -wf daily_backup.pax ~/linux-server/files 
+#  Creates a tar archive of all files in the target directory.
+#  Note that the options to pax must be in the correct order --
+#+ pax -fw     has an entirely different effect.
+
+pax -f daily_backup.pax
+#  Lists the files in the archive.
+
+pax -rf daily_backup.pax ~/bsd-server/files
+#  Restores the backed-up files from the Linux machine
+#+ onto a BSD one.</pre><p>
+    </p><p>Note that <em class="firstterm">pax</em> handles many of
+            the standard archiving and compression commands.</p></dd></dl></div><div class="variablelist" title="Compression"><a id="facompression"/><p class="title"><b><a id="facompression1"/>Compression</b></p><dl><dt><span class="term"><a id="gzipref"/><span class="command"><strong>gzip</strong></span></span></dt><dd><p>The standard GNU/UNIX compression utility, replacing
+        the inferior and proprietary
+        <span class="command"><strong>compress</strong></span>. The corresponding decompression
+        command is <span class="command"><strong>gunzip</strong></span>, which is the equivalent of
+        <span class="command"><strong>gzip -d</strong></span>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <code class="option">-c</code> option sends the output of
+        <span class="command"><strong>gzip</strong></span> to <code class="filename">stdout</code>. This
+        is useful when <a class="link" href="ch03.html#piperef">piping</a> to other
+        commands.</p></div><p><a id="zcatref"/></p><p>The <span class="command"><strong>zcat</strong></span> filter decompresses a
+        <em class="firstterm">gzipped</em> file to
+        <code class="filename">stdout</code>, as possible input to a pipe or
+        redirection. This is, in effect, a <span class="command"><strong>cat</strong></span>
+        command that works on compressed files (including files
+        processed with the older <a class="link" href="ch15s05.html#compressref">compress</a>
+        utility). The <span class="command"><strong>zcat</strong></span> command is equivalent to
+        <span class="command"><strong>gzip -dc</strong></span>.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>On some commercial UNIX systems, <span class="command"><strong>zcat</strong></span>
+        is a synonym for <span class="command"><strong>uncompress -c</strong></span>,
+        and will not work on <em class="firstterm">gzipped</em>
+        files.</p></div><p>See also <a class="xref" href="ch07s03.html#ex14" title="Пример 7.7. zmore">Пример 7.7, «<em class="firstterm">zmore</em>»</a>.</p></dd><dt><span class="term"><a id="bzipref"/><span class="command"><strong>bzip2</strong></span></span></dt><dd><p>An alternate compression utility, usually more efficient
+        (but slower) than <span class="command"><strong>gzip</strong></span>, especially on
+        large files. The corresponding decompression command is
+        <span class="command"><strong>bunzip2</strong></span>.</p><p>Similar to the <span class="command"><strong>zcat</strong></span> command,
+        <span class="command"><strong>bzcat</strong></span> decompresses a
+        <em class="firstterm">bzipped2-ed</em> file to
+        <code class="filename">stdout</code>.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Newer versions of <a class="link" href="ch15s05.html#tarref">tar</a> have been patched with
+        <span class="command"><strong>bzip2</strong></span> support.</p></div></dd><dt><span class="term"><a id="compressref"/><span class="command"><strong>compress</strong></span>, </span><span class="term"><a id="uncompressref"/><span class="command"><strong>uncompress</strong></span></span></dt><dd><p>This is an older, proprietary compression
+        utility found in commercial UNIX distributions. The
+        more efficient <span class="command"><strong>gzip</strong></span> has largely
+        replaced it. Linux distributions generally include a
+        <span class="command"><strong>compress</strong></span> workalike for compatibility,
+        although <span class="command"><strong>gunzip</strong></span> can unarchive files
+        treated with <span class="command"><strong>compress</strong></span>.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>The <span class="command"><strong>znew</strong></span> command transforms
+        <em class="firstterm">compressed</em> files into
+        <em class="firstterm">gzipped</em> ones.</p></div></dd><dt><span class="term"><a id="sqref"/><span class="command"><strong>sq</strong></span></span></dt><dd><p>Yet another compression (<span class="command"><strong>sq</strong></span>ueeze)
+        utility, a filter that works only on sorted
+        ASCII word lists. It uses the standard invocation
+        syntax for a filter, <span class="command"><strong>sq &lt; input-file &gt;
+        output-file</strong></span>.  Fast, but not nearly as efficient
+        as <a class="link" href="ch15s05.html#gzipref">gzip</a>.  The corresponding
+        uncompression filter is <span class="command"><strong>unsq</strong></span>, invoked
+        like <span class="command"><strong>sq</strong></span>.</p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>The output of <span class="command"><strong>sq</strong></span> may be
+          piped to <span class="command"><strong>gzip</strong></span> for further
+    compression.</p></div></dd><dt><span class="term"><a id="zipref"/><span class="command"><strong>zip</strong></span>, </span><span class="term"><span class="command"><strong>unzip</strong></span></span></dt><dd><p>Cross-platform file archiving and compression utility
+        compatible with DOS <em class="firstterm">pkzip.exe</em>.
+        <span class="quote">«<span class="quote">Zipped</span>»</span> archives seem to be a more
+        common medium of file exchange on the Internet than
+        <span class="quote">«<span class="quote">tarballs.</span>»</span></p></dd><dt><span class="term"><a id="unarcref"/><span class="command"><strong>unarc</strong></span>, </span><span class="term"><span class="command"><strong>unarj</strong></span>, </span><span class="term"><span class="command"><strong>unrar</strong></span></span></dt><dd><p>These Linux utilities permit unpacking archives
+        compressed with the DOS <em class="firstterm">arc.exe</em>,
+        <em class="firstterm">arj.exe</em>, and
+        <em class="firstterm">rar.exe</em> programs.</p></dd><dt><span class="term"><a id="lzmaref"/><span class="command"><strong>lzma</strong></span>, </span><span class="term"><span class="command"><strong>unlzma</strong></span>, </span><span class="term"><span class="command"><strong>lzcat</strong></span></span></dt><dd><p>Highly efficient Lempel-Ziv-Markov compression.
+        The syntax of <em class="firstterm">lzma</em> is similar to
+              that of <em class="firstterm">gzip</em>. The <a class="ulink" href="http://www.7-zip.org/sdk.html">7-zip Website</a>
+              has more information.</p></dd></dl></div><div class="variablelist" title="File Information"><a id="fainformation"/><p class="title"><b><a id="fainformation1"/>File Information</b></p><dl><dt><span class="term"><a id="fileref"/><span class="command"><strong>file</strong></span></span></dt><dd><p>A utility for identifying file types. The command
+        <strong class="userinput"><code>file file-name</code></strong> will return a
+        file specification for <code class="filename">file-name</code>,
+        such as <code class="computeroutput">ascii text</code> or
+        <code class="computeroutput">data</code>. It references
+        the <a class="link" href="ch02.html#magnumref">magic numbers</a>
+        found in <code class="filename">/usr/share/magic</code>,
+        <code class="filename">/etc/magic</code>, or
+        <code class="filename">/usr/lib/magic</code>, depending on the
+        Linux/UNIX distribution.</p><p>The <code class="option">-f</code> option causes
+        <span class="command"><strong>file</strong></span> to run in <a class="link" href="ch15s03.html#batchprocref">batch</a> mode, to read from
+        a designated file a list of filenames to analyze. The
+        <code class="option">-z</code> option, when used on a compressed
+        target file, forces an attempt to analyze the uncompressed
+        file type.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>file test.tar.gz</code></strong>
+<code class="computeroutput">test.tar.gz: gzip compressed data, deflated,
+ last modified: Sun Sep 16 13:34:51 2001, os: Unix</code>
+
+<code class="prompt">bash </code><strong class="userinput"><code>file -z test.tar.gz</code></strong>
+<code class="computeroutput">test.tar.gz: GNU tar archive (gzip compressed data, deflated,
+ last modified: Sun Sep 16 13:34:51 2001, os: Unix)</code>
+        </pre><p>
+      </p><p>
+        </p><pre class="programlisting"># Find sh and Bash scripts in a given directory:
+
+DIRECTORY=/usr/local/bin
+KEYWORD=Bourne
+# Bourne and Bourne-Again shell scripts
+
+file $DIRECTORY/* | fgrep $KEYWORD
+
+# Output:
+
+# /usr/local/bin/burn-cd:          Bourne-Again shell script text executable
+# /usr/local/bin/burnit:           Bourne-Again shell script text executable
+# /usr/local/bin/cassette.sh:      Bourne shell script text executable
+# /usr/local/bin/copy-cd:          Bourne-Again shell script text executable
+# . . .</pre><p>
+      </p><div class="example"><a id="stripc"/><p class="title"><b>Пример 15.32. Stripping comments from C program files</b></p><div class="example-contents"><pre class="programlisting">&amp;stripc;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="whichref"/><span class="command"><strong>which</strong></span></span></dt><dd><p><span class="command"><strong>which command</strong></span> gives the full path
+        to <span class="quote">«<span class="quote">command.</span>»</span> This is useful for finding
+        out whether a particular command or utility is installed
+        on the system.</p><p><strong class="userinput"><code>$bash which rm</code></strong>
+</p><pre class="screen"><code class="computeroutput">/usr/bin/rm</code></pre><p>
+    </p><p>For an interesting use of this command, see <a class="xref" href="ch33s06.html#horserace" title="Пример 33.14. A «horserace» game">Пример 33.14, «A <span class="quote">«<span class="quote">horserace</span>»</span> game»</a>.</p></dd><dt><span class="term"><a id="whereisref"/><span class="command"><strong>whereis</strong></span></span></dt><dd><p>Similar to <span class="command"><strong>which</strong></span>, above,
+        <span class="command"><strong>whereis command</strong></span> gives the
+        full path to <span class="quote">«<span class="quote">command,</span>»</span> but also to its
+        <a class="link" href="ch15.html#manref">manpage</a>.</p><p><strong class="userinput"><code>$bash whereis rm</code></strong>
+</p><pre class="screen"><code class="computeroutput">rm: /bin/rm /usr/share/man/man1/rm.1.bz2</code></pre><p>
+    </p></dd><dt><span class="term"><a id="whatisref"/><span class="command"><strong>whatis</strong></span></span></dt><dd><p><span class="command"><strong>whatis command</strong></span> looks up
+        <span class="quote">«<span class="quote">command</span>»</span> in the
+        <em class="replaceable"><code>whatis</code></em> database. This is useful
+        for identifying system commands and important configuration
+        files. Consider it a simplified <span class="command"><strong>man</strong></span>
+        command.</p><p><strong class="userinput"><code>$bash whatis whatis</code></strong>
+</p><pre class="screen"><code class="computeroutput">whatis               (1)  - search the whatis database for complete words</code></pre><p>
+    </p><div class="example"><a id="what"/><p class="title"><b>Пример 15.33. Exploring <code class="filename">/usr/X11R6/bin</code></b></p><div class="example-contents"><pre class="programlisting">&amp;what;</pre></div></div><br class="example-break"/><p>See also <a class="xref" href="ch10.html#fileinfo" title="Пример 10.3. Fileinfo: обработка списка файлов, содержащегося в переменной">Пример 10.3, «<span class="emphasis"><em>Fileinfo:</em></span> обработка списка файлов, содержащегося в переменной»</a>.</p></dd><dt><span class="term"><a id="vdirref"/><span class="command"><strong>vdir</strong></span></span></dt><dd><p>Show a detailed directory listing. The effect is similar to
+        <a class="link" href="ch15.html#lsref">ls -lb</a>.</p><p>This is one of the GNU
+      <em class="firstterm">fileutils</em>.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>vdir</code></strong>
+<code class="computeroutput">total 10
+ -rw-r--r--    1 bozo  bozo      4034 Jul 18 22:04 data1.xrolo
+ -rw-r--r--    1 bozo  bozo      4602 May 25 13:58 data1.xrolo.bak
+ -rw-r--r--    1 bozo  bozo       877 Dec 17  2000 employment.xrolo</code>
+
+<code class="prompt">bash </code><strong class="userinput"><code>ls -l</code></strong>
+<code class="computeroutput">total 10
+ -rw-r--r--    1 bozo  bozo      4034 Jul 18 22:04 data1.xrolo
+ -rw-r--r--    1 bozo  bozo      4602 May 25 13:58 data1.xrolo.bak
+ -rw-r--r--    1 bozo  bozo       877 Dec 17  2000 employment.xrolo</code>
+        </pre><p>
+        </p></dd><dt><span class="term"><a id="locateref"/><span class="command"><strong>locate</strong></span>, </span><span class="term"><a id="slocateref"/><span class="command"><strong>slocate</strong></span></span></dt><dd><p>The <span class="command"><strong>locate</strong></span> command searches for
+        files using a database stored for just that purpose. The
+        <span class="command"><strong>slocate</strong></span> command is the secure version of
+        <span class="command"><strong>locate</strong></span> (which may be aliased to
+        <span class="command"><strong>slocate</strong></span>).</p><p><strong class="userinput"><code>$bash locate hickson</code></strong>
+</p><pre class="screen"><code class="computeroutput">/usr/lib/xephem/catalogs/hickson.edb</code></pre></dd><dt><span class="term"><a id="readlinkref"/><span class="command"><strong>readlink</strong></span></span></dt><dd><p>Disclose the file that a symbolic link points to.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>readlink /usr/bin/awk</code></strong>
+<code class="computeroutput">../../bin/gawk</code>
+        </pre><p>
+      </p></dd><dt><span class="term"><a id="stringsref"/><span class="command"><strong>strings</strong></span></span></dt><dd><p>Use the <span class="command"><strong>strings</strong></span> command to find
+        printable strings in a binary or data file. It will list
+        sequences of printable characters found in the target
+        file. This might be handy for a quick 'n dirty examination
+        of a core dump or for looking at an unknown graphic image
+        file (<strong class="userinput"><code>strings image-file | more</code></strong> might
+        show something like <em class="firstterm">JFIF</em>,
+        which would identify the file as a <em class="firstterm">jpeg</em>
+        graphic). In a script, you would probably
+        parse the output of <span class="command"><strong>strings</strong></span>
+        with <a class="link" href="ch15s04.html#grepref">grep</a> or <a class="link" href="apc.html#sedref">sed</a>. See <a class="xref" href="ch10.html#bingrep" title="Пример 10.7. grep для бинарных файлов">Пример 10.7, «<em class="firstterm">grep</em> для бинарных файлов»</a>
+        and <a class="xref" href="ch10.html#findstring" title="Пример 10.9. Проверка авторства всех бинарных файлов в каталоге">Пример 10.9, «Проверка авторства всех бинарных файлов в каталоге»</a>.</p><div class="example"><a id="wstrings"/><p class="title"><b>Пример 15.34. An <span class="quote">«<span class="quote">improved</span>»</span>
+        <em class="firstterm">strings</em> command</b></p><div class="example-contents"><pre class="programlisting">&amp;wstrings;</pre></div></div><br class="example-break"/></dd></dl></div><div class="variablelist" title="Comparison"><a id="comparisonn"/><p class="title"><b><a id="comparisonn1"/>Comparison</b></p><dl><dt><span class="term"><a id="diffref"/><span class="command"><strong>diff</strong></span>, </span><span class="term"><span class="command"><strong>patch</strong></span></span></dt><dd><p><span class="command"><strong>diff</strong></span>: flexible file comparison
+        utility. It compares the target files line-by-line
+        sequentially.  In some applications, such as comparing
+        word dictionaries, it may be helpful to filter the
+        files through <a class="link" href="ch15s04.html#sortref">sort</a>
+        and <span class="command"><strong>uniq</strong></span> before piping them
+        to <span class="command"><strong>diff</strong></span>. <strong class="userinput"><code>diff file-1
+        file-2</code></strong> outputs the lines in the files that
+        differ, with carets showing which file each particular
+        line belongs to.</p><p>The <code class="option">--side-by-side</code> option to
+      <span class="command"><strong>diff</strong></span> outputs each compared file, line by
+      line, in separate columns, with non-matching lines marked. The
+      <code class="option">-c</code> and <code class="option">-u</code> options likewise
+      make the output of the command easier to interpret.</p><p>There are available various fancy frontends for
+      <span class="command"><strong>diff</strong></span>, such as <span class="command"><strong>sdiff</strong></span>,
+      <span class="command"><strong>wdiff</strong></span>, <span class="command"><strong>xdiff</strong></span>, and
+      <span class="command"><strong>mgdiff</strong></span>. </p><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>The <span class="command"><strong>diff</strong></span> command returns an exit
+      status of 0 if the compared files are identical, and 1 if
+      they differ. This permits use of <span class="command"><strong>diff</strong></span>
+      in a test construct within a shell script (see
+      below).</p></div><p>A common use for <span class="command"><strong>diff</strong></span> is generating
+        difference files to be used with <span class="command"><strong>patch</strong></span>
+        The <code class="option">-e</code> option outputs files suitable
+        for <span class="command"><strong>ed</strong></span> or <span class="command"><strong>ex</strong></span>
+        scripts.</p><p><a id="patchref"/></p><p><span class="command"><strong>patch</strong></span>: flexible versioning
+        utility. Given a difference file generated by
+        <span class="command"><strong>diff</strong></span>, <span class="command"><strong>patch</strong></span> can
+        upgrade a previous version of a package to a newer version.
+        It is much more convenient to distribute a relatively
+        small <span class="quote">«<span class="quote">diff</span>»</span> file than the entire body of a
+        newly revised package. Kernel <span class="quote">«<span class="quote">patches</span>»</span> have
+        become the preferred method of distributing the frequent
+        releases of the Linux kernel.</p><pre class="programlisting">patch -p1 &lt;patch-file
+# Takes all the changes listed in 'patch-file'
+# and applies them to the files referenced therein.
+# This upgrades to a newer version of the package.</pre><p>Patching the kernel:</p><pre class="programlisting">cd /usr/src
+gzip -cd patchXX.gz | patch -p0
+# Upgrading kernel source using 'patch'.
+# From the Linux kernel docs "README",
+# by anonymous author (Alan Cox?).</pre><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <span class="command"><strong>diff</strong></span> command can also
+        recursively compare directories (for the filenames
+        present).</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>diff -r ~/notes1 ~/notes2</code></strong>
+<code class="computeroutput">Only in /home/bozo/notes1: file02
+ Only in /home/bozo/notes1: file03
+ Only in /home/bozo/notes2: file04</code>
+        </pre><p>
+      </p></div><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p><a id="zdiffref"/></p><p>Use <span class="command"><strong>zdiff</strong></span> to compare
+         <em class="firstterm">gzipped</em> files.</p></div><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p><a id="diffstatref"/></p><p>Use <span class="command"><strong>diffstat</strong></span> to create
+         a histogram (point-distribution graph) of output from
+         <span class="command"><strong>diff</strong></span>.</p></div></dd><dt><span class="term"><a id="diff3ref"/><span class="command"><strong>diff3</strong></span>, </span><span class="term"><span class="command"><strong>merge</strong></span></span></dt><dd><p>An extended version of <span class="command"><strong>diff</strong></span> that compares
+        three files at a time. This command returns an exit value
+        of 0 upon successful execution, but unfortunately this gives
+        no information about the results of the comparison.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>diff3 file-1 file-2 file-3</code></strong>
+<code class="computeroutput">====
+ 1:1c
+   This is line 1 of "file-1".
+ 2:1c
+   This is line 1 of "file-2".
+ 3:1c
+   This is line 1 of "file-3"</code>
+        </pre><p>
+        </p><p><a id="mergeref"/>The <span class="command"><strong>merge</strong></span>
+        (3-way file merge) command is an interesting adjunct to
+        <em class="firstterm">diff3</em>. Its syntax is
+        <strong class="userinput"><code>merge Mergefile file1 file2</code></strong>.
+        The result is to output to <code class="filename">Mergefile</code>
+        the changes that lead from <code class="filename">file1</code>
+        to <code class="filename">file2</code>. Consider this command
+        a stripped-down version of <em class="firstterm">patch</em>.</p></dd><dt><span class="term"><a id="sdiffref"/><span class="command"><strong>sdiff</strong></span></span></dt><dd><p>Compare and/or edit two files in order to merge
+        them into an output file. Because of its interactive nature,
+        this command would find little use in a script.</p></dd><dt><span class="term"><a id="cmpref"/><span class="command"><strong>cmp</strong></span></span></dt><dd><p>The <span class="command"><strong>cmp</strong></span> command is a simpler version of
+        <span class="command"><strong>diff</strong></span>, above. Whereas <span class="command"><strong>diff</strong></span>
+        reports the differences between two files,
+        <span class="command"><strong>cmp</strong></span> merely shows at what point they
+        differ.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>Like <span class="command"><strong>diff</strong></span>, <span class="command"><strong>cmp</strong></span>
+      returns an exit status of 0 if the compared files are
+      identical, and 1 if they differ. This permits use in a test
+      construct within a shell script.</p></div><div class="example"><a id="filecomp"/><p class="title"><b>Пример 15.35. Using <em class="firstterm">cmp</em> to compare two files
+          within a script.</b></p><div class="example-contents"><pre class="programlisting">&amp;filecomp;</pre></div></div><br class="example-break"/><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>Use <span class="command"><strong>zcmp</strong></span> on
+        <em class="firstterm">gzipped</em> files.</p></div></dd><dt><span class="term"><a id="commref"/><span class="command"><strong>comm</strong></span></span></dt><dd><p>Versatile file comparison utility. The files must be
+        sorted for this to be useful.</p><p><span class="command"><strong>comm
+    <em class="replaceable"><code>-options</code></em>
+    <em class="replaceable"><code>first-file</code></em>
+    <em class="replaceable"><code>second-file</code></em></strong></span></p><p><strong class="userinput"><code>comm file-1 file-2</code></strong> outputs three columns:
+        </p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>column 1 = lines unique to <code class="filename">file-1</code></p></li><li class="listitem"><p>column 2 = lines unique to <code class="filename">file-2</code></p></li><li class="listitem"><p>column 3 = lines common to both.</p></li></ul></div><p>The options allow suppressing output of one or more columns.
+        </p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><code class="option">-1</code> suppresses column
+        <code class="literal">1</code></p></li><li class="listitem"><p><code class="option">-2</code> suppresses column
+        <code class="literal">2</code></p></li><li class="listitem"><p><code class="option">-3</code> suppresses column
+        <code class="literal">3</code></p></li><li class="listitem"><p><code class="option">-12</code> suppresses both columns
+        <code class="literal">1</code> and <code class="literal">2</code>, etc.</p></li></ul></div><p>
+      </p><p>This command is useful for comparing
+        <span class="quote">«<span class="quote">dictionaries</span>»</span> or <em class="firstterm">word
+        lists</em> -- sorted text files with one word per
+        line.</p></dd></dl></div><div class="variablelist" title="Utilities"><a id="fautils"/><p class="title"><b><a id="fautils1"/>Utilities</b></p><dl><dt><span class="term"><a id="basenameref"/><span class="command"><strong>basename</strong></span></span></dt><dd><p>Strips the path information from a file name, printing
+        only the file name. The construction  <strong class="userinput"><code>basename
+    $0</code></strong> lets the script know its name, that is, the name it
+        was invoked by. This can be used for <span class="quote">«<span class="quote">usage</span>»</span> messages if, 
+        for example a script is called with missing arguments:
+              </p><pre class="programlisting">echo "Usage: `basename $0` arg1 arg2 ... argn"</pre><p>
+      </p></dd><dt><span class="term"><a id="dirnameref"/><span class="command"><strong>dirname</strong></span></span></dt><dd><p>Strips the <span class="command"><strong>basename</strong></span> from
+      a filename, printing only the path information.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p><span class="command"><strong>basename</strong></span> and <span class="command"><strong>dirname</strong></span>
+    can operate on any arbitrary string. The argument
+    does not need to refer to an existing file, or
+    even be a filename for that matter (see <a class="xref" href="apa.html#daysbetween" title="Пример A.7. days-between: Days between two dates">Пример A.7, «<em class="firstterm">days-between</em>: Days between two
+        dates»</a>).</p></div><div class="example"><a id="ex35"/><p class="title"><b>Пример 15.36. <em class="firstterm">basename</em> and
+        <em class="firstterm">dirname</em></b></p><div class="example-contents"><pre class="programlisting">&amp;ex35;</pre></div></div><br class="example-break"/></dd><dt><span class="term"><a id="splitref"/><span class="command"><strong>split</strong></span>, </span><span class="term"><a id="csplitref"/><span class="command"><strong>csplit</strong></span></span></dt><dd><p>These are utilities for splitting a file into smaller
+        chunks. Their usual use is for splitting up large files
+        in order to back them up on floppies or preparatory to
+        e-mailing or uploading them.</p><p>The <span class="command"><strong>csplit</strong></span> command splits a file
+        according to <em class="firstterm">context</em>, the split occuring
+        where patterns are matched.</p><div class="example"><a id="splitcopy"/><p class="title"><b>Пример 15.37. A script that copies itself in sections</b></p><div class="example-contents"><pre class="programlisting">&amp;splitcopy;</pre></div></div><br class="example-break"/></dd></dl></div><div class="variablelist" title="Encoding and Encryption"><a id="faencencr"/><p class="title"><b><a id="faencencr1"/>Encoding and Encryption</b></p><dl><dt><span class="term"><a id="sumref"/><span class="command"><strong>sum</strong></span>, </span><span class="term"><a id="cksumref"/><span class="command"><strong>cksum</strong></span>, </span><span class="term"><a id="md5sumref"/><span class="command"><strong>md5sum</strong></span>, </span><span class="term"><a id="sha1sumref"/><span class="command"><strong>sha1sum</strong></span></span></dt><dd><p><a id="checksumref"/>These are utilities for
+              generating <em class="firstterm">checksums</em>. A
+        <em class="firstterm">checksum</em> is a number
+
+    <sup>[<a id="idp13236320" href="#ftn.idp13236320" class="footnote">68</a>]</sup>
+
+              mathematically calculated from the contents of a file,
+              for the purpose of checking its integrity. A script might
+              refer to a list of checksums for security purposes, such
+              as ensuring that the contents of key system files have not
+              been altered or corrupted. For security applications, use
+              the <span class="command"><strong>md5sum</strong></span> (<span class="command"><strong>m</strong></span>essage
+              <span class="command"><strong>d</strong></span>igest <span class="command"><strong>5</strong></span>
+              check<span class="command"><strong>sum</strong></span>) command, or better yet, the
+              newer <span class="command"><strong>sha1sum</strong></span> (Secure Hash Algorithm).
+
+          <sup>[<a id="idp13242048" href="#ftn.idp13242048" class="footnote">69</a>]</sup>
+            </p><p>
+        </p><pre class="screen">
+<code class="prompt">bash$ </code><strong class="userinput"><code>cksum /boot/vmlinuz</code></strong>
+<code class="computeroutput">1670054224 804083 /boot/vmlinuz</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -n "Top Secret" | cksum</code></strong>
+<code class="computeroutput">3391003827 10</code>
+
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>md5sum /boot/vmlinuz</code></strong>
+<code class="computeroutput">0f43eccea8f09e0a0b2b5cf1dcf333ba  /boot/vmlinuz</code>
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>echo -n "Top Secret" | md5sum</code></strong>
+<code class="computeroutput">8babc97a6f62a4649716f4df8d61728f  -</code>
+        </pre><p>
+    </p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>The <span class="command"><strong>cksum</strong></span> command shows the size,
+      in bytes, of its target, whether file or
+      <code class="filename">stdout</code>.</p><p>The <span class="command"><strong>md5sum</strong></span> and
+      <span class="command"><strong>sha1sum</strong></span> commands display a
+      <a class="link" href="ch03.html#dashref2">dash</a> when they receive their input from
+      <code class="filename">stdout</code>.</p></div><div class="example"><a id="fileintegrity"/><p class="title"><b>Пример 15.38. Checking file integrity</b></p><div class="example-contents"><pre class="programlisting">&amp;fileintegrity;</pre></div></div><br class="example-break"/><p>Also see <a class="xref" href="apa.html#directoryinfo" title="Пример A.19. Directory information">Пример A.19, «Directory information»</a>, <a class="xref" href="ch33s06.html#horserace" title="Пример 33.14. A «horserace» game">Пример 33.14, «A <span class="quote">«<span class="quote">horserace</span>»</span> game»</a>, and <a class="xref" href="ch09s02.html#randstring" title="Пример 9.11. Generating an 8-character «random» string">Пример 9.11, «Generating an 8-character <span class="quote">«<span class="quote">random</span>»</span>
+          string»</a> for
+      creative uses of the <span class="command"><strong>md5sum</strong></span> command.</p><div class="note" title="Замечание" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>
+      There have been reports that the 128-bit
+      <span class="command"><strong>md5sum</strong></span> can be cracked, so the more secure
+      160-bit <span class="command"><strong>sha1sum</strong></span> is a welcome new addition
+      to the checksum toolkit.
+          </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>md5sum testfile</code></strong>
+<code class="computeroutput">e181e2c8720c60522c4c4c981108e367  testfile</code>
+
+
+<code class="prompt">bash$ </code><strong class="userinput"><code>sha1sum testfile</code></strong>
+<code class="computeroutput">5d7425a9c08a66c3177f1e31286fa40986ffc996  testfile</code>
+        </pre></div><p>Security consultants have demonstrated that even
+        <span class="command"><strong>sha1sum</strong></span> can be compromised. Fortunately,
+        newer Linux distros include longer bit-length
+        <span class="command"><strong>sha224sum</strong></span>,
+        <span class="command"><strong>sha256sum</strong></span>,
+        <span class="command"><strong>sha384sum</strong></span>, and
+        <span class="command"><strong>sha512sum</strong></span> commands.</p></dd><dt><span class="term"><a id="uuencoderef"/><span class="command"><strong>uuencode</strong></span></span></dt><dd><p>This utility encodes binary files (images, sound files,
+        compressed files, etc.) into ASCII characters, making them
+        suitable for transmission in the body of an e-mail message or in a
+        newsgroup posting. This is especially useful where MIME
+        (multimedia) encoding is not available.</p></dd><dt><span class="term"><a id="uudecoderef"/><span class="command"><strong>uudecode</strong></span></span></dt><dd><p>This reverses the encoding, decoding
+        <em class="firstterm">uuencoded</em> files back into the
+        original binaries.</p><div class="example"><a id="ex52"/><p class="title"><b>Пример 15.39. Uudecoding encoded files</b></p><div class="example-contents"><pre class="programlisting">&amp;ex52;</pre></div></div><br class="example-break"/><div class="tip" title="Подсказка" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Подсказка</h3><p>The <a class="link" href="ch15s04.html#foldref">fold -s</a> command
+      may be useful (possibly in a pipe) to process long uudecoded
+      text messages downloaded from Usenet newsgroups.</p></div></dd><dt><span class="term"><a id="mimencoderef"/><span class="command"><strong>mimencode</strong></span>, </span><span class="term"><a id="mmencoderef"/><span class="command"><strong>mmencode</strong></span></span></dt><dd><p>The <span class="command"><strong>mimencode</strong></span> and
+        <span class="command"><strong>mmencode</strong></span> commands process
+        multimedia-encoded e-mail attachments. Although
+        <em class="firstterm">mail user agents</em> (such as
+        <em class="firstterm">pine</em> or <em class="firstterm">kmail</em>)
+        normally handle this automatically, these particular
+        utilities permit manipulating such attachments manually from
+        the command-line or in <a class="link" href="ch15s03.html#batchprocref">batch
+        processing mode</a> by means of a shell script.</p></dd><dt><span class="term"><a id="cryptref"/><span class="command"><strong>crypt</strong></span></span></dt><dd><p>At one time, this was the standard UNIX file encryption
+        utility.
+
+              <sup>[<a id="idp13307824" href="#ftn.idp13307824" class="footnote">70</a>]</sup>
+
+        Politically-motivated government regulations
+        prohibiting the export of encryption software resulted
+        in the disappearance of <span class="command"><strong>crypt</strong></span>
+        from much of the UNIX world, and it is still
+        missing from most Linux distributions. Fortunately,
+        programmers have come up with a number of decent
+        alternatives to it, among them the author's very own <a class="ulink" href="ftp://metalab.unc.edu/pub/Linux/utils/file/cruft-0.2.tar.gz">cruft</a>
+        (see <a class="xref" href="apa.html#encryptedpw" title="Пример A.4. encryptedpw: Uploading to an ftp site, using a locally encrypted password">Пример A.4, «<em class="firstterm">encryptedpw</em>: Uploading to an ftp site,
+      using a locally encrypted password»</a>).  </p></dd><dt><span class="term"><a id="opensslref"/><span class="command"><strong>openssl</strong></span></span></dt><dd><p>This is an Open Source implementation of
+             <em class="firstterm">Secure Sockets Layer</em> encryption.
+
+       </p><pre class="programlisting"># To encrypt a file:
+openssl aes-128-ecb -salt -in file.txt -out file.encrypted \
+-pass pass:my_password
+#          ^^^^^^^^^^^   User-selected password.
+#       aes-128-ecb      is the encryption method chosen.
+
+# To decrypt an openssl-encrypted file:
+openssl aes-128-ecb -d -salt -in file.encrypted -out file.txt \
+-pass pass:my_password
+#          ^^^^^^^^^^^   User-selected password.</pre><p><a class="link" href="ch03.html#piperef">Piping</a>
+             <em class="firstterm">openssl</em> to/from <a class="link" href="ch15s05.html#tarref">tar</a> makes it possible to encrypt
+             an entire directory tree.
+     
+            </p><pre class="programlisting"># To encrypt a directory:
+
+sourcedir="/home/bozo/testfiles"
+encrfile="encr-dir.tar.gz"
+password=my_secret_password
+
+tar czvf - "$sourcedir" |
+openssl des3 -salt -out "$encrfile" -pass pass:"$password"
+#       ^^^^   Uses des3 encryption.
+# Writes encrypted file "encr-dir.tar.gz" in current working directory.
+
+# To decrypt the resulting tarball:
+openssl des3 -d -salt -in "$encrfile" -pass pass:"$password" |
+tar -xzv
+# Decrypts and unpacks into current working directory.</pre><p>
+
+           </p><p>Of course, <em class="firstterm">openssl</em> has many other uses,
+             such as obtaining signed <em class="firstterm">certificates</em>
+       for Web sites. See the <a class="link" href="ch15.html#inforef">info</a>
+       page.</p></dd><dt><span class="term"><a id="shredref"/><span class="command"><strong>shred</strong></span></span></dt><dd><p>Securely erase a file by overwriting it multiple times with
+        random bit patterns before deleting it. This command has
+        the same effect as <a class="xref" href="ch15s09.html#blotout" title="Пример 15.60. Securely deleting a file">Пример 15.60, «Securely deleting a file»</a>, but does it
+        in a more thorough and elegant manner.</p><p>This is one of the GNU
+      <em class="firstterm">fileutils</em>.</p><div class="caution" title="Предостережение" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Предостережение</h3><p>Advanced forensic technology may still be able to
+        recover the contents of a file, even after application of
+        <span class="command"><strong>shred</strong></span>.</p></div></dd></dl></div><div class="variablelist" title="Miscellaneous"><a id="famisc"/><p class="title"><b><a id="famisc1"/>Miscellaneous</b></p><dl><dt><span class="term"><a id="mktempref"/><span class="command"><strong>mktemp</strong></span></span></dt><dd><p>Create a <em class="firstterm">temporary file</em>
+
+         <sup>[<a id="idp13340128" href="#ftn.idp13340128" class="footnote">71</a>]</sup>
+
+        with a <span class="quote">«<span class="quote">unique</span>»</span> filename. When invoked
+        from the command-line without additional arguments,
+        it creates a zero-length file in the <code class="filename">/tmp</code> directory.</p><p>
+        </p><pre class="screen"><code class="prompt">bash$ </code><strong class="userinput"><code>mktemp</code></strong>
+<code class="computeroutput">/tmp/tmp.zzsvql3154</code>
+        </pre><p>
+      </p><pre class="programlisting">PREFIX=filename
+tempfile=`mktemp $PREFIX.XXXXXX`
+#                        ^^^^^^ Need at least 6 placeholders
+#+                              in the filename template.
+#   If no filename template supplied,
+#+ "tmp.XXXXXXXXXX" is the default.
+
+echo "tempfile name = $tempfile"
+# tempfile name = filename.QA2ZpY
+#                 or something similar...
+
+#  Creates a file of that name in the current working directory
+#+ with 600 file permissions.
+#  A "umask 177" is therefore unnecessary,
+#+ but it's good programming practice anyhow.</pre></dd><dt><span class="term"><a id="makeref"/><span class="command"><strong>make</strong></span></span></dt><dd><p><a id="makefileref"/></p><p>Utility for building and compiling binary packages. 
+        This can also be used for any set of operations triggered
+        by incremental changes in source files.</p><p>The <em class="firstterm">make</em> command checks a
+      <code class="filename">Makefile</code>, a list of file dependencies and
+        operations to be carried out.</p><p>The <em class="firstterm">make</em> utility is, in effect,
+        a powerful scripting language similar in many ways to
+        <em class="firstterm">Bash</em>, but with the capability of
+        recognizing <em class="firstterm">dependencies</em>. For in-depth
+        coverage of this useful tool set, see the <a class="ulink" href="http://www.gnu.org/manual/manual.html">GNU software
+        documentation site</a>.</p></dd><dt><span class="term"><a id="installref"/><span class="command"><strong>install</strong></span></span></dt><dd><p>Special purpose file copying command, similar to
+        <a class="link" href="ch15.html#cpref">cp</a>, but capable of
+        setting permissions and attributes of the copied
+        files. This command seems tailormade for installing
+        software packages, and as such it shows up frequently in
+        <code class="filename">Makefiles</code> (in the <em class="replaceable"><code>make
+        install :</code></em> section). It could likewise prove
+        useful in installation scripts.</p></dd><dt><span class="term"><a id="dos2unixref"/><span class="command"><strong>dos2unix</strong></span></span></dt><dd><p>This utility, written by Benjamin Lin and collaborators,
+        converts DOS-formatted text files (lines terminated by
+        CR-LF) to UNIX format (lines terminated by LF only),
+        and <a class="link" href="ch31.html#dosnewlines">vice-versa</a>.</p></dd><dt><span class="term"><a id="ptxref"/><span class="command"><strong>ptx</strong></span></span></dt><dd><p>The <span class="command"><strong>ptx [targetfile]</strong></span> command
+        outputs a permuted index (cross-reference list) of the
+        targetfile. This may be further filtered and formatted in a
+        pipe, if necessary.</p></dd><dt><span class="term"><a id="moreref"/><span class="command"><strong>more</strong></span>, </span><span class="term"><a id="lessref"/><span class="command"><strong>less</strong></span></span></dt><dd><p>Pagers that display a text file or stream to
+        <code class="filename">stdout</code>, one screenful at a time.
+        These may be used to filter the output of
+        <code class="filename">stdout</code> . . . or of a script.</p><p>
+         An interesting application of <em class="firstterm">more</em>
+         is to <span class="quote">«<span class="quote">test drive</span>»</span> a command sequence,
+         to forestall potentially unpleasant consequences.
+                 </p><pre class="programlisting">ls /home/bozo | awk '{print "rm -rf " $1}' | more
+#                                            ^^^^
+     
+# Testing the effect of the following (disastrous) command-line:
+#      ls /home/bozo | awk '{print "rm -rf " $1}' | sh
+#      Hand off to the shell to execute . . .       ^^</pre><p>
+            </p><p>The <em class="firstterm">less</em> pager has the
+        interesting property of doing a formatted display of
+        <em class="firstterm">man page</em> source. See <a class="xref" href="apa.html#maned" title="Пример A.39. A man page editor">Пример A.39, «A <em class="firstterm">man page</em> editor»</a>.</p></dd></dl></div><div class="footnotes"><br/><hr/><div class="footnote"><p><sup>[<a id="ftn.idp12781552" href="#idp12781552" class="para">66</a>] </sup>An <em class="firstterm">archive</em>,
+          in the sense discussed here, is simply a set of related
+          files stored in a single location.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp12788576" href="#idp12788576" class="para">67</a>] </sup>
+        A <em class="replaceable"><code>tar czvf ArchiveName.tar.gz *</code></em>
+        <span class="emphasis"><em>will</em></span> include dotfiles in
+        subdirectories <span class="emphasis"><em>below</em></span> the current
+        working directory. This is an undocumented GNU
+        <span class="command"><strong>tar</strong></span> <span class="quote">«<span class="quote">feature.</span>»</span>
+      </p></div><div class="footnote"><p><sup>[<a id="ftn.idp13236320" href="#idp13236320" class="para">68</a>] </sup>The checksum may be expressed as a
+    <em class="firstterm">hexadecimal</em> number, or to some
+    other base.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp13242048" href="#idp13242048" class="para">69</a>] </sup>For even <span class="emphasis"><em>better</em></span>
+      security, use the <em class="firstterm">sha256sum</em>,
+      <em class="firstterm">sha512</em>, and
+                  <em class="firstterm">sha1pass</em>
+                  commands.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp13307824" href="#idp13307824" class="para">70</a>] </sup>This is a symmetric block cipher, used to
+    encrypt files on a single system or local network,
+    as opposed to the <em class="firstterm">public key</em>
+    cipher class, of which <em class="firstterm">pgp</em> is a
+    well-known example.</p></div><div class="footnote"><p><sup>[<a id="ftn.idp13340128" href="#idp13340128" class="para">71</a>] </sup>Creates a temporary
+         <em class="firstterm">directory</em> when invoked with the
+         <code class="option">-d</code> option.</p></div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td align="left"><a accesskey="p" href="ch15s04.html">Пред.</a> </td><td align="center"><a accesskey="u" href="ch15.html">Уровень выше</a></td><td align="right"> <a accesskey="n" href="ch15s06.html">След.</a></td></tr><tr><td align="left" valign="top">Text Processing Commands </td><td align="center"><a accesskey="h" href="index.html">Начало</a></td><td align="right" valign="top"> Communications Commands</td></tr></table></div></body></html>

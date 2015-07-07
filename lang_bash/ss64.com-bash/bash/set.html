@@ -1,0 +1,173 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>set Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>set</h1> 
+<p>Manipulate shell variables and functions.</p>
+<pre>Syntax
+      set [--abBCefhHkmnpPtuvx] [-o <var>option</var>] [<var>argument</var> ...]</pre>
+<p>If no options or arguments are supplied, set displays the 
+  names and values of all shell variables and functions, sorted according to the 
+  current locale, in a format that may be reused as input.   When options are supplied, they set or unset shell attributes. </p>
+<pre>Options
+
+Using + rather than - will cause the option to be turned off. 
+
+   -a  Mark variables which are modified or created for export. <b>-o allexport</b>     
+
+   -b  Cause the status of terminated background jobs to be 
+       reported immediately, rather than before printing the
+       next primary prompt.  <b>-o notify</b>
+&nbsp;   
+   -B  The shell will perform brace expansion. 
+       This option is on by default.  <b>-o braceexpand</b>
+
+   -C  Prevent output redirection using `&gt;', `&gt;&amp;',
+       and `&lt;&gt;' from overwriting existing files.  <b>-o noclobber</b>
+
+   -e  Exit immediately if a <abbr title="not a compound command or a function call.">simple command</abbr> exits with a non-zero status, unless
+       the command that fails is part of an until or  while loop, part of an
+       if statement, part of a &amp;&amp; or || list, or if the command's return status
+       is being inverted using !.  <b>-o errexit</b>
+
+   -f  Disable file name generation (globbing).  <b>-o noglob</b>
+
+   -h  Locate and remember (hash) commands as they are looked
+       up for execution. This option is enabled by default. <b>-o hashall</b>
+
+   -H  Enable `!' style history substitution 
+       This option is on by default for interactive shells. <b>-o histexpand</b> 
+
+   -k  All arguments in the form of assignment statements are
+       placed in the environment for a command, not just those that
+       precede the command name. <b>-o keyword</b>
+ 
+   -m  Job control is enabled.  <b>-o monitor</b>
+
+   -n  Read commands but do not execute them; this may be used
+       to check a script for syntax errors. 
+       This option is ignored by interactive shells. <b>-o noexec</b>
+
+   -o <i>option-name</i>
+          Set the option corresponding to `option-name'
+          The `option-names' are listed above and below (in <b>bold</b>)      
+
+          <i>emacs</i>     : Use an emacs-style line editing interface . 
+          <i>history</i>   : Enable command history,
+                      this option is on by default in interactive shells. 
+          <i>ignoreeof</i> : An interactive shell will not exit upon reading EOF. 
+          <i>posix</i>     : Change the behavior of Bash to match the POSIX 1003.2 standard. 
+          <i>vi</i>        : Use a vi-style line editing interface. 
+
+   -p<i>  </i>Turn on privileged mode. In this mode,
+       the $BASH_ENV and $ENV files are not processed,
+       shell functions are not inherited from the environment, 
+       and the SHELLOPTS variable, if it appears in the environment, is ignored. 
+       If the shell is started with the effective user (group) id not equal to the
+       real user (group) id, and the -p option is not supplied, these actions
+       are taken and the effective user id is set to the real user id. 
+       If the -p option is supplied at startup, the effective user 
+       id is not reset. Turning this option off causes the effective 
+       user and group ids to be set to the real user and group ids.
+         <b>-o privileged</b> 
+
+   -P<i>  </i>If set, do not follow symbolic links when performing commands.
+       The physical directory is used instead. <b>-o physical</b>
+
+   -t  Exit after reading and executing one command.  <b>-o onecmd</b>
+
+   -u  Treat unset variables as an error when performing 
+       parameter expansion. An error message will be written 
+       to the standard error, and a non-interactive shell will exit. <b>-o nounset</b>
+
+   -v<i>  </i>Print shell input lines as they are read. <b>-o verbose</b>
+
+   -x<i>  </i>Print a trace of simple commands and their arguments
+       after they are expanded and before they are executed. <b>-o xtrace</b>
+&nbsp; 
+   --  If no arguments follow this option, then the positional parameters are unset. 
+       Otherwise, the positional parameters are set to the arguments, 
+       even if some of them begin with a `-'. 
+
+   -   Signal the end of options, cause all remaining arguments to be 
+       assigned to the positional parameters. The `-x' and `-v' 
+       options are turned off. If there are no arguments, the positional parameters 
+       remain unchanged.</pre>
+<p><span class="body"> <b>Examples</b></span></p>
+<p>Set the variable 'mydept' equal to 'Sales' :</p>
+
+<pre> mydept=Sales
+
+To make the change permanent:
+
+ export mydept</pre>
+<p><b>Symbolic Links</b></p>
+<p>By default, Bash follows the logical chain
+      of directories when performing commands which change the current directory.
+  e.g.</p>
+<pre>If `/usr/sys' is a symbolic link to `/usr/local/sys' then:
+
+$ cd /usr/sys; echo $PWD
+/usr/sys
+$ cd ..; pwd
+/usr
+
+    If <b>set -P</b> is on (do not follow symbolic links), then: 
+
+$ cd /usr/sys; echo $PWD
+/usr/local/sys
+$ cd ..; pwd
+/usr/local
+</pre>
+<p>Debugging part of a script:</p>
+<pre>set -x			# activate debugging <br># your commands go here...<br>set +x			# stop debugging </pre>
+<p>The options can also be used upon invocation of the shell. 
+  The current set of options may be found in <code>$-</code>. The remaining N <var>arguments</var> 
+  are positional parameters and are assigned, in order, to <code>$1</code>, <code>$2</code>, 
+  ... <code>$N</code>. The special parameter <code>#</code> is set to N. <br>
+  <br>
+  set is a POSIX `special' builtin. The return status is always zero unless an invalid 
+option is supplied. </p>
+<p class="quote"><i>&quot;I can understand there are things like shadows they need to fix after a shoot, but it's unfair to represent an image of yourself if it's not true. They're gonna see what you look like on film anyway, so why try to cover all your wobbly bits in a photo?&quot; ~ Emily Blunt</i></p><p><b>Related bash commands</b>:<br>
+  <a href="env.html"><br>
+  env</a> - Display, set, or remove environment variables <br>
+  <a href="groups.html">groups</a> - Print group names a user is in<br>
+  <a href="hostname.html">hostname</a> - Print or set system name <br>
+  <a href="id.html">id</a> - Print user and group id's<br>
+  <a href="logname.html">logname</a> - Print current login name <br>
+  printenv - Print environment variables <br>
+  <a href="readonly.html">readonly</a> - Mark variables/functions as readonly 
+  <br>
+  <a href="shift.html">shift</a> - Shift positional parameters<br>
+  <a href="shopt.html">shopt</a> - Shell Options <br>
+  <a href="uname.html">uname</a> - Print system information<br>
+  <a href="users.html">users</a> - Print login names of users currently logged 
+  in <br>
+  <a href="unset.html">unset</a> - Remove variable or function names<br>
+  <a href="who.html">who</a> - Print who is currently logged in <br>
+Equivalent Windows commands: 
+  <a href="set.html">SET</a> - Display, set, or remove Windows NT environment 
+variables</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="set.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

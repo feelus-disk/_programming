@@ -1,0 +1,270 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>dc OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>dc</h1> 
+<p>Desk calculator. </p>
+<pre>Syntax
+      dc
+</pre>
+<h2>Printing Commands</h2>
+<pre>   p     Print the value on the top of the stack, without altering the
+	      stack. A newline is printed after the value.
+
+   n     Print the value on the top of the stack, popping it off, and
+	      do not print a newline after.
+
+   P     Pop off the value on top of the stack. If it a string, it
+	      is simply printed without a trailing newline.  Otherwise it is a
+	      number, and the integer portion of its absolute value is printed
+	      out as  a	 "base	(UCHAR_MAX+1)"	byte  stream.
+
+   f     Print the entire contents of the stack without altering anything.
+         This is a good command to use if you are lost or want to
+         figure out what the effect of some command has been.
+</pre>
+<p>dc works with postfix notation; rather like many HP Calculators.
+Basic arithmetic uses the standard + - / * symbols 
+but entered <b>after</b> the digits</p>
+<pre>  so entering:<br>
+   100<br>   0.5<br>   *<br>   p
+   will return 50
+</pre>
+<h2>Arithmetic</h2>
+<pre>
+   +     Pop two values off the stack, add them, and push the result.
+	      The precision of the result is determined only by the values of
+	      the arguments, and is enough to be exact.
+
+   -     Pop two values, subtract the first one popped from the second
+	      one popped, and push the result.
+
+   *     Pop two values,  multiply them, and push the result. The
+	      number of fraction digits in the result depends on the  current
+	      precision	value and the number of fraction digits in the two
+	      arguments.
+
+   /     Pop two values, divide the second one popped from the	first
+	      one popped, and push the result.  The number of fraction digits
+         is specified by the precision value.
+
+   %     Pop two values, compute the remainder of the division that the /
+         command would do, and push that.  The value computed is the
+	      same as that computed by the sequence Sd dld/ Ld*- .
+
+   ~     Pop two values, divide the second one popped from the	first
+         one  popped. The quotient is pushed first, and the remainder is
+	      pushed next. The number of fraction digits used in the division
+	      is specified by the precision value.  (The sequence SdSn lnld/
+	      LnLd% could also accomplish this function, with slightly differ-
+	      ent error checking.)
+
+   ^     Pop two values and exponentiate, using the first value popped
+	      as the exponent and the second popped as the base.  The fraction
+	      part  of the exponent is ignored.	 The precision value specifies
+	      the number of fraction digits in the result.
+
+   |     Pop three values and compute a modular exponentiation. The
+	      first value popped is used as the reduction modulus; this value
+	      must be a non-zero number, and should be an integer.  The second
+	      popped  is  used as the exponent; this value must be a non-nega-
+	      tive number, and any fractional part of this  exponent  will  be
+	      ignored.	The third value popped is the base which gets exponen-
+	      tiated, which should be an integer.  For small integers this  is
+	      like  the sequence Sm^Lm%, but, unlike ^, this command will work
+	      with arbritrarily large exponents.
+
+   v     Pop one value, computes its square root, and pushes that. The
+	      precision	value specifies the number of fraction digits in the
+	      result.
+</pre>
+<blockquote>
+<p>Most arithmetic operations are affected	by  the	 `precision  value',
+which  you  can set with the k command.	The default precision value is
+zero, which means that all arithmetic except for addition and  subtraction produces integer results.</p>
+</blockquote>
+<h2>Stack Control</h2>
+<pre>
+   c     Clear the stack, rendering it empty.
+
+   d     Duplicate  the  value  on the top of the stack, pushing another
+	      copy of it.  Thus, `4d*p' computes 4 squared and prints it.
+
+   r     Reverse the order of (swaps) the top two values on the stack.
+</pre>
+<h2>Registers</h2>
+<blockquote>
+<p>Dc provides at least 256 memory registers, each named by a single character.	You  can store a number or a string in a register and retrieve<br>
+it later.</p>
+</blockquote>
+<pre>
+   sr   Pop the value off the top of the stack and store it into register r.
+
+   lr   Copy the value in register r and push it onto the stack.
+        This does not alter the contents of r.
+
+        Each register also contains its own stack. The current register value
+        is the top of the register's stack.
+
+   Sr   Pop  the	value off the top of the (main) stack and push it onto
+	     the stack of register r.	The previous  value  of	 the  register
+	     becomes inaccessible.
+
+   Lr   Pop the value off the top of register r's stack and push it onto
+	     the main stack.  The previous value in register  r's  stack,  if
+	     any, is now accessible via the lr command.
+</pre>
+<h2>Parameters</h2>
+<blockquote>
+<p>Dc has three parameters that control its operation: the precision, the
+input radix, and the output radix.  The precision specifies the	number       
+of fraction digits to keep in the result of most arithmetic operations.       
+The input radix controls the interpretation of numbers  typed  in;  all       
+numbers typed in use this radix.	 The output radix is used for printing       
+numbers.<br>
+<br>       
+The input and output radices are separate parameters; you can make them       
+unequal,	 which	can  be	 useful or confusing.  The input radix must be       
+between 2 and 16 inclusive.  The output radix must be at least 2.   The       
+precision must be zero or greater.  The precision is always measured in       
+decimal digits, regardless of the current input or output radix.</p>
+</blockquote>
+<pre>
+       i      Pops the value off the top of the stack and uses it to  set  the
+	      input radix.
+
+       o      Pops  the	 value off the top of the stack and uses it to set the
+	      output radix.
+
+       k      Pops the value off the top of the stack and uses it to  set  the
+	      precision.
+
+       I      Pushes the current input radix on the stack.
+
+       O      Pushes the current output radix on the stack.
+
+       K      Pushes the current precision on the stack.
+</pre>
+<h2>Strings</h2>
+<blockquote>
+<p>Dc  can	operate on strings as well as on numbers.  The only things you       
+can do with strings are print them and execute them  as	macros	(which       
+means  that  the	 contents of the string are processed as dc commands).       
+All registers and the stack can	hold  strings,	and  dc	 always	 knows       
+whether	any  given object is a string or a number.  Some commands such       
+as arithmetic operations demand numbers as arguments and	 print	errors       
+if  given  strings.   Other  commands  can  accept either a number or a       
+string; for example, the p command can accept  either  and  prints  the       
+object according to its type.</p>
+</blockquote>
+<pre>   [characters]
+	      Makes a string containing characters (contained between balanced
+	      [ and ] characters), and pushes it on the stack.	 For  example,
+	      [foo]P prints the characters foo (with no newline).
+
+   a      The  top-of-stack	 is popped.  If it was a number, then the low-
+	      order byte of this number is converted into a string and	pushed
+	      onto  the	 stack.	  Otherwise the top-of-stack was a string, and
+	      the first character of that string is pushed back.
+
+   x      Pops a value off the stack and executes it as a macro.  Normally
+	      it  should  be  a string; if it is a number, it is simply pushed
+	      back onto the stack.  For example, [1p]x executes the  macro  1p
+	      which pushes 1 on the stack and prints 1 on a separate line.
+</pre>
+<p>Macros are  most  often stored in registers; <span class="code">[1p]sa</span> stores a macro to
+print 1 into register a, and lax invokes this macro.</p>
+<pre>
+   &gt;r     Pops two values off the stack and compares  them	assuming  they
+	      are  numbers, executing the contents of register r as a macro if
+	      the original top-of-stack is greater.  Thus, 1 2>a  will	invoke
+	      register a's contents and 2 1>a will not.
+
+   !&gt;r    Similar  but  invokes  the macro if the original top-of-stack is
+	      not greater than (less than or equal to) what was the second-to-
+	      top.
+
+   &lt;r    similar but invokes the macro if original top-of-stack is less.
+
+  !&lt;r    similar  but invokes the macro if original top-of-stack is not less
+         than (greater or equal to) what  was second-to-top.
+
+   =r    similar but invokes the macro if two numbers popped are equal.
+
+   !=r   similar but invokes the macro if two numbers popped are not equal.
+
+   ?     Reads a line	from terminal and executes it.	 this command
+	      allows to request input user.
+
+   q     exit from a macro and also from the macro which invoked it.  If called from the
+         top level, or from a macro which was called directly from the top level,  the  q
+         command will cause dc to exit.
+
+   Q     Pop a value off the stack and uses it as a count of levels of macro execution
+         to be exited.  Thus, 3Q exits three levels.
+         The Q command will never  cause  dc to exit.
+</pre>
+<h2>Status Inquiry</h2>
+<pre>   Z     Pop a value off the stack, calculates the number of digits it has (or number of
+         characters, if it is a string) and pushes that number.
+
+   X     Pop a value off the stack, calculates the number of fraction digits it has, and
+         pushes that number. For a string, the value pushed is 0.
+
+   z     Push the current stack depth: the number of objects on the stack before the
+         execution of the z command.
+</pre>
+<h2>Miscellaneous</h2>
+<pre>
+   !     Will run the rest of the line as a system command.  Note that parsing of the !&lt;,
+           !=,  and  !&gt;  commands take precedence, so if you want to run a command starting
+         with &lt;, =, or &gt; you will need to add a space after the !.
+
+   #     Will interpret the rest of the line as a comment.
+
+   :r    Will pop the top two values off of the stack.  The  old  second-
+	      to-top  value  will be stored in the array r, indexed by the old
+	      top-of-stack value.
+
+   ;r    Pop the top-of-stack and uses it as an index into the array  r.
+	      The selected value is then pushed onto the stack.
+</pre>
+<blockquote>
+<p>Note that each stacked instance of a register has its own array associated with it.  Thus <span class="code">1 0:a 0Sa 2 0:a La 0;ap</span> will print 1, because the 2
+was stored in an instance of <span class="code">0:a</span> that was later popped.</p>
+</blockquote>
+<p class="quote"><i>&ldquo;The best way to destroy the capitalist system is to debauch the currency&rdquo; ~ John Keynes </i> </p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/dc.1.html">dc man page</a> - Apple.com<br>
+<a href="cal.html">cal</a> - Display a calendar<br>
+<a href="expr.html">expr</a> - Evaluate expressions <br>
+<a href="units.html">units</a> - Convert units from one scale to another<br>
+<a href="wc.html">wc</a> - Print byte, word, and line counts </p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="dc.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

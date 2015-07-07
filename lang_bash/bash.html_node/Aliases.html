@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- This text is a brief description of the features that are present in
+the Bash shell (version 4.3, 2 February 2014).
+
+This is Edition 4.3, last updated 2 February 2014,
+of The GNU Bash Reference Manual,
+for Bash, Version 4.3.
+
+Copyright (C) 1988-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled
+"GNU Free Documentation License". -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>Bash Reference Manual: Aliases</title>
+
+<meta name="description" content="Bash Reference Manual: Aliases">
+<meta name="keywords" content="Bash Reference Manual: Aliases">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indexes.html#Indexes" rel="index" title="Indexes">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Bash-Features.html#Bash-Features" rel="up" title="Bash Features">
+<link href="Arrays.html#Arrays" rel="next" title="Arrays">
+<link href="Shell-Arithmetic.html#Shell-Arithmetic" rel="prev" title="Shell Arithmetic">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Aliases"></a>
+<div class="header">
+<p>
+Next: <a href="Arrays.html#Arrays" accesskey="n" rel="next">Arrays</a>, Previous: <a href="Shell-Arithmetic.html#Shell-Arithmetic" accesskey="p" rel="prev">Shell Arithmetic</a>, Up: <a href="Bash-Features.html#Bash-Features" accesskey="u" rel="up">Bash Features</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indexes.html#Indexes" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Aliases-1"></a>
+<h3 class="section">6.6 Aliases</h3>
+<a name="index-alias-expansion"></a>
+
+<p><var>Aliases</var> allow a string to be substituted for a word when it is used
+as the first word of a simple command.
+The shell maintains a list of aliases that may be set and unset with
+the <code>alias</code> and <code>unalias</code> builtin commands.
+</p>
+<p>The first word of each simple command, if unquoted, is checked to see
+if it has an alias.
+If so, that word is replaced by the text of the alias.
+The characters &lsquo;<samp>/</samp>&rsquo;, &lsquo;<samp>$</samp>&rsquo;, &lsquo;<samp>`</samp>&rsquo;, &lsquo;<samp>=</samp>&rsquo; and any of the
+shell metacharacters or quoting characters listed above may not appear
+in an alias name.
+The replacement text may contain any valid
+shell input, including shell metacharacters.
+The first word of the replacement text is tested for
+aliases, but a word that is identical to an alias being expanded
+is not expanded a second time.
+This means that one may alias <code>ls</code> to <code>&quot;ls -F&quot;</code>,
+for instance, and Bash does not try to recursively expand the
+replacement text.
+If the last character of the alias value is a
+<var>blank</var>, then the next command word following the
+alias is also checked for alias expansion.
+</p>
+<p>Aliases are created and listed with the <code>alias</code>
+command, and removed with the <code>unalias</code> command.
+</p>
+<p>There is no mechanism for using arguments in the replacement text,
+as in <code>csh</code>.
+If arguments are needed, a shell function should be used
+(see <a href="Shell-Functions.html#Shell-Functions">Shell Functions</a>).
+</p>
+<p>Aliases are not expanded when the shell is not interactive,
+unless the <code>expand_aliases</code> shell option is set using
+<code>shopt</code> (see <a href="The-Shopt-Builtin.html#The-Shopt-Builtin">The Shopt Builtin</a>).
+</p>
+<p>The rules concerning the definition and use of aliases are
+somewhat confusing.  Bash
+always reads at least one complete line
+of input before executing any
+of the commands on that line.  Aliases are expanded when a
+command is read, not when it is executed.  Therefore, an
+alias definition appearing on the same line as another
+command does not take effect until the next line of input is read.
+The commands following the alias definition
+on that line are not affected by the new alias.
+This behavior is also an issue when functions are executed.
+Aliases are expanded when a function definition is read,
+not when the function is executed, because a function definition
+is itself a compound command.  As a consequence, aliases
+defined in a function are not available until after that
+function is executed.  To be safe, always put
+alias definitions on a separate line, and do not use <code>alias</code>
+in compound commands.
+</p>
+<p>For almost every purpose, shell functions are preferred over aliases.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Arrays.html#Arrays" accesskey="n" rel="next">Arrays</a>, Previous: <a href="Shell-Arithmetic.html#Shell-Arithmetic" accesskey="p" rel="prev">Shell Arithmetic</a>, Up: <a href="Bash-Features.html#Bash-Features" accesskey="u" rel="up">Bash Features</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indexes.html#Indexes" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

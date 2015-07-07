@@ -1,0 +1,506 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>lsof OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>lsof</h1> 
+<p>List open files.</p>
+<pre>Syntax
+      lsof [<i>options</i>] [<i>names</i>]
+
+Options
+  <b>-? -h</b> Display help text.
+
+  <b>-a</b> Causes the list selection options to be ANDed.
+
+  <b>-A <i>A</i></b> Specify <i>A</i> as an alternate name list file where
+  the kernel addresses of the dynamic modules might be
+  found. This option is available on systems whose AFS kernel 
+  code is implemented via dynamic modules.
+
+  <b>-b</b> This option causes lsof to avoid kernel functions that might
+  block - lstat(2), readlink(2), and stat(2).
+  See the full lsof man page for more on using this option.
+
+  <b>-c <i>c</i></b> This option selects the listing of files for processes execut-
+  ing the command that begins with the characters of <i>c</i>.
+  Multiple commands may be specified, using multiple -c options.
+  They are joined in a single ORed set before participating in
+  AND option selection.
+
+  If <i>c</i> begins and ends with a slash ('/'), the characters
+  between the slashes is interpreted as a regular expression.
+  Shell meta-characters in the regular expression must be quoted
+  to prevent their interpretation by the shell. The closing
+  slash may be followed by these modifiers:
+
+       b   the regular expression is a basic one.
+       i   ignore the case of letters.
+       x   the regular expression is an extended one
+     (default).
+
+  See the <a href="ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/FAQ">lsof FAQ</a> for more
+
+  <b>+c <i>w</i></b> This option defines the maximum number of initial characters
+  of the name of the UNIX command associated with a process to
+  be printed in the COMMAND column. (The default is nine.)
+
+  If <i>w </i>is zero ('0'), all command characters will be printed.
+
+  If <i>w</i> is less than the length of the column title, ``COMMAND'',
+  it will be raised to that length.
+
+  <b>-C</b> This option disables the reporting of any path name components
+  from the kernel's name cache. See the KERNEL NAME CACHE sec-
+  tion for more information.
+
+  <b>+d <i>s</i></b> This option causes lsof to search for all open instances
+  of directory <i>s</i> and the files and directories it contains at its
+  top level. This option does NOT descend the directory tree,
+  rooted at s, nor does it follow symbolic links within it. The
+  +D D option may be used to request a full-descent directory
+  tree search, rooted at directory D.
+
+  Note: the authority of the user of this option limits it to
+  searching for files that the user has permission to examine
+  with the system stat(2) function.
+
+  <b>-d <i>s</i></b> This option specifies a list of file descriptors (FDs) to
+  exclude from or include in the output listing.  The file
+  descriptors are specified in the comma-separated set s - e.g.,
+  `cwd,1,3', `^6,^2'. (There should be no spaces in the
+  set.)
+
+  The list is an exclusion list if all entries of the set begin
+  with '^'. It is an inclusion list if no entry begins with
+  '^'.  Mixed lists are not permitted.
+
+  A file descriptor number range may be in the set as long as
+  neither member is empty, both members are numbers, and the
+  ending member is larger than the starting one - e.g., ``0-7''
+  or ``3-10''. Ranges may be specified for exclusion if they
+  have the '^' prefix - e.g., ``^0-7'' excludes all file
+  descriptors 0 through 7.
+
+  Multiple file descriptor numbers are joined in a single ORed
+  set before participating in AND option selection.
+
+  When there are exclusion and inclusion members in the set,
+  lsof reports them as errors and exits with a non-zero return
+  code.
+
+  See the description of File Descriptor (FD) output values in
+  the OUTPUT section for more information on file descriptor
+  names.
+
+  <b>+D <i>D</i></b> This option causes lsof to search for all open instances of
+  directory <i>D</i> and all the files and directories it contains to
+  its complete depth. Symbolic links within directory D are
+  ignored - i.e, not followed.
+
+  <b>-D <i>D</i></b> This option directs lsof's use of the device cache file.  The
+  use of this option is sometimes restricted. See the DEVICE
+  CACHE FILE section and the sections that follow it for more
+  information on this option.
+
+  -D  must be followed by a function letter; the function letter
+  may optionally be followed by a path name.  Lsof recognizes
+  these function letters:
+
+       ? - report device cache file paths
+       b - build the device cache file
+       i - ignore the device cache file
+       r - read the device cache file
+       u - read and update the device cache file
+
+  The  b,  r, and u functions, accompanied by a path name, are
+  sometimes restricted. When these functions are restricted,
+  they will not appear in the description of the -D option that
+  accompanies -h or -? option output. See the full man page.
+
+  <b>+|-f [cfgGn]</b>
+  f by itself clarifies how path name arguments are to be inter-
+  preted.  When followed by c, f, g, G, or n in any combination
+  it specifies that the listing of kernel file structure infor-
+  mation is to be enabled (`+') or inhibited (`-').
+
+  Normally a path name argument is taken to be a file system
+  name if it matches a mounted-on directory name reported by
+  mount(8), or if it represents a block device, named in the
+  mount output and associated with a mounted directory name.
+  When +f is specified, all path name arguments will be taken to
+  be file system names, and lsof will complain if any are not.
+  This can be useful, for example, when the file system name
+  (mounted-on device) isn't a block device.  This happens for
+  some CD-ROM file systems.
+
+  When -f is specified, all path name arguments will be taken to
+  be simple files. Thus, for example, the -f / arguments
+  direct lsof to search for open files with a / path name, not
+  all open files in the / (root) file system.
+
+  Be careful to make sure +f is properly terminated and isn't
+  followed by a character (e.g., of the file or file system
+  name) that might be taken as a parameter. For example, use
+  `--' after +f as in this example.
+
+       $ lsof +f -- /file/system/name
+
+  The listing of information from kernel file structures,
+  requested with the +f [cfgGn] option form, is normally inhib-
+  ited, and is not available for some dialects - e.g.,
+  /proc-based Linux. When the prefix to f is a plus sign (`+'),
+  these characters request file structure information:
+
+       c   file structure use count
+       f   file structure address
+       g   file flag abbreviations
+       G   file flags in hexadecimal
+       n   file structure node address
+
+  When the prefix is minus (`-') the same characters disable the
+  listing of the indicated values.
+
+  File structure addresses, use counts, flags,  and  node
+  addresses may be used to detect more readily identical files
+  inherited by child processes and identical files in use by
+  different processes. Lsof column output can be sorted by out-
+  put columns holding the values and listed to identify
+  identical file use, or lsof field output can be parsed by an
+  AWK or Perl post-filter script, or by a C program.
+
+  <b>-F <i>f</i></b> This option specifies a character list, <i>f</i>, that selects the
+  fields to be output for processing by another program, and the
+  character that terminates each output field. Each field to be
+  output is specified with a single character in <i>f</i>. The field
+  terminator defaults to NL, but may be changed to NUL (000).
+  See the OUTPUT FOR OTHER PROGRAMS section for a description of
+  the field identification characters and the field output pro-
+  cess.
+
+  When the field selection character list is empty, all fields
+  are selected (except the raw device field for compatibility
+  reasons) and the NL field terminator is used.
+
+  When the field selection character list contains only a zero
+  (`0'), all fields are selected (except the raw device field
+  for compatibility reasons) and the NUL terminator character is
+  used.
+
+  Other combinations of fields and their associated field termi-
+  nator character must be set with explicit entries in f, as
+  described in the OUTPUT FOR OTHER PROGRAMS section.
+
+  When a field selection character identifies an item lsof does
+  not normally list - e.g., PPID, selected with -R - specifica-
+  tion of the field character - e.g., ``-FR'' - also selects the
+  listing of the item.
+
+  When the field selection character list contains the single
+  character `?', lsof will display a help list of the field
+  identification characters. (Escape the `?' character as your
+  shell requires.)
+
+  <b>-g [<i>s</i>]</b> This option selects the listing of files for the processes
+  whose optional process group IDentification (PGID) numbers are
+  in the comma-separated set s - e.g., `123' or `123,456'.
+  (There should be no spaces in the set.)
+
+  Multiple PGID numbers are joined in a single ORed set before
+  participating in AND option selection.
+
+  The -g option also enables the output display of PGID numbers.
+  When specified without a PGID set that's all it does.
+
+  <b>-i [<i>i</i>]</b> This option selects the listing of files any of whose Internet
+  address matches the address specified in <i>i</i>. If no address is
+  specified, this option selects the listing of all Internet and
+  x.25 (HP-UX) network files.
+
+  If -i4 or -i6 is specified with no following address, only
+  files of the indicated IP version, IPv4 or IPv6, are displayed.
+
+  Multiple addresses may be specified with multiple -i options.
+
+  An Internet address is specified in the form:
+
+  [46][protocol][@hostname|hostaddr][:service|port]
+
+  where:
+   46 specifies the IP version, IPv4 or IPv6 that applies to the following address.
+   '6' may be be specified only if the UNIX dialect supports IPv6.
+      If neither '4' nor '6' is specified, the following address applies to all IP versions.
+   protocol is a protocol name - TCP or UDP.
+   hostname is an Internet host name. 
+     Unless a specific IP version is specified, open network files
+     associated with host names of all versions will be selected.
+   hostaddr is a numeric Internet IPv4 address in dot form;
+     or an IPv6 numeric address in colon form, enclosed in brackets,
+     if the UNIX dialect supports IPv6.  When an IP version is
+     selected, only its numeric addresses may be specified.
+   service is an /etc/services name
+     - e.g., smtp -
+     or a list of them.
+   port is a port number, or a list of them.
+
+  At least one address component - 4, 6, protocol, ,IR hostname
+  , hostaddr, or service - must be supplied.
+
+  Some sample addresses:
+
+       -i6               - IPv6 only
+       TCP:25            - TCP and port 25
+       @1.2.3.4          - Internet IPv4 host address 1.2.3.4
+       @[3ffe:1e&lt;file_system&gt;bc::1]:1234 - Internet IPv6 host address 3ffe:1ebc::1, port 1234
+       UDP:who           - UDP who service port
+       TCP@lsof.itap:513 - TCP, port 513 and host name lsof.itap
+       tcp@foo:1-10,smtp,99 - TCP, ports 1 through 10, service name smtp, port 99, host name foo   
+       tcp@bar:smtp-nameserver - TCP, ports smtp through nameserver, host bar 
+       :time             - either TCP or UDP time service port
+
+  <b>-k <i>k</i></b>  This option specifies a kernel name list file, <i>k</i>, in place of
+  /vmunix, /mach, etc.
+
+  <b>-l</b>  This option inhibits the conversion of user ID numbers to
+  login names. It is also useful when login name lookup is
+  working improperly or slowly.
+
+  <b>+|-L [l]</b> This option enables (`+') or disables (`-') the listing of
+  file link counts, where they are available - e.g., they aren't
+  available for sockets, or most FIFOs and pipes.
+
+  When +L is specified without a following number, all link
+  counts will be listed. When -L is specified (the default), no
+  link counts will be listed.
+
+  When +L is followed by a number, only files having a link
+  count less than that number will be listed.  (No number may
+  follow -L.)  A specification of the form ``+L1'' will select
+  open files that have been unlinked. A specification of the
+  form ``+aL1 '' will select unlinked open files on
+  the specified file system.
+
+  For other link count comparisons, use field output (-F) and a
+  post-processing script or program.
+
+  <b>-m m</b> This option specifies a kernel memory file, c, in place of
+  /dev/kmem or /dev/mem - e.g., a crash dump file.
+
+  <b>+|-M</b> Enables (+) or disables (-) the reporting of portmapper regis-
+  trations for local TCP and UDP ports.
+  See the <a href="ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/FAQ">lsof FAQ</a> for more detail.
+
+  <b>-n</b> This option inhibits the conversion of network numbers to host
+  names for network files. Inhibiting conversion may make lsof
+  run faster.  It is also useful when host name lookup is not
+  working properly.
+
+  <b>-N</b> This option selects the listing of NFS files.
+
+  <b>-o</b> This option directs lsof to display file offset at all times.
+  Consult the <a href="ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/FAQ">lsof FAQ</a> for more information.
+  The -o and -s options are mutually exclusive.
+
+  <b>-o o</b> This option defines the number of decimal digits (o) to be
+  printed after the `0t' for a file offset before the form is
+  switched to `0x...'. An o value of zero (unlimited) directs
+  lsof to use the `0t' form for all offset output.
+  The default number is normally 8.
+
+  <b>-O</b> This option directs lsof to bypass the strategy it uses to
+  avoid being blocked by some kernel operations.
+      Use this option cautiously.
+
+  <b>-p s</b> This option selects the listing of files for the processes
+  whose ID numbers are in the comma-separated set s - e.g.,
+  `123' or `123,456'. (There should be no spaces in the set.)
+
+  Multiple process ID numbers are joined in a single ORed set
+  before participating in AND option selection.
+
+  <b>-P</b> This option inhibits the conversion of port numbers to port
+  names for network files. Inhibiting the conversion may make
+  lsof run a little faster. It is also useful when host name
+  lookup is not working properly.
+
+  <b>+|-r [<i>t</i>]</b> This option puts lsof in repeat mode. There lsof lists 
+  open files as selected by other options, delays <i>t</i> seconds (default
+  fifteen), then repeats the listing, delaying and listing
+  repetitively until stopped by a condition defined by the pre-
+  fix to the option.
+
+  If the prefix is a `-', repeat mode is endless. Lsof must be
+  terminated with an interrupt or quit signal.
+
+  If the prefix is `+', repeat mode will end the first cycle no
+  open files are listed - and of course when lsof is stopped
+  with an interrupt or quit signal.  When repeat mode ends
+  because no files are listed, the process exit code will be
+  zero if any open files were ever listed; one, if none were
+  ever listed.
+
+  Lsof marks the end of each listing: if field output is in
+  progress (the -F, option has been specified), the marker is
+  'm'; otherwise the marker is '========'. The marker is
+  followed by a NL character.
+
+  Repeat mode reduces lsof startup overhead, so it is more effi-
+  cient to use this mode than to call lsof repetitively from a
+  shell script, for example.
+
+  To use repeat mode most efficiently, accompany +|-r with spec-
+  ification of other lsof selection options, so the amount of
+  kernel memory access lsof does will be kept to a minimum.
+  Options that filter at the process level - e.g., -c, -g, -p,
+  -u - are the most efficient selectors.
+
+  Repeat mode is useful when coupled with field output (see the
+  -F,  option description) and a supervising awk or Perl script,
+  or a C program.
+
+  <b>-R</b> List the Parent Process IDentification number in the PPID column.
+
+  <b>-s</b> This option directs lsof to display file size at all times.
+  It causes the SIZE/OFF output column title to be changed to
+  SIZE. If the file does not have a size, nothing is displayed.
+
+  The -o (without a following decimal digit count) and -s
+  options are mutually exclusive.
+
+  Since some types of files don't have true sizes - sockets,
+  FIFOs, pipes, etc. - lsof displays for their sizes the content
+  amounts in their associated kernel buffers, if possible.
+
+  <b>-S [<i>t</i>]</b> This option specifies an optional time-out seconds value for
+  kernel functions - lstat(2), readlink(2), and stat(2) - that
+  might otherwise deadlock. The minimum for <i>t</i> is two; the
+  default is fifteen.
+
+  <b>-T [<i>t</i>]</b> Display TCP/TPI information
+
+  -T  with no following key characters disables TCP/TPI info.
+
+  -T with following character(s) selects the reporting info:
+
+       q   selects queue length reporting.
+       s   selects state reporting.
+       w   selects window size reporting (not all dialects).
+
+  <b>-t</b> Terse output with process identifiers only and no header - 
+  e.g., so that the output may be piped to kill(1).
+  This option selects the -w option.
+
+   <b>-u <i>s</i></b> This option selects the listing of files for the user whose
+  login names or user ID numbers are in the comma-separated set
+  <i>s</i> - e.g., `abe', or `548,root'.  (There should be no
+  spaces in the set.)
+
+  Multiple login names or user ID numbers are joined in a single
+  ORed set before participating in AND option selection.
+
+  If a login name or user ID is preceded by a `^', it becomes a
+  negation - i.e., files of processes owned by the login name or
+  user ID will never be listed. For example, to direct lsof to 
+  exclude the listing of files belonging to root processes
+  specify `-u^root' or `-u^0'.
+
+  <b>-U</b> This option selects the listing of UNIX domain socket files.
+
+  <b>-v</b> This option selects the listing of lsof version information,
+  including: revision number; when the lsof binary was con-
+  structed; who constructed the binary and where; the name of
+  the compiler used to construct the lsof binary; the version
+  number of the compiler when readily available; the compiler
+  and loader flags used to construct the lsof binary; and system
+  information, typically the output of uname's -a option.
+
+  <b>-V</b> This option directs lsof to indicate the items it was asked to
+  list and failed to find - command names, file names, Internet
+  addresses or files, login names, NFS files, PIDs, PGIDs, and
+  UIDs.
+
+  When other options are ANDed to search options, or com-
+  pile-time options restrict the listing of some files, lsof may
+  not report that it failed to find a search item when an ANDed
+  option or compile-time option prevents the listing of the open
+  file containing the located search item.
+
+  <b>+|-w</b> Enables (+) or disables (-) the suppression of warning
+  messages. The -t option selects the -w option.
+
+  <b>-X</b> This is a dialect-specific option.
+
+  <b>--</b> The double minus sign option is a marker that signals the
+  end of the keyed options. It may be used, for example, when the
+  first file name begins with a minus sign. It may also be used
+  when the absence of a value for the last keyed option must be
+  signified by the presence of a minus sign in the following
+  option and before the start of the file names.
+
+  <b>names</b>  These are path names of specific files to list. Symbolic
+  links are resolved before use. The first name may be
+  separated from the preceding options with the ``--'' option.
+
+  Multiple file names are joined in a single ORed set before
+  participating in AND option selection.</pre>
+<p><span class="body">An open file may be a regular file, a directory, a block 
+  special file, a character special file, an executing text reference, a library, 
+  a stream or a network file (Internet socket, NFS file or UNIX domain socket.) 
+A specific file or all the files in a file system may be selected by path. </span></p>
+<p><span class="body">Instead of a formatted display, lsof can produce output 
+  that can be parsed by other programs. See the -F, option. </span></p>
+<p><span class="body">In addition to producing a single output list, lsof will 
+  run in repeat mode. In repeat mode it will produce output, delay, then repeat 
+  the output operation until stopped with an interrupt or quit signal. See the 
+  +|-r [t] option</span>.</p>
+<p><b>Examples</b></p>
+<pre>List files currently open by me and my processes. 
+   lsof
+
+List files currently open on the entire system.
+   sudo lsof 
+ 
+List open network connections on the entire system.
+   sudo lsof -i 
+
+List open files on the "FW Drive" volume; 
+useful for figuring out why you can't eject/dismount a disk because something is using it.
+   sudo lsof "/Volumes/FW Drive" </pre>
+<p class="quote"><i>&quot;It is when we all play safe that we create a world of 
+  the utmost insecurity&quot; ~ Dag Hammarskjold, United Nations secretary general</i></p>
+<p><a href="ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/FAQ">lsof 
+  FAQ</a> - FTP link to full documentation.</p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/lsof.8.html">lsof man page</a> - Apple.com<br>  
+<a href="sudo.html">sudo</a> - Execute a command as another user <br>
+<a href="kill.html">kill</a> - Stop a process from running<br>
+<a href="opensnoop.html">opensnoop</a> - Snoop file opens as they occur<br>
+<a href="ps.html">ps</a> - List running processes (returns PID) <br>
+<a href="uname.html">uname</a> - Print system information</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="lsof.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

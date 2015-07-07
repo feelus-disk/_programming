@@ -1,0 +1,200 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>redirect | Bash | SS64.com</title>
+</head><!-- #BeginLibraryItem "/Library/head_bashsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Redirection and Process Substitution</h1>
+<p>Both the input and output of a command may be <var>redirected</var>:</p>
+<pre><i> command</i>  &gt;  <i>filename</i>    Redirect command output (stdout) into a file
+
+ <i>command</i>  &gt;  /dev/null    Discard stdout of <i>command</i>
+
+ <i>command</i>  2&gt; <i>filename</i>    Redirect error output (stderr) to a file
+
+ <i>command</i>  2&gt;&amp;1 <i>filename</i>  Redirect stderr to stdout 
+
+ <i>command</i>  1&gt;&amp;2 <i>filename</i>  Redirect stdout to stderr
+
+ <i>command</i>  &gt;&gt; <i>filename</i>    Redirect command output and APPEND into a file
+
+ <i>command</i>  &lt;  <i>filename</i>    Redirect a file into a command
+
+ <i>command</i>1  &lt; (<i>command2</i>)  Redirect the output of <i>command2</i> as file input to <i>command1</i>
+
+ <i>command1</i> | <a href="tee.html">tee</a> <i>filename</i> | <i>command2</i>    Redirect <i>command1</i> into <i>filename</i> AND <i>command2
+
+ command1 | command2</i>     Redirect stdout of <i>command1</i> to <i>command2
+
+ command1 |&amp; command2</i>    Redirect stdERR of <i>command1</i> to <i>command2</i>
+
+ <i>command1 ; command2</i>     Run <i>command1</i> and then <i>command2
+
+ command1 &amp;&amp; command2</i>    Run <i>command2</i> only if <i>command1 is successful
+
+ command1 || command2</i>    Run <i>command2</i> only if <i>command1</i> is NOT successful
+
+ <i>command &amp;</i>               Run <i>command</i> in a subshell
+
+ <i>command &amp;&gt;</i> <i>filename</i>     Redirect every output of <i>command</i> to <i>filename</i></pre>
+<p> The NOCLOBBER option can prevent  overwriting an existing file:<br>
+  <span class="code">$ set -o noclobber</span> turns ON noclobber<br>
+<span class="code">$ set +o noclobber</span> turns OFF noclobber</p>
+<p><b>Redirecting Input</b></p>
+<p>Redirection of input causes the file whose name results from the expansion 
+  of <var>word</var> to be opened for reading on file descriptor <code>n</code>, 
+  or the standard input (file descriptor 0) if <code>n</code> is not specified. 
+</p>
+<p>The general format for redirecting input is: 
+<pre>[n]&lt;<var>word</var></pre>
+<p><b>Redirecting Output</b></p>
+<p>Redirection of output causes the file whose name results from the expansion 
+  of <var>word</var> to be opened for writing on file descriptor <code>n</code>, 
+  or the standard output (file descriptor 1) if <code>n</code> is not specified. 
+  If the file does not exist it is created; if it does exist it is truncated to 
+  zero size. </p>
+<p>The general format for redirecting output is: 
+<pre>[n]&gt;[|]<var>word</var></pre>
+<p>If the redirection operator is <samp>`&gt;'</samp>, and the <code>noclobber</code> 
+  option to the <code>set</code> builtin has been enabled, the redirection will 
+  fail if the file whose name results from the expansion of <var>word</var> exists 
+  and is a regular file. If the redirection operator is <samp>`&gt;|'</samp>, 
+  or the redirection operator is <samp>`&gt;'</samp> and the <code>noclobber</code> 
+  option is not enabled, the redirection is attempted even if the file named by 
+  <var>word</var> exists. </p>
+<p><b>Appending Redirected Output</b></p>
+<p>Redirection of output in this fashion causes the file whose name results from 
+  the expansion of <var>word</var> to be opened for appending on file descriptor 
+  <code>n</code>, or the standard output (file descriptor 1) if <code>n</code> 
+  is not specified. If the file does not exist it is created. </p>
+<p>The general format for appending output is: 
+<pre>[n]&gt;&gt;<var>word</var></pre>
+<p><b>Redirecting Standard Output and Standard Error</b></p>
+<p>Bash allows both the standard output (file descriptor 1) and the standard error 
+  output (file descriptor 2) to be redirected to the file whose name is the expansion 
+  of <var>word</var> with this construct. </p>
+<p>There are two formats for redirecting standard output and standard error: 
+<pre>&amp;&gt;<var>word</var></pre>
+<p>and 
+<pre>&gt;&amp;<var>word</var></pre>
+<p>Of the two forms, the first is preferred. This is semantically equivalent to 
+<pre>&gt;<var>word</var> 2&gt;&amp;1</pre>
+<p>Redirection may also be used to open and close files for the current shell 
+  execution environment. The following redirection operators may precede or appear 
+  anywhere within a simple command or may follow a command. <br>
+  <br>
+  Redirections are processed in the order they appear, from left to right.</p>
+<p>Note that the order of redirections is significant. For example, the command 
+<pre>ls &gt; <var>dirlist</var> 2&gt;&amp;1</pre>
+<p>directs both standard output (file descriptor 1) and standard error (file descriptor 
+  2) to the file <var>dirlist</var>, while the command 
+<pre>ls 2&gt;&amp;1 &gt; <var>dirlist</var></pre>
+<p>directs only the standard output to file <var>dirlist</var>, because the standard 
+  error was duplicated as standard output before the standard output was redirected 
+  to <var>dirlist</var>. </p>
+<p>Bash handles several filenames specially when they are used in redirections, 
+  as described in the following table: </p>
+<dl compact> 
+  <dt><code>/dev/fd/<var>fd</var></code> 
+  <dd>If <var>fd</var> is a valid integer, file descriptor <var>fd</var> is duplicated. 
+  <dt><code>/dev/stdin</code> 
+  <dd>File descriptor 0 is duplicated. 
+  <dt><code>/dev/stdout</code> 
+  <dd>File descriptor 1 is duplicated. 
+  <dt><code>/dev/stderr</code> 
+  <dd>File descriptor 2 is duplicated. 
+  <dt><code>/dev/tcp/<var>host</var>/<var>port</var></code> 
+  <dd>If <var>host</var> is a valid hostname or Internet address, and <var>port</var> 
+    is an integer port number, Bash attempts to open a TCP connection to the corresponding 
+    socket. 
+  <dt><code>/dev/udp/<var>host</var>/<var>port</var></code> 
+  <dd>If <var>host</var> is a valid hostname or Internet address, and <var>port</var> 
+    is an integer port number, Bash attempts to open a UDP connection to the corresponding 
+    socket. </dd>
+</dl>
+<p>A failure to open or create a file causes the redirection to fail. </p>
+<p><a href="syntax-here.html">Here Documents</a></p>
+<p>This type of redirection instructs the shell to read input from the current 
+  source until a line containing only <var>word</var> (with no trailing blanks) 
+  is seen. All of the lines read up to that point are then used as the standard 
+  input for a command. </p>
+<p>The format of here-documents is as follows: 
+<pre>&lt;&lt;[-]<var>word</var>
+        <var>here-document</var>
+<var>delimiter</var></pre>
+<p>No parameter expansion, command substitution, arithmetic expansion, or filename 
+  expansion is performed on <var>word</var>. If any characters in <var>word</var> 
+  are quoted, the <var>delimiter</var> is the result of quote removal on <var>word</var>, 
+  and the lines in the here-document are not expanded. If <var>word</var> is unquoted, 
+  all lines of the here-document are subjected to parameter expansion, command 
+  substitution, and arithmetic expansion. In the latter case, the character sequence 
+  <code>\newline</code> is ignored, and <samp>`\'</samp> must be used to quote 
+  the characters <samp>`\'</samp>, <samp>`$'</samp>, and <samp>``'</samp>. </p>
+<p>If the redirection operator is <samp>`&lt;&lt;-'</samp>, then all leading tab 
+  characters are stripped from input lines and the line containing <var>delimiter</var>. 
+  This allows here-documents within shell scripts to be indented in a natural 
+  fashion. </p>
+<p><b>Duplicating File Descriptors</b></p>
+<p>The redirection operator 
+<pre>[n]&lt;&amp;<var>word</var></pre>
+<p>is used to duplicate input file descriptors. If <var>word</var> expands to 
+  one or more digits, the file descriptor denoted by <code>n</code> is made to 
+  be a copy of that file descriptor. If the digits in <var>word</var> do not specify 
+  a file descriptor open for input, a redirection error occurs. If <var>word</var> 
+  evaluates to <samp>`-'</samp>, file descriptor <code>n</code> is closed. If 
+  <code>n</code> is not specified, the standard input (file descriptor 0) is used. 
+</p>
+<p>The operator 
+<pre>[n]&gt;&amp;<var>word</var></pre>
+<p>is used similarly to duplicate output file descriptors. If <code>n</code> is 
+  not specified, the standard output (file descriptor 1) is used. If the digits 
+  in <var>word</var> do not specify a file descriptor open for output, a redirection 
+  error occurs. As a special case, if <code>n</code> is omitted, and <var>word</var> 
+  does not expand to one or more digits, the standard output and standard error 
+  are redirected as described previously. </p>
+<h2 class="body">Opening File Descriptors for Reading and Writing</h2>
+<p>The redirection operator 
+<pre>[n]&lt;&gt;<var>word</var></pre>
+<p>causes the file whose name is the expansion of <var>word</var> to be opened 
+  for both reading and writing on file descriptor <code>n</code>, or on file descriptor 
+  0 if <code>n</code> is not specified. If the file does not exist, it is created.<br>
+  <br>
+  <b>Process Substitution</b><br>
+  <br>
+  Process substitution is supported on systems that support named pipes (FIFOs) 
+or the<span class="code"> /dev/fd </span>method of naming open files. It takes the form of </p>
+<pre>&lt;(<var>list</var>)</pre>
+<p>or 
+<pre>&gt;(<var>list</var>)</pre>
+<p>The process <var>list</var> is run with its input or output connected to a FIFO or some file in<span class="code"> /dev/fd</span>. The name of this file is passed as an argument to the current command as the result of the expansion. If the <code>&gt;(<var>list</var>)</code> 
+form is used, writing to the file will provide input for <var>list</var>. If the <code>&lt;(<var>list</var>)</code> form is used, the file passed as an argument should be read to obtain the output of <var>list</var>. Note that no space may 
+appear between the <code>&lt;</code> or <code>&gt;</code> and the left parenthesis, otherwise the construct would be interpreted as a redirection. </p>
+<p>When available, process substitution is performed simultaneously with parameter and variable expansion, command substitution, and arithmetic expansion. </p>
+<p> In all the descriptions above, if the file descriptor number is omitted, and the first character of the redirection operator is <samp>`&lt;'</samp>, the redirection refers to the standard input (file descriptor 0). If the first character 
+of the redirection operator is <samp>`&gt;'</samp>, the redirection refers to the standard output (file descriptor 1). </p>
+<p>The word following the redirection operator in all the descriptions above, unless otherwise noted, is subjected to brace expansion, tilde expansion, parameter expansion, command substitution, arithmetic expansion, quote removal, filename 
+expansion, and word splitting. If it expands to more than one word, Bash reports an error. </p>
+<p> <b>Related:</b><br>
+<br>
+<a href="syntax.html">BASH Syntax</a><br>
+Windows equivalent:  <a href="http://ss64.com/nt/syntax-redirection.html">Redirection</a> - Spooling output to a file, piping input</p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-redirection.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body></html>

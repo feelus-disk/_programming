@@ -1,0 +1,452 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>find OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>find</h1> 
+<p>Search a folder hierarchy for filename(s) that meet a desired 
+criteria.</p>
+<pre>Syntax
+
+     find [-H | -L | -P] [-EXdsx] [-f <i>pathname</i>] [<i>pathname</i> ...] <i>expression</i>
+
+Options
+     -E	     Interpret regular expressions followed by -regex and -iregex
+	     options as extended (modern) regular expressions rather than
+	     basic regular expressions (BRE's).	 The re_format(7) manual page
+	     fully describes both formats.
+
+     -H	     The -H option causes the file information and file type (see
+	     stat(2)) returned for each symbolic link specified on the command
+	     line to be those of the file referenced by the link, not the link
+	     itself.  If the referenced file does not exist, the file informa-
+	     tion and type will be for the link itself.	 File information of
+	     all symbolic links not on the command line is that of the link
+	     itself.
+
+     -L	     The -L option causes the file information and file type (see
+	     stat(2)) returned for each symbolic link to be those of the file
+	     referenced by the link, not the link itself.  If the referenced
+	     file does not exist, the file information and type will be for
+	     the link itself.
+
+     -P	     The -P option causes the file information and file type (see
+	     stat(2)) returned for each symbolic link to be those of the link
+	     itself.  This is the default.
+
+     -X	     The -X option is a modification to permit find to be safely used
+	     in conjunction with xargs(1).  If a file name contains any of the
+	     delimiting characters used by xargs(1), a diagnostic message is
+	     displayed on standard error, and the file is skipped.  The delim-
+	     iting characters include single (` ' ') and double (` " ')
+	     quotes, backslash (`\'), space, tab and newline characters.
+
+     -d	     The -d option causes find to perform a depth-first traversal,
+	     i.e., directories are visited in post-order and all entries in a
+	     directory will be acted on before the directory itself.  By
+	     default, find visits directories in pre-order, i.e., before their
+	     contents.	Note, the default is not a breadth-first traversal.
+
+     -f	     The -f option specifies a file hierarchy for find to traverse.
+	     File hierarchies may also be specified as the operands immedi-
+	     ately following the options.
+
+     -s	     The -s option causes find to traverse the file hierarchies in
+	     lexicographical order, i.e., alphabetical order within each
+	     directory.	 Note: `find -s' and `find | sort' may give different
+	     results.
+
+     -x	     The -x option prevents find from descending into directories that
+	     have a device number different than that of the file from which
+	     the descent began.
+
+PRIMARIES
+
+     -amin <i>n</i>
+	     True if the difference between the file last access time and the
+	     time find was started, rounded up to the next full minute, is n
+	     minutes.
+
+     -anewer <i>file</i>
+	     Same as -neweram.
+
+     -atime <i>n</i>
+	     True if the difference between the file last access time and the
+	     time find was started, rounded up to the next full 24-hour
+	     period, is n 24-hour periods.
+
+     -cmin <i>n</i>
+	     True if the difference between the time of last change of file
+	     status information and the time find was started, rounded up to
+	     the next full minute, is n minutes.
+
+     -cnewer <i>file</i>
+	     Same as -newercm.
+
+     -ctime <i>n</i>
+	     True if the difference between the time of last change of file
+	     status information and the time find was started, rounded up to
+	     the next full 24-hour period, is n 24-hour periods.
+
+     -delete
+	     Delete found files and/or directories.  Always returns true.
+	     This executes from the current working directory as find recurses
+	     down the tree.  It will not attempt to delete a filename with a
+	     `/' character in its pathname relative to `.' for security
+	     reasons.  Depth-first traversal processing is implied by this
+	     option.
+
+     -depth  Always true; same as the -d option.  -depth can be useful when
+	     find is used with cpio(1) to process files that are contained in
+	     directories with unusual permissions.  It enures that you have
+	     write permission while you are placing files in a directory, then
+	     sets the directory's permissions as the last thing.
+
+     -empty  True if the current file or directory is empty.
+
+     -exec <i>utility</i> [<i>argument</i> ...];
+	     True if the program named utility returns a zero value as its
+	     exit status.  Optional arguments may be passed to the utility.
+	     The expression must be terminated by a semicolon (`;').	If the
+	     string `{}' appears anywhere in the utility name or the argu-
+	     ments it is replaced by the pathname of the current file.
+	     Utility will be executed from the directory from which find was
+	     executed.	Utility and arguments are not subject to the further
+	     expansion of shell patterns and constructs.
+
+     -execdir <i>utility</i> [<i>argument</i> ...];
+	     The -execdir primary is identical to the -exec primary with the
+	     exception that utility will be executed from the directory that
+	     holds the current file.  The filename substituted for the string
+	     `{}' is not qualified.
+
+     -flags [-|+]<i>flags</i>,<i>notflags</i>
+	     The flags are specified using symbolic names (see chflags(1)).
+	     Those with the "no" prefix (except "nodump") are said to be
+	     notflags.	Flags in flags are checked to be set, and flags in
+	     notflags are checked to be not set.  Note that this is different
+	     from -perm, which only allows the user to specify mode bits that
+	     are set.
+
+	     If flags are preceded by a dash (`-'), this primary evaluates
+	     to true if at least all of the bits in flags and none of the bits
+	     in notflags are set in the file's flags bits.  If flags are pre-
+	     ceded by a plus (`+'), this primary evaluates to true if any of
+	     the bits in flags is set in the file's flags bits, or any of the
+	     bits in notflags is not set in the file's flags bits.  Otherwise,
+	     this primary evaluates to true if the bits in flags exactly match
+	     the file's flags bits, and none of the flags bits match those of
+	     notflags.
+
+     -fstype <i>type</i>
+	     True if the file is contained in a file system of type type.  The
+	     sysctl(8) command can be used to find out the types of filesys-
+	     tems that are available on the system:
+
+		   sysctl vfs
+
+	     In addition, there are two pseudo-types, `local' and
+	     `rdonly'.  The former matches any file system physically
+	     mounted on the system where the find is being executed and the
+	     latter matches any file system which is mounted read-only.
+
+     -group <i>gname</i>
+	     True if the file belongs to the group gname.  If gname is numeric
+	     and there is no such group name, then gname is treated as a group
+	     ID.
+
+     -iname <i>pattern</i>
+	     Like -name, but the match is case insensitive.
+
+     -inum <i>n</i>
+	     True if the file has inode number n.
+
+     -ipath <i>pattern</i>
+	     Like -path, but the match is case insensitive.
+
+     -iregex <i>pattern</i>
+	     Like -regex, but the match is case insensitive.
+
+     -links <i>n</i>
+	     True if the file has n links.
+
+     -ls     This primary always evaluates to true.  The following information
+	     for the current file is written to standard output: its inode
+	     number, size in 512-byte blocks, file permissions, number of hard
+	     links, owner, group, size in bytes, last modification time, and
+	     pathname.	If the file is a block or character special file, the
+	     major and minor numbers will be displayed instead of the size in
+	     bytes.  If the file is a symbolic link, the pathname of the
+	     linked-to file will be displayed preceded by `->'.  The format
+	     is identical to that produced by ls -dgils.
+
+     -maxdepth <i>n</i>
+	     True if the depth of the current file into the tree is less than
+	     or equal to n.
+
+     -mindepth <i>n</i>
+	     True if the depth of the current file into the tree is greater
+	     than or equal to n.
+
+     -mmin <i>n</i>
+	     True if the difference between the file last modification time
+	     and the time find was started, rounded up to the next full
+	     minute, is n minutes.
+
+     -mnewer <i>file</i>
+	     Same as -newer.
+
+     -mtime <i>n</i>
+	     True if the difference between the file last modification time
+	     and the time find was started, rounded up to the next full
+	     24-hour period, is n 24-hour periods.
+
+     -name <i>pattern</i>
+	     True if the last component of the pathname being examined matches
+	     pattern.  Special shell pattern matching characters (`[',
+	     `]', `*', and `?') may be used as part of pattern.  These
+	     characters may be matched explicitly by escaping them with a
+	     backslash (`\').
+
+     -newer <i>file</i>
+	     True if the current file has a more recent last modification time
+	     than file.
+
+     -newerXY <i>file</i>
+	     True if the current file has a more recent last access time
+	     (X=a), change time (X=c), or modification time (X=m) than the
+	     last access time (Y=a), change time (Y=c), or modification time
+	     (Y=m) of file.  In addition, if Y=t, then file is instead inter-
+	     preted as a direct date specification of the form understood by
+	     cvs(1).  Note that -newermm is equivalent to -newer.
+
+     -nogroup
+	     True if the file belongs to an unknown group.
+
+     -nouser
+	     True if the file belongs to an unknown user.
+
+     -ok <i>utility</i> [argument ...];
+	     The -ok primary is identical to the -exec primary with the excep-
+	     tion that find requests user affirmation for the execution of the
+	     utility by printing a message to the terminal and reading a
+	     response.	If the response is other than `y' the command is not
+	     executed and the value of the -ok expression is false.
+
+     -okdir <i>utility</i> [argument ...];
+	     The -okdir primary is identical to the -execdir primary with the
+	     same exception as described for the -ok primary.
+
+     -path <i>pattern</i>
+	     True if the pathname being examined matches pattern.  Special
+	     shell pattern matching characters (`[', `]', `*', and
+	     `?') may be used as part of pattern.  These characters may be
+	     matched explicitly by escaping them with a backslash (`\').
+	     Slashes (`/') are treated as normal characters and do not have
+	     to be matched explicitly.
+
+     -perm [-|+]<i>mode</i>
+	     The mode may be either symbolic (see chmod(1)) or an octal num-
+	     ber.  If the mode is symbolic, a starting value of zero is
+	     assumed and the mode sets or clears permissions without regard to
+	     the process' file mode creation mask.  If the mode is octal, only
+	     bits 07777 (S_ISUID | S_ISGID | S_ISTXT | S_IRWXU | S_IRWXG |
+	     S_IRWXO) of the file's mode bits participate in the comparison.
+	     If the mode is preceded by a dash (`-'), this primary evaluates
+	     to true if at least all of the bits in the mode are set in the
+	     file's mode bits.	If the mode is preceded by a plus (`+'),
+	     this primary evaluates to true if any of the bits in the mode are
+	     set in the file's mode bits.  Otherwise, this primary evaluates
+	     to true if the bits in the mode exactly match the file's mode
+	     bits.  Note, the first character of a symbolic mode may not be a
+	     dash (`-').
+
+     -print  This primary always evaluates to true.  It prints the pathname of
+	     the current file to standard output.  If none of -exec, -ls,
+	     -print0, or -ok is specified, the given expression shall be
+	     effectively replaced by ( given expression ) -print.
+
+     -print0
+	     This primary always evaluates to true.  It prints the pathname of
+	     the current file to standard output, followed by an ASCII NUL
+	     character (character code 0).
+
+     -prune  This primary always evaluates to true.  It causes find to not
+	     descend into the current file.  Note, the -prune primary has no
+	     effect if the -d option was specified.
+
+     -regex <i>pattern</i>
+	     True if the whole path of the file matches pattern using regular
+	     expression.  To match a file named `./foo/xyzzy', you can use
+	     the regular expression `.*/[xyz]*' or `.*/foo/.*', but not
+	     `xyzzy' or `/foo/'.
+
+     -size n[c]
+	     True if the file's size, rounded up, in 512-byte blocks is n.  If
+	     n is followed by a c, then the primary is true if the file's size
+	     is n bytes (characters).
+
+     -type <i>t</i>
+	     True if the file is of the specified type.	 Possible file types
+	     are as follows:
+
+	     b	     block special
+	     c	     character special
+	     d	     directory
+	     f	     regular file
+	     l	     symbolic link
+	     p	     FIFO
+	     s	     socket
+
+     -user <i>uname</i>
+	     True if the file belongs to the user uname.  If uname is numeric
+	     and there is no such user name, then uname is treated as a user
+	     ID.
+
+     All primaries which take a numeric argument allow the number to be pre-
+     ceded by a plus sign (`+') or a minus sign (`-').  A preceding plus
+     sign means `more than n', a preceding minus sign means `less than n'
+     and neither means `exactly n'.
+
+OPERATORS
+
+     The primaries may be combined using the following operators.  The opera-
+     tors are listed in order of decreasing precedence.
+
+     ( expression )  This evaluates to true if the parenthesized expression
+		     evaluates to true.
+
+     ! expression
+     -false expression
+     -not expression
+		     This is the unary NOT operator.  It evaluates to true if
+		     the expression is false.
+
+     expression -and expression
+     expression expression
+		     The -and operator is the logical AND operator.  As it is
+		     implied by the juxtaposition of two expressions it does
+		     not have to be specified.	The expression evaluates to
+		     true if both expressions are true.	 The second expression
+		     is not evaluated if the first expression is false.
+
+     expression -or expression
+		     The -or operator is the logical OR operator.  The expression
+		     evaluates to true if either the first or the second
+		     expression is true.  The second expression is not evaluated
+		     if the first expression is true.
+
+     All operands and primaries must be separate arguments to find.  Primaries
+     which themselves take arguments expect each argument to be a separate
+     argument to find.</pre>
+<p> BUGS<br>
+The special characters used by find are also special characters to many shell programs. In particular, the characters<span class="code"> *, [, ], ?, (, ), 
+!, \ </span>and <span class="code">;</span> may have to be escaped from the shell. <br>
+<br>
+As there is no delimiter separating options and file names or file names and the expression, it is difficult to specify files named -xdev or !. These problems 
+are handled by the -f option and the getopt(3) <span class="code">--</span> construct. <br>
+<br>The <span class="code">-delete</span> primary does not interact well with other options that cause the filesystem tree traversal options to be changed. </P>
+<p><b><a id="examples"></a>EXAMPLES</b><br>
+<br>     
+Print a list of all the files whose names do not end in .c.</p>
+<p class="code">    $ find / \! -name "*.c" -print</p>
+<p>Print a list of all the files owned by user `wnj' that are newer than the file ttt.</p>
+<p class="code">$ find / -newer ttt -user wnj -print</p>
+<p>Print out a list of all the files which are not both newer than ttt and owned by `simon'.</p>
+<p class="code">$ find / \! \( -newer ttt -user simon \) -print</p>
+<p>Print a list of all the files that are either owned by
+`simon' or that are newer than ttt.</p>
+<p class="code">$ find / \( -newer ttt -or -user simon \) -print</p>
+<p>Print out a list of all the files whose inode change time is more
+recent than the current time minus one minute.</p>
+<p class="code">$ find . -newerct '1 minute ago' -print</p>
+<p>List filenames ending in .mp3, searching in the current folder and all subfolders: <br>
+<span class="code">$ find . -name &quot;*.mp3&quot;</span></p>
+<p>List filenames matching the name Alice or ALICE (case insensitive), search in the current folder (.) and all subfolders:<br>
+<span class="code">$ find . -iname &quot;alice&quot; -print0</span></p>
+<p>List filenames matching the name Alice or ALICE (case insensitive), search in the current folder (.) only:<br>
+<span class="code">$ find . -maxdepth 1 -iname &quot;alice&quot; -print0</span></p>
+<p>List filenames ending in .mp3, searching in the music folder and subfolders: <br>
+<span class="code">$ find ./music -name &quot;*.mp3&quot; </span></p>
+<p>List files with the exact name: Sales_document.doc in ./work and subfolders: <br>
+<span class="code">$ find ./work -name Sales_document.doc </span></p>
+<p>List all files that belong to the user Maude: <br>
+<span class="code">$ find . -user Maude -print0</span></p>
+<p>List all the directory and sub-directory names: <br>
+<span class="code">$ find . -type d </span></p>
+<p>List all files in those sub-directories (but not the directory names) <br>
+<span class="code">$ find . -type f </span></p>
+<p>List all the file links: <br>
+<span class="code">$ find . -type l </span></p>
+<p>List all files (and subdirectories) in your home directory: <br>
+<span class="code">$ find $HOME</span> </p>
+<p>Find files that are over a gigabyte in size:<br>
+<span class="code">$ find ~/Movies -size +1024M</span></p>
+<p>Find files that are over 1 GB but less than 20 GB in size:<br>
+<span class="code">$ find ~/Movies -size +1024M -size -20480M -print0</span></p>
+<p>Find all .gif files, pipe to xargs to get the size and then pipe into tail to display only the grand total:<br>
+<span class="code">$ find . -iname &quot;*.gif&quot; -print0 | xargs -0 du -ch | tail -1</span></p>
+<p>Find files have been modified within the last day: <br>
+<span class="code">$ find ~/Movies -mtime -1 </span></p>
+<p>Find files have been modified within the last 30 minutes: <br>
+<span class="code">$ find ~/Movies -mmin -30 </span></p>
+<p>Find .doc files that also start with 'questionnaire' (AND) <br>
+<span class="code">$ find . -name '*.doc' -name questionnaire*</span> </p>
+<p>List all files beginning with 'memo' and owned by Maude (AND) <br>
+<span class="code">$ find . -name 'memo*' -user Maude </span></p>
+<p> Find .doc files that do NOT start with 'Accounts' (NOT)<br>
+<span class="code">$ find . -name '*.doc' ! -name Accounts*</span></p>
+<p>Find files named 'secrets' in or below the directory /tmp and delete them. Note that this will work incorrectly if there are any filenames containing newlines, single or double quotes, or spaces:<br>
+<span class="code">$ find /tmp -name secrets -type f -print | xargs /bin/rm -f</span></p>
+<p>Find files named 'secrets' in or below the directory /tmp and delete them, processing filenames in such a way that file or directory names containing single or double quotes, spaces or newlines are correctly handled. The -name test comes before the -type test in order to avoid having to call stat(2) on every file. <br>
+<span class="code">$ find /tmp -name secrets -type f -print0 | xargs -0 /bin/rm -f</span>
+<p>Run 'myapp' on every file in or below the current directory. Notice that the braces are enclosed in single quote marks to protect them from interpretation as shell script punctuation. The semicolon is similarly protected by the use of a backslash, though ';' could have been used in that case also.</p>
+<p class="code">find . -type f -exec myapp '{}' \;</p>
+<p> Traverse the filesystem just once, listing setuid files and directories into /root/suid.txt and large files into /root/big.txt.</p>
+<p><span class="code">find / \( -perm -4000 -fprintf /root/suid.txt '%#m %u %p\n' \) , \<br>
+\( -size +100M -fprintf /root/big.txt '%-10s %p\n' \)</span></p>
+<p>Search for files in your home directory which have been modified in the last twenty-four hours. This command works this way because the time since each file was last modified is divided by 24 hours and any remainder is discarded. That means that to match -mtime 0, a file will have to have a modification in the past which is less than 24 hours ago.</p>
+<p class="code">find $HOME -mtime 0</p>
+<p>Search for files which have read and write permission for their owner, and group, but which other users can read but not write to (<a href="chmod.html">664</a>). Files which meet these criteria but have other permissions bits set (for example if someone can execute the file) will not be matched.</p>
+<p><span class="code">find . -perm 664</span></p>
+<p>Search for files which have read and write permission for their owner and group, and which other users can read, without regard to the presence of any extra permission bits (for example the executable bit). This will match a file which has mode 0777, for example.</p>
+<p><span class="code">find . -perm -664</span></p>
+<p>Search for files which are writable by somebody (their owner, or their group, or anybody else).</p>
+<p><span class="code">find . -perm /222</span></p>
+<p class="quote"><i>“We all have different desires and needs, but if we don't discover what we want from ourselves and what we stand for, we will live passively and unfulfilled”  ~ Bill Watterson</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/find.1.html">find man page</a> - Apple.com<br>
+<a href="grep.html">grep</a> - Search file(s) for lines that match a given pattern <br>
+<a href="ln.html">ln</a> - Make links between files (hard links, symbolic links) <br>
+<a href="ls.html">ls</a> - List information about file(s) <br>
+<a href="locate.html">locate</a> - Find files.<br>
+<a href="mdfind.html">mdfind</a> - Spotlight search.<br>
+<a href="whereis.html">whereis</a> - Locate a command.<br>
+<a href="which.html">which</a> - Locate a program file in the user's path.</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="find.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

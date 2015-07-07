@@ -1,0 +1,234 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>expr Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>expr</h1> 
+<p>Evaluate expressions, evaluates an expression and writes the result 
+on standard output. A blank line below separates increasing precedence groups.</p>
+<pre>Syntax
+      expr <i>expression</i>
+      expr <i>option
+</i>
+Options:
+   --help      Display help and exit
+   --version   output version information and exit
+
+Expressions:
+
+   <i>ARG1</i> | <i>ARG2</i>               <i>ARG1</i> if it is neither null nor 0, otherwise <i>ARG2</i> 
+   <i>ARG1</i> & <i>ARG2</i>               <i>ARG1</i> if neither argument is null or 0, otherwise 0 
+   <i>ARG1</i> < <i>ARG2</i>               <i>ARG1</i> is less than <i>ARG2</i> 
+   <i>ARG1</i> <= <i>ARG2</i>              <i>ARG1</i> is less than or equal to <i>ARG2</i> 
+   <i>ARG1</i> = <i>ARG2</i>               <i>ARG1</i> is equal to <i>ARG2</i> 
+   <i>ARG1</i> != <i>ARG2</i>              <i>ARG1</i> is unequal to <i>ARG2</i> 
+   <i>ARG1</i> >= <i>ARG2</i>              <i>ARG1</i> is greater than or equal to <i>ARG2</i> 
+   <i>ARG1</i> > <i>ARG2</i>               <i>ARG1</i> is greater than <i>ARG2</i> 
+   <i>ARG1</i> + <i>ARG2</i>               Arithmetic sum of <i>ARG1</i> and <i>ARG2</i> 
+   <i>ARG1</i> - <i>ARG2</i>               Arithmetic difference of <i>ARG1</i> and <i>ARG2</i> 
+   <i>ARG1</i> * <i>ARG2</i>               Arithmetic product of <i>ARG1</i> and <i>ARG2</i> 
+   <i>ARG1</i> / <i>ARG2</i>               Arithmetic quotient of <i>ARG1</i> divided by <i>ARG2</i> 
+   <i>ARG1</i> % <i>ARG2</i>               Arithmetic remainder of <i>ARG1</i> divided by <i>ARG2</i> 
+   <i>STRING</i> : <i>REGEXP</i>           Anchored pattern match of <i>REGEXP</i> in <i>STRING</i> 
+   match <i>STRING REGEXP</i>       Same as <i>STRING</i> : <i>REGEXP</i> 
+   substr <i>STRING POS LENGTH</i>  Substring of <i>STRING, POS</i> counted from 1 
+   index <i>STRING CHARS</i>        Index in STRING where any <i>CHARS</i> is found, or 0 
+   length <i>STRING</i>             Length of <i>STRING</i> 
+   + <i>TOKEN</i>                   Interpret <i>TOKEN</i> as a string, even if it is a 
+                             keyword like 'match' or an operator like '/'
+   ( <i>EXPRESSION</i> )            Value of <i>EXPRESSION</i>
+</pre>
+<p> Beware that many operators need to be escaped or quoted for shells.<br>
+Comparisons are arithmetic if both <i>ARGs</i> are numbers, else lexicographical.<br>
+Pattern matches return the string matched between \( and \) or null;<br>
+if \( and \) are not used, they return the number of characters matched or 0.<br>
+</p>
+<pre>
+Exit status 
+ 0 if EXPRESSION is neither null nor 0,
+ 1 if EXPRESSION is null or 0,
+ 2 if EXPRESSION is syntactically invalid, 
+ 3 if an error occurred. </pre>
+<p> Each token of the expression must be a separate argument.<br>
+<br>
+Operands are either numbers or strings.  `expr' coerces anything
+appearing in an operand position to an integer or a string depending on
+the operation being applied to it.<br>
+<br>
+Strings are not quoted for `expr' itself, though you may need to
+quote them to protect characters with special meaning to the shell,
+e.g., spaces.<br>
+<br>
+Operators may given as infix symbols or prefix keywords.  Parentheses
+may be used for grouping in the usual manner (you must quote parentheses
+to avoid the shell evaluating them, however).<br>
+</p>
+<pre>
+String expressions
+------------------</pre>
+<p> `expr' supports pattern matching and other string operators.  These
+have lower precedence than both the numeric and relational operators (in
+the next sections).<br>
+</p>
+<pre>
+<i>STRING</i> : <i>REGEX</i>
+     Perform pattern matching.  The arguments are coerced to strings
+     and the second is considered to be a (basic, a la GNU `grep')
+     regular expression, with a `^' implicitly prepended.  The first
+     argument is then matched against this regular expression.
+
+     If the match succeeds and REGEX uses `\(' and `\)', the `:'
+     expression returns the part of STRING that matched the
+     subexpression; otherwise, it returns the number of characters
+     matched.
+
+     If the match fails, the `:' operator returns the null string if
+     `\(' and `\)' are used in REGEX, otherwise 0.
+
+     Only the first `\( ... \)' pair is relevant to the return value;
+     additional pairs are meaningful only for grouping the regular
+     expression operators.
+
+     In the regular expression, `\+', `\?', and `\|' are operators
+     which respectively match one or more, zero or one, or separate
+     alternatives.  SunOS and other `expr''s treat these as regular
+     characters.  (POSIX allows either behavior.)
+
+match <i>STRING REGEX</i>
+     An alternative way to do pattern matching.  This is the same as
+     STRING : REGEX.
+
+substr <i>STRING POSITION LENGTH</i>
+     Returns the substring of STRING beginning at POSITION with length
+     at most LENGTH.  If either POSITION or LENGTH is negative, zero,
+     or non-numeric, returns the null string.
+
+index <i>STRING CHARSET</i>
+     Returns the first position in STRING where the first character in
+     CHARSET was found.  If no character in CHARSET is found in STRING,
+     return 0.
+
+length <i>STRING</i>
+     Returns the length of STRING.
+
+quote <i>TOKEN</i>
+     Interpret <i>TOKEN</i> as a string, even if it is a keyword like MATCH or
+     an operator like /.  This makes it possible to test `expr length
+     quote "$x"' or `expr quote "$x" : '.*/\(.\)'' and have it do the
+     right thing even if the value of $X happens to be (for example)
+     `/' or `index'.  This operator is a GNU extension.  It is disabled
+     when the environment variable `POSIXLY_CORRECT' is set.
+
+To make `expr' interpret keywords as strings, you must use the
+`quote' operator.
+
+Numeric expressions
+-------------------</pre>
+<p> `expr' supports the usual numeric operators, in order of increasing
+precedence.  The string operators (previous section) have lower
+precedence, the connectives (next section) have higher.<br>
+</p>
+<pre>
++ -
+     Addition and subtraction.  Both arguments are coerced to numbers;
+     an error occurs if this cannot be done.
+
+* / %
+     Multiplication, division, remainder.  Both arguments are coerced to
+     numbers; an error occurs if this cannot be done.
+
+Relations for `expr'
+--------------------</pre>
+<p> `expr' supports the usual logical connectives and relations.  These
+are higher precedence than either the string or numeric operators
+(previous sections).  Here is the list, lowest-precedence operator
+first.<br>
+</p>
+<pre>
+ |   Returns its first argument if that is neither null nor 0,
+     otherwise its second argument.
+
+ &   Return its first argument if neither argument is null or 0,
+     otherwise 0.
+
+ < <= = == != >= >
+     Compare the arguments and return 1 if the relation is true, 0
+     otherwise.  `==' is a synonym for `='.  `expr' first tries to
+     coerce both arguments to numbers and do a numeric comparison; if
+     either coercion fails, it does a lexicographic comparison.</pre>
+<p><b>Examples</b><br>
+</p>
+<pre>
+# A partial match will return the number of characters that match:
+$ expr ss64 : ss6
+3
+
+# The condition in string 2 must entirely match string 1
+$ expr ss64 : ss7
+0
+
+# Adding numbers
+$ expr 5 + 2
+7
+
+# When multiplying the * has to be escaped
+$ expr 5 \* 3
+15
+
+# Incrementing a variable (arithmetic expansion)
+$ demo=1
+$ demo=`expr $demo + 1`
+$ echo $demo
+2
+$ demo=`expr $demo + 1`
+$ echo $demo
+3
+
+# To print the non-directory part of the file name stored in `$fname',
+  which need not contain a `/'.
+$ expr $fname : '.*/\(^.*\)' '^|' $fname
+
+$ expr abc : 'a\(.\)c'
+b
+
+$ expr index abcdef cz
+3
+
+$ expr index index a
+expr: syntax error
+
+$ expr index quote index a
+0</pre>
+<p class="quote"><i>&quot;Silence is the  perfect expression of scorn&quot; ~ George Bernard Shaw</i> (Back to Methuselah, 1921)</p>
+<p><b>Related:</b><br>
+<br>
+<a href="eval.html">eval</a> - Evaluate several commands/arguments<br>
+<a href="for.html">for</a> - Expand <var>words</var>, and execute <var>commands</var> 
+<br>
+<a href="function.html">function</a> - Define Function Macros <br>
+<a href="awk.html">gawk</a> - Find and Replace text within file(s) <br>
+<a href="test.html">test</a> - Evaluate a conditional expression <br>
+Equivalent Windows commands: 
+<a href="http://ss64.com/nt/set.html">SET</a> /A - environment variable arithmetic </p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="expr.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,442 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>rsync Man Page | Bash | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_bash.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/bash">Bash</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/bash/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>rsync (<a href="http://rsync.samba.org/">download</a>) </h1> 
+<p>Remote file copy - Synchronize file trees across local disks, 
+directories or across a network.</p>
+<pre><i>Syntax</i>
+
+ Local file to Local file:
+      rsync [<i>option</i>]... <i>Source</i> [<i>Source</i>]... <i>Dest</i>
+
+ Local to Remote:
+      rsync [<i>option</i>]... <i>Source</i> [<i>Source</i>]... [<i>user</i>@]<i>host</i>:<i>Dest</i>   #
+
+      rsync [<i>option</i>...] [<i>user</i>@]<i>host</i>::<i>Source</i>... [<i>Dest</i>]
+<br>      rsync [<i>option</i>...] rsync://[<i>user</i>@]<i>host</i>[:PORT]/<i>Source</i>... [<i>Dest</i>]
+
+ Remote to Local:
+      rsync [<i>option</i>]... [<i>user</i>@]<i>host</i>:<i>Source</i>... [<i>Dest</i>]          #
+
+      rsync [<i>option</i>]... [<i>user</i>@]<i>host</i>::<i>Dest</i>
+
+      rsync [<i>option</i>]... rsync://[<i>user</i>@]<i>host</i>[:PORT]/<i>Dest</i>
+
+ # = via remote shell rather than the rsync daemon</pre>
+<p><span class="body">  rsync is a program that behaves in much the same way that <a href="rcp.html">rcp</a> does, but has 
+  many more options and uses the rsync remote-update protocol to greatly 
+speed up file transfers when the destination file already exists. Rsync is widely used for backups and mirroring and as an improved copy command for everyday use.</span></p>
+<p><span class="body">Rsync finds files that need to be transferred using a &quot;quick check&quot; algorithm (by default) that looks for files that have changed in size or in last-modified time. Any changes in the other preserved attributes (as requested by options) are made on the destination file directly when the quick check indicates that the file's data does not need to be updated. <br>
+    <br>
+Some of the additional features of rsync are:</span></p>
+<ul>
+<li><span class="body">  Support for copying links, devices, owners, groups and permissions</span></li>
+<li><span class="body">Exclude and exclude-from options similar to GNU tar</span></li>
+<li><span class="body">A CVS exclude mode for ignoring the same files that CVS would ignore</span></li>
+<li><span class="body">Can use any transparent remote shell, including rsh or ssh</span></li>
+<li><span class="body">Does not require root privileges</span></li>
+<li><span class="body">Pipelining of file transfers to minimize latency costs</span></li>
+<li><span class="body">S</span><span class="body">upport for anonymous or authenticated rsync servers (ideal for mirroring)</span></li>
+</ul>
+<p><b>Usage</b><br>
+<br>
+You use rsync in the same way you use rcp. 
+You must specify a source and a destination, one of which may be remote.<br>
+<br>
+Perhaps the best way to explain the syntax is some examples:</p>
+<p><span class="code">rsync -t *.c foo:src/</span><br>
+<br>
+this would transfer all files matching the pattern *.c from the current directory
+to the directory src on the machine foo. 
+If any of the files already exist on the remote system then the 
+rsync remote-update protocol is used to update the file by sending only the differences. 
+See the tech report for details.<br>
+<br>   
+<span class="code">rsync -avz foo:src/bar /data/tmp</span><br>
+<br>
+This would recursively transfer all files from the directory src/bar 
+on the machine foo into the /data/tmp/bar directory on the local machine. <br>
+The files are transferred in "archive" mode, which ensures that symbolic links,
+devices, attributes, permissions, ownerships etc are preserved in the transfer. <br>
+Additionally, compression will be used to reduce the size of data portions of the transfer.<br>
+<br>   
+<span class="code">rsync -avz foo:src/bar/ /data/tmp</span><br>
+<br>
+a trailing slash on the source changes this behavior to transfer all files
+from the directory src/bar on the machine foo into the /data/tmp/. <br>
+A trailing / on a source name means "copy the contents of this directory". 
+Without a trailing slash it means "copy the directory". <br>
+This difference becomes particularly important when using the --delete option.<br>
+<br>
+You can also use rsync in local-only mode, where both the source and destination 
+don't have a ':' in the name. 
+In this case it behaves like an improved copy command.<br>
+<span class="code"><br>  
+rsync somehost.mydomain.com::</span><br>
+<br>
+this would list all the anonymous rsync modules available on
+the host somehost.mydomain.com. (See the following section for more details.)<br>
+<br>
+<b>CONNECTING TO AN RSYNC SERVER</b><br>
+<br>
+It is also possible to use rsync without using rsh or ssh as the transport. 
+In this case you will connect to a remote rsync server running on TCP port 873.<br>
+<br>
+You may establish the connection via a web proxy by setting the environment variable 
+RSYNC_PROXY to a hostname:port pair pointing to your web proxy. <br>
+Note that your web proxy's configuration must allow proxying to port 873.<br>
+<br>
+Using rsync in this way is the same as using it with rsh or ssh except that:</p>
+<ul>
+<li>You use a double colon :: instead of a single colon to separate the hostname 
+from the path.</li>
+<li>The first word of the &quot;path&quot; is actually a module name. </li>
+<li>The remote daemon may print a message of the day when you connect.</li>
+<li>If you specify no path name on the remote daemon then the list of accessible 
+paths on the daemon will be shown.</li>
+<li>If you specify no local destination then a listing of the specified files on 
+the remote server is provided.</li>
+<li>Do not specify the <span class="code">--rsh (-e)</span> option. </li>
+</ul>
+<p>Some paths on the remote server may require authentication. 
+If so then you will receive a password prompt when you connect. <br>
+You can avoid the password prompt by setting the environment variable
+RSYNC_PASSWORD to the password you want to use or using the <span class="code">--password-file</span> option. <br>
+This may be useful when scripting rsync.<br>
+<br>
+WARNING: On some systems environment variables are visible to all users. 
+On those systems using <span class="code">--password-file</span> is recommended.<br>
+<br>
+<b>RUNNING AN RSYNC SERVER</b><br>
+<br>
+An rsync server is configured using a config file which by default is 
+called <span class="code">/etc/rsyncd.conf</span>. Please see the rsyncd.conf(5) man page for more information.<br>
+<br>
+<b>EXAMPLES</b><br>
+<br>
+To Backup the home directory using a cron job: <br>
+<br>   
+<span class="code">rsync -Cavz . ss64:backup</span><br>
+<br>
+Run the above over a PPP link to a duplicate directory on machine "ss64".<br>
+<br>
+To synchronize samba source trees use the following Makefile targets:<br>
+<br>   
+get:<br>   
+<span class="code">rsync -avuzb --exclude '*~' samba:samba/ .</span><br>
+<br>   
+put:<br>   
+<span class="code">rsync -Cavuzb . samba:samba/</span><br>
+<br>   
+sync: <span class="code">get put</span><br>
+<br>
+this allows me to sync with a CVS directory at the other end of the link. 
+I then do cvs operations on the remote machine, which saves a lot of time 
+as the remote cvs protocol isn't very efficient.<br>
+<br>
+I mirror a directory between my "old" and "new" ftp sites with the command<br>
+<span class="code"><br>
+rsync -az -e ssh --delete ~ftp/pub/samba/ nimbus:"~ftp/pub/tridge/samba"</span><br>
+<br>
+this is launched from cron every few hours.</p>
+<p><b>OPTIONS SUMMARY</b><br>
+<br>
+Here is a short summary of the options available in rsync. <br>
+Please refer to the <a href="rsync_options.html">FULL List of OPTIONS</a> for a complete description.</p>
+<pre>
+<i>What to copy:</i>
+ -r, --recursive             recurse into directories
+ -R, --relative              use relative path names
+     --exclude=<i>PATTERN</i>       Exclude files matching <i>PATTERN</i>
+     --exclude-from=<i>FILE</i>     Read exclude patterns from <i>FILE</i>
+ -I, --ignore-times          Don't exclude files that match length and time
+     --size-only             only use file size when determining if a file should be transferred
+     --modify-window=<i>NUM</i>     Timestamp window (seconds) for file match (default=0)
+     --include=<i>PATTERN</i>       Don't exclude files matching <i>PATTERN</i>
+     --include-from=<i>FILE</i>     Read include patterns from <i>FILE</i>
+
+<i>How to copy it:
+</i> -n, --dry-run               Perform a trial run with no changes made
+ -l, --links                 Copy symlinks as symlinks
+ -L, --copy-links            Transform symlink into referent file/dir
+     --copy-unsafe-links     Only &quot;unsafe&quot; symlinks are transformed
+     --safe-links            Ignore links outside the destination tree
+ -H, --hard-links            Preserve hard links
+ -D, --devices               Preserve devices (super-user only)
+ -g, --group                 Preserve group
+ -o, --owner                 Preserve owner (super-user only)
+ -p, --perms                 Preserve permissions
+ -t, --times                 Preserve times
+ -S, --sparse                Handle sparse files efficiently
+ -x, --one-file-system       Don't cross filesystem boundaries
+ -B, --block-size=<i>SIZE</i>       Force a fixed checksum block-size (default 700)
+ -e, --rsh=<i>COMMAND</i>           Specify rsh replacement
+     --rsync-path=<i>PATH</i>       Specify path to rsync on the remote machine
+     --numeric-ids           Don't map uid/gid values by user/group name
+     --timeout=<i>TIME</i>          Set IO timeout in seconds
+ -W, --whole-file            Copy whole files, no incremental checks
+
+<i>Destination options:
+</i> -a, --archive               Archive mode
+ -b, --backup                Make backups (see --suffix &amp; --backup-dir)
+     --backup-dir=<i>DIR</i>        Make backups into this directory
+     --suffix=<i>SUFFIX</i>         Override backup suffix
+ -z, --compress              Compress file data during the transfer
+ -c, --checksum              Skip based on checksum, not mod-time &amp; size
+ -C, --cvs-exclude           Auto ignore files in the same way CVS does
+     --existing              Only update files that already exist
+     --delete                Delete files that don't exist on the sending side
+     --delete-excluded       also delete excluded files on the receiving side
+     --delete-after          Receiver deletes after transfer, not during
+     --force                 Force deletion of directories even if not empty
+     --ignore-errors         Delete even if there are IO errors
+     --max-delete=<i>NUM</i>        Don't delete more than NUM files
+     --log-format=<i>FORMAT</i>     Log file transfers using specified format
+     --partial               Keep partially transferred files
+     --progress              Show progress during transfer
+ -P                          equivalent to --partial --progress
+     --stats                 Give some file transfer stats
+ -T  --temp-dir=<i>DIR</i>          Create temporary files in directory <i>DIR</i>
+     --compare-dest=<i>DIR</i>      also compare destination files relative to <i>DIR</i>
+ -u, --update                update only (don't overwrite newer files)
+
+<i>Misc Others:
+</i>     --address=<i>ADDRESS</i>       bind to the specified address
+     --blocking-io           Use blocking IO for the remote shell
+     --bwlimit=<i>KBPS</i>          Limit I/O bandwidth, KBytes per second
+     --config=FILE           Specify alternate rsyncd.conf file
+     --daemon                Run as a rsync daemon
+     --no-detach             Do not detach from the parent
+     --password-file=<i>FILE</i>    Get password from <i>FILE</i>
+     --port=PORT             Specify alternate rsyncd port number
+ -f, --read-batch=<i>FILE</i>       Read batch file
+ -F, --write-batch           Write batch file
+     --version               Print version number
+ -v, --verbose               Increase verbosity
+ -q, --quiet                 Decrease verbosity
+ -4, --ipv4                  Prefer IPv4
+ -6, --ipv6                  Prefer IPv6
+ -h, --help                  show this help screen
+</pre>
+<p><br>
+Tips on how to use each of the options above can be found in the<br>
+<a href="rsync_options.html">FULL List of OPTIONS and Exit Values</a><br>
+<br>
+<b><a id="exclude"></a>EXCLUDE PATTERNS</b><br>
+<br>
+The exclude and include patterns specified to rsync allow for flexible selection of
+which files to transfer and which files to skip.<br>
+<br>
+rsync builds an ordered list of include/exclude options as specified on the 
+command line. When a filename is encountered, rsync checks the name against each
+exclude/include pattern in turn. The first matching pattern is acted on. <br>
+If it is an exclude pattern, then that file is skipped. <br>
+If it is an include pattern then that filename is not skipped. <br>
+If no matching include/exclude pattern is found then the filename is not skipped.<br>
+<br>
+Note that when used with -r (which is implied by -a), every subcomponent of
+every path is visited from top down, so include/exclude patterns get applied 
+recursively to each subcomponent.<br>
+<br>
+Note also that the --include and --exclude options take one pattern each.<br>
+To add multiple patterns use the <span class="code">--include-from</span> and <span class="code">--exclude-from</span> options
+or multiple <span class="code">--include</span> and <span class="code">--exclude</span> options.<br>
+<br>
+The patterns can take several forms. The rules are:<br>
+<br>
+# if the pattern starts with a <span class="code">/</span> then it is matched against the start of the filename,
+otherwise it is matched against the end of the filename. <br>
+Thus "/foo" would match a file called "foo" at the base of the tree.  
+On the other hand, "foo" would match any file called "foo" anywhere in the tree<br>  
+because the algorithm is applied recursively from top down; it behaves as if each  
+path component gets a turn at being the end of the file name.<br>
+<br>
+# if the pattern ends with a <span class="code">/</span> then it will only match a directory, not a file,  
+link or device.<br>
+<br>
+# if the pattern contains a wildcard character from the set <span class="code">*?[</span> then expression  
+matching is applied using the shell filename matching rules.<br>  
+Otherwise a simple string match is used.<br>
+<br>
+# if the pattern includes a double asterisk "<span class="code">**</span>" then all wildcards in the pattern  
+will match slashes, otherwise they will stop at slashes.<br>
+<br>
+# if the pattern contains a <span class="code">/</span> (not counting a trailing /) then it is matched  
+against the full filename, including any leading directory.<br>  
+If the pattern doesn't contain a <span class="code">/</span> then it is matched only against the final  
+component of the filename. Again, remember that the algorithm is applied recursively  
+so "full filename" can actually be any portion of a path.<br>
+<br>
+# if the pattern starts with "<span class="code">+ </span>" (a plus followed by a space) then it is always  
+considered an include pattern, even if specified as part of an exclude option.  
+The "+ " part is discarded before matching.<br>
+<br>
+# if the pattern starts with "<span class="code">- </span>" (a minus followed by a space) then it is always  
+considered an exclude pattern, even if specified as part of an include option.  
+The "- " part is discarded before matching.<br>
+<br>
+# if the pattern is a single exclamation mark<span class="code"> ! </span>then the current include/exclude list  
+is reset, removing all previously defined patterns.<br>
+<br>
+The +/- rules are most useful in exclude lists, allowing you to have a single  
+exclude list that contains both include and exclude options.<br>
+<br>
+If you end an exclude list with <span class="code">--exclude '*'</span>, note that since the algorithm is applied recursively that unless you explicitly include parent directories of files you want to include then the algorithm will stop at the parent directories and never see the files below them. To include all directories, use<span class="code"> --include '*/'</span> before the <span class="code">--exclude '*'</span>.</p>
+<p>Here are some exclude/include examples:</p>
+<pre>
+# --exclude "*.o"   would exclude all filenames matching *.o
+# --exclude "/foo"  would exclude a file in the base directory called foo
+# --exclude "foo/"  would exclude any directory called foo.
+# --exclude "/foo/*/bar"  would exclude any file called bar two levels below a
+                          base directory called foo.
+# --exclude "/foo/**/bar" would exclude any file called bar two or more levels below
+                          a base directory called foo.
+# --include "*/" --include "*.c" --exclude "*"
+                          would include all directories
+                          and C source files
+# --include "foo/" --include "foo/bar.c" --exclude "*"
+                    would include only foo/bar.c (the foo/ directory must be
+                    explicitly included or it would be excluded by the "*")
+</pre>
+<p><b>BATCH MODE</b><br>
+<br>
+The following call generates 4 files that encapsulate the information for
+synchronizing the contents of target_dir with the updates found in src_dir</p>
+<pre>
+$ rsync -F [other rsync options here] \
+/somewhere/src_dir /somewhere/target_dir
+
+The generated files are labeled with a common timestamp:
+
+# rsync_argvs.<timestamp> command-line arguments
+# rsync_flist.<timestamp> rsync internal file metadata
+# rsync_csums.<timestamp> rsync checksums
+# rsync_delta.<timestamp> data blocks for file update & change
+
+See http://www.ils.unc.edu/i2dsi/unc_rsync+.html for papers and technical reports.
+
+<b>SYMBOLIC LINKS</b>
+
+Three basic behaviours are possible when rsync encounters a symbolic link in
+the source directory.
+
+By default, symbolic links are not transferred at all.
+A message "skipping non-regular" file is emitted for any symlinks that exist.
+
+If --links is specified, then symlinks are recreated with the same target
+on the destination. Note that --archive implies --links.
+
+If --copy-links is specified, then symlinks are "collapsed" by copying their referent,
+rather than the symlink.
+
+rsync also distinguishes "safe" and "unsafe" symbolic links.
+An example where this might be used is a web site mirror that wishes ensure the 
+rsync module they copy does not include symbolic links to /etc/passwd in the public
+section of the site. Using --copy-unsafe-links will cause any links to be copied
+as the file they point to on the destination.
+Using --safe-links will cause unsafe links to be ommitted altogether.
+
+<b>DIAGNOSTICS</b>
+
+rsync occasionally produces error messages that may seem a little cryptic. 
+The one that seems to cause the most confusion is 
+"protocol version mismatch - is your shell clean?".
+
+This message is usually caused by your startup scripts or remote shell facility
+producing unwanted garbage on the stream that rsync is using for its transport. 
+The way to diagnose this problem is to run your remote shell like this:
+
+   rsh remotehost /bin/true > out.dat
+
+then look at out.dat. If everything is working correctly then out.dat should be
+a zero length file. If you are getting the above error from rsync then you will
+probably find that out.dat contains some text or data. 
+Look at the contents and try to work out what is producing it. 
+The most common cause is incorrectly configured shell startup scripts
+ (such as .cshrc or .profile) that contain output statements for non-interactive logins.
+
+If you are having trouble debugging include and exclude patterns,
+then try specifying the -vv option.
+At this level of verbosity rsync will show why each individual file is included or
+excluded.
+
+<b>SETUP</b>
+See the file README for installation instructions.
+
+Once installed you can use rsync to any machine that you can use rsh to. 
+rsync uses rsh for its communications, unless both the source and destination are local.
+
+You can also specify an alternative to rsh, either by using the -e command line 
+option, or by setting the RSYNC_RSH environment variable.
+
+One common substitute is to use ssh, which offers a high degree of security.
+
+Note that rsync must be installed on both the source and destination machines.
+
+<b>ENVIRONMENT VARIABLES</b>
+
+CVSIGNORE
+    The CVSIGNORE environment variable supplements any ignore patterns in .cvsignore files.
+    See the --cvs-exclude option for more details.
+
+RSYNC_RSH
+    The RSYNC_RSH environment variable allows you to override the default shell used as
+    the transport for rsync. This can be used instead of the -e option.
+
+RSYNC_PROXY
+    The RSYNC_PROXY environment variable allows you to redirect your rsync client to
+    use a web proxy when connecting to a rsync daemon.
+    You should set RSYNC_PROXY to a hostname:port pair.
+
+RSYNC_PASSWORD
+    Setting RSYNC_PASSWORD to the required password allows you to run authenticated
+    rsync connections to a rsync daemon without user intervention.
+    Note that this does not supply a password to a shell transport such as ssh.
+
+USER or LOGNAME
+    The USER or LOGNAME environment variables are used to determine the default
+    username sent to a rsync server.
+
+HOME
+    The HOME environment variable is used to find the user's default .cvsignore file.
+
+<b>FILES</b>
+
+/etc/rsyncd.conf</pre>
+<p class="quote"><i>&ldquo;And yet I do observe that audiences which used to be deeply affected by the inspiring sternness of the music of Livius and Naevius, now leap up and twist their necks and turn their eyes in time with our modern tunes&rdquo; ~ Cicero (De Legibus II.39 c. 50 BCE)   on the evils of modern music.</i></p>
+<p><b>Related:</b><br>
+  <br>
+<a href="http://www.opbyte.it/grsync/">Grsync</a> - GUI for rsync (<a href="http://ubuntuforums.org/showthread.php?t=795668">how to install</a>) <br>rsyncd.conf(5)<br>
+<a href="http://rsnapshot.org/">rsnapshot</a> - Save multiple backups with rsync <br>
+  <a href="rcp.html">rcp</a> - Copy files between two machines.<br>
+  <a href="cp.html">cp</a> - Copy one or more files to another location <br>
+  <a href="install.html">install</a> - Copy files and set attributes<br>
+  <a href="dd.html">dd</a> - Data Dump - convert and copy a file (use for RAW 
+  storage) <br>
+  remsync - Synchronize remote files via email <br>
+Equivalent Windows command: 
+<a href="http://ss64.com/nt/robocopy.html">ROBOCOPY</a> - Robust File and Folder Copy </p><!-- #BeginLibraryItem "/Library/foot_bash.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "ca-pub-6140977852749469";
+/* bash336Rect */
+google_ad_slot = "3362592300";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="rsync.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

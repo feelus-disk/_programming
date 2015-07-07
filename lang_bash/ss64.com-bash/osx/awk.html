@@ -1,0 +1,256 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>awk OSX Man Page | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_osx.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/osx">OS X</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/osx/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>awk</h1> 
+<p>Find and Replace text within file(s) <br>
+Pattern-directed scanning and processing language.</p>
+<pre>Syntax
+      awk  [ -F <i>fs</i> ] [ -v <i>var</i>=<i>value</i> ] [ '<i>prog</i>' | -f <i>progfile</i> ] [ <i>file</i> ...  ]
+
+Options
+
+   -F <i>fs</i>        Define the input field separator = regular expression <i>fs</i>.<i>
+
+   </i>-v<i> var=value </i>Assign values before prog is executed,
+                any number of -v options may be present. 
+
+   -f <i>progfile</i>  Specify a pattern to match within progfile
+                rather then on the command line.
+
+   -mr          Set the maximum size of the input record (MaxRows)
+
+   -mf          Set the maximum number of fields (MaxFields)</pre>
+<p><b>Description<br>
+</b>Awk scans each input file for lines that match any of a set of patterns specified literally in <span class="code">prog</span> or in one or more files specified as <span class="code">-f <i>progfile</i></span>. 
+With each pattern there can be an associated action that will be performed when a line of a <span class="code">file</span> matches the pattern. </p>
+<p>Each line is matched against the pattern portion of every pattern-action statement; the associated action is performed for each matched pattern. </p>
+<p>The file name<span class="code"> - </span>means the standard input. </p>
+<p>Any file of the form <span class="code">var=value</span> is treated as an assignment, not a filename, and is executed at the time it would have been opened if it were a filename.</p>
+<p>An input line is normally made up of fields separated by white space, or by regular expression FS. The fields are denoted $1, $2, ..., while $0 refers to the entire line. If FS is null, the input line is split into one field per character. To compensate for inadequate implementation of storage  management, the -mr option can be used to set the maximum size of the input record, and the -mf option to set the maximum number of fields.</p>
+<p>A pattern-action statement has the form <span class="code"> <i>pattern</i> { <i>action</i> }</span></p>
+<p>A  missing <span class="code">{ action } </span>means print the line; a missing <span class="code">pattern</span> always matches.<br>  
+Pattern-action statements are  separated by newlines or semicolons.<br>
+<br>
+An action is a sequence of statements.  A statement can be one of the following:</p>
+<pre>   if( <i>expression</i> ) <i>statement</i> [ else <i>statement</i> ]
+
+   while( <i>expression</i> ) <i>statement</i>
+
+   for( <i>expression</i> ; <i>expression</i> ; <i>expression</i> ) <i>statement</i>
+
+   for( <i>var</i> in <i>array</i> ) <i>statement</i>
+
+   do <i>statement</i> while( <i>expression</i> )
+
+   break
+   continue
+
+   { [ <i>statement</i> ... ] }
+
+   <i>expression</i>              # commonly <i>var</i> = <i>expression</i>
+
+   print [ <i>expression-list</i> ] [ &gt; <i>expression</i> ]
+   printf <i>format</i> [ ,<i> expression-list</i> ] [ &gt; <i>expression</i> ]
+
+   next                    # skip remaining patterns on this input line
+
+   nextfile                # skip rest of this file, open next, start at top
+
+   delete <i>array</i>[ <i>expression</i> ]  # delete an array element
+   delete <i>array</i>            # delete all elements of array
+   exit [ <i>expression</i> ]     # exit immediately; status is expression
+</pre>
+<p>Statements are terminated by semicolons, newlines or right braces.   An  empty expression-list stands for $0.  String constants are quoted " ", with the usual C escapes  recognized  within.  Expressions take on string or numeric values as appropriate, and are built using the operators +  -       
+*  / % ^ (exponentiation), and concatenation (indicated by white space).</p>
+<p>The operators <span class="code">! ++ -- += -= *= /= %=  ^= >>= < <= == != ?: </span>are also available in expressions.  Variables may be scalars, array  elements  (denoted  x[i])  or
+fields.   Variables  are  initialized  to the null string. Array  subscripts  may  be  any  string,  not  necessarily numeric;  this  allows  for  a form of associative memory.<br>
+Multiple subscripts such as  [i,j,k]  are  permitted;  the constituents  are  concatenated, separated by the value of SUBSEP.<br><br>
+The print statement prints its arguments on  the  standard output (or on a file if >file or >>file is present or on a pipe if |cmd is present), separated by the current  output field separator, and terminated by the output record separator.  file and cmd may be literal names or parenthesized expressions;  identical  string values in different statements denote the same open  file. The  printf statement formats its expression list according to the format (see <a href="printf.html">printf</a>).  The built-in function<span class="code"> close(expr) </span>closes the file or pipe expr. The built-in function <span class="code">fflush(expr)</span>flushes any buffered output for the file or pipe expr.</p>
+<pre>
+       The mathematical functions <b>exp, log, sqrt, sin,  cos</b>,  and
+       <b>atan2</b> are built in.  Other built-in functions:
+
+       <b>length</b> the length of its argument taken as a string, or of
+              $0 if no argument.
+
+       <b>rand</b>   random number on (0,1)
+
+       <b>srand</b>  sets seed for rand and returns the previous seed.
+
+       <b>int</b>    truncates to an integer value
+
+       <b>substr</b>(s, m, n)
+              the n-character substring of s that begins at posi-
+              tion m counted from 1.
+
+       <b>index</b>(s, t)
+              the  position  in s where the string t occurs, or 0
+              if it does not.
+
+       <b>match</b>(s, r)
+              the position in s where the  regular  expression  r
+              occurs,  or 0 if it does not.  The variables RSTART
+              and RLENGTH are set to the position and  length  of
+              the matched string.
+
+       <b>split</b>(s, a, fs)
+              splits the string s into array elements a[1], a[2],
+              ..., a[n], and returns n.  The separation  is  done
+              with  the  regular  expression fs or with the field
+              separator FS if fs is not given.  An  empty  string
+              as field separator splits the string into one array
+              element per character.
+
+       <b>sub</b>(r, t, s)
+              substitutes t for the first occurrence of the regu-
+              lar  expression  r  in  the  string s.  If s is not
+              given, $0 is used.
+
+       <b>gsub</b>   same as sub except that all occurrences of the reg-
+              ular  expression  are replaced; sub and gsub return
+              the number of replacements.
+
+       <b>sprintf</b>(fmt, expr, ... )
+              the  string  resulting  from  formatting  expr  ...
+              according to the printf(3) format fmt
+
+       <b>system</b>(cmd)
+              executes cmd and returns its exit status
+
+       <b>tolower</b>(str)
+              returns a copy of str with all upper-case characters
+              translated to their corresponding lower-case equivalents.
+
+       <b>toupper</b>(str)
+              returns a copy of str with all lower-case characters
+              translated to their corresponding upper-case equivalents.
+</pre>
+<p>The `function' <span class="code">getline</span> sets $0 to the next input record from the current input file; <span class="code">getline &lt;file</span> sets $0 to the next record from file. <span class="code">getline x</span> sets variable x instead.<br>
+Finally, <span class="code">cmd | getline</span> pipes the output of cmd  into  getline; each call of getline returns the next line of output from cmd.<br>
+In all cases, getline returns 1 for a  successful input, 0 for end of file, and -1 for an error.<br><br>
+Patterns are arbitrary Boolean combinations (with ! || &&) of regular expressions and relational expressions. Regular  expressions  are  as in egrep; see <a href="grep.html">grep</a>.<br><br>
+Isolated regular expressions in a pattern apply to the entire line. Regular expressions may also be used as a regular expression, except in the position of an isolated regular expression in a pattern.</p>
+<p><br>       
+A  pattern may consist of two patterns separated by a comma; in this case, the action is performed for all lines  from  an  occurrence of the first pattern though an occurrence of the second.<br>
+<br>A relational expression is one of the following:</p>
+<pre>
+              expression <i>matchop</i> regular-expression
+              expression <i>relop</i> expression
+              expression in array-name
+              (expr,expr,...) in array-name
+</pre>
+<p>Where a <i>relop</i> is any of the six relational operators in C, and  a <i>matchop</i> is  either  ~  (matches)  or !~ (does not match).  A conditional  is  an  arithmetic  expression, a relational  expression, or a Boolean combination of these.<br><br>
+The special patterns BEGIN and END may be used to  capture control  before the first input line is read and after the last.  BEGIN and END do not combine with other patterns.<br>
+<br>
+Variable names with special meanings:</p>
+<pre>
+     CONVFMT  conversion  format  used  when  converting  numbers
+              (default %.6g)
+
+     FS       regular  expression  used  to separate fields; also
+              settable by option -Ffs.
+
+     NF       number of fields in the current record
+
+     NR       ordinal number of the current record
+
+     FNR      ordinal number of the current record in the current
+              file
+
+     FILENAME the name of the current input file
+
+     RS       input record separator (default newline)
+
+     OFS      output field separator (default blank)
+
+     ORS      output record separator (default newline)
+
+     OFMT     output format for numbers (default %.6g)
+
+     SUBSEP   separates multiple subscripts (default 034)
+
+     ARGC     argument count, assignable
+
+     ARGV     argument  array,  assignable;  non-null members are
+              taken as filenames
+
+     ENVIRON  array  of  environment  variables;  subscripts  are
+              names.
+</pre>
+<p><b>Examples</b></p>
+<p>Print the Row Number (NR), then a dash and space <span class="code">(&quot;- &quot;</span>) and then the first item ($1) from each line in samplefile.txt: </p>
+<p class="code">$ awk '{print NR &quot;- &quot; $1 }' samplefile.txt</p>
+<p>Print the first item ($1) and then the third last item<span class="code"> $(NF-2)</span> from each line in samplefile.txt: </p>
+<p class="code">$ awk '{print $1, $(NF-2) }' samplefile.txt</p>
+<p>Comparison with <a href="grep.html">grep</a>:</p>
+<blockquote>
+<p>Using <span class="code">grep Dec</span> against the following file listing would return all 3 rows as it matches text in different places: </p>
+<p><span class="code">-rw-r--r-- 7 simon simon 12043 31 Jan 2010 09:36 <b>Dec</b>ember.pdf<br>
+-rw-r--r-- 3 simon simon 1024 01 <b>Dec</b> 2010 11:59 README<br>
+-rw-r--r-- 3 simon simon 5096 14 Nov 2010 18:22 <b>Dec</b>ision.txt </span></p>
+<p>Running <span class="code">awk '$7 == &quot;Dec&quot;'</span>against the same file listing, $7 matches the exact field (column 7 = Month) so it will list only the December file:</p>
+<p class="code"> $ ls -l /tmp/demo | awk '$7 == &quot;Dec&quot;'</p>
+</blockquote>
+<p>Print lines longer than 72 characters:</p>
+<pre>       length($0) &gt; 72
+
+Print first two fields in opposite order:
+       { print $2, $1 }
+
+Same, with input fields separated by  comma  and/or blanks and tabs:
+       BEGIN { FS = ",[ \t]*|[ \t]+" }
+             { print $2, $1 }
+             
+Add up first column, print sum and average:
+            { s += $1 }
+       END  { print "sum is", s, " average is", s/NR }
+
+Print all lines between start/stop pairs:
+       /start/, /stop/
+
+       BEGIN     {    # Simulate echo(1)
+            for (i = 1; i &lt; ARGC; i++) printf "%s ", ARGV[i]
+            printf "\n"
+            exit }</pre>
+<p class="quote"><i>&ldquo;Alcohol: the cause of and solution to; all of life's problems&rdquo; - Homer Simpson</i></p>
+<p><b>Related:</b></p>
+<p><a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/awk.1.html">awk man page</a> - Apple.com<br>
+<a href="http://www.cs.princeton.edu/courses/archive/spr08/cos333/awk.help">AWK Help page</a> - Brian Kernighan<br>
+<a href="http://blog.bignerdranch.com/3799-a-crash-course-in-awk/">A Crash Course In AWK</a> - Bill Phllips<br>
+<a href="http://www.grymoire.com/Unix/Awk.html">AWK tutorial and introduction</a> - Bruce Barnett <br>
+<a href="http://www.gnu.org/software/gawk/manual/gawk.html">GNU Awk User Guide</a> - Full guide with examples<br>
+<a href="http://sparky.rice.edu/%7Ehartigan/awk.html"> Patrick Hartigan</a> - How to use awk<a href="http://www.pement.org/awk/awk1line.txt"></a><br>
+<a href="http://gregable.com/2010/09/why-you-should-know-just-little-awk.html">Gregable</a> - Why you should know just a little Awk<br>
+<a href="http://www.pement.org/awk/awk1line.txt">awk one liners</a> - Eric Pement<br>
+<a href="http://www.catonmat.net/blog/awk-one-liners-explained-part-one/">awk one liners explained</a> &amp; <a href="http://www.catonmat.net/blog/awk-one-liners-explained-part-two/">pt2</a> - Peteris Krumin (CatOnMat.net)<br>
+<a href="for.html">for</a> - Loop, expand <var>words</var>, and execute <var>commands</var><br>
+<a href="tr.html">tr</a> - Translate, squeeze, and/or delete characters</p><!-- #BeginLibraryItem "/Library/foot_osx.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="3133437331";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="awk.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>
