@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>shared_ptr::owner_before - C++ Reference</title>
+<link rel="canonical" href="index.html">
+<link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.ico">
+<link rel="stylesheet" type="text/css" href="../../../../v321/main.css">
+<script src="../../../../v321/main.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="I_top">
+<div id="I_header">
+<div id="I_logo"><a href="http://www.cplusplus.com/" title="cplusplus.com"><div></div></a></div>
+<div id="I_search">
+<form id="search" action="http://www.cplusplus.com/search.do" method="get">
+Search: <input name="q" size="20" class="txt"> <input type="submit" value="Go" class="btn">
+</form>
+</div>
+<div id="I_bar">
+<ul>
+<li><a href="../../../index.html">Reference</a></li>
+<li><a href="../../index.html">&lt;memory&gt;</a></li>
+<li><a href="../index.html">shared_ptr</a></li>
+<li class="here">owner_before</li>
+</ul>
+</div>
+<div id="I_user" class="C_LoginBox"><span title="ajax"></span></div>
+</div>
+</div>
+<div id="I_mid">
+<div id="I_wrap">
+<div id="I_minheight"></div>
+<div id="I_main">
+<div class="C_support"><script type="text/javascript"><!--
+if (!cookieGet("hspt31")) {
+  document.write('<div class="C_DonateBox"></div>');
+}
+//-->
+</script><div class="C_ad728"><script type="text/javascript"><!--
+google_ad_client = "ca-pub-7688470879129516";
+google_ad_slot = "7973859818";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></div><div class="C_supportbottom"></div></div><div id="I_content">
+<div class="C_doc">
+<div id="I_type">public member function template</div>
+<div id="I_file">&lt;memory&gt;</div>
+<h1><span class="namespace" title="namespace std">std::</span><a href="../index.html">shared_ptr</a>::owner_before<span class="C_ico cpp11warning" title="This page describes a feature introduced by the latest revision of the C++ standard (2011). Older compilers may not support it." alt="This page describes a feature introduced by the latest revision of the C++ standard (2011). Older compilers may not support it."></span></h1>
+<div class="C_prototype"><pre>template &lt;class U&gt; bool owner_before (const shared_ptr&lt;U&gt;&amp; x) const;template &lt;class U&gt; bool owner_before (const weak_ptr&lt;U&gt;&amp; x) const;</pre></div><div id="I_description">Owner-based ordering</div>
+<section id="description">
+Returns whether the object is considered to go before <i>x</i> following a strict weak <i>owner-based</i> order.<br>
+<br>
+Unlike the <a href="http://www.cplusplus.com/shared_ptr:operators">operator&lt; overload</a>, this ordering takes into consideration the <a href="http://www.cplusplus.com/shared_ptr">shared_ptr</a>'s <i>owned pointer</i>, and not the <a href="http://www.cplusplus.com/shared_ptr::get">stored pointer</a> in such a way that two of these objects are considered equivalent (i.e., this function returns <tt>false</tt> no matter the order of the operands) if they both share ownership, or they are both empty, even if their <a href="http://www.cplusplus.com/shared_ptr::get">stored pointer</a> value are different.<br>
+<br>
+The <i>stored pointer</i> (i.e., the pointer the <a href="http://www.cplusplus.com/shared_ptr">shared_ptr</a> object <a href="http://www.cplusplus.com/shared_ptr::operator*">dereferences</a> to) may not be the <i>owned pointer</i> (i.e., the pointer deleted on object destruction) if the <a href="http://www.cplusplus.com/shared_ptr">shared_ptr</a> object is an alias (<a href="http://www.cplusplus.com/shared_ptr::shared_ptr">alias-constructed</a> objects and their copies).<br>
+<br>
+This function is called by <a href="http://www.cplusplus.com/owner_less">owner_less</a> to determine its result.<br>
+</section>
+<br>
+<section id="parameters">
+<h3>Parameters</h3>
+<dl>
+<dt>x</dt>
+<dd>An object of a <a href="http://www.cplusplus.com/shared_ptr">shared_ptr</a> or <a href="http://www.cplusplus.com/weak_ptr">weak_ptr</a> type.</dd>
+</dl>
+</section>
+<br>
+<section id="return">
+<h3>Return value</h3>
+<tt>true</tt> if the object is considered to be different from <i>x</i> and go before it in a strict weak order based on ownership.<br>
+<tt>false</tt> otherwise.<br>
+</section>
+<br>
+<section id="example">
+<h3>Example</h3>
+<div class="auto"><table class="snippet"><tr><td class="rownum"><pre><code>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br></code></pre></td>
+<td class="source"><pre><code><cite>// shared_ptr::owner_before</cite>
+<dfn>#include &lt;iostream&gt;</dfn>
+<dfn>#include &lt;memory&gt;</dfn>
+
+<var>int</var> main () {
+  <var>int</var> * p = <var>new</var> <var>int</var> (10);
+
+  std::shared_ptr&lt;<var>int</var>&gt; a (<var>new</var> <var>int</var> (20));
+  std::shared_ptr&lt;<var>int</var>&gt; b (a,p);  <cite>// alias constructor</cite>
+
+  std::cout &lt;&lt; <kbd>"comparing a and b...\n"</kbd> &lt;&lt; std::boolalpha;
+  std::cout &lt;&lt; <kbd>"value-based: "</kbd> &lt;&lt; ( !(a&lt;b) &amp;&amp; !(b&lt;a) ) &lt;&lt; <kbd>'\n'</kbd>;
+  std::cout &lt;&lt; <kbd>"owner-based: "</kbd> &lt;&lt; ( !a.owner_before(b) &amp;&amp; !b.owner_before(a) ) &lt;&lt; <kbd>'\n'</kbd>;
+
+  <var>delete</var> p;
+  <var>return</var> 0;
+}</code></pre></td><td class="C_btnholder"></td></tr></table></div>
+<br>
+<br>
+Output:<br>
+<div class="auto"><table class="snippet"><tr><td class="output"><pre><samp>comparing a and b...
+value-based: false
+owner-based: true
+</samp></pre></td></tr></table></div>
+</section>
+<br>
+<section id="see">
+<h3>See also</h3>
+<dl class="links"><dt><a href= "../operators/index.html"><b>relational operators (shared_ptr)</b></a></dt><dd>Relational operators ==, !=, <, <=, >, >= <span class="typ">(function template)</span></dd></dl><dl class="links"><dt><a href= "../get/index.html"><b>shared_ptr::get</b></a></dt><dd>Get pointer <span class="typ">(public member function)</span></dd></dl><dl class="links"><dt><a href= "../operator%252A/index.html"><b>shared_ptr::operator*</b></a></dt><dd>Dereference object <span class="typ">(public member function)</span></dd></dl><dl class="links"><dt><a href= "../../owner_less/index.html"><b>owner_less</b></a></dt><dd>Owner-based less-than operation <span class="typ">(class template)</span></dd></dl>
+</section></div><div id="CH_bb"></div></div>
+</div>
+<div id="I_nav">
+<div class="sect root">
+<h3><b><a href="http://www.cplusplus.com/">C++</a></b></h3>
+<ul>
+<li class="folder info"><a href="http://www.cplusplus.com/info/">Information</a></li>
+<li class="folder doc"><a href="http://www.cplusplus.com/doc/">Tutorials</a></li>
+<li class="folder selected reference"><a href="../../../index.html">Reference</a></li>
+<li class="folder articles"><a href="http://www.cplusplus.com/articles/">Articles</a></li>
+<li class="folder forum"><a href="http://www.cplusplus.com/forum/">Forum</a></li>
+</ul>
+</div>
+<div class="C_BoxLabels C_BoxSort sect" id="reference_box">
+<h3><b><a href="../../../index.html">Reference</a></b></h3>
+<ul>
+<li class="C_Collapsable collapsed"><h4><a href="../../../clibrary/index.html">C library:</a></h4><ul>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cassert/index.html"><span>&lt;cassert&gt; (assert.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cctype/index.html"><span>&lt;cctype&gt; (ctype.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cerrno/index.html"><span>&lt;cerrno&gt; (errno.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../../cfenv/index.html"><span>&lt;cfenv&gt; (fenv.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cfloat/index.html"><span>&lt;cfloat&gt; (float.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../../cinttypes/index.html"><span>&lt;cinttypes&gt; (inttypes.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../ciso646/index.html"><span>&lt;ciso646&gt; (iso646.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../climits/index.html"><span>&lt;climits&gt; (limits.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../clocale/index.html"><span>&lt;clocale&gt; (locale.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cmath/index.html"><span>&lt;cmath&gt; (math.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../csetjmp/index.html"><span>&lt;csetjmp&gt; (setjmp.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../csignal/index.html"><span>&lt;csignal&gt; (signal.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cstdarg/index.html"><span>&lt;cstdarg&gt; (stdarg.h)</span></a></li>
+<li class="cpp11 folder"><a href="../../../cstdbool/index.html"><span>&lt;cstdbool&gt; (stdbool.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cstddef/index.html"><span>&lt;cstddef&gt; (stddef.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../../cstdint/index.html"><span>&lt;cstdint&gt; (stdint.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cstdio/index.html"><span>&lt;cstdio&gt; (stdio.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cstdlib/index.html"><span>&lt;cstdlib&gt; (stdlib.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cstring/index.html"><span>&lt;cstring&gt; (string.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../../ctgmath/index.html"><span>&lt;ctgmath&gt; (tgmath.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../ctime/index.html"><span>&lt;ctime&gt; (time.h)</span></a></li>
+<li class="cpp11 folder"><a href="../../../cuchar/index.html"><span>&lt;cuchar&gt; (uchar.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cwchar/index.html"><span>&lt;cwchar&gt; (wchar.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../../cwctype/index.html"><span>&lt;cwctype&gt; (wctype.h)</span></a></li>
+</ul></li>
+<li class="C_Collapsable collapsed"><h4><a href="../../../stl/index.html">Containers:</a></h4><ul>
+<li class="cpp11 folder"><a href="../../../array/index.html"><span>&lt;array&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../deque/index.html"><span>&lt;deque&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../forward_list/index.html"><span>&lt;forward_list&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../list/index.html"><span>&lt;list&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../map/index.html"><span>&lt;map&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../queue/index.html"><span>&lt;queue&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../set/index.html"><span>&lt;set&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../stack/index.html"><span>&lt;stack&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../unordered_map/index.html"><span>&lt;unordered_map&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../unordered_set/index.html"><span>&lt;unordered_set&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../vector/index.html"><span>&lt;vector&gt;</span></a></li>
+</ul></li>
+<li class="C_Collapsable collapsed"><h4><a href="../../../iolibrary/index.html">Input/Output:</a></h4><ul>
+<li class="cpp98 cpp11 folder"><a href="../../../fstream/index.html"><span>&lt;fstream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../iomanip/index.html"><span>&lt;iomanip&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../ios/index.html"><span>&lt;ios&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../iosfwd/index.html"><span>&lt;iosfwd&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../iostream/index.html"><span>&lt;iostream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../istream/index.html"><span>&lt;istream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../ostream/index.html"><span>&lt;ostream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../sstream/index.html"><span>&lt;sstream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../streambuf/index.html"><span>&lt;streambuf&gt;</span></a></li>
+</ul></li>
+<li class="C_Collapsable collapsed"><h4><a href="../../../multithreading/index.html">Multi-threading:</a></h4><ul>
+<li class="cpp11 folder"><a href="../../../atomic/index.html"><span>&lt;atomic&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../condition_variable/index.html"><span>&lt;condition_variable&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../future/index.html"><span>&lt;future&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../mutex/index.html"><span>&lt;mutex&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../thread/index.html"><span>&lt;thread&gt;</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4><a href="../../../std/index.html">Other:</a></h4><ul>
+<li class="cpp98 cpp11 folder"><a href="../../../algorithm/index.html"><span>&lt;algorithm&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../bitset/index.html"><span>&lt;bitset&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../chrono/index.html"><span>&lt;chrono&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../codecvt/index.html"><span>&lt;codecvt&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../complex/index.html"><span>&lt;complex&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../exception/index.html"><span>&lt;exception&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../functional/index.html"><span>&lt;functional&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../initializer_list/index.html"><span>&lt;initializer_list&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../iterator/index.html"><span>&lt;iterator&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../limits/index.html"><span>&lt;limits&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../locale/index.html"><span>&lt;locale&gt;</span></a></li>
+<li class="cpp98 cpp11 selected folder"><a href="../../index.html"><span>&lt;memory&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../new/index.html"><span>&lt;new&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../numeric/index.html"><span>&lt;numeric&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../random/index.html"><span>&lt;random&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../ratio/index.html"><span>&lt;ratio&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../regex/index.html"><span>&lt;regex&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../stdexcept/index.html"><span>&lt;stdexcept&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../string/index.html"><span>&lt;string&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../system_error/index.html"><span>&lt;system_error&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../tuple/index.html"><span>&lt;tuple&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../typeindex/index.html"><span>&lt;typeindex&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../typeinfo/index.html"><span>&lt;typeinfo&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../../type_traits/index.html"><span>&lt;type_traits&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../utility/index.html"><span>&lt;utility&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../../valarray/index.html"><span>&lt;valarray&gt;</span></a></li>
+</ul></li>
+</ul>
+</div>
+<div class="C_BoxLabels C_BoxSort sect cpp98 cpp11" id="memory_box">
+<h3><b><a href="../../index.html">&lt;memory&gt;</a></b></h3>
+<ul>
+<li class="C_Collapsable"><h4>classes:</h4><ul>
+<li class="cpp98 cpp11 folder"><a href="../../allocator/index.html"><span>allocator</span></a></li>
+<li class="cpp11"><a href="../../allocator_arg_t/index.html"><span>allocator_arg_t</span></a></li>
+<li class="cpp11 folder"><a href="../../allocator_traits/index.html"><span>allocator_traits</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../auto_ptr/index.html"><span>auto_ptr</span></a></li>
+<li class="cpp98 cpp11"><a href="../../auto_ptr_ref/index.html"><span>auto_ptr_ref</span></a></li>
+<li class="cpp11 folder"><a href="../../bad_weak_ptr/index.html"><span>bad_weak_ptr</span></a></li>
+<li class="cpp11 folder"><a href="../../default_delete/index.html"><span>default_delete</span></a></li>
+<li class="cpp11 folder"><a href="../../enable_shared_from_this/index.html"><span>enable_shared_from_this</span></a></li>
+<li class="cpp11"><a href="../../owner_less/index.html"><span>owner_less</span></a></li>
+<li class="cpp11 folder"><a href="../../pointer_traits/index.html"><span>pointer_traits</span></a></li>
+<li class="cpp98 cpp11"><a href="../../raw_storage_iterator/index.html"><span>raw_storage_iterator</span></a></li>
+<li class="cpp11 selected folder"><a href="../index.html"><span>shared_ptr</span></a></li>
+<li class="cpp11 folder"><a href="../../unique_ptr/index.html"><span>unique_ptr</span></a></li>
+<li class="cpp11"><a href="../../uses_allocator/index.html"><span>uses_allocator</span></a></li>
+<li class="cpp11 folder"><a href="../../weak_ptr/index.html"><span>weak_ptr</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4>enum classes:</h4><ul>
+<li class="cpp11"><a href="../../pointer_safety/index.html"><span>pointer_safety</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4>functions:</h4><ul>
+<li class="cpp11"><a href="../../addressof/index.html"><span>addressof</span></a></li>
+<li class="cpp11"><a href="../../align/index.html"><span>align</span></a></li>
+<li class="cpp11"><a href="../../allocate_shared/index.html"><span>allocate_shared</span></a></li>
+<li class="cpp11"><a href="../../const_pointer_cast/index.html"><span>const_pointer_cast</span></a></li>
+<li class="cpp11"><a href="../../declare_no_pointers/index.html"><span>declare_no_pointers</span></a></li>
+<li class="cpp11"><a href="../../declare_reachable/index.html"><span>declare_reachable</span></a></li>
+<li class="cpp11"><a href="../../dynamic_pointer_cast/index.html"><span>dynamic_pointer_cast</span></a></li>
+<li class="cpp11"><a href="../../get_deleter/index.html"><span>get_deleter</span></a></li>
+<li class="cpp11"><a href="../../get_pointer_safety/index.html"><span>get_pointer_safety</span></a></li>
+<li class="cpp98 cpp11"><a href="../../get_temporary_buffer/index.html"><span>get_temporary_buffer</span></a></li>
+<li class="cpp11"><a href="../../make_shared/index.html"><span>make_shared</span></a></li>
+<li class="cpp98 cpp11"><a href="../../return_temporary_buffer/index.html"><span>return_temporary_buffer</span></a></li>
+<li class="cpp11"><a href="../../static_pointer_cast/index.html"><span>static_pointer_cast</span></a></li>
+<li class="cpp11"><a href="../../undeclare_no_pointers/index.html"><span>undeclare_no_pointers</span></a></li>
+<li class="cpp11"><a href="../../undeclare_reachable/index.html"><span>undeclare_reachable</span></a></li>
+<li class="cpp98 cpp11"><a href="../../uninitialized_copy/index.html"><span>uninitialized_copy</span></a></li>
+<li class="cpp11"><a href="../../uninitialized_copy_n/index.html"><span>uninitialized_copy_n</span></a></li>
+<li class="cpp98 cpp11"><a href="../../uninitialized_fill/index.html"><span>uninitialized_fill</span></a></li>
+<li class="cpp98 cpp11"><a href="../../uninitialized_fill_n/index.html"><span>uninitialized_fill_n</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4>objects:</h4><ul>
+<li class="cpp11"><a href="../../allocator_arg/index.html"><span>allocator_arg</span></a></li>
+</ul></li>
+</ul>
+</div>
+<div class="C_BoxLabels C_BoxSort sect cpp11" id="shared_ptr_box">
+<h3><b><a href="../index.html">shared_ptr</a></b></h3>
+<ul>
+<li class="cpp11"><a href="../shared_ptr/index.html"><span>shared_ptr::shared_ptr</span></a></li>
+<li class="cpp11"><a href="../~shared_ptr/index.html"><span>shared_ptr::~shared_ptr</span></a></li>
+<li class="C_Collapsable"><h4>member functions:</h4><ul>
+<li class="cpp11"><a href="../get/index.html"><span>shared_ptr::get</span></a></li>
+<li class="cpp11"><a href="../operator&#32;bool/index.html"><span>shared_ptr::operator bool</span></a></li>
+<li class="cpp11"><a href="../operator%252A/index.html"><span>shared_ptr::operator*</span></a></li>
+<li class="cpp11"><a href="../operator-%253E/index.html"><span>shared_ptr::operator-&gt;</span></a></li>
+<li class="cpp11"><a href="../operator=/index.html"><span>shared_ptr::operator=</span></a></li>
+<li class="cpp11 selected"><a href="index.html"><span>shared_ptr::owner_before</span></a></li>
+<li class="cpp11"><a href="../reset/index.html"><span>shared_ptr::reset</span></a></li>
+<li class="cpp11"><a href="../swap/index.html"><span>shared_ptr::swap</span></a></li>
+<li class="cpp11"><a href="../unique/index.html"><span>shared_ptr::unique</span></a></li>
+<li class="cpp11"><a href="../use_count/index.html"><span>shared_ptr::use_count</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4>non-member overloads:</h4><ul>
+<li class="cpp11"><a href="../operator%253C%253C/index.html"><span>operator&lt;&lt; (shared_ptr)</span></a></li>
+<li class="cpp11"><a href="../operators/index.html"><span>relational operators (shared_ptr)</span></a></li>
+<li class="cpp11"><a href="../swap-free/index.html"><span>swap (shared_ptr)</span></a></li>
+</ul></li>
+</ul>
+</div>
+<div id="I_subnav"></div>
+<div class="C_ad234">
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-7688470879129516";
+google_ad_slot = "7445514729";
+google_ad_width = 234;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div></div>
+<div id="I_midclear"></div>
+</div>
+</div>
+<div id="I_bottom">
+<div id="I_footer">
+	<a href="http://www.cplusplus.com/">Home page</a> | <a href="http://www.cplusplus.com/privacy.do">Privacy policy</a><br>&copy; cplusplus.com, 2000-2014 - All rights reserved - <i>v3.1</i><br><a href="http://www.cplusplus.com/contact.do?referrer=www.cplusplus.com%2Freference%2Fmemory%2Fshared_ptr%2Fowner_before%2F">Spotted an error? contact us</a>
+</div>
+</div>
+
+<script type="text/javascript">
+<!--
+ onSession ( function(us) {
+		el=document.getElementById('CH_bb'); el.innerHTML='';
+		if (us.auth(4096)) {
+			
+			el.appendChild(btn('Edit Page','Edit Page','edit','/reference/edit.cgi?a=memory+shared_ptr+owner_before'));
+			el.appendChild(btn('Delete Page','Delete Page','delete','javascript:docdel()'));
+		}
+	});
+	function docdel() { if (confirm('WARNING: You are about to delete this page. Confirm?')) window.location='/reference/delete.cgi?a=memory+shared_ptr+owner_before'; }
+	ready();
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-521783-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+//-->
+</script>
+
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ECMAScript syntax - C++ Reference</title>
+<link rel="canonical" href="index.html">
+<link rel="shortcut icon" type="image/x-icon" href="../../../favicon.ico">
+<link rel="stylesheet" type="text/css" href="../../../v321/main.css">
+<script src="../../../v321/main.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="I_top">
+<div id="I_header">
+<div id="I_logo"><a href="http://www.cplusplus.com/" title="cplusplus.com"><div></div></a></div>
+<div id="I_search">
+<form id="search" action="http://www.cplusplus.com/search.do" method="get">
+Search: <input name="q" size="20" class="txt"> <input type="submit" value="Go" class="btn">
+</form>
+</div>
+<div id="I_bar">
+<ul>
+<li><a href="../../index.html">Reference</a></li>
+<li><a href="../index.html">&lt;regex&gt;</a></li>
+<li class="here">ECMAScript syntax</li>
+</ul>
+</div>
+<div id="I_user" class="C_LoginBox"><span title="ajax"></span></div>
+</div>
+</div>
+<div id="I_mid">
+<div id="I_wrap">
+<div id="I_minheight"></div>
+<div id="I_main">
+<div class="C_support"><script type="text/javascript"><!--
+if (!cookieGet("hspt31")) {
+  document.write('<div class="C_DonateBox"></div>');
+}
+//-->
+</script><div class="C_ad728"><script type="text/javascript"><!--
+google_ad_client = "ca-pub-7688470879129516";
+google_ad_slot = "7973859818";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></div><div class="C_supportbottom"></div></div><div id="I_content">
+<div class="C_doc">
+<div id="I_type">syntax specifications</div>
+<h1><span class="namespace" title="namespace std">std::</span>ECMAScript syntax<span class="C_ico cpp11warning" title="This page describes a feature introduced by the latest revision of the C++ standard (2011). Older compilers may not support it." alt="This page describes a feature introduced by the latest revision of the C++ standard (2011). Older compilers may not support it."></span></h1>
+<div id="I_description">ECMAScript regular expressions pattern syntax</div>
+<section id="description">
+The following syntax is used to <a href="http://www.cplusplus.com/basic_regex::basic_regex">construct</a> <a href="http://www.cplusplus.com/basic_regex">regex</a> objects (or <a href="http://www.cplusplus.com/basic_regex::assign">assign</a>) that have selected <tt><a href="http://www.cplusplus.com/regex_constants#syntax_option_type">ECMAScript</a></tt> as its grammar.<br>
+<br>
+A <i>regular expression pattern</i> is formed by a sequence of characters.<br>
+Regular expression operations look sequentially for matches between the characters of the pattern and the characters in the target sequence: In principle, each character in the pattern is matched against the corresponding character in the target sequence, one by one. But the regex syntax allows for special characters and expressions in the pattern:<br>
+</section>
+<br>
+<section id="atoms">
+<h3>Special pattern characters</h3>
+Special pattern characters are characters (or sequences of characters) that have a special meaning when they appear in a regular expression pattern, either to represent a character that is difficult to express in a string, or to represent a category of characters. Each of these <i>special pattern characters</i> is matched in the target sequence against a single character (unless a quantifier specifies otherwise).<br>
+<br>
+<table class="boxed">
+<tr><th>characters</th><th>description</th><th>matches</th></tr>
+<tr><td><tt>.</tt></td><td>not newline</td><td>any character except <i>line terminators</i> (LF, CR, LS, PS).</td></tr>
+<tr><td><tt><b>\t</b></tt></td><td>tab (HT)</td><td>a horizontal tab character (same as <tt><b>\u0009</b></tt>).</td></tr>
+<tr><td><tt><b>\n</b></tt></td><td>newline (LF)</td><td>a newline (line feed) character (same as <tt><b>\u000A</b></tt>).</td></tr>
+<tr><td><tt><b>\v</b></tt></td><td>vertical tab (VT)</td><td>a vertical tab character (same as <tt><b>\u000B</b></tt>).</td></tr>
+<tr><td><tt><b>\f</b></tt></td><td>form feed (FF)</td><td>a form feed character (same as <tt><b>\u000C</b></tt>).</td></tr>
+<tr><td><tt><b>\r</b></tt></td><td>carriage return (CR)</td><td>a carriage return character (same as <tt><b>\u000D</b></tt>).</td></tr>
+<tr><td><tt><b>\c</b></tt><i>letter</i></td><td>control code</td><td>a control code character whose <i>code unit value</i> is the same as the remainder of dividing the <i>code unit value</i> of <i>letter</i> by 32.<br>
+For example: <tt>\ca</tt> is the same as <tt>\u0001</tt>, <tt>\cb</tt> the same as <tt>\u0002</tt>, and so on...</td></tr>
+<tr><td><tt><b>\x</b></tt><i>hh</i></td><td>ASCII character</td><td>a character whose <i>code unit value</i> has an hex value equivalent to the two hex digits <i>hh</i>.<br>
+For example: <tt>\x4c</tt> is the same as <tt>L</tt>, or <tt>\x23</tt> the same as <tt>#</tt>.</td></tr>
+<tr><td><tt><b>\u</b></tt><i>hhhh</i></td><td>unicode character</td><td>a character whose <i>code unit value</i> has an hex value equivalent to the four hex digits <i>hhhh</i>.</td></tr>
+<tr><td><tt><b>\0</b></tt></td><td>null</td><td>a null character (same as <tt><b>\u0000</b></tt>).</td></tr>
+<tr><td><tt><b>\</b></tt><i>int</i></td><td>backreference</td><td>the result of the submatch whose opening parenthesis is the <i>int</i>-th (<i>int</i> shall begin by a digit other than <tt>0</tt>). See <a href="index.html#groups">groups</a> below for more info.</td></tr>
+<tr><td><tt><b>\d</b></tt></td><td>digit</td><td>a decimal digit character (same as <tt><b>[<tt>[:digit:]</tt>]</b></tt>).</td></tr>
+<tr><td><tt><b>\D</b></tt></td><td>not digit</td><td>any character that is not a decimal digit character (same as <tt><b>[^[:digit:]]</b></tt>).</td></tr>
+<tr><td><tt><b>\s</b></tt></td><td>whitespace</td><td>a whitespace character (same as <tt><b>[<tt>[:space:]</tt>]</b></tt>).</td></tr>
+<tr><td><tt><b>\S</b></tt></td><td>not whitespace</td><td>any character that is not a whitespace character (same as <tt><b>[^[:space:]]</b></tt>).</td></tr>
+<tr><td><tt><b>\w</b></tt></td><td>word</td><td>an alphanumeric or underscore character (same as <tt><b>[_<tt>[:alnum:]</tt>]</b></tt>).</td></tr>
+<tr><td><tt><b>\W</b></tt></td><td>not word</td><td>any character that is not an alphanumeric or underscore character (same as <tt><b>[^_[:alnum:]]</b></tt>).</td></tr>
+<tr><td><tt><b>\</b></tt><i>character</i></td><td>character</td><td>the character <i>character</i> as it is, without interpreting its special meaning within a regex expression.<br>
+Any <i>character</i> can be escaped except those which form any of the special character sequences above.<br>
+Needed for: <tt>^ $ \ . * + ? ( ) [ ] { } |</tt></td></tr>
+<tr><td><tt><b>[</b></tt><i>class</i><tt><b>]</b></tt></td><td>character class</td><td>the target character is part of the class (see <a href="index.html#character_classes">character classes</a> below)</td></tr>
+<tr><td><tt><b>[^</b></tt><i>class</i><tt><b>]</b></tt></td><td>negated character class</td><td>the target character is not part of the class (see <a href="index.html#character_classes">character classes</a> below)</td></tr>
+</table>
+<br>
+Notice that, in C++, character and string literals also escape characters using the backslash character (<tt>\</tt>), and this affects the syntax for constructing regular expressions from such types. For example:<br>
+<div class="auto"><table class="snippet"><tr><td class="rownum"><pre><code>1<br>2<br></code></pre></td>
+<td class="source"><pre><code>std::regex e1 (<kbd>"\\d"</kbd>);  <cite>// regular expression: \d -&gt; matches a digit character</cite>
+std::regex e2 (<kbd>"\\\\"</kbd>); <cite>// regular expression: \\ -&gt; matches a single backslash (\) character </cite></code></pre></td><td class="C_btnholder"></td></tr></table></div>
+<br>
+</section>
+<br>
+<section id="quantifiers">
+<h3>Quantifiers</h3>
+Quantifiers follow a character or a <i>special pattern character</i>. They can modify the amount of times that character is repeated in the match:<br>
+<table class="boxed">
+<tr><th>characters</th><th>times</th><th>effects</th></tr>
+<tr><td><tt><b>*</b></tt></td><td>0 or more</td><td>The preceding atom is matched 0 or more times.</td></tr>
+<tr><td><tt><b>+</b></tt></td><td>1 or more</td><td>The preceding atom is matched 1 or more times.</td></tr>
+<tr><td><tt><b>?</b></tt></td><td>0 or 1</td><td>The preceding atom is optional (matched either 0 times or once).</td></tr>
+<tr><td><tt><b>{</b></tt><i>int</i><tt><b>}</b></tt></td><td><i>int</i></td><td>The preceding atom is matched exactly <i>int</i> times.</td></tr>
+<tr><td><tt><b>{</b></tt><i>int</i><tt><b>,}</b></tt></td><td><i>int</i> or more</td><td>The preceding atom is matched <i>int</i> or more times.</td></tr>
+<tr><td><tt><b>{</b></tt><i>min</i><tt><b>,</b></tt><i>max</i><tt><b>}</b></tt></td><td>between <i>min</i> and <i>max</i></td><td>The preceding atom is matched at least <i>min</i> times, but not more than <i>max</i>.</td></tr>
+</table>
+By default, all these quantifiers are greedy (i.e., they take as many characters that meet the condition as possible). This behavior can be overridden to <i>ungreedy</i> (i.e., take as few characters that meet the condition as possible) by adding a <i>question mark</i> (<tt>?</tt>) after the quantifier.<br>
+For example:<br>
+Matching <tt>"(a+).*"</tt> against <tt>"aardvark"</tt> succeeds and yields <tt>aa</tt> as the first submatch.<br>
+While matching <tt>"(a+?).*"</tt> against <tt>"aardvark"</tt> also succeeds, but yields <tt>a</tt> as the first submatch.<br>
+</section>
+<br>
+<section id="groups">
+<h3>Groups</h3>
+Groups allow to apply quantifiers to a sequence of characters (instead of a single character). There are two kinds of groups:<br>
+<table class="boxed">
+<tr><th>characters</th><th>description</th><th>effects</th></tr>
+<tr><td><tt><b>(</b></tt><i>subpattern</i><tt><b>)</b></tt></td><td>Group</td><td>Creates a backreference.<br>
+</td></tr>
+<tr><td><tt><b>(?:</b></tt><i>subpattern</i><tt><b>)</b></tt></td><td>Passive group</td><td>Does not create a backreference.</td></tr>
+</table>
+When a group creates a backreference, the characters that represent the <i>subpattern</i> in the target sequence are stored as a <i>submatch</i>. Each submatch is numbered after the order of appearance of their opening parenthesis (the first submatch is number 1, the second is number 2, and so on...).<br>
+<br>
+These <i>submatches</i> can be used in the regular expression itself to specify that the entire subpattern should appear again somewhere else (see <tt><b>\</b></tt><i>int</i> in the <a href="index.html#atoms">special characters</a> list). They can also be used in the <a href="index.html#replacement">replacement string</a> or retrieved in the <a href="http://www.cplusplus.com/match_results">match_results</a> object filled by some <a href="http://www.cplusplus.com/regex">regex</a> operations.<br>
+</section>
+<br>
+<section id="assertions">
+<h3>Assertions</h3>
+Assertions are conditions that do not consume characters in the target sequence: they do not describe a character, but a condition that must be fulfilled before or after a character.<br>
+<table class="boxed">
+<tr><th>characters</th><th>description</th><th>condition for match</th></tr>
+<tr><td><tt><b>^</b></tt></td><td>Beginning of line</td><td>Either it is the beginning of the target sequence, or follows a <i>line terminator</i>.</td></tr>
+<tr><td><tt><b>$</b></tt></td><td>End of line</td><td>Either it is the end of the target sequence, or precedes a <i>line terminator</i>.</td></tr>
+<tr><td><tt><b>\b</b></tt></td><td>Word boundary</td><td>The previous character is a <i>word character</i> and the next is a <i>non-word character</i> (or vice-versa).<br>
+Note: The beginning and the end of the target sequence are considered here as <i>non-word characters</i>.</td></tr>
+<tr><td><tt><b>\B</b></tt></td><td>Not a word boundary</td><td>The previous and next characters are both <i>word characters</i> or both are <i>non-word characters</i>.<br>
+Note: The beginning and the end of the target sequence are considered here as <i>non-word characters</i>.</td></tr>
+<tr><td><tt><b>(?=</b></tt><i>subpattern</i><tt><b>)</b></tt></td><td>Positive lookahead</td><td>The characters following the assertion must match <i>subpattern</i>, but no characters are consumed.</td></tr>
+<tr><td><tt><b>(?!</b></tt><i>subpattern</i><tt><b>)</b></tt></td><td>Negative lookahead</td><td>The characters following the assertion must not match <i>subpattern</i>, but no characters are consumed.</td></tr>
+</table>
+</section>
+<br>
+<section id="alternatives">
+<h3>Alternatives</h3>
+A pattern can include different alternatives:<br>
+<table class="boxed">
+<tr><th>character</th><th>description</th><th>effects</th></tr>
+<tr><td><tt><b>|</b></tt></td><td>Separator</td><td>Separates two alternative patterns or subpatterns.</td></tr>
+</table>
+A regular expression can contain multiple alternative patterns simply by separating them with the <i>separator operator</i> (<tt><b>|</b></tt>): The regular expression will match if any of the alternatives match, and as soon as one does.<br>
+<br>
+Subpatterns (in groups or assertions) can also use the <i>separator operator</i> to separate different alternatives.<br>
+</section>
+<br>
+<section id="character_classes">
+<h3>Character classes</h3>
+A character class defines a category of characters. It is introduced by enclosing its descriptors in square brackets (<tt>[</tt> and <tt>]</tt>).<br>
+The regex object attempts to match the entire character class against a single character in the target sequence (unless a quantifier specifies otherwise).<br>
+The character class can contain any combination of:<br>
+<ul>
+<li><b>Individual characters:</b> Any character specified is considered part of the class (except <tt><b>\</b></tt>, <tt><b>[</b></tt>, <tt><b>]</b></tt> and <tt><b>-</b></tt>, which have a special meaning under some circumstances, and may need to be escaped to be part of the class).<br>
+For example:<br>
+<tt>[abc]</tt> matches <tt>a</tt>, <tt>b</tt> or <tt>c</tt>.<br>
+<tt>[^xyz]</tt> matches any character except <tt>x</tt>, <tt>y</tt> and <tt>z</tt>.<br>
+</li>
+<li><b>Ranges:</b> They can be specified by using the <i>hyphen character</i> (<tt>-</tt>) between two valid characters.<br>
+For example:<br>
+<tt>[a-z]</tt> matches any lowercase letter (<tt>a</tt>, <tt>b</tt>, <tt>c</tt>, ... until <tt>z</tt>).<br>
+<tt>[abc1-5]</tt> matches either <tt>a</tt>, <tt>b</tt> or <tt>c</tt>, or a digit between <tt>1</tt> and <tt>5</tt>.<br>
+</li>
+<li><b>POSIX-like classes:</b> A whole set of predefined classes can be added to a custom character class. There are three kinds:<br>
+<table class="boxed">
+<tr><th>class</th><th>description</th><th>notes</th></tr>
+<tr><td><tt><b>[:</b></tt><i>classname</i><tt><b>:]</b></tt></td><td>character class</td><td>Uses the <i>regex traits</i>' <a href="http://www.cplusplus.com/regex_traits::isctype">isctype</a> member with the appropriate type gotten from applying <a href="http://www.cplusplus.com/regex_traits::lookup_classname">lookup_classname</a> member on <i>classname</i> for the match.</td></tr>
+<tr><td><tt><b>[.</b></tt><i>classname</i><tt><b>.]</b></tt></td><td>collating sequence</td><td>
+Uses the <i>regex traits</i>' <a href="http://www.cplusplus.com/regex_traits::lookup_collatename">lookup_collatename</a> to interpret <i>classname</i>.</td></tr>
+<tr><td><tt><b>[=</b></tt><i>classname</i><tt><b>=]</b></tt></td><td>character equivalents</td><td>
+Uses the <i>regex traits</i>' <a href="http://www.cplusplus.com/regex_traits::transform_primary">transform_primary</a> of the result of <a href="http://www.cplusplus.com/regex_traits::lookup_collatename">regex_traits::lookup_collatename</a> for <i>classname</i> to check for matches.</td></tr>
+</table>
+The choice of available classes depend on the <a href="http://www.cplusplus.com/regex_traits">regex traits</a> type and on its selected locale. But at least the following character classes shall be recognized by any <a href="http://www.cplusplus.com/regex_traits">regex traits</a> type and locale:<br>
+<table class="boxed">
+<tr><th>class</th><th>description</th><th>equivalent (with <a href="http://www.cplusplus.com/regex_traits">regex_traits</a>, default locale)</th></tr>
+<tr><td><tt>[:alnum:]</tt></td><td>alpha-numerical character</td><td><a href="http://www.cplusplus.com/isalnum">isalnum</a></td></tr>
+<tr><td><tt>[:alpha:]</tt></td><td>alphabetic character</td><td><a href="http://www.cplusplus.com/isalpha">isalpha</a></td></tr>
+<tr><td><tt>[:blank:]</tt></td><td>blank character</td><td><a href="http://www.cplusplus.com/isblank">isblank</a></td></tr>
+<tr><td><tt>[:cntrl:]</tt></td><td>control character</td><td><a href="http://www.cplusplus.com/iscntrl">iscntrl</a></td></tr>
+<tr><td><tt>[:digit:]</tt></td><td>decimal digit character</td><td><a href="http://www.cplusplus.com/isdigit">isdigit</a></td></tr>
+<tr><td><tt>[:graph:]</tt></td><td>character with graphical representation</td><td><a href="http://www.cplusplus.com/isgraph">isgraph</a></td></tr>
+<tr><td><tt>[:lower:]</tt></td><td>lowercase letter</td><td><a href="http://www.cplusplus.com/islower">islower</a></td></tr>
+<tr><td><tt>[:print:]</tt></td><td>printable character</td><td><a href="http://www.cplusplus.com/isprint">isprint</a></td></tr>
+<tr><td><tt>[:punct:]</tt></td><td>punctuation mark character</td><td><a href="http://www.cplusplus.com/ispunct">ispunct</a></td></tr>
+<tr><td><tt>[:space:]</tt></td><td>whitespace character</td><td><a href="http://www.cplusplus.com/isspace">isspace</a></td></tr>
+<tr><td><tt>[:upper:]</tt></td><td>uppercase letter</td><td><a href="http://www.cplusplus.com/isupper">isupper</a></td></tr>
+<tr><td><tt>[:xdigit:]</tt></td><td>hexadecimal digit character</td><td><a href="http://www.cplusplus.com/isxdigit">isxdigit</a></td></tr>
+<tr><td><tt>[:d:]</tt></td><td>decimal digit character</td><td><a href="http://www.cplusplus.com/isdigit">isdigit</a></td></tr>
+<tr><td><tt>[:w:]</tt></td><td>word character</td><td><a href="http://www.cplusplus.com/isalnum">isalnum</a></td></tr>
+<tr><td><tt>[:s:]</tt></td><td>whitespace character</td><td><a href="http://www.cplusplus.com/isspace">isspace</a></td></tr>
+</table>
+Please note that the brackets in the class names are additional to those opening and closing the class definition.<br>
+For example:<br>
+<tt>[<tt>[:alpha:]</tt>]</tt> is a character class that matches any alphanumeric character.<br>
+<tt>[abc[:digit:]]</tt> is a character class that matches <tt>a</tt>, <tt>b</tt>, <tt>c</tt>, or a digit.<br>
+<tt>[^[:space:]]</tt> is a character class that matches any character except a whitespace.<br>
+</li>
+<li><b>Escape characters:</b> All escape characters described above can also be used within a character class specification. The only change is with <tt>\b</tt>, that here is interpreted as a backspace character (<tt>\u0008</tt>) instead of a word boundary.<br>
+Notice that within a class definition, those characters that have a special meaning in the regular expression (such as <tt>*</tt>, <tt>.</tt>, <tt>$</tt>) don't have such a meaning and are interpreted as normal characters (so they do not need to be escaped). Instead, within a class definition, the hyphen (<tt>-</tt>) and the brackets (<tt>[</tt> and <tt>]</tt>) do have a special meaning under some circumstances, in which case they should be escaped with a backslash (<tt>\</tt>) to be interpreted as normal characters.<br>
+</li>
+</ul>
+<br>
+Character classes support depend heavily on the <a href="http://www.cplusplus.com/regex_traits">regex traits</a> used by the <a href="http://www.cplusplus.com/basic_regex">regex</a> object: the <a href="http://www.cplusplus.com/basic_regex">regex</a> object calls its <a href="http://www.cplusplus.com/regex_traits">traits</a>'s <a href="http://www.cplusplus.com/regex_traits::isctype">isctype</a> member function with the appropriate arguments. For the standard <a href="http://www.cplusplus.com/regex_traits">regex_traits</a> object using the default locale, see <a href="http://www.cplusplus.com/cctype">cctype</a> for a classification of characters.<br>
+</section></div><div id="CH_bb"></div></div>
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-7688470879129516";
+google_ad_slot = "7973859818";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></div>
+<div id="I_nav">
+<div class="sect root">
+<h3><b><a href="http://www.cplusplus.com/">C++</a></b></h3>
+<ul>
+<li class="folder info"><a href="http://www.cplusplus.com/info/">Information</a></li>
+<li class="folder doc"><a href="http://www.cplusplus.com/doc/">Tutorials</a></li>
+<li class="folder selected reference"><a href="../../index.html">Reference</a></li>
+<li class="folder articles"><a href="http://www.cplusplus.com/articles/">Articles</a></li>
+<li class="folder forum"><a href="http://www.cplusplus.com/forum/">Forum</a></li>
+</ul>
+</div>
+<div class="C_BoxLabels C_BoxSort sect" id="reference_box">
+<h3><b><a href="../../index.html">Reference</a></b></h3>
+<ul>
+<li class="C_Collapsable collapsed"><h4><a href="../../clibrary/index.html">C library:</a></h4><ul>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cassert/index.html"><span>&lt;cassert&gt; (assert.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cctype/index.html"><span>&lt;cctype&gt; (ctype.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cerrno/index.html"><span>&lt;cerrno&gt; (errno.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../cfenv/index.html"><span>&lt;cfenv&gt; (fenv.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cfloat/index.html"><span>&lt;cfloat&gt; (float.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../cinttypes/index.html"><span>&lt;cinttypes&gt; (inttypes.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../ciso646/index.html"><span>&lt;ciso646&gt; (iso646.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../climits/index.html"><span>&lt;climits&gt; (limits.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../clocale/index.html"><span>&lt;clocale&gt; (locale.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cmath/index.html"><span>&lt;cmath&gt; (math.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../csetjmp/index.html"><span>&lt;csetjmp&gt; (setjmp.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../csignal/index.html"><span>&lt;csignal&gt; (signal.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cstdarg/index.html"><span>&lt;cstdarg&gt; (stdarg.h)</span></a></li>
+<li class="cpp11 folder"><a href="../../cstdbool/index.html"><span>&lt;cstdbool&gt; (stdbool.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cstddef/index.html"><span>&lt;cstddef&gt; (stddef.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../cstdint/index.html"><span>&lt;cstdint&gt; (stdint.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cstdio/index.html"><span>&lt;cstdio&gt; (stdio.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cstdlib/index.html"><span>&lt;cstdlib&gt; (stdlib.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cstring/index.html"><span>&lt;cstring&gt; (string.h)</span></a></li>
+<li class="c99 cpp11 folder"><a href="../../ctgmath/index.html"><span>&lt;ctgmath&gt; (tgmath.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../ctime/index.html"><span>&lt;ctime&gt; (time.h)</span></a></li>
+<li class="cpp11 folder"><a href="../../cuchar/index.html"><span>&lt;cuchar&gt; (uchar.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cwchar/index.html"><span>&lt;cwchar&gt; (wchar.h)</span></a></li>
+<li class="c90 c99 arm cpp98 cpp11 folder"><a href="../../cwctype/index.html"><span>&lt;cwctype&gt; (wctype.h)</span></a></li>
+</ul></li>
+<li class="C_Collapsable collapsed"><h4><a href="../../stl/index.html">Containers:</a></h4><ul>
+<li class="cpp11 folder"><a href="../../array/index.html"><span>&lt;array&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../deque/index.html"><span>&lt;deque&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../forward_list/index.html"><span>&lt;forward_list&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../list/index.html"><span>&lt;list&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../map/index.html"><span>&lt;map&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../queue/index.html"><span>&lt;queue&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../set/index.html"><span>&lt;set&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../stack/index.html"><span>&lt;stack&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../unordered_map/index.html"><span>&lt;unordered_map&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../unordered_set/index.html"><span>&lt;unordered_set&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../vector/index.html"><span>&lt;vector&gt;</span></a></li>
+</ul></li>
+<li class="C_Collapsable collapsed"><h4><a href="../../iolibrary/index.html">Input/Output:</a></h4><ul>
+<li class="cpp98 cpp11 folder"><a href="../../fstream/index.html"><span>&lt;fstream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../iomanip/index.html"><span>&lt;iomanip&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../ios/index.html"><span>&lt;ios&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../iosfwd/index.html"><span>&lt;iosfwd&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../iostream/index.html"><span>&lt;iostream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../istream/index.html"><span>&lt;istream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../ostream/index.html"><span>&lt;ostream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../sstream/index.html"><span>&lt;sstream&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../streambuf/index.html"><span>&lt;streambuf&gt;</span></a></li>
+</ul></li>
+<li class="C_Collapsable collapsed"><h4><a href="../../multithreading/index.html">Multi-threading:</a></h4><ul>
+<li class="cpp11 folder"><a href="../../atomic/index.html"><span>&lt;atomic&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../condition_variable/index.html"><span>&lt;condition_variable&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../future/index.html"><span>&lt;future&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../mutex/index.html"><span>&lt;mutex&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../thread/index.html"><span>&lt;thread&gt;</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4><a href="../../std/index.html">Other:</a></h4><ul>
+<li class="cpp98 cpp11 folder"><a href="../../algorithm/index.html"><span>&lt;algorithm&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../bitset/index.html"><span>&lt;bitset&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../chrono/index.html"><span>&lt;chrono&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../codecvt/index.html"><span>&lt;codecvt&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../complex/index.html"><span>&lt;complex&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../exception/index.html"><span>&lt;exception&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../functional/index.html"><span>&lt;functional&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../initializer_list/index.html"><span>&lt;initializer_list&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../iterator/index.html"><span>&lt;iterator&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../limits/index.html"><span>&lt;limits&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../locale/index.html"><span>&lt;locale&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../memory/index.html"><span>&lt;memory&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../new/index.html"><span>&lt;new&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../numeric/index.html"><span>&lt;numeric&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../random/index.html"><span>&lt;random&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../ratio/index.html"><span>&lt;ratio&gt;</span></a></li>
+<li class="cpp11 selected folder"><a href="../index.html"><span>&lt;regex&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../stdexcept/index.html"><span>&lt;stdexcept&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../string/index.html"><span>&lt;string&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../system_error/index.html"><span>&lt;system_error&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../tuple/index.html"><span>&lt;tuple&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../typeindex/index.html"><span>&lt;typeindex&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../typeinfo/index.html"><span>&lt;typeinfo&gt;</span></a></li>
+<li class="cpp11 folder"><a href="../../type_traits/index.html"><span>&lt;type_traits&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../utility/index.html"><span>&lt;utility&gt;</span></a></li>
+<li class="cpp98 cpp11 folder"><a href="../../valarray/index.html"><span>&lt;valarray&gt;</span></a></li>
+</ul></li>
+</ul>
+</div>
+<div class="C_BoxLabels C_BoxSort sect cpp11" id="regex_box">
+<h3><b><a href="../index.html">&lt;regex&gt;</a></b></h3>
+<ul>
+<li class="cpp11 selected"><a href="index.html"><span>ECMAScript syntax</span></a></li>
+<li class="cpp11"><a href="../regex_constants/index.html"><span>regex_constants</span></a></li>
+<li class="C_Collapsable"><h4>classes (basic):</h4><ul>
+<li class="cpp11 folder"><a href="../basic_regex/index.html"><span>basic_regex</span></a></li>
+<li class="cpp11 folder"><a href="../match_results/index.html"><span>match_results</span></a></li>
+<li class="cpp11 folder"><a href="../regex_error/index.html"><span>regex_error</span></a></li>
+<li class="cpp11 folder"><a href="../regex_iterator/index.html"><span>regex_iterator</span></a></li>
+<li class="cpp11 folder"><a href="../regex_token_iterator/index.html"><span>regex_token_iterator</span></a></li>
+<li class="cpp11 folder"><a href="../regex_traits/index.html"><span>regex_traits</span></a></li>
+<li class="cpp11 folder"><a href="../sub_match/index.html"><span>sub_match</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4>classes (template instantiations):</h4><ul>
+<li class="cpp11"><a href="../cmatch/index.html"><span>cmatch</span></a></li>
+<li class="cpp11"><a href="../csub_match/index.html"><span>csub_match</span></a></li>
+<li class="cpp11"><a href="../regex/index.html"><span>regex</span></a></li>
+<li class="cpp11"><a href="../smatch/index.html"><span>smatch</span></a></li>
+<li class="cpp11"><a href="../ssub_match/index.html"><span>ssub_match</span></a></li>
+<li class="cpp11"><a href="../wcmatch/index.html"><span>wcmatch</span></a></li>
+<li class="cpp11"><a href="../wcsub_match/index.html"><span>wcsub_match</span></a></li>
+<li class="cpp11"><a href="../wregex/index.html"><span>wregex</span></a></li>
+<li class="cpp11"><a href="../wsmatch/index.html"><span>wsmatch</span></a></li>
+<li class="cpp11"><a href="../wssub_match/index.html"><span>wssub_match</span></a></li>
+</ul></li>
+<li class="C_Collapsable"><h4>functions:</h4><ul>
+<li class="cpp11"><a href="../regex_match/index.html"><span>regex_match</span></a></li>
+<li class="cpp11"><a href="../regex_replace/index.html"><span>regex_replace</span></a></li>
+<li class="cpp11"><a href="../regex_search/index.html"><span>regex_search</span></a></li>
+</ul></li>
+</ul>
+</div>
+<div id="I_subnav"></div>
+<div class="C_ad234">
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-7688470879129516";
+google_ad_slot = "7445514729";
+google_ad_width = 234;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div></div>
+<div id="I_midclear"></div>
+</div>
+</div>
+<div id="I_bottom">
+<div id="I_footer">
+	<a href="http://www.cplusplus.com/">Home page</a> | <a href="http://www.cplusplus.com/privacy.do">Privacy policy</a><br>&copy; cplusplus.com, 2000-2014 - All rights reserved - <i>v3.1</i><br><a href="http://www.cplusplus.com/contact.do?referrer=www.cplusplus.com%2Freference%2Fregex%2FECMAScript%2F">Spotted an error? contact us</a>
+</div>
+</div>
+
+<script type="text/javascript">
+<!--
+ onSession ( function(us) {
+		el=document.getElementById('CH_bb'); el.innerHTML='';
+		if (us.auth(4096)) {
+			
+			el.appendChild(btn('Edit Page','Edit Page','edit','/reference/edit.cgi?a=regex+ECMAScript'));
+			el.appendChild(btn('Delete Page','Delete Page','delete','javascript:docdel()'));
+		}
+	});
+	function docdel() { if (confirm('WARNING: You are about to delete this page. Confirm?')) window.location='/reference/delete.cgi?a=regex+ECMAScript'; }
+	ready();
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-521783-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+//-->
+</script>
+
+</body>
+</html>
