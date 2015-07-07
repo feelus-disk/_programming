@@ -1,0 +1,38 @@
+
+ '  [installed.vbs]
+ '   Run this script with the command: 
+ '     CSCRIPT installed.vbs <name_or_ ip-address>
+ '                                         use "." for local computer
+
+ ' Script author: Torgeir Bakken
+
+sComputer = WScript.Arguments.Item(0)
+
+wscript.echo InstalledApplications(sComputer)
+
+Function InstalledApplications(node)
+ Const HKLM = &H80000002 'HKEY_LOCAL_MACHINE
+ Set oRegistry = _
+  GetObject("winmgmts:{impersonationLevel=impersonate}!\\" _
+  & node & "/root/default:StdRegProv")
+ sBaseKey = _
+  "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\"
+ iRC = oRegistry.EnumKey(HKLM, sBaseKey, arSubKeys)
+ For Each sKey In arSubKeys
+  iRC = oRegistry.GetStringValue( _
+   HKLM, sBaseKey & sKey, "DisplayName", sValue)
+  If iRC <> 0 Then
+   oRegistry.GetStringValue _
+    HKLM, sBaseKey & sKey, "QuietDisplayName", sValue
+  End If
+  If sValue <> "" Then
+   InstalledApplications = _
+    InstalledApplications & sValue & vbCrLf
+  End If
+ Next
+End Function
+
+' From: Torgeir Bakken
+' http://www.mvps.org/scripting/people/bakkenalia.htm
+
+

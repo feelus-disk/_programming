@@ -1,0 +1,33 @@
+
+   :: Return the filename associated with a file extension
+
+   :: This batch file can be used to determine which application 
+   :: is associated with a given file extension.
+
+   @ECHO off
+   SETLOCAL
+   IF NOT [%1]==[] goto s_start
+   
+   CLS
+   ECHO FASSOC
+   ECHO Returns the filename associated with a file extension
+   ECHO.
+   ECHO SYNTAX
+   ECHO       FASSOC ext
+   ECHO.
+   ECHO KEY
+   ECHO    ext : a file extension without a leading period.
+   ECHO.
+   ECHO    e.g. FASSOC wri
+   ECHO.
+   
+   GOTO :eof
+   
+   :s_start
+   
+   FOR /F "tokens=2* delims==" %%G IN ('assoc .%1') DO SET v_type=%%G
+
+   IF NOT DEFINED v_type GOTO :eof
+
+   FOR /F "tokens=2* delims==" %%G IN ('ftype %v_type%') DO ECHO %%G
+

@@ -1,0 +1,108 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Remove-PSSession | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Remove-PSSession</h1> 
+<p>Close one or more PowerShell sessions (PSSessions).</p>
+<pre>Syntax
+      Remove-PSSession [[-ComputerName] <i>string</i>[]] [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+      Remove-PSSession [-Id] <i>Int32</i>[] [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+      Remove-PSSession [-InstanceId <i>Guid</i>[]] [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+      Remove-PSSession [-Name <i>string</i>[]] [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+      Remove-PSSession [-Session] <i>PSSession</i>[]] [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+Key
+   -ComputerName <i>string</i>[]
+       Close the PSSessions that are connected to the specified computers. Wildcards are permitted.
+
+       Type the NetBIOS name, an IP address, or a fully qualified domain name of one
+       or more remote computers. To specify the local computer, type the computer name,
+       &quot;localhost&quot;, or a dot (.).
+
+   -Id <i>Int32</i>[]<br>       Close the PSSessions with the specified IDs.
+       Type one or more IDs (separated by commas) or use the <a href="syntax-operators.html#range">range</a> operator (..)
+
+       An ID is an integer that uniquely identifies the PSSession in the current session.
+       It is easier to remember and type than the InstanceId, but it is unique only within the
+       current session.  To find the ID of a PSSession, use <a href="get-pssession.html">Get-PSSession</a> without parameters.
+
+   -InstanceId <i>Guid</i>[]<br>       Close the PSSessions with the specified instance IDs.
+
+       The instance ID is a GUID that uniquely identifies a PSSession in the current session.
+       The InstanceID is unique, even when you have multiple sessions running on a single computer.
+
+       The InstanceID is stored in the InstanceID property of the object that represents a PSSession.
+       To find the InstanceID of the PSSessions in the current session:
+          &quot;<a href="get-pssession.html">Get-PSSession</a> | <a href="format-table.html">format-table</a> Name, ComputerName, InstanceId&quot;.
+
+   -Name <i>string</i>[]
+       A friendly name for the PSSession. 
+
+       Use this name to refer to the PSSession when using other cmdlets, such as Get-PSSession and Enter-PSSession.
+       The name is not required to be unique to the computer or the current session.
+
+   -Session <i>PSSession</i>[]
+       Use the specified PSSession as a model for the new PSSession.
+       This parameter create a new PSSession with the same properties as the specified PSSession. 
+
+       Enter a variable that contains the PSSessions or a command that creates or
+       gets the PSSessions, such as <a href="new-pssession.html">New-PSSession</a> or <a href="get-pssession.html">Get-PSSession</a>.
+
+       The resulting PSSessions have the same computer name, application name,
+       connection URI, port, configuration name, throttle limit, and Secure Sockets Layer (SSL)
+       value as the originals, but they have a different display name, ID, and instance ID (GUID).
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Standard <a href="get-alias.html">Aliases</a> for Remove-PSSession:<span class="code"> rsn</span></p>
+<p>Remove-PSSession  closes  PowerShell sessions (PSSessions) in the current session. It stops any commands that are running in the PSSession, ends the PSSession, and releases the resources that the PSSession was using. </p>
+<p>If the PSSession is connected to a remote computer, Remove-PSSession also closes the connection between the local and remote computers.<br>
+<br>
+To remove a PSSession, enter the Name, ComputerName, ID, or InstanceID of the session.
+If you have saved the PSSession in a variable, the session object remains in the variable, but the state of the PSSession is &quot;Closed.&quot;</p>
+<p><b>Examples</b></p>
+<p>Remove the PSSessions that have IDs 1 and 2.: </p>
+<pre>PS C:&gt; remove-pssession -id 1, 2</pre>
+<p>Remove all of the PSSessions in the current session. Although the three command formats look different, they have the same effect: </p>
+<pre>PS C:&gt; get-pssession | remove-pssession <br><br>PS C:&gt; remove-pssession -session (get-pssession)<br><br>PS C:&gt; $sess = get-pssession <br>PS C:&gt; remove-pssession -session $sess</pre>
+<p>Close the PSSessions that are connected to computers that have names that begin with &quot;ss64&quot;: </p>
+<p class="code">PS C:&gt; $r = get-pssession -computername ss64*<br>
+<br>
+PS C:&gt; $r | remove-pssession</p>
+<p>Closes the PSSessions that are connected to port 90:</p>
+<pre>PS C:&gt; get-pssession | where {$_.port -eq 90} | remove-pssession</pre>
+<p>Close a PSSession based on its instance ID: </p>
+<pre>PS C:&gt; remove-pssession -InstanceID fc3e6dfb-f342-253d-7fa4-1abdfc64ae84</pre>
+<p>Create  a <a href="syntax-functions.html">function</a> that deletes all  the PSSessions in the current session.: </p>
+<pre>PS C:&gt; function EndPSS { get-pssession | remove-pssession }</pre>
+<p class="quote"><i>“It is the final proof of God’s omnipotence that he need not exist in order to save us&rdquo; ~ Peter De Vries, (The Mackerel Plaza)</i></p>
+<p><b>Related:</b></p>
+<p><a href="new-pssession.html">New-PSSession</a> - Create a persistent connection to a local or remote computer<br>
+<a href="enter-pssession.html">Enter-PSSession</a> - Start an interactive session with a remote computer<br>
+<a href="exit-pssession.html">Exit-PSSession</a> -     End an interactive session with a remote computer</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="remove-pssession.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

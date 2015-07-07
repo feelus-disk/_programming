@@ -1,0 +1,135 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>ProcDump - Monitor CPU/processes | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>ProcDump (<abbr title="Download ProcDump"><a href="http://technet.microsoft.com/en-gb/sysinternals/dd996900.aspx">SysInternals</a></abbr>)</h1>
+<p>Monitor an application for CPU spikes and/or generate a crash dump during a CPU spike.</p>
+<pre>Syntax
+      procdump [-a] <b>[</b>[-c|-cl CPU usage] [-u] [-s <i>seconds</i>]<b>]</b> [-n <i>exceeds</i>] <b>[</b>-e [1 [-b]]
+         [-f <i>filter</i>,...] [-g] [-h] [-l] [-m|-ml <i>commit_threshold_MB</i>] [-ma | -mp] [-o]
+            [-p|-pl <i>counter threshold</i>] [-r] [-t] [-d &lt;<i>callback DLL</i>&gt;] [-64] 
+               &lt;[-w] <i>process_name_or_service_name_or_PID</i> [<i>dump_file</i>]
+                | -i <i>dump_file</i>
+                | -u
+                | -x <i>dump_file</i> <i>image_file </i>[<i>arguments</i>] &gt;<b>]</b>
+                  [-accepteula] [-? [ -e]
+
+Key:
+
+   -a   Avoid outage. Requires -r. If the trigger will cause the target to suspend for a 
+        prolonged time due to an exceeded concurrent dump limit, the trigger will be skipped.
+
+   -b   Treat debug breakpoints as exceptions (otherwise ignore them).
+
+   -c   CPU threshold at which to create a dump of the process.
+
+   -cl  CPU threshold below which to create a dump of the process.
+
+   -d   Invoke the minidump callback routine named MiniDumpCallbackRoutine of the specified DLL.
+
+   -e   Write a dump when the process encounters an unhandled exception. Include the 1 to
+        create dump on first chance exceptions.
+
+   -f   Filter the first chance exceptions. Wildcards (*) are supported. To just display the
+        names without dumping, use a blank (&quot;&quot;) filter.
+
+   -g   Run as a native debugger in a managed process (no interop).
+
+   -h   Write dump if process has a hung window (does not respond to window messages for at least 5 seconds).
+
+   -i   Install ProcDump as the AeDebug postmortem debugger.
+        Only -ma, -mp, -d and -r are supported as additional options.
+
+   -l   Display the debug logging of the process.
+
+   -m   Trigger a dump when memory commit reaches this threshold value (in MB).
+
+   -ma  Write a dump file with all process memory. The default dump format only includes thread
+        and handle information.
+
+   -ml  Trigger when memory commit drops <b>below</b> specified threshold value (in MB).
+
+   -mp  Write a dump file with thread and handle information, and all read/write process memory.
+        To minimize dump size, memory areas larger than 512MB are searched for, and if found,
+        the largest area is excluded. A memory area is the collection of same sized memory allocation
+        areas. The removal of this (cache) memory reduces Exchange and SQL Server dumps by over 90%.
+
+   -n   Number of dumps to write before exiting.
+
+   -o	 Overwrite an existing dump file.
+
+   -p   Trigger on the specified performance counter when the threshold is exceeded.
+        Note: to specify a process counter when there are multiple instances of the process running,
+        use the process ID with the following syntax: &quot;\Process(<i>name_pid</i>)\counter&quot;
+
+   -pl  Trigger when performance counter falls below the specified value.
+
+   -r   Dump using a clone. Concurrent limit is optional (default 1, max 5).
+        CAUTION: a high concurrency value may impact system performance.
+          Windows 7   : Uses Reflection. OS doesn't support -e.
+          Windows 8.0 : Uses Reflection. OS doesn't support -e.
+          Windows 8.1+: Uses PSS. All trigger types are supported.
+
+   -s   Consecutive seconds before dump is written (default is 10).
+
+   -t   Write a dump when the process terminates.
+
+   -u   Treat CPU usage relative to a single core (used with -c).
+        As the only option, Uninstalls ProcDump as the postmortem debugger.
+
+   -w   Wait for the specified process to launch if it's not running.
+
+   -x   Launch the specified image with optional arguments.
+        If it is a Store Application or Package, ProcDump will start on the next activation (only).
+
+   -64  By default ProcDump will capture a 32-bit dump of a 32-bit process when running on 64-bit Windows.
+        This option overrides to create a 64-bit dump. Only use for WOW64 subsystem debugging.
+
+   -accepteula Suppress the display of the license dialog.
+
+   -?   Use -? -e to see example command lines.</pre>
+<p>If you omit the dump file name, it will default to <span class="code"><i>processname_datetime</i>.dmp</span></p>
+<p><b>Examples:</b><br>
+</p>
+<p>Write a mini dump of a process named 'notepad' (only one match can exist):     </p>
+<p class="code">C:\&gt; procdump notepad </p>
+<p>Write a full dump of a process with PID '6464':</p>
+<p class="code">C:\&gt; procdump -ma 6464</p>
+<p>Write 3 mini dumps 5 seconds apart of a process named 'notepad':     </p>
+<p class="code">C:\&gt; procdump -s 5 -n 3 notepad</p>
+<p>See a longer list of example command lines:</p>
+<p class="code"> C:\&gt; procdump -? -e</p>
+<p class="quote"><i>&ldquo;History will be kind to me for I intend to write it&rdquo; ~ Winston Churchill</i></p>
+<p><b>Related:</b></p>
+<p> <a href="pskill.html">PsKill</a> - Kill processes by name or process ID.<br>
+<a href="pslist.html">PsList</a> - List detailed information about processes.<br>
+<a href="sysmon.html">SYSMON</a> - Monitor and log system activity to the Windows event log</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="procdump.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

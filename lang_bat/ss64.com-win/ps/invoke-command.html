@@ -1,0 +1,320 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Invoke-Command | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Invoke-Command</h1> 
+<p>Run commands on local and remote computers</p>
+<pre>Syntax
+    
+    Invoke-Command [-FilePath] <i>string</i> [<b>[-ComputerName] <i>string</i>[]</b>] 
+       [-ApplicationName <i>string</i>] [-AsJob] [-Authentication <i>AuthenticationMechanism</i>]
+          [-ConfigurationName <i>string</i>] [-Credential <i>PSCredential</i>] [-HideComputerName]
+             [-JobName <i>string</i>] [-Port <i>int</i>] [-SessionOption <i>PSSessionOption</i>] [-ThrottleLimit <i>int</i>] 
+                [-UseSSL] [-ArgumentList <i>Object</i>[]] [-InputObject <i>psobject</i>] [<i>CommonParameters</i>]
+    
+    Invoke-Command [-FilePath] <i>string</i> [<b>[-Session] <i>PSSession</i>[]</b>] [-AsJob]
+       [-HideComputerName] [-JobName <i>string</i>] [-ThrottleLimit <i>int</i>]
+          [-ArgumentList <i>Object</i>[]] [-InputObject <i>psobject</i>] [<i>CommonParameters</i>]
+    
+    Invoke-Command [-FilePath] <i>string</i> [<b>[-ConnectionURI] <i>Uri</i>[]</b>] [-AllowRedirection]
+       [-AsJob] [-Authentication <i>AuthenticationMechanism</i>]
+          [-ConfigurationName <i>string</i>] [-Credential <i>PSCredential</i>] [-HideComputerName]
+             [-JobName <i>string</i>] [-SessionOption <i>PSSessionOption</i>] [-ThrottleLimit <i>int</i>]
+                [-ArgumentList <i>Object</i>[]] [-InputObject <i>psobject</i>] [<i>CommonParameters</i>]
+
+    Invoke-Command [<b>-ScriptBlock</b>] <i>scriptblock</i>
+       [-ArgumentList <i>Object</i>[]] [-InputObject <i>psobject</i>] [<i>CommonParameters</i>]
+
+    Invoke-Command [-ScriptBlock] <i>scriptblock</i> [<b>[-ComputerName] <i>string</i>[]</b>]
+       [-ApplicationName <i>string</i>] [-AsJob] [-Authentication <i>AuthenticationMechanism</i>]
+          [-CertificateThumbprint <i>string</i>] [-ConfigurationName <i>string</i>] 
+             [-Credential <i>PSCredential</i>] [-HideComputerName] [-JobName <i>string</i>]
+                [-Port <i>int</i>] [-SessionOption <i>PSSessionOption</i>] [-ThrottleLimit <i>int</i>]
+                   [-UseSSL] [-ArgumentList <i>Object</i>[]] [-InputObject <i>psobject</i>] [<i>CommonParameters</i>]
+    
+    Invoke-Command [-ScriptBlock] <i>scriptblock</i> [<b>[-Session] <i>PSSession</i>[]</b>]
+       [-AsJob] [-HideComputerName] [-JobName <i>string</i>] [-ThrottleLimit <i>int</i>]
+          [-ArgumentList <i>Object</i>[]] [-InputObject <i>psobject</i>] [<i>CommonParameters</i>]
+
+    Invoke-Command [-ScriptBlock] <i>scriptblock</i> [[<b>-ConnectionURI] <i>Uri</i>[]</b>] [-AllowRedirection] 
+       [-AsJob] [-Authentication <i>AuthenticationMechanism</i>] [-CertificateThumbprint <i>string</i>]
+          [-ConfigurationName <i>string</i>] [-Credential <i>PSCredential</i>] [-HideComputerName]
+             [-JobName <i>string</i>] [-SessionOption <i>PSSessionOption</i>] [-ThrottleLimit <i>int</i>]
+                [-ArgumentList <i>Object</i>[]] [-InputObject <i>psobject</i>] [<i>CommonParameters</i>]
+
+Key
+   -AllowRedirection
+       Allow redirection of this connection to an alternate URI. 
+        
+       When -ConnectionURI is used, the remote destination can return an instruction to
+       redirect to a different URI. By default, PowerShell does not redirect connections,
+       the AllowRedirection parameter changes this to allow the connection to redirect.
+        
+       The number of times that the connection is redirected can be limited by setting the
+       MaximumConnectionRedirectionCount property of the $PSSessionOption preference variable,
+       or the MaximumConnectionRedirectionCount property of the value of -SessionOption.
+       The default value is 5. For more information, see the help topic for New-PSSessionOption.
+        
+   -ApplicationName <i>string</i>
+       The application name segment of the connection URI.
+       Specify the application name when you are not using -ConnectionURI
+        
+       The default value is the value of the $PSSessionApplicationName preference variable on
+       the local computer. If this preference variable is not defined, the default value is WSMAN.
+       This value is appropriate for most uses. For more info, see about_Preference_Variables. 
+        
+       The WinRM service uses the application name to select a listener to service the connection
+       request. The value of this parameter should match the value of the URLPrefix property of
+       a listener on the remote computer.
+
+   -ArgumentList Object[]
+       Set local variables in the command.
+       The variables in the command are replaced by these values before the command is run on
+       the remote computer. Enter the values in a comma-separated list.
+       Values are associated with variables in the order that they are listed. The alias for ArgumentList is &quot;Args&quot;.
+
+       The values in ArgumentList can be actual values, such as &quot;1024&quot;, or they can be
+       references to local variables, such as &quot;$max&quot;.
+
+       To use local variables in a command, use the following command format:
+          {param($<i>name1</i>[, $<i>name2</i>]...) <i>command-with-local-variables</i>} -ArgumentList <i>value</i> | $<i>local-variable</i>
+
+       The &quot;param&quot; keyword lists the local variables that are used in the command.
+       The -ArgumentList parameter supplies the values of the variables, in the order that they are listed.
+
+   -AsJob
+       Run the command as a background job on a remote computer.
+       Use this parameter to run commands that take an extensive time to complete. 
+
+       This will return an object that represents the job, and then display the command prompt.
+       You can continue to work in the session while the job completes.
+       To manage the job, use the Job cmdlets. To get the job results, use Receive-Job. 
+
+       Using -AsJob is similar to using Invoke-Command to run a Start-Job command remotely. However,
+       with -AsJob, the job is created on the local computer, even though the job runs on a remote computer,
+       and the results of the remote job are automatically returned to the local computer.
+       For more information, see help about_Jobs and help about_Remote_Jobs.
+
+   -Authentication <i>AuthenticationMechanism</i>
+       The mechanism used to authenticate the user's credentials.
+       Valid values are:
+           <u>Default</u>, Basic,  Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
+       The default value is Default.       
+       CredSSP authentication is available only in Vista, Server 2008, and later versions of Windows.
+        
+       CAUTION: CredSSP authentication increases the security risk of the remote operation.
+       If the remote computer is compromised, the credentials that are passed to it can
+       be used to control the network session.
+        
+   -CertificateThumbprint <i>string</i>
+       The digital public key certificate (X509) of a user account that has permission to
+       perform this action. Enter the certificate thumbprint of the certificate.  
+
+       Certificates are used in client certificate-based authentication.
+       They can only be mapped to local user accounts; they do not work with domain accounts. 
+        
+       To get a certificate thumbprint, use <a href="get-item.html">Get-Item</a> or <a href="get-childitem.html">GCI</a> commands in the PowerShell Cert: drive.
+        
+   -ComputerName <i>string</i>[]
+       The computers on which to run the command.
+       The default is the local computer. 
+        
+       When you use -ComputerName,  PowerShell will create a temporary connection that is
+       used only to run the specified command and is then closed.
+       If you need a persistent connection, use -Session
+        
+       Type the NETBIOS name, IP address, or fully-qualified domain name of one or more computers
+       in a comma-separated list. To specify the local computer, type the computer name, &quot;localhost&quot;, or a dot (.)
+        
+       To use an IP address in the value of -ComputerName , the command must include -Credential.
+       Also, the computer must be configured for HTTPS transport or the IP address of the remote
+       computer must be included in the WinRM TrustedHosts list on the local computer.
+       See also: &quot;How to Add  a Computer to the Trusted Host List&quot; in help about_Remote_Troubleshooting.
+        
+       Note: On Vista, and later, to include the local computer in the value of -ComputerName, you must
+       open PowerShell with the &quot;Run as administrator&quot; option.
+        
+   -ConfigurationName <i>string</i>
+       The session configuration to be used for the new PSSession. 
+        
+       Enter a configuration name or the fully qualified resource URI for a session configuration.
+       If only the configuration name is specified, the following schema URI is prepended:
+          http://schemas.microsoft.com/powershell
+
+       The session configuration for a session is located on the remote computer.
+       If the specified session configuration does not exist on the remote computer, the command fails.
+        
+       The default value is the value of the $PSSessionConfigurationName preference variable on
+       the local computer. If this preference variable is not set, the default is Microsoft.PowerShell
+       For more information, see help about_preference_variables.
+
+   -ConnectionURI <i>Uri</i>[]
+       A Uniform Resource Identifier (URI) that defines the connection endpoint.
+       The URI must be fully qualified. 
+
+       The format of this string is: 
+            <i>Transport</i>://ComputerName:<i>Port</i>/<i>ApplicationName</i>
+        
+       The default value is:
+            http://localhost:80/WSMAN
+        
+       Valid values for the Transport segment of the URI are HTTP and HTTPS.
+       If you do not specify a -ConnectionURI, the -UseSSL, -ComputerName, -Port, and -ApplicationName
+       parameters can be used to specify the individual URI values.
+        
+       If the destination computer redirects the connection to a different URI, PowerShell will
+       prevent the redirection unless the -AllowRedirection parameter is included in the command.
+        
+   -Credential <i>PSCredential</i>
+       A user account that has permission to perform this action. The default is the current user. 
+        
+       Type a user name, such as &quot;User64&quot; or &quot;Domain64\User64&quot;, or enter a variable that
+       contains a PSCredential object, such as one generated by <a href="get-credential.html">Get-Credential</a>.
+       When you type a user name, you will be prompted for a password.
+        
+   -FilePath string
+       Run the specified local script on one or more remote computers.
+       Enter the path and file name of the script, or pipe a script path to Invoke-Command.
+       The script must reside on the local computer or in a directory that the local computer can
+       access. Use -ArgumentList to specify the values of parameters in the script.
+        
+       When you use this parameter, PowerShell converts the contents of the specified script
+       file to a script block, transmits the script block to the remote computer, and runs it
+       on the remote computer.
+        
+   -HideComputerName
+       Omit the computer name of each object from the output display.
+       By default, the name of the computer that generated the object appears in the display.
+        
+       This parameter affects only the output display. It does not change the object.
+        
+   -InputObject <i>psobject</i>
+       Specifies input to the command.
+       Enter a variable that contains the objects or type a command or expression that
+       gets the objects. 
+        
+       When using -InputObject, use the $input automatic variable in the value of the
+       ScriptBlock parameter to represent the input objects.
+        
+   -JobName <i>string</i>
+       A friendly name for the background job.
+       By default, jobs are named &quot;Job<i>n</i>&quot;, where <i>n</i> is an ordinal number.
+       This parameter is valid only with -AsJob.
+        
+       If -JobName is used in a command, -AsJob is implied, even if -AsJob is missing from the command.       
+       For more information about PowerShell background jobs, see help about_Jobs.
+        
+    -Port <i>int</i>
+       The network port  on the remote computer used for this command.
+       The default is port 80 (the HTTP port).
+        
+       Before using an alternate port, configure the WinRM listener on the remote computer
+       to listen at that port.
+       To configure the listener:  
+           remove-item -path wsman:\Localhost\listener\listener* -recurse
+           new-item -path wsman:\Localhost\listener -Transport http -Address * -port <i>port-number</i>
+        
+       Do not use -Port parameter unless you must. The Port set in the command applies to all
+       computers or sessions on which the command runs. An alternate port setting might prevent
+       the command from running on all computers.
+        
+   -ScriptBlock <i>scriptblock</i>
+       The commands to run.
+       Enclose the commands in curly braces { } to create a script block.
+       This parameter is required.
+        
+       By default, any variables in the command are evaluated on the remote computer.
+       To include local variables in the command, use -ArgumentList.
+        
+   -Session <i>PSSession</i>[]
+       Run the command in the specified PowerShell sessions (PSSessions).
+       Enter a variable that contains the PSSessions or a command that creates or gets
+       the PSSessions, such as <a href="new-pssession.html">New-PSSession</a> or <a href="get-pssession.html">Get-PSSession</a>.
+        
+       Using -Session establishes a persistent connection to the remote computer.
+       Use this to run a series of related commands that share data.
+       To run a single command or a series of unrelated commands, use -ComputerName        
+       To create a PSSession, use <a href="new-pssession.html">New-PSSession</a>.
+        
+   -SessionOption <i>PSSessionOption</i>
+       Set advanced options for the session.
+       Enter a SessionOption object that you create by using <a href="new-pssessionoption.html">New-PSSessionOption</a>
+        
+       The default values for the options are determined by the value of the
+       $PSSessionOption preference variable, if set. Otherwise, the session uses the system defaults.
+        
+   -ThrottleLimit <i>int</i>
+       The maximum number of concurrent connections that can be established to run this command.
+       If you omit this parameter or enter a value of 0, the default value, 32, is used.
+        
+       The throttle limit applies only to the current command, not to the session or to the computer.
+        
+   -UseSSL
+       Use the Secure Sockets Layer (SSL) protocol to establish a connection to the remote computer.
+       By default, SSL is not used.
+        
+       WS-Management encrypts all PowerShell content transmitted over the network. -UseSSL is
+       an additional protection that sends the data across an HTTPS, instead of HTTP.
+        
+       If you use this parameter, but SSL is not available on the port used for the command, the command fails.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Standard <a href="get-alias.html">Aliases</a> for Invoke-Command:<span class="code"> icm</span></p>
+<p>Invoke-Command  runs commands on a local or remote computer and returns all output from the commands, including errors. A single Invoke-Command command, can run commands on multiple computers.<br>
+<br>To run a single command on a remote computer, use <span class="code">-ComputerName</span>. </p>
+<p>To run a series of related commands that share data, create a PSSession (a persistent connection) on the remote computer, and then use<span class="code">Invoke-Command -Session</span> to run the command in the PSSession.</p>
+<p>Invoke-Command may also be used on a local computer to evaluate or run a string in a script block as a command.  PowerShell converts the script block to a command and runs the command immediately in the current scope, instead of just echoing the string at the command line. <br><br>
+Before using Invoke-Command to run commands on a remote computer, read <a href="get-help.html">help</a> <span class="code">about_Remote</span>.</p>
+<p><b>Examples</b></p>
+<p>Run the Test.ps1 script on the Server64 computer. The script is located on the local computer. The script runs 
+on the remote computer and the results are returned to the local computer:</p>
+<p><span class="code">PS C:\&gt; invoke-command -filepath c:\scripts\test.ps1 -computerName Server64</span></p>
+<p>Run a script block (containing just a Get-Culture command) on the Server64 computer. Pass user credentials with permission to run the command:</p>
+<p class="code">PS C:\&gt; invoke-command -computername server64 -credential domain64\user64 -scriptblock {get-culture}</p>
+<p> Run the same &quot;Get-Culture&quot; command in a session (a persistent connection):</p>
+<p class="code">PS C:\&gt; $sess = new-pssession -computername server64 -credential domain64\user64<br>
+PS C:\&gt; invoke-command -session $sess -scriptblock {get-culture}</p>
+<p> Save a command in a local variable, then use Invoke-Command to run the command against several remote computers:</p>
+<p class="code">PS C:\&gt; $command = { get-eventlog -log &quot;windows powershell&quot; | where {$_.message -like &quot;*certificate*&quot;} }<br>
+PS C:\&gt; invoke-command -computername Server64, Server65, Server102 -scriptblock $command</p>
+<p> Get the version of the  PowerShell host running on 200 remote computers:</p>
+<p class="code">PS C:\&gt; $version = invoke-command -computername (get-content machines.txt) -scriptblock {(get-host).version}<br>
+PS C:\&gt; $version</p>
+<p>Get the version of the PowerShell host running on 200 remote computers:</p>
+<p class="code">PS C:\&gt; invoke-command -computername server</p>
+<p>Run a background job on two remote computers. Because the Invoke-Command command uses the AsJob parameter, the commands run on the remote computers, but the job actually resides on the local computer and the results
+are transmitted to the local computer:</p>
+<p class="code">PS C:\&gt; $s = new-pssession -computername Server01, Server02<br>
+PS C:\&gt; invoke-command -session $s -scriptblock {get-eventlog system} -AsJob<br>
+PS C:\&gt; $j = Get-Job<br>
+PS C:\&gt; $results = $j | Receive-Job</p>
+<p>Run the Sample.ps1 script on all of the computers listed in the Servers.txt file. Using the -FilePath parameter to specify the script file has the effect that the content of the script is automatically copied into a script block and then passed to and run on each of the remote computers:</p>
+<p class="code">PS C:\&gt; invoke-command -comp (get-content servers.txt) -filepath c:\scripts\sample.ps1 -argumentlist Process, Service</p>
+<p class="quote"><i>“There is another side to chivalry. If it dispenses leniency, it may with equal justification invoke control” ~ Freda Adler</i></p>
+<p><b>Related:</b></p>
+<p><a href="invoke-item.html">Invoke-Item</a> -   Invoke an executable or open a file (START)<br>
+<a href="invoke-expression.html">Invoke-Expression</a> - Run a PowerShell expression<br>
+Equivalent bash command: <a href="http://ss64.com/bash/exec.html">exec</a> - Execute a command</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="invoke-command.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

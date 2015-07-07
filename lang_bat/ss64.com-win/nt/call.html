@@ -1,0 +1,150 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Call | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>CALL</h1>  
+<p> Call one batch program from another, or call a subroutine.</p>
+<pre>Syntax
+      CALL [<i>drive</i>:][<i>path</i>]<i>filename</i> [<i><a href="syntax-args.html">parameters</a></i>]
+
+      CALL :<i>label</i> [<i><a href="syntax-args.html">parameters</a></i>]
+
+      CALL <i>internal_cmd</i>
+
+Key:
+   pathname     The batch program to run.
+
+   parameters   Any command-line arguments.
+
+   :<i>label</i>       Jump to a label in the current batch script.
+
+   <i>internal_cmd</i> Run an <a href="syntax-internal.html">internal</a> command, first expanding any variables in the argument.</pre>
+<h2> CALL a second batch file</h2>
+<p>The CALL command will launch a new batch file context along with any specified parameters.<br>
+ When the end of the second batch file is reached (or if EXIT is used), control will return to just after the initial CALL statement.</p>
+<p>Arguments can be passed either as a simple string or using a variable: </p>
+<p><span class="code">CALL MyScript.cmd &quot;1234&quot;<br>
+CALL OtherScript.cmd %_MyVariable%</span></p>
+<p>Example</p>
+<p class="code">::----------start main.cmd-----------<br>
+ @Echo off <br>
+ CALL function.cmd 10 first <br>
+Echo    %_description% - %_number% <br>
+<br>
+CALL function.cmd 15 second <br>
+Echo  %_description% - %_number% <br>
+ ::----------end main.cmd-------------<br>
+ <br>
+::----------start function.cmd---------<br>
+ @Echo off<br>
+ :: Add 25 to %1<br>
+ SET /a _number=%1 + 25<br>
+ :: Store %2 <br>
+  SET _description=[%2]<br>
+::----------end function.cmd-----------</p>
+<p>In many cases you will also want to use <a href="setlocal.html">SETLOCAL</a> and <a href="endlocal.html">ENDLOCAL</a> to keep variables in different batch files completely separate, this will avoid any potential problems if two scripts use the same variable name.
+</p>
+<h2>CALL a subroutine (:label)</h2>
+<p>The CALL command will  pass control to the statement after the label specified  along with any specified parameters.<br>
+ To exit the  subroutine specify <span class="code">GOTO:eof </span>this will transfer control to the end of  the current subroutine. </p>
+<p> A label is defined by a single colon followed by a name. This is the basis of a batch file <a href="syntax-functions.html">function</a>. </p>
+<blockquote>
+<p class="code">CALL :sub_display 123<br>
+CALL :sub_display 456<br>
+ECHO All Done<br>
+GOTO :eof</p>
+<p><span class="code">  :sub_display<br>
+  ECHO The result is %1<br>
+  GOTO :eof<br>
+  <br>
+</span>At the end of the subroutine, GOTO :eof 
+     will return  to the position where
+  you used CALL.</p>
+</blockquote>
+<p><a href="syntax-brackets.html">Command blocks</a> do not work with the call command.<br>
+Redirection with 
+<span class="code"><a href="syntax-redirection.html">&amp; | &lt;&gt; </a></span> also does not work as expected. <br>
+If the CALL command contains a caret character within a quoted string &quot;test^ing&quot; , the carets will be <a href="http://stackoverflow.com/a/4095133/1720814">doubled</a>. </p>
+<h2>Passing by Reference </h2>
+<p>In addition to passing numeric or string values on the command line, it is also possible to pass a <a href="syntax-variables.html">variable</a> name and then use the variable to transfer data between scripts or subroutines. Passing by reference is a slightly more advanced technique but can be particularly useful when the string contains characters that are CMD <a href="syntax-esc.html#delimiters">delimiters</a> or quotes.<br>
+<pre>    @Echo off
+    Echo.
+    Set "var1=Red Pippin"
+    Set "var2=St Edmunds Pippin"
+    Set "var3=Egremont Russet"
+
+    Echo. before: var1=%var1%  var2=%var2% var3=%var3%
+    call <b>:myGetFunc</b> var1 var2 var3
+    Echo. after: var1=%var1%  var2=%var2% var3=%var3%
+
+    Echo.&pause&goto:eof
+
+    ::----------------------------------------------
+    ::-- Function section starts below
+    ::----------------------------------------------
+
+    <b>:myGetFunc</b>    - passing a variable by reference
+    Set "%~1=return64"
+    Set "%~3=return65"
+    Goto:eof</pre>
+<h2><a id="advanced"></a>Advanced usage : CALLing internal commands</h2>
+<pre>    CALL <i>command</i> [<i>command_parameters</i>]</pre>
+<p>CALL can also be used to run any <a href="syntax-internal.html">internal</a> command (SET, ECHO etc) with the exception of FOR and IF.<br>
+CALL will  expand any  variables passed on the same line. CALL  <a href="rem.html">REM</a> only partly works:  <a href="syntax-redirection.html">redirection</a> operators, conditional execution operators and <a href="syntax-brackets.html">brackets</a> will be not remarked. </p>
+<p>This is undocumented behaviour, in fact whenever CALL is run without a<span class="code"> : </span>prefix, it will always search disk for a batch file/executable called <i>command</i> before running the internal command. The effect of this extra disc access is that CALL SET is significantly slower than CALL, its use in loops or with a large number of variables should be avoided.<br><br>
+Example</p>
+<pre> @Echo off
+ SETLOCAL
+ set _server=frodo
+ set _var=_server
+ <b>CALL SET </b>_result=<b>%%</b>%_var%<b>%%</b>
+ echo %_result%</pre>
+<p>The line shown in bold has the '%' symbols tripled,  CALL will expand this to: <span class="code">SET _result=frodo</span></p>
+<p>Each CALL does one substitution of the variables. (You can also do CALL CALL... for multiple substitutions)</p>
+<p>In many cases, <a href="delayedexpansion.html">DelayedExpansion</a> is a better/faster method:</p>
+<pre> @Echo Off
+ Setlocal EnableDelayedExpansion
+ Set _server=frodo
+ Set _var=_server
+ Set _result=!<b>%_var%</b>!	
+ Echo %_result%</pre>
+<p>If you CALL an executable or resource kit utility make sure it's available on the machine where the batch will be running, test for it's existence with an <a href="if.html">IF</a> command and throw an error if missing.</p>
+<p>CALL is an <a href="syntax-internal.html">internal</a> command. If <a href="cmd.html">Command Extensions</a> are disabled, the CALL command will not accept batch labels. <br>
+<br>
+<i class="quote">&ldquo;My mother never saw the irony in calling me a son-of-a-bitch&rdquo; ~ Jack Nicholson </i> <br>
+<b><br>
+Related:</b></p>
+<p><a href="syntax-functions.html">Syntax: Functions</a> - How to package blocks of code.<br>
+<a href="cmd.html">CMD</a> - can be used to call a subsequent batch and ALWAYS return even if errors occur.<br>
+<a href="goto.html">GOTO</a> - jump to a label or GOTO :eof <br>
+<a href="start.html">START</a> - Start a separate window to run a specified program or command.<br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/source.html">. (source)</a> - Run a command script in the current shell, <a href="http://ss64.com/bash/builtin.html">builtin</a> - Run a shell builtin.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="call.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

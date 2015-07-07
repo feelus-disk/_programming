@@ -1,0 +1,123 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Get-Counter | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Get-Counter</h1> 
+<p>Get performance counter data from local and remote computers.</p>
+<pre>Syntax
+      Get-Counter [-Counter] <i>string</i>[] [-ComputerName <i>string</i>[]] [-Continuous]
+        [-MaxSamples <i>Int64</i>] [-SampleInterval <i>int</i>] [<i>CommonParameters</i>]
+
+      Get-Counter -ListSet <i>string</i>[] [-ComputerName <i>string</i>[]] [<i>CommonParameters</i>]
+
+Key:
+   -ComputerName <i>string</i>[]
+       Get data from the specified computer(s).
+       Type the NetBIOS name, an Internet Protocol (IP) address, or fully qualified domain names.
+       The default value is the local computer.
+
+       Note:  Get-Counter does not rely on PowerShell remoting.
+
+   -Continuous
+       Get samples continuously until you press CTRL+C.
+       By default, Get-Counter gets only one counter sample.
+       Use -SampleInterval to set the interval for continuous sampling.
+
+   -Counter <i>string</i>[]
+       Get data from the specified performance counters.
+       Enter one or more counter paths. Wildcards are permitted only in the Instance value.
+       You can also pipe counter path strings to Get-Counter. 
+
+       Each counter path has the following format:
+               &quot;[\\&lt;ComputerName&gt;]\&lt;CounterSet&gt;(&lt;Instance&gt;)\&lt;CounterName&gt;&quot; 
+
+       For example: 
+                &quot;\\Server01\Processor(2)\% User Time&quot;.  
+
+       The <i>ComputerName</i> element is optional. If you omit it, Get-Counter uses the value of -ComputerName.
+
+       Note:  To get correctly formatted counter paths, use -ListSet to get a performance counter set.
+
+       The Paths and PathsWithInstances properties of each performance counter set contain
+       the individual counter paths formatted as a string. You can save the counter path strings
+       in a variable or pipe the string directly to another Get-Counter command. See the examples.
+
+   -ListSet <i>string</i>[]
+       Get the specified performance counter sets on the computers.
+       Enter the names of the counter sets. Wildcards are permitted.
+       You can also pipe counter set names to Get-Counter.
+
+   -MaxSamples <i>Int64</i>
+       The number of samples to get from each counter.
+       The default is 1 sample. To get samples continuously (no max sample size), use -Continuous.
+
+       To collect a very large data set, consider running a Get-Counter command as a PowerShell background job.
+       For more information, see about_Jobs and Start-Job.
+
+   -SampleInterval <i>int</i>
+       The time between samples in seconds.
+       The minimum value and the default value are 1 second.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Get-Counter  gets live, real-time performance counter data directly from a local or remote Windows computer. Without parameters, Get-Counter will get counter data for a set of system counters. </p>
+<p><b>Examples</b></p>
+<p>Get all of the counter sets on the local computer. Run this command with &quot;Run as administrator&quot; to see all counter sets as many are protected by access control lists (ACLs.)</p>
+<p class="code">PS C:&gt; get-counter -ListSet *</p>
+<p>Get the current &quot;% Processor Time&quot; combined values for all processors on the local computer. Collect data every 2 seconds until 10 sample values are collected.</p>
+<p><span class="code">PS C:&gt; get-counter -Counter &quot;\Processor(_Total)\% Processor Time&quot; -SampleInterval 2 -MaxSamples 10 </span><br>
+  <br>
+Get a sorted list of all the counter set names:</p>
+<p class="code">PS C:&gt; get-counter -listset * | sort-object  countersetname | format-table countersetname</p>
+<p>Get the correctly formatted path names of the performance counters in the Memory counter set: (this can also be done with <span class="code">.pathswithinstances</span>) </p>
+<p class="code">PS C:&gt; (get-counter -listset memory).paths</p>
+<p>Get the correctly formatted path names that include &quot;cache&quot;:</p>
+<p class="code">PS C:&gt; (get-counter -listset memory).paths | where {$_ -like &quot;*cache*&quot;}</p>
+<p>Save the Disk Reads/sec counter path in the <span class="code">$diskreads</span> variable.. </p>
+<p class="code">PS C:&gt; $diskreads = &quot;\LogicalDisk(C:)\Disk Reads/sec&quot;</p>
+<p>Pipe the counter path (in $diskreads) to Get-Counter:</p>
+<p class="code">PS C:&gt; $diskreads | get-counter -computer Server64, Server65 -maxsamples 10</p>
+<p>Get a list of 50 randomly selected servers from the Servers.txt file and store in a variable:</p>
+<p class="code">PS C:&gt; $servers = get-random (get-content servers.txt) -count 50</p>
+<p>Save a counter path in the $Counter variable and then get the counter values for all the servers. </p>
+<p class="code">PS C:&gt; $counter = &quot;\Processor(*)\% DPC Time&quot;<br>
+PS C:&gt; get-counter -Counter $counter -computername $servers</p>
+<p>Get a single value for all of the performance counters in the memory counter set on the local computer. First get the counter paths and then get the counter data for each counter:</p>
+<p class="code">PS C:&gt; $memCounters = (get-counter -list memory).paths<br>
+PS C:&gt; get-counter -counter $memCounters</p>
+<p>The properties of the CounterSamples object can be used to examine, select, sort, and group  data:</p>
+<p class="code">PS C:&gt; $counter = &quot;\\SERVER64\Process(Idle)\% Processor Time&quot; <br>
+PS C:&gt; $data = get-counter $counter<br>
+PS C:&gt; $data.countersamples | format-list -property *</p>
+<p>Run a Get-Counter command as <a href="start-job.html">background job</a>.</p>
+<p class="code">PS C:&gt; $counters = &quot;\LogicalDisk(_Total)\% Free Space&quot;<br>
+PS C:&gt; start-job -scriptblock {get-counter -counter $counters -maxsamples 1000)</p>
+<p>Find the '% free disk space' on 50 computers 
+selected randomly from Servers.txt</p>
+<p class="code">PS C:&gt; get-counter -computername (get-random servers.txt -count 50) -counter &quot;\LogicalDisk(*)\% Free Space&quot;</p>
+<p class="quote"><i>“I was going to thrash them within an inch of their lives, but I didn't have a tape measure” ~ Groucho Marx</i></p>
+<p><b>Related:</b></p>
+<p>  <a href="export-counter.html">Export-Counter</a> - Export Performance Counter data to log files<br>
+<a href="import-counter.html">Import-Counter</a>             - Import performance counter log files</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="get-counter.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

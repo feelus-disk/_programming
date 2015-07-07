@@ -1,0 +1,113 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Forfiles - Batch process multiple files | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>FORFILES.exe (Native command in Vista/Windows7/2008, via <a href="http://ss64.com/links/windows.html#kits">Resource Kit</a> for XP)
+<!--Win NT update ftp://ftp.microsoft.com/ResKit/y2kfix/x86/ -->
+</h1>
+<p>Select a file (or set of files) and execute a command on each file. Batch processing.</p>
+<pre>
+Syntax
+      FORFILES [/p <i>Path</i>] [/<b>m</b><i> SrchMask</i>] [/s] [/<b>c</b><i> Command</i>] [/<b>d</b><i> </i>[+ | -] {<i>date</i> | <i>dd</i>}]   
+
+Key
+   /p <i>Path</i>      The Path to search  (default=current folder)
+
+   /m <i>SrchMask</i>  Select files matching the specified search mask
+                default = *.*
+
+   /s           Recurse into sub-folders
+
+   /C <i>command</i>   The command to execute for each file.
+                Wrap the command string in double quotes.
+                Default = "cmd /c echo @file"
+
+                The Command variables listed below can also be used in the
+                command string.
+
+   /D <i>date</i>      Select files with a last modified date greater than or 
+                equal to (+), or less than or equal to (-),
+                the specified <i>date</i>, using the region specific date format
+                typically &quot;MM/DD/yyyy&quot; or "DD/MM/yyyy"
+
+   /D + <i>dd</i>      Select files with a last modified date greater than or
+                equal to the current date plus "dd" days. (in the future)
+
+   /D - <i>dd</i>      Select files with a last modified date less than or
+                equal to the current date minus "dd" days. (in the past)
+
+                A valid "dd" number of days can be any number in
+                the range of 0 to 32768.   (89 years)
+                "+" is taken as default sign if not specified.
+
+   Command Variables:
+      @file    The name of the file.
+      @fname   The file name without extension.                
+      @ext     Only the extension of the file.                  
+      @path    Full path of the file.
+      @relpath Relative path of the file.          
+      @isdir   Returns "TRUE" if a file type is a directory,
+               and "FALSE" for files.
+      @fsize   Size of the file in bytes.
+      @fdate   Last modified date of the file.
+      @ftime   Last modified time of the file.</pre>
+<p><b>Commands with arguments</b></p>
+<p>Running a command + argument such as<span class="code"> FORFILES /C &quot;PING -a&quot; </span> will fail <a href="http://stackoverflow.com/a/26990159/1720814">due to a bug</a> in the way that 
+FORFILES calls the CreateProcess API function. The expected convention is that the first argument <span class="code">argv[0]</span> will be the program name and the second <span class="code">argv[1]</span> will be the first argument, FORFILES does not follow this convention, instead passing the first argument as <span class="code">argv[0]</span>.</p>
+<p>A slightly clunky looking but effective workaround for this is to include the program name as the first argument, this will be passed along by FORFILES and the CreateProcess will then work as expected:</p>
+<p><span class="code">FORFILES /c &quot;PING Ping -a&quot;</span><br>
+</p>
+<p>To run an <a href="syntax-internal.html">Internal</a> CMD.exe command, prefix it with <span class="code">cmd /c </span>,
+this is also required if you want to use complex arguments: redirection, pipes, command concatenation etc.</p>
+<p>If ForFiles finds one or more matches if will return %errorlevel% =0<br>
+If ForFiles finds no matches if will return %errorlevel% =1 and will print<i> &quot;ERROR: No files found with the specified search criteria.&quot;</i></p>
+<p>To include special characters in the command
+line, use the <a href="http://ss64.com/ascii.html">hex code</a> for the character in 0xHH format (ex. 0x09 is theTAB character, 0x22 is  the double quote &quot; character.) so <span class="code">&quot;C:\Program Files\&quot;</span> becomes <span class="code">^0x22C:\Program^ Files\^0x22</span></p>
+<p>Early versions of FORFILES were  supplied in the NT resource kits and  used unix style '-' parameters,
+(still supported for backwards compatibility) also the /D option  accepted dates only in <span class="code">DDMMYYYYHHMN</span> format.</p>
+<p>Last modified dates set in the future are not common but can happen when your computer clock date/time is changed e.g. due to daylight savings time. </p>
+<p><b>Examples:</b></p>
+<p>Delete the testfile if it is is 5 days old or older:<br>
+<span class="code">C:\&gt; forfiles /m testfile.txt /c "cmd /c Del testfile.txt " /d -5</span></p>
+<p>Find .xls file that were last modified 30 days ago or older <br>
+<span class="code">C:\&gt; FORFILES /M *.xls /C "cmd /c echo @path was changed 30 days ago" /D -30 </span></p>
+<p>List the size of all .doc files:<br>
+<span class="code"> C:\&gt; FORFILES /S /M *.doc /C "cmd /c echo @fsize" </span></p>
+<p><i class="quote">Rule #1: Don&rsquo;t sweat the small stuff. <br>
+Rule #2: It's all small stuff - Dr Robert S Eliot, University of Nebraska cardiologist</i><br>
+<br>
+<b>Related:</b></p>
+<p>Syntax - <a href="syntax-delolder.html">Delete files older than <i>N </i>days</a><br>
+<a href="http://blogs.msdn.com/b/oldnewthing/archive/2012/08/03/10334560.aspx">OldNewThing</a> - Combining ForFiles and FOR <br>
+<a href="for.html">FOR</a> - Conditionally perform a command several times.<br>
+Powershell:  <a href="http://ss64.com/ps/foreach-object.html">ForEach-Object</a> - Loop for each object in the pipeline<br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/find.html">find</a> - Search for files that meet a desired criteria</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="forfiles.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,196 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Fsutil - File system utilities | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>FSUTIL.exe</h1>
+<p>File and Volume specific commands, Hardlink management, Quota management, USN, Sparse file, Object ID and Reparse point management </p>
+<p>Create a hardlink</p>
+<pre>    FSUTIL <b>hardlink create</b> <i>new_filename</i> <i>existing_filename</i>
+
+    Eg : fsutil hardlink create c:\foo.txt c:\bar.txt</pre>
+<p>Create a new file of a specific size</p>
+<pre>    FSUTIL <b>file createnew</b> <i>filename</i>
+
+    Eg : fsutil file createnew C:\testfile.txt 1000</pre>
+<p>Set the short NTFS filename for a file</p>
+<pre>    FSUTIL <b>file setshortname</b> <i>filename</i> <i>shortname</i>
+
+    Eg : fsutil file setshortname C:\testfile.txt tes1.txt</pre>
+<p>Set the valid data length for a file</p>
+<pre>    FSUTIL <b>file setvaliddata</b> <i>filename</i> <i>datalength</i>
+
+    Eg : fsutil file setvaliddata C:\testfile.txt 4096</pre>
+<p>Set the zero data for a file</p>
+<pre>    FSUTIL <b>file setzerodata</b> offset=<i>val</i> length=<i>val filename</i>
+
+    offset : File offset, the start of the range to set to zeroes
+    length : Byte length of the zeroed range
+        Eg : fsutil file setzerodata offset=100 length=150 C:\Temp\sample.txt
+</pre>
+<p>List all drives (including mapped and Subst drives)</p>
+<pre>    <a id="drives"></a>FSUTIL <b>fsinfo drives</b></pre>
+<p>Query drive type for a drive</p>
+<pre>    FSUTIL <b>fsinfo drivetype</b> <i>volume pathname</i>
+
+    Eg : fsutil fsinfo drivetype C:
+    <a href="fsutil_example.html">ListLocalDrives.cmd</a> - List all drives on the local computer</pre>
+<p>Query volume information</p>
+<pre>    FSUTIL <b>fsinfo volumeinfo</b> <i>volume pathname</i>
+    Eg : fsutil fsinfo volumeinfo C:\</pre>
+<p>Query NTFS specific volume information</p>
+<pre>    FSUTIL <b>fsinfo ntfsinfo</b> <i>volume pathname</i>
+
+    Eg : fsutil fsinfo ntfsinfo C:</pre>
+<p>Query file system statistics</p>
+<pre>    FSUTIL <b>fsinfo statistics</b> <i>volume pathname</i>
+
+    Eg : fsutil fsinfo statistics C:</pre>
+<p>QUOTA Management</p>
+<pre>    FSUTIL <b>quota</b> {query|disable|track|enforce } C:
+    
+    FSUTIL <b>quota violations</b>
+    
+    FSUTIL <b>quota modify</b> <i>volume_pathname threshold limit user</i>
+
+    Eg : fsutil quota modify c: 3000 5000 domain\user</pre>
+<p>Find a file by user name (if Disk Quotas are enabled)</p>
+<pre>    FSUTIL <b>file findbysid</b> <i>user directory</i>
+
+    Eg : fsutil file findbysid scottb C:\users</pre>
+<p>File system options:</p>
+<pre>    <a id="behavior"></a>FSUTIL <b>behavior query</b> <i>option</i>
+
+    FSUTIL <b>behavior set</b> <i>option</i>
+
+      Where <i>option</i> is one of:
+       allowextchar {0|1}       Allow extended characters in filenames
+       disablelastaccess {0|1}  Don&rsquo;t generate last-access times
+       quotanotify <i>NumSeconds</i>   Log quota violations, default=3600 seconds
+       mftzone {1|2|3|4}        Set MFT Zone, multiple of 200MB
+       Bugcheckoncorrupt {0|1}  Enable bugcheck  #
+       disablecompression {0|1} Disable compression #
+       disableencryption {0|1}  Disable encryption  #
+       encryppagingfile {0|1}
+       memoryusage {1|2}           Paged-pool memory cache, 1=default #
+       symlinkevaluation L2L:{0|1}    Local to local symbolic links #
+       symlinkevaluation L2R:{0|1}    Local to remote symbolic links #
+       symlinkevaluation R2R:{0|1}    Remote to local symbolic links #
+       symlinkevaluation R2L:{0|1}    Remote to remote symbolic links #
+       DisableDeleteNotify {0|1}      Delete notifications for all volumes#
+       disable8dot3 [<i>volumePath</i>] <i>sfnNum</i>
+          <i>sfnNum</i> is between 0 and 3 
+           0 = Create short file names (default).
+           1 = don&rsquo;t create short file names. 
+           2 = Set 8.3 names on a per volume basis.
+           3 = Disable 8.3 names on all volumes except the system volume.
+
+1 = enable option
+0 = Disable option
+# = Windows7/2008 option
+
+    Eg :  FSUTIL behavior query disable8dot3 
+          FSUTIL behavior set disablelastaccess 1
+
+    FSUTIL <b>dirty query</b> <i>volume pathname</i>
+
+    FSUTIL <b>dirty set</b> <i>volume pathname</i>
+
+    Marking a disk as dirty will prompt a <a href="chkdsk.html">Chkdsk</a> at next boot
+    Eg :  FSUTIL dirty query C:</pre>
+<p>Query a reparse point</p>
+<pre>    FSUTIL <b>reparsepoint query</b> <i>filename</i>
+
+    Eg : fsutil reparsepoint query C:\Server
+</pre>
+<p>Delete a reparse point</p>
+<pre>    FSUTIL <b>reparsepoint delete</b> <i>filename</i>
+
+    Eg : fsutil reparsepoint delete C:\Server</pre>
+<p>Edit an object identifier</p>
+<pre>    FSUTIL <b>objectid</b> {query | set | delete | create}
+</pre>
+<p>Set sparse file properties</p>
+<pre>    FSUTIL <b>sparse queryflag</b> <i>filename</i>
+    FSUTIL <b>sparse setflag</b> <i>filename</i>
+
+    FSUTIL <b>sparse queryrange</b> <i>filename</i>
+    FSUTIL <b>sparse setrange</b> <i>filename</i>
+    
+    Eg : fsutil sparse queryflag "C:\My Test.txt"
+</pre>
+<p>Query the allocated ranges for a file</p>
+<pre>    FSUTIL <b>file queryallocranges</b> offset=<i>val</i> length=<i>val filename</i>
+
+    offset : File Offset, the start of the range to query
+    length : Size, in bytes, of the range
+
+    Eg : fsutil file queryallocranges offset=1024 length=64 C:\Temp\sample.txt</pre>
+<p>To run FSUTIL, you must be logged on as an administrator or a member of the Administrators group.</p>
+<p>Sparse files provide a method of saving disk space for files that contain meaningful data as well as large sections of data composed of zeros. If an NTFS file is marked as sparse, then disk clusters are allocated only for the data explicitly specified by the application. <br>
+e.g. The Indexing Service, stores it's catalogs as sparse files.</p>
+<p>With 8.3 filennames  disabled  you'll notice a  performance improvement only with a  large number of files (over 300,000) in relatively few folders where a lot of the filenames start with similar names. Not having 8.3 filenames available will prevent the use of old applications such as Word 2.0 and Excel 4.0 </p>
+<p>If you have a lot of small files, you may need a larger Master File Table to avoid MFT fragmentation:<br>
+<span class="code">FSUTIL  behavior set <b>mftzone</b> 2</span> will reserve 25 % of the volume for the MFT. <br>
+1 = 12.5 %(default)<br>
+2 = 25%
+<br>
+3 = 37.5%<br> 
+4 = 50%</p>
+<p>This won't affect existing disk partitions, after changing the mftzone size, reboot the machine and create a new partition.</p>
+<p>In Windows7 and Server 2008 the mft zone is allocated in blocks of 200MB:<br>
+1 = 200 MB (default)<br>
+2 = 400 MB <br>
+3 = 600 MB <br>
+4 = 800 MB </p>
+<p> 
+Increasing the MFT zone does not decrease the disk space available for data files.</p>
+<p>The last access time  attribute of NTFS can  slow performance, if you disable it, the time set will simply be the Creation Time.<br>
+<span class="code">FSUTIL behavior set disablelastaccess 1</span><br>
+<br>
+<b>Bugs</b></p>
+<p>FSUTIL outputs a NULL character (not a space) after every drive specifier, this may cause difficulty when piping the output of fsutil into other commands (particularly FOR). The output from FSUTIL varies by OS see <a href="http://ss64.org/viewtopic.php?id=327">this forum thread</a> for more detail.</p>
+<p>Some features in fsutil are reported to not work correctly under FAT or FAT32 volumes e.g. FSUTIL dirty query.</p>
+<p><i class="quote">&ldquo;You can tune a file system, but you can't tune a fish&rdquo; ~ Sun man page for tunefs</i> <br>
+<br>
+<b>Related:</b></p>
+<p><a href="http://support.microsoft.com/kb/982018">Q982018</a> - FSUTIL update -  compatibility with Advanced Format Disks<br>
+<a href="set.html"></a><a href="cacls.html">CACLS</a> - Change file permissions<a href="set.html"><br>
+</a><a href="chkntfs.html">CHKNTFS</a> - Check the NTFS file system<a href="set.html"><br>
+</a><a href="http://support.microsoft.com/?kbid=311272">DevCon</a> - Device Manager Command Line Utility <a href="set.html"> <br>
+</a><a href="diruse.html">DIRUSE</a> - Display disk usage<a href="set.html"><br>
+</a><a href="diskshadow.html">DISKSHADOW</a> - Volume Shadow Copy Service<a href="set.html"><br>
+</a><a href="set.html">
+</a>
+<a href="http://support.microsoft.com/?id=174619">Q174619</a> - MFT How NTFS reserves space for its Master File Table<br>
+<a href="http://support.microsoft.com/?id=961095">Q961095</a> - MFT Master File Table zone reservation in Vista and Server 2008<br>
+<a href="http://support.microsoft.com/?id=286164">Q286164</a> - Hard Links and System Restore<br>
+<a href="http://support.microsoft.com/?id=249734">Q249734</a> -     Backup Software, RSM and file last access date</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="fsutil.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

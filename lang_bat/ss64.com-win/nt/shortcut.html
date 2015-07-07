@@ -1,0 +1,117 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Shortcut - Create shortcut | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>SHORTCUT.exe (Windows 95 support tools and <a href="http://ss64.com/links/windows.html#kits">NT 4 Server Resource Kit</a>)</h1>
+<p>Create a windows shortcut (.LNK file)</p>
+<pre>Syntax
+      SHORTCUT [<i>options</i>]
+
+Key
+<i>   Source options</i>
+   -t <i>target</i>    : The path and file name of the application/document to open.
+   -a <i>arguments</i> : The arguments passed when the shortcut is used.
+	-d <i>directory</i> : The folder to start the application in.
+   -i <i>iconfile</i>  : The file the icon is in.
+   -x <i>index</i>     : The index into the icon file.
+
+<i>   options for the shortcut file to be created</i>
+
+   -n <i>name</i>      : The path and file name (.LNK) of the shortcut file.
+   -c           : Change existing shortcut.
+   -r           : Resolve broken shortcut.
+   -f           : Force overwrite of an existing short cut.
+   -s           : Make shortcut simple (don&rsquo;t use LinkResolve)
+
+<i>   Export options</i>
+   -u [<i>spec</i>]    : ECHO the contents of an existing shortcut. 
+                  'all' is the same as 'natdix' but the letters 
+                  of 'natdix' specify the <i>options</i> to be exported
+				   (the same option can be specified more than once
+					e.g. -u natn)
+   -l <i>logfile</i>   : Save any error messages in the specified file
+</pre>
+<p>If shortcut.exe fails to create a new shortcut, it does NOT set 
+  an errorlevel.<br>
+  <br>
+  <b>Example</b></p>
+<pre>   @ECHO off 
+   MD %userprofile%"\start menu\programs\MY APP"
+   SHORTCUT -f -t C:\MyApp.exe -n %userprofile%"\start menu\programs\MY APP\MY APP"</pre>
+<p>An alternative, is to use <a href="http://ss64.com/vb/">VBScript</a>, call the  VB script with cscript like so: <br> 
+<span class="code">CSCRIPT C:\batch\myshortcut.vbs</span> </p>
+<p>Optional sections in the VBscript below are commented out:</p>
+<pre>   Set oWS = WScript.CreateObject("WScript.Shell")
+   sLinkFile = "C:\MyShortcut.LNK"
+   Set oLink = oWS.CreateShortcut(sLinkFile)
+   
+   oLink.TargetPath = "C:\Program Files\MyApp\MyProgram.EXE"
+   '	oLink.Arguments = ""
+   '	oLink.Description = "MyProgram"
+   '	oLink.HotKey = "ALT+CTRL+F"
+   '	oLink.IconLocation = "C:\Program Files\MyApp\MyProgram.EXE, 2"
+   '	oLink.WindowStyle = "1"
+   '	oLink.WorkingDirectory = "C:\Program Files\MyApp"
+   oLink.Save</pre>
+<h2>Shortcut NTFS file system tracking</h2>
+<p> If a shortcut to a file breaks because the destination file has moved, then by default Windows will attempt to <a href="http://technet.microsoft.com/en-gb/magazine/2009.10.windowsconfidential.aspx">automatically locate the shortcut destination</a> by performing a  search or matching file properties. This 
+can be turned on or off in the registry:<br>
+<br>
+<span class="code">HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer<br>
+NoResolveTrack</span></p>
+<p> 0 = disabled, 1 = enabled (REG_DWORD)</p>
+<h2> Shortcut Auto LinkResolve</h2>
+<p>By default shortcuts will include the destination machine, even for a target like <span class="code">C:\MyFile.doc</span> <br>
+This is not immediately visible until the shortcut.LNK file is copied to another machine,  the shortcut target will then be automatically updated to point 
+back to <span class="code">\\Machine1\c$\MyFile.doc</span><br>
+To turn this behaviour off use <span class="code">shortcut.exe -s </span>or  add a  DWORD value of 1 to the registry (before creating the shortcut):<br>
+<br>
+<span class="code">HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer<br>
+"LinkResolveIgnoreLinkInfo"=1</span></p>
+<h2>Internet Shortcuts</h2>
+<p>Unlike file/folder shortcuts, Internet Explorer Favourite (.URL) files are simple text files which you can create with a couple of ECHO statements:</p>
+<p><span class="code">Echo [InternetShortcut] &gt; demo.url <br>
+Echo URL=http://ss64.com/ &gt;&gt; demo.url</span><br>
+<br>
+<i class="quote">&ldquo;The reasonable man adapts himself to the world: the unreasonable one persists in trying to adapt the world to himself. Therefore all progress depends on the unreasonable man&rdquo; ~ George Bernard Shaw</i></p>
+<p><b> Related:</b><br>
+<br>
+<a href="md.html">MD</a> - Create folder(s)<br>
+<a href="slow_browsing.html">Slow Network browsing</a> (XP)<br>
+<a href="fsutil.html">FSUTIL</a> - Create a Hardlink <br>
+<a href="http://support.microsoft.com/?kbid=158682">Q158682</a> - Shortcuts 
+created resolve to UNC Path (Link Tracking)<br>
+<a href="http://support.microsoft.com/?kbid=150215">Q150215</a> - Disable Automatic 
+Shortcut Resolution <br>
+<a href="http://support.microsoft.com/kb/254493">Q254493</a> - Shortcut.exe fails with sub-folder names.<br>
+<a href="http://support.microsoft.com/?kbid=263324">Q263324</a> - Shortcut.exe  truncates path names. <br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/symlink.html">symlink</a> - Make a new name for a file, <a href="http://ss64.com/bash/ln.html">ln</a> - Make links between files </p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="shortcut.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

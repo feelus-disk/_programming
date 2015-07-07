@@ -1,0 +1,80 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Call operator - Run | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>&amp;</h1> 
+<p>The call operator (&amp;) allows you to execute a command, script or function. </p>
+<p>Many times you can  execute a command by just typing its name, but if the command (or the path) contains a space then this will fail.<br>
+Putting the command in quotes would make PowerShell treat it as a string, so in addition to quotes, use the call operator to force PowerShell to treat the string as a command to be executed. </p>
+<pre>Syntax
+      <b>&amp;</b> &quot;[<i>path</i>] <i>command&quot;</i> [<i>arguments</i>]
+
+Key:
+    <i>command</i>   An executable filename (.exe), script or function.
+
+   <i>arguments</i>  The call operator will only handle a single command.
+              Any arguments may follow the called command.
+
+              If the pathname contains spaces, place the command
+              inside double quotes and any arguments outside the quotes.</pre>
+<p>One consequence of the <a href="http://rkeithhill.wordpress.com/2007/11/24/effective-powershell-item-10-understanding-powershell-parsing-modes/">rules</a> for expression parsing  is that if you want to execute an EXE or script whose name starts with a number you have to quote the name and use the call operator.</p>
+<p><b>Precedence of commands:</b></p>
+<pre> Alias &gt; Function &gt; Filter &gt; Cmdlet &gt; Application &gt; ExternalScript &gt; Script
+   Highest priority .................................... Lowest priority </pre>
+<p>If you need to run a specific type of command which may not be the highest priority use Get-Command. For example if you have an external command called Ping and a function also called ping, normally the function will be run as it has higher priority, <span class="code">Get-Command -commandType Application Ping</span> will return the external application instead.</p>
+<p><b>Script blocks<a id="scriptblocks"></a></b></p>
+<p>An entire script block can be stored in a variable: <span class="code">$myVar = { <i>a bunch of commands</i> } </span><br>
+Then execute the script using <span class="code">&amp;</span> <br>
+<span class="code">PS C:\&gt; &amp; $myVar<br>
+</span>or even without the variable<span class="code">: <br>
+PS C:\&gt; &amp; { <i>a bunch of commands</i> }<br>
+</span><br>
+This usage (calling a script block) is exactly the same as using <a href="invoke-expression.html">Invoke-Expression</a> to run a set of commands. </p>
+<p><b>Examples</b></p>
+<pre>PS C:\&gt; &amp; &quot;C:\Program files\mycommand.exe&quot;
+
+PS C:\&gt; $runMyProg = &quot;C:\Program files\mycommand.exe&quot;
+PS C:\&gt; &amp; $runMyProg
+
+PS C:\&gt; $myPing = Get-Command -commandType Application Ping
+PS C:\&gt; &amp; $myPing</pre>
+<p><b>Dot-Sourcing</b></p>
+<p>Invoking a command (either directly or with the call operator) will create a child scope that will be thrown away when the command exits. If the command/script changes a global variable those changes will be lost when the scope ends. <br>
+To avoid this and preserve any changes made to global variables you can '<a href="source.html">dot</a>' the script which will execute the script in the current scope.</p>
+<p><b>Examples</b></p>
+<p><span class="code">PS C:\&gt; . C:\scripts\myscript.ps1<br>
+</span><span class="code">PS C:\&gt; . ./script64.ps1</span><br>
+  <br>
+  <i class="quote">#You went away, 
+And I wonder where you will stay, 
+My little runaway, 
+Run, run, run, run, runaway# ~ Dell Shannon</i></p>
+
+<p><b>Related:</b></p>
+<p><a href="source.html">. (source)</a> - Run a command script in the current shell<br>
+<a href="syntax-operators.html">PowerShell Operators</a> - Syntax<br>
+<a href="syntax-run.html">Run a PowerShell script</a> - Syntax<br>
+<a href="get-command.html">Get-Command</a> - Retrieve basic information about a command<br>
+<a href="invoke-item.html">Invoke-Item</a> - Invoke an executable or open a file<br>
+<a href="invoke-expression.html">Invoke-Expression</a> - Run a PowerShell expression</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="call.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

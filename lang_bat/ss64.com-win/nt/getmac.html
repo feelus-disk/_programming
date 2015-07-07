@@ -1,0 +1,107 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>GetMac | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>GetMac.exe</h1>
+<p>Display the Media Access Control (MAC) address and list of network protocols associated with each address for all network cards in each computer, either locally or across a network.</p>
+<pre>Syntax
+      getmac [/s <i>Computer</i> [/u <i>Domain</i>\<i>User</i> [/p <i>Password</i>]]]
+         [/fo {TABLE|LIST|CSV}] [/nh] [/v]
+
+Key
+   /s <i>Computer</i>     The name or IP address of a remote computer
+                  (do not use backslashes). Default = local computer.
+
+   /u <i>Domain</i>\<i>User</i>  Run the command with the account permissions of the
+                   user specified. Default = the currently logged on user.
+
+   /p <i>Password</i>     The password of the user account that is specified in the /u parameter.
+
+   /fo { TABLE | LIST | CSV } 
+                   Format the output. Default = TABLE.
+
+   /nh   Omit the header row from the displayed driver information.
+         Valid when the /fo parameter is set to TABLE or CSV.
+
+   /v    Display verbose information.
+
+   /?    Display Help. </pre>
+<p>
+<b>Examples</b></p>
+<p>Show all MAC addresses in Table output:<br>
+<span class="code">getmac /fo table /nh /v</span><br>
+<br>
+Show  MAC addresses on server64 <br>
+<span class="code">getmac /s server64</span><br>
+<br>
+Show  MAC addresses on server64 and authenticate as a different user:<br>
+<span class="code">getmac /s server64 /u ss64Dom\user583</span><br>
+<br>
+Export a verbose listing of MAC addresses to a CSV file<span class="code"> <br>
+getmac /v /fo csv &gt; T:\macaddresses.csv</span></p>
+<p>PowerShell script to get the Mac address of the current machine:<br>
+<span class="code">$Mac = getmac /fo csv | ConvertFrom-Csv </span></p>
+<p>PowerShell script to collect Mac addresses for multiple machines by calling GetMac:</p>
+<pre># Create empty hash table
+$macHash=@{}
+# Load a list of machine names
+$servers=get-content c:\batch\servers.txt
+foreach ($server in $servers) {
+   if (<span class="code">Test-Connection <i></i></span>$server<span class="code"> -quiet</span>) {   # if it responds to a Ping
+      # Call the GetMac utility
+      $getmac=<b>getmac /nh /fo csv /s $server</b>
+      $macAddresses=$getmac -split &quot;,&quot;
+      $interface = 1
+      $macAddresses | foreach {
+         if ($_ -ne &quot;&quot;){
+            # check for a '-' to see if we have a mac address
+            if ($_.substring(3,1) -eq &quot;-&quot;) {
+               # Remove quotes
+               $addr = $_.replace(&quot;&quot;&quot;&quot;,&quot;&quot;)
+               $adapter = $interface/2
+               Echo &quot;$server  Adapter:$adapter  $addr&quot;
+               # Save in the hash variable
+               $macHash.add(&quot;$server Adapter:$adapter&quot;,$addr)
+            }
+         }
+      $interface += 1
+      }
+   }
+}
+# Export the hash table to a spreadsheet
+$macHash.GetEnumerator() | select name, value | Sort-Object Name | Export-CSV -Path "c:\batch\macaddresses.csv" -NoTypeInformation
+</pre>
+<p class="quote">&ldquo;I am the literary equivalent of a Big Mac and Fries&rdquo; ~ Stephen King (Writer, best known for horror novels.) </p>
+<p><b>Related:</b><br>
+<br>
+<a href="devcon.html">DevCon</a> - Device Manager Command Line Utility<br>
+WMI :  Win32_NetworkAdapter</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="getmac.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

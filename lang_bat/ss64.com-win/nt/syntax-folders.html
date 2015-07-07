@@ -1,0 +1,93 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>User Shell Folders | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>User Shell Folders</h1> 
+<p>In Windows 7/2008 the main User Profile folder (<span class="code">%USERPROFILE%</span>) has moved from <span class="code">C:\Documents and Settings\</span> to <span class="code">C:\Users\</span> and many profile folders have also changed name or location:</p>
+<pre> Windows XP/2003                Windows 7/2008
+
+%USERPROFILE%\Application Data %USERPROFILE%\AppData\Roaming
+%USERPROFILE%\Cookies          %USERPROFILE%\AppData\Roaming\Microsoft\Windows\Cookies
+%USERPROFILE%\History          %USERPROFILE%\AppData\Local\Microsoft\Windows\History
+%USERPROFILE%\Local Settings   %USERPROFILE%\AppData\Local
+%USERPROFILE%\My Documents     %USERPROFILE%\Documents
+%USERPROFILE%\NetHood          %USERPROFILE%\AppData\Roaming\Microsoft\Windows\Network Shortcuts
+%USERPROFILE%\PrintHood        %USERPROFILE%\AppData\Roaming\Microsoft\Windows\Printer Shortcuts
+%USERPROFILE%\Recent           %USERPROFILE%\AppData\Roaming\Microsoft\Windows\Recent
+%USERPROFILE%\SendTo           %USERPROFILE%\AppData\Roaming\Microsoft\Windows\SendTo
+%USERPROFILE%\Start Menu       %USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu
+%USERPROFILE%\Templates        %USERPROFILE%\AppData\Roaming\Microsoft\Windows\Templates
+%USERPROFILE%\Temporary Internet Files %USERPROFILE%\AppData\Local\Microsoft\Windows\Temporary Internet Files</pre>
+<p>The values above can  be found in the registry (as REG_EXPAND_SZ values)<br>
+<span class="code">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders</span></p>
+<p>The following HKCU registry subkeys are common to  Windows XP/2003/7/2008 : </p>
+<p class="code">AppData, Cache, Cookies, Desktop, Favorites, History, LocalAppData, My Pictures, NetHood, Personal, PrintHood, Programs, Recent, SendTo, Start Menu, Startup, Templates.</p>
+<p>In summary - the registry locations have stayed the same, but the files and folders are in different places. Some applications read the registry to determine where to save things, others may have hard coded the file paths. </p>
+<p>To provide  backwards compatibility, in Windows 7/2008 the old locations under <span class="code">C:\Documents and Settings</span> contain junction points (hidden, protected operating system files) which point to the new user-accessible folders.</p>
+<h2><a id="allusers"></a>'All Users' Shell Folders</h2>
+<p>The folders for All Users settings have also moved:</p>
+<pre> Windows XP/2003                      Windows 7/2008
+
+%ALLUSERSPROFILE%\Application Data    %ProgramData%
+%ALLUSERSPROFILE%\Desktop             %PUBLIC%\Desktop
+%ALLUSERSPROFILE%\Documents           %PUBLIC%\Documents
+%ALLUSERSPROFILE%\Start Menu\Programs %ProgramData%\Microsoft\Windows\Start Menu\Programs
+%ALLUSERSPROFILE%\Start menu          %ProgramData%\Microsoft\Windows\Start Menu
+%ALLUSERSPROFILE%\Start Menu\Programs\Startup  %ProgramData%\Microsoft\Windows\Start Menu\Programs\Startup
+%ALLUSERSPROFILE%\Templates           %ProgramData%\Microsoft\Windows\Templates
+</pre>
+<p>The values above can  be found in the registry (as REG_EXPAND_SZ values)<br>
+<span class="code">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders</span></p>
+<p>The following HKLM registry subkeys are common to  Windows XP/2003/7/2008 : </p>
+<p class="code">Common AppData, Common Desktop, Common Documents, Common Programs, 
+Common Start Menu, Common Startup, Common templates</p>
+<p><b>Examples</b></p>
+<p>Find the location of the Start Menu folder:</p>
+<p class="code">&nbsp;<a href="reg.html">REG QUERY</a> &quot;HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders&quot; /v &quot;Start Menu&quot;</p>
+<p class="code">&nbsp;<a href="reg.html">REG QUERY</a> &quot;HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders&quot; /v &quot;Common Start Menu&quot;</p>
+<p class="code">&nbsp;For /f &quot;tokens=3*&quot; %%G in ('REG QUERY &quot;HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders&quot; /v &quot;Start Menu&quot; ^|Find &quot;REG_&quot;') do Call Set _startmenu=%%H<br>
+&nbsp;Echo %_startmenu%</p>
+<p>PowerShell <a href="http://ss64.com/ps/syntax-functions.html">function</a> to open the Start menu:</p>
+<p class="code">function Open-StartMenu { <br>
+$drive = dir env:SystemDrive <br>
+$w7path = $drive.value + "\ProgramData\Microsoft\Windows\Start Menu" <br>
+$xppath = $drive.value + "\Documents and Settings\All Users\Start Menu" <br>
+if (test-path $w7path) <br>
+ {explorer $w7path} <br>
+elseif (test-path $xppath) {explorer $xppath} <br>
+} </p>
+<p class="quote"><i>“There are no shortcuts to any place worth going” -  Beverly Sills</i>
+<p><b>Related:</b></p>
+<p><a href="syntax-variables.html">Windows Environment Variables</a> - XP and Windows 7<br>
+<a href="http://ss64.com/vb/syntax-profile.html">RoamingProfile.vbs</a> - Cleardown files to improve logon and logoff times.<br>
+<a href="http://technet.microsoft.com/en-us/library/cc766489(WS.10).aspx">Managing Roaming User Data Deployment Guide</a> - TechNet (html and .doc)<br>  
+<a href="http://support.microsoft.com/kb/886549">Q886549</a> - User Shell Folders</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-folders.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

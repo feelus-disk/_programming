@@ -1,0 +1,281 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>BITSADMIN - Background Intelligent Transfer Service | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>BITSADMIN</h1>
+<p>Manage the Background Intelligent Transfer Service (BITS). The BITS Service can be used to transfer large files from remote hosts. BITS supports throttled and asynchronous transfer of files between machines using idle network bandwidth. This service is used by Windows Update, SUS, SMS and many third party packages.</p>
+<p>BITSADMIN is deprecated in Windows 7 and 2008 R2, it is superceeded by the new PowerShell <a href="http://ss64.com/ps/bits.html">BITS cmdlets</a>.</p>
+<pre>Syntax
+      BITSADMIN [/RAWRETURN] [/WRAP | /NOWRAP] <i>command</i>
+
+The following commands are available:
+
+   /UTIL /?          Print the list of utilities commands
+   /PEERCACHING /?   Print the list of commands to manage Peercaching
+   /CACHE /?         Print the list of cache management commands
+   /PEERS /?         Print the list of peer management commands
+
+   /LIST    [/ALLUSERS] [/VERBOSE]     List the jobs
+   /MONITOR [/ALLUSERS] [/REFRESH sec] Monitor the copy manager
+   /RESET   [/ALLUSERS]                Delete all jobs in the manager
+
+   /TRANSFER <i>job name</i> [type] [/PRIORITY priority] [/ACLFLAGS <i>flags</i>]
+          <i>remote_url local_name</i>
+                                       Transfer one of more files.
+       [type] may be /DOWNLOAD or /UPLOAD; default is download
+       Multiple URL/file pairs may be specified.
+       Unlike most commands, <i>job name</i> may only be a name and not a GUID.
+
+   /CREATE [type] <i>job name</i>             Create a job
+       [type] may be /DOWNLOAD, /UPLOAD, or /UPLOAD-REPLY; default is download
+       Unlike most commands, <i>job name</i> may only be a name and not a GUID.
+
+   /INFO <i>job</i> [/VERBOSE]                Display information about the job
+
+   /ADDFILE <i>job remote_url local_name</i>  Add a file to the job
+
+   /ADDFILESET <i>job textfile</i>            Add multiple files to the job
+      Each line of <i>textfile</i> lists a file's remote name and local name, separated
+      by spaces.  A line beginning with '#' is treated as a comment.
+      Once the file set is read into memory, the contents are added to the job.
+
+   /ADDFILEWITHRANGES  <i>job remote_url local_name range_list</i>
+      Like /ADDFILE, but BITS will read only selected byte ranges of the URL.
+      <i>range_list</i> is a comma-delimited series of offset and length pairs.
+      For example,
+
+       0:100,2000:100,5000:eof
+
+      instructs BITS to read 100 bytes starting at offset zero, 100 bytes starting
+      at offset 2000, and the remainder of the URL starting at offset 5000.
+
+   /REPLACEREMOTEPREFIX <i>job old_prefix new_prefix</i>
+       All files whose URL begins with <i>old_prefix</i> are changed to use <i>new_prefix</i>
+
+      Note that BITS currently supports HTTP/HTTPS downloads and uploads.
+      It also supports UNC paths and file:// paths as URLS
+
+   /LISTFILES <i>job</i>                     List the files in the job
+   /SUSPEND <i>job</i>                       Suspend the job
+   /RESUME <i>job</i>                        Resume the job
+   /CANCEL <i>job</i>                        Cancel the job
+   /COMPLETE <i>job</i>                      Complete the job
+
+   /GETTYPE <i>job</i>                       Retrieve the job type
+   /GETACLFLAGS <i>job</i>                   Retrieve the ACL propagation flags
+
+   /SETACLFLAGS <i>job ACL_flags</i>         Set the ACL propagation flags for the job
+     O - OWNER       G - GROUP
+     D - DACL        S - SACL 
+
+     Examples:
+         bitsadmin /setaclflags MyJob OGDS
+         bitsadmin /setaclflags MyJob OGD
+
+   /GETBYTESTOTAL <i>job</i>                 Retrieve the size of the job
+   /GETBYTESTRANSFERRED <i>job</i>           Retrieve the number of bytes transferred
+   /GETFILESTOTAL <i>job</i>                 Retrieve the number of files in the job
+   /GETFILESTRANSFERRED <i>job</i>           Retrieve the number of files transferred
+   /GETCREATIONTIME <i>job</i>               Retrieve the job creation time
+   /GETMODIFICATIONTIME <i>job</i>           Retrieve the job modification time
+   /GETCOMPLETIONTIME <i>job</i>             Retrieve the job completion time
+   /GETSTATE <i>job</i>                      Retrieve the job state
+   /GETERROR <i>job</i>                      Retrieve detailed error information
+   /GETOWNER <i>job</i>                      Retrieve the job owner
+   /GETDISPLAYNAME <i>job</i>                Retrieve the job display name
+   /SETDISPLAYNAME <i>job display_name</i>   Set the job display name
+   /GETDESCRIPTION <i>job</i>                Retrieve the job description
+   /SETDESCRIPTION <i>job description</i>    Set the job description
+   /GETPRIORITY    <i>job</i>                Retrieve the job priority
+   /SETPRIORITY    <i>job priority</i>       Set the job priority
+      Priority usage choices:
+         FOREGROUND
+         HIGH
+         NORMAL
+         LOW
+   /GETNOTIFYFLAGS <i>job</i>                Retrieve the notify flags
+   /SETNOTIFYFLAGS <i>job notify_flags</i>   Set the notify <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363044%28v=vs.85%29.aspx">flags</a>
+   /GETNOTIFYINTERFACE <i>job</i>            Determines if notify interface is registered
+   /GETMINRETRYDELAY <i>job</i>              Retrieve the retry delay in seconds
+   /SETMINRETRYDELAY <i>job retry_delay</i>  Set the retry delay in seconds
+   /GETNOPROGRESSTIMEOUT <i>job</i>          Retrieve the no progress timeout in seconds
+   /SETNOPROGRESSTIMEOUT <i>job timeout</i>  Set the no progress timeout in seconds
+   /GETMAXDOWNLOADTIME <i>job</i>            Retrieve the download timeout in seconds
+   /SETMAXDOWNLOADTIME <i>job timeout</i>    Set the download timeout in seconds
+   /GETERRORCOUNT <i>job</i>                 Retrieve an error count for the job
+
+   /SETPROXYSETTINGS <i>job usage</i>        Set the proxy usage
+      usage choices:
+       PRECONFIG   - Use the owner's IE defaults.
+       AUTODETECT  - Force autodetection of proxy.
+       NO_PROXY    - Do not use a proxy server.
+       OVERRIDE    - Use an explicit proxy list and bypass list.
+                     Must be followed by a proxy list and a proxy bypass list.
+                     NULL or "" may be used for an empty proxy bypass list.
+
+Examples:
+      bitsadmin /setproxysettings MyJob PRECONFIG
+      bitsadmin /setproxysettings MyJob AUTODETECT
+      bitsadmin /setproxysettings MyJob NO_PROXY
+      bitsadmin /setproxysettings MyJob OVERRIDE proxy1:80 "<i>local</i>"
+      bitsadmin /setproxysettings MyJob OVERRIDE proxy1,proxy2,proxy3 NULL
+
+   /GETPROXYUSAGE <i>job</i>                 Retrieve the proxy usage setting
+   /GETPROXYLIST <i>job</i>                  Retrieve the proxy list
+   /GETPROXYBYPASSLIST <i>job</i>            Retrieve the proxy bypass list
+
+   /TAKEOWNERSHIP <i>job</i>                 Take ownership of the job
+
+   /SETNOTIFYCMDLINE <i>job program_name</i> [program_parameters]
+       Sets a program to execute for notification, and optionally parameters.
+       The program name and parameters can be NULL.
+       IMPORTANT: if parameters are non-NULL, then the program name should be the
+                  first parameter.
+
+     Examples:
+       bitsadmin /SetNotifyCmdLine MyJob c:\windows\system32\notepad.exe  NULL
+       bitsadmin /SetNotifyCmdLine MyJob c:\foo.exe "c:\foo.exe parm1 parm2"
+       bitsadmin /SetNotifyCmdLine MyJob NULL NULL
+
+   /GETNOTIFYCMDLINE <i>job</i>               Return the job's notification command line
+
+   /SETCREDENTIALS <i>job target scheme username password</i>
+     Adds credentials to a job.
+     <i>target</i> may be either SERVER or PROXY
+     <i>scheme</i> may be BASIC, DIGEST, NTLM, NEGOTIATE, or PASSPORT.
+
+   /REMOVECREDENTIALS <i>job target scheme</i>
+     Removes credentials from a job.
+   /GETCUSTOMHEADERS <i>job</i>                        Get the Custom HTTP Headers
+   /SETCUSTOMHEADERS <i>job header1 header2 ...</i>    Set the Custom HTTP Headers
+   /GETCLIENTCERTIFICATE <i>job</i>                    Get the job's Client Certificate Information
+   /SETCLIENTCERTIFICATEBYID <i>job store_location store_name hexa-decimal_cert_id</i>
+     Set a client authentication certificate to a job.
+     <i>store_location</i>    may be
+       1(CURRENT_USER), 2(LOCAL_MACHINE), 3(CURRENT_SERVICE),
+       4(SERVICES), 5(USERS), 6(CURRENT_USER_GROUP_POLICY),
+       7(LOCAL_MACHINE_GROUP_POLICY) or 8(LOCAL_MACHINE_ENTERPRISE).
+
+   /SETCLIENTCERTIFICATEBYNAME <i>job store_location store_name subject_name</i>
+     Set a client authentication certificate to a job.
+     <i>store_location</i> may be
+       1(CURRENT_USER), 2(LOCAL_MACHINE), 3(CURRENT_SERVICE),
+       4(SERVICES), 5(USERS), 6(CURRENT_USER_GROUP_POLICY),
+       7(LOCAL_MACHINE_GROUP_POLICY) or 8(LOCAL_MACHINE_ENTERPRISE).
+
+   /REMOVECLIENTCERTIFICATE <i>job</i>                Remove the Client Certificate Information from the job
+
+   /SETSECURITYFLAGS <i>job value</i>
+      Set the HTTP security flags for URL redirection and checks performed on the server cert. during the transfer.
+      The value is an unsigned integer with the following interpretation for the bits in the binary representation.
+        Enable CRL Check                                 : Set the least significant bit
+        Ignore invalid common name in server certificate : Set the 2nd bit from right
+        Ignore invalid date in  server certificate       : Set the 3rd bit from right
+        Ignore invalid certificate authority in server
+          certificate                                    : Set the 4th bit from right
+        Ignore invalid usage of certificate              : Set the 5th bit from right
+        Redirection policy                               : Controlled by the 9th-11th bits from right
+            0,0,0  - Redirects will be automatically allowed.
+            0,0,1  - Remote name in the IBackgroundCopyFile interface will be updated if a redirect occurs.
+            0,1,0  - BITS will fail the job if a redirect occurs.
+
+        Allow redirection from HTTPS to HTTP             : Set the 12th bit from right
+
+   /GETSECURITYFLAGS <i>job</i>   
+      Report the HTTP security flags for URL redirection and checks performed on the server certificate during the transfer.
+
+   /SETVALIDATIONSTATE <i>job file-index true|false</i>
+         <file-index> starts from 0         
+       Set the content-validation state of the given file within the job.
+
+   /GETVALIDATIONSTATE  <i>job file-index</i>
+         <file-index> starts from 0         
+       Report the content-validation state of the given file within the job.
+
+   /GETTEMPORARYNAME  <i>job file-index</i>
+      <i>file-index</i> starts from 0         
+       Report the temporary filename of the given file within the job.
+
+The following options control peercaching of a particular job:
+
+   /SETPEERCACHINGFLAGS  <i>job value</i>
+       Sets the flags for the job's peercaching behavior.
+       The value is an unsigned integer with the following interpretation for the bits in the binary representation.
+           Allow the job's data to be downloaded from a peer : Set the least significant bit
+           Allow the job's data to be served to peers        : Set the 2nd bit from right
+
+   /GETPEERCACHINGFLAGS  <i>job</i>               
+       Report the flags for the job's peercaching behavior.
+
+The following options are valid for UPLOAD-REPLY jobs only:
+
+   /GETREPLYFILENAME <i>job</i>        Get the path of the file containing the server reply
+   /SETREPLYFILENAME <i>job path</i>   Set the path of the file containing the server reply
+   /GETREPLYPROGRESS <i>job</i>        Get the size and progress of the server reply
+   /GETREPLYDATA     <i>job</i>        Dump the server's reply data in hex format
+
+The following options can be placed before the command:
+   /RAWRETURN                     Return data more suitable for parsing
+   /WRAP                          Wrap output around console (default)
+   /NOWRAP                        Don&rsquo;t wrap output around console
+
+   The /RAWRETURN option strips new line characters and formatting.
+   It is recognized by the /CREATE and /GET* commands.
+</pre>
+<p><br>
+Commands that take a <i>job</i> parameter will accept either a job name or a job ID
+GUID inside braces.  </p>
+<p>BITSADMIN reports an error if a name is ambiguous.</p>
+<p>BITSADMIN does not work with relative paths.<br>
+<br>
+Many commands are only compatible with Microsoft IIS servers (e.g. upload).</p>
+<p>BITSADMIN is deprecated in Windows 7 and 2008 R2, it is superceeded by the new PowerShell <a href="http://ss64.com/ps/bits.html">BITS cmdlets</a>.<br>
+<br>
+<b>Examples</b><br>
+<br>
+Create a new download job:<br>
+<span class="code">C:\> Bitsadmin /create /download SS64</span><br>
+<br>
+Add a file that we want to download  to the job and specify a location where the downloaded file will be stored:<br>
+<span class="code">C:\> Bitsadmin /addfile SS64 http://download.sysinternals.com/files/PSTools.zip c:\PSTools.zip<br>
+C:\> Bitsadmin /resume SS64</span><br>
+<br>
+Check if a download job has finished and if so complete the job:<br>
+<span class="code">C:\> Bitsadmin /info SS64 /verbose | find "STATE: TRANSFERRED"<br>
+C:\> IF %ERRORLEVEL% EQU 0 bitsadmin /complete SS64</span></p>
+<p class="quote">&ldquo;Downloading is definitely on the rise, but not because it's free - that's probably third on the list - but because it's immediate and the selection is virtually unlimited&rdquo; ~ Don Rose</p>
+<p><b>Related:</b><br>
+<br>
+<a href="robocopy.html">ROBOCOPY</a> - Robust File and Folder Copy<br> 
+<a href="ftp.html">FTP</a>- File Transfer Protocol<br>
+Powershell: <a href="http://ss64.com/ps/bits.html">Bits cmdlets</a><br>
+Equivalent bash command (Linux): wget - Retrieve web pages or files, curl - Transfer data to or from  a server</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="bitsadmin.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Set-ADDomainMode | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Set-ADDomainMode</h1>
+<p>Set the domain functional level for an AD domain.</p>
+<pre>Syntax
+      Set-ADDomainMode [-Identity] <i>ADDomain</i>
+         [-DomainMode] {Windows2000Domain | Windows2003InterimDomain | Windows2003Domain |
+                        Windows2008Domain | Windows2008R2Domain | UnknownDomain}
+            [-AuthType {<u>Negotiate</u> | Basic}] [-Credential <i>PSCredential</i>] [-PassThru]
+               [-Server <i>string</i>] [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+Key
+   -AuthType {<u>Negotiate</u> | Basic}
+       The authentication method to use:
+          Negotiate or 0
+          Basic or 1
+       A Secure Sockets Layer (SSL) connection is required for the Basic authentication method.
+
+   -Credential <i>PSCredential</i>
+	    A user account that has permission to perform this action.
+       The default is the current user unless the cmdlet is run from an AD PowerShell provider drive
+       in which case the account associated with the drive is the default.
+
+       &quot;User64&quot; or &quot;Domain01\User64&quot; or a <a href="get-credential.html">PSCredential</a> object.
+
+   -DomainMode <i>ADDomainMode</i>
+       The domain mode for an AD domain.
+       Values:
+          Windows2000Domain or 0
+          Windows2003InterimDomain or 1 
+          Windows2003Domain or 2
+          Windows2008Domain or 3
+          Windows2008R2Domain or 4
+
+   -Identity <i>ADDomain</i>
+       An AD domain object:
+
+          Distinguished Name
+            Example: DC=strasbourg,DC=corp,DC=SS64,DC=com 
+          GUID (objectGUID)
+            Example: 90886fbf-2779-48cd-b020-0aa9c94d5c90
+          Security Identifier (objectSid)
+            Example: S-1-5-21-3465297858-302567370-
+          DNS domain name
+            Example: strasbourg.corp.SS64.com
+          NetBIOS domain name
+            Example: strasbourg
+
+       The identifier in parentheses is the LDAP display name for the attribute.
+
+       The cmdlet searches the default naming context or partition to find the object.
+       If the identifier given is a DN, the partition to search will be computed from that DN.
+       If two or more objects are found, the cmdlet returns a non-terminating error.
+
+       This parameter can also accept an object through the pipeline.
+ 
+   -Server <i>string</i>
+       The AD Domain Services instance to connect to, this may be a Fully qualified domain name,
+       NetBIOS name, Fully qualified directory server name (with or without port number) or AD Snapshot instance.
+
+       Examples: demo.SS64.com  demo  demoDC02.demo.ss64.com  demoDC02.demo.ss64.com:3268
+
+   -PassThru
+       Returns the new or modified object.
+       By default (i.e. if -PassThru is not specified), this cmdlet does not generate any output.
+
+   -Confirm
+       Prompt for confirmation before executing the command.
+
+    -WhatIf
+       Describe what would happen if you executed the command, without actually executing the command.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Set-ADDomainMode  sets the domain mode for a domain. Specify the domain mode by setting the<span class="code"> -DomainMode</span> parameter. <br>
+<br>You can change the domain mode to a mode with higher functionality only. For example, if the domain mode  is 'Windows 2003', you can  increase the mode to 'Windows 2008'.<br>
+<br>The <span class="code">-Identity</span> parameter specifies the AD domain to modify. Identify a domain by its distinguished name (DN), GUID, security identifier (SID), DNS domain name, or NetBIOS name. Alternatively set the -Identity parameter to a domain object <a href="syntax-variables.html">variable</a> or through the <a href="syntax-pipeline.html">pipeline</a>. e.g. from <a href="get-addomain.html">Get-ADDomain </a><br>
+<br>Set-ADDomainMode will prompt for permission unless <span class="code">-confirm:$false</span> is specified.</p>
+<p><b>Examples</b></p>
+<p>Set the DomainMode property of the SS64.com domain:</p>
+<p class="code">PS C:\> Set-ADDomainMode -Identity SS64.com -DomainMode Windows2008R2Domain</p>
+<p>Set the DomainMode of the current logged on user's domain to Windows2008R2Domain:</p>
+<p class="code">PS C:\> $pdc = Get-ADDomainController -Discover -Service PrimaryDC<br>
+PS C:\> Set-ADDomainMode -Identity $pdc.Domain -Server $pdc.HostName[0] -DomainMode Windows2008R2Domain</p>
+<p class="quote"><i>“The people and circumstances around me do not make me what I am, they reveal who I am&rdquo; ~ Dr. Laura Schlessinger</i></p>
+<p><b>Related:</b></p>
+<p><a href="get-addomain.html">Get-adDomain</a> - Get an AD domain. <a href="set-addomain.html"><br>
+</a><a href="set-adforestmode.html">Set-adForestMode</a> - Set the forest mode for an AD forest</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="set-addomainmode.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

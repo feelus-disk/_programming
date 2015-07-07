@@ -1,0 +1,107 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Runas - Run under a different user account | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>RUNAS</h1>
+<p>Execute a program under a different user account.</p>
+<pre>Syntax
+      RUNAS [ [/noprofile | /profile] [/env] [/savecred | /netonly] ]
+         /<b>user</b>:<i>UserName</i> <i>program</i>
+
+      RUNAS [ [/noprofile | /profile] [/env] [/savecred] ]
+         /<b>smartcard</b> [/user:<i>UserName</i>] <i>program</i>
+
+      RUNAS /<b>trustlevel</b>:<i>TrustLevel</i> <i>program</i>
+
+Key
+   /noprofile       Do not load the user's profile.
+                    This causes the application to load more quickly, but
+                    can cause some applications to malfunction.
+
+   /profile         Load the user's profile. (default)
+
+   /env             Use the current environment instead of user's.
+
+   /netonly         Use the credentials for remote access only.
+
+   /savecred        Use credentials previously saved by the user.
+                    This option is not available on Windows 7 Home or
+                    Starter Editions and will be ignored.
+
+   /smartcard       Load the credentials from a smartcard.
+
+   /user            <i>UserName</i> in the form USER@DOMAIN or DOMAIN\USER
+
+   /showtrustlevels Display the trust levels that can be used.
+
+   /trustlevel      <i>Level</i> should be one of levels enumerated
+                    in /showtrustlevels.
+
+   <i>program</i>          The command line .EXE to run.
+</pre>
+<p><span class="body">Enter the password  when prompted. </span><br>
+<span class="code">/profile</span> is not compatible with <span class="code">/netonly</span>.<br>
+<span class="code">/savecred</span> is not compatible with <span class="code">/smartcard.</span></p>
+<p>When you start a program with <span class="code">RunAs  /netonly</span>, the program will execute on your local computer as the user you are currently logged on as, but  any connections to other computers on the network will be made using the user account specified. </p>
+<p>Without <span class="code">/netonly</span> everything  will run under the user account specified.</p>
+<p>RUNAS used  backslash <span class="code">\</span> as an <a href="syntax-esc.html">escape</a> character (not the standard <a href="syntax-esc.html"></a> ^ used by other CMD commands).<br>
+RunAs Reqires the &quot;Secondary Logon&quot; <a href="syntax-services.html">service</a> to be running.</p>
+<p>The error level <span class="code">%ERRORLEVEL%</span> returned by RunAs: success=0, failure=1</p>
+<h2>RunAs from   Windows Explorer</h2>
+<p>  Select an executable file,  Shift-Right-click   and select <b>Run As..<br>
+  </b>This option can be hidden by setting<br>
+  <span class="code">HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer <br>
+HideRunAsVerb=1 </span> </p>
+<h2>Run with Elevated permissions</h2>
+<p>In Windows Vista and above, you can run a script  with elevated permissions by right clicking and choosing &quot;Run As Administrator&quot;  it is also possible to  invoke the UAC dialogue by calling the VBScript <span class="code"><a href="http://ss64.com/vb/shellexecute.html">.ShellExecute</a></span> function.</p>
+<p>When a script is <a href="http://ss64.com/vb/syntax-elevate.html">run with elevated permissions</a> several aspects of the user environment may change: The current directory, the current TEMP folder and any mapped drives will be disconnected.</p>
+<p><b>Examples</b></p>
+<p>Run notepad.exe as the user Jdoe on domain SS64dom with no profile:</p>
+<pre>C:\&gt; Runas /noprofile /user:SS64Dom\jDoe "notepad.exe&quot;</pre>
+<p>Run CMD.exe as the Administrator on the local machine Dellpc64:</p>
+<pre>C:\&gt; Runas /profile /user:DELLPC64\administrator CMD</pre>
+<p>Run Notepad.exe as 'Natasha' on domain SS64dom using the current environment, and open a file, escape the quote characters around the filename  with <span class="code">\</span> :</p>
+<pre>C:\&gt; Runas /profile /env /user:SS64Dom\natasha &quot;notepad \&quot;C:\work\demo file.txt\&quot;&quot;</pre>
+<p>Run Active Directory Users and Computers (dsa.msc) as the user Jdoe on domain SS64dom</p>
+<pre>C:\&gt; Runas /env /user:SS64Dom\jDoe &quot;mmc %windir%\system32\dsa.msc&quot;
+</pre>
+<p class="quote"><i>&ldquo;He who reigns within himself, and rules passions, desires, and fears, is more than a king&rdquo; ~ Milton </i></p>
+<p><b>Related:</b><br>
+  <br>
+  <a href="shellrunas.html">ShellRunAs</a> - Run a command under a different user account<br>
+  <a href="http://blogs.msdn.com/b/aaron_margosis/">Aaron Margosis</a> - Running with least privilege <br>
+  <a href="http://www.joeware.net/freetools/">joeware.net</a> - CPAU (Create Process 
+  As User) like RunAs but with an options to encrypt the password.<br>
+<a href="psexec.html">PsExec</a> - Execute process remotely<br>
+Powershell: you can run an entire <a href="http://ss64.com/ps/powershell.html">powershell</a> session via RunAs to elevate your permissions.
+<br>
+  Equivalent bash command (Linux): <a href="http://ss64.com/bash/su.html">SU</a> - Switch User</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="runas.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

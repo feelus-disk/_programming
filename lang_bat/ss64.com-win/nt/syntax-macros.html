@@ -1,0 +1,92 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Batch file macros | cmd | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Batch file macros</h1> 
+<p>A macro allows you to embed blocks of code in a variable. Like calling a <a href="call.html">subroutine</a> or <a href="syntax-functions.html">function</a> this allows reusing the same block of code multiple times, the difference is that by placing the code in a variable the performance will be much faster. </p>
+<p>This is an advanced technique but can be very useful in scripts that include large blocks of code or looping commands where the performance of other methods is too slow.</p>
+<p>A very simple macro which lists all the .XLS files in a folder:</p>
+<pre>Set _macro=Dir c:\demo\*.xls</pre>
+<p> We can now run the Macro like this:<br>
+</p>
+<pre>%_macro%</pre>
+<p> So far so like the  <a href="doskey.html">DOSKEY</a> command, but to make this more powerfull you will want to pass arguments to the macro, in the example above you might want to pass the name of the folder to be listed.</p>
+<p>Passing arguments to a macro is not particularly easy, the best method (discovered by <a href="http://www.dostips.com/forum/viewtopic.php?f=3&t=2518">Jeb</a>) is to place a <span class="code"><a href="for_l.html">For /L</a></span> command within the macro, set to run 2 steps each time the macro is run:</p>
+<ul>
+<li> In the first step the arguments are stored in a variable (<span class="code">argv</span>) </li>
+<li> In the second step the main body of the macro runs and can (optionally) read the variable</li>
+</ul>
+<p>The basic structure of the macro definition:<br>
+</p>
+<pre>
+Set _macro=For /l %%n in (1 1 2) do if %%n==2 (Echo Main MACRO goes here.) else setlocal enableDelayedExpansion ^&amp; Set argv=, 
+
+%_macro% arg1 arg2
+
+ :: The macro will expand to:
+ :: for /l %%n in (1 1 2) do if %%n==2 (Echo Main MACRO goes here.) else setlocal enableDelayedExpansion &amp; Set argv=, arg1 arg2
+
+ :: which is equivalent to:
+ ::    setlocal enableDelayedExpansion
+ ::    Set argv= arg1 arg2
+ ::    Echo Main MACRO goes here.</pre>
+<p> Example:<br>
+</p>
+<pre>@echo off
+cls
+setlocal DisableDelayedExpansion
+set LF=^
+
+
+::Above 2 blank lines are required - do not remove
+set ^&quot;\n=^^^%LF%%LF%^%LF%%LF%^^&quot;
+
+set _macrodemo=for /L %%n in (1 1 2) do if %%n==2 <b>(</b>%\n%
+      for /F &quot;tokens=1 delims=, &quot; %%G in ("!argv!&quot;) do (%\n%
+         echo _argument1=%%G %\n%
+         set &quot;_argument1=!%%~G!&quot;%\n%
+         dir !_argument1!<b>\*.xls</b>%\n%
+      ) %\n%
+<b>)</b> ELSE setlocal enableDelayedExpansion ^& set argv=,
+
+set &quot;_testfolder=<b>c:\demo</b>&quot;
+%_macrodemo% _testfolder</pre>
+<p>In a macro where more than one argument need to be passed, these will become tokens 2,3,4... in the FOR / F command.</p>
+<p>A library of macros can be defined by running a single MACROS.CMD batch file, allowing the library macros to be used in multiple batch files.</p>
+<p>Credits: <a href="http://ss64.org/profile.php?id=539">Ed Dyreen</a>, <a href="http://ss64.org/profile.php?id=1666">Jeb</a> and <a href="http://ss64.org/profile.php?id=2650">Dave Benham</a>, the original dostips forum threads are <a href="http://www.dostips.com/forum/viewtopic.php?f=3&t=2518">here</a> and <a href="http://www.dostips.com/forum/viewtopic.php?f=3&t=1827">here</a>.</p>
+<p><b><i></i></b><span class="quote"><i>&ldquo;Macro dictionary definition: 1. Large 2. Long 3. Inclusive&rdquo; ~ from the Greek 'makros'</i></span></p>
+<p><b>Related:</b></p>
+<p><a href="syntax-functions.html">functions</a> - How to package blocks of code.<br>
+<a href="call.html">CALL</a> - Call one batch program/subroutine from another<br>
+<a href="http://stackoverflow.com/questions/6379619/explain-how-dos-batch-newline-variable-hack-works">How the %LF% newline variable hack works</a> - StackOverflow<br>
+<a href="doskey.html">DOSKEY</a> - Edit command line, recall commands, and create macros</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-macros.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

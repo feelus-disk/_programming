@@ -1,0 +1,253 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>New-PSSession | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>New-PSSession</h1> 
+<p>Create a persistent connection to a local or remote computer.</p>
+<pre>Syntax
+      New-PSSession [[-ComputerName] <i>string</i>[]] [-ApplicationName <i>string</i>]
+         [-Authentication <i>AuthenticationMechanism</i>] [-ConfigurationName <i>string</i>]
+            [-CertificateThumbprint <i>string</i>] [-Credential <i>PSCredential</i>] 
+               [-Name <i>string</i>[]] [-Port <i>int</i>] [-SessionOption <i>PSSessionOption</i>]
+                   [-UseSSL] [-ThrottleLimit <i>int</i>] [<i>CommonParameters</i>]<br>    <br>      New-PSSession [[-Session] <i>PSSession</i>[]] [-Name <i>string</i>[]]
+         [-ThrottleLimit <i>int</i>] [<i>CommonParameters</i>]<br>    <br>      New-PSSession [-ConnectionURI] <i>Uri</i>[] [-AllowRedirection]
+         [-Authentication <i>AuthenticationMechanism</i>] [-ConfigurationName <i>string</i>]
+            [-CertificateThumbprint <i>string</i>] [-Credential <i>PSCredential</i>] 
+               [-Name <i>string</i>[]] [-SessionOption <i>PSSessionOption</i>]
+                   [-ThrottleLimit <i>int</i>] [<i>CommonParameters</i>]
+
+Key
+   -AllowRedirection
+       Allow redirection of this connection to an alternate Uniform Resource Identifier (URI). 
+
+       By default, PowerShell does not redirect connections.
+       To also limit the number of times that the connection is redirected, set the
+       MaximumConnectionRedirectionCount property of the $PSSessionOption preference variable, or
+       the MaximumConnectionRedirectionCount property of the value of the SessionOption parameter.
+       The default value is 5.
+       For more information, see the description of the SessionOption parameter, and see New-PSSessionOption.
+
+   -ApplicationName <i>string</i>
+       The application name segment of the connection URI.
+       Use this to specify the application name when you are not using -ConnectionURI.
+
+       The default value is the value of the $PSSessionApplicationName preference variable on
+       the local computer. If this preference variable is not defined, the default value is &quot;WSMAN&quot;.
+       This value is appropriate for most uses. For more see about_Preference_Variables.
+
+       The WinRM service uses the application name to select a listener to service the connection
+       request. This name should match the URLPrefix property of a listener on the remote computer.
+
+   -Authentication <i>AuthenticationMechanism</i>
+       The mechanism used to authenticate the user's credentials:
+
+       <u>Default</u> | Basic | Negotiate | NegotiateWithImplicitCredential | Credssp | Digest | Kerberos
+
+       The default value is  &quot;Default&quot;.
+
+       CredSSP authentication is available only in Windows Vista and later versions of Windows.
+       For more information about the values of this parameter, see <a href="http://go.microsoft.com/fwlink/?LinkID=144382">MSDN</a>
+
+       Caution: Credential Security Service Provider (CredSSP) authentication,
+       in which the user's credentials are passed to a remote computer to be
+       authenticated, is designed for commands that require authentication on
+       more than one resource, such as accessing a remote network share.
+       This mechanism increases the security risk of the remote operation.
+       If the remote computer is compromised, the credentials that are passed to
+       it can be used to control the network session.
+
+   -CertificateThumbprint <i>string
+</i>       The digital public key certificate (X509) of a user account that has permission
+       to perform this action. Enter the certificate thumbprint of the certificate.  
+
+       Certificates are used in client certificate-based authentication.
+       They can be mapped only to local user accounts; they do not work with domain accounts. 
+
+       To get a certificate thumbprint, use the Get-Item or Get-ChildItem
+       command in the PowerShell Cert: drive.
+
+   -ComputerName <i>string</i>[]
+       Create a persistent connection (PSSession) to the specified computer.
+       If you enter multiple computer names, New-PSSession creates multiple PSSessions,
+       one for each computer. The default is the local computer. 
+
+       Type the NetBIOS name, an IP address, or a fully qualified domain name of one
+       or more remote computers. To specify the local computer, type the computer name,
+       &quot;localhost&quot;, or a dot (.).
+       When the computer is in a different domain than the user, the fully qualified
+       domain name is required. You can also pipe a computer name (in quotes) to New-PSSession.
+
+       To use an IP address in the value of the ComputerName parameter, the command
+       must include the Credential parameter. Also, the computer must be configured
+       for HTTPS transport or the IP address of the remote computer must be included in
+       the WinRM TrustedHosts list on the local computer.
+       For instructions for adding a computer name to  the TrustedHosts list,
+       see &quot;How to Add  a Computer to the Trusted Host List&quot; in about_Remote_Troubleshooting.
+
+       Note:  In Windows Vista and later versions of Windows, to include the local
+       computer in the value of the ComputerName parameter, you must start PowerShell
+       with the &quot;Run as administrator&quot; option.
+
+   -ConfigurationName <i>string</i>
+       The session configuration that is used for the new PSSession. 
+
+       Enter a configuration name or the fully qualified resource Uniform Resource
+       Identifier (URI) for a session configuration. If you specify only the configuration
+       name, the following schema URI is prepended:  http://schemas.microsoft.com/powershell.
+
+       The session configuration for a session is located on the remote computer.
+       If the specified session configuration does not exist on the remote computer,
+       the command fails.
+
+       The default value is the value of the $PSSessionConfigurationName preference variable
+       on the local computer. If this preference variable is not set, the default is
+       Microsoft.PowerShell. For more information, see about_Preference_Variables.
+
+   -ConnectionURI <i>Uri</i>[]
+       A Uniform Resource Identifier (URI) that defines the connection endpoint. 
+       The URI must be fully qualified.
+
+       The format of this string is as follows: 
+          <i>Transport</i>://<i>ComputerName</i>:<i>Port</i>/<i>ApplicationName</i>
+
+       The default value is as follows:
+            http://localhost:80/WSMAN
+       Valid values for the Transport segment of the URI are HTTP and HTTPS.
+       If you do not specify a ConnectionURI, you can use the UseSSL, ComputerName,
+       Port, and ApplicationName parameters to specify the URI values.
+
+       If the destination computer redirects the connection to a different URI, 
+       PowerShell prevents the redirection unless you use -AllowRedirection in the command.
+
+    -Credential <i>PSCredential</i>
+       A user account that has permission to perform this action.
+       The default is the current user.
+
+       Type a user name, such as &quot;User01&quot;, &quot;Domain01\User01&quot;, or &quot;User@Domain.com&quot;, or
+       enter a PSCredential object, such as one returned by <a href="get-credential.html">Get-Credential</a>. 
+
+       When you type a user name, you will be prompted for a password.
+
+   -Name <i>string</i>[]
+       A friendly name for the PSSession. 
+
+       You can use this name to refer to the PSSession when using other cmdlets,
+       such as Get-PSSession and Enter-PSSession.
+
+       The name is not required to be unique to the computer or the current session.
+
+   -Port <i>int</i>
+       The network port  on the remote computer that is used for this command.
+       The default is port 80 (the HTTP port).
+
+       Before using an alternate port, you must configure the WinRM listener on
+       the remote computer to listen at that port.
+       Use the following commands to configure the listener:
+
+        1. winrm delete winrm/config/listener?Address=*+Transport=HTTP
+        2. winrm create winrm/config/listener?Address=*+Transport=HTTP @{Port=&quot;&lt;port-number&gt;&quot;;}
+
+       Do not use the Port parameter unless you must. The port setting in the
+       command applies to all computers and sessions in which the command runs.
+       An alternate port setting might prevent the command from running on all computers.
+
+   -Session <i>PSSession</i>[]
+       Use the specified PSSession as a model for the new PSSession.
+       This parameter creates new PSSessions with the same properties as the specified PSSessions. 
+
+       Enter a variable that contains the PSSessions or a command that creates or
+       gets the PSSessions, such as a New-PSSession or Get-PSSession command.
+
+       The resulting PSSessions have the same computer name, application name,
+       connection URI, port, configuration name, throttle limit, and Secure Sockets Layer (SSL)
+       value as the originals, but they have a different display name, ID, and instance ID (GUID).
+
+   -SessionOption <i>PSSessionOption</i>
+       Set advanced options for the session.
+       Enter a SessionOption object that you create by using the New-PSSession Option cmdlet.
+
+       The default values for the options are determined by the value of
+       the $PSSessionOption preference variable, if it is set.
+       Otherwise, the session uses the system defaults.
+
+       For a description of the session options, including the default values,
+       see <a href="new-pssessionoption.html">New-PSSessionOption</a>.
+       For information about the $PSSessionOption preference variable, see about_Preference_Variables.
+
+   -ThrottleLimit <i>int</i>
+       The maximum number of concurrent connections that can be established
+       to run this command. If you omit this parameter or enter a value of 0 (zero),
+       the default value, 32, is used.
+
+       The throttle limit applies only to the current command, not to the session or to the computer.
+
+   -UseSSL
+       Use the Secure Sockets Layer (SSL) protocol to establish a connection to the
+       remote computer. By default, SSL is not used.
+
+       WS-Management encrypts all Windows PowerShell content transmitted over the
+       network. UseSSL is an additional protection that sends the data across an HTTPS
+       connection instead of an HTTP connection.
+
+       If you use this parameter, but SSL is not available on the port used for the command,
+       the command fails.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Standard <a href="get-alias.html">Aliases</a> for New-PSSession:<span class="code"> nsn</span></p>
+<p>New-PSSession  creates a  PowerShell session (PSSession) on a local or remote computer.  When you 
+create a PSSession,  PowerShell establishes a persistent connection to the remote computer. <br>
+<br>
+Use a PSSession to run multiple commands that share data, such as a function or the value of a variable. To run commands in a PSSession, use <a href="invoke-command.html">Invoke-Command</a>. To use the PSSession to interact directly with a remote computer, use <a href="enter-pssession.html">Enter-PSSession</a> . For more information, see <a href="get-help.html">help</a> about_PSSessions.<br>
+<br>
+You can run commands on a remote computer without creating a PSSession by using the <span class="code">-ComputerName</span> parameter of Enter-PSSession or Invoke-Command. When you use <span class="code">-ComputerName</span> ,  PowerShell creates a temporary connection that is used for the interactive session or for a single command and is then closed.</p>
+<p><b>Examples</b></p>
+<p>Create a new PSSession on the local computer and save the PSSession in the $sess variable: </p>
+<pre>PS C:&gt; $sess = new-pssession</pre>
+<p>Create a new PSSession on  Server64 and save it in the $s64 variable: </p>
+<pre>PS C:&gt; $s64 = new-pssession -ComputerName Server64</pre>
+<p>Create a new PSSession on  Server65 and server66 and save the sessions to 2 variables: </p>
+<p class="code">PS C:&gt; $s65, $s66 = new-session -computername server65,server66</p>
+<p>Create a new PSSession on Server64 and use the SSL protocol with an alternate session configuration called 'DBA1' then connect via server port 8081:</p>
+<pre>PS C:&gt; new-pssession -computername Server64 -port 8081 -useSSL -ConfigurationName DBA1</pre>
+<p>Create a new PSSession with the same properties as an existing PSSession. This can be useful when the <a href="http://ss64.com/nt/syntax-desktopheap.html">resources</a> of an existing PSSession are exhausted: </p>
+<pre>PS C:&gt; new-pssession -session $s -credential domain01\user01</pre>
+<p>Create  a PSSession calles <span class="code">$sess</span> with a global scope on a computer in a different domain: </p>
+<pre>PS C:&gt; $global:sess = new-pssession -computername server64.dom24.ss64.com -credential domain01\admin01</pre>
+<p>Create a PSSession on each of the 200 computers listed in the Servers.txt file and  store the resulting PSSession in the $rs variable, this syntax can also be used with spreadsheets and databases: </p>
+<pre>PS C:&gt; $rs = get-content c:\servers.txt | new-PSsession -throttleLimit 50</pre>
+<p>Create a PSSession and store it in the $sess variable, specify the transport protocol (http), the remote computer (Server64), the port (91), and an alternate session configuration: </p>
+<pre>PS C:&gt; $sess = new-PSSession -URI http://Server64:91/NewSession -credential domain01\user01</pre>
+<p>Create  a set of PSSessions and then run a background job in each: </p>
+<pre>PS C:&gt; $sess = new-PSSession -computername (import-csv servers.csv) -credential domain01\admin01 -throttlelimit 16
+
+PS C:&gt; invoke-command -session $sess -scriptblock {get-process powershell} -AsJob</pre>
+<p>Create a new PSSession that connects to a computer specified with a URI: </p>
+<pre>PS C:&gt; new-PSSession -ConnectionURI https://management.exchangelabs.com/Management</pre>
+<p class="quote"><i>“We never fully grasp the import of any true statement until we have a clear notion of what the opposite untrue statement would be” ~ William James</i></p>
+<p><b>Related:</b></p>
+<p><a href="remove-pssession.html">Remove-PSSession</a> -     Close PowerShell session(s)<br>
+<a href="enter-pssession.html">Enter-PSSession</a> - Start an interactive session with a remote computer<br>
+<a href="export-pssession.html">Export-PSSession</a> - Import commands and save them in a PowerShell module</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="new-pssession.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,240 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Set-ADDomain | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Set-ADDomain</h1> 
+<p>Modify an Active Directory domain.</p>
+<pre>Syntax
+      Set-ADDomain [-Identity] <i>ADDomain</i> 
+         [-Add <i>hashtable</i>] [-Clear <i>string</i>[]] [-Remove <i>hashtable</i>]
+            [-Replace <i>hashtable</i>] [-AllowedDNSSuffixes <i>hashtable</i>]
+               [-AuthType {<u>Negotiate</u> | Basic}] [-Credential <i>PSCredential</i>]
+                  [-LastLogonReplicationInterval <i>TimeSpan</i>]
+                     [-ManagedBy <i>ADPrincipal</i>] [-PassThru] [-Server <i>string</i>]
+                        [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+      Set-ADDomain -Instance <i>ADDomain</i> [-AllowedDNSSuffixes <i>hashtable</i>]
+             [-AuthType {<u>Negotiate</u> | Basic}] [-Credential <i>PSCredential</i>]
+                [-LastLogonReplicationInterval <i>TimeSpan</i>]
+                   [-ManagedBy <i>ADPrincipal</i>] [-PassThru] [-Server <i>string</i>]
+                      [-Confirm] [-WhatIf] [<i>CommonParameters</i>]
+
+Key
+   -Add <i>hashtable</i>
+       Add values to add to an object property.
+       Use this for properties that cannot be modified using a cmdlet parameter.
+       To modify an object property, use the LDAP display name. 
+       Specify multiple values as a comma-separated list of values 
+       Specify more than one property by separating them with a semicolon
+       The format for this parameter is 
+-Add @<b>{</b><i>Attribute1LDAPDisplayName</i>=<i>value1</i>, <i>value2</i>,... ; <i>Attribute2LDAPDisplayName</i>=<i>value1</i>, <i>value2</i>,... <b>}</b>
+
+       If the -Add, -Remove, -Replace and -Clear parameters are used together, the operations
+       will always be performed in the order: <b>-Remove</b> then <b>-Add</b> then <b>-Replace</b> then <b>-Clear</b>
+
+   -AllowedDNSSuffixes <hashtable>
+       Modify the list of domain name server (DNS) suffixes that are allowed in a domain.
+       This parameter sets the value of the msDS-AllowedDNSSuffixes attribute of the domainDNS object.
+         Syntax to add, remove, replace, or clear DNS suffix values:
+        
+         To add values:
+           -AllowedDNSSuffixes @{Add=value1,value2,...}
+        
+         To remove values:
+           -AllowedDNSSuffixes @{Remove=value3,value4,...}
+        
+         To replace values:
+           -AllowedDNSSuffixes @{Replace=value1,value2,...}
+        
+         To clear all values:
+           -AllowedDNSSuffixes $null
+        
+       Specify more than one change using a list separated by semicolons: 
+          @{Add=value1,value2,...};@{Remove=value3,value4,...}
+        
+       If the -Add, -Remove, -Replace and -Clear parameters are used together, the operations
+       will always be performed in the order: <b>-Remove</b> then <b>-Add</b> then <b>-Replace</b> then <b>-Clear</b>
+        
+       example of adding and removing DNS suffixes for a domain:
+          -AllowedDNSSuffixes@{Add= "corp.contoso.com,SS64.com"};@{Remove="corpnet.SS64.com"}
+
+   -AuthType {<u>Negotiate</u> | Basic}
+       The authentication method to use: Negotiate (or 0), Basic (or 1)
+       A Secure Sockets Layer (SSL) connection is required for Basic authentication.
+
+   -Clear <i>string[]</i>
+       An array of object properties that will be cleared.
+       Use this parameter to clear properties that cannot be modified using a cmdlet parameter.
+       To modify an object property, use the LDAP display name.
+       Modify more than one property by specifying a comma-separated list.
+
+       Example: Clear the value for the Phone-Office-Other attribute (LDAP display name 'otherTelephone')
+
+          -Clear otherTelephone
+
+       If the -Add, -Remove, -Replace and -Clear parameters are used together, the operations
+       will always be performed in the order: <b>-Remove</b> then <b>-Add</b> then <b>-Replace</b> then <b>-Clear</b>
+
+   -Credential <i>PSCredential</i>
+       The user account credentials to use to perform this task.
+       The default credentials are those of the currently logged on user unless the
+       cmdlet is run from an Active Directory PowerShell provider drive.
+       If the cmdlet is run from such a provider drive, the account associated with the drive is the default.
+
+       Type a user name, such as "User64" or "Domain64\User64" or specify a
+       PSCredential object such as one generated by <a href="get-credential.html">Get-Credential</a> 
+
+       If a user name is specified, the cmdlet will prompt for a password.
+
+    -Identity <i>ADDomain</i>
+       An AD domain object, provide one of the following values:
+       (The identifier in parentheses is the LDAP display name for the attribute.)
+
+          Distinguished Name
+            Example: DC=aberdeen,DC=SS64,DC=com
+          GUID (objectGUID)
+            Example: 599c3d2e-f72d-4d20-8a88-030d92495f22
+          Security Identifier (objectSid)
+            Example: S-1-5-21-3164297888-301567370-
+          DNS domain name
+            Example: aberdeen.SS64.com
+          NetBIOS domain name
+            Example: aberdeen
+
+       The cmdlet searches the default naming context or partition to find the object.
+       If two or more objects are found, the cmdlet returns a non-terminating error.
+
+       This parameter can also get this object through the pipeline or you can set this
+       parameter to an object instance.
+
+       This example shows how to set the parameter to a distinguished name.
+          -Identity  &quot;aberdeen.SS64.com&quot;
+
+       This example shows how to set this parameter to a optional feature object instance named &quot;domainInstance&quot;.
+          -Identity $domainInstance
+
+   -Instance <i>ADDomain</i>
+       Specifies a modified copy of a domain object to use to update the actual AD domain object.
+       When this parameter is used, any modifications made to the modified copy of the object are
+       also made to the corresponding AD object. This will only update the object properties that have changed.
+
+       The -Instance parameter can only update domain objects that have been retrieved with <a href="get-addomain.html">Get-ADDomain</a>
+       you cannot specify other parameters that set properties on the object.
+
+       Example
+          # Retrieve a local instance of the object.
+          $domainInstance = Get-ADComputer  -Identity &quot;SS64domain&quot;
+          # Modify one or more properties of the object instance.
+          $domainInstance.ManagedBy = &quot;JaneJacobsGroup&quot;
+          # Save the changes
+          Set-ADDomain -Instance $domainInstance
+
+    -LastLogonReplicationInterval <i>TimeSpan</i><br>       The time, in days, within which the last logon time of an account must be replicated
+       across all domain controllers in the domain. This parameter sets the LastLogonReplicationInterval
+       property for a domain. The LDAP display name (ldapDisplayName) for this property is
+       msDS-LogonTimeSyncInterval. The last logon replication interval must be at least one day.
+       Setting this replication interval to a low value can significantly increase domain-wide replication.
+
+   -ManagedBy <i>ADPrincipal</i>
+       The user or group that manages the object by providing one of the following property values.
+       Note: The identifier in parentheses is the LDAP display name for the property.
+          Distinguished Name 
+            Example:  CN=demo1,OU=Europe,CN=Users,DC=corp,DC=ss64,DC=com
+          GUID (objectGUID) 
+            Example: 599c3d2e-f72d-4d20-8a88-030d99495f20 
+          Security Identifier (objectSid) 
+            Example: S-1-5-64-3265277888-301567356-523410843-1244
+          SAM Account Name (sAMAccountName) 
+            Example: demo1
+
+        This parameter sets the Active Directory attribute with an LDAP Display Name of "managedBy". 
+
+   -PassThru
+       Returns the new or modified object.
+       By default (i.e. if -PassThru is not specified), this cmdlet does not generate any output.
+
+   -Remove <i>hashtable</i>
+       Remove values from an object property.
+       Use this for properties that cannot be modified using a cmdlet parameter.
+       To modify an object property, use the LDAP display name. 
+       Specify multiple values as a comma-separated list of values 
+       Specify more than one property by separating them with a semicolon
+       The format for this parameter is 
+           -Remove @<b>{</b><i>Attribute1LDAPDisplayName</i>=<i>value1</i>, <i>value2</i>,... ; <i>Attribute2LDAPDisplayName</i>=<i>value1</i>, <i>value2</i>,... <b>}</b>
+
+       If the -Add, -Remove, -Replace and -Clear parameters are used together, the operations
+       will always be performed in the order: <b>-Remove</b> then <b>-Add</b> then <b>-Replace</b> then <b>-Clear</b>
+
+   -Replace <i>hashtable</i>
+       Replace values for an object property.
+       Use this for properties that cannot be modified using a cmdlet parameter.
+       To modify an object property, use the LDAP display name. 
+       Specify multiple values as a comma-separated list of values 
+       Specify more than one property by separating them with a semicolon
+       The format for this parameter is 
+           -Replace @<b>{</b><i>Attribute1LDAPDisplayName</i>=<i>value1</i>, <i>value2</i>,... ; <i>Attribute2LDAPDisplayName</i>=<i>value1</i>, <i>value2</i>,... <b>}</b>
+
+       If the -Add, -Remove, -Replace and -Clear parameters are used together, the operations
+       will always be performed in the order: <b>-Remove</b> then <b>-Add</b> then <b>-Replace</b> then <b>-Clear</b>
+
+   -Server <i>string</i>
+       The AD Domain Services instance to connect to, this may be a Fully qualified domain name,
+       NetBIOS name, Fully qualified directory server name (with or without port number)
+
+   -Confirm
+       Prompt for confirmation before executing the command.
+
+    -WhatIf
+       Describe what would happen if you executed the command, without actually executing the command.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Set-ADDomain  modifies the properties of an AD domain. Commonly used property values may be set using the cmdlet parameters, other property values can be modified by using the <span class="code">-Add</span>, <span class="code">-Replace</span>, <span class="code">-Clear</span> and <span class="code">-Remove</span> parameters.<br>
+<br>The<span class="code"> -Identity</span> parameter specifies the domain to modify. Specify a domain by its distinguished name (DN), GUID, security identifier (SID), DNS domain name, or NetBIOS name.<br>
+<br>The <span class="code">-Instance</span> parameter provides a way to update a domain object by applying the changes made to a copy of the domain object. When you set the <span class="code">-Instance</span> parameter to a copy of an AD domain object that has been modified,  Set-ADDomain  can then save the changes to the original domain object. To get a copy of the object to modify, use  Get-ADDomain. When you specify the -Instance parameter you should not pass the identity parameter. <br>
+<br>The following examples show how to modify the ManagedBy property of a domain object by using three methods:<br>
+-By specifying the -Identity and the -ManagedBy parameters<br>
+-By passing a domain object through the pipeline and specifying the -ManagedBy parameter<br>
+-By specifying the -Instance parameter.<br>
+<br>Method 1: Modify the ManagedBy property for the Aberdeen domain by using the -Identity and -ManagedBy parameters. <br>
+<span class="code"><br>Set-ADDomain -Identity Aberdeen -ManagedBy JaneJacobs <br>
+</span><br>Method 2: Modify the ManagedBy property for the Aberdeen domain by passing the Aberdeen domain through the pipeline and
+specifying the -ManagedBy parameter.<br>
+<br><span class="code">Get-ADDomain Aberdeen | Set-ADDomain -ManagedBy JaneJacobs<br>
+</span><br>Method 3: Modify the ManagedBy property for the Aberdeen domain by using the  PowerShell command line to modify a local instance of the Aberdeen domain. Then set the -Instance parameter to the local instance.<br>
+<br><span class="code">$domain = Get-ADDomain Aberdeen<br>
+$domain.ManagedBy = JaneJacobs<br>
+Set-ADDomain -Instance $domain.</span></p>
+<p><b>Examples</b></p>
+<p>Sets the value of AllowedDNSSuffixes to {&quot;SS64.com&quot;,&quot;corp.SS64.com&quot;} in domain &quot;SS64&quot;</p>
+<p><span class="code">PS C:\&gt; Set-ADDomain -Identity SS64 -AllowedDNSSuffixes @{Replace=&quot;SS64.com&quot;,&quot;corp.SS64.com&quot;}</span></p>
+<p>Adds the value &quot;corp.fabrikam.com&quot; to the AllowedDNSSuffixes in domain &quot;SS64&quot;:</p>
+<p><span class="code">PS C:\&gt; Set-ADDomain -Identity SS64 -AllowedDNSSuffixes @{Add=&quot;corp.SS64.com&quot;}</span></p>
+<p>Sets the ManagedBy property in domain &quot;SS64&quot; to 'CN=Domain Admins,CN=Users,DC=SS64,DC=COM': </p>
+<p><span class="code">PS C:\&gt; Set-ADDomain -Identity SS64 -ManagedBy 'CN=Domain Admins,CN=Users,DC=SS64,DC=COM'</span></p>
+<p class="quote"><i>“In order to be an immaculate member of a flock of sheep, one must above all be a sheep oneself” ~ Albert Einstein</i></p>
+<p><b>Related:</b></p>
+<p><a href="get-addomain.html">Get-adDomain</a> - Get an AD domain.<br> 
+<a href="get-addomaincontroller.html">Get-adDomainController</a> - Get one or more AD domain controllers, based on name or search criteria.</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="set-addomain.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

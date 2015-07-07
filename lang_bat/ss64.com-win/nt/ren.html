@@ -1,0 +1,155 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Ren - Rename | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>REN</h1> 
+<p>Rename a file or files.</p>
+<pre>   REN [<i>drive</i>:][<i>path</i>]<i>SourceMask TargetMask</i></pre>
+<p>RENAME is a synonym for REN</p>
+<p>You cannot specify a different drive or path for <i>TargetMask</i> - use the MOVE command instead.<br>
+  <br>
+Both the <i>SourceMask</i> and <i>TargetMask</i> can contain<span class="code"> * </span>and/or<span class="code"> ? </span><a href="syntax-wildcards.html">wildcards</a>. The behavior of the wildcards changes slightly between source and target masks.</p>
+<h2>Rename Subdirectories</h2>
+<p>By default REN with a wildcard will only rename the files in a single folder, to recurse down into sub folders use a <a href="for_r.html">FOR /R</a> command, after first changing to the top level directory.</p>
+<p> e.g. A batch file to rename all .LOG files to .TXT in the 'demo' folder and all sub-folders:<span class="code"><br>
+CD C:\demo\<br>
+For /R %%G in (*.LOG) do <b>Echo</b> REN &quot;%%G&quot; &quot;%~nG.TXT&quot;</span><br>
+Remove the <b>echo</b> to run this for real <br>
+</p>
+<h2>SourceMask</h2>
+<p>The sourceMask works as a filter to determine which files are  renamed. The wildcards work here the same as with any other command that  filters file names.</p>
+<blockquote>
+  <p><span class="code">? </span> Matches any 0 or 1 character except .  This wildcard is greedy - it always consumes the next character if it is not a .  However it will match nothing without failure if at name end or if the next character is a .</p>
+  <p><span class="code">* </span> Matches any 0 or more characters including .  (with one exception below).  This wildcard is not greedy. It will match  as little or as much as is needed to enable subsequent characters to  match.</p>
+</blockquote>
+<p>All non-wildcard characters must match themselves, with a few special case exceptions.</p>
+<blockquote>
+  <p><span class="code">. </span>Matches itself or it can match  the end of name (nothing) if no more characters remain. (Note - a valid  Windows name cannot end with .)</p>
+  <p><span class="code">{space}</span> Matches itself or it can  match the end of name (nothing) if no more characters remain. (Note - a  valid Windows name cannot end with {space})</p>
+  <p><span class="code">*.</span> at the end, Matches any 0 or more characters except <span class="code">.</span> The terminating <span class="code">.</span> can actually be any combination of <span class="code">.</span> and <span class="code">{space}</span> as long as the very last character in the mask is <span class="code">.</span> this is the one and only exception where<span class="code"> * </span>does not simply match any set of characters.</p>
+</blockquote>
+<p>The above rules are not that complex. But there is one more very  important rule that makes the situation confusing: The <i>SourceMask</i> is  compared against both the long name and the short 8.3 name (if it  exists). This last rule can make interpretation of the results very  tricky, because it is not always obvious when the mask is matching via  the short name.</p>
+<p>It is possible to use RegEdit to disable the generation of short 8.3  names on NTFS volumes, at which point interpretation of file mask  results is much more straight forward. Any short names that were  generated before disabling short names will remain.</p>
+<h2>TargetMask</h2>
+<p>The <i>TargetMask</i> specifies the new name. It is always applied to the  full long name; The <i>TargetMask</i> is never applied to the short 8.3 name,  even if the <i>SourceMask</i> matched the short 8.3 name.</p>
+<p>The presence or absence of wildcards in the <i>SourceMask</i> has no impact on how wildcards are processed in the <i>TargetMask</i>.</p>
+<p>In the following discussion<span class="code"> c </span>represents any character that is not <span class="code">*</span>,<span class="code"> ?</span>, or<span class="code"> .</span></p>
+<p>The <i>TargetMask</i> is processed against the source name strictly from left to right with no back-tracking.</p>
+<blockquote>
+  <p><span class="code">c </span>Advances the position within the source name as long as the next character is not . and appends c to the target name. (Replaces the character that was in source with c, but never replaces .)</p>
+  <p><span class="code">? </span>Matches the next character from the source long name and appends it to the target name as long as the next character is not .  If the next character is <span class="code">.</span> or if at the end of the source name then no character is added to the  result and the current position within the source name is unchanged.</p>
+  <p><span class="code">* </span>At end of sourceMask - Appends  all remaining characters from source to the target. If already at the  end of source, then does nothing.</p>
+  <p><span class="code">*c </span> Matches all source characters from current position through the last occurance of c (case sensitive greedy match) and appends the matched set of characters to the target name. If c is not found, then all remaining characters from source are appended, followed by c  This is the only situation I am aware of where Windows file pattern matching is case sensitive.</p>
+  <p><span class="code">*. </span> Matches all source characters from current position through the last occurance of . (greedy match) and appends the matched set of characters to the target name. If . is not found, then all remaining characters from source are appended, followed by .</p>
+  <p><span class="code">*? </span>Appends all remaining characters from source to the target. Any additional characters after the *? in sourceMask will be appended to target. If already at end of source then does nothing.</p>
+  <p><span class="code">. </span>without<span class="code"> * </span>in front - Advances the position in source through the first occurance of <span class="code">.</span> without copying any characters, and appends <span class="code">.</span> to the target name. 
+  If <span class="code">.</span> is not found in the source, then advances to the end of source and appends <span class="code">.</span> to the target name.</p>
+</blockquote>
+<p>After the <i>TargetMask</i> has been exhausted, any trailing . and {space} are trimmed off the end of the resulting target name because Windows file names cannot end with . or {space}</p>
+<p><i>It appears these same rules also work for the target name of the COPY commmand.</i></p>
+<h2>8.3 Filename bug - a single command may rename the same file twice!</h2>
+<p>When 8.3 filenames exist then the <i>SourceMask</i> will first look for a match against the long file name, and then against the short file name. If the result of the first rename operation still matches the <i>SourceMask</i> then the same file may be renamed twice. For example:</p>
+<pre>copy nul 123456789.123
+dir /x
+ren *1* <b>2*3.?x</b>
+dir /x</pre>
+<p>Expected result = 223456789.123.x<br>
+Actual result = 223456789.123.<b>xx</b></p>
+<p>If <a href="syntax-filenames.html">8.3 name generation</a> is enabled, the <i>SourceMask</i>  matches the original long name, the initial rename  generates a short name that still matches <i>SourceMask</i> and sorts later in the alphabet, then this bug <i>may</i> be triggered.<br>
+</p>
+<p>If 8.3 name generation is disabled then RENAME always gives the expected result.</p>
+<p><b>Examples</b></p>
+<p>Rename Monday.txt as Tuesday.txt<br>
+<span class="code">C:\&gt; REN Monday.txt Tuesday.txt </span></p>
+<p>Substitute a character in the 1st and 3rd positions prior to any extension (adds a 2nd or 3rd character if it doesn't exist yet)</p>
+<pre>ren  *  A?Z*
+  1        -&gt; AZ
+  12       -&gt; A2Z
+  1.txt    -&gt; AZ.txt
+  12.txt   -&gt; A2Z.txt
+  123      -&gt; A2Z
+  123.txt  -&gt; A2Z.txt
+  1234     -&gt; A2Z4
+  1234.txt -&gt; A2Z4.txt</pre>
+<p>Change the (final) extension of every file</p>
+<pre>ren  *  *.txt
+  a     -&gt; a.txt
+  b.dat -&gt; b.txt
+  c.x.y -&gt; c.x.txt</pre>
+<p>Append an extension to every file</p>
+<pre>ren  *  *?.bak
+  a     -&gt; a.bak
+  b.dat -&gt; b.dat.bak
+  c.x.y -&gt; c.x.y.bak</pre>
+<p>Remove any extra extension after the initial extension. Note that adequate<span class="code"> ? </span>must be used to preserve the full existing name and initial extension.</p>
+<pre>ren  *  ?????.?????
+  a     -&gt; a
+  a.b   -&gt; a.b
+  a.b.c -&gt; a.b
+  part1.part2.part3    -&gt; part1.part2
+  123456.123456.123456 -&gt; 12345.12345   (note truncated name and extension because not enough `?` were used)</pre>
+<p>Same as above, but filter out files with initial name and/or  extension longer than 5 chars so that they are not truncated. (Obviously  could add an additional<span class="code"> ? </span>on either end of targetMask to preserve names and extensions up to 6 chars long.)</p>
+<pre>ren  ?????.?????.*  ?????.?????
+  a      -&gt;  a
+  a.b    -&gt;  a.b
+  a.b.c  -&gt;  a.b
+  part1.part2.part3  -&gt;  part1.part2
+  123456.123456.123456  (Not renamed because it doesn't match sourceMask)</pre>
+<p>Change characters after last <span class="code">_</span> in name and attempt to preserve extension. (Doesn't work properly if <span class="code">_</span> appears in extension.)</p>
+<pre>ren  *_*  *_NEW.*
+  abcd_12345.txt  -&gt;  abcd_NEW.txt
+  abc_newt_1.dat  -&gt;  abc_newt_NEW.txt
+  abcdef.jpg          (Not renamed because it doesn't match sourceMask)
+  abcd_123.a_b    -&gt;  abcd_123.a_NEW  (not desired, but no simple RENAME form will work in this case) </pre>
+<p>Any name can be broken up into components that are delimited by <span class="code">.</span> characters may only be appended to or deleted from the end of each  component. Characters cannot be deleted from or added to the beginning  or middle of a component while preserving the remainder with wildcards.  Substitutions are allowed anywhere.</p>
+<pre>ren  ??????.??????.??????  ?x.????999.*rForTheCourse
+  part1.part2            -&gt;  px.part999.rForTheCourse
+  part1.part2.part3      -&gt;  px.part999.parForTheCourse
+  part1.part2.part3.part4   (Not renamed because it doesn't match sourceMask)
+  a.b.c                  -&gt;  ax.b999.crForTheCourse
+  a.b.CarPart3BEER       -&gt;  ax.b999.CarParForTheCourse
+</pre>
+<p>A sourceMask with at least 8<span class="code"> ? </span>for the name and at least 3<span class="code"> ? </span>for the extension will match all files because it will always match the short 8.3 name.</p>
+<pre>ren ????????.???  ?x.????999.*rForTheCourse
+  part1.part2.part3.part4  -&gt;  px.part999.part3.parForTheCourse</pre>
+<p>Credits:<br>
+<a href="http://ss64.org/profile.php?id=2650">Dave Benham</a> - List of <a href="http://superuser.com/questions/475874/how-does-the-windows-rename-command-interpret-wildcards#475875">How does the Windows RENAME command interpret wildcards? </a>from <a href="http://superuser.com/">SuperUser</a> Dec 2012</p>
+<p>REN is an <a href="syntax-internal.html">internal</a> command.<br>
+<br>
+<i class="quote">&ldquo;We may dig in our heels and dare life never to change, but, all the same, it changes under our feet like sand under the feet of a sea gazer as the tide runs out. Life is forever undermining us. Life is forever washing away our castles, reminding us that they were, after all, only sand and sea water&rdquo; - Erica Jong (Parachutes and Kisses)</i><br>
+<br>
+<b>Related:</b><br>
+<a href="move.html"><br>
+MOVE</a> - Move a file from one folder to another <br>
+<a href="syntax-stampme.html">Stamp.cmd</a> - Batch file to rename a file to include the current date and time.<br>
+Powershell: <a href="http://ss64.com/ps/rename-item.html">Rename-Item</a> - Change the name of an existing item (ren/rni) <br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/mv.html">mv</a> - Move or rename files or directories</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="ren.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

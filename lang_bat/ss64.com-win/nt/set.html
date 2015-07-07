@@ -1,0 +1,257 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Set - Environment Variable | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>SET</h1> 
+<p>Display, set, or remove CMD environment variables. Changes made with SET will remain only for the duration of the current 
+  CMD session.</p>
+<pre>Syntax
+      SET <i>variable</i>
+      SET <i>variable</i>=<i>string</i>
+      SET /A <i>&quot;variable</i>=<i>expression</i>&quot;
+      SET &quot;<i>variable</i>=&quot;
+      SET /P <i>variable</i>=[<i>promptString</i>]
+      SET &quot;
+
+Key
+   <i>variable</i>    : A new or existing environment variable name e.g. _num
+   <i>string</i>      : A text string to assign to the variable.
+   <i>expression</i>  : Arithmetic expression</pre>
+<p><b><a id="a"></a></b>Arithmetic expressions (SET /a)<br>The expression to be evaluated can include the following operators:</p>
+<pre>
+   +   Add                set /a &quot;_num=_num+5&quot;
+   +=  Add variable       set /a &quot;_num+=5&quot;
+   -   Subtract (or <a href="http://en.wikipedia.org/wiki/Unary_operator">unary</a>)set /a &quot;_num=_num-5&quot;
+   -=  Subtract variable  set /a &quot;_num-=5&quot;
+   *   Multiply           set /a &quot;_num=_num*5&quot;
+   *=  Multiply variable  set /a &quot;_num*=5&quot;
+   /   Divide             set /a &quot;_num=_num/5&quot;
+   /=  Divide variable    set /a &quot;_num/=5&quot;
+   %   <a href="http://en.wikipedia.org/wiki/Modulo_operation">Modulus</a>            set /a &quot;_num=5%%2&quot;
+   %%= Modulus            set /a &quot;_num%%=5&quot; 
+   !   Logical negation  0 (FALSE) ⇨ 1 (TRUE) and any non-zero value (TRUE) ⇨ 0 (FALSE)
+   ~   <a href="http://en.wikipedia.org/wiki/Ones%27_complement">One's complement</a> (bitwise negation) 
+   &   AND                set /a &quot;_num=5&amp;3&quot;    0101 <a href="http://en.wikipedia.org/wiki/Bitwise_operation">AND</a> 0011 = 0001 (decimal 1)
+   &amp;=  AND variable       set /a &quot;_num&amp;=3&quot;
+   |   OR                 set /a &quot;_num=5|3&quot;    0101 <a href="http://en.wikipedia.org/wiki/Bitwise_operation">OR</a> 0011 = 0111 (decimal 7)
+   |=  OR variable        set /a &quot;_num|=3&quot;
+   ^   XOR                set /a &quot;_num=5^3&quot;    0101 <a href="http://en.wikipedia.org/wiki/Bitwise_operation">XOR</a> 0011 = 0110 (decimal 6)
+   ^=  XOR variable       set /a &quot;_num=^3&quot;
+   <<  Left <a href="http://en.wikipedia.org/wiki/Logical_shift">Shift</a>.    (sign bit ⇨ 0)
+   >>  Right <a href="http://en.wikipedia.org/wiki/Logical_shift">Shift</a>.   (Fills in the sign bit such that a negative number always remains negative.)
+                       Neither ShiftRight nor ShiftLeft will detect overflow.
+   &lt;&lt;= Left Shift variable     set /a _num&lt;&lt;=2
+   &gt;&gt;= Right Shift variable    set /a _num&gt;&gt;=2
+
+  ( )  Parenthesis group expressions  set /a &quot;_num=(2+3)*5&quot;
+   ,   Commas separate expressions    set /a &quot;_num=2,_result=_num*5&quot;
+
+See <a href="set.html#expressions">Arithmetic</a> examples below and <a href="http://ss64.org/viewtopic.php?id=1649">this forum thread</a> for more.
+also see <a href="setx.html">SetX</a>, <a href="syntax-replace.html">VarSearch</a> and <a href="syntax-substring.html">VarSubstring</a> for more on variable manipulation.</pre>
+<p>Variable names are not case sensitive but the contents can be.</p>
+<p>It is a common practice to prefix variable names with either an undescrore or a dollar sign <span class="code">_variable</span> or <span class="code">$variable</span>, these prefixes are not required but help to prevent any confusion with the standard built-in <a href="syntax-variables.html">Windows Environment variables</a> or any other other command strings.</p>
+<p>Any extra spaces around either the variable name or the <i>string</i>, will <b>not</b> be ignored, SET is not forgiving of extra spaces like many other scripting languages.<br>
+Variables can contain spaces, variable <i>names</i> can also contain spaces, but this is not recommended.</p>
+<h2>Display  a variable:</h2>
+<p>In most contexts, surround the variable <i>name</i> with <span class="code">%</span>'s and the variable's <i>value</i> will be used <br>
+e.g. To display the value of the<span class="code"> _department</span> variable with the
+ECHO command: <span class="code"><br>
+ECHO %_department%</span></p>
+<p>Including extra characters can be useful to show any white space:<br>
+<span class="code">ECHO [%_department%</span>]<br>
+<span class="code">ECHO &quot;%_department%</span>&quot;<br>
+</p>
+<p>Type SET without parameters to display all the current environment variables.<br>
+<br>
+Type SET with a variable name to display that variable <span class="code"><br>
+SET _department</span><br>
+<br>
+The SET command invoked with a string (and no equal sign) will display a wildcard list of all matching variables<br>
+<br>
+Display variables that begin with 'P': <span class="code"><br>
+SET p</span><br>
+Display variables that begin with an underscore <span class="code"><br>
+SET _ </span></p>
+<h2>Set a variable:</h2>
+<p>Example of storing a text string:<br>
+<br>
+<span class="code">C:\&gt; SET _dept=Sales and Marketing<br>
+C:\&gt; set _ <br>
+_dept=Sales and Marketing</span></p>
+<p> One variable can be based on another, but this is not dynamic<br>
+E.g.</p>
+<p class="code">C:\&gt; set xx=fish<br>
+C:\&gt; set msg=%xx% chips<br>
+C:\&gt; set msg<br>
+msg=fish chips</p>
+<p class="code">C:\&gt; set xx=sausage<br>
+C:\&gt; set msg<br>
+msg=fish chips</p>
+<p class="code">C:\&gt; set msg=%xx% chips<br>
+C:\&gt; set msg<br>
+msg=sausage chips</p>
+<p>Avoid starting variable names with a  number,  this will avoid the variable being mis-interpreted as a <a href="syntax-args.html">parameter</a><br>
+<span class="code">%123_myvar% &lt; &gt; %1 23_myvar</span><br><br>
+To display undocumented system variables:</p>
+<pre>   SET &quot;</pre>
+<h2>Variable names with spaces</h2>
+<p> A variable can contain spaces and also the variable name itself may contain spaces,
+therefore the following assignment:<br>
+<span class="code">SET _var =MyText</span><br>
+will create a variable called <span class="code">&quot;_var &quot;</span> - note the trailing space<br>
+<br>
+<br>
+<br>
+The SET command will set ERRORLEVEL to 1 if the variable name is not found in the current environment.<br>
+This can be detected using the <a href="if.html">IF</a> ERRORLEVEL command</p>
+<h2>Prompt for user input</h2>
+<p>The /P switch allows you to set a variable equal to a line of input entered by the user. <br>
+The Prompt string is displayed before the user input is read.</p>
+<pre>@echo off
+Set /P _dept=Please enter Department || Set _dept=NothingChosen<br>If &quot;%_dept%&quot;==&quot;NothingChosen&quot; goto :sub_error<br>If /i &quot;%_dept%&quot;==&quot;finance&quot; goto sub_finance<br>If /i &quot;%_dept%&quot;==&quot;hr&quot; goto sub_hr
+goto:eof
+
+:sub_finance
+echo You chose the finance dept
+goto:eof
+
+:sub_hr
+echo You chose the hr dept
+
+:sub_error
+echo Nothing was chosen</pre>
+<p> The Prompt string can be empty. If the user does not enter anything (just presses return) then the variable will be unchanged and an errorlevel will be set.<br>
+</p>
+<p>To place the first line of a file into a variable:</p>
+<p class="code">Set /P _MyVar=&lt;MyFilename.txt</p>
+<p>The <a href="choice.html">CHOICE</a> command is an alternative to SET /P (but  accepts only one character/keypress.)</p>
+<h2>Delete a variable</h2>
+<p>Type SET with just the variable name and an equals sign:<br>
+<br>
+<span class="code">SET _department=</span><br>
+<br>
+Better still, to be sure there is no trailing space after the = place the expression in parentheses or quotes:<br>
+<span class="code">(SET _department=)<br>
+&nbsp;&nbsp;or<br>
+SET &quot;_department=&quot;</span></p>
+<h2><a id="expressions"></a>Arithmetic expressions (SET /a)</h2>
+<p>Placing expressions in &quot;quotes&quot; is optional for simple arithmetic but required for any expression using logical operators.</p>
+<p>Any SET /A calculation that returns a fractional result will be rounded down to the nearest whole integer. </p>
+<p>Examples: </p>
+<pre>   SET /A &quot;_result=2+4&quot;
+   (=6)
+
+   SET /A &quot;_result=5&quot;
+   (=5)
+   SET /A &quot;_result<b>+=</b>5&quot;
+   (=10)
+
+   SET /A &quot;_result=2<b>&lt;&lt;</b>3&quot;
+   (=16)   { 2 Lsh 3 = binary 10 Lsh 3 = binary 10000 = decimal 16 }
+   
+   SET /A &quot;_result=5<b>%%</b>2&quot;
+   (=1)    { 5/2 = 2 + 2 remainder 1 = 1 }
+</pre>
+<p> In a batch script, the Modulus operator (<span class="code">%</span>) must be doubled up to (<span class="code">%%</span>). </p>
+<p>SET /A will treat any character string in the expression 
+as an environment variable name. This allows you to do arithmetic with environment 
+variables without having to type any % signs to get the values. <span class="code">SET /A _result=5 + _MyVar</span></p>
+<p>Multiple calculations can be performed in one line, by separating each calculation with commas, for example:</p>
+<p class="code">_year=1999<br>
+Set /a _century=_year/100, _next=_century+1</p>
+<p>The numbers must all be within the range of 32 bit signed integer numbers (-2,147,483,648 through 2,147,483,647) to handle larger numbers use <a href="http://ss64.com/ps/">PowerShell</a> or <a href="http://ss64.com/vb/">VBScript</a>.</p>
+<h2>Leading Zero will specify Octal</h2>
+<p>Numeric values are decimal numbers, unless prefixed by <br>
+<b class="code">0x</b> for hexadecimal numbers,<br>
+<b class="code">0 </b>for octal numbers.<br>
+<br>
+So <span class="code">0x10</span> =  <span class="code">020</span> = <span class="code">16</span> decimal<br>
+<br>
+The octal notation can be confusing - all numeric values that start with zeros are treated as octal but 08 and 09 are not  valid octal digits.<br>
+For example <span class="code">SET /a _month=07</span> will return the value 7, but <span class="code">SET /a _month=09</span> will return an error.</p>
+<h2>Permanent changes</h2>
+<p>Changes made using the SET command are NOT permanent, they apply to the current CMD prompt only and remain only until the CMD window is closed.<br>
+To permanently change a variable at the command line use <a href="setx.html">SetX</a><br>
+or with the GUI - Control Panel | System | Environment | System/User Variables<br>
+<br>
+Changing a variable permanently with SetX will not affect any CMD prompt that is already open. <br>
+Only new CMD prompts will get the new setting.<br>
+<br>
+You can of course use SetX in conjunction with SET to change both at the same time:</p>
+<p class="code">Set _Library=T:\Library\ <br>
+SetX _Library T:\Library\ /m</p>
+<h2>Change the environment for other sessions</h2>
+<p>Neither SET nor SetX will affect other CMD sessions that are already running on the machine . This as a good thing, particularly on multi-user machines, your scripts won't have to contend with a dynamically changing environment while they are running.</p>
+<p>It is  possible to add permanent environment variables to  the registry (<span class="code">HKCU\Environment</span>), but  this is an undocumented (and likely unsupported) technique and still it will not take effect until the users next login. </p>
+<p>System environment variables can  be found in the registry here:<br>
+<span class="code"> HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment</span></p>
+<h2>CALL SET</h2>
+<p>The <span class="code">CALL SET</span> syntax allows a <a href="syntax-substring.html">variable substring</a> to be evaluated,  the <a href="call.html">CALL</a> page has more detail on this technique, in most cases a better approach is to use <span class="code">Setlocal <a href="delayedexpansion.html">EnableDelayedExpansion</a></span></p>
+<h2>Autoexec.bat</h2>
+<p>Any SET statement in c:\autoexec.bat may be parsed at boot time<br>
+Variables set in this way are not available to 32 bit gui programs - they won't appear in the control panel.<br>
+They will appear at the CMD prompt.<br>
+<br>
+If autoexec.bat CALLS any secondary batch files, the additional batch files will NOT be parsed at boot.<br>
+This behaviour can be useful on a dual boot PC.</p>
+<p>SET is an <a href="syntax-internal.html">internal</a> command. If <a href="cmd.html">Command Extensions</a> are disabled all SET commands are disabled other than simple assignments like:<br>
+_variable=MyText</p>
+<p>The CMD shell will fail to read an environment variable if it contains more than <a href="http://support.microsoft.com/kb/830473">8,191</a> characters.<br>
+<br>
+<i class="quote"># I got my mind set on you <br>
+# I got my mind set on you... - George Harrison </i><br>
+<br>
+<b>Related:</b></p>
+<p><a href="syntax-substring.html">Syntax - VarSubstring</a> Extract part of a variable (substring)<br>
+<a href="syntax-replace.html">Syntax - VarSearch</a> Search &amp; replace part of a variable.<br>
+<a href="syntax-variables.html">Syntax - Environment Variables</a> - List of default variables<b> </b><br>
+<a href="call.html">CALL</a> - Evaluate environment variables<br>
+<a href="setx.html">SETX</a> - Set an environment variable permanently.<br>
+<a href="setlocal.html">SETLOCAL</a> - Begin localisation of environment variable 
+changes<br>
+<a href="endlocal.html">ENDLOCAL</a> - End localisation of environment changes, use to return values<br>
+<a href="exit.html">EXIT</a> - Set a specific ERRORLEVEL
+<br>
+<a href="syntax-args.html">Parameters</a> - get a full or partial 
+pathname from a command line variable. <br>
+<a href="path.html">PATH</a> - Change the %PATH% environment variable.<br>
+PATHMAN -  Resource Kit utility for modification of both the system 
+and user paths. Pathman can resolve many problems 
+and can improve performance by removing duplicate paths. For details see Pathman.wri<br>
+<a href="reg.html">REG</a> - Read or Set Registry values <br>
+<a href="regedit.html">REGEDIT</a> - Import or export registry settings <br>
+<a href="wmic.html">WMIC ENVIRONMENT</a> - Set environment vars through WMI<br>
+<a href="http://stackoverflow.com/questions/6379619/explain-how-dos-batch-newline-variable-hack-works">StackOverflow</a> - Storing a Newline in a variable<br>
+
+Powershell: <a href="http://ss64.com/ps/set-variable.html">Set-Variable</a> - Set a variable and a value (set/sv)<br>
+Powershell: <a href="http://ss64.com/ps/read-host.html">Read-Host</a> - Prompt for user input <br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/env.html">env</a> - Display, set, or remove environment variables</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="set.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

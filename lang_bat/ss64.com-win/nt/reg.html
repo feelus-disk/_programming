@@ -1,0 +1,148 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Reg - Edit Registry | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>REG.exe </h1> 
+<p>Read, Set or Delete registry keys and values,  save and restore from a .REG file. </p>
+<pre>Syntax:
+
+   REG QUERY [<i>ROOT</i>\]<i>RegKey</i> /v <i>ValueName</i> [/s]
+   REG QUERY [<i>ROOT</i>\]<i>RegKey</i> /ve  --This returns the (default) value
+   
+   REG ADD [<i>ROOT</i>\]<i>RegKey</i> /v <i>ValueName</i> [/t <i>DataType</i>] [/S <i>Separator</i>] [/d <i>Data</i>] [/f]
+   REG ADD [<i>ROOT</i>\]<i>RegKey</i> /ve [/d <i>Data</i>] [/f]  -- Set the (default) value
+
+   REG DELETE [<i>ROOT</i>\]<i>RegKey</i> /v <i>ValueName</i> [/f]
+   REG DELETE [<i>ROOT</i>\]<i>RegKey</i> /ve [/f]  -- Remove the (default) value
+   REG DELETE [<i>ROOT</i>\]<i>RegKey</i> /va [/f]  -- Delete all values under this key
+
+   REG COPY  [\\<i>SourceMachine\</i>][<i>ROOT</i>\]<i>RegKey</i> [\\<i>DestMachine\</i>][ROOT\]<i>RegKey</i>
+
+   REG EXPORT <i>[ROOT\]RegKey FileName</i>.reg
+   REG IMPORT <i>FileName</i>.reg
+   REG SAVE [<i>ROOT</i>\]<i>RegKey FileName</i>.hiv
+   REG RESTORE <i>\\MachineName\</i>[<i>ROOT</i>]\<i>KeyName FileName</i>.hiv
+   
+   REG LOAD<i> KeyName</i> <i>FileName</i>
+   REG UNLOAD <i>KeyName</i>
+   
+   REG COMPARE [<i>ROOT</i>\]<i>RegKey</i> [<i>ROOT</i>\]<i>RegKey</i> [/v <i>ValueName</i>] [<i>Output</i>] [/s]
+   REG COMPARE [<i>ROOT</i>\]<i>RegKey</i> [<i>ROOT</i>\]<i>RegKey</i> [/ve] [Output] [/s]
+
+Key:
+   <i>ROOT</i> :
+         HKLM = HKey_Local_machine (default)
+         HKCU = HKey_current_user
+         HKU  = HKey_users
+         HKCR = HKey_classes_root
+
+   <i>ValueName</i> : The value, under the selected RegKey, to edit.
+               (default is all keys and values)
+
+   /d <i>Data</i>   : The actual data to store as a &quot;String&quot;, integer etc
+
+   /f        : Force an update without prompting "Value exists, overwrite Y/N"
+
+   \\<i>Machine</i> : Name of remote machine - omitting defaults to current machine.
+         	    Only HKLM and HKU are available on remote machines.
+
+   <i>FileName</i>  : The filename to save or restore a registry hive.
+
+   <i>KeyName</i>   : A key name to load a hive file into. (Creating a new key)
+
+   /S        : Query all subkeys and values.
+
+   /S <i>Separator</i> : Character to use as the separator in REG_MULTI_SZ values
+                  the default is &quot;\0&quot; 
+
+   <i>/t DataType</i>  : <a href="reg-types.html">REG_SZ (default) | REG_DWORD | REG_EXPAND_SZ | REG_MULTI_SZ</a>
+
+   <i>Output</i>    : /od (only differences) /os (only matches) /oa (all) /on (no output)</pre>
+<p><b>Notes: </b><br>
+Any of the above commands can be run against  a remote machine by adding \\<i>MachineName</i> to the command line, assuming the <a href="syntax-services.html">Remote Registry Service</a> is running.<br>
+Registry data stored under HKCU will be visible and writable by the currently logged in user.<br>
+Registry data stored under HKLM will be visible to all users and writable by administrators.</p>
+<p>REG RESTORE has a tendency not to work, possibly due to firewall issues, Export and Import are much more reliable. </p>
+<p><b>Backslash characters</b></p>
+<p>The REG command will interpret <span class="code">\</span> as an <a href="syntax-esc.html#escape">escape</a> for the character that immediately follows it. <br>
+To include a quote mark (&quot;) in the data, prefix it with the escape character  e.g. Here is <span class="code">\</span>&quot; a quote</p>
+<p>This can cause problems with quoted directory paths because  <span class="code">\&quot;</span> at the end of the line will be escaped.</p>
+<p>To save a directory path with a trailing backslash (<span class="code">\</span>) requires adding a second backslash to 'escape the escape' <br>
+so for example instead of <span class="code">&quot;C:\My Docs\&quot;</span> use <span class="code">&quot;C:\My Docs\\&quot;</span></p>
+<p><b>Activate</b></p>
+<p>To activate registry changes in HKEY_CURRENT_USER without logging off: <br>
+<span class="code"><a href="rundll32.html">RUNDLL32.EXE</a> USER32.DLL,UpdatePerUserSystemParameters ,1 ,True</span></p>
+<p><b>Examples</b></p>
+<p>Adding and querying data:</p>
+<pre>REG QUERY HKCU\Console\
+REG QUERY HKCU\Console /v ScreenBufferSize</pre>
+<pre>
+REG ADD HKCU\Software\SS64 /v Sample /d &quot;some test data&quot;
+REG QUERY HKCU\Software\SS64 /v Sample
+
+REG ADD HKLM\Software\DiLithium /v WarpSpeed /t REG_BINARY /d ffffffff
+REG QUERY HKLM\Software\DiLithium /v WarpSpeed</pre>
+<p><span class="body">Find the location of the <a href="syntax-folders.html">Start Menu</a> folder</span>:</p>
+<p class="code">REG QUERY &quot;HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders&quot; /v &quot;Start Menu&quot;</p>
+<p>List IE Proxy overrides:</p>
+<p><span class="code">REG QUERY &quot;HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings&quot;  /v ProxyOverride</span></p>
+<p>Save a directory/registry path  that ends with a backslash:</p>
+<pre>Set _reg=HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\SS64.EXE<b>\</b><br>Set _prog=C:\Program Files\SS64 App<b>\</b><br>REG ADD &quot;%_reg%<b>\</b>&quot; /f /v &quot;SS64.EXE&quot; /t REG_SZ /d &quot;%_prog%<b>\</b>&quot; 
+</pre>
+<p>Save a REG_Expand_SZ value of %systemroot% </p>
+<pre>REG ADD HKLM\Software\SS64 /v Path /t REG_EXPAND_SZ /d <b>^</b>%systemroot<b>^</b>%
+
+REG COPY \\Wks580\HKCU\Software\SS64 HKCU\Software\SS64
+REG COPY HKCU\Software\SS64 HKCU\Software\SS64Copy
+
+REG EXPORT HKCU\Software\SS64 C:\MyReg.REG
+REG IMPORT C:\MyReg.REG
+REG SAVE HKCU\Software\SS64 C:\MyRegHive.hiv
+REG RESTORE \\Wks580\HKCU\Software\SS64 C:\MyRegHive.hiv</pre>
+<p> Run a script at first logon (Run Once) to do this we edit the Default User profile by temporarily loading it as ZZZ:</P>
+<PRE>REG LOAD HKU\ZZZ &quot;C:\Documents and Settings\Default User\NTUSER.DAT&quot;
+REG ADD HKU\ZZZ\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce /v newUserProfile /t REG_EXPAND_SZ /d &quot;D:\setup.cmd&quot; /f
+REG UNLOAD HKU\ZZZ</pre>
+<p>More  examples are available via: REG QUERY /? REG ADD /? etc<br>
+<br>
+<i class="quote"> &quot;The way to a mans heart is through his stomach&quot; ~ Fanny Fern (writer)</i> <br>
+<br>
+<b>Related:</b><br>
+<br>
+<a href="setx.html">SETX</a> - Set environment variables permanently, can also read a registry key and write the value to a text file.<br>
+<a href="regedit.html">REGEDIT</a> - Load Registry settings from a .REG file<br>
+Dureg - Registry Size Estimator. (<a href="http://ss64.com/links/windows.html#kits">Win 2K ResKit</a>)<br>
+Powershell: <a href="http://ss64.com/ps/get-itemproperty.html">Get-ItemProperty</a> / <a href="http://ss64.com/ps/set-itemproperty.html">Set-ItemProperty</a> - Retrieve / save registry Keys<br>
+<a href="http://support.microsoft.com/kb/948698">Q948698</a> - Remote access to 64-bit registry keys <span class="code">/reg:64</span> switch<br>
+<a href="http://support.microsoft.com/kb/325347">Q325347</a> - Run a Logon Script once when a new user logs on,  Windows 2003<br>
+<a href="http://support.microsoft.com/KB/945219">Q945219</a> - Reg.exe fails for  REG_EXPAND_SZ registry types
+</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="reg.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

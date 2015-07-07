@@ -1,0 +1,130 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>PsExec - Execute process remotely | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>PsExec (<abbr title="Download the PsTools suite"><a href="http://technet.microsoft.com/en-us/sysinternals">PsTools</a></abbr>)</h1>
+<p>Execute a command-line process on a remote machine. </p>
+<pre>Syntax
+      psexec \\<i>computer</i>[,<i>computer</i>[,..] [<i>options</i>] <i>command</i> [<i>arguments</i>]
+
+      psexec @<i>run_file </i>[<i>options</i>] <i>command</i> [<i>arguments</i>]
+
+Options:
+
+   <i>computer</i>   The computer on which psexec will run <i>command</i>. Default = local system 
+              To run against all computers in the current domain enter "\\*"
+               
+   @<i>run_file</i>  Run <i>command</i> on every computer listed in the text file specified.
+
+   <i>command</i>    Name of the program to execute
+
+   <i>arguments</i>  Arguments to pass (file paths must be absolute paths on the target system)
+
+   -a <i>n</i>,<i>n</i>,... Set processor affinity to <i>n</i>. Processors are numbered as 1,2,3,4 etc
+              so to run the application on CPU 2 and CPU 4, enter: "-a 2,4"
+
+   -c         Copy the program (<i>command</i>)to the remote system for execution.
+   -c -f      Copy even if the file already exists on the remote system.
+   -c -v      Copy only if the file is a higher version or is newer than the remote copy.
+
+   If you omit the -c option then the application must be in the system path on the remote system.
+
+   -d         Don&rsquo;t wait for the application to terminate.
+              Only use for non-interactive applications.
+
+   -e         Load the user account's profile, don&rsquo;t use with the system account (-s)
+
+   -i         Interactive - Run the program so that it interacts with the desktop on the remote system.
+
+   -l         Limited - Run process as limited user. Only allow privs assigned to the <b>Users</b> group.
+
+   -n <i>s</i>       Specify a timeout <i>s</i> seconds for connecting to the remote computer.
+
+   -p <i>psswd</i>   Specify a password for <i>user</i> (optional). Passed as clear text.
+              If omitted, you will be prompted to enter a hidden password.
+
+   -s         Run remote process in the SYSTEM account (use with caution).
+
+   -u <i>user</i>    Specify a user name for login to remote computer(optional).
+
+   -w <i>directory</i> Set the working directory of the process (relative to the remote computer).
+
+   -x         Display the UI on the Winlogon desktop (local system only).
+
+  -low, -belownormal, -abovenormal, -high or -realtime
+              These options will run the process at a different priority.
+
+   -accepteula Suppress the display of the license dialog.</pre>
+<p>  Psexec can also be used to start GUI applications, but in that case the GUI will appear on the remote machine. </p>
+<p>Input is  passed to the remote system when you press the enter key -  typing Ctrl-C will terminate the remote process.</p>
+<p>When you specify a <b>username </b>the remote process will execute in that account, and will have access to that account's network resources. </p>
+<p>If you omit <b>username </b>the remote process will run in the same account from which you execute PsExec, but because the remote process is impersonating it will not have access to network resources on the remote system. </p>
+<p>If you do specify an alternative username/password, then PsExec will send the password in clear text. This may be a security risk if unauthorized network sniffers could intercept traffic between the local and remote system.</p>
+<p>PsExec does not require you to be an administrator of the local filesystem, with the correct password psexec will allow <i>UserA</i> to run commands as <i>UserB</i> - a <a href="runas.html">Runas</a> replacement.</p>
+<p>If you kill a PsExec process, you may also need to manually remove the background service:<br>
+<span class="code">sc.exe \\workstation64 delete psexesvc</span></p>
+<p>PsExec can also be used to start a process (on a remote or local machine) as SYSTEM, this is a very privileged account similar to root on a UNIX machine ~ use with extreme caution.</p>
+<p>When launched for the first time, PsExec will create the regkey <br>
+<span class="code">HKCU\Software\Sysinternals\PsExec\EulaAccepted=0x01</span></p>
+<p>Surround any long filenames &quot;with quotation marks&quot;</p>
+<h2>Internal commands</h2>
+<p>Internal commands (such as COPY, CD, DIR  etc) are only available within the CMD shell. To run these commands from PsExec you must call <a href="cmd.html">CMD /C</a> and then pass the commands as parameters - see the examples below. <br>
+<br>
+<b>Examples:</b><br>
+<br>
+Launch an interactive command prompt on \\workstation64, the CMD prompt window will appear locally:</p>
+<p class="code">psexec \\workstation64 cmd</p>
+<p>Execute a program that is already installed on the remote system:</p>
+<p class="code">psexec \\workstation64 &quot;c:\Program Files\test.exe&quot;</p>
+<p>Connect to  workstation64 and list a directory:</p>
+<p class="code">psexec \\workstation64 -s cmd /c dir c:\work</p>
+<p>Connect to workstation64 and copy a file from another server:</p>
+<p class="code">psexec \\workstation64 -s cmd /c copy \\server21\share45\file.ext c:\localpath</p>
+<p>Execute IpConfig on the remote system, and display the output locally:</p>
+<p class="code">psexec \\workstation64 ipconfig /all</p>
+<p>Copy the program test.exe to the remote system and execute it interactively, running under the account DannyGlover:</p>
+<p class="code">psexec \\workstation64 -c test.exe -u DannyGlover -p Pa55w0rd </p>
+<p>Run Internet Explorer on the local machine but with limited-user privileges:</p>
+<p class="code">psexec -l -d &quot;c:\program files\internet explorer\iexplore.exe&quot;</p>
+<p>Run Regedit on the local machine with SYSTEM privileges:</p>
+<p class="code">psexec -s -i regedit.exe</p>
+<p>From PowerShell, run a VBscript on a remote workstation and pass some parameters:</p>
+<p class="code">PS C:&gt; $script='C:\Program Files\demo.vbs'<br>
+PS C:&gt; $myparam1 = &quot;some more text&quot;<br> 
+PS C:&gt; psexec -s \\workstation64 c:\windows\system32\cscript.exe $script $myparam1 </p>
+<p class="quote"><i>&ldquo;Don’t ask what the world needs. Ask what makes you come alive, and go do it. Because what the world needs is people who have come alive&rdquo; - Howard Thurman</i></p>
+<p><b>Related:</b></p>
+<p><a href="http://forum.sysinternals.com/faq-common-pstools-issues_topic15920.html">FAQ: Common PSTools Issues</a><br>
+<a href="http://support.microsoft.com/kb/942817">Q942817</a> - Remote UAC <span class="code">LocalAccountTokenFilterPolicy</span> setting (allow remote administration for Vista/Windows7)<br>
+<a href="runas.html">RUNAS</a> - Execute a program under a different user account<br>
+<a href="http://ss64.com/links/windows.html#utils">xCMD</a> - 3rd party utility<br>
+Equivalent bash command (Linux): xon - start an X program on a remote machine</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="psexec.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

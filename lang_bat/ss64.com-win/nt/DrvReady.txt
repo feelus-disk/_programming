@@ -1,0 +1,35 @@
+@ECHO off
+SETLOCAL
+IF [%1] NEQ [] goto s_start
+
+ECHO DRVREADY.cmd
+ECHO Indicate if a given disk drive is available
+ECHO (readable or read/writeable) 
+ECHO.
+ECHO SYNTAX
+ECHO       DRVREADY Drive:
+ECHO.
+ECHO       DRVREADY c:
+ECHO.
+GOTO :eof
+
+:s_start
+FOR /F "tokens=*" %%G IN ('dir /b %1 2^>^&1') DO (set v_err=%%G)
+IF "%v_err%"=="File Not Found" goto :s_fnf
+IF "%v_err%"=="The system cannot find the path specified." goto :s_no_device
+IF "%v_err%"=="The device is not ready." goto :s_no_media
+
+ECHO Drive %1 is available for use
+GOTO :eof
+
+:s_fnf
+ECHO Drive %1 is available for use (Drive is empty)
+GOTO :eof
+
+:s_no_device
+ECHO Drive %1 is not available on this machine
+GOTO :eof
+
+:s_no_media
+ECHO No Media (floppy or cdrom) found on Drive %1
+GOTO :eof

@@ -1,0 +1,150 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Set-ADAccountExpiration | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Set-ADAccountExpiration</h1> 
+<p>Set the expiration date for an Active Directory account.</p>
+<pre>Syntax
+      Set-ADAccountExpiration [-Identity] <i>ADAccount</i>
+         [-TimeSpan] <i>TimeSpan</i> [-DateTime] <i>DateTime</i>
+            [-AuthType {<u>Negotiate</u> | Basic}] [-Credential <i>PSCredential</i>]
+               [-Partition <i>string</i>] [-PassThru] [-Server <i>string</i>]
+                  [-Confirm] [-WhatIf] [<a href="common.html"><i>CommonParameters</i></a>]
+
+Key
+   -AuthType {<u>Negotiate</u> | Basic}
+       The authentication method to use: Negotiate (or 0), Basic (or 1)
+       A Secure Sockets Layer (SSL) connection is required for Basic authentication.
+
+   -Credential <i>PSCredential</i>
+       A user account that has permission to perform this action.
+       The default is the current user unless the cmdlet is run from an AD PowerShell provider drive
+       in which case the account associated with the drive is the default.
+
+       &quot;User64&quot; or &quot;Domain01\User64&quot; or a <a href="get-credential.html">PSCredential</a> object.
+
+   -DateTime <i>DateTime</i>
+        The expiration time for the account, set using a DateTime value.
+
+        Time is assumed to be in local time unless otherwise specified.
+        When a date is not specified, the date is assumed to be the current date.
+        When a time value is not specified, the time is assumed to be midnight local time
+        (i.e. the very start of the day 12:00:00 am)
+        Examples
+          &quot;2:54 PM&quot;
+          &quot;2:54:48 PM&quot;
+          &quot;4/12/2012&quot;
+          &quot;4/12/2012 2:54 PM&quot;
+          &quot;Monday, April 12, 2012&quot;
+          &quot;Monday, April 12, 2012 2:54:48 PM&quot;
+          &quot;Monday, April 12, 2012 2:54 PM&quot;
+        Greenwich Mean Time (GMT) /RFC1123 standard:
+          &quot;Mon, 12 Apr 2012 21:54:48 GMT&quot;
+        Coordinated Universal Time (UTC):
+          &quot;2012-04-12T14:54:48.0000000&quot; 
+
+   -Identity <i>ADAccount</i>
+       Specify an AD domain object by providing one of the following values.
+       (The identifier in parentheses is the LDAP display name for the attribute.)
+
+          Distinguished Name 
+            Example: DC=Helvetia,DC=corp,DC=SS64,DC=com 
+          GUID (objectGUID) 
+            Example: 599c4d2e-f72d-4d20-8a78-030d69495f20
+          Security Identifier (objectSid) 
+            Example: S-1-5-21-5165297888-301467370-576410423-1803
+          Security Accounts Manager (SAM) Account Name (sAMAccountName)
+            Example: Helvetia
+
+       The cmdlet searches the default naming context or partition to find the object.
+       If two or more objects are found, the cmdlet returns a non-terminating error.
+
+       This parameter can also get this object through the pipeline or you can set this
+       parameter to an object instance.
+
+   -Partition <i>string</i>
+       The distinguished name of an AD partition.
+       The distinguished name must be one of the naming contexts on the current
+       directory server. The cmdlet searches this partition to find the object defined by
+       the -Identity parameter. 
+       The following two examples show how to specify a value for this parameter.
+          -Partition &quot;CN=Configuration,DC=Europe,DC=Test,DC=SS64,DC=com&quot;
+          -Partition &quot;CN=Schema,CN=Configuration,DC=Europe,DC=Test,DC=SS64,DC=com&quot;
+
+       In many cases, a <a href="partition-defaults.html">default value</a> will be used for -Partition if no value is specified.
+
+   -PassThru
+       Return the new or modified object.
+       By default (i.e. if -PassThru is not specified), this cmdlet does not generate any output.
+
+   -Server <i>string</i>
+       The AD Domain Services instance to connect to, this may be a Fully qualified domain name,
+       NetBIOS name, Fully qualified directory server name (with or without port number) or AD Snapshot instance.
+
+       Examples: demo.SS64.com  demo  demoDC02.demo.ss64.com  demoDC02.demo.ss64.com:3268
+
+   -TimeSpan <i>TimeSpan</i>
+       Set the account to expire at the end of the <i>TimeSpan</i> time interval.
+       The time interval will begin at the current time. 
+
+       Format:
+           [-]D.H:M:S.F
+            where:
+              D = Days (0 to 10675199)
+              H = Hours (0 to 23)
+              M = Minutes (0 to 59)
+              S = Seconds (0 to 59)
+              F= Fractions of a second (0 to 9999999)
+
+        Note: Time values must be between -10675199:02:48:05.4775808 and 10675199:02:48:05.4775807
+
+        Examples:
+          Set the time to 2 days
+            -TimeSpan &quot;2&quot;
+          Set the time span to the previous 2 days
+           -TimeSpan &quot;-2&quot;
+          Set the time to 4 hours
+            -TimeSpan &quot;4:00&quot;
+
+   -Confirm
+       Prompt for confirmation before executing the command.
+
+   -WhatIf
+       Describe what would happen if you executed the command, without actually executing the command.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Set-ADAccountExpiration  sets the expiration time for a user, computer or service account. </p>
+<p>To specify an 
+exact time, use the <span class="code">-DateTime</span> parameter. <br>
+To specify a time period from the current time, use the <span class="code">-TimeSpan</span> parameter.</p>
+<p><b>Examples</b></p>
+<p>Sets the account with SamAccountName: TommyEllis to expire on the 18th of October, 2015:</p>
+<p><span class="code">PS C:\&gt; Set-ADAccountExpiration KarenBe -DateTime &quot;10/18/2015&quot;</span></p>
+<p>Set the expiration date of all the user accounts who are a member of the group: grp_Legal_boston to 60 days from now.</p>
+<p><span class="code">PS C:\&gt; Get-ADGroupMember grp_Legal_boston | where {$_.objectClass -eq &quot;user&quot;} | Set-ADAccountExpiration -timespan 60.0:0</span></p>
+<p class="quote"><i>“This is not the end. It is not even the beginning of the end. But it is, perhaps, the end of the beginning” ~ Winston Churchill</i></p>
+<p><b>Related:</b></p>
+<p><a href="clear-adaccountexpiration.html">Clear-adAccountExpiration</a> - Clear the expiration date for an AD account</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="set-adaccountexpiration.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

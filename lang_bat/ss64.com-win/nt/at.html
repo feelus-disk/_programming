@@ -1,0 +1,153 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>at | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>AT.exe </h1>  
+<p>Schedule a command or batch file to run on a computer at a specific date 
+and time. Additional scheduling options are available with the <a href="schtasks.html">SCHTASKS</a> command. The AT command has been deprecated and is no longer available In Windows 8.</p>
+<pre>Syntax
+      Create an AT job:
+      AT [\\computername] hh:mm [/INTERACTIVE] [ /EVERY:day(s) | /NEXT:day(s) ] "command"
+
+      Delete an AT job:
+      AT [\\computername] [ [id] [/DELETE] | /DELETE [/YES]] 
+
+Key<br>   \\computername : Execute the AT command on a remote computer. 
+
+   id             : An id number AT assigns to each scheduled job.
+
+   /delete        : Cancel a scheduled job. If id is omitted, all jobs are deleted.
+
+   /yes           : Use with /delete to supress the confirmation message.
+
+   hh:mm          : The time to run the command.
+
+   /interactive   : Allow the job to interact with the desktop of 
+                    the current user when the job runs.
+
+   /every:day(s)  : Run the command every day(s) of the week or month. 
+                    (default: dd=today) 
+
+   /next:day(s)   : Run the command on the next occurrence of the day. 
+                    (default: dd=today)
+
+   "command"      : The batch program or command to run. If the path 
+                    to this includes spaces, put double quotation marks  
+                    around the path. "C:\Program Files\My Batch.cmd"</pre>
+<p> Day(s) are in this format: (English Locale EN)<br>
+<br>
+Monday = <span class="code">m</span><br>
+Tuesday =<span class="code"> t</span><br>
+Wednesday =<span class="code"> w</span><br>
+Thursday =<span class="code"> th</span><br>
+Friday =<span class="code"> f</span><br>
+Saturday =<span class="code"> s</span><br>
+Sunday =<span class="code"> su</span><br>
+<br>
+or a specific day of the month: <br>
+e.g. 5th of every month =<span class="code"> 5</span></p>
+<p>In other locales the day(s) may be different letters:<br>
+Italian:  <span class="code">L,MA,ME,g,v,s,d</span><br>
+German: <span class="code">M, T, W, Th, F, S, Su</span><br>
+French: <span class="code">L, Ma, Me, J, V, S, D</span><br>
+</p>
+<h2>AT vs 'Scheduled Tasks'</h2>
+<p>The &quot;Task Scheduler&quot; service must be running to use the AT command.
+The &quot;Schedule&quot; service (ATSVC) rather than the &quot;Task Scheduler&quot; service must be running to use <a href="http://ss64.com/nt/zsoon.html">SOON</a> with a delay of less than 60 seconds. - 
+see <a href="http://support.microsoft.com/?kbid=237840">Q237840</a>  </p>
+<p>You can use the Scheduled Tasks folder to view or modify the settings of a task that was created by using the AT command. When you schedule a task using
+the <span class="code">at</span> command, the task is listed in the Scheduled Tasks folder, with a name such as:At3478. However, if you modify an AT task through the
+Scheduled Tasks folder, it is upgraded to a normal scheduled task. The task is no longer visible to the at command, and the at account setting no longer
+applies to it. You must explicitly enter a user account and password for the task. For most purposes the <a href="schtasks.html">SchTasks</a> command is a better choice than AT.</p>
+<h2>Commands to Process</h2>
+<p>At does not automatically load <a href="cmd.html">Cmd</a>.exe,
+the command interpreter. If you are not running an executable (.exe) file,
+you must explicitly load CMD at the beginning of the command e.g. <span class="code">cmd /c
+dir<br>
+</span>Don&rsquo;t try to pass more than one command into AT, put multiple commands into a batch file and then  call the batch file from
+AT.</p>
+<h2>Permissions required to issue an AT command</h2>
+<p> By default only a <span class="code">Local Administrator</span> can issue an AT command, a <span class="code">Domain Admin</span> can direct an AT command at any machine. AT will run commands under the local SYSTEM account, under Windows XP this can be used as a source of privilege escalation.</p>
+<h2>Permissions required by the service account</h2><p>  The User Account under which the Schedule service runs may require specific file access permissions, user permissions and drive mappings.<br>
+ The User Account is selected under MyComputer, ScheduledTasks, Advanced (Menu), AT Service Account. You also need to stop and restart the service before the change in UserAccount will take effect.<br>
+<br>Here's how to check if a user account has sufficent rights for a particular task: <br>
+<br>
+<span class="code">C:\&gt; AT 14:32 /interactive %comspec% /k </span><br>
+<br>Setting hh:mm for one minute from now will open a cmd window at the specified time. In this window you can check the following settings:</p>
+<ul>
+<li><span class="body">The <a href="path.html">PATH</a></span></li>
+<li><span class="body"><a href="set.html">Environment</a> variables (particularly TEMP).</span></li>
+<li><span class="body">Drive mappings - you can add these by putting appropriate <a href="net.html">NET</a> USE... commands at the beginning of your batch 
+file.</span></li>
+</ul>
+<p> Next, go ahead and run your batch file in this console window, note the errors, and fix them. Once the errors have been fixed, you can remove the /interactive switch and schedule the batch file with some confidence that 
+it will work as intended.</p>
+<h2>  Bugs</h2>
+<p>  If you change the system time after scheduling a command with AT, synchronize the  scheduler with the revised system time by typing AT without any command-line options.</p>
+<p>By default, AT jobs will stop running after 72 hours. <br>
+You can modify this in the registry.</p>
+<p> <span class="code">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Schedule</span><br>
+ Value:<br>
+<span class="code">AtTaskMaxHours</span>  Data type: REG_DWORD <br>
+Decimal Value Data: 0. <br>
+A value of 0  indicates no limit, does not stop.
+<br>
+Values from 1 through 99 indicate the number of hours.</p>
+<p>Other Task Scheduler options are stored in the registry</p>
+<pre>HKLM\SOFTWARE\Microsoft\SchedulingAgent\
+</pre>
+<p><b>Examples:</b><br>
+  <br>
+Run a command every day<br>
+<br>
+<span class="code">AT 23:30 /EVERY:m,t,w,th,f,s,su c:\backups\every_day.cmd</span><br>
+<br>
+Run a command every Friday<br>
+<br>
+<span class="code">AT 23:30 /EVERY:f c:\backups\weekly.cmd</span><br>
+<br>
+Remove all scheduled AT jobs <br>
+<br>
+<span class="code">AT /delete /yes</span><br>
+<br>
+Run a command this evening (once only)<br>
+<br>
+<span class="code">AT 23:30 /NEXT: c:\backups\today.cmd</span></p>
+<p><i class="quote">&ldquo;We don&rsquo;t wake up for less than $10,000 a day&rdquo; - Linda Evangelista </i> <br>
+<br>
+<b>Related:</b></p>
+<p><a href="schtasks.html">SchTasks</a> - Task Scheduler <br>
+<a href="call.html">CALL</a> - Call one batch program from another.<br>
+Powershell: To schedule a PS task call <a href="http://ss64.com/ps/powershell.html">Powershell.exe</a><br>
+<a href="ftp://ftp.microsoft.com/reskit/win2000/jt.zip">JT.exe</a> (Microsoft FTP) - Manage the Task Scheduler from the command line<br>
+<a href="wmic.html">WMIC JOB</a> - WMI access to scheduled tasks.  <br>
+Equivalent bash command (Linux):  <a href="http://ss64.com/bash/crontab.html">crontab</a> - Schedule a command to run at a later time</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="at.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

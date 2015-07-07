@@ -1,0 +1,157 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Drag and Drop | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Drag and drop files onto a batch script</h1> 
+<p>Below you will find two scripts that can be used to process multiple files (or even folders) by dragging and dropping them onto a batch script.</p>
+<pre> ::Dragdrop.cmd
+ @echo off
+   
+ :: Use this code stub as the basis for drag drop batch files
+
+ :: You can drag and drop multiple files (or folders)
+ :: If files are dropped it will return the long pathname of each file.
+
+ :: If folders are dropped it will return the long pathname of
+ :: each folder (but not the files in those folders)
+
+ PUSHD %~dp0   
+ IF NOT EXIST short2long.cmd ECHO Error&pause&GOTO :s_end
+
+ :s_next
+ IF ["%1"] EQU [""] GOTO :eof
+   
+ CALL short2long %1
+   
+ :: At this point ECHO %v_short2Long%
+ :: will display the long pathname of the current file
+ ECHO %v_short2Long%
+
+ :: Add other commands here
+
+ SHIFT
+ GOTO :s_next
+
+ :s_end
+ POPD</pre>
+<p>This second script Short2Long.cmd is called by the first and converts each short filename into a long one. (Place both scripts in the same folder) </p>
+<pre>:: short2Long.cmd
+@echo off
+SETLOCAL
+:: Converts short filename to long
+
+IF NOT exist %1 ECHO No such file or folder&goto :eof
+
+SET v_filename=%~nx1
+SET v_ext=%~x1
+SET v_remainder=%~dp1
+
+IF defined v_ext echo ::File with extension&set v_fileYN=Y&goto :s_known_type
+
+IF NOT defined v_filename echo ::Path with trailing \ &goto :s_known_type
+
+DIR /a:d %1 >nul 2>&1
+IF [%errorlevel%] EQU [2] Echo ::File without extension&set v_fileYN=Y&goto :s_known_type
+
+Echo ::Path without trailing \
+:: so we need to fix the ~dp1 variable and add a trailing \
+SET v_remainder=%v_remainder%%v_filename%\
+
+echo.
+:s_known_type
+
+SET v_filename
+SET v_ext
+SET v_remainder
+
+:s_getnode
+   FOR /f "tokens=1* delims=\" %%G IN ("%v_remainder%") DO set v_node=%%G&set v_remainder=%%H
+   
+   :: Store the drive letter
+   IF "%v_node:~1,1%"==":" SET v_drive=%v_node%&goto :s_getnode
+
+   ::Find the long filename equivalent for this node
+   FOR /f "tokens=4* delims= " %%G in (
+   'dir /x /a:d "%v_drive%%v_long_path%\%v_node%\.."
+   ^| find "/"'
+   ) DO call :s_process_node %%G "%%H"
+   
+IF defined v_remainder GOTO :s_getnode
+
+:: At this point %v_long_path% is the long path
+:: and %v_filename% is the short filename
+
+:: Add the drive letter
+SET v_long_path=%v_drive%%v_long_path%
+
+:: Finally add the long filename to the path
+IF not defined v_fileYN GOTO :s_finish
+
+FOR /f "tokens=* delims= " %%G IN ('dir /b "%v_long_path%\%v_filename%"') DO (
+    SET v_long_path=%v_long_path%\%%G)
+GOTO :s_finish
+
+:s_process_node
+   :: Now %1 is short filename and %2 is long filename(if there is one)
+   :: Next line makes sure we have an exact match
+   IF /i ["%v_node%"] NEQ ["%1"] goto :eof
+
+   SET v_shortnode=%1
+   SET v_longnode=%2
+
+   :: If node is actually 8.3 - dir/x won't include a long filename so
+   IF [%v_longnode%] EQU [""] SET v_longnode=%v_shortnode%&goto :s_store_node
+      :: Remove quotes
+      SET v_longnode=###%v_longnode%###
+      SET v_longnode=%v_longnode:"###=%
+      SET v_longnode=%v_longnode:###"=%
+      SET v_longnode=%v_longnode:###=%
+:s_store_node
+   :: Store this node
+   SET v_long_path=%v_long_path%\%v_longnode%
+GOTO :eof
+
+:s_finish
+   ECHO.
+   ECHO short path is %1
+   ECHO long  path is %v_long_path%
+   PAUSE
+   ENDLOCAL&set v_short2Long=%v_long_path%
+</pre>
+<p>This works for  files with or without a file extension: FILE or FILE.TXT<br>
+However drag and drop of a folder won't work if the folder has an extension: MYFOLDER.BAD
+<p>It is  possible that filenames with some <a href="syntax-esc.html">puctuation</a> characters may cause the script to fail. 
+<p><b>Related</b>
+
+<p><a href="syntax-filenames.html">Long filename issues</a> 
+<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-dragdrop.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

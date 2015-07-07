@@ -1,0 +1,70 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Get-Bandwidth | PowerShell | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1> Get-Bandwidth</h1> 
+<p>The script below can be used to measure the average IO as a percentage of available bandwidth from the network card(s) of a machine. Similar to the Network information in Task Manager. Where more than one Network interface is fitted, the result will be an average. The script includes a small delay (<a href="start-sleep.html">Start-Sleep</a>) because you probably don't want to hammer a production machine with too many WMI queries.</p>
+<pre>
+#Get-Bandwidth.ps1
+# Measure the Network interface IO over a period of half a minute (0.5)
+
+$startTime = get-date
+$endTime = $startTime.addMinutes(<b>0.5</b>)
+$timeSpan = new-timespan $startTime $endTime
+
+$count = 0
+$totalBandwidth = 0
+
+while ($timeSpan -gt 0)
+{
+   # Get an object for the network interfaces, excluding any that are currently disabled.
+   $colInterfaces = Get-WmiObject -class Win32_PerfFormattedData_Tcpip_NetworkInterface |select BytesTotalPersec, CurrentBandwidth,PacketsPersec|where {$_.PacketsPersec -gt 0}
+
+   foreach ($interface in $colInterfaces) {
+      $bitsPerSec = $interface.BytesTotalPersec * 8
+      $totalBits = $interface.CurrentBandwidth
+
+      # Exclude Nulls (any WMI failures)
+      if ($totalBits -gt 0) {
+         $result = (( $bitsPerSec / $totalBits) * 100)
+         Write-Host &quot;Bandwidth utilized:`t $result %&quot;
+         $totalBandwidth = $totalBandwidth + $result
+         $count++
+      }
+   }
+   Start-Sleep <b>-milliseconds 100</b>
+
+   # recalculate the remaining time
+   $timeSpan = new-timespan $(Get-Date) $endTime
+}
+
+&quot;Measurements:`t`t $count&quot;
+
+$averageBandwidth = $totalBandwidth / $count
+$value = &quot;{0:N2}&quot; -f $averageBandwidth
+Write-Host &quot;Average Bandwidth utilized:`t $value %&quot;</pre>
+<p class="quote"><i><br>
+&ldquo;If you stuff yourself full of poems, essays, plays, stories, novels, films, comic strips, magazines, music, you automatically explode every morning like old faithful. I have never had a dry spell in my life, mainly because I feed myself well, to the point of bursting. I wake early and hear my morning voices leaping around in my head like jumping beans. I get out of bed to trap them before they escape&rdquo; ~ Ray Bradbury</i></p>
+<p><b>Related:</b></p>
+<p><b></b><a href="get-wmiobject.html">Get-WmiObject</a> -   Get WMI class information (gwmi)</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-get-bandwidth.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

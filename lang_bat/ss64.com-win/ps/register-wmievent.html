@@ -1,0 +1,133 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Register-WmiEvent | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Register-WmiEvent</h1> 
+<p> Subscribe  to a WMI event.</p>
+<pre>Syntax
+      Register-WmiEvent [<b>-Class</b>] <i>string</i> [[-SourceIdentifier] <i>string</i>]
+         [[-Action] <i>scriptblock</i>] [-ComputerName <i>string</i>]
+            [-Credential <i>PSCredential</i>] [-Forward] [-MessageData <i>psobject</i>]
+               [-Namespace <i>string</i>] [-SupportEvent] [-Timeout <i>Int64</i>] [<i>CommonParameters</i>]
+
+      Register-WmiEvent [<b>-Query</b>] <i>string</i> [[-SourceIdentifier] <i>string</i>]
+         [[-Action] <i>scriptblock</i>] [-ComputerName <i>string</i>]
+            [-Credential <i>PSCredential</i>] [-Forward] [-MessageData <i>psobject</i>]
+               [-Namespace <i>string</i>] [-SupportEvent] [-Timeout <i>Int64</i>] [<i>CommonParameters</i>]
+
+Key:
+   -Action <i>scriptblock</i><br>       Commands to handle the events.
+       The commands in the Action run when an event is raised, instead of
+       sending the event to the event queue.
+       Enclose the commands {in braces} to create a script block. 
+
+       The value of the Action parameter can include the $Event,
+       $EventSubscriber, $Sender, $SourceEventArgs, and $SourceArgs automatic variables,
+       which provide information about the event to the Action script block.
+       For more information, see about_Automatic_Variables.
+
+       Register-ObjectEvent will return an event job object that represents the action.
+
+   -Class <i>string</i>
+       The event to which you are subscribing.
+       Enter the WMI class that generates the events. 
+       A Class or Query parameter is required in every command.
+
+   -ComputerName <i>string</i>
+       Specify a remote computer.
+       Enter a NetBIOS name, an IP address, or a fully qualified
+       domain name. The default is the local computer. 
+
+   -Credential <i>PSCredential</i>
+       A user account that has permission to perform this action.
+       Type a user name, such as &quot;User23&quot; or &quot;Domain64\User21&quot;. Or, enter a
+       PSCredential object, such as one from <a href="get-credential.html">Get-Credential</a>.
+       If you type a user name, you will be prompted for a password.
+
+   -Forward
+       Send events for this subscription to the session on the local computer.
+       Use this parameter when registering for events on a remote computer
+       or in a remote session.
+
+   -InputObject <i>psobject</i><br>       The .NET Framework object that generates the events.
+       Enter a variable that contains the object, or type a command or expression
+       that gets the object. This parameter is required.
+
+   -MessageData <i>psobject
+</i>       Additional data associated with the event.
+       The value of this parameter appears in the MessageData property of the event object.
+
+   -Namespace <i>string</i>
+       The namespace of the WMI class.
+
+   -Query <i>string</i>
+       A query in WMI Query Language (WQL) that identifies the WMI event class,
+       such as &quot;select * from __InstanceDeletionEvent&quot;.
+
+   -SourceIdentifier <i>string<br></i>       A name that you select for the subscription.
+       The name that you select must be unique in the current session.
+       The default value is the GUID that PowerShell assigns.
+
+       The value of this parameter appears in the SourceIdentifier
+       property of the subscriber object and of all event objects associated
+       with this subscription.
+
+   -SupportEvent
+       Hide the event subscription.
+       Use this parameter when the current subscription is part of
+       a more complex event registration mechanism and it should not
+       be discovered independently.
+
+       To view or cancel a subscription that was created with -SupportEvent,
+       use the -Force parameter of <a href="get-eventsubscriber.html">Get-EventSubscriber</a> and <a href="unregister-event.html">Unregister-Event</a>.
+
+   -Timeout <i>Int64</i>
+       How long PowerShell should wait for this command to complete. 
+       The default value, 0 (zero), means no time-out/wait indefinitely.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>
+  Register-WmiEvent subscribes to WMI events on the local computer or on a remote computer.</p>
+<p>When the subscribed event is raised, it is added to the event queue in your local session even if the event occurs on a remote computer.</p>
+<p> To get events in the event queue, use <a href="get-event.html">Get-Event</a>. Subscribing allows you to forward the events and/or specify an action to respond to the events.</p>
+<p>To cancel a subscription, use <a href="unregister-event.html">Unregister-Event</a></p>
+<p><b>Examples</b></p>
+<p>Subscribe  to the events generated by the Win32_ProcessStartTrace class. This class raises an event whenever a process starts:</p>
+<pre>PS C:\&gt; register-wmiEvent -class 'Win32_ProcessStartTrace' -sourceIdentifier &quot;ProcessStarted&quot;
+</pre>
+<p>Use  an action to respond to an event - when a process starts, any Start-Process commands in the current session are written to an XML file:</p>
+<pre>PS C:\&gt; $action = { get-history | where { $_.commandline -like &quot;*start-process*&quot; } | export-cliXml &quot;commandHistory.clixml&quot; }
+PS C:\&gt; register-wmiEvent -class 'Win32_ProcessStartTrace' -sourceIdentifier &quot;ProcessStarted&quot; -action $action
+</pre>
+<p>Register for events on the Server64, then run a local Get-Event to retrieve the events:</p>
+<pre>PS C:\&gt; register-wmiEvent -class 'Win32_ProcessStartTrace' -sourceIdentifier &quot;Start&quot; -computername Server64
+PS C:\&gt; get-event -sourceIdentifier &quot;Start&quot;
+</pre>
+<p class="quote"><i>“A beauty is a woman you notice; a charmer is one who notices you” ~ Adlai E. Stevenson</i></p>
+<p><b>Related:</b></p>
+<p>  <a href="register-engineevent.html">Register-EngineEvent</a> - Subscribe to PowerShell events <br> 
+<a href="register-objectevent.html">Register-ObjectEvent</a> - Subscribe to .NET events<br>
+<a href="get-event.html">Get-Event</a> - Get events in the event queue</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="register-wmievent.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

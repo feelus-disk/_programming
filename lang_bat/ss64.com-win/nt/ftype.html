@@ -1,0 +1,121 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Ftype - File type | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>FTYPE</h1> 
+<p>Display or change the link between a FileType and an executable 
+program</p>
+<pre>Syntax
+   FTYPE <i>fileType</i>=<i>executable_path</i><br>
+   FTYPE
+
+   FTYPE <i>fileType</i>
+
+   FTYPE <i>fileType</i>=
+
+Key
+   <i>fileType</i>        : The type of file
+
+   <i>executable_path</i> : The executable program including any command line parameters</pre>
+<p> More than one file extension may be associated with the same 
+File Type.<br>
+e.g. both the extension .JPG and the extension .JPEG may be associated with 
+the File Type &quot;jpegfile&quot;<br>
+<br>
+File Types can be displayed in the Windows Explorer GUI under  Options, File Types however the naming used is not consistent e.g. the File Type &quot;txtfile&quot; is displayed in the GUI as &quot;Text Document&quot;and &quot;jpegfile&quot; is displayed as &quot;image/jpeg&quot;<br>
+<br>
+Several FileTypes can be linked to the same executable application.<br>
+<br>
+<span class="code">FTYPE <i>filetype</i> </span>will display the current executable program for that file type e.g. <span class="code">FTYPE jpegfile</span>.<br>
+<br>
+<span class="code">FTYPE</span> without any parameters will display all FileTypes and the executable program for each.</p>
+<h2>  Defining command line parameters</h2>
+<p>  It is almost always necessary to supply command line parameters so that when a document is opened not only is the relevant application loaded into memory but the document itself also loaded into the application. To make this happen the filename of the document must be passed back to the application. <br>
+  <br>
+  Command line parameters are exactly like <a href="syntax-args.html">batch file parameters</a>, %0 is the executable program and %1 will reference the document filename<br>
+  <br>
+  so a simple command line might be:<br>
+  <span class="code"><br>
+  MyApplication.exe &quot;%1&quot;<br>
+  </span><br>
+  If any further parameters are required by the application they can be passed as %2, %3. To pass ALL parameters to an application use %*. To pass all the remaining parameters starting with the nth parameter, use %~n where n is between 2 and 9. <br>
+  <br>
+  The FileType should always be created before making a File Association<br>
+  <br>
+  For example:<br>
+  <span class="code"><br>
+  FTYPE htmlfile="C:\PROGRA~1\Plus!\MICROS~1\iexplore.exe" -nohome<br>
+  ASSOC .html=htmlfile<br>
+  <br>
+  FTYPE pagemill.html=C:\PROGRA~1\Adobe\PAGEMI~1.0\PageMill.exe "%1"<br>
+  ASSOC .html=pagemill.html<br>
+  <br>
+  FTYPE rtffile="C:\Program Files\Windows NT\Accessories\WORDPAD.EXE" "%1"<br>
+  ASSOC .rtf=rtffile<br>
+  <br>
+  FTYPE word.rtf.8="C:\Program Files\Microsoft Office\Office\winword.exe" /n<br>
+ASSOC .rtf=word.rtf.8</span></p>
+<h2>Switch between multiple applications</h2>
+<p>  If you have multiple applications that use the same file extension, the <a href="assoc.html">ASSOC</a> 
+command can be used to switch the file extension between the different FileTypes.</p>
+<h2> Delete a FileType</h2>
+<p>  Specify <b>executable_path=</b>nothing and the FTYPE command will delete the 
+  <b>executable_path</b> for that FileType. <br>
+  For example:<br>
+FTYPE htmlfile=</p>
+<h2>Backup  FileTypes</h2>
+<p><b><span class="code"></span></b><span class="code">FTYPE &gt;backup_types.txt<br>
+ASSOC &gt;backup_ext.txt</span></p>
+<h2>Restore  FileTypes from a Backup</h2>
+<p><span class="code"><a href="for.html">FOR</a> /F "tokens=* delims=" %G IN (backup_types.txt) DO 
+    FTYPE %G<br>
+  FOR /F "tokens=* delims=" %G IN (backup_ext.txt) DO ASSOC %G</span><br>
+  <br>
+  This will recreate the CLASS id's in the registry at HKey_Classes_Root\.&lt;file 
+  extension&gt; <br>
+If you put the commands above in a batch file change the %G to be %%G</p>
+<h2>Use file associations at the command line</h2>
+<p>  If you have a file association between .DOC and Word for Windows then at a command prompt you can open a document with any of the following commands:<br>
+  <br>
+  <span class="code">Start &quot;My Document.doc&quot;<br>
+  &quot;Monthly Report.doc&quot;<br>
+  JULY.DOC</span><br>
+  <br>
+note that the file extension must be supplied for this to work</p>
+<p>FTYPE is an <a href="syntax-internal.html">internal</a> command.</p>
+<p><i class="quote">"True to type - Of a plant, or group of plants, which matches the accepted description of the cultivar to which it is assumed to belong"</i><br>
+<br>
+<b>Related:</b><br>
+<br>
+<a href="assoc.html">ASSOC</a> - Change file extension associations <br>
+Batch file to list the <a href="fassoc.txt">application associated</a> with a file extension <br>
+<a href="associate.html">ASSOCIAT</a> - One step file association (Resource Kit)</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="ftype.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

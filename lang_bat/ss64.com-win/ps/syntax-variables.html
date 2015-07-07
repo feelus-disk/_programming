@@ -1,0 +1,120 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Variables and Operators | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Variables and Operators (add, subtract, divide...) </h1>
+<p>In PowerShell, all variable names  start with the &ldquo;$&rdquo; character. <br>
+Creating a new variable can be done in several ways: </p>
+<p class="code">$<i>MyVariable</i> = SomeValue<br>
+$<i>MyVariable</i> = <i>&quot;Some String Value</i>&quot;<br>
+[<a href="syntax-datatypes.html">DataType</a>]$<i>MyVariable</i> = <i>SomeValue</i><br>
+<a href="new-item.html">New-Item</a> Variable:\<i>MyVariable</i> -value <i>SomeValue</i><br>
+<a href="new-variable.html">New-Variable</a>:\<i>MyVariable</i> -value <i><i>SomeValue</i></i></p>
+<p>Variable names containing punctuation, can be handled with the  syntax <span class="code">${<i>MyVari@ble</i>} = <i>SomeValue<br>
+</i></span>However if  the braces <span class="code">${&nbsp;}</span> contain a colon <span class="code">&quot;:&quot;</span> then PowerShell will treat the variable as a PATH and store the values directly in that file.<br>
+<span class="code">${<i>C:\some_file.txt</i>} = <i>SomeValue</i></span></p>
+<p>Operators allow you to assign a value to the variable, or perform mathematical operations:</p>
+<pre>  <i>Operator</i>   Description
+
+     = <i>n</i>     Equals <i>n</i>
+    += <i>n</i>     Increase value by <i>n</i> (for strings will append <i>n</i> to the string)
+    -= <i>n</i>     Decrease the value by <i>n</i>
+    *= <i>n</i>     Multiply the value by <i>n</i> (for strings, duplicate the string <i>n</i> times)
+    /= <i>n</i>     Divide the value by <i>n</i>
+    %= <i>n</i>     Divide the value by <i>n</i> and assign the remainder (modulus)
+
+  Arithmetic operators:
+
+    + Add, - Subtract, * Multiply, / Divide, % Mod(Remainder from a division)
+
+ .NET Math library:
+
+ [Math]::Abs(<i>n</i>)
+ [Math]::Equals(<i>objA,ObjB</i>)
+ [Math]::Exp(<i>double</i>)
+ [Math]::Ceiling(<i>n</i>)
+ [Math]::Floor(<i>n</i>)
+ [Math]::Max(<i>m,n</i>)
+ [Math]::Min(<i>m,n</i>)
+ [Math]::Round(<i>n</i>)
+ [Math]::Truncate(<i>n</i>)
+
+ [system.math] | gm -static</pre>
+<p>PowerShell will follow  normal arithmetic <a href="http://en.wikipedia.org/wiki/Order_of_operations">precedence</a> working left to right, parentheses can be used override this.</p>
+<p>Examples</p>
+<p><span class="code">$myPrice = 128<br>
+$myPrice += 200<br>
+
+$myItem = &quot;Barbecue grill&quot;<br>
+$myDescription = $myItem + &quot; $ &quot; + $myPrice<br>
+<br>
+$CastAsString = &quot;55&quot;<br>
+$myHexValue = 0x10<br>
+$myExponentialValue = 6.5e3<br>
+<br>
+</span>Strongly typed:<span class="code"><br>
+[int]$myPrice = 128<br>
+[string]$myDescription = &quot;Barbecue grill&quot;<br>
+[string]$myDescription = 123<br>
+[string]$myDate = (get-date).ToString(&quot;yyyyMM&quot;)<br>
+$([DateTime] &quot;12/30/2009&quot;)<br>
+</span><span class="code">$([DateTime]::Now)<br>
+[datetime]$start_date=[datetime]::now.date.addDays(-5) </span></p>
+<p>When creating strongly typed variables it can be helpful to indicate the datatype in the variable name:  $strProduct or $intPrice</p>
+<p><b><a href="syntax-arrays.html">Array</a> variables: </b></p>
+<p class="code">$myArray = &quot;The&quot;, &quot;world&quot;, &quot;is&quot;, &quot;everlasting&quot;</p>
+<p> PowerShell can also assign values to multiple variables:</p>
+<p class="code">$varX, $varY = 64 <br>
+$varA, $varB, $varC = 1, 2, 3</p>
+<p>That will assign 1 to $varA, 2 to $varB, and 3 to $varC.</p>
+<p><b>Script blocks<a id="scriptblocks"></a></b></p>
+<p>An entire script block can be stored in a variable: <span class="code">$myVar = { <i>a bunch of commands</i> } </span><br>
+Then <a href="syntax-run.html">run/call the script using &amp;</a><br>
+<span class="code">PS C:\&gt; &amp; $myVar</span><br>
+<br>
+You may want to take this a step further and  turn the script block into a <a href="syntax-functions.html">Function or Filter</a>.</p>
+<p><b>Concatenating strings (appending text)</b></p>
+<p>The <span class="code">+=</span> operator can be used to add one string to another</p>
+<p class="code">$text = &quot;Hello&quot;<br>
+$text += &quot;world&quot;<br>
+$text</p>
+<p>An alternative concatenation method is to use a <a href="http://msdn.microsoft.com/en-us/library/system.text.stringbuilder%28v=vs.110%29.aspx">StringBuilder</a> .Net object, this has the advantage of being much faster which may be important when working with long strings or repeatedly in a loop.</p>
+<p class="code">$stringbuilder = New-Object -TypeName System.Text.StringBuilder<br>
+$null = $stringbuilder.Append(&quot;Hello&quot;)<br>
+$null = $stringbuilder.Append(&quot;World&quot;)<br>
+$stringbuilder.ToString()</p>
+<p><b>Reserved Words</b> - the following may not be used as identifiers (unless surrounded in quotes) <br>
+<span class="code">break, continue, do, else, elseif, for, foreach, function, filter, in, if, return, switch, until, where, while.</span></p>
+<p class="quote"><i>&ldquo;Most variables can show either an upward trend or a downward trend, depending on the base year chosen&rdquo; ~ Thomas Sowell</i></p>
+<p><b>Related:</b></p>
+<p><a href="syntax-operators.html">PowerShell Operators </a>- More advanced Operators for Arrays and formatting expressions.<br>
+  <b></b><a href="syntax-ref.html">Reference variables</a> - Change the value of a passed variable<br>
+  <a href="syntax-automatic-variables.html">Automatic variables</a> -  Variables are created and maintained by  PowerShell $_, $Args, $Error, $Home etc<br>
+  <a href="set-psbreakpoint.html">Set-PSBreakpoint</a> - Set a breakpoint on a line, command, or variable<br>
+  <a href="get-item.html">Get-Item</a> <span class="code">Variable:</span><br>
+  <a href="clear-variable.html">Clear-Variable</a> - Remove the value from a variable<br>
+  <a href="get-variable.html">Get-Variable</a> - Get a PowerShell variable<br>
+  <a href="new-variable.html">New-Variable</a> - Create a new variable<br>
+  <a href="remove-variable.html">Remove-Variable</a> - Remove a variable and its value<br>
+<a href="set-variable.html">Set-Variable</a> - Set a variable and a value</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-variables.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

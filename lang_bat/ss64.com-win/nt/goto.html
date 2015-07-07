@@ -1,0 +1,104 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Goto - Jump to label | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>GOTO</h1> 
+<p>Direct a batch program to jump to a labelled line.</p>
+<pre>Syntax
+      GOTO <i>label</i>
+
+      GOTO:eof
+
+Key
+   <i>label</i>   A predefined label in the batch program.
+           Each label must be defined on a line by itself, beginning with
+           a colon and ending with either a space, a colon or a CR/LF.
+
+   :eof    This predefined label will exit the current routine.</pre>
+<p> To exit a batch script file or exit a subroutine specify <span class="code">GOTO:eof </span>this will transfer control to the end of the current batch file or the end of the current subroutine. Unlike <a href="exit.html">Exit /b</a> the goto:eof will automatically set an errorlevel. </p>
+<p>Examples:</p>
+<p><span class="code">IF %1==12 GOTO MySubroutine <br>
+  Echo the input was NOT 12<br>
+goto:eof
+<br>
+<br>
+:MySubroutine<br>
+Echo the input was  12<br>
+</span><span class="code">goto:eof </span><br>
+  <br>
+
+  Use a variable as a label<br>
+  <br>
+  <span class="code">CHOICE /C:01 /m choose [Y]yes or [N]No <br>
+  goto s_routine_%ERRORLEVEL% <br>
+  <br>
+  :s_routine_0 <br>
+Echo You typed Y for yes<br>
+goto:eof <br>
+<br>
+:s_routine_1<br>
+Echo You typed N for no<br>
+goto:eof<br>
+</span><br>
+  Use a variable as a  <a href="rem.html">comment</a><br>
+  In this example the COPY command will only run if the parameter &quot;Update&quot; is supplied to the batch<br>
+  <br>
+  <span class="code">@echo off <br>
+  setlocal <br>
+  IF /I NOT %1==Update SET _skip=:: <br>
+  <br>
+  %_skip% COPY x:\update.dat <br>
+%_skip% echo Update applied <br>
+...</span></p>
+<h2>Bugs</h2>
+<p>Using GOTO  within parenthesis - including  FOR and IF commands - will break their context:</p>
+<pre>@echo off
+if A equ A <b>(</b>
+ 	    GOTO :EXAMPLE_LABEL
+ 	    :EXAMPLE_LABEL
+    <b>rem</b>
+<b>)</b> else (
+ 	echo You didn't expected to see this,did you?
+) </pre>
+<p>GOTO breaks the &amp; and &amp;&amp;  <a href="syntax-redirection.html">redirection</a> operators.</p>
+<p> If  GOTO a non existent label is used 
+in conjunction with a negative <a href="syntax-conditional.html">conditional</a> execution,  the  line containing the GOTO will be executed, but the rest of the Batch file is <a href="http://stackoverflow.com/questions/23327304/my-goto-redirect-is-not-working-but-works-with-echo">cancelled</a>:</p>
+<pre>goto :non_existent_label || Echo This line will run anything except GOTO ,SHIFT ,SETLOCAL , ENDLOCAL , CALL
+:SUBROUTINE echo This will be never displayed.</pre>
+<p>GOTO is an <a href="syntax-internal.html">internal</a> command. If <a href="cmd.html">Command Extensions</a> are disabled GOTO will no longer recognise the :EOF label</p>
+<p class="quote"><i> &ldquo;GOTO... how bad can it be??...&rdquo; ~ <a href="http://xkcd.com/292/">XKCD</a></i></p>
+<p><b>Related:</b></p>
+<p><a href="exit.html">EXIT</a> - Quit the current script/routine and set an errorlevel.<br>
+<a href="if.html">IF</a> - Conditionally perform a command.<br>
+<a href="call.html">CALL</a> - Call one batch program from another.<br>
+Powershell: While (condition) {action} else {action} <br>
+Equivalent bash command:<a href="http://ss64.com/bash/case.html">case</a> - Conditionally perform a command.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="goto.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

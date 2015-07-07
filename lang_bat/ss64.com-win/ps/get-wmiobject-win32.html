@@ -1,0 +1,69 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Get-WmiObject Win32_OperatingSystem Example | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>PowerShell script to retrieve  the OperatingSystem and Service Pack</h1>
+<p>GetOSVersion.ps1</p>
+<pre>param( [string] $ServerName) 
+
+"Server:$ServerName"
+
+## check the machine is pingable
+	
+$query = "select * from win32_pingstatus where address = '$ServerName'"
+$result = Get-WmiObject -query $query
+
+if ($result.protocoladdress) {
+
+	$build = @{n="Build";e={$_.BuildNumber}}
+	$SPNumber = @{n="SPNumber";e={$_.CSDVersion}}
+	$sku = @{n="SKU";e={$_.OperatingSystemSKU}}
+	$hostname = @{n="HostName";e={$_.CSName}}
+
+   $Win32_OS = Get-WmiObject Win32_OperatingSystem -computer $ServerName | select $build,$SPNumber,Caption,$sku,$hostname, servicepackmajorversion
+
+   ## Get the Service pack level
+   $servicepack = $Win32_OS.servicepackmajorversion
+
+   ## Get the OS build
+
+   switch ($Win32_OS.build) {
+     ## the break statement will stop at the first match
+     2600 {$os = 'XP'; break}
+     3790 { if ($Win32_OS.caption -match 'XP') { $os = "XPx64" } else { $os = 'Server 2003' }; break }
+     6000 {$os = 'Vista'; break}
+     6001 { if ($Win32_OS.caption -match 'Vista' ) { $os = "Vista" } else { $os = 'Server 2008'}; break }
+     }
+
+   "Operating System: $os Service Pack: $servicepack"
+   "Operating System: $os Service Pack: $servicepack" | out-file -filepath <b>C:\ServicePack.txt</b>
+} else {
+            "$ServerName Not Responding" }</pre>
+<p>Run the script above with: <span class="code"><br>
+PS C:\ ./GetOSVersion.ps1 MyServerName </span></p>
+<p class="quote"><i>&ldquo;The hero has died as a modern man; but as eternal man - perfected, unspecific, universal man, - he has been reborn&rdquo; ~ Joseph Campbell</i></p>
+<p><b>Related:</b></p>
+<p><a href="get-wmiobject.html">Get-WMIobject</a> - Get WMI class information<br>
+<a href="http://ss64.com/nt/ver.html">VER</a> - Display version information<br>
+<a href="http://msdn.microsoft.com/en-us/library/aa394606%28VS.85%29.aspx">WQL (WMI Query Language)</a> - msdn.microsoft.com</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="get-wmiobject-win32.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Function Begin Process End | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Function Input Processing Methods (Begin..Process..End) </h1> 
+<p> For functions, (and V2 scriptCmdlets) three methods are available for processing pipeline input:
+<span class="code">Begin</span>, <span class="code">Process</span>, and <span class="code">End</span> blocks. In these blocks, the <span class="code"><a href="syntax-automatic-variables.html">$_</a></span> variable represents the current input object.</p>
+<p>Scripts, functions, and script blocks also have access to the <span class="code">$input</span> variable, which provides an enumerator over the elements in the incoming pipeline. </p>
+<h2><span class="code">Begin</span></h2>
+<blockquote>
+<p>This block is used to provide optional one-time pre-processing for the function. <br>
+The PowerShell runtime uses the code in this block one time for each instance of the function in the pipeline.</p>
+</blockquote>
+<h2><span class="code">Process</span></h2>
+<blockquote>
+<p>
+This block is used to provide record-by-record processing for the function. This block might be used any number of times, or not at all, depending on the input to the function. For example, if the function is the first command in the pipeline, the Process block will be used one time. If the function is not the first command in the pipeline, the Process block is used one time for every input that the function 
+receives from the pipeline. If there is no pipeline input, the Process block is not used.</p>
+<p>A <a href="syntax-functions.html">Filter</a>  is  a shorthand representation of a function whose body is composed entirely of a process block.</p>
+<p> This block must be defined if a function parameter is set to accept pipeline input. If this block is not defined and the parameter accepts input from the pipeline, the function will miss the values that are passed to the function through the pipeline. </p>
+<p> Also, if the function/cmdlet supports confirmation requests (the <i>-SupportsShouldProcess</i> parameter  is set to $True), the call to the <a href="http://get-admin.com/blog/uncategorized/using-&#8211;supportsshouldprocess-in-powershell-v2-scriptcmdlets/">ShouldProcess</a> method must be made from within the Process block.</p>
+</blockquote>
+<h2><span class="code">End</span></h2>
+<blockquote>
+<p>
+This block is used to provide optional one-time post-processing for the function.</p>
+</blockquote>
+<p> The following example shows the outline of a function that contains a Begin block for one-time preprocessing, a Process block for multiple record processing, and an End block for one-time post-processing.</p>
+<pre> Function Test-Demo
+ {
+  Param ($Param1)
+  Begin{ write-host &quot;Starting&quot;}
+  Process{ write-host &quot;processing&quot; $_ for $Param1}
+  End{write-host &quot;Ending&quot;}
+ }<br><br><span class="code">PS C:\&gt; </span>Echo Testing1, Testing2 | Test-Demo Sample</pre>
+<h2>Confirmation Methods</h2>
+<p> <span class="code">ShouldProcess</span><br>
+This method allows  <span class="code">-confirm, -prompt</span>, <span class="code">-whatif</span> and <span class="code">-verbose</span> switches, the method may be called to request confirmation from the user before the function performs an action that would change the system.<br>
+This method can be called only from within the <span class="code">Process{} </span>block of the function and the CmdletBinding attribute must declare that the 
+function supports ShouldProcess. <a href="http://get-admin.com/blog/uncategorized/using-&#8211;supportsshouldprocess-in-powershell-v2-scriptcmdlets/">Example</a> </p>
+<p>  <span class="code">ShouldContinue</span><br>
+This method is called to request a second confirmation message. It should be called when the ShouldProcess method returns $true. </p>
+<h2> Error Methods</h2>
+<p> Functions can call two different methods when errors occur. <br>
+When a nonterminating error occurs, the function should call the <span class="code">WriteError</span>method, which is described below.<br>
+When a terminating error occurs and the function cannot continue, it should call the <span class="code">ThrowTerminatingError</span> method. When this method is called, the PowerShell runtime catches the error record and then starts shutting down the pipeline.</p>
+<p>You can also use the <span class="code">Throw</span> statement for terminating errors and the <a href="write-error.html">Write-Error</a> cmdlet for nonterminating errors. </p>
+<h2> Write Methods</h2>
+<p> A function can call the following methods to return different types of output. Notice that not all the output goes to the next command in the pipeline. You can also use the various Write cmdlets, such as <a href="write-error.html">Write-Error</a>.</p>
+<p> <span class="code">WriteCommandDetail</span> Text to be written to the execution log.</p>
+<p> <span class="code">WriteDebug</span> 
+To provide information that can be used to troubleshoot a function, make the function call the WriteDebug method. This displays debug messages to the user. </p>
+<p> <span class="code">WriteError</span> 
+Functions should call this method when nonterminating errors occur and
+the function is designed to continue processing records. When this method is called, an error record is sent to the error pipeline and control is returned to the cmdlet for more processing. Note: If a terminating error occurs, the function should call the 
+ThrowTerminatingError method. </p>
+<p> <span class="code">WriteObject</span> 
+This method allows the function to send an object to the next command in the pipeline. In most cases, this is the method to use when the function returns data. </p>
+<p> <span class="code">WriteProgress</span> For functions whose actions take a long time to complete, this method allows the function to call the WriteProgress method so that progress information is displayed to the host. For example, you can display the percent 
+completed.</p>
+<p><span class="code">WriteVerbose</span> 
+To provide detailed information about what the function is doing, make the function call the WriteVerbose method to display verbose messages to the user while the function is performing a task. By default, verbose messages are not displayed. </p>
+<p><span class="code">WriteWarning</span> 
+To provide information about conditions that may cause unexpected results, make the function call the WriteWarning method to display warning messages to the user. By default, warning messages are displayed.</p>
+<p> Note: You can also display warning messages by configuring the 
+<a href="syntax-preference.html">WarningPreference</a> variable or by using the -Verbose and -Debug 
+command-line options.</p>
+<p class="quote"><i>&ldquo;The function of the imagination is not to make strange things settled, so much as to make settled things strange&rdquo; ~ G. K. Chesterton</i></p>
+<p><b>Related:</b></p>
+<p>$PSCmdlet variable<br>
+The ParameterSetName property allows you to see the parameter set that is being used. Parameter sets allow you to create a function that performs different tasks based on the parameters that are specified when the function is run.<br>
+<a href="syntax-ref.html">Ref vars</a> - Passing a reference variable to a function. </p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-function-input.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

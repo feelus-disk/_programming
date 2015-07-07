@@ -1,0 +1,173 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>SetX - Set environment variables | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>SETX.exe (<a href="http://ss64.com/links/windows.html#kits">Resource Kit</a>, Windows 7)</h1>
+<p> Set environment variables permanently,
+SETX can be used to set Environment Variables for the machine (HKLM) or currently logged on user (HKCU):</p>
+<pre>Syntax
+
+   SETX [/s <i>Computer</i> [<i>Credentials</i>]] <i>Variable</i> <i><b>Value</b></i> [/m]
+
+   SETX [/s <i>Computer</i> [<i>Credentials</i>]] [<i>Variable</i>] /k <i><b>RegistryPath</b></i> [/m]
+
+   SETX [/s <i>Computer</i> [<i>Credentials</i>]] /f <i><b>FileName</b></i> {[<i>Variable</i>] {/a <i>L</i>,<i>T</i> | /r <i>oL</i>,oT<i></i> "<i>SearchString</i>"}
+        [/m] | /x} [/d <i>Delimiters</i>]
+
+Key:
+
+   /s <i>Computer
+</i>      The name or IP address of a remote computer.
+      Do not use backslashes. (default = the local computer)
+
+   <i>Credentials</i>
+      The username and password used to connect to <i>Computer</i>:
+         /u [<i>Domain</i>\]<i>UserName</i> [/p [<i>Password</i>]]]
+
+   /u [<i>Domain</i>\]<i>UserName</i>
+      Run the script with the credentials of the specified user account.
+      The default value is the system permissions.
+
+   /p [<i>Password</i>]
+      The password of the user account that is specified in the /u parameter.
+
+   <i>Variable
+</i>      The name of the environment variable that you want to set.
+
+   <i>Value</i>
+      The value to which you want to set the environment variable.
+
+   /k<i> RegistryPath</i>
+      Set the variable based on information from a registry key.
+      The registry path consists of: \HIVE\KEY\...\Value
+      For example:
+      HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TimeZoneInformation\StandardName
+
+   /f <i>FileName</i>
+      The file that you want to read.
+
+   /a <i>L,T</i>
+      Get token <i>T</i> from line <i>L</i> in the file. 
+      The L (line) and T (token) coordinates are numbered starting from 0.
+
+   /r <i>oL,oT</i> "<i>SearchString</i>"
+      Search the file for a token that matches <i>SearchString</i>, case insensitive.
+      The offset <i>oL</i> (line) and <i>oT</i> (token) coordinates are numbered starting from 0.
+      Negative numbers for oL &amp; oT will count upwards and left respectively.
+      If the token is not found, %errorlevel% will be set to 1.
+
+   /m
+      Set the variable in the system environment HKLM.
+      (The default is the local environment HKCU)
+
+   /x
+      Display the file with coordinates against each token.
+
+   /d <i>Delimiters</i>
+      Specifies delimiters such as "," or "\" to be used <i>in addition</i> to the four
+      built-in delimiters: SPACE, TAB, CR, and LINEFEED.
+      Valid delimiters include any ASCII character.
+      The maximum number of delimiters is 15, including built-in delimiters.</pre>
+<p>Because SETX writes variables to the master environment in the registry, edits will only take effect when a new command window is opened - they do not affect the current CMD or PowerShell session. </p>
+<p>Environment variables are stored in the registry:</p>
+<p> User Variables: <span class="code">HKEY_CURRENT_USER\Environment</span><br>
+System Variables: <span class="code">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment</span></p>
+<p>Machine variables are stored on the machine and will not follow a users roaming profile. To set a machine variable (<span class="code">/m</span>) requires Administrator rights. </p>
+<p>User variables are stored in the user profile and will follow the users roaming profile. </p>
+<p>If  variables with the same name are stored as both  User and Machine Environment variables, the user variable will take precedence. If a <a href="set.html">Session</a> variable is created   that will take precedence over any User and/or Machine Environment variable with the same name.</p>
+<p>To edit environment variables in the Windows GUI:<span class="code"> Control Panel | System | Advanced | Environment Variables</span> </p>
+<p>To delete an environment variable either use the GUI (recommended) or delete the value from the registry with <span class="code"><a href="reg.html">REG</a> delete HKCU\Environment /V <i>_myvar</i><br>
+</span>Deleting a variable with REG will not take effect until next logon due to caching of registry data. <br>
+Setting value of <span class="code">&quot;&quot;</span> (empty quotes) will appear to delete the variable - it's not shown by SET but the variable name will remain in the registry.</p>
+<p>SETX may be used to set environment variables from one of three sources (modes): String Value Mode, Registry Mode, or File Mode.</p>
+<h2>String Value Mode</h2>
+<p>Setting environment variables equal to a simple string is the most basic and common usage of SetX.</p>
+<p><b>Examples:</b> (String Value mode)<br>
+</p>
+<p>Set the variable <span class="code">_car_park</span> to be 'South' in the users  environment:<br>
+<br>
+<span class="code">SetX _car_park South</span></p>
+<p>Set the variable <span class="code">_car_park</span> to be 'North' in the MACHINE  environment:<br>
+<br>
+<span class="code">SetX _car_park North /m</span><br>
+<br>
+
+Store the value of _car_park in a second environment variable<br>
+<span class="code">SetX _oldcarpark %_car_park% </span><br>
+<br>
+Set the <span class="code">_car_park</span> environment variable in the local environment to 'West' on a remote computer named Computer64:</p>
+<p class="code">SetX /s computer64 /u ss64dom\user64 /p P7BmqgWZ1a _car_park West </p>
+<p>Set the _MyPath environment variable in the local environment to use the search path defined in the %PATH% environment variable:</p>
+<p class="code">SetX _MyPath %PATH%</p>
+<p>Set the _MyPath environment variable in the local environment to use the search path defined in the %PATH% environment variable after replacing ~ with %:</p>
+<p class="code">SetX _MyPath ~PATH~ </p>
+<p>Set the _MyPath environment variable in the local environment to use the search path defined in the PATH environment variable on a remote computer named Computer64:</p>
+<p class="code">SetX /s computer64 /u ss64dom\user64 /p pa55w0rd _MyPath %PATH%</p>
+<h2>Registry Mode</h2>
+<p>In registry mode, SetX is an alternative to the REG QUERY command.</p>
+<p>The only supported hives are: HKEY_CURRENT_USER and HKEY_LOCAL_MACHINE. </p>
+<p>REG_DWORD, REG_EXPAND_SZ, REG_SZ, and REG_MULTI_SZ are the valid RegKey data types.<br>
+When reading REG_MULTI_SZ values from the registry, only the first item will be extracted and used.<br>
+REG_DWORD registry values are extracted and used in hexadecimal mode.</p>
+<p><b>Examples: </b>(Registry mode)</p>
+<p>Set the _TZone environment variable in the local environment to the value found in the HKLM...\StandardName registry key:</p>
+<pre>SetX _TZone /k HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TimeZoneInformation\StandardName </pre>
+<p>Set the _Build environment variable in the system environment to the value found in the HKLM\...\CurrentBuildNumber registry key:</p>
+<pre>SetX _Build /k &quot;HKEY_LOCAL_MACHINE\Software\Microsoft\WindowsNT\CurrentVersion\CurrentBuildNumber&quot; /m</pre>
+<h2>File Mode</h2>
+<p> File mode supports the parsing of plain text files only, (with CR/LF line endings).</p>
+<p><b>Examples:</b> (File mode)<b> </b></p>
+<p>Display the tokens in a file:</p>
+<p class="code">C:&gt; SetX /f filename.txt /x<br>
+(0,0 demo1)(0,1 demo2)(0,2 demo3)<br>
+(1,0 demoA)(1,1 demoB)(1,2 demoC)</p>
+<p>Set the _ipaddr  variable in the local environment to the value found at the coordinate 5,11 in the file Ipconfig.out, the variable will only be visible in a new command shell:</p>
+<p class="code">SetX _ipaddr /f ipconfig.out /a 5,11</p>
+<p>When using SetX to extract values from a file, we can ignore the variable that is set and instead use FOR /F to grab the extracted token text into the current session. In this way we are using the SetX command more like <a href="findstr.html">Findstr</a>.<br>
+So to obtain the fourth token in the 1st line of example.txt:</p>
+<pre>For /F &quot;tokens=3&quot; %%G in ('setx /F example.txt dummyVar /A 1^,4 ^|find &quot;Extracted value&quot;') do set _result=%%G
+:: remove the trailing period
+set _result=%result:~0,1%
+Echo %_result%</pre>
+<p>Thanks to Aacini for suggesting improvements to this page over in the <a href="http://ss64.org/viewtopic.php?id=1788">forum</a>.</p>
+<p>Early versions of SETX (XP) do not support the options <span class="code">/k,/u,/p</span> or <span class="code">/s</span> and have options  prefixed with <span class="code">-</span> instead of <span class="code">/</span>.</p>
+<p class="quote">  <i>&quot;You are never dedicated to something you have complete confidence in.   No-one is fanatically shouting that the sun is going to rise tomorrow. When people are fanatically devoted to political or religious faiths or any other kind of dogmas or goals, its always because these dogmas or goals are in doubt&quot; ~ <a href="http://en.wikipedia.org/wiki/Robert_M._Pirsig">Robert 
+M Pirsig</a></i> </p>
+<p><b> Related:</b></p>
+<p><a href="syntax-variables.html">Syntax - Environment Variables</a> - List of default variables<b> <br>
+</b><a href="set.html">SET</a> - Display, set, or remove   environment variables for a session <br>
+<a href="reg.html">REG</a> - Delete keys or values from the registry <br>
+<a href="http://support.microsoft.com/?kbid=104011">Q104011</a> - Modify variables by editing the Registry<br>
+<a href="http://stackoverflow.com/questions/6379619/explain-how-dos-batch-newline-variable-hack-works">StackOverflow</a> - Storing a Newline in a variable<br>
+<a href="http://barnyard.syr.edu/%7Evefatica/#SETENV">SETENV</a> - Vincent Fatica's improved version<br>
+Powershell: <a href="http://ss64.com/ps/set-variable.html">Set-Variable</a> - Set a variable and a value (set/sv)<br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/env.html">setenv</a> - Display, set, or remove environment variables.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="setx.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>DiskPart - Partition a disk | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>DiskPart (Windows 7)</h1> 
+<p>Disk Administration, Partition a disk. This page documents the Windows 7/2008 version of Diskpart, an earlier version of Diskpart is supplied in the 2003 Resource kit with a reduced set of options. </p>
+<pre>Syntax
+      DISKPART<br>
+Commands you may then issue at the DISKPART prompt:
+
+ LIST Disk
+ LIST Partition
+ LIST Volume
+
+ SELECT Disk=<i>n</i>
+ SELECT Partition=<i>n</i>
+ SELECT Volume=<i>n_or_d</i>  (Number or Drive Letter)
+
+ DETAIL Disk
+ DETAIL Partition
+ DETAIL volume
+
+ ACTIVE  (set the current in-focus partition to be the system partition)
+ ASSIGN         (allocate the next free drive letter)
+ ASSIGN LETTER=<i>E</i>   (Choose a free letter)
+ ATTRIBUTES DISK [{set | clear}] [readonly] [noerr]<br> ATTRIBUTES VOLUME [{set | clear}] [{hidden | readonly | nodefaultdriveletter | shadowcopy}] [noerr]
+ AUTOMOUNT [enable] [disable] [scrub] [noerr]
+ FILESYSTEMS     (Use 'Select Volume' first)
+ HELP
+ INACTIVE   (mark a system/boot partition as inactive [don&rsquo;t boot], use 'Select Partition' first)
+ OFFLINE disk [noerr] (Take the current disc offline, use 'Select Disk' first)
+ ONLINE {disk|volume} [noerr]
+ REM  (remark/comment)
+ REMOVE letter=<i>E</i> [dismount] [noerr]  (Remove drive letter <i>E</i> from the in-focus partition)
+ REMOVE mount=<i>path</i> [dismount] [noerr]  (Remove mount point<i></i> from the in-focus partition)
+ REMOVE /ALL [dismount] [noerr]    (Remove ALL current drive letters and mount points)
+ RESCAN     (Locate new disks that have been added to the computer)
+ SHRINK [desired=<i>n</i>] [minimum=<i>n</i>] [nowait] [noerr]  (Reduce the size of the in-focus volume)<br> SHRINK querymax [noerr]
+ EXIT
+ UNIQUEID disk [id={<i>dword</i> | <i>GUID</i>}] [noerr]   (Display or set the GUID partition table identifier
+                                              or MBR signature for the disk with focus)
+<b>
+Commands to Manage Basic Disks:</b>
+
+ ASSIGN MOUNT=<i>path</i>  (Choose a mount point path for the volume)
+
+ CREATE PARTITION Primary Size=50000  (50 GB)
+ CREATE PARTITION Extended Size=25000
+ CREATE PARTITION logical Size=25000
+ DELETE Partition
+ EXTEND Size=10000
+ GPT attributes=<i>n</i>   (assign GUID Partition Table attributes)
+ SET id=<i>byte</i>|<i>GUID</i> [override] [noerr]   (Change the partition type)
+
+<b>Commands to Manage Dynamic Disks:</b>
+
+ ADD disk=<i>n</i>   (Add a mirror to the in-focus SIMPLE volume on the specified disk
+               see 'Diskpart Help' for more.)
+ BREAK disk=<i>n</i>  (Break the current in-focus mirror)
+ CREATE VOLUME Simple Size=<i>n</i> Disk=<i>n</i>
+ CREATE VOLUME Stripe Size=<i>n</i> Disk=<i>n</i>,<i>n</i>,...
+ CREATE VOLUME Raid Size=<i>n</i> Disk=<i>n</i>,<i>n</i>,...
+ DELETE DISK
+ DELETE PARTITION
+ DELETE VOLUME
+ EXTEND Disk=<i>n</i> [Size=<i>n</i>]
+ EXTEND Filesystem [noerr]
+ IMPORT [noerr]   (Import a foreign disk group, use 'Select Disc' first)
+ RECOVER [noerr]  (Refresh disc pack state, attempt recovery on an invalid pack,
+                   &amp; resynchronize stale plex/parity data.)
+ REPAIR disk=<i>n</i> [align=<i>n</i>] [noerr]  (Repair the RAID-5 volume with focus, replace with the specified dynamic disk)
+ RETAIN   (Prepare an existing dynamic simple volume to be used as a boot or system volume)
+
+<b>Commands to Convert Disks</b>
+
+ CONVERT basic
+ CONVERT dynamic
+ CONVERT gpt
+ CONVERT mbr
+ CLEAN [ALL]   (remove all partition and volume info from the hard drive)
+ FORMAT [{fs=ntfs|fat|fat32] [revision=<i>x.xx</i>] | recommended}]
+           [label=&quot;<i>label</i>&quot;] [unit=<i>n</i>] [quick] [compress]
+              [override] [nowait] [noerr]
+</pre>
+<p>When setting up a new drive, create in this order: Create Partition, Format drive, Assign drive letter.</p>
+<p>The diskpart commands may be placed in a text file (one command per line) and
+used  as an input file to diskpart.exe:</p>
+<pre>DiskPart.exe &lt; myscript.txt 
+</pre>
+<p> Example:<br>
+</p>
+<pre>
+SELECT DISK=0
+CREATE PARTITION PRIMARY
+SELECT PARTITION=1
+FORMAT FS=NTFS LABEL="New Volume" QUICK<br>ASSIGN LETTER=E
+EXIT </pre>
+<p>  <span class="code">noerr</span> - This option is for scripting only. With noerr set, when an error is encountered, DiskPart will continue to process commands as if the error did not occur. Without this parameter, an error causes DiskPart to exit with an error code.</p>
+<p>When selecting a volume or partition, you may use either the number or drive letter or the mount point path.</p>
+<p>The Windows <a href="syntax-recovery.html">Recovery Console</a>, includes a simplified DISKPART command. It only provides functionality for adding and deleting partitions, but not for setting an active partition.</p>
+<p>Always  back up the hard disk before running diskpart.</p>
+<p><i class="quote">&ldquo;Divide et impera&rdquo; ~ Latin saying (Divide and conquer)</i><br>
+<br>
+Related:<br>
+<br>
+<a href="http://support.microsoft.com/kb/325590">Q325590</a> - Use Diskpart.exe to extend a data volume<br>
+<a href="http://support.microsoft.com/kb/300415">Q300415</a> - Diskpart for Win XP<br>
+<a href="fsutil.html">FSUTIL</a> - File and Volume utilities<br>
+<a href="diskshadow.html">DISKSHADOW</a> - Volume Shadow Copy Service<br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/fdisk.html">fdisk</a> - Partition table manipulator for Linux</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="diskpart.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

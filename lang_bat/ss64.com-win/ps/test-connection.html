@@ -1,0 +1,133 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Test-Connection | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Test-Connection</h1> 
+<p>Sends ICMP echo request packets (&quot;pings&quot;) to one or more computers using WMI.</p>
+<pre>Syntax
+      Test-Connection [-ComputerName] <i>string</i>[] [[-Source] <i>string</i>[]]
+         [-AsJob] [-Authentication <i>AuthenticationLevel</i>]
+            [-BufferSize <i>int</i>] [-Count <i>int</i>] [-Credential <i>PSCredential</i>] [-Delay <i>int</i>]
+               [-Impersonation <i>ImpersonationLevel</i>] [-Quiet]
+                  [-ThrottleLimit <i>int</i>] [-TimeToLive <i>int</i>] [<i>CommonParameters</i>]
+
+Key
+   -Authentication <i>AuthenticationLevel</i>
+       The authentication level that is used for the WMI connection.
+       Valid values:
+
+         Unchanged       The authentication level is the same as the previous command.
+         Default         Windows Authentication.
+         None            No COM authentication.
+         Connect         Connect-level COM authentication.
+         Call            Call-level COM authentication.
+         Packet          Packet-level COM authentication.
+         PacketIntegrity Packet Integrity-level COM authentication.
+         PacketPrivacy   Packet Privacy-level COM authentication.
+
+   -BufferSize <i>int</i>
+       The size, in bytes, of the buffer sent with this command.
+       The default value is 32.
+
+   -ComputerName <i>string</i>[]
+       The computers to ping.
+       Type the computer names or type IP addresses in IPv4 or IPv6 format.
+       Wildcard characters are not permitted. This parameter is required.
+
+       This parameter does not rely on PowerShell remoting.
+
+   -Count <i>int</i>
+       The number of echo requests to send.
+       The default value is 4.
+
+   -Credential <i>PSCredential</i>
+       A user account that has permission to perform this action.
+       Type a user name, such as &quot;User64&quot; or &quot;Domain64\User64&quot;, or enter
+       a PSCredential object, such as one from Get-Credential.
+
+   -Delay <i>int</i>
+       The interval between pings, in seconds.
+
+   -Impersonation <i>ImpersonationLevel</i>
+       The impersonation level to use when calling WMI.
+       Valid values:
+
+         Default      Default impersonation.
+         Anonymous    Hides the identity of the caller.
+         Identify     Allows objects to query the credentials of the caller.
+         <u>Impersonate</u>  Allows objects to use the credentials of the caller.
+
+   -Quiet
+       Suppress all errors and return $True if any pings succeeded
+       and $False if all failed.
+
+   -Source <i>string</i>[]
+       The names of the computers where the ping originates.
+       Enter a comma-separated list of computer names.
+       The default is the local computer.
+
+   -ThrottleLimit <i>int
+</i>       The maximum number of concurrent connections that can be established
+       to run this command. If this parameter is NULL or 0, the default
+       value of 32, is used.
+
+       The throttle limit applies only to the current command, not to the session or to the computer.
+
+   -TimeToLive <i>int
+</i>       The maximum time, in seconds, that each echo request packet
+       (&quot;pings&quot;) is active. The default value is 80 (seconds).
+       The alias of the TimeToLive parameter is TTL.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Test-Connection  sends Internet Control Message Protocol (ICMP) echo request packets (&quot;pings&quot;) to one or 
+more remote computers and returns the echo response replies. You can use this cmdlet to determine whether a particular computer can be contacted across an Internet Protocol (IP) network. <br>
+<br>Unlike the traditional &quot;ping&quot; command, Test-Connection returns a Win32_PingStatus object, but you can use the -Quiet parameter to force it to return only a Boolean value.</p>
+<p><b>Examples</b></p>
+<p>Ping from the local computer to the Server64 computer.:</p>
+<p><span class="code">PS C:\&gt; test-connection server64</span></p>
+<p>Use the -quiet parameter to return a True/False value: </p>
+<p class="code">PS C:\&gt; If (Test-Connection server64 -quiet) {<br>
+&nbsp;Write 'The host responded'<br>
+}</p>
+<p>  Ping two computers using a credential/user account that has permission to ping those machines:</p>
+<p class="code">PS C:\&gt; test-connection -computername server64, server65 -credential domain64\Admin01</p>
+<p>Send pings from different source computers to a single remote computer, Server64. Use this command format to test the latency of connections from multiple points:</p>
+<p class="code">PS C:\&gt; test-connection -source Server14, Server 15, localhost -computername Server64</p>
+<p> Use this command format when the ping response is expected to take longer than usual, either because of an extended
+number of hops or a high-traffic network condition:</p>
+<p><span class="code">PS C:\&gt; test-connection -computername Server64 -count 3 -delay 2 -TTL 256 -buffersize 256 -throttle 32</span></p>
+<p>Run a Test-Connection command as a  PowerShell background job:</p>
+<p><span class="code">PS C:\&gt; $job = test-connection -computername (get-content servers.txt) -asjob<br>
+PS C:\&gt; if ($job.jobstateinfo.state -ne &quot;Running&quot;) {$results = receive-job $job}</span></p>
+<p>Creates  a PSSession on  Server64 only if at least one of the pings sent to the computer succeeds:</p>
+<p><span class="code">PS C:\&gt; if (test-connection -computername Server64 -quiet) {new-pssession Server64}</span></p>
+<p class="quote"><i>“And now I see with eye serene;
+the very pulse of the machine” ~ William Wordsworth, (She Was a Phantom of Delight)</i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="test-path.html">Test-Path</a> - Return true if the path exists, otherwise return false<br>
+<a href="syntax-psping.html">psp</a> - PowerShell Ping function <br>
+Equivalent bash command: <a href="http://ss64.com/bash/ping.html">ping</a> - Test a network resource </p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="test-connection.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

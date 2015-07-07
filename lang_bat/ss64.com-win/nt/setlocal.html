@@ -1,0 +1,99 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Setlocal - Local variables | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>SETLOCAL</h1> 
+<p> Set options to control the visibility of environment variables in a batch file.</p>
+<pre>Syntax
+      SETLOCAL
+
+      SETLOCAL {<a href="delayedexpansion.html">EnableDelayedExpansion</a> | <u>DisableDelayedExpansion</u>}  {<u>EnableExtensions</u> | DisableExtensions}
+
+Key
+   EnableDelayedExpansion  Expand variables at execution time rather than at parse time.
+
+   DisableDelayedExpansion Expand variables at parse time rather than at execution time.
+
+   EnableExtensions        Attempt to enable <a href="cmd.html">Command</a> extensions. 
+
+   DisableExtensions       Attempt to disable <a href="cmd.html">Command</a> extensions. </pre>
+<p>SETLOCAL on it's own, usually at the start of a batch file, will begin localisation of Environment Variables.</p>
+<p>Issuing a SETLOCAL command, the batch script will inherit all current variables from the master environment/session.</p>
+<p>Issuing an <a href="endlocal.html">ENDLOCAL</a> command will restore any environment variables present before the SETLOCAL was issued. </p>
+<p>If a batch script does not use SETLOCAL and ENDLOCAL then all variables will be Global, i.e. visible and modifiable by other scripts. </p>
+<p>Although global variables are easy to work with they are not good practice - for example if you have several batch scripts dealing with filenames (and these scripts may be <a href="call.html">CALL</a>ing one another), the first script may have a variable called <span class="code">_filename</span>, the second script a different variable called <span class="code">file-name</span> (a different name to avoid conflicting with the first script) a third script now needs something like <span class="code">file_name</span> this quickly becomes very difficult to manage.</p>
+<p>With local variables you are free to  use the same variable names in multiple batch scripts - there is no conflict because the local variables are not visible to any other script. <br>
+Local Variables can be passed from one batch routine to another with the <a href="endlocal.html">ENDLOCAL</a> command. </p>
+<h2><a id="enabledelayedexpansion"></a>EnableDelayedExpansion</h2>
+<p>Setting <a href="delayedexpansion.html">EnabledDelayedExpansion</a> will cause each  variable to be expanded at execution time rather than at parse time.</p>
+<h2><a id="DisableDelayedExpansion"></a>DisableDelayedExpansion</h2>
+<p>Setting DisabledDelayedExpansion will cause each  variable to be expanded at parse time rather than at execution time,
+this is the  default behaviour.</p>
+<h2>Overloading a variable:</h2>
+<p>  SETLOCAL can be used more than once in the same batch file so that multiple 
+  values can be stored in the same Environment Variable. To keep track of variable definitions, pair each SETLOCAL with a corresponding ENDLOCAL.</p>
+<p>SETLOCAL is limited to <a href="http://ss64.org/viewtopic.php?id=1778">32</a> active instantiations per <a href="call.html">CALL</a> level.
+At the root level a script can have up to 32 active SETLOCAL, and then CALL a subroutine that gets its own allocation of up to 32 SETLOCAL, etc.<br>
+  <br>
+  <span class="code">@Echo off <br>
+  SETLOCAL<br>
+  ::Standard commission<br>
+  Set _Commission=20 <br>
+  Echo Standard commission %_Commission% <br>
+  <br>
+::Premium commission<br>
+  SETLOCAL <br>
+  Set _Commission=30<br>
+  Echo Premium commission %_Commission% <br>
+  <br>
+  ::back to Standard commission<br>
+ENDLOCAL<br>
+  Echo %_Commission% </span></p>
+<h2>ErrorLevel</h2>
+<p>When run from a batch file, SETLOCAL will always set an ERRORLEVEL.<br>
+if given a valid argument or no arguments, the <span class="code">%errorlevel%</span> will be set to zero, otherwise it will be set to 1.</p>
+<h2>ENABLEEXTENSIONS / DISABLEEXTENSIONS</h2>
+<p>Command Extensions are enabled by default, there is rarely any need to disable them.</p>
+<p>If <a href="cmd.html">Command Extensions</a> are permanently disabled or if a script is running under the Windows 95 command processor <span class="code">command.com</span> then SETLOCAL ENABLEEXTENSIONS will not be able to restore them. <br>
+  <br>
+A batch file to warn if command extensions are not available (see <a href="http://ss64.org/viewtopic.php?id=1834">forum thread</a>): </p>
+<pre>   VERIFY errors 2&gt;nul
+   SETLOCAL ENABLEEXTENSIONS
+   IF ERRORLEVEL 1 echo Unable to enable extensions</pre>
+<p><br>
+SETLOCAL is an <a href="syntax-internal.html">internal</a> command.</p>
+<p class="quote"><i>&quot;A local shop for local people&quot; - The League Of Gentlemen</i></p>
+<p><b>Related:</b></p>
+<p><a href="endlocal.html">ENDLOCAL</a> - End localisation of environment changes in a batch file.<br>
+<a href="syntax-functions.html">Syntax: Functions</a> - How to package blocks of code<br>
+Powershell:  <a href="http://ss64.com/ps/set-psdebug.html">Set-PSdebug -strict </a> - Equivalent to 'Option Explicit' in VB <br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/readonly.html">readonly</a> - Mark variables/functions as readonly</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="setlocal.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

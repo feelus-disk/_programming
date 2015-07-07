@@ -1,0 +1,113 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Set-Alias | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Set-Alias</h1> 
+<p>Create or change an alias. An alias is an alternate (usually shorter) name for a cmdlet, script, function, or executable file.</p>
+<pre>Syntax
+      Set-Alias [-name] <i>string</i> [-value] <i>string</i> [-description <i>string</i>] 
+         [-option <i>Option</i>] [-passThru] [-scope <i>string</i>] 
+            [-force] [-whatIf] [-confirm] [<i>CommonParameters</i>]</pre>
+<pre>Key
+   -name <i>string</i>[]
+       The alias to create, the first character cannot be a number.
+	   
+   -value <i>string</i>
+       The name of the cmdlet or command element that is being aliased.
+		
+   -description <i>string</i>
+       A description for the alias.
+
+   -option <i>option</i>
+       The valid options are: 
+         None    : Set no options. (default) 
+         ReadOnly: The alias cannot be changed unless you use -Force. 
+         Constant: The alias cannot be changed, even by using -Force. 
+         Private : The alias is available only within the scope specified by -Scope. 
+                   It is invisible in all other scopes.
+         AllScope: The alias is copied to any new scopes that are created.
+
+   -passThru 
+       Return an object representing the alias.
+       By default, this cmdlet does not generate any output. 
+
+   -scope <i>string</i>
+       The scope in which this alias is valid. 
+       Valid values are "Global", "Local", or "Script", or a number relative
+       to the current scope ( 0 through the number of scopes, where 0 is the
+       current scope and 1 is its parent). "Local" is the default.
+       For more, type "<a href="get-help.html">get-help</a> about_scope<b>".</b>
+
+   -force
+       Allows the cmdlet to set a read-only alias.
+       Use -Option to create a read-only alias.
+       -Force cannot be used to edit a constant alias.
+        
+   -whatIf
+       Describe what would happen if you executed the command without actually
+       executing the command.
+       
+   -confirm
+       Prompt for confirmation before executing the command.<a href="common.html"></a>
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Standard <a href="get-alias.html">Aliases</a> for Set-Alias:<span class="code"> <b>sal</b></span></p>
+<p>Changes you make to an alias are lost when you exit the session or close  PowerShell unless you add the alias to the startup <a href="syntax-profile.html">PowerShell profile</a>.  You can also use  Export-Alias and Import-Alias to save and restore alias information from a file.</p>
+<p>Aliases are primarily designed to promote high-speed interactive use of PowerShell, when writing scripts that will be shared with other users it is often better to use the full cmdlet names as this will improve the scripts readability.</p>
+<p>You can assign an alias to a cmdlet, script, function, or executable file, but you cannot assign an alias to a command and its parameters. For example, you can assign an alias to <span class="code">Get-Eventlog</span>, but you cannot assign an alias to <span class="code">Get-Eventlog -logname security</span>. However, you can create a <a href="syntax-functions.html">function</a> that includes such a command.</p>
+<p>The 'built-in' aliases supplied with PowerShell have the option <span class="code">AllScope</span> set, so they will survive any changes in scope.<br>
+The 'built-in' aliases that are idiomatic to PowerShell also have the <span class="code">ReadOnly</span> option set.<br>
+Removing or redefining the built-in read-only Aliases is possible (using <span class="code">-FORCE</span>) but  is strongly discouraged.</p>
+<p>Read-Write aliases such as <span class="code">cat</span> or <span class="code">ls</span> may be redefined to  mimic the functionality of other shells.  For example, you might create a function that acts as an improved <span class="code">get-content</span>, call it <span class="code">get-content2</span> and then redefine <span class="code">cat</span> as <span class="code">get-content2</span>,  this leaves the original cmdlet name available  unchanged for use in scripts that you  share with other users.</p>
+<p>Token resolution works by first expanding aliases then binding to a function, then a cmdlet, lastly as an external executable.</p>
+<p><b>Examples</b></p>
+<p>Create an alias named 'list' to represent Get-ChildItem:</p>
+<p><span class="code">PS C:\&gt; set-alias list get-childitem</span><br>
+<br>
+Use Get-Alias to display  information about the new alias called 'List':</p>
+<p class="code">PS C:\&gt; get-alias -name list | format-list<br>
+DisplayName       : list -&gt; Get-ChildItem<br>
+CommandType       : Alias<br>
+Definition        : get-childitem<br>
+ReferencedCommand : Get-ChildItem<br>
+ResolvedCommand   : Get-ChildItem</p>
+<p>Create a ReadOnly alias named 'w' to represent Get-WMIObject:</p>
+<p class="code">PS C:\&gt; set-alias -name w -value get-wmiobject -description "wmi alias" -option ReadOnly</p>
+<p>Associate the alias, &quot;np&quot;, with the executable file for Notepad:</p>
+<p class="code">PS C:\&gt; Set-Alias np c:\windows\notepad.exe</p>
+<p>Create a function that will set location as C:\windows\system32 and then assign the alias &quot;cd32&quot;, to the new function:</p>
+<p class="code">PS C:\&gt; function func32 {set-location c:\windows\system32}<br>
+PS C:\&gt; set-alias cd32 func32&nbsp;</p>
+<p class="quote"><i>&quot;When people realize that they do not understand a thing they try to find
+a name for what they do not 'understand', and when they find a name they
+say they 'understand' &quot; ~ G.I. Gurdjieff</i></p>
+<p><b>Related:</b><br>
+  <br>
+  <a href="export-alias.html">export-alias</a> epal Export an alias list to a file<br>
+<a href="import-alias.html">import-alias</a> - Import an alias list from a file<br>
+<a href="get-alias.html">get-alias</a> - Return alias names for Cmdlets<br>
+<a href="new-alias.html">new-alias</a> - Create a new Cmdlet-alias pairing<br>
+Equivalent bash command: <a href="http://ss64.com/bash/alias.html">alias</a> - Create an alias</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="set-alias.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

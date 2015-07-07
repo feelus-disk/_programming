@@ -1,0 +1,211 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>iCacls - Modify Access Control List | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>iCACLS.exe (2003 sp2, Vista)</h1>
+<p>Change file and folder permissions - display or modify Access Control Lists (ACLs) for files and folders.<br>
+  iCACLS  resolves various issues that occur when using the older CACLS &amp; XCACLS</p>
+<pre>Syntax (files)
+      ICACLS <i>FileName</i> [<b>/grant</b>[:r] <i>User</i>:<i>Permission</i>[...]]
+         [<b>/deny</b> <i>User</i>:<i>Permission</i>[...]]
+            [<b>/remove</b>[:g|:d]] <i>User</i>[...]]
+               [/t] [/c] [/l] [/q]
+                  [/setintegritylevel <i>Level</i>[...]]
+
+Syntax (Store acls for all matching names into <i>aclfile</i>
+         for later use with /restore)
+      ICACLS <i>name</i> <b>/save</b> <i>aclfile</i> [/T] [/C] [/L] [/Q]
+    
+Syntax (restore folder) 
+      ICACLS <i>directory</i> [/substitute <i>SidOld SidNew</i> [...]]
+          <b>/restore</b> <i>aclfile</i> [/C] [/L] [/Q]
+
+Syntax (Change Owner)
+      ICACLS <i>name</i> <b>/setowner</b> <i>user</i> [/T] [/C] [/L] [/Q]
+
+Syntax (Find items with an ACL that mentions a specific SID)  
+      ICACLS <i>name</i> <b>/findsid</b> <i>Sid</i> [/T] [/C] [/L] [/Q]
+
+Syntax (Find files whose ACL is not in canonical form or 
+         with a length inconsistent with the ACE count.)
+      ICACLS <i>name</i> <b>/verify</b> [/T] [/C] [/L] [/Q]
+ 
+Syntax (Replace ACL with default inherited acls for all matching files)
+      ICACLS name <b>/reset</b> [/T] [/C] [/L] [/Q]
+
+Key
+   
+   /T  Traverse all subfolders to match files/directories. 
+   
+   /C  Continue on file errors (access denied)  Error messages are still displayed.
+  
+   /L  Perform the operation on a symbolic link itself, not its target.
+
+   /Q  Quiet - supress success messages.
+	
+   /grant <i>:r user:permission</i>
+       Grant access rights, with :r, the permissions
+       will <b>r</b>eplace any previouly granted explicit permissions.
+       Otherwise the permissions are added.
+
+   /deny <i>user:permission</i>
+       Explicitly deny the specified user access rights.
+       This will also remove any explicit grant of the 
+       same permissions to the same user.
+
+   /remove[:[g|d]] <i>User</i> 
+       Remove all occurrences of <i>User</i> from the acl. 
+	    :g remove all <b>granted</b> rights to that User/Sid.
+	    :d remove all <b>denied </b>rights to that User/Sid.
+
+    /setintegritylevel [(CI)(OI)]<i>Level</i> 
+       Add an integrity ACE to all matching files. 
+       <i>level</i> is one of L,M,H (Low Medium or High)
+	   
+       A Directory Inheritance option for the integrity ACE may precede the level:
+          /inheritance:e|d|r
+             e - enable inheritance
+             d - disable inheritance and copy the ACEs 
+             r - remove all inherited ACEs
+
+   <i>user</i>   A user account, Group or a SID
+
+   /restore  Apply the acls stored in <i>ACLfile</i> to the files in <i>directory</i>
+
+   <i>permission</i> is a permission mask and can be specified in one of two forms:
+        a sequence of simple rights:
+                F - full access
+                M - modify access
+                RX - read and execute access
+                R - read-only access
+                W - write-only access
+        a comma-separated list in parenthesis of specific rights:
+                D - delete
+                RC - read control
+                WDAC - write DAC
+                WO - write owner
+                S - synchronize
+                AS - access system security
+                MA - maximum allowed
+                GR - generic read
+                GW - generic write
+                GE - generic execute
+                GA - generic all
+                RD - read data/list directory
+                WD - write data/add file
+                AD - append data/add subdirectory
+                REA - read extended attributes
+                WEA - write extended attributes
+                X - execute/traverse
+                DC - delete child
+                RA - read attributes
+                WA - write attributes
+        inheritance rights may precede either form and are applied
+        only to directories:
+                (OI) - object inherit
+                (CI) - container inherit
+                (IO) - inherit only
+                (NP) - don&rsquo;t propagate inherit</pre>
+<p> Unlike many other command-line tools, iCACLS correctly preserves the canonical ordering of ACE entries:<br>
+Explicit denials<br>
+Explicit grants<br>
+Inherited denials<br>
+Inherited grants</p>
+<p>Access Control Lists apply only to files stored on an NTFS formatted drive, each ACL determines which users (or groups of users) can read or edit the file. When a new file is created it normally inherits ACL's from the folder where it was created.<br>
+<br>
+<b>Using iCACLS</b></p>
+<ul>
+<li>To edit  a file you must already have the &quot;Change&quot; ACL (or be the file's owner)<span class="body"><br>
+</span></li>
+<li>To use the iCACLS command to change the permissions of a file requires &quot;FULL Control&quot; (or be the file's owner)<br></li>
+<li>File &quot;Ownership&quot; will always override all ACL's - you always have Full Control over files that you create.</li></ul>
+<p>Inherited folder permissions are displayed as:</p>
+<pre> OI - Object inherit    - This folder and files. (no inheritance to subfolders)
+ CI - Container inherit - This folder and subfolders.
+ IO - Inherit only      - The ACE does not apply to the current file/directory
+
+These can also be combined as folllows:
+ (OI)(CI)	    This folder, subfolders, and files.
+ (OI)(CI)(IO)	Subfolders and files only.
+     (CI)(IO)  Subfolders only.
+ (OI)    (IO)	Files only. </pre>
+<p>So BUILTIN\Administrators:(OI)(CI)F means that both files and Subdirectories will inherit 'F' (Fullcontrol) <br>
+similarly (CI)R means Directories will inherit 'R' (Read folders only = List permission)</p>
+<p>When cacls is applied to the current folder only there is no inheritance and so no output.</p>
+<p><b>Bugs</b></p>
+<p>You can&rsquo;t break existing inheritance of permissions with icacls, for that you need XCACLS.vbs.</p>
+<p>In Windows Server 2003 SP2 there is a bug when attempting to use the <span class="code">/setowner </span>switch, which returns &ldquo;Access  denied&rdquo;.<br>
+A limited release hotfix is available to resolve this issue (<a href="http://support.microsoft.com/?id=947870">Q947870</a>) alternatively use <a href="subinacl.html">SUBINACL</a> <br>
+nb this bug is NOT present on Vista SP1 or Windows Server 2008.</p>
+<p><b>Examples:</b><br>
+<br>
+To backup the ACLs of every file in a directory type:</p>
+<p class="code">icacls * /save Myacl_backup.txt </p>
+<p>Restore ACLS using a previously saved acl file:</p>
+<p><span class="code">icacls /restore Myacl_backup.txt </span></p>
+<p> Change the Integrity Level (IL) of a file to High:<br>
+<br>
+<span class="code">icacls MyReport.doc /setintegritylevel H </span><br>
+<br>
+Grant the group FileAdmins Delete and Write DAC permissions to Sales_Folder:</p>
+<p><span class="code">icacls Sales_Folder /grant FileAdmins:(D,WDAC)</span></p>
+<p>Propagate a new permission to all  files and subfolders, without using inheritance:<br> 
+(so if any of the subfolders contain specific permissions, those won't be overwritten)</p>
+<p class="code">icacls * /grant accountName:(NP)(RX) /T</p>
+<p><i class="quote">&ldquo;It's easier to ask forgiveness than it is to get permission&rdquo; ~ Rear Admiral Grace Hopper</i><br>
+<br>
+<b>Related:</b><br>
+<br>
+<a href="attrib.html">ATTRIB</a> - Display or change file attributes<br>
+<a href="http://www.microsoft.com/technet/sysinternals/FileAndDisk/AccessEnum.mspx">AccessEnum</a> - GUI 
+to browse a tree view of user privs<br>
+<a href="cacls.html">CACLS</a> - Change file permissions<br>
+<a href="dir.html">DIR /Q</a> - Display the owner for a list of files (try it for Program files) <br>
+<a href="perms.html">PERMS</a> - Show permissions for a user<br>
+FIXACLS - Restore default privs (Resource Kit supplement 2)<br>
+<a href="fsutil.html">FSUTIL</a> - File System Options<br>
+<a href="ntrights.html">NTRIGHTS</a> - Edit user account rights<br>
+SHOWACL - Show file Access Control Lists (Windows 2000)<br>
+<a href="takeown.html@id=269269">TAKEOWN</a> - 
+Take ownership of file(s) <br>
+<a href="xcacls.html">XCACLS</a> - Display or modify Access Control Lists (ACLs) 
+for files and folders<br>
+<a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;243330">Q243330</a> - Well-known security identifiers (sids) in Windows operating systems<br>
+<a href="http://support.microsoft.com/?id=919240">Q919240</a> - Icacls is available for Windows Server 2003 SP2<br>
+<a href="http://support.microsoft.com/?id=834721">Q834721</a> - Permissions
+ on Folder are incorrectly ordered <br>
+<a href="http://support.microsoft.com/kb/943043">Q943043</a> - Icacls.exe does not support  inheritance <br>
+<a href="http://support.microsoft.com/kb/245031">Q245031</a> - Change Registry Permissions (RegIni) <br>
+<a href="http://support.microsoft.com/kb/220167">Q220167</a> - Understanding Container Access Inheritance Flags<br>
+<a href="syntax-permissions.html">Syntax-Permissions</a> - Explanation of permissions. <br>
+<a href="http://helgeklein.com/setacl/">SetACL</a> - Utility to manage permissions, auditing and ownership (free)<br>
+Equivalent bash command (Linux):<a href="http://ss64.com/bash/export.html">      </a><a href="http://ss64.com/bash/chmod.html">chmod</a> / <a href="http://ss64.com/bash/chown.html">chown</a> - Change file permissions/owner and group </p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="icacls.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

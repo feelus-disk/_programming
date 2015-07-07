@@ -1,0 +1,104 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Wildcards | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Wildcards</h1> 
+<pre>The * wildcard will match any sequence of characters
+               (including NULL characters)
+
+The ? wildcard will match a single character
+               (or a NULL at the end of a filename)</pre>
+<p> A few quirks affect the operation of wildcards which are best illustrated 
+  by example:<br>
+  <br>
+  To match the filename BAR.TXT any of the following patterns will match 
+  <br>
+  ?AR.TXT <br>
+  ??R.TXT <br>
+  B?R.??? <br>
+  BA?.TXT <br>
+  BA??.TXT <br>
+  <br>
+  However the following will fail to match with BAR.TXT <br>
+  ??AR.TXT <br>
+  ?BAR.TXT <br>
+B??AR.TXT</p>
+<p>The commands COPY and REN accept two sets of wildcards, there are some subtle differences between how these are treated, see the <a href="ren.html">REN</a> page for details.</p>
+<h2>Wildcards will match both Short and Long filename</h2>
+<p>The command DIR /X will reveal short filenames - where many similar names exist 
+  in the same folder the short file name (SFN) may not be an obvious contraction 
+  of the long name. e.g. </p>
+<pre>DIR /X
+
+      2012-05-12 01:12 96 DIABLO~1 diablo1640
+      2012-05-12 01:12 96 DIABLO~2 diablo1641
+      2012-05-12 01:12 96 DIABLO~3 diablo1642
+      2012-05-12 01:12 96 DIABLO~4 diablo1643
+      2012-05-12 01:12 96 <b>DIE</b>359~1 diablo1644
+      2012-05-12 01:12 96 <b>DIC</b>49C~1 diablo1648
+      2012-05-12 01:12 96 <b>DIF</b>2E9~1 diablo1740
+      2012-05-12 01:12 96 <b>DIE</b>2EF~1 diablo1649</pre>
+<p>As you can see, the first four short filenames follow the usual numeric tails (~1, ~2, 
+  ~3, ~4). <br>
+  Then, from fifth and more files with similar beginning, the short names
+have four hex digits  in the middle. 
+<p>Wildcards are supported by the following commands:<br>
+  <a href="attrib.html">ATTRIB</a>, <a href="cacls.html">CACLS</a>, <a href="compact.html">COMPACT</a>, <a href="copy.html">COPY</a>, <a href="del.html">DEL</a>, <a href="dir.html">DIR</a>, 
+  <a href="expand.html">EXPAND</a>, <a href="extract.html">EXTRACT</a>, 
+  <a href="for.html">FOR</a>, <a href="forfiles.html">FORFILES</a>, 
+  <a href="ftp.html">FTP</a>, <a href="if.html">IF</a> EXIST, <a href="move.html">MOVE</a>, 
+  MV, <a href="net.html">NET</a> (*=Any Drive), 
+  <a href="perms.html">PERMS</a>, <a href="print.html">PRINT</a>, 
+  <a href="qgrep.html">QGREP</a>, <a href="ren.html">REN</a>, <a href="robocopy.html">ROBOCOPY</a>, 
+  <a href="route.html">ROUTE</a>, <a href="type.html">TYPE</a>, <a href="where.html">WHERE</a>, 
+<a href="xcacls.html">XCACLS</a>, <a href="xcopy.html">XCOPY</a>
+<h2><a id="numeric"></a>Numeric Comparisons</h2>
+<p>There are several contexts where CMD.EXE will parse a string as a numeric expression:
+<blockquote>
+<p> <a href="if.html">IF</a> comparisons -<a href="equ.html"> EQU</a>, <a href="neq.html">NEQ</a>, <a href="lss.html">LSS</a>, <a href="leq.html">LEQ</a>, <a href="geq.html">GEQ</a>, <a href="gtr.html">GTR</a><br>
+ <a href="set.html">SET /A</a><br>
+<a href="syntax-substring.html">variable substring expansion</a> -  %var:~<i>n,m</i>%<br>
+FOR /F &quot;TOKENS=<i>n</i>&quot;<br>
+FOR /F &quot;SKIP=<i>n</i>&quot;<br>
+<a href="for_l.html">FOR /L </a>%%A in (<i>n1 n2 n3</i>) </p>
+</blockquote>
+<p>For many purposes a 4 byte signed integer value ranging from -2,147,483,648 to 2,147,483,647 will suffice, but in the above contexts it is also possible to express the numbers in  hexadecimal or octal notation.</p>
+<p>e.g. Octal: 00, 07 Hex: 0x00, 0xFF</p>
+<p>There are a number of subtle differences (Negative numbers, command, version of Windows) which affect how these numbers are parsed and these are described in the DosTips forum thread <a href="http://www.dostips.com/forum/viewtopic.php?f=3&t=3758">Rules for how CMD.EXE parses numbers</a>.</p>
+<p class="quote"><i>&ldquo;We usually see only the things we are looking for, so much that we sometimes see them where they are not&rdquo; ~ Eric Hoffer </i>
+<p><b>Related:</b><br>
+<br>
+<a href="findstr.html">FINDSTR</a><br>
+<a href="ren.html">REN</a> - Rename files <br>
+<a href="syntax-filenames.html">Long and short filename issues</a>
+<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-wildcards.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

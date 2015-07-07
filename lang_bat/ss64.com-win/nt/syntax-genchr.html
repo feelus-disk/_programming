@@ -1,0 +1,68 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>GenChr.cmd - generate an ASCII/Unicode character | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>GenChr.cmd</h1>
+<p>Generate  the ASCII/Unicode character for any byte value. The output is a file <i><span class="code">bytevalue</span></i><span class="code">.chr</span></p>
+<pre>  @echo off
+  set &quot;USAGE=echo:Usage: Supply an integer 0-255&amp; goto :EOF&quot;
+  if &quot;%~1&quot; equ &quot;&quot; %USAGE%
+  set /a &quot;val=%~1&quot; 2&gt;nul
+  if &quot;%~1&quot; neq &quot;%val%&quot; %USAGE%
+  if %~1 lss 0    %USAGE%
+  if %~1 gtr 255  %USAGE%
+
+  set tempfile=%~1.tmp
+  set &quot;options=/d compress=off /d reserveperdatablocksize=26&quot;
+  if %~1 neq 26  (type nul &gt;&quot;%tempfile%&quot;
+  makecab %options% /d reserveperfoldersize=%~1 &quot;%tempfile%&quot; %~1.chr &gt;nul
+  type %~1.chr | (
+  (for /l %%N in (1 1 38) do pause)&gt;nul&amp;findstr &quot;^&quot;&gt;&quot;%tempfile%&quot;)
+  &gt;nul copy /y &quot;%tempfile%&quot; /a %~1.chr /b
+  del &quot;%tempfile%&quot;
+  ) else (copy /y nul + nul /a 26.chr /a &gt;nul)</pre>
+<p>Written via the teamwork of carlos, penpen, aGerman, dbenham &amp; bluesxman - see <a href="http://ss64.org/viewtopic.php?id=1872">forum thread</a>
+<p>MakeCab is available from Windows 2000 to Windows 8.
+<p><b>Example</b>s
+<p>Create the 0 or NUL character (file 0.chr)<span class="code"><br>
+genchr.cmd 0  </span>
+<p> Create the 9 or tab character. (file 9.chr)<span class="code"><br>
+genchr.cmd 9</span>
+<p>Create all 256 characters/files:<br>
+<span class="code">for /l %a in (0,1,255) do start &quot;&quot; cmd /c genchr %a</span>
+<p class="quote"><i>&ldquo;When the character of a man is not clear to you, look at his friends&rdquo; ~ Japanese Proverb</i></p>
+<p><b>Related</b>
+<p><a href="http://ss64.com/ascii.html">Ascii table</a><br>
+<a href="makecab.html">MAKECAB</a> Create .CAB files<br>
+
+<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-genchr.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

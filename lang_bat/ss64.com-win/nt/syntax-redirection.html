@@ -1,0 +1,139 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Command Redirection, Pipes | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Redirection</h1> 
+<pre>   <i>command</i> <b>&gt;</b> <i>filename</i>       Redirect <i>command</i> output to a file
+
+   <i>command</i> <b>&gt;&gt;</b> <i>filename</i>       APPEND into a file
+
+   <i>command</i> <b>&lt;</b> <i>filename</i>        <a href="type.html">Type</a> a text file and pass the text to <i>command</i>
+
+   <i>commandA</i>  <b>|</b>  <i>commandB</i>     Pipe the output from commandA into commandB
+
+   <i>commandA</i> <b>&</b>  <i>commandB</i>      Run <i>commandA</i> and then run <i>commandB</i>
+   <i>commandA</i> <b></b><b>&&amp;</b> <i>commandB</i>      Run <i>commandA</i>, if it succeeds then run <i>commandB</i>
+   <i>commandA</i> <b></b><b>||</b> <i>commandB</i>      Run <i>commandA</i>, if it fails then run <i>commandB</i>
+
+Numeric handles:
+
+STDIN  = <b>0</b>  Keyboard input
+STDOUT = <b>1</b>  Text output
+STDERR = <b>2</b>  Error text output
+UNDEFINED = 3-9
+
+   <i>command</i> <b>2&gt;</b> <i>filename</i>       Redirect any error message into a file
+   <i>command</i> <b>2&gt;&gt;</b> <i>filename</i>      Append any error message into a file
+  (<i>command</i>)<b>2&gt;</b> <i>filename</i>       Redirect any CMD.exe error into a file
+   <i>command</i><b> &gt;</b> <i>file</i> <b>2&gt;&amp;1</b>       Redirect errors and output to one file
+   <i>command</i><b> &gt;</b> <i>file</i> <b>2&lt;&amp;1</b>       Redirect output and errors to one file
+   <i>command</i> <b>&gt;</b> <i>file</i>A <b>2&gt;</b> <i>fileB</i>  Redirect output and errors to separate files
+
+   <i>command</i> 2&gt;&amp;1 &gt;<i>filename</i>    This will fail!
+
+Redirect to <a href="nul.html">NUL</a> (hide errors)
+
+   <i>command</i><b> 2&gt;</b> nul            Redirect error messages to NUL
+   <i>command</i> <b>&gt;</b>nul <b>2&gt;&amp;1</b>         Redirect error and output to NUL
+   <i>command</i> <b>&gt;</b><i>filename</i> <b>2&gt;</b> <i>nul</i>  Redirect output to file but suppress error
+  (<i>command</i>)<b>&gt;</b><i>filename</i> <b>2&gt;</b> <i>nul</i>  Redirect output to file but suppress CMD.exe errors</pre>
+<p>Note, any long filenames must be surrounded in &quot;double quotes&quot;.  <br>
+A CMD error is an error raised by the command processor itself rather than the program/command. <br>
+<br>
+Redirection with <span class="code">&gt;</span> or <span class="code">2&gt;</span> will overwrite any existing file. <br>
+<br>
+You can also redirect to a printer with <span class="code">&gt; PRN</span> or<span class="code"> &gt;LPT1</span></p>
+<p>Create empty files using the NUL device:</p>
+<p><span class="code">Type NUL &gt;EmptyFile.txt</span><br>
+or
+<br>
+<span class="code">Copy NUL  EmptyFile.txt</span><br>
+<br>
+To prevent the <span class="code">&gt;</span> and <span class="code">&lt;</span> characters from causing redirection, <a href="syntax-esc.html">escape</a> with a caret: <span class="code">^&gt;</span> or <span class="code">^&lt;</span></p>
+<p>Redirect multiple lines by bracketing a set of commands:</p>
+<pre>(
+  Echo sample text1
+  Echo sample text2
+) <b>&gt;</b> c:\logfile.txt </pre>
+<h2>Unicode</h2>
+<p>The CMD Shell can redirect ASCII/ANSI (the default) or Unicode (UCS-2 le) but not UTF-8.<br>
+  This can be selected by launching <span class="code">CMD /A</span> or <span class="code">CMD /U</span></p>
+<p>With the default settings a UCS-2 file can be converted by redirecting it (note it's the redirection not the TYPE/MORE command that makes the encoding change)<br>
+  <span class="code">TYPE unicode.txt &gt; asciifile.txt<br>
+  </span><br>
+  European characters like <span class="code">ABCàéÿ</span> will usually convert correctly, but others like <span class="code">£¥ƒ€</span> will become random extended <a href="http://ss64.com/ascii.html">ASCII</a> characters:<span class="code"> œ¾Ÿ?</span></p>
+<h2>Pipes  and CMD.exe</h2>
+<p>When a command is piped with <b><span class="code">'</span></b><span class="code">| <i>batch_command</i></span><b><span class="code"> '</span></b> this will start (or rather CALL) a new CMD.exe instance, in effect running:</p>
+<p class="code">C:\Windows\system32\<a href="cmd.html">cmd</a>.exe /C /S /D &quot;<i>batch_command</i>&quot;</p>
+<p>This has several side effects:<br>
+Any newline (<a href="http://blogs.msdn.com/b/oldnewthing/archive/2004/03/18/91899.aspx">CR/LF</a>) characters in the <i>batch_command</i> will be turned into <span class="code">&amp;</span> operators. (see <a href="http://stackoverflow.com/questions/8192318#8194279">StackOverflow</a>) <br>
+If the <i>batch_command</i> includes any caret  <a href="syntax-esc.html#escape">escape</a> characters <span class="code">^</span> they will need to be doubled up so that the escape survives into the new CMD shell.<br>
+Calling a new CMD shell also has a small effect on performance, this may not be noticable for small data sets.</p>
+<p> <b>Examples</b>:</p>
+<pre>   DIR <b>&gt;</b>MyFileListing.txt
+   
+   DIR /o:n <b>&gt;</b>&quot;Another list of Files.txt&quot;
+
+   DIR C:\<b> &gt;</b>List_of_C.txt <b>2&gt;</b>errorlog.txt
+
+   DIR C:\ <b>&gt;</b>List_of_C.txt <b>&amp; </b>DIR D:\ <b>&gt;</b>List_of_D.txt
+
+   ECHO y<b>|</b> DEL *.txt
+
+   ECHO Some text <b>^</b>&lt;html tag<b>^</b>&gt; more text
+
+   COPY nul empty.txt
+
+   MEM /C <b>&gt;&gt;</b>MemLog.txt
+
+   Date /T <b>&gt;&gt;</b>MemLog.txt
+
+   SORT <b>&lt;</b> MyTextFile.txt
+
+   SET _output=%_missing% <b>2&gt;</b>nul
+   
+   FIND /i "Jones" <b>&lt;</b> names.txt <b>&gt;</b>logfile.txt
+
+   (TYPE logfile.txt &gt;&gt; newfile.txt) 2&gt;nul</pre>
+<p>When redirecting the output of DIR to a file, you may notice that the file itself will be listed with a size of 0 bytes. The command interpreter first creates the empty file, then runs the DIR command and finally saves the redirected text into the file.
+<p class="quote"><i>&ldquo;Stupidity, outrage, vanity, cruelty, iniquity, bad faith, falsehood,<br>
+we fail to see the whole array when it is facing in the same direction as we&rdquo; ~  Jean Rostand (French Historian)</i>
+<p><b>Related:</b><br>
+<br>
+<a href="syntax.html">Syntax</a>
+<br>
+<a href="type.html">TYPE</a> - Display the contents of one or more text files <br>
+<a href="http://support.microsoft.com/?kbid=245031">Q245031</a> - Error when using the | pipe symbol<br>
+<a href="http://stackoverflow.com/questions/9878007/how-to-permanently-redirect-standard-error-back-to-the-console-again">Successive redirections explained</a> (<span class="code">1&gt;&amp;3</span> ) - Stack Overflow<br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/syntax-redirection.html">Redirection</a> - Spooling output to a file, piping input
+<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-redirection.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

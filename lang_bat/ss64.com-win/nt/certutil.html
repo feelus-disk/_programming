@@ -1,0 +1,920 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<link rel="STYLESHEET" href="../tables.css" type="text/css">
+<title>CertUtil Certification Authority Utility | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>CERTUTIL (2008 R2/Server 2012)</h1> 
+<p>Dump and display certification authority (CA) configuration information,  configure Certificate Services, back up and restore CA components,   verify certificates, key pairs or certificate chains. A subset of these CERTUTIL commands are also supported under <a href="http://technet.microsoft.com/en-us/library/cc772898(WS.10).aspx">Server 2003 </a>  or by installing the Server 2003 <a href="http://ss64.com/links/windows.html#kits">Administration Tools</a>.</p>
+<pre>Syntax:
+
+  <b><a id="dump"></a>Dump certificate file information</b>
+  CertUtil [<i>Options</i>] [<a href="certutil.html#dump"><b>-dump</b></a>] [<i>File</i>]
+    Options:  [<abbr title="Force overwrite">-f</abbr>] [-silent] [-split] [-p <i>Password</i>] [-t <i>Timeout</i>]
+
+  <b><a id="asn"></a>Parse ASN.1 file</b>
+  CertUtil [Options] <a href="certutil.html#asn"><b>-asn</b></a> <i>File</i> 
+    Options:  [<abbr title="Force overwrite">-f</abbr>] [<i>decoding_type</i>]
+
+  <b><a id="decodehex"></a>Decode a Hex-encoded file to binary</b>
+  CertUtil [<abbr title="Force overwrite">-f</abbr>] [-v] <b><a href="certutil.html#decodehex">-decodehex</a></b> <i>InFile OutFile</i>
+ 
+  <b><a id="decode"></a>Decode Base64-encoded file to binary</b>
+  CertUtil<i></i> [-f] [-v] <b><a href="certutil.html#decode">-decode</a></b> <i>InFile OutFile</i>
+
+  <b><a id="encode"></a>Encode <i>a </i>binary file to Base64</b>
+  CertUtil [-f] [-v] <b><a href="certutil.html#encode">-encode</a></b> <i>InFile OutFile</i> [-UnicodeText]
+
+  <b><a id="encodehex"></a>Encode a file as Hex</b><b>
+</b>  CertUtil [-f] [-v] <b><a href="certutil.html#encodehex">-encodehex</a></b> <i>InFile OutFile</i>
+     Hex encoded files are around 3x larger than base64, in most cases -encode is more useful.
+
+  <b><a id="deny"></a>Deny pending request</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#deny">-deny</a></b> <i>RequestId</i> 
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="resubmit"></a>Resubmit pending request</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#resubmit">-resubmit</a></b> <i>RequestId</i>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="setattributes"></a>Set attributes for pending request</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#setattributes">-setattributes</a></b> <i>RequestId AttributeString</i>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+     RequestId:        Numeric Request Id of pending request 
+     AttributeString:  Request Attribute name and value pairs
+                      Names and values are colon separated.
+       Multiple name, value pairs are newline separated.
+       Example: &quot;CertificateTemplate:User\nEMail:User@Domain.com&quot;
+       Each &quot;\n&quot; sequence is converted to a newline separator.
+
+ <b><a id="setextension"></a>Set extension for pending request</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#setextension">-setextension</a></b> <i>RequestId ExtensionName Flags</i> {Long | Date | String | @InFile}
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+    RequestId:     Numeric Request Id of a pending request
+    ExtensionName: ObjectId string of the extension 
+    Flags:         0 is recommended. 1 makes the extension critical, 2 disables it, 3 does both.
+    If the last parameter is numeric, it is taken as a Long. If it can be parsed as a date, it is taken as a Date.
+    If it starts with '@', the rest of the token is the filename containing binary data or an ascii-text hex dump.
+    Anything else is taken as a String.
+
+ <b><a id="revoke"></a>Revoke Certificate</b>
+ CertUtil [<i>Options</i>] <b><a href="certutil.html#revoke">-revoke</a></b> <i>SerialNumber</i> [<i>Reason</i>]
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+    SerialNumber: Comma separated list of certificate serial numbers to revoke 
+    Reason: numeric or symbolic revocation reason
+     0: CRL_REASON_UNSPECIFIED: Unspecified (default)
+     1: CRL_REASON_KEY_COMPROMISE: Key Compromise
+     2: CRL_REASON_CA_COMPROMISE: CA Compromise
+     3: CRL_REASON_AFFILIATION_CHANGED: Affiliation Changed
+     4: CRL_REASON_SUPERSEDED: Superseded
+     5: CRL_REASON_CESSATION_OF_OPERATION: Cessation of Operation
+     6: CRL_REASON_CERTIFICATE_HOLD: Certificate Hold
+     8: CRL_REASON_REMOVE_FROM_CRL: Remove From CRL
+     -1: Unrevoke: Unrevoke
+
+  <b><a id="isvalid"></a>Display current certificate disposition</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#isvalid">-isvalid</a></b> <i>SerialNumber</i> | <i>CertHash</i>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="getconfig"></a>Get default configuration string</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#getconfig">-getconfig</a></b>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="ping"></a>Ping Active Directory Certificate Services Request interface</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#ping">-ping</a></b> [MaxSecondsToWait | CAMachineList]
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+     Request interface CAMachineList -- Comma-separated CA machine name list
+     For a single machine, use a terminating comma
+     Displays the site cost for each CA machine
+
+  <b><a id="pingadmin"></a>Ping Active Directory Certificate Services Admin interface</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#pingadmin">-pingadmin</a></b> [MaxSecondsToWait | CAMachineList]
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+     Request interface CAMachineList -- Comma-separated CA machine name list
+     For a single machine, use a terminating comma
+     Displays the site cost for each CA machine
+
+  <b><a id="cainfo"></a>Display CA Information</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#cainfo">-CAInfo</a></b> [InfoName [<i>Index</i> | <i>ErrorCode</i>]]
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+    InfoName -- indicates the CA property to display.
+    Use &quot;*&quot; for all properties.
+    Index -- optional zero-based property index
+    ErrorCode -- numeric error code [-f] [-split] [-config <i>Machine</i>\<i>CAName</i>]
+
+<b>  <a id="ca.cert"></a>Retrieve the CA's certificate </b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#ca.cert">-ca.cert</a></b> <i>OutCACertFile</i> [<i>Index</i>]
+    Options:  [-f] [-v] [-split] [-config <i>Machine</i>\<i>CAName</i>]
+
+    OutCACertFile: output file
+    Index:   CA certificate renewal index (defaults to most recent)
+
+<b>  <a id="ca.chain"></a>Retrieve the CA's certificate chain </b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#ca.chain">-ca.chain</a></b> <i>OutCACertChainFile</i> [<i>Index</i>]
+    Options:  [-f] [-v] [-split] [-config <i>Machine</i>\<i>CAName</i>]
+
+    OutCACertChainFile: output file
+    Index:     CA certificate renewal index (defaults to most recent)
+
+  <b><a id="getcrl"></a>Get CRL</b> 
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#getcrl">-GetCRL</a></b> <i>OutFile</i> [<i>Index</i>] [<i>delta</i>]
+    Options:  [-f] [-v] [-split] [-config <i>Machine</i>\<i>CAName</i>]
+
+    Index: CRL index or key index (defaults to CRL for newest key)
+    delta: delta CRL (default is base CRL)
+
+  <b><a id="crl"></a>Publish new CRLs [or delta CRLs only]</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#crl">-CRL</a></b> [<i>dd</i>:<i>hh</i> | republish] [delta]
+    Options:  [-v] [-split] [-config <i>Machine</i>\<i>CAName</i>]
+
+    <i>dd:hh</i>    -- new CRL validity period in days and hours
+    republish -- republish most recent CRLs
+    delta    -- delta CRLs only (default is base and delta CRLs)
+
+  <b><a id="shutdown"></a>Shutdown Active Directory Certificate Services</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#shutdown">-shutdown</a></b>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="installcert"></a>Install Certification Authority certificate </b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#installcert">-installCert</a></b> [CACertFile]
+    Options:  [-f] [-v] [-silent] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="renewcert"></a>Renew Certification Authority certificate</b> 
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#renewcert">-renewCert</a></b> [ReuseKeys] [<i>Machine</i>\<i>ParentCAName</i>]
+    Options:  [-f] [-v] [-silent] [-config <i>Machine</i>\<i>CAName</i>]
+    Use -f to ignore an outstanding renewal request, and generate a new request.
+
+  <b><a id="schema"></a>Dump Certificate Schema</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#schema">-schema</a></b> [Ext | Attrib | CRL]
+    Options:  [-v] [-split] [-config <i>Machine</i>\<i>CAName</i>]
+
+    Ext:    Extension table
+    Attrib: Attribute table
+    CRL:    CRL table
+    Defaults to Request and Certificate table
+
+  <b><a id="view"></a>Dump Certificate View</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#view">-view</a></b> [Queue | Log | LogFail | Revoked | Ext | Attrib | CRL] [csv]
+    Options:  [-v] [-silent] [-split] [-config <i>Machine</i>\<i>CAName</i>] [-restrict <i>RestrictionList</i>] [-out <i>ColumnList</i>]
+
+     Queue:   Request queue
+     Log:     Issued or revoked certificates, plus failed requests 
+     LogFail: Failed requests 
+     Revoked: Revoked certificates 
+     Ext:     Extension table 
+     Attrib:  Attribute table 
+     CRL:     CRL table 
+     csv:     Output as Comma Separated Values 
+     To display the StatusCode column for all entries: -out StatusCode 
+     To display all columns for the last entry: -restrict &quot;RequestId==$&quot; 
+     To display RequestId and Disposition for three requests: -restrict &quot;RequestId&gt;=37,RequestId&lt;40&quot; -out &quot;RequestId,Disposition&quot;
+     To display Row Ids and CRL Numbers for all Base CRLs: -restrict &quot;CRLMinBase=0&quot; -out &quot;CRLRowId,CRLNumber&quot; CRL 
+     To display Base CRL Number 3: -v -restrict &quot;CRLMinBase=0,CRLNumber=3&quot; -out &quot;CRLRawCRL&quot; CRL
+     To display the entire CRL table: CRL Use &quot;Date[+|-dd:hh]&quot; for date restrictions Use &quot;now+dd:hh&quot; for a date relative to the current time
+
+  <b><a id="db"></a>Dump Raw Database</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#db">-db</a></b>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>] [-restrict <i>RestrictionList</i>] [-out <i>ColumnList</i>]
+
+  <b><a id="deleterow"></a>Delete server database row</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#deleterow">-deleterow</a></b> <i>RowId</i> | Date [Request | Cert | Ext | Attrib | CRL] 
+    Options:  [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+    Request: Failed and pending requests (submission date) 
+    Cert: Expired and revoked certificates (expiration date)
+    Ext: Extension table Attrib: Attribute table
+    CRL: CRL table (expiration date) 
+    To delete failed and pending requests submitted by January 22, 2001: 1/22/2001 Request 
+    To delete all certificates that expired by January 22, 2001: 1/22/2001 Cert 
+    To delete the certificate row, attributes and extensions for RequestId 37: 37 
+    To delete CRLs that expired by January 22, 2001: 1/22/2001 CRL [-f] [-config Machine\CAName]
+
+  <b><a id="backup"></a>Backup Active Directory Certificate Services</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#backup">-backup</a></b> <i>BackupDirectory</i> [Incremental] [KeepLog]
+    Options:  [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>] [-p <i>Password</i>]
+
+    BackupDirectory: directory to store backed up data
+    Incremental:     perform incremental backup only (default is full backup)
+    KeepLog:         preserve database log files (default is to truncate log files)
+
+  <b><a id="backupdb"></a>Backup Active Directory Certificate Services database</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#backupdb">-backupDB</a></b> BackupDirectory [Incremental] [KeepLog]
+    Options:  [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+    BackupDirectory: directory to store backed up database files
+    Incremental:     perform incremental backup only (default is full backup)
+    KeepLog:         preserve database log files (default is to truncate log files)
+
+  <b><a id="backupkey"></a>Backup Active Directory Certificate Services certificate and private key</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#backupkey">-backupKey</a></b> <i>BackupDirectory</i>
+    Options:  [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>] [-p <i>Password</i>] [-t <i>Timeout</i>]
+
+    BackupDirectory: directory to store backed up PFX file
+
+  <b><a id="restore"></a>Restore Active Directory Certificate Services</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#restore">-restore</a></b> <i>BackupDirectory</i>
+    Options:  [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>] [-p <i>Password</i>]
+
+    BackupDirectory: directory containing data to be restored
+
+  <b><a id="restoredb"></a>Restore Active Directory Certificate Services database</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#restoredb">-restoreDB</a></b> <i>BackupDirectory</i>
+    Options:  [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>] [-p <i>Password</i>]
+
+    BackupDirectory: directory containing database files to be restored 
+
+  <b><a id="restorekey"></a>Restore Active Directory Certificate Services certificate and private key</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#restorekey">-restoreKey</a></b> <i>BackupDirectory</i> | <i>PFXFile</i>
+    Options:  [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>] [-p <i>Password</i>]
+
+    BackupDirectory: directory containing PFX file to be restored
+    PFXFile: PFX file to be restored 
+
+  <b><a id="importpfx"></a>Import certificate and private key</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#importpfx">-importPFX</a></b> [<i>CertificateStoreName</i>] <i>PFXFile</i> [<i>Modifiers</i>] [-csp <i>Provider</i>]
+    Options:  [-f] [-v] [-user] [-p <i>Password</i>]
+
+    CertificateStoreName: Certificate store name. See -store. 
+    PFXFile: PFX file to be imported 
+    Modifiers: Comma separated list of one or more of the following:
+       AT_SIGNATURE: Change the KeySpec to Signature
+       AT_KEYEXCHANGE: Change the KeySpec to Key Exchange
+       NoExport: Make the private key non-exportable
+       NoCert:   Do not import the certificate
+       NoChain:  Do not import the certificate chain
+       NoRoot:   Do not import the root certificate
+       Protect:  Protect keys with password
+       NoProtect: Do not password protect keys
+    Defaults to personal machine store. 
+
+  <b><a id="dynamicfilelist"></a>Display dynamic file List</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#dynamicfilelist">-dynamicfilelist</a></b>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="databaselocations"></a>Display database locations</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#databaselocations">-databaselocations</a></b>
+    Options:  [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+  <b><a id="hashfile"></a>Generate and display cryptographic hash over a file.</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#hashfile">-hashfile</a></b> <i>InFile</i> [HashAlgorithm]
+    Options:  [-v]
+
+  <b><a id="store"></a>Dump certificate store</b> 
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#store">-store</a></b> [<i>CertificateStoreName</i> <b>[</b><i>CertId</i> [<i>OutputFile</i>]<b>]</b>]
+    Options:  [-f] [-v] [-enterprise] [-user] [-GroupPolicy] [-silent] [-split] [-dc <i>DCName</i>]
+
+    CertificateStoreName: Certificate store name.
+    CertId: Certificate or CRL match token. This can be a serial number, an SHA-1 certificate,
+            CRL, CTL or public key hash, a numeric cert index (0, 1, and so on), a numeric
+            CRL index (.0, .1, and so on), a numeric CTL index (..0, ..1, and so on), a public key,
+            signature or extension ObjectId, a certificate subject Common Name, an e-mail address,
+            UPN or DNS name, a key container name or CSP name, a template name or ObjectId, an EKU
+            or Application Policies ObjectId, or a CRL issuer Common Name.
+            Many of these may result in multiple matches.
+    OutputFile: file to save matching cert 
+    Use -user to access a user store instead of a machine store. 
+    Use -enterprise to access a machine enterprise store. 
+    Use -service to access a machine service store. 
+    Use -grouppolicy to access a machine group policy store.
+
+  <b><a id="addstore"></a>Add certificate to store</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#addstore">-addstore</a></b> <i>CertificateStoreName</i> <i>InFile</i>
+    Options:  [-f] [-v] [-enterprise] [-user] [-GroupPolicy] [-dc <i>DCName</i>]
+
+    CertificateStoreName: Certificate store name. See -store. 
+    InFile: Certificate or CRL file to add to store. 
+
+  <b><a id="delstore"></a>Delete certificate from store</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#delstore">-delstore</a></b> <i>CertificateStoreName CertId</i>
+    Options:  [-f] [-v] [-enterprise] [-user] [-GroupPolicy] [-dc <i>DCName</i>]
+
+    CertificateStoreName: Certificate store name. See -store.
+    CertId: Certificate or CRL match token. See -store. 
+
+  <b><a id="verifystore"></a>Verify certificate in store</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#verifystore">-verifystore</a></b> <i>CertificateStoreName</i> [<i>CertId</i>]
+    Options:  [-f] [-v] [-enterprise] [-user]  [-GroupPolicy] [-silent] [-split] [-dc <i>DCName</i>] [-t <i>Timeout</i>]
+
+    CertificateStoreName: Certificate store name. See -store.
+    CertId: Certificate or CRL match token. See -store.
+
+  <b><a id="repairstore"></a>Repair key association or update certificate properties or key security descriptor</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#repairstore">-repairstore</a></b> <i>CertificateStoreName CertIdList</i> [<i>PropertyInfFile</i> | <i>SDDLSecurityDescriptor</i>]
+    Options:   [-f] [-v] [-enterprise] [-user] [-GroupPolicy] [-silent] [-split] [-csp <i>Provider</i>]
+
+    CertificateStoreName: Certificate store name. See -store.
+    CertIdList:  comma separated list of Certificate or CRL match tokens. See -store CertId description.
+    PropertyInfFile -- INF file containing external properties:
+
+  <b><a id="viewstore"></a>Dump certificate store</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#viewstore">-viewstore</a></b> [<i>CertificateStoreName</i> <b>[</b><i>CertId</i> [<i>OutputFile</i>]<b>]</b>]
+    Options:   [-f] [-v] [-enterprise] [-user] [-GroupPolicy] [-dc <i>DCName</i>]
+
+    CertificateStoreName: Certificate store name.
+    CertId: Certificate or CRL match token. This can be a serial number, an SHA-1 certificate,
+            CRL, CTL or public key hash, a numeric cert index (0, 1, and so on), a numeric
+            CRL index (.0, .1, and so on), a numeric CTL index (..0, ..1, and so on), a public key,
+            signature or extension ObjectId, a certificate subject Common Name, an e-mail address,
+            UPN or DNS name, a key container name or CSP name, a template name or ObjectId, an EKU
+            or Application Policies ObjectId, or a CRL issuer Common Name.
+            Many of these may result in multiple matches.
+    OutputFile: file to save matching cert 
+    Use -user to access a user store instead of a machine store. 
+    Use -enterprise to access a machine enterprise store. 
+    Use -service to access a machine service store. 
+    Use -grouppolicy to access a machine group policy store.
+
+  <b><a id="viewdelstore"></a>Delete certificate from store</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#viewdelstore">-viewdelstore</a></b> [<i>CertificateStoreName</i> [<i>CertId</i> [<i>OutputFile</i>]]] 
+    Options:   [-f] [-v] [-enterprise] [-user] [-GroupPolicy] [-dc <i>DCName</i>]
+
+    CertificateStoreName: Certificate store name.
+    CertId: Certificate or CRL match token. This can be a serial number, an SHA-1 certificate,
+            CRL, CTL or public key hash, a numeric cert index (0, 1, and so on), a numeric
+            CRL index (.0, .1, and so on), a numeric CTL index (..0, ..1, and so on), a public key,
+            signature or extension ObjectId, a certificate subject Common Name, an e-mail address,
+            UPN or DNS name, a key container name or CSP name, a template name or ObjectId, an EKU
+            or Application Policies ObjectId, or a CRL issuer Common Name.
+            Many of these may result in multiple matches.
+    OutputFile: file to save matching cert 
+    Use -user to access a user store instead of a machine store. 
+    Use -enterprise to access a machine enterprise store. 
+    Use -service to access a machine service store. 
+    Use -grouppolicy to access a machine group policy store.
+
+  <b><a id="dspublish"></a>Publish certificate or CRL to Active Directory</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#dspublish">-dsPublish</a></b> <i>CertFile</i> [NTAuthCA | RootCA | SubCA | CrossCA | KRA | User | Machine]
+    Options:   [-f] [-v] [-user] [-dc <i>DCName</i>]
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#dspublish">-dsPublish</a></b> <i>CRLFile</i> [DSCDPContainer [DSCDPCN]] [-f] [-user] [-dc <i>DCName</i>]
+    Options:   [-f] [-v] [-user] [-dc <i>DCName</i>]
+
+    CertFile: certificate file to publish
+    NTAuthCA: Publish cert to DS Enterprise store
+    RootCA:  Publish cert to DS Trusted Root store
+    SubCA:   Publish CA cert to DS CA object
+    CrossCA: Publish cross cert to DS CA object
+    KRA:     Publish cert to DS Key Recovery Agent object
+    User:    Publish cert to User DS object
+    Machine: Publish cert to Machine DS object
+    CRLFile: CRL file to publish
+    DSCDPContainer: DS CDP container CN, usually the CA machine name
+    DSCDPCN: DS CDP object CN, usually based on the sanitized CA short name and key index
+    Use -f to create DS object.
+
+  <b><a id="adtemplate"></a>Display AD templates</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#adtemplate">-ADTemplate</a></b> [<i>Template</i>] 
+    Options:   [-f] [-v] [-user] [-ut] [-mt] [-dc <i>DCName</i>]
+
+  <a id="template"></a><b>Display Enrollment Policy templates </b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#template">-Template</a></b> [Template] 
+    Options:   [-f] [-v] [-user] [-dc <i>DCName</i>] [-user] [-silent] [-PolicyServer <i>URLOrId</i>]
+     [-Anonymous] [-Kerberos] [-ClientCertificate <i>ClientCertId</i>] [-UserName <i>UserName</i>] [-p <i>Password</i>]
+
+  <b><a id="templatecas"></a>Display CAs for template</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#templatecas">-TemplateCAs</a></b> <i>Template</i>
+    Options:   [-f] [-v] [-user] [-dc <i>DCName</i>]
+
+  <b><a id="catemplates"></a>Display templates for CA</b>
+  CertUtil [Options] <b><a href="certutil.html#catemplates">-CATemplates</a></b> [Template] 
+    Options:   [-f] [-v] [-user] [-ut] [-mt] [-config <i>Machine</i>\<i>CAName</i>] [-dc <i>DCName</i>]
+
+  <b><a id="setcasites"></a>Set, Verify or Delete CA site names</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#setcasites">-SetCASites</a></b> [set] [<i>Sitename</i>]
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#setcasites">-SetCASites</a></b> verify [<i>Sitename</i>]
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#setcasites">-SetCASites</a></b> delete
+    Options:   [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>] [-dc <i>DCName</i>]
+
+   Use the -config option to target a single CA (Default is all CAs)
+   Sitename is allowed only when targeting a single CA 
+   Use -f to override validation errors for the specified Sitename
+   Use -f to delete all CA site names
+
+  <b><a id="enrollmentserverurl"></a>Display, add or delete enrollment server URLs associated with a CA</b> 
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#enrollmentserverurl">-enrollmentServerURL</a></b> [URL <i>AuthenticationType</i> [<i>Priority</i>] [<i>Modifiers</i>]]
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#enrollmentserverurl">-enrollmentServerURL</a></b> URL delete 
+    Options:   [-f] [-config <i>Machine</i>\<i>CAName</i>] [-dc <i>DCName</i>]
+
+    AuthenticationType: Specify one of the following client authentication methods while adding a URL
+                        Kerberos:  Use Kerberos SSL credentials
+                        UserName:  Use named account for SSL credentials
+                        ClientCertificate: Use X.509 Certificate SSL credentials
+                        Anonymous: Use anonymous SSL credentials
+    delete: deletes the specified URL associated with the CA
+    Priority: defaults to '1' if not specified when adding a URL
+    Modifiers -- Comma separated list of one or more of the following:
+                 AllowRenewalsOnly:    Only renewal requests can be submitted to this CA via this URL
+                 AllowKeyBasedRenewal: Allow use of a certificate that has no associated account in the AD.
+                             This applies only with ClientCertificate and AllowRenewalsOnly Mode
+
+  <b><a id="adca"></a>Display AD CAs</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#adca">-ADCA</a></b> [<i>CAName</i>]
+    Options:   [-f] [-split] [-dc <i>DCName</i>]
+
+  <b><a id="ca"></a>Display Enrollment Policy CAs</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#ca">-CA</a></b> [<i>CAName</i> | <i>TemplateName</i>]
+    Options:   [-f] [-user] [-silent] [-split] [-PolicyServer <i>URLOrId</i>] 
+     [-Anonymous] [-Kerberos] [-ClientCertificate <i>ClientCertId</i>] [-UserName <i>UserName</i>] [-p <i>Password</i>]
+
+  <b><a id="policy"></a>Display Enrollment Policy</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#policy">-Policy</a></b> 
+    Options:   [-f] [-user] [-silent] [-split] [-PolicyServer <i>URLOrId</i>] [-Anonymous]
+     [-Kerberos] [-ClientCertificate <i>ClientCertId</i>] [-UserName <i>UserName</i>] [-p <i>Password</i>]
+
+  <b><a id="policycache"></a>Display or delete Enrollment Policy Cache entries</b>
+  CertUtil [Options] <b><a href="certutil.html#policycache">-PolicyCache</a></b> [delete] 
+    Options:   [-f] [-user] [-PolicyServer <i>URLOrId</i>]
+
+    delete: delete Policy Server cache entries 
+        -f: use -f to delete all cache entries
+
+  <b><a id="credstore"></a>Display, add or delete Credential Store entries</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#credstore">-CredStore</a></b> [<i>URL</i>]
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#credstore">-CredStore</a></b> <i>URL</i> <b>add</b> 
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#credstore">-CredStore</a></b> <i>URL</i> <b>delete</b>
+
+    Options:   [-f] [-user] [-silent] [-Anonymous] [-Kerberos]
+        [-ClientCertificate <i>ClientCertId</i>] [-UserName <i>UserName</i>] [-p <i>Password</i>]
+
+       <i>URL</i>: target URL. Use * to match all entries. Use https://machine* to match a URL prefix.
+       add: add a Credential Store entry. SSL credentials must also be specified.
+    delete: delete Credential Store entries
+        -f: use -f to overwrite an entry or to delete multiple entries. 
+
+  <b><a id="installdefaulttemplates"></a>Install default certificate templates</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#installdefaulttemplates">-InstallDefaultTemplates</a></b> 
+    Options:   [-f] [-v] [-dc <i>DCName</i>]
+
+  <b><a id="urlcache"></a>Display or delete URL cache entries</b>
+  CertUtil [Options] <b><a href="certutil.html#urlcache">-URLCache</a></b> [<i>URL</i> | CRL | * [delete]]
+    Options:   [-f] [-v] [-split]
+
+     <i>URL</i>: Cached URL
+     CRL: Operate on all cached CRL URLs only
+       *: Operate on all cached URLs
+  delete: Delete relevant URLs from the current user's local cache
+     Use -f to force fetching a specific URL and updating the cache.
+     -v : Will display the whole IE internet history and cache file locations (&hellip;\Content.IE5&hellip;)
+
+  <b><a id="pulse"></a>Pulse autoenrollment events</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#pulse">-pulse</a></b> 
+    Options:   [-v] [-user]
+
+  <b><a id="machineinfo"></a>Display Active Directory computer object information</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#machineinfo">-MachineInfo</a></b> <i>DomainName</i>\<i>MachineName</i>$ 
+    Options:   [-v] 
+
+  <b><a id="dcinfo"></a>Display domain controller information</b>
+  CertUtil [<i>Options</i>] <a href="certutil.html#dcinfo">-DCInfo</a> [Domain] [Verify | DeleteBad | DeleteAll]
+    Options:   [-f] [-v] [-user] [-urlfetch] [-dc <i>DCName</i>] [-t <i>Timeout</i>]
+
+     Default is to display DC certs without verification.
+
+  <b><a id="entinfo"></a>Display Enterprise CA information</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#entinfo">-EntInfo</a></b> <i>DomainName</i>\<i>MachineName</i>$
+    Options:   [-f] [-v] [-user]
+
+  <b><a id="tcainfo"></a>Display CA information</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#tcainfo">-TCAInfo</a></b> [<i>DomainDN</i> | -]
+    Options:   [-f] [-v] [-enterprise] [-user] [-urlfetch] [-dc <i>DCName</i>] [-t <i>Timeout</i>]
+
+ <b> <a id="scinfo"></a>Display smart card information</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#scinfo">-SCInfo</a></b> [<i>ReaderName</i> [CRYPT_DELETEKEYSET]]
+    Options:   [-v] [-silent] [-split] [-urlfetch] [-t <i>Timeout</i>]
+
+    CRYPT_DELETEKEYSET: Delete all keys on the smart card 
+
+  <b><a id="scroots"></a>Manage smart card root certificates</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#scroots">-SCRoots</a></b> update [+][<i>InputRootFile</i>] [<i>ReaderName</i>]
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#scroots">-SCRoots</a></b> save @<i>OutputRootFile</i> [<i>ReaderName</i>]
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#scroots">-SCRoots</a></b> view [<i>InputRootFile</i> | <i>ReaderName</i>]
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#scroots">-SCRoots</a></b> delete [<i>ReaderName</i>] 
+
+    Options:   [-f] [-split] [-p <i>Password</i>]
+
+  <b><a id="verifykeys"></a>Verify public/private key set</b>
+  CertUtil [Options] <b><a href="certutil.html#verifykeys">-verifykeys</a></b> [<i>KeyContainerName CACertFile</i>]
+    Options:   [-f] [-v] [-user] [-silent] [-config <i>Machine</i>\<i>CAName</i>]
+
+    KeyContainerName: key container name of the key to verify. Defaults to machine keys. Use -user for user keys.
+    CACertFile: signing or encryption certificate file
+    If no arguments are specified, each signing CA cert is verified against its private key.
+    This operation can only be performed against a local CA or local keys. 
+
+  <b><a id="verify"></a>Verify certificate, CRL or chain
+</b>  CertUtil [Options] <b><a href="certutil.html#verify">-verify</a></b> <i>CertFile</i> [<i>ApplicationPolicyList</i> | - [<i>IssuancePolicyList</i>]]
+
+  CertUtil [Options] <b><a href="certutil.html#verify">-verify</a></b> <i>CertFile</i> [<i>CACertFile</i> [<i>CrossedCACertFile</i>]]
+
+  CertUtil [Options] <b><a href="certutil.html#verify">-verify</a></b> <i>CRLFile CACertFile</i> [<i>IssuedCertFile</i>]
+
+  CertUtil [Options] <b><a href="certutil.html#verify">-verify</a></b> <i>CRLFile CACertFile</i> [<i>DeltaCRLFile</i>]
+
+    Options:   [-f] [-v] [-enterprise] [-user] [-silent] [-split] [-urlfetch] [-t <i>Timeout</i>]
+
+    CertFile:           Certificate to verify Application
+    PolicyList:         optional comma separated list of required Application Policy ObjectIds
+    IssuancePolicyList: optional comma separated list of required Issuance Policy ObjectIds
+    CACertFile:         optional issuing CA certificate to verify against 
+    CrossedCACertFile:  optional certificate cross-certified by CertFile
+    CRLFile:            CRL to verify IssuedCertFile: optional issued certificate covered by CRLFile
+    DeltaCRLFile:       optional delta CRL
+
+    If ApplicationPolicyList is specified, chain building is restricted to chains valid for
+    the specified Application Policies.
+    If IssuancePolicyList is specified, chain building is restricted to chains valid for the
+    specified Issuance Policies.
+    If CACertFile is specified, fields in CACertFile are verified against CertFile or CRLFile.
+    If CACertFile is not specified, CertFile is used to build and verify a full chain.
+    If CACertFile and CrossedCACertFile are both specified, fields in CACertFile and CrossedCACertFile
+    are verified against CertFile.
+    If IssuedCertFile is specified, fields in IssuedCertFile are verified against CRLFile.
+    If DeltaCRLFile is specified, fields in DeltaCRLFile are verified against CRLFile.
+
+  <b><a id="verifyctl"></a>Verify AuthRoot or Disallowed Certificates CTL</b>
+  CertUtil [Options] <b><a href="certutil.html#verifyctl">-verifyCTL</a></b> <i>CTLObject</i> [<i>CertDir</i>] [<i>CertFile</i>] 
+    Options:   [-f] [-user] [-split]
+
+    CTLObject: Identifies the CTL to verify:
+        AuthRootWU: read AuthRoot CAB and matching certificates from the URL cache.
+                    Use -f to download from Windows Update instead.
+      DisallowedWU: read Disallowed Certificates CAB and disallowed certificate store file from the URL cache.
+                    Use -f to download from Windows Update instead.
+          AuthRoot: read registry cached AuthRoot CTL. Use with -f and a CertFile
+                    that is not already trusted to force updating the registry cached AuthRoot
+                    and Disallowed Certificate CTLs.
+        Disallowed: read registry cached Disallowed Certificates CTL. -f has the same behavior as with AuthRoot.
+       CTLFileName: file or http: path to CTL or CAB
+
+    CertDir: folder containing certificates matching CTL entries. An http: folder path must
+             end with a path separator. If a folder is not specified with AuthRoot or Disallowed,
+             multiple locations will be searched for matching certificates: local certificate stores,
+             crypt32.dll resources and the local URL cache. Use -f to download from Windows Update when necessary.
+             Otherwise defaults to the same folder or web site as the CTLObject.
+    CertFile: file containing certificate(s) to verify. Certificates will be matched against CTL entries,
+              and match results displayed. Suppresses most of the default output.
+
+  <b><a id="sign"></a>Re-sign CRL or certificate</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#sign">-sign</a></b> <i>InFileList</i>|<i>SerialNumber</i>|CRL <i>OutFileList</i> [<i>StartDate</i>+<i>dd</i>:<i>hh</i>]
+     <b>[</b>+SerialNumberList | -SerialNumberList | -ObjectIdList | @ExtensionFile<b>]</b> [-nullsign]
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#sign">-sign</a></b> <i>InFileList</i>|<i>SerialNumber</i>|CRL <i>OutFileList</i> [#HashAlgorithm]
+     <b>[</b>+AlternateSignatureAlgorithm | -AlternateSignatureAlgorithm<b>]</b>  [-nullsign] 
+
+    Options:   [-f] [-silent] [-Cert <i>CertId</i>]
+
+    InFileList:  comma separated list of Certificate or CRL files to modify and re-sign
+    SerialNumber: Serial number of certificate to create. Validity period and other options must not be present.
+    CRL:         Create an empty CRL. Validity period and other options must not be present.
+    OutFileList: comma separated list of modified Certificate or CRL output files.
+                 The number of files must match InFileList.
+    StartDate+dd:hh: new validity period: optional date plus; optional days and hours validity period;
+                     If both are specified, use a plus sign (+) separator.
+                     Use &quot;now[+dd:hh]&quot; to start at the current time. Use &quot;never&quot; to have no expiration date (for CRLs only).
+    SerialNumberList: comma separated serial number list to add or remove
+    ObjectIdList:     comma separated extension ObjectId list to remove
+    @ExtensionFile:   INF file containing extensions to update or remove:
+    HashAlgorithm:    Name of the hash algorithm preceded by a # sign 
+    AlternateSignatureAlgorithm: alternate Signature algorithm specifier
+
+    A minus sign causes serial numbers and extensions to be removed. A plus  sign causes serial numbers to be added to a CRL.
+    When removing items  from a CRL, the list may contain both serial numbers and ObjectIds.
+    A  minus sign before AlternateSignatureAlgorithm causes the legacy  signature format to be used.
+    A plus sign before  AlternateSignatureAlgorithm causes the alternature signature format to  be used.
+    If AlternateSignatureAlgorithm is not specified then the  signature format in the certificate or CRL is used.
+
+  <b><a id="vroot"></a>Create/delete web virtual roots and file shares</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#vroot">-vroot</a></b> [delete]
+
+  <b><a id="vocsproot"></a>Create/delete web virtual roots for OCSP web proxy</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#vocsproot">-vocsproot</a></b> [delete]
+
+  <b><a id="addenrollmentserver"></a>Add an Enrollment Server application</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#addenrollmentserver">-addEnrollmentServer</a></b> Kerberos | UserName | ClientCertificate [AllowRenewalsOnly] [AllowKeyBasedRenewal]
+    Options:   [-f] [-config <i>Machine</i>\<i>CAName</i>]
+
+    Add an Enrollment Server application and application pool if necessary, for the specified CA.
+    This command does not install binaries or packages.
+    One of the following authentication methods with which the client connects to a Certificate Enrollment Server.
+
+      Kerberos: Use Kerberos SSL credentials
+      UserName: Use named account for SSL credentials
+      ClientCertificate: Use X.509 Certificate SSL credentials
+      AllowRenewalsOnly: Only renewal requests can be submitted to this CA via this URL
+      AllowKeyBasedRenewal -- Allows use of a certificate that has no associated account in the AD.
+                              This applies only with ClientCertificate and AllowRenewalsOnly mode.
+
+  <b><a id="deleteenrollmentserver"></a>Delete an Enrollment Server application</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#deleteenrollmentserver">-deleteEnrollmentServer</a></b> Kerberos | UserName | ClientCertificate
+    Options:   [-f] [-config <i>Machine</i>\<i>CAName</i>]
+
+    Delete an Enrollment Server application and application pool if necessary, for the specified CA.
+    This command does not remove binaries or packages.
+    One of the following authentication methods with which the client connects to a Certificate Enrollment Server.
+
+      Kerberos: Use Kerberos SSL credentials
+      UserName: Use named account for SSL credentials
+      ClientCertificate: Use X.509 Certificate SSL credentials
+
+  <b><a id="addpolicyserver"></a>Add a Policy Server application</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#addpolicyserver">-addPolicyServer</a></b> Kerberos | UserName | ClientCertificate [KeyBasedRenewal]
+
+    Add a policy server application and application pool if necessary.
+    This command does not install binaries or packages.
+    One of the following authentication methods with which the client connects to a Certificate Policy Server.
+
+      Kerberos: Use Kerberos SSL credentials
+      UserName: Use named account for SSL credentials
+      ClientCertificate: Use X.509 Certificate SSL credentials
+      KeyBasedRenewal: Only policies that contain KeyBasedRenewal templates are returned to the client.
+                       This flag applies only for UserName and ClientCertificate authentication.
+
+  <b><a id="deletepolicyserver"></a>Delete a Policy Server application</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#deletepolicyserver">-deletePolicyServer</a></b> Kerberos | UserName | ClientCertificate [KeyBasedRenewal]
+
+    Delete a policy server application and application pool if necessary.
+    This command does not remove binaries or packages.
+    One of the following authentication methods with which the client connects to a Certificate Policy Server.
+
+      Kerberos: Use Kerberos SSL credentials
+      UserName: Use named account for SSL credentials
+      ClientCertificate: Use X.509 Certificate SSL credentials
+      KeyBasedRenewal:   KeyBasedRenewal policy server
+
+  <b><a id="oid"></a>Display ObjectId or set display name</b>
+  CertUtil [Options] <b><a href="certutil.html#oid">-oid</a></b> <i>ObjectId</i> [<i>DisplayName</i> | delete [<i>LanguageId</i> [<i>Type</i>]]] [-f]
+
+  CertUtil [Options] <b><a href="certutil.html#oid">-oid</a></b> <i>GroupId</i>
+
+  CertUtil [Options] <b><a href="certutil.html#oid">-oid</a></b> <i>AlgId</i> | <i>AlgorithmName</i> [<i>GroupId</i>] [-f]
+
+     ObjectId -- ObjectId to display or to add display name
+     GroupId -- decimal GroupId number for ObjectIds to enumerate
+     AlgId -- hexadecimal AlgId for ObjectId to look up
+     AlgorithmName -- Algorithm Name for ObjectId to look up
+     DisplayName -- Display Name to store in DS
+     delete -- delete display name
+     LanguageId -- Language Id (defaults to current: 1033)
+     Type -- DS object type to create: 1 for Template (default), 2 for Issuance Policy, 3 for Application Policy
+     Use -f to create DS object. 
+
+  <b><a id="error"></a>Display error code message text</b>
+  CertUtil [-v] <b><a href="certutil.html#error">-error</a> </b>ErrorCode
+
+
+  <b><a id="getreg"></a>Display registry value</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#getreg">-getreg</a></b> [{ca|restore|policy|exit|template|enroll|chain|PolicyServers}\[<i>ProgId</i>\]] [<i>RegistryValueName</i>] 
+    Options:   [-f] [-user] [-GroupPolicy] [-config <i>Machine</i>\<i>CAName</i>]
+
+    ca:   Use CA's registry key
+    restore: Use CA's restore registry key
+    policy:  Use policy module's registry key
+    exit:    Use first exit module's registry key
+    template: Use template registry key (use -user for user templates)
+    enroll:  Use enrollment registry key (use -user for user context)
+    chain:   Use chain configuration registry key
+    PolicyServers: Use Policy Servers registry key
+    ProgId:  Use policy or exit module's ProgId (registry subkey name)
+    RegistryValueName: registry value name (use &quot;Name*&quot; to prefix match)
+
+  <b><a id="setreg"></a>Set registry value</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#setreg">-setreg</a></b> [{ca|restore|policy|exit|template|enroll|chain|PolicyServers}\[<i>ProgId</i>\]]
+     [<i>RegistryValueName</i>] <i>Value</i>
+    Options:   [-f] [-user] [-GroupPolicy] [-config <i>Machine</i>\<i>CAName</i>]
+
+    ca:   Use CA's registry key
+    restore: Use CA's restore registry key
+    policy:  Use policy module's registry key
+    exit:    Use first exit module's registry key
+    template: Use template registry key (use -user for user templates)
+    enroll:  Use enrollment registry key (use -user for user context)
+    chain:   Use chain configuration registry key
+    PolicyServers: Use Policy Servers registry key
+    ProgId:  Use policy or exit module's ProgId (registry subkey name)
+    RegistryValueName: registry value name (use &quot;Name*&quot; to prefix match)
+    Value: new numeric, string or date registry value or filename.
+      If a numeric value starts with &quot;+&quot; or &quot;-&quot;, the bits specified in the new
+      value are set or cleared in the existing registry value. If a string value
+      starts with &quot;+&quot; or &quot;-&quot;, and the existing value is a REG_MULTI_SZ value, the
+      string is added to or removed from the existing registry value.
+      To force creation of a REG_MULTI_SZ value, add a &quot;\n&quot; to the end of the string
+      value. If the value starts with &quot;@&quot;, the rest of the value is the name of
+      the file containing the hexadecimal text representation of a binary value.
+      If it does not refer to a valid file, it is instead parsed as [Date][+|-][<i>dd</i>:<i>hh</i>]
+      -- an optional date plus or minus optional days and hours.
+      If both are specified, use a plus sign (+) or minus sign (-) separator.
+      Use &quot;now+<i>dd</i>:<i>hh</i>&quot; for a date relative to the current time.
+      Use &quot;chain\ChainCacheResyncFiletime @now&quot; to effectively flush cached CRLs.
+
+  <b><a id="delreg"></a>Delete registry value</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#delreg">-delreg</a></b> [{ca|restore|policy|exit|template|enroll|chain|PolicyServers}\[<i>ProgId</i>\]]
+     [<i>RegistryValueName</i>]
+    Options:   [-f] [-user] [-GroupPolicy] [-config <i>Machine</i>\<i>CAName</i>]
+
+    ca:   Use CA's registry key
+    restore: Use CA's restore registry key
+    policy:  Use policy module's registry key
+    exit:    Use first exit module's registry key
+    template: Use template registry key (use -user for user templates)
+    enroll:  Use enrollment registry key (use -user for user context)
+    chain:   Use chain configuration registry key
+    PolicyServers: Use Policy Servers registry key
+    ProgId:  Use policy or exit module's ProgId (registry subkey name)
+    RegistryValueName: registry value name (use &quot;Name*&quot; to prefix match)
+
+  <b><a id="importkms"></a>Import user keys and certificates into server database for key archival</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#importkms">-ImportKMS</a></b> <i>UserKeyAndCertFile</i> [<i>CertId</i>] 
+    Options:   [-f] [-v] [-silent] [-split] [-config <i>Machine</i>\<i>CAName</i>] [-p <i>Password</i>] [-symkeyalg <i>SymmetricKeyAlgorithm</i>[,<i>KeyLength</i>]]
+
+    UserKeyAndCertFile -- Data file containing user private keys and certificates to be archived.
+       This can be any of the following:
+       Exchange Key Management Server (KMS) export file
+       PFX file
+    CertId: KMS export file decryption certificate match token. See -store.
+    Use -f to import certificates not issued by the CA.
+
+  <b><a id="importcert"></a>Import a certificate file into the database </b>
+  CertUtil [Options] <b><a href="certutil.html#importcert">-ImportCert</a></b> <i>Certfile </i>[<i>ExistingRow</i>] 
+    Options:   [-f] [-v] [-config <i>Machine</i>\<i>CAName</i>]
+
+    Use ExistingRow to import the certificate in place of a pending request for
+    the same key. Use -f to import certificates not issued by the CA. The CA may also need
+    to be configured to support foreign certificate import: certutil -setreg ca\KRAFlags +KRAF_ENABLEFOREIGN 
+
+  <b><a id="getkey"></a>Retrieve archived private key recovery blob, generate a recovery script, or recover archived keys </b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#getkey">-GetKey</a></b> <i>SearchToken </i>[<i>RecoveryBlobOutFile</i>]
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#getkey">-GetKey</a> </b><i>SearchToken script OutputScriptFile</i>
+
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#getkey">-GetKey</a> </b><i>SearchToken </i>retrieve | recover <i>OutputFileBaseName</i>
+
+    Options:   [-f] [-v] [-UnicodeText] [-silent] [-config <i>Machine</i>\<i>CAName</i>] [-p <i>Password</i>]
+                  [-ProtectTo <i>SAMNameAndSIDList</i>] [-csp <i>Provider</i>]
+
+    script: generate a script to retrieve and recover keys
+           (default behavior if multiple matching recovery candidates are found, or if
+            the output file is not specified).
+    retrieve: retrieve one or more Key Recovery Blobs (default behavior if exactly one
+             matching recovery candidate is found, and if the output file is specified)
+    recover: retrieve and recover private keys in one step (requires Key Recovery Agent
+             certificates and private keys)
+    SearchToken: Used to select the keys and certificates to be recovered.
+                 any of the following:
+                 Certificate Common Name
+                 Certificate Serial Number
+                 Certificate SHA-1 hash (thumbprint)
+                 Certificate KeyId SHA-1 hash (Subject Key Identifier)
+                 Requester Name (domain\user)
+                 UPN (user@domain)
+
+    RecoveryBlobOutFile: output file containing a certificate chain and an associated private key,
+              still encrypted to one or more Key Recovery Agent certificates.
+    OutputScriptFile: output file containing a batch script to retrieve and recover private keys.
+    OutputFileBaseName: output file base name. For retrieve, any extension is truncated and a
+              certificate-specific string and the .rec extension are appended for each key recovery blob.
+              Each file contains a certificate chain and an associated private key, still encrypted to
+              one or more Key Recovery Agent certificates. For recover, any extension is truncated and
+              the .p12 extension is appended.
+              Contains the recovered certificate chains and associated private keys, stored as a PFX file.
+
+  <b><a id="recoverkey"></a>Recover archived private key</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#recoverkey">-RecoverKey</a></b> <i>RecoveryBlobInFile</i> [PFXOutFile [RecipientIndex]]
+    Options:   [-f] [-user] [-silent] [-split] [-p <i>Password</i>] [-ProtectTo <i>SAMNameAndSIDList</i>] [-csp <i>Provider</i>] [-t <i>Timeout</i>]
+
+  <b><a id="mergepfx"></a>Merge PFX files</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#mergepfx">-MergePFX</a></b> <i>PFXInFileList</i> <i>PFXOutFile</i> [ExtendedProperties]
+    Options:   [-f] [-user] [-split] [-p <i>Password</i>] [-ProtectTo <i>SAMNameAndSIDList</i>] [-csp <i>Provider</i>]
+
+    PFXInFileList: Comma separated PFX input file list
+    PFXOutFile: PFX output file
+    ExtendedProperties: Include extended properties
+
+    The password specified on the command line is a comma separated password list.
+    If more than one password is specified, the last password is used for the output file.
+    If only one password is provided or if the last password is &quot;*&quot;, the user will be prompted for
+    the output file password.
+
+  <b><a id="convertepf"></a>Convert PFX files to EPF file</b>
+  CertUtil [<i>Options</i>] <b><a href="certutil.html#convertepf">-ConvertEPF</a></b><i> PFXInFileList EPFOutFile </i>[cast | cast-] [V3CACertId][,Salt] 
+    Options:   [-f] [-split] [-p <i>Password</i>] [-csp <i>Provider</i>]
+
+    PFXInFileList: Comma separated PFX input file list
+    EPF: EPF output file
+    cast: Use CAST 64 encryption
+    cast-: Use CAST 64 encryption (export)
+    V3CACertId: V3 CA Certificate match token. See -store CertId description.
+    Salt: EPF output file salt string
+
+    The password specified on the command line is a comma separated password list.
+    If more than one password is specified, the last password is used for the output file.
+    If only one password is provided or if the last password is &quot;*&quot;, the user will be prompted for
+    the output file password.
+
+OPTIONS
+These options must be entered on the command line <b>before</b> the main Verb
+
+      -nullsign     Use hash of data as signature
+      -f            Force overwrite
+      -enterprise   Use local machine Enterprise registry certificate store
+      -user         Use HKEY_CURRENT_USER keys or certificate store
+      -GroupPolicy  Use Group Policy certificate store
+      -ut           Display user templates
+      -mt           Display machine templates
+      -Unicode      Write redirected output in Unicode
+      -UnicodeText  Write output file in Unicode
+      -gmt          Display times as GMT
+      -seconds      Display times with seconds and milliseconds
+      -silent       Use silent flag to acquire crypt context
+      -split        Split embedded ASN.1 elements, and save to files
+      -v            Verbose operation
+      -privatekey   Display password and private key data
+      -pin PIN      Smart Card PIN
+      -urlfetch     Retrieve and verify AIA Certs and CDP CRLs
+      -config M<i>achine\CAName</i>  CA and computer name string
+      -PolicyServer <i>URLOrId</i>   Policy Server URL or Id. For selection U/I, use -PolicyServer.
+                    For all Policy Servers, use -PolicyServer *
+      -Anonymous    Use anonymous SSL credentials
+      -Kerberos     Use Kerberos SSL credentials
+      -ClientCertificate <i>ClientCertId</i>   Use X.509 Certificate SSL credentials. For selection U/I, use -clientCertificate.
+      -UserName <i>UserName</i>   Use named account for SSL credentials. For selection U/I, use -UserName.
+      -Cert <i>CertId</i>   Signing certificate
+      -dc <i>DCName</i>   Target a specific Domain Controller
+      -restrict <i>RestrictionList</i>   Comma separated Restriction List. Each restriction consists
+                    of a column name, a relational operator and a constant integer, string or date.
+                    One column name may be preceded by a plus or minus sign to indicate the sort order.
+                    Examples:  "RequestId = 47"    "+RequesterName >= a, RequesterName < b"
+                               "-RequesterName > DOMAIN, Disposition = 21"
+      -out <i>ColumnList</i>   Comma separated Column List
+      -p <i>Password</i>   Password
+      -ProtectTo <i>SAMNameAndSIDList</i>   Comma separated SAM Name/SID List
+      -csp <i>Provider</i>   Provider
+      -t <i>Timeout</i>    URL fetch timeout in milliseconds
+      -symkeyalg <i>SymmetricKeyAlgorithm</i>[,<i>KeyLength</i>]   Name of Symmetric Key Algorithm with
+                    optional key length, example: AES,128 or 3DES</pre>
+<p>To use Certutil.exe on a Windows XP client,  install the Windows Server 2003 <a href="http://ss64.com/links/windows.html#kits">Administration Tools</a> Pack.</p>
+<h2>Bugs</h2>
+<p>There are a few small documentation bugs/inconsistencies between the command-line help (Certutil -?) and the various MSDN help pages.</p>
+<ul>
+<li>e.g. <span class="code">-encodehex</span> is completely missing from the command-line help. </li>
+<li>The <span class="code">-decode</span> option may not always restore spaces - see <a href="http://ss64.org/viewtopic.php?id=1562">forum thread</a>.</li>
+</ul>
+<p>Certutil is sensitive to the order of command-line parameters.</p>
+<h2>Examples</h2>
+<p>View the configuration settings for the CA:</p>
+<p class="code">certutil -dump<br>
+certutil -getreg<br>
+certutil -getreg CA</p>
+<p>Copy a certificate revocation list (CRL) to a file:</p>
+<p class="code">certutil -getcrl F:\ss64.crl</p>
+<p>Purge local policy cache (Certificate Enrollment Policy Web Services):</p>
+<p class="code"> certutil -f -policyserver * -policycache delete</p>
+<p>View the content of the client computer’s Trusted Root Certification Authorities Enterprise certificate store:</p>
+<p class="code">certutil -enterprise -viewstore Root</p>
+<p>Stop Certificate Services</p>
+<p class="code">certutil 				-shutdown</p>
+<p>Convert a hex-encoded file to a binary executable. This is primarily intended for converting X.509 certificates from a human-readable format (.asn) into a computer-readable format (.bin):</p>
+<p class="code">certutil  -decodehex hex.dat ss64.exe</p>
+<p class="quote"><i>&ldquo;And yet I do observe that audiences which used to be deeply affected by the inspiring sternness of the music of Livius and Naevius, now leap up and twist their necks and turn their eyes in time with our modern tunes&rdquo; ~ Cicero (De Legibus II.39 c. 50 BCE)   on the evils of modern music.</i></p>
+<p><b>Related:</b></p>
+<p><a href="certreq.html">CERTREQ</a> - Request certificate from a certification authority<br>
+<a href="http://support.microsoft.com/kb/889250">Q889250</a> - How to decommission a Windows enterprise certification authority and remove all related objects from Windows Server 2003.<br>
+<a href="http://technet.microsoft.com/library/ee619754.aspx">How Certificate Revocation Works</a> - TechNet</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="certutil.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

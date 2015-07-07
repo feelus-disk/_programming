@@ -1,0 +1,121 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>tdiff - Time difference | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>tdiff.cmd</h1>
+<p>Calculate the time difference between two time values in hours, minutes and seconds.</p>
+<pre>@Echo off
+Setlocal
+if "%~1" EQU "" goto s_syntax
+
+:: Convert start and end times to hundredths of a second
+Call :s_calc_timecode %1
+Set _start_timecode=%errorlevel%
+
+Call :s_calc_timecode %2
+Set _stop_timecode=%errorlevel%
+
+:: Calculate the difference in hundredths
+Set /a _diff_timecode=_stop_timecode - _start_timecode
+
+:: Midnight rollover
+if %_diff_timecode% LSS 0 set /a _diff_timecode+=(24 * 60 * 60 * 100)
+Echo %_diff_timecode% hundredths of a second
+
+:: Split out Hours, Mins etc and return the result
+set /a hs=_diff_timecode %% 100
+set /a _diff_timecode/=100
+set /a ss=_diff_timecode %% 60
+set /a _diff_timecode/=60
+set /a mm=_diff_timecode %% 60
+set /a _diff_timecode/=60
+set /a hh=_diff_timecode
+
+set hh=0%hh%
+set mm=0%mm%
+set ss=0%ss%
+set hs=0%hs%
+
+set _tdiff=%hh:~-2%:%mm:~-2%:%ss:~-2%.%hs:~-2%
+
+Echo HH:MM:ss.hs
+Echo %_tdiff%
+endlocal & set _tdiff=%_tdiff%
+goto :EOF
+
+
+:s_calc_timecode
+   :: Remove delimiters and convert to hundredths of a second.
+	setlocal
+	
+	For /f "usebackq tokens=1,2,3,4 delims=:." %%a in ('%1') Do (
+      set hh=00%%a
+      set mm=00%%b
+      set ss=00%%c
+      set hs=00%%d
+	)
+   set hh=%hh:~-2%
+   set mm=%mm:~-2%
+   set ss=%ss:~-2%
+   set hs=%hs:~-2%
+   set /a hh=((%hh:~0,1% * 10) + %hh:~1,1%) * 60 * 60 * 100
+   set /a mm=((%mm:~0,1% * 10) + %mm:~1,1%) * 60 * 100
+   set /a ss=((%ss:~0,1% * 10) + %ss:~1,1%) * 100
+   set /a hs=((%hs:~0,1% * 10) + %hs:~1,1%)
+   
+   set /a _timecode=hh + mm + ss + hs
+
+Endlocal &amp; Exit /b %_timecode%
+
+:s_syntax
+   Echo.	
+   Echo Syntax: tdiff.cmd StartTime StopTime
+   Echo.
+   Echo    The times can be given in the format:
+   Echo    HH  or  HH:MM  or  HH:MM:ss  or  HH:MM:ss.hs
+   Echo.
+   Echo    so for example:  tdiff %%time%% 23
+   Echo    will give the time difference between now and 23:00:00.00
+   Echo.
+   Echo The result is returned in variable %%_tdiff%%
+Exit /b 1</pre>
+<p><b>Examples</b>
+<p class="code">c:\&gt; tdiff 14:30 23:15<br>
+c:\&gt; tdiff 14:30:05 16:45:12
+<p class="quote"><i>“God, grant me the serenity to accept the things I cannot change, the courage to change the things I can, and the wisdom to know the difference”  ~ Reinhold Niebuhr</i>
+<p><b>Related</b>
+<p><a href="http://ss64.org/viewtopic.php?id=944">Chronometer/Timer app</a> - SS64 Forum <br>
+<a href="syntax-delolder.html">DelOlder.cmd</a> - Delete files more than n days old<br>
+<a href="syntax-gettime.html">GetTime</a> script<br>
+
+<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-tdiff.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

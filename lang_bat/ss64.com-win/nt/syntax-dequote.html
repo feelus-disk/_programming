@@ -1,0 +1,94 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Dequote - remove quotes | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Remove Quotes from a string</h1> 
+<p>A routine to remove quotes from the contents of a variable.</p>
+<p>Simple version - for the majority of cases: </p>
+<p class="code">@Echo Off<br>
+Setlocal<br>
+<br>
+Set _MyVariable=&quot;C:\Program Files\ss64\&quot;<br>
+CALL :dequote _MyVariable<br>
+Echo %_MyVariable%<br>
+Goto :eof<br>
+<br>
+:DeQuote<br>
+<b>for /f &quot;delims=&quot; %%A in ('echo %%%1%%') do set %1=%%~A</b><br>
+Goto :eof</p>
+<p> The above will turn &quot;C:\Program Files\ss64\&quot; into C:\Program Files\ss64\</p>
+<p>If the line in bold is saved as a single line batch file DeQuote.cmd, then it can be called from other batch scripts <span class="code"><a href="call.html">CALL</a> DeQuote.cmd VariableName</span></p>
+<p>The script above does fail with an unmatched leading double quote<span class="code"> &quot;!@# </span>or <span class="code">&quot;C:\Program Files\</span> (this can happen where the input string is supplied by the user.) The more complex routine below will handle this and  will only affect strings that both begin and end with a double quote.</p>
+<pre> ::BEGIN FUNCTION::::::::::::::::::::::::::::::::::::::::
+ @ECHO OFF
+ 
+ :DeQuote
+ SET DeQuote.Variable=%1
+ CALL Set DeQuote.Contents=%%%DeQuote.Variable%%%
+ Echo.%DeQuote.Contents%|FindStr/brv &quot;&quot;^&quot;&gt;NUL:&amp;&amp;Goto :EOF
+ Echo.%DeQuote.Contents%|FindStr/erv &quot;&quot;^&quot;&gt;NUL:&amp;&amp;Goto :EOF
+ 
+ Set DeQuote.Contents=####%DeQuote.Contents%####
+ Set DeQuote.Contents=%DeQuote.Contents:####&quot;=%
+ Set DeQuote.Contents=%DeQuote.Contents:&quot;####=%
+ Set %DeQuote.Variable%=%DeQuote.Contents%
+ 
+ Set DeQuote.Variable=
+ Set DeQuote.Contents=
+ Goto :EOF
+ :: Written by Frank P. Westlake, 2001.09.22, 2001.09.24
+ :: Modified by Simon Sheppard 2002.06.09
+ :::::::::::::::::::::::::::::::::::::::::::::::::::::::</pre>
+<p>An alternative version of DeQuote (for Windows XP or later) when used with <a href="delayedexpansion.html">EnableDelayedExpansion</a> by <a href="http://ss64.org/viewtopic.php?pid=850#p850">Nicholi</a> </p>
+<pre>
+@ECHO OFF
+SETLOCAL ENABLEDELAYEDEXPANSION
+
+:DeQuote
+ FOR %%G IN (%*) DO (
+ SET DeQuote.Variable=%%G
+ CALL SET DeQuote.Contents=%%!DeQuote.Variable!%%
+ IF [!DeQuote.Contents:~0^,1!]==[^&quot;] (
+ IF [!DeQuote.Contents:~-1!]==[^&quot;] (
+ SET DeQuote.Contents=!DeQuote.Contents:~1,-1!
+ ) ELSE (GOTO :EOF no end quote)
+ ) ELSE (GOTO :EOF no beginning quote)
+ SET !DeQuote.Variable!=!DeQuote.Contents!
+ SET DeQuote.Variable=
+ SET DeQuote.Contents=
+ )
+ GOTO :EOF</pre>
+<p class="quote"><i>&ldquo;One look is worth a thousand words&rdquo; ~ Fred R. Barnard</i></p>
+<p><b>Related:</b><br><br>
+<a href="setlocal.html">SetLocal</a> - EnableDelayedExpansion<br>
+<a href="syntax-filenames.html">Long Filenames and NTFS</a> - Valid characters in filenames</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-dequote.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>ForEach-Object % | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>ForEach-Object</h1> 
+<p>Perform an operation (execute a block of statements) against each item in a collection of input objects, typically passed through the pipeline.</p>
+<pre>Syntax
+    ForEach-Object [-process] <i>ScriptBlock</i>[] [-inputObject <i>psobject</i>]
+       [-begin <i>scriptblock</i>] [-end <i>scriptblock</i>] [<i>CommonParameters</i>]
+
+key
+   -process <i>ScriptBlock</i>[]
+       A block of PowerShell script that is applied to each incoming object.
+        
+   -inputObject <i>psobject</i>
+       Accepts an object that the script block specified in the process parameter
+       will act upon. Enter a variable that contains the objects or type a
+       command or expression that gets the objects.
+        
+   -begin <i>scriptblock</i>
+       A script block to run before processing any input objects.
+        
+   -end <i>scriptblock</i>
+       A script block to run after processing all input objects.
+ 
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Standard <a href="get-alias.html">Aliases</a> for Foreach-Object: the '<span class="code"><b>%</b></span>' symbol,  <span class="code"><b>ForEach</b></span> </p>
+<p>  For operations in the pipeline, the ForEach alias will take precedence over the <a href="foreach.html">ForEach statement</a>.<br>
+For operations <u>not</u> in the pipeline the ForEach statement will take precedence.</p>
+<p>For the fastest performance:<br>
+  Use the ForEach statement when the collection of objects is small enough that it can be loaded into memory. (eg an array of 20 string values)<br>
+Use the <span class="code">ForEach-Object</span> cmdlet when you want to pass only one object at a time through the pipeline, minimising memory usage. (e.g. a directory containing 10,000 files)</p>
+<p><b>Examples</b></p>
+<p>Retrieve the files (and folders) from the C: drive and display the size of each:</p>
+<p class="code">PS C:&gt; get-childitem C:\ | foreach-object -process { $_.length / 1024 }</p>
+<p>(The <span class="code">$_</span> variable holds a reference to the current  item being processed.)</p>
+<p>Retrieve the 1000 most recent events from the system event log and store them in the $events variable:</p>
+<p class="code">PS C:&gt; $events = get-eventlog -logname system -newest 1000</p>
+<p>Then pipe the $events variable into the ForEach-Object cmdlet. </p>
+<pre>PS C:&gt; $events | foreach-object -begin {Get-Date} `
+      -process {out-file -filepath event_log.txt -append -inputobject $_.message} `
+      -end {get-date}</pre>
+<p>In this example, the -Process parameter uses Out-File  to create a text file  and stores the .message property of each event. The -Begin and -End parameters are used  to display the date and time before and after the command has completed.<br> 
+In this example, the backtick character  ` is the PowerShell line continuation character. </p>
+<p class="quote"><i>&ldquo;The best way to have a good idea is to have a lot of ideas&rdquo; ~ Linus Pauling</i></p>
+<p><b>Related:</b></p>
+<p><a href="foreach.html">ForEach</a> statement<br>
+<span class="body"><a href="compare-object.html">Compare-Object</a> Compare the properties of objects<br>
+<a href="group-object.html">Group-Object</a> - Group the objects that contain the same value for a common property<br>
+<a href="measure-object.html">Measure-Object</a> - Measure aspects of object properties and create objects from those values<br>
+<a href="new-object.html">New-Object</a> - Create a new .Net object<br>
+<a href="select-object.html">Select-Object</a> - Select objects based on parameters set in the Cmdlet command string<br>
+<a href="sort-object.html">Sort-Object</a> - Sort the input objects by property value<br>
+<a href="tee-object.html">Tee-Object</a> - Send input objects to two places<br>
+<a href="where-object.html">Where-Object</a> - Filter input from the pipeline allowing operation on only certain objects</span></p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="foreach-object.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

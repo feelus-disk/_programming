@@ -1,0 +1,180 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Winrm | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>WINRM</h1> 
+<p>Windows Remote Management<br>
+  <br>
+  Secure communication with local and remote computers using web services.</p>
+<pre>Syntax
+      winrm g[et] | s[et] | c[reate] | d[elete] | e[numerate] | 
+            i[nvoke] |  id[entify] | quickconfig |  configSDDL |  helpmsg
+
+   Retrieve instances of <i>RESOURCE_URI</i>:
+      <b>winrm get</b> <i>RESOURCE_URI</i> [-SWITCH:<i>VALUE</i> [-SWITCH:<i>VALUE</i>] ...]
+
+      winrm get winrm/config
+      winrm get winrm/config/client
+      winrm get winrm/config/service
+
+   Modify settings in <i>RESOURCE_URI</i>: 
+      <b>winrm set</b> <i>RESOURCE_URI</i> [-SWITCH:<i>VALUE</i> [-SWITCH:<i>VALUE</i>] ...]
+         [@{KEY="VALUE"[;KEY="VALUE"]}]
+            [-file:VALUE]
+
+   Spawn an instance of <i>RESOURCE_URI</i>:
+      <b>winrm create</b> <i>RESOURCE_URI</i> [-SWITCH:<i>VALUE</i> [-SWITCH:<i>VALUE</i>] ...]
+         [@{KEY="<i>VALUE</i>"[;KEY="<i>VALUE</i>"]}]
+            [-file:<i>VALUE</i>]
+
+   Control remote access to WinRM resources, launch a GUI to edit security settings.
+      <b>winrm configsddl</b> <i>RESOURCE_URI</i>
+
+   Enable this machine for remote management.
+      <b>winrm quickconfig</b> [-quiet] [-transport:<i>VALUE</i>]
+
+      This will start the WinRM service, set the service to auto start, create
+      a listener and enable an http firewall exception for WS-Management traffic
+
+       -q[uiet]          Don&rsquo;t prompt for confirmation.
+
+       -transport:<i>VALUE</i>  Perform quickconfig for either http or https.  Default = http.
+
+   List instances of <i>RESOURCE_URI</i>:
+      <b><a href="winrm-enumerate.html">winrm enumerate</a></b> <i>RESOURCE_URI</i> [-ReturnType:Value] [-Shallow]
+         [-BasePropertiesOnly] [-SWITCH:<i>VALUE</i> [-SWITCH:<i>VALUE</i>] ...]
+
+   Remove an instance of <i>RESOURCE_URI</i>:
+      <b>winrm delete</b> <i>RESOURCE_URI</i> [-SWITCH:<i>VALUE</i> [-SWITCH:<i>VALUE</i>] ...]
+
+   Execute method specified by <i>ACTION</i> on target object specified by <i>RESOURCE_URI</i>
+      <b>winrm invoke</b> <i>ACTION RESOURCE_URI</i> [-SWITCH:<i>VALUE</i> [-SWITCH:<i>VALUE</i>] ...]
+         [@{KEY="<i>VALUE</i>"[;KEY="<i>VALUE</i>"]}]
+            [-file:<i>VALUE</i>]
+
+   Display error message associate with the error code.
+      <b>winrm helpmsg</b> errorcode
+
+Key
+
+   -a[uthentication]:<i>VALUE</i>
+                    The authentication mechanism to use when communicating
+                    with the remote machine.
+
+   -defaultCreds    Allow implicit credentials when Negotiate is used.
+                    Remote HTTPS operations for trusted machines.
+
+   -dialect:<i>VALUE</i>   Dialect of the filter expression for enumeration or fragment.
+                    Example: Use a WQL query
+                      -dialect:http://schemas.microsoft.com/wbem/wsman/1/WQL
+                    Example: Use XPATH for filtering with enumeration or fragment get/set.
+                      -dialect:http://www.w3.org/TR/1999/REC-xpath-19991116
+
+   -encoding:<i>VALUE</i>  The encoding type when talking to remote machine (see <a href="winrm-remote.html">-remote</a>).
+                    Possible options are "utf-8" (the default) or "utf-16".
+
+   -f[ormat]:<i>FORMAT</i> The format of output. FORMAT can be "xml",
+                    "pretty" (better formatted XML), or "text".
+
+   <a href="winrm-remote.html">-r[emote]:<i>VALUE</i></a>  Specify the identifier of a remote endpoint/system.
+                    This may be a simple host name or a complete URL.
+
+   -skipCAcheck     The certificate issuer need not be a trusted root authority.
+                    Remote HTTPS operations for trusted machines.
+
+   -skipCNcheck     The certificate common name (CN) of the server need not match
+                    the hostname of the server. HTTPS operations for trusted machines.
+
+   -skipRevocationcheck  Do not check the revocation status of the server certificate.
+                    Remote HTTPS operations for trusted machines.
+
+   -SPNPort         Append port number to the Service Principal Name (SPN) of the
+                    remote server. 
+                    Service principal name is used when Negotiate or Kerberos authentication
+                    mechanism is in use.
+
+   -timeout:<i>MS</i>      Timeout in milliseconds. Limits duration of corresponding operation.
+                    Default timeout can be configured by:
+                       winrm set winrm/config @{MaxTimeoutms="XXXXXX"}
+                    Where XXXXXX is an integer indicating milliseconds.
+
+   -file:<i>VALUE</i>
+
+   @{KEY="<i>VALUE</i>"[;KEY="<i>VALUE</i>"]}
+                    Input from an XML file or via key/value pairs.
+                    Applies to set, create, and invoke operations
+
+   -fragment:<i>VALUE</i>  Specify a section inside the instance XML that is to be updated or
+                    retrieved for the given operation.
+                     Example: Get the status of the spooler service
+                       winrm get wmicimv2/Win32_Service?name=spooler -fragment:Status/text()
+                     
+                     -options:{KEY="<i>VALUE</i>"[;KEY="<i>VALUE</i>"]}
+
+                     Key/value pairs for provider-specific options.
+                     
+                     Example:
+                       -options:{key1="value1";key2=$null}
+</pre>
+<p> WinRM is the Microsoft implementation of <a href="http://en.wikipedia.org/wiki/WS-Management">WS-Management Protocol</a>, a standard Simple Object Access Protocol (SOAP)-based, firewall-friendly protocol that allows hardware and operating systems, from different vendors, to interoperate.</p>
+<p>To improve security, WinRM 2.0 uses HTTP/HTTPS ports 5985/5986 by default.</p>
+<p>If the  computer name is passed using <span class="code">r:&lt;Computername&gt;</span> , then the default client port will be used (by default, 5985/5986).<br>
+If the computer name is passed as a  URI, such as <span class="code">r:http://Mycomputer/wsman</span>, then the IE default ports will be used (ports 80/443 by default).</p>
+<p><b>Examples</b></p>
+<p>Configure Windows Remote Management on the server (<span class="code">DemoServer2</span>), run this from an elevated CMD (or powershell) prompt:<br>
+<span class="code">C:\&gt; winrm quickconfig</span></p>
+<blockquote>
+<p>On a client you can then open a remote shell connected to <span class="code">DemoServer2</span> with:<br>
+<span class="code"><a href="winrs.html">winrs</a> -r:DemoServer2 cmd</span></p>
+</blockquote>
+<p>Retrieve current configuration in XML format:<br>
+<span class="code">winrm get winrm/config -format:pretty</span></p>
+<p>Retrieve spooler instance of Win32_Service class:<br>
+<span class="code">winrm get wmicimv2/Win32_Service?Name=spooler</span></p>
+<p>Modify a configuration property of WinRM:<br>
+<span class="code">winrm set winrm/config @{MaxEnvelopeSizekb=&quot;100&quot;}</span></p>
+<p>Disable a listener on this machine:<br>
+<span class="code">winrm set winrm/config/Listener?Address=*+Transport=HTTPS @{Enabled=&quot;false&quot;}</span></p>
+<p>Create instance of HTTP Listener on IPv6 address:<br>
+<span class="code">winrm create winrm/config/Listener?Address=IP:3ffe:8311:ffff:f2c1::5e61+Transport=HTTP</span></p>
+<p>Delete the HTTP listener on this machine for given IP address:<br>
+<span class="code">winrm delete winrm/config/Listener?Address=IP:192.168.2.1+Transport=HTTP</span></p>
+<p>Call StartService method on Spooler service:<br>
+<span class="code">winrm invoke StartService wmicimv2/Win32_Service?Name=spooler</span></p>
+<p>Call Create method of Win32_Process class with specified parameters:<br>
+<span class="code">winrm invoke Create wmicimv2/Win32_Process @{CommandLine=&quot;notepad.exe&quot;;CurrentDirectory=&quot;C:\&quot;}</span></p>
+<p>Display error message associated with the error code 0x5:</p>
+<p class="code"> winrm helpmsg 0x5</p>
+<p class="quote"><i>“Start where you are. Distant fields always look greener, but opportunity lies right where you are. Take advantage of every opportunity of service” ~ Robert Collier</i></p>
+<p><b>Related:</b></p>
+<p>  <a href="winrs.html">WINRS</a> - Windows Remote Shell<br>
+Powershell: <a href="http://ss64.com/ps/new-pssession.html">New-PSSession</a> - this cmdlet  now takes on two different parameter sets: ComputerName and ConnectionURI.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="winrm.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

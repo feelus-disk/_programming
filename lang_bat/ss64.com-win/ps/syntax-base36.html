@@ -1,0 +1,74 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Base 36 convert | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>PowerShell Base 36 <a href="syntax-functions.html">functions</a> </h1>
+<p>Base 36 is  the most compact case-insensitive alphanumeric numbering system. 
+Base 36 is used for Dell <i>Express Service Codes</i>, website url shorteners and many other applications which have a need to minimise human error.</p>
+<p>Convert from Decimal (base 10)  to Base 36:</p>
+<pre>
+function convertTo-Base36 {
+[CmdletBinding()]
+param ([parameter(valuefrompipeline=$true, HelpMessage=&quot;Integer number to convert&quot;)][int]$decNum=&quot;&quot;)
+$alphabet = &quot;0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
+
+do {
+  $remainder = ($decNum % 36)
+  $char = $alphabet.substring($remainder,1)
+  $base36Num = &quot;$char$base36Num&quot;
+  $decNum = ($decNum - $remainder) / 36
+ }
+while ($decNum -gt 0)
+
+$base36Num
+}</pre>
+<p># source: adapted from Tony Marston's <a href="http://www.tonymarston.net/php-mysql/converter.html">PHP code</a> </p>
+<p>Convert from Base 36 back to Decimal:</p>
+<pre>function convertFrom-base36 {
+[CmdletBinding()]
+param ([parameter(valuefrompipeline=$true, HelpMessage=&quot;Alphadecimal string to convert&quot;)][string]$base36Num=&quot;&quot;)
+$alphabet = &quot;0123456789abcdefghijklmnopqrstuvwxyz&quot;
+$inputarray = $base36Num.tolower().tochararray()
+[array]::reverse($inputarray)
+[long]$decNum=0
+$pos=0
+
+foreach ($c in $inputarray) {
+   $decNum += $alphabet.IndexOf($c) * [long][Math]::Pow(36, $pos)
+   $pos++
+}
+$decNum
+}
+</pre>
+<p># source:<a href="http://www.schnellbach.de/node/19"> Mirko's Blog</a></p>
+<p><b>Examples</b></p>
+<p class="code">PS C:\> convertTo-Base36 1645205<br> 
+Z9G5</p>
+<p class="code">PS C:\> convertFrom-base36 z9g5<br>
+1645205</p>
+<p class="quote"><i>“Failure is not fatal, but failure to change might be” - John Wooden</i></p>
+<p><b>Related:</b></p>
+<p><a href="http://ss64.com/convert.html">Online base 36 converter</a> (Javascript) 
+<!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-base36.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></p>
+</body>
+</html>

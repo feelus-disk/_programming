@@ -1,0 +1,119 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Net use - Connect to a File/Printer Share | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>NET USE</h1>
+<p>The NET utilities are NetBIOS applications, this means that they rely on <a href="http://en.wikipedia.org/wiki/Windows_Internet_Name_Service">WINS</a> (or the local LMHOSTS file) to resolve computer names to IP addresses. </p>
+<p>The <a href="net.html">NET Command</a> is used to connect to a File/Printer 
+Share as follows:</p>
+<p>Join a file share (Drive MAP)<br>
+<span class="code">&nbsp;NET USE [<i>driveletter</i>:] \\<i>ComputerName</i>\<i>ShareName</i> /PERSISTENT:YES</span></p>
+<p><span class="code">&nbsp;NET USE [<i>driveletter</i>:] \\<i>ComputerName</i>\<i>ShareName\folder1\folder2</i> /PERSISTENT:No</span></p>
+<p>  Make all future connections persistent (auto-reconnect at login)<br>
+<span class="code">&nbsp;NET USE /Persistent:Yes</span><br>
+or
+<br>
+<span class="code">&nbsp;NET USE /P:Yes</span></p>
+<p>Make all future connections non-persistent (reconnect with login script)<br>
+<span class="code">&nbsp;NET USE  /Persistent:No</span><br>
+or<br>
+<span class="code">&nbsp;NET USE /P:No</span></p>
+<p>Join a file share (Drive MAP) - with a long share name<br>
+<span class="code">&nbsp;NET USE [<i>driveletter</i>:] &quot;\\<i>ComputerName</i>\<i>ShareName</i>&quot;</span></p>
+<p>Connect a user to their HOME directory<br>
+<span class="code">&nbsp;NET USE [<i>devicename</i> | *] [<i>password</i> | *]] [/HOME]</span><br>
+This requires the users Home server/folder to be defined in ADUC<br>
+  <br>
+  Join a password protected file share (Drive MAP)<br>
+  <span class="code">&nbsp;NET USE [<i>driveletter</i>:] \\<i>ComputerName</i>\<i>ShareName</i>[\<i>volume</i>] [<i>password</i> | *] [/USER:[<i>domainname</i>\]<i>username</i>] [/PERSISTENT:No]</span><br>
+  <br>
+  In the above command /USER can also be specified as:<br>
+  <span class="code">&nbsp;[/USER:[<i>dotted domain name</i>\]<i>username</i>]<br>
+  &nbsp;[/USER:[<i>username</i>@<i>dotted domain name</i>]</span> <br>
+  <br>
+  In a script, to map a drive and wait until the mapping has completed before continuing:<br>
+  <span class="code">&nbsp;<a href="start.html">START</a> /wait NET USE [<i>driveletter</i>:] \\<i>ComputerName\ShareName</i></span><br>
+  This will be a little slower, but ensures that files can be read from the mapped drive.<br>
+  <br>
+  Join a Printer Share<br>
+  <span class="code">&nbsp;NET USE [LPTx:] \\<i>ComputerName</i>\<i>printer_share</i> /PERSISTENT:YES</span><br>
+  <br>
+  Join a Printer Share - with a &quot;long&quot; share name<br>
+  <span class="code">&nbsp;NET USE [LPTx:] &quot;\\<i>ComputerName</i>\<i>printer_share</i>&quot;</span><br>
+  <br>
+  Disconnect from a share<br>
+  <span class="code">&nbsp;NET USE [<i>driveletter</i>:] /DELETE</span></p>
+<p>Disconnect from a share and close all resources (undocumented) <br>
+<span class="code">&nbsp;NET USE [<i>driveletter</i>:] /DELETE /Y </span></p>
+<p><b>Examples</b></p>
+<p><span class="code">NET USE H: /Home<br>
+  NET USE J: \\MainServer\Users\%Username%<br>
+  NET USE W: \\MainServer\GroupShare /Persistent:No<br>
+  NET USE \\MainServer\SharedPrinter</span><br>
+  <br>
+  NET USE command can map a network printer to an
+  LPT port (for DOS type applications that print to a port.) but this does not
+  add the printer to the Control Panel GUI.</p>
+<p>  By default all mapped
+  drives have a 15 minute<i> idle session
+  timeout</i>, you can modify this  with the <a href="net_config.html">NET
+CONFIG</a> command. In windows XP the explorer icon will change to show this change in status, this behaviour is designed to improve  overall performance.</p>
+<p><b>Drive Descriptions</b></p>
+<p>Recent versions of Windows  display a drive description for 
+each share, this can be edited in the  Explorer 
+  GUI. The text is stored in the registry.</p>
+<pre>
+HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2\##<i>ComputerName</i>#<i>ShareName</i>
+_LabelFromReg=&lt;<i>description of drive mapping</i>&gt;
+   (string REG_SZ)</pre>
+<p> <i class="quote">&ldquo;Two roads diverged in a wood, and I-<br>
+I took the one less traveled by,<br>
+And that has made all the difference&rdquo; ~ Robert Frost</i><br>
+ <br>
+  <b>Related:<br>
+  </b><br>
+ VB Script: <a href="http://ss64.com/vb/drivemap.html">MapDrive</a>  [ <a href="http://ss64.com/vb/syntax-mapdrive.html">example</a> ]<br>
+VB Script: <a href="http://ss64.com/vb/addwinprinter.html">Add Printer Connection</a>  [<a href="syntax-printing.html">Examples</a>]<br>
+  <a href="net.html">NET</a> - Manage network resources<br>
+<a href="net_share.html">NET SESSION</a> - List or disconnect open files<br>
+  <a href="net_share.html">NET SHARE</a> - Create file share<br>
+  OPENFILES - List or disconnect open files, local or remote (Win XP)<br>
+<a href="prnmngr.html">PRNMNGR</a> - Add, delete, list printers and printer connections.<br>
+  <a href="pushd.html">PUSHD</a> -  map to a drive share<br>
+  <a href="rmtshare.html">RMTSHARE</a> - List or edit a file share or print share (on any computer)<br>
+  <a href="rundll32.html">RUNDLL32</a> - Add/remove print <i>connections</i><br>
+  <a href="share.html">SHARE</a> - List or edit a file share or print share<br>
+  <a href="wmic.html">WMIC NETUSE</a> - WMI access to drive mappings<br>
+  fsmgmt.msc - List or disconnect open files - (Win XP GUI)<br>
+  Drmapsrv - Drive Share for use with Terminal Services (Win 2K Server <a href="http://ss64.com/links/windows.html#kits">Resource 
+  Kit</a>)<br>
+Equivalent bash command (Linux):  <a href="http://ss64.com/bash/lpc.html">lpc</a> - line printer control program</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="net_use.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

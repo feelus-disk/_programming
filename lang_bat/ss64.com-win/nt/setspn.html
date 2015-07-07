@@ -1,0 +1,144 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<style type="text/css">
+.grey {
+	color: #666;
+}
+</style>
+<title>Setspn | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>SETSPN.exe (Windows 2003/2008 or via <abbr title="Active Directory Domain Services or the AD LDS server role">AD DS</abbr>)</h1>
+<p>Read, modify, or delete the Service Principal Names (SPN) for an Active Directory service account.</p>
+<pre>Syntax
+      SETSPN [<i>modifiers switch</i>] [<i>accountname</i>]
+
+Key
+   <i>accountname</i>  The name or domain\name of the target computer or user account
+
+   Edit Mode Switches:
+   -R = reset HOST ServicePrincipalName
+        Usage:  setspn -R <i>accountname</i>
+
+   -A = add arbitrary SPN  
+        Usage:  setspn -A <i>SPN accountname</i>
+
+   -S = add arbitrary SPN after verifying no duplicates exist
+        Usage:  setspn -S <i>SPN </i>accountname
+
+   -D = delete arbitrary SPN
+        Usage:  setspn -D <i>SPN accountname</i>
+
+   -L = list SPNs registered to target account
+        Usage:  setspn [-L] <i>accountname</i>   
+
+  Edit Mode Modifiers:
+   -C = <i>accountname</i> is a computer account
+   -U = <i>accountname</i> is a user account
+   
+        Note: -C and -U are exclusive.  If neither is specified, setspn
+        will interpret <i>accountname</i> as a computer name if such a computer
+        exists, and a user name if it does not.
+
+  Query Mode Switches:
+   -Q = query for existence of SPN
+        Usage:  setspn -Q <i>SPN</i>
+
+   -X = search for duplicate SPNs
+        Usage:  setspn -X</pre>
+<blockquote>
+<p> searching for duplicates, especially forestwide, can take
+a long period of time and a large amount of memory.<br>
+<span class="code">-Q</span> will execute
+on each target domain/forest.  <br>
+<span class="code">-X</span> will return duplicates that exist
+across all targets. SPNs are not required to be unique across forests,
+but duplicates can cause authentication issues when authenticating
+cross-forest.<br>
+</p>
+</blockquote>
+<pre>
+  Query Mode Modifiers:
+   -P = suppress progress to the console, use when redirecting output to a file or 
+        in an unattended script. There will be no output until the command is complete.
+
+   -F = perform queries at the forest, rather than domain level
+
+   -T = perform query on the specified domain or forest (when -F is also used)
+        Usage:  setspn -T domain (switches and other parameters)
+        "" or * can be used to indicate the current domain or forest.
+</pre>
+<blockquote>
+<p> Note: these modifiers can be used with the -S switch in order to specify
+where the check for duplicates should be performed before adding the SPN.
+Note: -T can be specified multiple times.</p>
+</blockquote>
+<p>SPNs are set up automatically when a computer joins a domain (and when some services are installed). Some services and applications (e.g. SharePoint) require manual modification of a service account's SPN information to authenticate correctly.</p>
+<p>If the computer name or Alias is changed, the SPNs for installed services must be changed to match.</p>
+<p>Use <span class="code">Setspn -S</span> in preference to  <span class="code">Setspn -A</span>, the <span class="code">-S</span> will verify that there are no duplicate SPNs. However, on Windows Server 2003, the -S switch is only available if you update to the SetSPN version from <a href="http://support.microsoft.com/kb/970536">Q970536</a>. Alternatively verify  manually that there are no duplicates by running <span class="code">Setspn -L</span></p>
+<p><span class="code">setspn</span> must be run from an elevated command prompt.</p>
+<p>  Administrators with only delegated authority (non domain administrators) will require the <i>Validated write to service principle name</i> permission to configure service principal names (SPNs).</p>
+<h2>SPN Format</h2>
+<p>When you manipulate SPNs with  setspn, the SPN must be entered in the correct format. The format of an SPN is <span class="code"><i>serviceclass/host:port/servicename</i></span>, in which each item represents a <i>name</i> or <i>value</i>. <br>
+Unless the service name and port are non standard, you do not have to enter them.</p>
+<p> For example, the default SPNs for a server named <span class="code">Server64</span> that is providing remote desktop (RDP) services (<span class="code">TERMSRV</span>) over the default port (TCP 3389) register the following two SPNs in its own Active Directory computer object: <br>
+<span class="code">TERMSRV/Server64<br>
+TERMSRV/Server64.ss64.com</span></p>
+<p><b>Examples</b></p>
+<p>View a list of the SPNs that the  computer <span class="code">server64</span> has registered with Active Directory from a command prompt:</p>
+<p class="code">setspn –l server64<a href="hostname.html"></a></p>
+<p>View a list of the SPNs that the local computer has registered with Active Directory from a command prompt:</p>
+<p class="code">setspn –l <a href="hostname.html">hostname</a></p>
+<p>Reset the SPNs for the computer <span class="code">server64</span> back to the default:</p>
+<p class="code">setspn -r server64</p>
+<p>Add an SPN for LDAP to an AD domain controller with the host name <span class="code">dc1.ss64.com</span>:</p>
+<p class="code">setspn -s ldap/dc1.ss64.com dc1</p>
+<p>Delete the SPN for LDAP from an AD domain controller with the host name <span class="code">dc1.ss64.com</span>:</p>
+<p class="code">setspn -d ldap/dc1.ss64.com dc1</p>
+<p>Create an alias name for a server:</p>
+<blockquote>
+<p>Create a CNAME record (not a normal Host(A) record.) in DNS:</p>
+<p>Set the <span class="code"><a href="http://support2.microsoft.com/?id=281308">DisableStrictNameChecking</a></span> key in the registry:<br>
+<span class="code">HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\LanmanServer\Parameters<br>
+DisableStrictNameChecking</span> Data type: REG_DWORD<br>
+Set  Value: <span class="code">1 </span></p>
+<p>On the server create SPN's for the flat name and the fully qualified name of the cname alias:<br>
+<span class="code">setspn -S host/<i>your_ALIAS_name ServerName</i><br>
+setspn -S host/<i>your_ALIAS_name.domain.com ServerName</i></span></p>
+<p>Then <b><a href="shutdown.html">reboot</a></b> the Host.</p>
+</blockquote>
+<p class="quote"><i>&ldquo;I have the world's worst taste in men, so now I simply have wonderful relationships of the friend kind, but trying to settle down with somebody? No, no, no, no, no, no, no. I'm beyond that&rdquo; ~ </i><i>Harvey Fierstein</i></p>
+<p><b> Related commands:</b></p>
+<p>RepAdmin - Diagnose Active Directory replication problems between domain controllers.<br>
+<a href="http://technet.microsoft.com/en-us/library/cc731968.aspx">DcDiag</a> - Analyze the state of domain controllers and report any problems.<br>
+DsMgt - Manage password operations over unsecured connections, AD Lightweight Directory Services application partitions, flexible single master operations (FSMO), and clean up AD metadata.<br>
+TechNet - <a href="http://go.microsoft.com/fwlink/?LinkId=198395">Troubleshooting SPN Issues</a><br>
+</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="setspn.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Send-MailMessage | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Send-MailMessage</h1>
+<p>Send an email message.</p>
+<pre>Syntax
+      Send-MailMessage [-To] <i>string</i>[] [-Subject] <i>string</i> -From <i>string
+        </i> [[-Body] <i>string</i>] [[-SmtpServer] <i>string</i>] [-Attachments <i>string</i>[]]
+            [-Bcc <i>string</i>[]]  [-Cc <i>string</i>[]] [-BodyAsHtml]
+               [-Credential <i>PSCredential</i>] [-DeliveryNotificationOption <i>NotifyOptions</i>]
+                  [-Encoding <i>Encoding</i>] [-Priority <b>{</b>Normal <b>|</b> Low <b>|</b> High<b>}</b>]
+                     [-UseSsl] [<i>CommonParameters</i>]
+
+Key
+   -Attachments <i>string</i>[]
+       The path and file names of files to be attached to the email message.
+       Use this parameter or pipe the path/file names.
+
+   -Bcc <i>string</i>[]
+       Email addresses that receive a copy of the mail but are not listed as recipients of the message.
+       Enter names (optional) and the email address, such as &quot;Name &lt;someone@example.com&gt;&quot;
+
+   -Body string
+       The body (content) of the email message.
+
+   -BodyAsHtml
+       Indicates that the value of the Body parameter contains HTML.
+
+   -Cc <i>string</i>[]
+       Email addresses to which a carbon copy (CC) of the email message is sent.
+       Enter names (optional) and the email address, such as &quot;Name &lt;someone@example.com&gt;&quot;.
+
+   -Credential <i>PSCredential</i>
+       A user account that has permission to perform this action. The default is the current user.
+
+       Type a user name, such as &quot;User64&quot; or &quot;Domain64\User64&quot;. Or, enter a PSCredential object,
+       such as one from the Get-Credential cmdlet.
+
+   -DeliveryNotificationOption
+       Delivery notifications (if accepted by the recipient) will be passed back to the email address
+       specified in the -From parameter. The alias for this parameter is &quot;-dno&quot;.
+
+       <i>NotifyOptions</i>:
+
+          <u>None</u>        No notification.
+          OnSuccess   Notify if the delivery is successful.
+          OnFailure   Notify if the delivery is unsuccessful.
+          Delay       Notify if the delivery is delayed.
+          Never       Never notify.
+
+   -Encoding <i>Encoding</i>
+       The encoding used for the body and subject.
+       Valid values are <u>ASCII</u>, UTF8, UTF7, UTF32, Unicode, BigEndianUnicode, Default, and OEM.
+
+   -From <i>string</i>
+       The address from which the mail is sent.
+       Enter a name (optional) and email address, such as &quot;Name &lt;someone@example.com&gt;&quot;. This parameter is required.
+
+   -Priority <i>MailPriority</i>
+       The priority of the email message.
+       The valid values for this are <u>Normal</u>, High, and Low.
+
+   -SmtpServer <i>string</i>
+       The name of the SMTP server that sends the email message.
+
+       The default value is the value of the $PSEmailServer preference variable.
+       If the preference variable is not set and this parameter is omitted, the command fails.
+
+   -Subject <i>string</i>
+       The subject of the email message. This parameter is required.
+
+   -To <i>string</i>[]
+       The addresses to which the mail is sent.
+       Enter names (optional) and the email address, such as &quot;Name &lt;someone@example.com&gt;&quot;. Required.
+
+   -UseSsl
+       Use the Secure Sockets Layer (SSL) protocol to establish a connection to the remote computer 
+       to send mail. By default, SSL is not used.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p><b>Examples</b></p>
+<p>Send an email (with no body) from User01 to User02:</p>
+<p><span class="code">C:\PS> send-mailmessage -to &quot;User01 &lt;user01@example.com&gt;&quot; -from &quot;User02 &lt;user02@example.com&gt;&quot; -subject &quot;Test mail&quot;</span></p>
+<p>Send a high priority email with an attachment from User01 to two other users:</p>
+<p><span class="code">C:\PS> send-mailmessage -from &quot;User01 &lt;user01@example.com&gt;&quot; -to &quot;User02 &lt;user02@example.com&gt;&quot;, &quot;User03 &lt;user03@examp<br>
+le.com&gt;&quot; -subject &quot;Sending the Attachment&quot; -body &quot;Forgot to send the attachment. Sending now.&quot; -Attachment &quot;data.cs<br>
+v&quot; -priority High -dno onSuccess, onFailure -smtpServer smtp.fabrikam.com</span></p>
+<p> Send an email message from User01 to the ITGroup mailing list with a copy (CC) to User02 and a blind
+carbon copy (BCC) to the IT manager (ITMgr).: </p>
+<p><span class="code">C:\PS> send-mailmessage -to &quot;ITGroup &lt;itdept@example.com&gt;&quot; -from  &quot;User01 &lt;user01@example.com&gt;&quot; -cc &quot;User02 &lt;user02@example.com&gt;&quot; -bcc ITMgr &lt;itmgr@example.com&gt; -subject &quot;Don't forget today's meeting!&quot; -credential domain64\admin01 -useSSL</span></p>
+<p>Send an email message containing <a href="http://ss64.com/unicode.html">unicode</a> characters: </p>
+<p class="code">Send-MailMessage -subject &quot;Föreign chäräcters&quot; -Body 'voilà h&ecirc;re is y&ouml;ur mess&atilde;ge' -to &quot;User01 &lt;user01@example.com&gt;&quot; -from &quot;User02 &lt;user02@example.com&gt;&quot; -Encoding UTF8 </p>
+<p class="quote"><i>“Learning music by reading about it is like making love by mail” ~ 
+Luciano Pavarotti</i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="out-printer.html">Out-Printer</a> - Send the output to a printer</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="send-mailmessage.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

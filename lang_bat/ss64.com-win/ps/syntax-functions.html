@@ -1,0 +1,96 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Functions | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Functions</h1> 
+<p>A block of code may be contained within a function for easy re-use.<br>
+To create a function, call the <b>function</b> keyword followed by a name for the function,  then include your code inside a pair of curly braces.</p>
+<p class="code"><b>function</b> AddNumbers<br>
+<b>{</b>$args[0] + $args[1]<b>}</b></p>
+<p class="code">AddNumbers 5 10</p>
+<p>To display the  definition of a function several methods can be used:</p>
+<p><span class="code">cat function:AddNumbers<br>
+${function:AddNumbers}<br>
+(get-command AddNumbers).definition</span><br>
+</p>
+<p>To list all functions in the current session:<span class="code"> <a href="get-command.html">get-command</a> -CommandType function</span></p>
+<p>N.B in a block of code you need to define the function <b>before </b>you call it.</p>
+<p>Don't add brackets around the function parameters:</p>
+<p><span class="code">$result = AddNumbers (5, 10) --Wrong!</span><br>
+<span class="code">$result = AddNumbers 5 10 &nbsp;&nbsp;&nbsp;--Right</span></p>
+<p>PowerShell does not save functions or filters permanently by default. So if you close and reopen PowerShell, the function/filter will no longer be available. To make it permanent, add the function to your PowerShell <a href="syntax-profile.html">$Profile</a> file.</p>
+<p>When you call the function name, the code within the function will run, A function can accept imported values either as arguments or through the  pipeline. If the function returns any values, they can be assigned to variables or passed to other functions or cmdlets.</p>
+<p>Function or Filter definition:</p>
+<pre class="code"><b>function</b> [<i>scope_type</i>:]<i>name</i>
+ { 
+  [ param(<i>param_list</i>) ]
+   <i>script_block
+ </i>}</pre>
+<pre class="code"><b>filter</b> [<i>scope_type</i>:]<i>name</i>
+ {
+  [ param(<i>param_list</i>) ]
+  <i>script_block</i> 
+ }</pre>
+<p>The difference between a filter function and a regular function is the way they handle items passed through the pipeline:</p>
+<p>With a regular function, pipeline objects  are bound to the<span class="code"> $input</span> <a href="syntax-automatic-variables.html">automatic variable</a>, and execution is blocked until all input is received. The function then begins processing the data.</p>
+<p>With a filter function, data is processes while it is being received, without waiting for all input. A filter receives each object from the pipeline through the <span class="code">$_</span> <a href="syntax-automatic-variables.html">automatic variable</a>, and the script block is processed for each object.</p>
+<p>The <span class="code"><i>param_list</i></span> is an optional list of comma separated parameter names, these may also be preceded by their data types in brackets. This makes the function more readable than  using <span class="code">$args</span> and also gives you the option to supply default values.</p>
+<h2>Advanced functions</h2>
+<p>Advanced PowerShell functions contains the <span class="code">[cmdletbinding()]</span> attribute. This adds several capabilities such as additional parameter checking, and the ability to easily use <a href="write-verbose.html">Write-Verbose</a>. <br>
+A function with cmdletbinding  will throw an error if unhandled parameter values appear on the command line.</p>
+<p>Advanced PowerShell functions typically include <a href="syntax-function-input.html">Begin..Process..End</a> blocks for processing the input data,  documentation and auto-help, including the <a href="syntax-args.html">parameters</a>. See Joel Bennett's <a href="http://huddledmasses.org/a-guide-to-advanced-functions/"> guide to PowerShell’s Advanced Functions</a> for more.</p>
+<h2>Scope</h2>
+<p>By default, all variables created in functions are local, they only exist within the function (they are still visible if you call a second function from within this one.)</p>
+<p>To persist a variable, so the function can be called repeatedly and the variable will retain it's last value, prepend <span class="code">$script:</span> to the variable name, e.g. <span class="code">$script:myvar</span></p>
+<p>To make a variable global prepend <span class="code">$global:</span> to the variable name, e.g. <span class="code">$global:myvar</span></p>
+<p><b>Examples</b></p>
+<p>A function to find all files on the C: drive owned by a particular user:</p>
+<pre><b> function</b> ownedBy
+<b> {</b>
+   Get-ChildItem -recurse C:\ | get-acl | where {$_.Owner -match <span class="code">$args[0]</span>} 
+<b> }<br></b><br>PS C:\&gt; ownedBy JackFrost</pre>
+<p>A filter to display only files smaller than a given size:</p>
+<pre><b> filter</b> FileSizeBelow($size) <b>{</b> if ($_.length -le $size) { $_ } <b>}</b></pre>
+<p class="code">PS C:\&gt; gci \\server64\workgroups -filter | <b>FileSizeBelow</b> 200kb<br>
+PS C:\&gt; gci -recurse \\server64\workgroups | ?{!$_.PSIsContainer} | <b>FileSizeBelow</b> 100mb</p>
+<p>A function with default values:</p>
+<pre><b> function</b> demo<b>
+ {</b>
+  param<b>(</b>[string]$description = &quot;unknown&quot;,
+        [int]$price = 100<b>)</b>
+  Write-Output &quot;$description ..... $price&quot;
+<b> }</b>
+
+PS C:\&gt; demo Hammer 250</pre>
+<p>A filter to find files owned by a specific user: </p>
+<pre><b> filter</b> ownedbyme
+<b> {</b>
+  if ($_.Owner -match &quot;JackFrost&quot;) {$_}
+<b> }</b>
+
+PS C:\&gt; <a href="get-childitem.html">gci</a> -recurse C:\ | Get-Acl | where {$_ | <b>ownedbyme</b>}</pre>
+<p class="quote"><i>&ldquo;The function of the imagination is not to make strange things settled, so much as to make settled things strange&rdquo; ~ G. K. Chesterton</i></p>
+<p><b>Related:</b></p>
+<p><a href="syntax-function-input.html">Begin..Process..End</a> - Function Input Processing<br>
+<a href="syntax-ref.html">Ref vars</a> - Passing a reference variable to a function. </p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-functions.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

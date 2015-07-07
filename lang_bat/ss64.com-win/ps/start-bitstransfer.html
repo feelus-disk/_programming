@@ -1,0 +1,201 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Start-BitsTransfer | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Start-BitsTransfer</h1> 
+<p>Create a new Background Intelligent Transfer Service (BITS) transfer job.</p>
+<pre>Syntax
+      Start-BitsTransfer [-Source] <i>string</i>[] [[-Destination] <i>string</i>[]]
+         [-Asynchronous] [-Authentication <i>string</i>] [-Credential <i>PSCredential</i>]
+            [-Description <i>string</i>] [-DisplayName <i>string</i>] [-Priority <i>string</i>]
+               [-ProxyAuthentication <i>string</i>] [-ProxyBypass <i>string</i>[]]
+                  [-ProxyCredential <i>PSCredential</i>] [-ProxyList Uri[]]
+                     [-ProxyUsage <i>string</i>] [-RetryInterval <i>int</i>]
+                        [-RetryTimeout int] [-Suspended] [-TransferType <i>string</i>]
+                           [-Confirm] [-WhatIf] [<a href="common.html"><i>CommonParameters</i></a>]
+
+Key
+   -BitsJob <i>BitsJob</i>[]
+       The BITS transfer job(s) to modify.
+       Pipe a value to this parameter from other cmdlets that return BitsJob objects, such as Get-BitsTransfer.
+
+   -Asynchronous
+       Allow the BITS transfer job to be created and then processed in the background.
+       The command prompt reappears immediately after the BITS transfer job is created.
+       The returned BitsJob object can be used to monitor job status and progress.
+
+   -Authentication <i>string</i>
+       The authentication mechanism to be used at the server.
+       Possible values:
+         Basic      Send the username and password in clear text to the server or proxy.
+         Digest     A challenge-response scheme using a server-specified data string.
+         NTLM       A challenge-response scheme using the Windows credentials of the
+                    user for domain authentication.
+         <u>Negotiate</u>  A challenge-response scheme that negotiates with the server or proxy to
+                    determine which scheme to use. For example: Kerberos or NTLM.
+         Passport   Use Windows Live ID as the authentication mechanism (live.com).
+
+   -Credential <i>PSCredential</i>
+       The credentials to use to authenticate the user at the server.
+       The default is the current user. Type a user name, such as "User64", "Domain64\User64"
+       or "User@example.com". Or use <a href="get-credential.html">Get-Credential</a> to create the value for this parameter.
+       When you type a user name, you will be prompted for a password.
+
+   -Description <i>string</i>
+       Up to 1024 characters.
+
+   -Destination <i>string</i>[]
+       The destination location and the names of the files to transfer.
+       The destination names are paired with the corresponding source file names.
+       For example, the first file name specified in the -Source parameter corresponds to the
+       first file name in the -Destination parameter, and the second file name in the -Source
+       parameter corresponds to the second file name in the Destination parameter.
+       The Source and Destination parameters must have the same number of elements.
+
+   -DisplayName <i>string</i>
+       The display name provides a user-friendly way to differentiate BITS transfer jobs.
+
+   -Priority <i>string</i>
+       Set the priority of the BITS transfer job, which affects bandwidth usage.
+       Background transfers use the idle network bandwidth of the client computer to transfer files.
+       valid values:
+        <u>Foreground</u> Transfer the job in the foreground. (highest priority)
+                   Foreground transfers compete for network bandwidth with other applications,
+                   which can impede the user's overall network experience.
+                   However, if Start-BitsTransfer is being used interactively, this is likely the best option.
+
+        High       Transfer the job in the background with a high priority.              
+        Normal     Transfer the job in the background with a normal priority. 
+        Low        Transfer the job in the background with a low priority.(lowest priority)
+
+   -ProxyAuthentication <i>string</i>
+       The authentication mechanism to be used at the server.
+       Possible values:
+         Basic      Send the username and password in clear text to the server or proxy.
+         Digest     A challenge-response scheme using a server-specified data string.
+         NTLM       A challenge-response scheme using the Windows credentials of the
+                    user for domain authentication.
+         <u>Negotiate</u>  A challenge-response scheme that negotiates with the server or proxy to
+                    determine which scheme to use. For example: Kerberos or NTLM.
+         Passport   Use Windows Live ID as the authentication mechanism (live.com).
+
+   -ProxyBypass <i>string</i>[]
+       A list of host names to use for a direct connection.
+       The hosts in the list are tried in order until a successful connection is achieved.
+       Specifying this parameter bypasses the proxy.
+       If this parameter is used, the -ProxyUsage parameter <b>must</b> be set to Override.
+
+   -ProxyCredential <i>PSCredential</i>
+       The credentials to use to authenticate the user at the proxy. 
+       Use <a href="get-credential.html">Get-Credential</a> to create a value for this parameter.
+
+   -ProxyList <i>Uri</i>[]
+       A list of proxies to use.
+       The proxies in the list are tried in order until a successful connection is achieved.
+       If this parameter is used, the -ProxyUsage parameter <b>must</b> be set to Override.
+
+   -ProxyUsage <i>string</i>
+       The proxy usage settings. Possible values:
+          <u>SystemDefault</u> Use the system default proxy settings.
+          NoProxy       Do not use a proxy to transfer the files.
+                        Use this option to transfer files within a local area network (LAN).
+          AutoDetect    Automatically detect proxy settings.
+                        BITS detects proxy settings for each file in the job.
+          Override      Specify the proxies or servers to use.
+                        If the -ProxyList parameter is also specified, the proxies in that list are used.
+                        If the -ProxyBypass parameter is also specified, the servers in that list are used.
+                        In both cases, the first member of the list is used. If the first member is
+                        unreachable, the subsequent members are tried until a member is contacted successfully.
+
+   -RetryInterval <i>int</i>
+       The minimum length of time, in seconds, that BITS waits before trying to transfer the file
+       after BITS encounters a transient error.
+       The minimum allowed value is 60 seconds. If this value exceeds the RetryTimeout value from
+       the BitsJob object, BITS will not retry the transfer. Instead, BITS sets the state of the
+       BITS transfer job to the Error state.  The default is 600 seconds (10 minutes).
+
+   -RetryTimeout <i>int</i>
+       The length of time, in seconds, that BITS tries to transfer the file after the first
+       transient error occurs. Setting the retry period to 0 prevents retries.
+       If the retry period value exceeds the JobInactivityTimeout Group Policy setting (90-day default),
+       BITS cancels the job.  The default value is 1,209,600 seconds (14 days).
+
+   -Source <i>string</i>[]
+       The source location and the names of the files to transfer.
+       The source file names are paired with the corresponding destination file names. For example,
+       the first file name specified in the -Source parameter corresponds to the first file name in
+       the -Destination parameter, and the second file name in the -Source parameter corresponds to
+       the second file name in the -Destination parameter.
+       The Source and Destination parameters must have the same number of elements.
+       Accepts standard wildcard characters asterisk (*) and question mark (?).
+       Or you can use a range operator such as "[a-r]".
+
+   -Suspended
+       Suspend the BITS transfer job.
+       If the Suspended parameter is not specified, the job automatically begins the transfer job.
+       If the Suspended parameter is specified, the command prompt returns immediately after the
+       BITS transfer job is created. You can use <a href="resume-bitstransfer.html">Resume-BitsTransfer</a> to start the transfer job.
+
+   -TransferType <i>string</i>
+       The BITS transfer job type. Possible values are:
+          <u>Download</u>     Download files to the client computer.
+          Upload       Upload a file to the server.
+          UploadReply  Upload a file to the server and receive a reply file from the server.
+
+   -Confirm
+       Prompt for confirmation before executing the command.
+
+   -WhatIf
+       Describe what would happen if you executed the command, without actually executing the command.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Start-BitsTransfer  creates a new BITS transfer job to transfer one or more files between a client computer and a server. The -TransferType parameter specifies the direction of the transfer. By default, after the cmdlet begins the transfer, the command prompt is not available until the transfer is complete or until the transfer enters an error state. If the state of the returned BitsJob object is Error, the error code and description are contained in the object and can be used for analysis.</p>
+<p>The Start-BitsTransfer cmdlet supports downloading multiple files from a server to a client computer, but it does not generally support uploading multiple files from a client computer to a server. To upload more than one file, pipe the output from <a href="import-csv.html">Import-CSV</a>   to <a href="add-bitsfile.html">Add-BitsFile</a>. Or, consider using a cabinet file (.cab) or a compressed file (.zip).</p>
+<p><b>Examples</b></p>
+<p>Create a new BITS transfer job that downloads a file from a server:</p>
+<p><span class="code">PS C:\&gt; Start-BitsTransfer <b>-Source</b> http://server64/demodir/file1.txt <b>-Destination</b> c:\demo\file1.txt<br>
+</span>Or in short form:<span class="code"><br>
+PS C:\&gt; Start-BitsTransfer http://server64/demodir/file1.txt c:\demo\file1.txt</span></p>
+<p>Create a new BITS transfer job that downloads multiple files from a server:</p>
+<p><span class="code">PS C:\&gt; Import-CSV filelist.txt | Start-BitsTransfer</span></p>
+<p>filelist.txt<br>
+<span class="code">Source, Destination<br>
+http://server64/demodir/file1.txt, c:\demo\file1.txt <br>
+http://server64/demodir/file2.txt, c:\demo\file2.txt <br>
+http://server64/demodir/file3.txt, c:\demo\file3.txt</span></p>
+<p>Create a new BITS transfer job that uploads a file to a server:</p>
+<pre>PS C:\&gt; <span class="code">Start-BitsTransfer <b>-Source</b> c:\demo\file1.txt <b>-Destination</b> http://server64/demodir/file1.txt</span> -TransferType Upload</pre>
+<p>Create a new BITS transfer job that downloads two files from a server:</p>
+<pre>PS C:\&gt; <span class="code">Start-BitsTransfer <b>-Source</b> http://server64/demodir/file1.txt, http://server64/demodir/file2.txt <b>-Destination</b> c:\demo\file1.txt, c:\demo\file2.txt</span></pre>
+<p>Download multiple files from a server:</p>
+<pre>PS C:\&gt; Start-BitsTransfer -Source http://<span class="code">server64/demodir/</span>*.* -Destination c:\<span class="code">demo</span>\</pre>
+<p>Download a file  using a specific set of credentials:</p>
+<pre>PS C:\&gt; $c = Get-Credential<br>Start-BitsTransfer -DisplayName MyJob -Credential $c -Source http://<span class="code">server64/demodir</span>/file1.txt -Destination c:\demo\file1.txt</pre>
+<p class="quote"><i>“It is harder to conceal ignorance than to acquire knowledge” ~ Arnold H. Glasgow</i></p>
+<p><b>Related:</b></p>
+<p><a href="complete-bitstransfer.html">Complete-BitsTransfer</a> - Complete a BITS transfer<br>
+<a href="get-bitstransfer.html">Get-BitsTransfer</a> - Get a single or multiple BITS transfer<br>
+<a href="bits.html">BITS PowerShell cmdlets</a></p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="start-bitstransfer.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

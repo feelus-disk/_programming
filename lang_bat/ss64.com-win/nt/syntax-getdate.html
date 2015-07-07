@@ -1,0 +1,88 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>GetDate | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>GetDate.cmd</h1>
+<p>Display the date and time independent of OS Locale, Language or the users chosen date format (Control Panel/Regional).</p>
+<p>Method 1 - Calling a VBScript <a href="http://ss64.com/vb/syntax-getdate.html">getdate.vbs</a> for Windows XP or greater</p>
+<pre>@Echo off
+For /f %%G in ('cscript /nologo <b>getdate.vbs</b>') do set _dtm=%%G
+Set _yyyy=%_dtm:~0,4%
+Set _mm=%_dtm:~4,2%
+Set _dd=%_dtm:~6,2%
+Set _hh=%_dtm:~8,2%
+Set _nn=%_dtm:~10,2%
+Echo %_yyyy%-%_mm%-%_dd%T%_hh%:%_nn%</pre>
+<p>Method 2 - Calling <a href="wmic.html">WMIC</a> for Windows XP Professional or Vista/Windows 7</p> 
+<pre>@Echo off
+:: Check WMIC is available
+WMIC.EXE Alias /? >NUL 2>&1 || GOTO s_error
+
+:: Use WMIC to retrieve date and time
+FOR /F "skip=1 tokens=1-6" %%G IN ('<b>WMIC</b> Path Win32_LocalTime Get Day^,Hour^,Minute^,Month^,Second^,Year /Format:table') DO (
+   IF "%%~L"=="" goto s_done
+      Set _yyyy=%%L
+      Set _mm=00%%J
+      Set _dd=00%%G
+      Set _hour=00%%H
+      SET _minute=00%%I
+)
+:s_done
+
+:: Pad digits with leading zeros
+      Set _mm=%_mm:~-2%
+      Set _dd=%_dd:~-2%
+      Set _hour=%_hour:~-2%
+      Set _minute=%_minute:~-2%
+
+:: Display the date/time in ISO 8601 format:
+Set _isodate=%_yyyy%-%_mm%-%_dd% %_hour%:%_minute%
+Echo %_isodate%
+
+GOTO:EOF
+
+:s_error
+Echo GetDate.cmd
+Echo Displays date and time independent of OS Locale, Language or date format.
+Echo Requires Windows XP Professional, Vista or Windows 7
+Echo.
+Echo Returns 6 environment variables containing isodate,Year,Month,Day,hour and minute.
+Based on the <a href="http://www.robvanderwoude.com/files/sortdate5_xp.txt">sorted date</a> code by Rob van der Woude.</pre>
+<p>Previous <a href="http://www.robvanderwoude.com/amb_datetime.php">versions</a> of this script (for Windows XP) used the DATE command, under Windows 7 this now gives different output strings dependent on the short date format and OS Language.
+<p class="quote"><i>&quot;I've been on the calendar, but never on time&quot; ~ Marilyn Monroe </i></p>
+<p><b>Related</b>
+<p><a href="http://ss64.com/vb/syntax-getdatetime.html">datetime.vbs</a> - Get Date, Time and daylight savings (VB Script)<br>
+<a href="http://stackoverflow.com/questions/11124572/what-is-the-windows-equivalent-of-the-command-dates/11128674#11128674">Get UNIX format date</a> - Dave Benham / StackOverflow (WMIC)<br>
+<a href="http://ss64.com/dates.html">Standard date and time notation</a> - YYYY-MM-DD<br>
+<a href="http://www.robvanderwoude.com/datetiment.html">Date/Time scripts</a> - Rob van der Woude<br>
+<a href="http://www.commandline.co.uk/cmdfuncs/dandt/index.html">Date/Time scripts</a> - Ritchie Lawrence<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-getdate.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

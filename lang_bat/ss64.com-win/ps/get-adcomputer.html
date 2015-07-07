@@ -1,0 +1,180 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Get-ADComputer | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Get-ADComputer</h1>
+<p>Get one or more Active Directory computers.</p>
+<pre>Syntax
+      Get-ADComputer [-Identity] <i>ADComputer</i>
+         [-AuthType {<u>Negotiate</u> | Basic}] [-Credential <i>PSCredential</i>]
+            [-Partition <i>string</i>] [-Properties <i>string</i>[]]
+               [-Server <i>string</i>] [<i>CommonParameters</i>]
+    
+      Get-ADComputer <b>{</b> -Filter <i>string</i> | -LDAPFilter <i>string</i> <b>}</b>
+         [-ResultPageSize <i>int</i>] [-ResultSetSize <i>Int32</i>]
+            [-SearchBase <i>string</i>] [-SearchScope {Base | OneLevel | Subtree}]
+               [-AuthType {<u>Negotiate</u> | Basic}] [-Credential <i>PSCredential</i>]
+                  [-Partition <i>string</i>] [-Properties <i>string</i>[]]
+                     [-Server <i>string</i>] [<i>CommonParameters</i>]
+
+Key
+   -AuthType {<u>Negotiate</u> | Basic}
+       The authentication method to use:
+          Negotiate or 0
+          Basic or 1
+       A Secure Sockets Layer (SSL) connection is required for the Basic authentication method.
+
+   -Credential <i>PSCredential</i>
+	    A user account that has permission to perform this action.
+       The default is the current user unless the cmdlet is run from an AD PowerShell provider drive
+       in which case the account associated with the drive is the default.
+
+       &quot;User64&quot; or &quot;Domain01\User64&quot; or a <a href="get-credential.html">PSCredential</a> object.
+
+   -Filter { <i>string</i> }
+       A query string that retrieves Active Directory objects.
+       This string uses the PowerShell Expression Language syntax.
+       Supported Operators: -eq -le -ge -ne -lt -gt -approx -bor -band -recursivematch -like -notlike -and -or -not
+       Also see about_ActiveDirectory_Filter. 
+
+   -Identity <i>ADComputer</i>
+       An AD computer object:
+
+          Distinguished Name
+             Example: CN=PC1234,CN=Europe,CN=Users,DC=SS64,DC=com
+          GUID  (objectGUID)
+             Example: af4867a2-5aa1-4143-bef2-b56c5c9a78de
+          Security Identifier (objectSid)
+             Example: S-1-5-21-3164297828-301567370-526410523-1153
+          Security Accounts Manager Account Name (sAMAccountName)
+             Example: PC1234
+
+       The identifier in parentheses is the LDAP display name for the attribute.
+
+       The cmdlet searches the default naming context or partition to find the object.
+       If the identifier given is a DN, the partition to search will be computed from that DN.
+       If two or more objects are found, the cmdlet returns a non-terminating error.
+
+       This parameter can also accept an object through the pipeline.
+ 
+   -LDAPFilter <i>string</i>
+       An LDAP query string that is used to filter AD objects.
+       You can use this parameter to run existing LDAP queries.
+       The Filter parameter syntax supports the same functionality as the LDAP syntax. 
+       See the -Filter description.
+        
+       e.g. search for all objects in the organizational unit with a name beginning with &quot;ss64&quot;.
+        
+         -LDAPFilter &quot;(name=ss64*)&quot;  -SearchScope Subtree -SearchBase &quot;DC=demo,DC=ss64,DC=com&quot;
+
+   -Partition <i>string</i>
+       The distinguished name of an AD partition.
+       The distinguished name must be one of the naming contexts on the current directory server.
+       The cmdlet searches this partition to find the object defined by the -Identity parameter.
+       examples:
+          -Partition &quot;CN=Configuration,DC=EUROPE,DC=TEST,DC=SS64,DC=COM&quot;
+
+          -Partition &quot;CN=Schema,CN=Configuration,DC=EUROPE,DC=TEST,DC=SS64,DC=COM&quot;
+
+       In many cases, a <a href="partition-defaults.html">default value</a> will be used for -Partition if no value is specified.
+
+   -Properties <i>string</i>[]
+       The properties of the output object to retrieve from the server.
+       Use this parameter to retrieve properties that are not included in the default set.
+        
+       Specify properties for this parameter as a comma-separated list of names.
+       To display all of the attributes that are set on the object, use *
+
+       To specify an individual extended property, use the name of the property.
+       For properties that are not default or extended properties, specify the LDAP display name. 
+        
+       To retrieve properties and display them for an object, use the Get-* cmdlet associated
+       with the object and pass the output to <a href="get-member.html">Get-Member</a>. 
+       e.g.   Get-ADGroup -Identity Administrators | Get-Member
+        
+       To retrieve and display the properties:
+       e.g.   Get-ADGroup -Identity Administrators -Properties * | Get-Member
+        
+   -ResultPageSize <i>int</i>
+       The number of objects to include in one page for an AD Domain Services query. 
+       The default is 256 objects per page. 
+       e.g.   -ResultPageSize 500
+        
+   -ResultSetSize <i>Int32</i>
+       The maximum number of objects to return for an AD Domain Services query.
+       To receive all objects (the default), set this parameter to $null.
+       Use Ctrl+c to stop the query and return of objects. 
+
+   -SearchBase <i>string</i>
+       An AD path to search under. 
+        
+       When you run a cmdlet from an  drive,
+       The default value of this parameter is the current path of the AD provider drive, the
+       default naming context of the target domain, or (if specified) the target LDS instance.
+        
+       e.g. to search under an OU.
+          -SearchBase &quot;ou=Group64,dc=demo,dc=SS64,dc=com&quot; 
+        
+   -SearchScope <i>ADSearchScope</i>
+       The scope of an AD search. Possible values:
+          Base     or 0
+          OneLevel or 1
+          Subtree  or 2
+        
+       Base will search only the current path or object.
+       OneLevel will search the immediate children of the path or object.
+       Subtree will search the current path or object and all children.
+        
+       e.g.
+           -SearchScope Subtree
+
+   -Server <i>string</i>
+       The AD Domain Services instance to connect to, this may be a Fully qualified domain name,
+       NetBIOS name, Fully qualified directory server name (with or without port number) or AD Snapshot instance.
+
+       Examples: demo.SS64.com  demo  demoDC02.demo.ss64.com  demoDC02.demo.ss64.com:3268
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Get-ADComputer  gets a computer or performs a search to retrieve multiple computers. The <span class="code">-Identity</span> parameter specifies the AD computer to retrieve.  Identify the computer by its distinguished name (DN), GUID, security identifier (SID) or Security Accounts Manager (SAM) account name. This parameter may also be set  to a computer object <a href="syntax-variables.html">variable</a> or through the <a href="syntax-pipeline.html">pipeline</a>.<br>
+<br>To search for and retrieve more than one computer, use the <span class="code">-Filter</span> or<span class="code"> -LDAPFilter</span> parameters. The -Filter parameter uses the PowerShell Expression Language to write query strings for Active Directory.  For more information, see <a href="get-help.html">help</a> about_ActiveDirectory_Filter.<br> 
+If you have existing LDAP query strings, you can use the -LDAPFilter parameter.<br>
+<br>This cmdlet retrieves a default set of computer object properties. To retrieve additional properties use the <span class="code">-Properties</span> parameter. </p>
+<p><b>Examples</b></p>
+<p>Get a specific computer showing all the properties:</p>
+<p class="code">PS C:\> Get-ADComputer &quot;Server64&quot; -Properties *</p>
+<p>Get all computer accounts:</p>
+<p class="code">PS C:\> Get-ADComputer -Filter *</p>
+<p>Get all the computers with a name starting by a particular string:</p>
+<p class="code">PS C:\> Get-ADComputer -Filter 'Name -like &quot;Server*&quot;' -Properties IPv4Address | <a href="format-table.html">Format-table</a> Name,DNSHostName,IPv4Address -A</p>
+<p>Get all the computers that have changed their password in the last 30 days:</p>
+<p class="code">PS C:\> $d = [DateTime]::Today.AddDays(-30); Get-ADComputer -Filter 'PasswordLastSet -ge $d' -Properties PasswordLastSet | <a href="format-table.html">Format-table</a> Name,PasswordLastSet</p>
+<p>Get the computer accounts in the location: &quot;CN=Computers,DC=SS64,DC=com&quot; that are listed as laptops (using an LDAPFilter):</p>
+<p class="code">PS C:\> Get-ADComputer -LDAPFilter &quot;(name=*laptop*)&quot; -SearchBase &quot;CN=Computers,DC=SS64,DC=com&quot;</p>
+<p class="quote"><i>“The really efficient laborer will be found not to crowd his day with work, but will saunter to his task surrounded by a wide halo of ease and leisure” ~ Henry David Thoreau</i></p>
+<p><b>Related:</b></p>
+<p><a href="new-adcomputer.html">New-ADComputer</a>   - Create a new AD computer.<br>
+<a href="remove-adcomputer.html">Remove-ADComputer</a> - Remove an AD computer. <a href="set-adcomputer.html"><br>
+Set-ADComputer</a> - Modify an AD computer.</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="get-adcomputer.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

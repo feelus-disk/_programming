@@ -1,0 +1,268 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Local Domain groups, Global groups and Universal groups. | Windows CMD | SS64.com</title>
+
+<style type="text/css">
+.yesbox {background-color:#b0c4de;}
+.t1
+{
+	text-align:center;
+	border-collapse: collapse;
+}
+.t1 td
+{
+	border-bottom: 1px solid #999;
+		padding: 6px 8px;
+}
+</style></head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Local Domain groups, Global groups and Universal groups. </h1>
+<p>This page describes the different types of groups, group scope and nesting permissions within and across
+WANS and domains.</p>
+<h2>Types of Groups</h2>
+<blockquote>
+<p><i>Security</i> groups are used to control access to resources.<br> 
+Security groups can also be used as email distribution lists. </p>
+<p><i>Distribution</i> groups can be used only for email distribution lists, or simple administrative groupings. <br>
+Distribution groups cannot be used for access
+control because they are not &quot;security enabled.&quot;</p>
+</blockquote>
+<h2>Group Scope</h2>
+<blockquote>
+<p>Assuming a Native-mode enterprise.</p>
+<p><i>Universal groups</i><br>
+Provide a simple 'does everything' group suitable mainly for small networks. Typically, organizations using WANs should use Universal groups only for relatively static groups in which memberships change rarely. Changes in membership will impose global catalog replication throughout an entire enterprise.</p>
+<p><i>Global groups</i><br>
+Provide domain-centric membership, place all user accounts into Global groups. 
+Global groups can be nested within other Global groups, this may be particularly useful when delegating OU administrative functionality. <br>
+<br>
+It can be useful to give each Global group a name that is meaningful to the staff involved, i.e. matching the name of a Team or a Project, particularly if the group is also to be used as an email distribution list.</p>
+<p><i>Domain Local groups </i> <br>
+Used for the direct assignment of access permissions on files, printer queues, and other such resources. </p>
+<p>It can be useful to give each Domain Local group a name  that is meaningful to the IT Operations team e.g. if a  group assigns rights to a shared folder on a specific server then the group name might include a prefix or suffix indicating the server name.</p>
+<p><i>Local groups </i> <br>
+Stored on the local SAM (Local Computer) use for security settings that apply just to this one machine.<br>
+Local groups will work even if the network becomes unavailable, e.g. during a disaster recovery exercise.</p>
+</blockquote>
+<h2><a id="best"></a>Best Practice</h2>
+<p>Place users in Global groups, nest those inside Domain Local groups which in turn are used to apply permissions, as shown below. This will also maximise performance in a  multi-domain forest.</p>
+<blockquote>
+<p><img src="syntax-groups.jpg" alt="Groups - Global Domain local and Universal." width="900" height="750"></p>
+</blockquote>
+<p>Group membership is evaluated when a user logs on to a domain. To be sure that any membership changes have taken effect, ask the users to log-off. In contrast ACL changes or permissions applied directly to  User accounts will take place immediately. <br>Granting permissions using a group from a different domain is only possible where a<i> trust relationship</i> exists between the domains.</p>
+<h2>Single Domains</h2>
+<p>In a  single domain   the <i>scope</i> of  groups will have no effect on performance. Global  groups can be used for everything but you may still wish to nest groups and use Domain Local Groups to simplify management. </p>
+<p>The fact that you cannot add a Domain Local group to a  Global group may seem like an unwanted limitation but can actually  be useful to enforce the correct inheritance of rights. A common mistake  is adding group permissions the wrong way around. e.g. a resource group (such as one for color printers) is added to an organisational group (such as the personnel dept) if at a later date you add someone else to the colour printers group then they will also be able to read all the personnel files.</p>
+<p>If all organisational groups are Global and  resource groups are Domain Local then it is simply not possible to  add  group permissions the wrong way around. Within a single domain individual User accounts may join either type of group, so in the above example if one extra user needed access to the printers they could still be added directly to the Domain Local colour printer group.</p>
+<h2>Separating  People and Resources</h2>
+<p>It is tempting to  use the same groups to hold users and also apply resource permissions but this seemingly simple setup may actually involve more effort to maintain.</p>
+<p>For example, you have a finance department with 25 accountants and clerks, they need access to the Crest system, they also need editor permissions on the intranet and they need access to all the shared Account_Balances spreadsheets.</p>
+<p>A common way to deal with this is to create 3 groups and add the 25 people to each:</p>
+<pre>    25       25           25
+ [CREST] [INTRANET] [ACCOUNT_BALANCES]</pre>
+<p>The extra work starts when someone changes job or a new hire arrives, now someone has to remember and sort out which groups each of these people needs to be added to or removed from.</p>
+<p>The better way of managing this, is to still create the 3 groups as before but also create a group called Accounting, put the 25 people into the Accounting group, and make all the resources available to the <i>group</i> rather than to individuals.</p>
+<pre>             25
+        [ACCOUNTING Group]
+ [res_CREST] [res_INTRANET] [res_ACCOUNT_BALANCES]</pre>
+<p>Now when a new hire arrives we add them to the accounting group and they will automatically get everything they need. Similarly when someone changes job we remove them from the accounting group and add them to a different group appropriate to their new role. Also note that this arrangement only requires 28 permissions to be set instead of 75.</p>
+<p>Separating people and resources also makes it easy to temporarily remove access e.g. during maintenance downtime. In the above example you could just remove the Accounting group from the res_Crest group. This is much easier than having to either remove (and then later  accurately replace) a bunch of individual user accounts, or having to edit the actual permissions applied to files/printers/databases.</p>
+<p>The  two diagrams below  both show  22 permissions being applied:</p>
+<p><img src="syntax-groups-nested.jpg" width="953" height="324" alt="Nested Groups"></p>
+<p>With a flat permission structure there are fewer groups to maintain.<br>
+With separate groups for users and resources, there are fewer user permissions to manage.</p>
+<h2><a id="nesting"></a>Nesting  one Group within another with a different scope </h2>
+<p>Rules that govern when a group may be added to another group (same domain):</p>
+<blockquote>
+<p>- Global groups can be nested within Domain Local groups,  Universal groups and within other Global groups in the same domain.</p>
+<p>- Universal groups can be nested within Domain Local groups and within other Universal groups in any domain.</p>
+<p>- A Domain Local group cannot be nested within a Global or a Universal group.</p>
+<blockquote>
+<p><img src="syntax-groupnesting.jpg" alt="Group nesting" width="415" height="343"></p>
+</blockquote>
+</blockquote>
+<p>Rules that govern when a group may be added to another group (different domain):</p>
+<blockquote>
+<p> - Domain Local groups can<i> grant access</i> to resources on the same domain. For example a Domain Local group named Sales on the <span class="code">SS64.local</span> domain can only grant access to resources on that domain, and not on <span class="code">SS64.com</span></p>
+<p>- Domain Local groups can <i>accept</i> anything, except for Domain Local groups from another domain. Domain Local groups accept user accounts from any domain.</p>
+<p>- Global groups can <i>grant access</i> to anything, including files/folders in any domain.</p>
+<p>- Global groups cannot be nested across domains. You cannot take a Global group from <span class="code">SS64.local</span>, and nest it within another Global group in <span class="code">SS64.com</span>.</p>
+<p>- A user or computer account from one domain cannot be nested within a Global group in another domain.</p>
+<p> - Universal groups accept user/computer accounts from any domain. A Global group can also be nested within a Universal group (from any domain).<br>
+  A Universal group can be nested within another Universal group or Domain Local group in any domain.</p>
+</blockquote>
+<h1><a id="members"></a>Members - who can join a group:</h1>
+<table class="t1">
+<tr>
+<td>Group Scope </td>
+<td><i>Location</i></td>
+<td><i>Local Users can join? </i></td>
+<td><i>Domain Users can join?</i></td>
+<td><i>User accounts from another domain?</i></td>
+<td><i>Local Computer accounts</i></td>
+<td><i>Domain Computer accounts</i></td>
+<td><i>Computer accounts from another domain </i></td>
+<td><i>Machine Local groups</i></td>
+<td><i>Domain Local groups</i></td>
+<td><i>Global groups</i></td>
+<td><i>Universal groups</i></td>
+</tr>
+<tr>
+<td><b>Machine Local</b></td>
+<td>Stored in local sam database</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td>&nbsp;</td>
+<td>No</td>
+<td>No</td>
+<td>&nbsp;</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+</tr>
+<tr>
+<td ><b>Domain Local</b></td>
+<td>Stored in AD</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td>No</td>
+<td class="yesbox">Yes<br>
+(same domain)</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+</tr>
+<tr>
+<td ><b>Global</b></td>
+<td>Stored in AD</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td>No</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td class="yesbox">Yes<br> 
+(same domain)</td>
+<td>No</td>
+</tr>
+<tr>
+<td ><b>Universal</b></td>
+<td>Stored in AD</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td>No</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+</tr>
+</table>
+<h1><br>
+<a id="resources"></a>Resources  that a group may grant access to:</h1>
+<table class="t1">
+<tr>
+<td>Group Scope</td>
+<td><i>Location</i></td>
+<td><i>Can act as distribution list?</i></td>
+<td><i>File Permissions (local machine)</i></td>
+<td><i>File Permissions Domain Fileserver</i></td>
+<td><i>File/Printer SHARE permissions</i></td>
+<td><i>Can be Mail enabled</i></td>
+<td><i>Can use to assign Mailbox permissions</i></td>
+<td><i>Permissions on Active Directory objects</i></td>
+</tr>
+<tr>
+<td ><b>Machine Local</b></td>
+<td>Stored in local sam database</td>
+<td>No</td>
+<td class="yesbox">Yes</td>
+<td>No</td>
+<td class="yesbox">Yes<br>
+(same machine only)</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td ><b>Domain Local</b></td>
+<td>Stored in AD</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes*</td>
+</tr>
+<tr>
+<td ><b>Global</b></td>
+<td>Stored in AD</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes*</td>
+<td class="yesbox">Yes*</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+</tr>
+<tr>
+<td ><b>Universal</b></td>
+<td>Stored in AD</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes*</td>
+<td class="yesbox">Yes*</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+<td class="yesbox">Yes</td>
+</tr>
+</table>
+<p class="code">* Possible but not recommended by Microsoft.</p>
+<p><b>Admin rights </b></p>
+<p>To modify groups in AD, you must be a member of the <i>Account Operators</i> group, the <i>Domain Admins</i> group, or the <i>Enterprise Admins </i>group, or you must have been delegated the appropriate authority.</p>
+<p class="quote"><i>“In the long history of humankind (and animal kind, too) those who learned to collaborate and improvise most effectively have prevailed” ~ Charles Darwin</i></p>
+<p><b>Related</b></p>
+<p><a href="syntax-security_groups.html">Built-in Groups</a> - Built-In Users and Security Groups<br>
+<a href="net_useradmin.html">NET localgroup</a> / <a href="net_useradmin.html">NET localgroup /domain</a> /<a href="net_useradmin.html"> NET group /domain</a> - Create new groups.<br>
+<a href="http://support.microsoft.com/kb/231273">Q231273</a> - Group Type and Scope Usage.<br>
+<a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;Q271876">Q271876</a> - Large Numbers of ACEs in ACLs Impair Directory Service Performance (slow logon times.)<br>
+<a href="http://support.microsoft.com/kb/909264">Q909264</a> - Naming conventions in Active Directory for computers, domains, sites, and OUs.<br>
+<a href="http://support.microsoft.com/kb/811965">Q811965</a> - Domain Local Groups do not appear when you edit a group policy object.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-groups.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

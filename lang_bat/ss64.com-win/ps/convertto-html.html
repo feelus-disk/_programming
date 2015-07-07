@@ -1,0 +1,96 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>ConvertTo-Html | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>ConvertTo-Html</h1> 
+<p>Create an HTML page from one or more PowerShell objects.</p>
+<pre>Syntax  
+      ConvertTo-Html [[-head] <i>string</i>[] ] [[-title] <i>string</i>] [[-body] <i>string</i>[] ]
+         [-CssUri <i>Uri</i>] [[-property] <i>Object</i>[] ]
+            [-As {<u>TABLE</u> | LIST}] [-inputObject <i>psobject</i>]
+               [-PreContent <i>string</i>[]] [-PostContent <i>string</i>[]] [<i>CommonParameters</i>]
+  
+     ConvertTo-Html [-Fragment] [[-property] <i>Object</i>[] ]
+            [-As {<u>TABLE</u> | LIST}] [-inputObject <i>psobject</i>]
+               [-PreContent <i>string</i>[]] [-PostContent <i>string</i>[]] [<i>CommonParameters</i>]
+
+Key
+    -head <i>string</i>
+        Text to include in the &lt;head&gt; element of the HTML output.
+        default = &quot;HTML TABLE&quot; <br>        If you specify -Head, the -Title parameter is ignored.
+
+    -title <i>string</i>
+        Text to include in the &lt;title&gt; element of the HTML output.
+
+    -body <i>string</i>
+        Text to include in the &lt;body&gt; element of the HTML.
+
+    -Fragment<br>        Generate only an HTML table. The HTML, HEAD, TITLE, and BODY tags are omitted.
+
+    -inputObject <i>psobject</i>
+        The objects to represent as an HTML table. 
+        A variable that contains the objects or a command/expression
+        that gets the objects.
+
+        If you submit multiple objects, such as all of the services on a computer,<br>        ConvertTo-Html will display the properties of the collection / array. <br>        To display the individual objects, use the <a href="syntax-pipeline.html">pipeline operator</a> to
+        pipe the objects to ConvertTo-Html one at a time.
+
+   -As <i>string</i><br>        Format the object as a table or a list. Valid values are TABLE or LIST.
+
+    -CssUri <i>Uri</i><br>        The Uniform Resource Identifier (<a href="http://en.wikipedia.org/wiki/Uniform_Resource_Identifier">URI</a>) of the cascading style sheet
+        The CSS URI is included as a style sheet link in the output.
+
+    -property <i>Object</i>
+        Properties of the input object to appear in the HTML table.
+        
+    -PreContent <i>string</i>[]<br>       Text to add before the opening &lt;TABLE&gt; tag.
+
+    -PostContent <i>string</i>[]<br>       Text to add after the closing &lt;/TABLE&gt; tag. <br>        <br>   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>
+ The object property names appear as  HTML table column headings.</p>
+<p><b>Examples</b></p>
+<p>Display the date as HTML on the console :</p>
+<p class="code">PS C:\&gt; <a href="get-date.html">get-date</a> | convertto-html</p>
+<p>Save the system processes to C:\processes.html</p>
+<p class="code">PS C:\&gt; <a href="get-process.html">Get-Process</a> | ConvertTo-Html name,path,fileversion | Set-Content c:\processes.htm</p>
+<p>Save the system services to C:\services.html</p>
+<p class="code">PS C:\&gt; <a href="get-service.html">get-service</a> | ConvertTo-Html -Title "Services" -Body "&lt;H2&gt;The result of get-service&lt;/H2&gt; " -Property Name,Status&nbsp;<b> &gt;</b>&nbsp; c:\services.html</p>
+<p>Save the system services to C:\services.html and format in color (example from Hung Yuwu ): </p>
+<p class="code">PS C:\&gt; <a href="get-service.html">get-service</a> | ConvertTo-Html -Title "Services" -Body "&lt;H2&gt;The result of get-service&lt;/H2&gt; " -Property Name,Status | <br>
+<b>foreach</b> {if($_ -like "*&lt;td&gt;Running&lt;/td&gt;*"){$_ <b>-replace "&lt;tr&gt;", "&lt;tr bgcolor=green&gt;"</b>}elseif($_ -like "*&lt;td&gt;Stopped&lt;/td&gt;*"){$_ <b>-replace "&lt;tr&gt;", "&lt;tr bgcolor=red&gt;"</b>}else{$_}} <b>&gt;</b> c:\services.html</p>
+<p>Save the system services to C:\services.html and format with css, then open the HTML page with Invoke-Item:</p>
+<p><span class="code">PS C:\&gt; <a href="get-service.html">get-service</a> | ConvertTo-Html -CssUri &quot;SS64.css&quot; <b> &gt;</b> c:\services.html<br>
+PS C:\&gt; <a href="get-service.html"></a><a href="invoke-item.html">Invoke-Item</a> c:\services.html</span></p>
+<p>Get events from the &quot;Windows PowerShell&quot; event log, select only the ID, Level, and Task properties and format as HTML: </p>
+<p><span class="code">PS C:\&gt; <a href="get-eventlog.html">get-eventlog</a> -log &quot;Windows PowerShell&quot; | convertto-html -property id, level, task</span></p>
+<p class="quote"><i>  “If you have an important point to make, don't
+try to be subtle or clever. Use a pile driver. Hit
+the point once. Then come back and hit it again.
+Then hit it a third time - a tremendous whack” ~ Winston Churchill</i></p>
+<p><b>Related:</b></p>
+<p>        <a href="export-clixml.html">export-clixml</a> - Produce a clixml representation of a PowerShell objects<br>
+<a href="export-csv.html">export-csv</a> - Export to Comma Separated Values (spreadsheet)<br>
+<a href="invoke-item.html">Invoke-Item</a> - Invoke an executable or open a file</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="convertto-html.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

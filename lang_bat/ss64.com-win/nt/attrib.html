@@ -1,0 +1,133 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Attrib - Edit file attributes | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>ATTRIB.exe</h1>  
+<p>Display or change file attributes. Find Filenames.
+<pre>Syntax
+      ATTRIB [ + <i>attribute</i> | - <i>attribute</i> ] [<i>pathname</i>] [/S [/D]]
+
+Key
+     +    : Turn an attribute ON
+     -    : Clear an attribute OFF
+
+ <i>pathname</i> : Drive and/or filename e.g. C:\*.txt
+    /S    : Search the pathname including all subfolders.
+    /D    : Process folders as well
+
+   <i>attributes</i>: 
+
+        R  Read-only (1)
+        H  Hidden (2)
+        A  Archive (32)
+        S  System (4)
+
+   <i>extended attributes</i>:
+        E  Encrypted<br>        C  Compressed (128:read-only)<br>        I  Not content-indexed<br>        L  Symbolic link/Junction (64:read-only)<br>        N  Normal (0: cannot be used for file selection)<br>        O  Offline<br>        P  Sparse file<br>        T  Temporary 
+</pre>
+<p>The numeric values may be used when changing <a href="http://msdn.microsoft.com/en-us/library/aa242866.aspx">attributes with VBS/WSH</a><br>
+If no attribute is specified attrib will return the current 
+  attribute settings. Used with just the /S option ATTRIB will quickly search 
+  for a particular filename.<br>
+  <b><br>
+  Hidden and System attributes take priority. </b><br>
+  <br>
+  If a file has both the Hidden and System attributes set, you can clear both 
+  attributes only with a single ATTRIB command. <br>
+  <br>
+  For example, to clear the Hidden and System attributes for the RECORD.TXT file, 
+  you would type: <br>
+  <span class="code">ATTRIB -S -H RECORD.TXT</span> <br>
+  <br>
+  <b>File Attributes</b><br>
+  <br>
+  You can use wildcards (? and *) with the filename parameter to display or change 
+  the attributes for a group of files. <br>
+  <br>
+  Remember that, if a file has the System or Hidden attribute set, you must clear 
+that attribute before you can change any other attributes.<br>
+  <br>
+  <b>Directory Attributes </b><br>
+  <br>
+You can display or change the attributes for a directory/folder. To use ATTRIB with 
+a directory, you must explicitly specify the directory name; you cannot use 
+wildcards to work with directories. </p>
+<p>For example, to hide the directory C:\SECRET, you would type the following: <br>
+  <br>
+  <span class="code">ATTRIB +H C:\SECRET </span><br>
+  <br>
+The following command would affect only files, not directories: <span class="code">ATTRIB +H C:*.* </span></p>
+<p>The Read-only attribute for a folder is generally ignored by applications, however the Read-only and System attributes are used by Windows Explorer to determine whether the folder is a <i>special</i> folder, such as My Documents, Favorites, Fonts, etc. <br>
+Setting the Read-Only attribute on a folder <a href="http://support.microsoft.com/kb/326549">can affect performance</a>, particularly on shared drives because Windows Explorer will be forced to request the Desktop.ini of every sub-folder to see if any <i>special</i> folder settings need to be set.<br>
+  <br>
+  <b>Viewing archive attributes </b><br>
+  <br>
+  The Archive attribute (A) is used to mark files that have changed since they 
+  were previously backed up. The (A) flag is automatically updated by Windows 
+  as the file is saved.<br>
+  <br>
+  If the (A) flag is present - the file is new or has been changed since the last 
+  backup. <br>
+  <br>
+  The MSBACKUP, RESTORE, and XCOPY commands use these Archive attributes, as do 
+many (but not all) 3rd party backup solutions.</p>
+<p><b><a id="attributes"></a>Extended Attributes</b></p>
+<p>File attributes  can be read with <span class="code">fsutil usn readdata filename.ext</span> </p>
+<p>Constants - the following attribute values are returned by the <a href="http://msdn.microsoft.com/en-us/library/gg258117%28v=vs.85%29.aspx">GetFileAttributes</a> function: </p>
+<p>FILE_ATTRIBUTE_READONLY = 1 (<span class="code">0x1</span>)<br>
+FILE_ATTRIBUTE_HIDDEN = 2 (<span class="code">0x2</span>)<br>
+FILE_ATTRIBUTE_SYSTEM = 4 (<span class="code">0x4</span>)<br>
+FILE_ATTRIBUTE_DIRECTORY = 16 (<span class="code">0x10</span>)<br>
+FILE_ATTRIBUTE_ARCHIVE = 32 (<span class="code">0x20</span>)<br>
+
+FILE_ATTRIBUTE_NORMAL = 128 (<span class="code">0x80</span>)<br>
+FILE_ATTRIBUTE_TEMPORARY = 256  (<span class="code">0x100</span>)<br>
+FILE_ATTRIBUTE_SPARSE_FILE = 512  (<span class="code">0x200</span>)<br>
+FILE_ATTRIBUTE_REPARSE_POINT = 1024  (<span class="code">0x400</span>)<br>
+FILE_ATTRIBUTE_COMPRESSED = 2048  (<span class="code">0x800</span>)<br>
+FILE_ATTRIBUTE_OFFLINE = 4096  (<span class="code">0x1000</span>)<br>
+FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 8192  (<span class="code">0x2000</span>)<br>
+FILE_ATTRIBUTE_ENCRYPTED = 16384 (<span class="code">0x4000</span>)</p>
+<p>For example, a file attribute of <span class="code">0x120</span> indicates the Temporary + Archive attributes are set (0x100 + 0x20 = 0x120.)</p>
+<p>An alternative is using <a href="syntax-args.html#attributes">FOR parameter attributes</a></p>
+<p><abbr title="Distributed File System Replication">DFSR</abbr> will <a href="http://social.technet.microsoft.com/Forums/en/winserverfiles/thread/9164f02c-b81b-477a-b9b3-e71dcd10248e">not replicate</a> files if they have the temporary attribute set.<br> 
+The temporary attribute can be removed by using PowerShell to subtract <span class="code">0x100</span>:</p>
+<p class="code">PS C:\&gt; Get-childitem D:\Data -recurse | ForEach-Object -process {if (($_.attributes -band 0x100) -eq 0x100) {$_.attributes = ($_.attributes -band 0xFEFF)}} </p>
+<p><i class="quote">&quot;The moral sense of conscience is by far the most important.. it is the most noble of all the <b>attributes</b> of man&quot; - Charles Darwin</i><br>
+<br>
+<b>Related:</b><br>
+<br>
+<a href="cacls.html">CACLS</a> - Change file permissions<br>
+<a href="fsutil.html">FSUTIL</a> - File and Volume utilities<br>
+<a href="superhidden.html">Show superhidden file extensions</a> <br>
+<a href="http://support.microsoft.com/kb/326549">Q326549</a> - Read-only &amp; System attributes for folders<br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/chmod.html">chmod</a> - Change access permissions</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="attrib.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

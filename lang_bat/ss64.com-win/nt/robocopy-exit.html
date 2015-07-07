@@ -1,0 +1,102 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Robocopy Exit Codes | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1><a href="robocopy.html">ROBOCOPY</a> Exit Codes</h1>
+<p>The return code from Robocopy is a bit map, defined as follows:</p>
+<pre>
+    Hex   <i>Decimal</i>  Meaning if set
+
+    0×00   0       No errors occurred, and no copying was done.
+                   The source and destination directory trees are completely synchronized. 
+
+    0×01   1       One or more files were copied successfully (that is, new files have arrived).
+
+    0×02   2       Some Extra files or directories were detected. No files were copied
+                   Examine the output log for details. 
+
+    0×04   4       Some Mismatched files or directories were detected.
+                   Examine the output log. Some housekeeping may be needed.
+
+    0×08   8       Some files or directories could not be copied
+                   (copy errors occurred and the retry limit was exceeded).
+                   Check these errors further.
+
+    0×10  16       Serious error. Robocopy did not copy any files.
+                   Either a usage error or an error due to insufficient access privileges
+                   on the source or destination directories.</pre>
+<p>These  can be combined, giving a few extra exit codes:</p>
+<pre>    0×03   3       (2+1) Some files were copied. Additional files were present. No failure was encountered.
+
+    0×05   5       (4+1) Some files were copied. Some files were mismatched. No failure was encountered.
+
+    0×06   6       (4+2) Additional files and mismatched files exist. No files were copied and no failures were encountered.
+                   This means that the files already exist in the destination directory
+
+    0×07   7       (4+1+2) Files were copied, a file mismatch was present, and additional files were present.</pre>
+<p>Any value greater than 8 indicates that there was at least one failure during the copy operation.</p>
+<p>You can use this in a batch file to report anomalies, as follows:</p>
+<pre>
+    if %ERRORLEVEL% EQU 16 echo ***<b>FATAL ERROR</b>*** & goto end
+    if %ERRORLEVEL% EQU 15 echo OKCOPY + FAIL + MISMATCHES + XTRA & goto end
+    if %ERRORLEVEL% EQU 14 echo FAIL + MISMATCHES + XTRA & goto end
+    if %ERRORLEVEL% EQU 13 echo OKCOPY + FAIL + MISMATCHES & goto end
+    if %ERRORLEVEL% EQU 12 echo FAIL + MISMATCHES& goto end
+    if %ERRORLEVEL% EQU 11 echo OKCOPY + FAIL + XTRA & goto end
+    if %ERRORLEVEL% EQU 10 echo FAIL + XTRA & goto end
+    if %ERRORLEVEL% EQU 9 echo OKCOPY + FAIL & goto end
+    if %ERRORLEVEL% EQU 8 echo <b>FAIL</b> & goto end
+    if %ERRORLEVEL% EQU 7 echo OKCOPY + MISMATCHES + XTRA & goto end
+    if %ERRORLEVEL% EQU 6 echo MISMATCHES + XTRA & goto end
+    if %ERRORLEVEL% EQU 5 echo OKCOPY + MISMATCHES & goto end
+    if %ERRORLEVEL% EQU 4 echo <b>MISMATCHES</b> & goto end
+    if %ERRORLEVEL% EQU 3 echo OKCOPY + XTRA & goto end
+    if %ERRORLEVEL% EQU 2 echo XTRA & goto end
+    if %ERRORLEVEL% EQU 1 echo <b>OKCOPY</b> & goto end
+    if %ERRORLEVEL% EQU 0 echo <b>No Change</b> & goto end
+    :end  </pre>
+<p><b>Example:</b></p>
+<p>Copy files from one server to another</p>
+<pre>ROBOCOPY \\Server1\reports \\Server2\backup *.*<br><span class="code">IF %ERRORLEVEL% LSS 8 goto finish</span><br>
+Echo Something failed &amp; goto :eof
+<br>:finish<br>Echo All done, no fatal errors.</pre>
+<p>Bugs<br>
+Version XP026 returns a success errorlevel even when it fails. </p>
+<p class="quote"><i>&ldquo;Few men of action have been able to make a graceful exit at the appropriate time&rdquo; ~ Malcolm Muggeridge</i></p>
+<p><b>Related:</b><br>
+  <br>
+<a href="robocopy.html">Robocopy </a> -
+Robust File and Folder Copy<br>
+<a href="http://support.microsoft.com/kb/954404">Q954404</a> - Robocopy Return codes in Windows 2008.<br>
+<a href="http://blogs.msdn.com/adioltean/archive/2005/01/05/346793.aspx">Copy Open files</a> - with VShadow.exe (Shadow copies) <br>
+  Equivalent bash command:
+  <a href="http://ss64.com/bash/rsync.html">rsync</a> - Remote file copy (Synchronize file trees)</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="robocopy-exit.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

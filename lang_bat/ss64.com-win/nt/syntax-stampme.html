@@ -1,0 +1,86 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>StampMe.cmd - rename a file with todays date and time | Windows CMD | SS64.com</title>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>StampMe.cmd</h1>
+<p>Rename a file (or folder) by appending the current date and time to the existing filename:</p>
+<pre>  @ECHO off
+  SETLOCAL
+  IF [%1] NEQ [] goto s_start
+
+  :: Author - Simon Sheppard, Nov 2014
+  :: Tested for Windows XP Pro or greater
+  Echo StampMe.cmd
+  Echo Rename a file with the DATE/Time
+  Echo:
+  Echo Syntax
+  Echo    STAMPME TestFile.txt
+  Echo:
+  Echo    STAMPME "Test File.txt"
+  Echo:
+  Echo    STAMPME "c:\docs\Test File.txt"
+  Echo:
+  Echo    Will rename the file in the format "Test File-2014-12-30@16-55-01.txt"
+  Echo:
+  Echo    In a batch file use CALL STAMPME ...
+  GOTO :eof
+  
+  :s_start
+  Set _file=%~n1%
+  Set _pathname=%~f1%
+  Set _ext=%~x1%
+  
+  :: Get the date/time
+  FOR /f %%a in ('WMIC OS GET LocalDateTime ^| find "."') DO Set _DTS=%%a
+  Set _datetime=%_DTS:~0,4%-%_DTS:~4,2%-%_DTS:~6,2%@%_DTS:~8,2%-%_DTS:~10,2%-%_DTS:~12,2%
+
+  Echo   Year-MM-Day@HR-Min-Sec
+  Echo   %_datetime%
+  
+  :: Rename the file
+  REN "%_pathname%" "%_file%-%_datetime%%_ext%"</pre>
+<p>The last  line  of the batch file does the <a href="ren.html">REName</a>.
+<p><b>Examples</b>
+<p class="code">c:\&gt; StampMe &quot;sample file.txt&quot;
+<br>
+c:\&gt; StampMe &quot;C:\logs\data\errorlog.txt&quot;<br>
+c:\&gt; StampMe &quot;C:\docs\example folder&quot;
+<p>An alternative 'quick and dirty' way to do the same thing in one line is shown below, this does work but is less robust as the results will vary according to regional/control panel settings.
+<p class="code">c:\&gt; REN &quot;sample file.txt&quot; &quot;* %Date:/= % %Time::=.%.*&quot; 
+<p class="quote"><i>&ldquo;The time you enjoy wasting is not wasted time&rdquo; ~ Bertrand Russell</i></p>
+<p><b>Related</b>
+<p><a href="syntax-delolder.html">DelOlder.cmd</a> - Delete files more than n days old<br>
+<a href="syntax-getdate.html">GetDate</a> and <a href="syntax-gettime.html">GetTime</a> scripts<br>
+<a href="http://ss64.com/dates.html">Standard date and time notation</a> - YYYY-MM-DD<br>
+<a href="http://ss64.com/ps/syntax-stampme.html">Stampme.ps1</a> - Powershell version
+<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-stampme.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

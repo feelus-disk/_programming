@@ -1,0 +1,176 @@
+http://ss64.com/nt/syntax.html
+
+Windows CMD Shell синтаксис командной строки
+{	параметры		параметры командной строки %1  %~f1 
+параметры (или аргументы) - любые значения, переданные в пакетный скрипт:
+
+C:> MyScript.cmd January 1234 "Some value" 
+
+параметры могут также передаваться в подпрограммы при помощи CALL:
+
+CALL :my_sub 2468 
+
+вы можете получить значение любого параметра, используя % и следующую за ним числовую позицию в командной строке. первый переданный объект всегда %1, второф объект - всегда %2 и так далее 
+
+%* в пакетном скрипте олицетворяет все аргументы, (т.е. %1 %2 %3 %4 %5 ...%255) 
+
+расширения параметров
+
+>> supply - поставка, снабжение
+когда параметр используется для передачи имени файла, может применяться следующий расширенный синтаксис: 
+(мы используем переменную %1 (но это работает для для любых параметров))
+
+
+%~f1 расширяет %1 в полное квалифицированное имя с путем - C:\utils\MyFile.txt
+%~d1 расширяет %1 только в букву диска - C:
+>> trailing - конечные
+%~p1 расширяет %1 только в путь, т.е. \utils\ включает конечный \ который может интерпретироваться некоторыми командами как escape символ.
+%~n1 расширяет %1 в имя файла без расширения C:\utils\MyFile или если дан только путь (без следующего бэкслеша\) - в последнюю папку в этом пути.
+%~x1 расширяет %1 только в расширение файла .txt
+%~s1 меняет значение f, n, s и x на ссылку короткого имени 8.3 (если такое есть) 
+>> surround - окружать
+%~1  расширяет %1 удаляет любые окружающие кавычки (")
+%~a1 показывает атрибуты файла %1
+%~t1 показывает дату/время файла %1
+%~z1 показывает размер файла %1
+%~$PATH:1 ищет переменную среды PATH и расширяет %1 в полное квалифицированное имя первого найденного совпадения 
+
+модификаторы выше могут комбинироваться: 
+
+%~dp1 расширяет %1 в букву и только диск
+%~sp1 расширяет %1 в короткий путь 8.3 
+%~nx2 расширяет %2 только в имя файла и расширение
+
+>> denote - обозначать, указывать
+>> ! leading - ведущий
+эти переменные параметров/аргументов указываются с ведущим %
+ This is unlike regular variables which have both leading and trailing %'s such as %variable%, or FOR command variables which use a single leading % on the command line or a double leading %% when used in a batch file. 
+
+When writing batch scripts it's a good idea to store the values in a variable SET _LogFile=%~dp1, the rest of the script can then refer to the easy-to-read variable name %_LogFile% This will also make life easier if you later need to change around the order of the parameters. 
+
+Passing by Reference
+
+In addition to passing numeric or string values on the command line, it is also possible to pass a variable name and then use the variable to transfer data between scripts or subroutines. Passing by reference is a slightly more advanced technique but can be particularly useful when the string contains characters that are CMD delimiters or quotes. 
+
+Links relative to the Batch Script
+
+You can get the pathname of the batch script itself with %0, parameter extensions can be applied to this so %~dp0 will return the Drive and Path to the batch script e.g. W:\scripts\ and %~f0 will return the full pathname W:\scripts\mybatch.cmd
+
+You can refer to other files in the same folder as the batch script by using this syntax:
+  CALL %0\..\SecondBatch.cmd
+
+This can even be used in a subroutine, Echo %0 will give the call label but, echo "%~nx0" will give you the filename of the batch script. 
+
+When the %0 variable is expanded, the result is enclosed in quotation marks. 
+
+Use %~a1 to display the Extended Attributes of a file.
+
+FOR's %%~aI  recognizes 9 NTFS file attributes. The expansion of a file attribute produces a series of 9 dashes, with each recognized attribute replacing a dash with a letter. A file with no recognized attributes or with none set will expand to 9 dashes like this: --------- 
+ Attribute                    Expansion 
+ FILE_ATTRIBUTE_DIRECTORY     d-------- 
+ FILE_ATTRIBUTE_READONLY      -r------- 
+ FILE_ATTRIBUTE_ARCHIVE       --a------ 
+ FILE_ATTRIBUTE_HIDDEN        ---h----- 
+ FILE_ATTRIBUTE_SYSTEM        ----s---- 
+ FILE_ATTRIBUTE_COMPRESSED    -----c--- 
+ FILE_ATTRIBUTE_OFFLINE       ------o-- 
+ FILE_ATTRIBUTE_TEMPORARY 	   -------t- 
+ FILE_ATTRIBUTE_REPARSE_POINT --------l
+ FILE_ATTRIBUTE_NORMAL        --------- 
+
+Other NTFS attributes not recognised by %%~aI can be read using FSUTIL usn command: 
+FILE_ATTRIBUTE_ENCRYPTED 
+ FILE_ATTRIBUTE_NOT_CONTENT_INDEXED 
+ FILE_ATTRIBUTE_SPARSE_FILE  
+
+Example: Expansion of a file with the Hidden and System attributes:
+---hs---- 
+
+FOR parameters
+
+The FOR command creates parameter variables which are identified with a letter rather than a number (e.g. %%G). 
+ The Parameter Expansions described above can also be applied to these. 
+ To avoid confusion between the two sets of letters you may wish to avoid using the letters (a, d, f, n, p, s, t, x, z) as FOR parameters or just choose a FOR parameter letter thats UPPER case.
+ So for example in a reference like %%~fG the %%G is the FOR parameter, and the ~f is the Parameter Expansion. 
+
+Examples:  
+
+Pass parameters from one batch to another: 
+   MyBatch.cmd SMITH 100
+
+Or as part of a CALL :
+   CALL MyBatch.cmd SMITH 100
+
+Passing values from one part of a script to another: 
+   :: Using CALL to jump to a subroutine
+   CALL :s_staff SMITH 100
+
+   :: Calling a subroutine from a FOR command
+   FOR /F %%G IN ('DIR /b *.*') DO call :s_subroutine %%G
+
+“A gift is pure when it is given from the heart to the right person at the right time and at the right place, and when we expect nothing in return” ~ The Bhagavad Gita
+
+Related:
+
+Bug when using ~s to display short file/folder names
+CALL - Call one batch program from another.
+CMD - Start a new DOS shell (cmd.exe) 
+IF - Test that required inputs are in place (not NULL)
+FOR - Conditionally perform a command several times .
+SHIFT - Shift the position of replaceable parameters in a batch file.
+StackOverflow - How does the Windows Command Interpreter (CMD.EXE) parse scripts?
+ Equivalent bash command (Linux): dirname - Convert a full pathname to just a path.
+
+}
+	переменые среды	создание/чтение переменных среды.
+	перенаправление	Spooling(наматывание) вывода в файл, piping ввода.
+	И/ИЛИ логика	выполнение условий (If-Then-Else)
+	циелы			циклы и подпрограммы.
+	функции			как группировать блоки кода.
+	макросы			встраивание блоков кода в переменные.
+	сервисы			список сервисов Windows XP
+
+вычисление выражений
+	использование скобок для группировки расширения выражений.
+	задержанное расширение переменных в циклах.
+	Escape символы, разделители и кавычки
+	SET /А			арифметика переменных среды.
+	подстроки переменных	расширение частей переменных (подстрок)
+	поиск переменных		поиск и замена частей переменных.
+	RANDOM 			случайные числа.
+	Wildcards		соответствия множествам файлов.
+
+Batch файлы
+	запуск скрипта	как запустить скрипт
+	DateMath		добавление и вычитание дней из любых дат.
+	DeQuote			удаление кавычек из строк.
+	DelOlder		удаление файлов, старших н дней.
+	GenChr.cmd		генерирует ASCII/Unicode символы.
+	GetDate.cmd		получение сегодняшней даты (любой регион, любая ОС)
+	GetTime.cmd   	получение текущего времени.
+>> adjust - регулировать
+	GetGMT.cmd    	время, отрегулированное на Greenwich Mean Time.
+	StampMe.cmd   	переименование файла с датой/временем.
+	tdiff.cmd     	разница времени в часах и минутах.
+	Which.cmd     	показ полного пути любой команды.
+>> exceed - превышать
+	xlong.cmd     	поиск имен файлов, превышающих 256 символьный лимит пути.
+	DragDrop.cmd  	перетаскивание в batch скриптах.
+
+справка/Нow to
+	автозапуск			запуск команд при старте системы.
+	медленный просмотр	увеличение скорости сети
+	куча рабочего стола	конфигурирование памяти.
+	длинные имена файлов	проблемы имен файлов NTFS.
+	отображение DPI		настройки размера монитора.
+	внутреннее CMD		встроенные команды оболочки CMD.
+	клавиатура			горячие клавишы CMD.
+	NoDrives			скрытие помеченных дисков в Windows Explorer
+	печать				соединения и драйвера принтера.
+	восстановление		консоль восстановления.
+	RUN команды			старт , запуск команд
+	папки профиля		расположение папок профиля пользователя (XP/Vista/Windows 7).
+	реестр				настройки пользовательского интерфейса (XP)
+	встроенные группы	встроенные пользователи и группы безопасности.
+	группы				Local Domain группы, Global and Universal группы.
+	64Bit				распознавание 64 битных и 32 битных Windows.

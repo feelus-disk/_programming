@@ -1,0 +1,126 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Shutdown - Shutdown the computer | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>SHUTDOWN.exe (for Terminal Services use: <a href="tsshutdn.html">TsShutDn</a>)</h1> 
+<p>Shutdown the computer</p>
+<pre>Syntax
+      SHUTDOWN [<i>logoff_option</i>]  [/m \\<i>Computer</i>] [<i>options</i>]
+
+logoff_options:
+    /i         Display the GUI (must be the first option)
+    /l         Log off. This cannot be used with /m or /d option
+    /s         Shutdown
+    /r         Shutdown and Restart
+    <b>/a  </b>       Abort a system shutdown.
+               (only during the time-out period)
+    <b>/p</b>         Turn off the local computer with no time-out or warning
+               (only with /d)
+    <b>/h</b>         Hibernate the local computer (only with /f )
+    <b>/e</b>         Document the reason for an unexpected shutdown of a computer
+
+Options:<br>
+   /m \\<i>Computer</i>  : A remote computer to shutdown.
+
+   /t <i>xxx</i>         : Time until system shutdown in seconds. 
+                    The valid range is xxx=0-600 seconds. [default=30]
+   /c "<i>Msg</i>"       : An optional shutdown message [Max 127 chars]
+
+   /f             : Force running applications to close.
+                    This will not prompt for File-Save in any open applications.
+                    so will result in a loss of all unsaved data!!!
+
+   /d u:<i>xx:yy</i>     : List a USER (unplanned) reason code for the shutdown. 
+   /d P:<i>xx:yy</i>     : List a PLANNED reason code for the shutdown.
+                     <i>xx</i> Specifies the major reason code (0-255)
+                     <i>yy</i> Specifies the minor reason code (0-65536)
+
+Options in <b>bold</b> are for Windows 2003 and later</pre>
+<p>When using this command to reboot a server, the shutdown process will normally allow  30 seconds to ensure each running service has time to stop. Services are shutdown in alphabetical order. The shutdown may be done made faster if  the services are first halted in a specific order using <a href="net_service.html">NET STOP</a> or <a href="sc.html">SC</a>.</p>
+<p>   Reason codes:<br>
+  E = Expected<br>
+  &nbsp;U = Unexpected<br>
+&nbsp;&nbsp;&nbsp;P = Planned  (C = customer defined)</p>
+<pre>
+Type    Major Minor Title
+ U      0     0   Other (Unplanned)
+E       0     0   Other (Unplanned)
+E P     0     0   Other (Planned)
+ U      0     5   Other Failure: System Unresponsive
+E       1     1   Hardware: Maintenance (Unplanned)
+E P     1     1   Hardware: Maintenance (Planned)
+E       1     2   Hardware: Installation (Unplanned)
+E P     1     2   Hardware: Installation (Planned)
+  P     2     3   Operating System: Upgrade (Planned)
+E       2     4   Operating System: Reconfiguration (Unplanned)
+E P     2     4   Operating System: Reconfiguration (Planned)
+  P     2     16  Operating System: Service pack (Planned)
+        2     17  Operating System: Hot fix (Unplanned)
+  P     2     17  Operating System: Hot fix (Planned)
+        2     18  Operating System: Security fix (Unplanned)
+  P     2     18  Operating System: Security fix (Planned)
+E       4     1   Application: Maintenance (Unplanned)
+E P     4     1   Application: Maintenance (Planned)
+E P     4     2   Application: Installation (Planned)
+E       4     5   Application: Unresponsive
+E       4     6   Application: Unstable
+ U      5     15  System Failure: Stop error
+E       5     19  Security issue
+ U      5     19  Security issue
+E P     5     19  Security issue
+E       5     20  Loss of network connectivity (Unplanned)
+ U      6     11  Power Failure: Cord Unplugged
+ U      6     12  Power Failure: Environment
+  P     7     0   Legacy API shutdown</pre>
+<p><b>Examples</b></p>
+<p> Shutdown the local system immediately:<br>
+<br>
+<span class="code">SHUTDOWN /s </span><br>
+<br>
+Restart the local system in 60 seconds time and specify the reason &quot;Application: Installation (Planned)&quot; : </p>
+<p class="code"> SHUTDOWN /r /t 60  /d P:4:2</p>
+<p>Restart the  remote system <span class="code">server64</span> and specify the reason &quot;Security Fix, Planned&quot; </p>
+<p class="code">SHUTDOWN /r /m \\server64 /d P:2:17</p>
+<p class="quote"><i> &ldquo;I shall go the way of the open sea, To the lands I knew before you came,<br>
+And the cool ocean breezes shall blow from me, The memory of your name&rdquo; ~ <a href="http://en.wikipedia.org/wiki/Laurence_Hope">Laurence Hope</a></i></p>
+<p>  <b> Related:</b><br>
+  <br>
+  <a href="logoff.html">LOGOFF</a> - Log off a user.<br>
+  <a href="bootcfg.html">BootCFG</a> - Edit Boot.ini settings. <br>
+  <a href="psshutdown.html">PsShutdown</a> - SysInternals command line tool<br>
+<a href="tsshutdn.html">TsShutDn</a> - Terminal Services Shutdown<br>
+<a href="eventcreate.html">EVENTCREATE</a> - Add a message to the Windows event log<br>
+<a href="http://www.stefan-kuhr.de/cms/index.php?option=com_content&view=article&id=59&Itemid=70">PowerOff</a> - Stefan Kuhr utility (NT / 2K)<br>
+Powershell:<br>
+<span class="code"> $os = (<a href="http://ss64.com/ps/get-wmiobject.html">Get-WmiObject</a> Win32_OperatingSystem -ComputerName MyServer64)<br>
+$os.psbase.Scope.Options.EnablePrivileges = $true<br>
+$os.reboot()</span></p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="shutdown.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Devcon | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>DEVCON.exe (<a href="http://support.microsoft.com/?kbid=311272">Download</a>)</h1>
+<p> Device Manager</p>
+<pre>Syntax
+      devcon.exe [-r] [-m:\\<i>machine</i>] <i>command</i> [<i>arg</i>...]
+
+      devcon.exe help <i>command</i>
+
+Key
+   -r       Reboot the machine after command is complete, if needed.
+
+   <i>machine</i>  Name of target machine.
+
+   <i>command</i>  The command to perform (see below).
+
+   <i>arg</i>...   One or more arguments if required by command.
+
+Commands: 
+  classfilter    Allow modification of class filters.
+  classes        List all device setup classes.
+  disable        Disable devices that match the specific hardware/instance ID.
+  driverfiles    List driver files installed for devices.
+  drivernodes    List all the driver nodes of devices.
+  enable         Enable devices that match the specific hardware/instance ID.
+  find           Find devices that match the specific hardware/instance ID.
+  findall        Find devices including those that are not present.
+  help           Display this information.
+  hwids          List hardware ID's of devices.
+  install        Manually install a device.
+  listclass      List all devices for a setup class.
+  reboot         Reboot local machine.
+  remove         Remove devices that match the specific hardware/instance ID.
+  rescan         Scan for new hardware.
+  resources      List hardware resources of devices.
+  restart        Restart devices that match the specific hardware/instance ID.
+  stack          List expected driver stack of devices.
+  status         List running status of devices.
+  update         Manually update a device.
+  UpdateNI       Manually update a device without user prompt 
+  SetHwID        Add, delete, and change the order of hardware IDs of root-enumerated devices.
+</pre>
+<p> DevCon is not redistributable. It is provided for use as a debugging and development tool. <b><br>
+<br>
+Examples:</b></p>
+<p>List all known PCI devices on the computer pc64.</p>
+<p class="code">devcon -m:\\pc64 find pci\*</p>
+<p>Install a new instance of the Microsoft loopback adaptor and  restart if required. This creates a new root-enumerated device node with which you can install a &quot;virtual device,&quot; such as the loopback adaptor. </p>
+<p class="code">devcon -r install %WINDIR%\Inf\Netloop.inf *MSLOOP</p>
+<p>List all known setup classes. Displays both the short  name and the descriptive name.</p>
+<p class="code">devcon classes</p>
+<p>Lists files that are associated with each device in the ports setup class.</p>
+<p class="code">devcon driverfiles =ports</p>
+<p>Disable all devices that have a hardware ID that ends in &quot;MSLOOP&quot; (including &quot;*MSLOOP&quot;).</p>
+<p class="code">devcon disable *MSLOOP</p>
+<p>List all compatible drivers for the device ROOT\PCI_HAL\PNP0A03. This can be used to determine why an integral device information (.inf) file was chosen, instead of a third-party .inf file.</p>
+<p class="code">devcon drivernodes @ROOT\PCI_HAL\PNP0A03</p>
+<p>Enable all devices that have a hardware ID of &quot;*MSLOOP&quot;. The single quotation mark indicates that the hardware ID must be taken literally (in other words, the asterisk [&quot;*&quot;] actually is an asterisk; it is not a wildcard character).</p>
+<p class="code">devcon enable '*MSLOOP</p>
+<p>List device instances of all devices that are present on the local computer.</p>
+<p class="code">devcon find *</p>
+<p>List all known peripheral component interconnect (PCI) devices that are on the local computer (this command assumes that a device is PCI if it has a hardware ID that is prefixed by &quot;PCI\&quot;).</p>
+<p class="code">devcon find pci\*</p>
+<p>List devices that are a member of the ports setup class and that contain &quot;PNP&quot; in their hardware ID.</p>
+<p class="code">devcon find =ports *pnp*</p>
+<p>List devices that are present that are a member of the ports setup class and that are in the &quot;root&quot; branch of the enum tree (the instance ID is prefixed by &quot;root\&quot;). Note that you should not make any programmatic assumption about how an instance ID is formatted. To determine root devices, you can look at device status bits. This feature is included in DevCon to aid in debugging.</p>
+<p class="code">devcon find =ports @root\*</p>
+<p>List &quot;nonpresent&quot; devices and devices that are present for the ports class. This includes devices that have been removed, devices that have been moved from one slot to another and, in some cases, devices that have been enumerated differently due to a BIOS change.</p>
+<p class="code">devcon findall =ports</p>
+<p>List all devices that are present for each class named (in this case, USB and 1394).</p>
+<p class="code">devcon listclass usb 1394</p>
+<p>Remove all USB devices. Devices that are removed are listed with their removal status.</p>
+<p class="code">devcon remove @usb\*</p>
+<p>Rescan for new Plug and Play devices.</p>
+<p class="code">devcon rescan</p>
+<p>List the resources that are used by all devices in the ports setup class.</p>
+<p class="code">devcon resources =ports</p>
+<p>Restart the loopback adaptor ROOT\*MSLOOP\0000. The single quotation mark in the command indicates that the instance ID must be taken literally.</p>
+<p class="code">devcon restart =net @'ROOT\*MSLOOP\0000</p>
+<p>List all hardware IDs of mouse class devices on the system.</p>
+<p class="code">devcon hwids=mouse</p>
+<p>Assign the hardware ID, beep, to the legacy beep device.</p>
+<p class="code">devcon sethwid @ROOT\LEGACY_BEEP\0000 := beep</p>
+<p>List the status of each device present that has an instance ID that begins with &quot;pci\&quot;.</p>
+<p class="code">devcon status @pci\*</p>
+<p>List the status of an Advanced Configuration and Power Interface (ACPI)-enumerated serial port.</p>
+<p class="code">devcon status @ACPI\PNP0501\1</p>
+<p>List the status of all COM ports. </p>
+<p class="code">devcon status *PNP05* </p>
+<p><b>Errorlevels</b> returned by DevCon.exe:<br>
+0 = success.<br>
+1 - restart is required.<br>
+2 = failure.<br>
+3 = syntax error. <br>
+<br>
+<i class="quote"> “I've learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel” ~ Maya Angelou</i></p>
+<p><b>  Related:</b><br>
+<br>
+<a href="scriptit.html"> </a><a href="diskpart.html">DISKPART</a> - Disk Administration<br>
+PNPUtil.exe - Plug-and-Play Utility <br>
+<a href="fsutil.html">FSUTIL</a> - File and Volume utilities<br>
+<a href="driverquery.html">DriverQuery</a> Display installed device drivers</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="devcon.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

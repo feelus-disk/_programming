@@ -1,0 +1,129 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Ver - OS version | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>VER</h1> 
+<p>Display the current operating system version.</p>
+<pre>Syntax
+      VER</pre>
+<p>Use ver to find specific operating systems like this:</p>
+<pre>@Echo off
+Setlocal
+:: Get windows Version numbers
+For /f "tokens=2 delims=[]" %%G in ('ver') Do (set _version=%%G) 
+
+For /f "tokens=2,3,4 delims=. " %%G in ('echo %_version%') Do (set _major=%%G& set _minor=%%H& set _build=%%I) 
+
+Echo Major version: %_major%  Minor Version: %_minor%.%_build%
+
+if "%_major%"=="5" goto sub5
+if "%_major%"=="6" goto sub6
+
+Echo unsupported version
+goto:eof
+
+:sub5
+::Winxp or 2003
+if "%_minor%"=="2" goto sub_2003
+Echo Windows XP [%PROCESSOR_ARCHITECTURE%]
+goto:eof
+
+:sub_2003
+Echo Windows 2003 or XP 64 bit [%PROCESSOR_ARCHITECTURE%]
+goto:eof
+
+:sub6
+if "%_minor%"=="1" goto sub7
+Echo Windows Vista or Windows 2008 [%PROCESSOR_ARCHITECTURE%]
+goto:eof
+
+:sub7
+Echo Windows 7 or Windows 2008 R2 [%PROCESSOR_ARCHITECTURE%]
+goto:eof</pre>
+<p> A very simple method of version checking is to pipe a version string into FIND, however there is a possibility that something which is a unique string today may match a minor version released in the future e.g. the following would also match  7.6.1<br>
+</p>
+<pre>ver | find &quot;6.1&quot; &gt; nul
+if %ERRORLEVEL% == 0 goto ver_2008R2</pre>
+<h2><a id="versions"></a>List of Windows Version numbers</h2>
+<p>Windows 1.0 	<span class="code">1.04 <br>
+</span>Windows 2.0 	<span class="code">2.11 <br>
+</span>Windows 3.0 	<span class="code">3 <br>
+</span>Windows 95 	<span class="code">4.0.950</span><br>
+Windows XP<span class="code"> 5.1.2600 </span><br>
+ Windows XP Professional x64 Edition 	<span class="code">5.2.3790 </span><br>
+Windows Home Server 	<span class="code">5.2.3790</span><br>
+Windows Server 2003<span class="code"> 5.2.3790 </span><br>
+Windows Server 2003, Service Pack 1 	<span class="code">5.2.3790.1180 </span><br>
+Windows Server 2003 	<span class="code">5.2.3790.1218 <br>
+</span>Windows Vista, RTM (Release to Manufacturing) 	<span class="code">6.0.6000.16386 </span><br>
+Windows Vista 	<span class="code">6.0.6000</span> / Windows Server 2008<span class="code"> 6.0.6001 </span><br>
+Windows Vista, Service Pack 2 / Server 2008 Sp2<span class="code"> 6.0.6002 </span><br>
+Windows 7, RTM (Release to Manufacturing) 	<span class="code">6.1.7600.16385 </span><br>
+Windows 7 	<span class="code">6.1.7600 </span><br>
+Windows 7, Service Pack 1 	<span class="code">6.1.7601 </span><br>
+Windows Server 2008 R2, RTM (Release to Manufacturing)<span class="code"> 6.1.7600.16385<br>
+</span>Windows 8, RTM (Release to Manufacturing)<span class="code"> 6.2.9200.16384</span><br>
+Windows 8 	<span class="code">6.2.9200</span><br>
+Windows Server 2012 <span class="code">6.2.9200</span><br>
+Windows 8.1 	<span class="code">6.3.9600.16384.130821-1623<br>
+</span>Windows Server 2012 R2 <span class="code">6.3.9600</span><br>
+Windows 10 Technical Preview 	<span class="code">6.4.9841</span><br>
+</p>
+<h2>Service Pack Version</h2>
+<p>This <a href="spack.txt">Batch script</a> will return the Service Pack level.<br>
+</p>
+<h2>32 bit or 64 bit process detection</h2>
+<p>The environment variable PROCESSOR_ARCHITECTURE holds the following possible values:</p>
+<p>64-bit process: <span class="code">AMD64</span> or <span class="code">IA64</span><br>
+32-bit process or WOW64 (32bit Program on 64 bit OS): <span class="code">x86</span></p>
+<p>If we are running WOW64 then PROCESSOR_ARCHITEW6432 =<span class="code">AMD64</span> </p>
+<p class="code">IF PROCESSOR_ARCHITECTURE == x86 AND<br>
+&nbsp;&nbsp;PROCESSOR_ARCHITEW6432 NOT DEFINED THEN<br>
+&nbsp;&nbsp;// OS is 32bit<br>
+ELSE<br>
+&nbsp;&nbsp;// OS is 64bit<br>
+END IF</p>
+<p>via <a href="http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx">David Wang</a></p>
+<p>VER is an <a href="syntax-internal.html">internal</a> command.</p>
+<p class="quote"><i>&ldquo;Always be a first-rate version of yourself, instead of a second-rate version of somebody else&rdquo; ~ Judy Garland </i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="http://support.microsoft.com/?kbid=190899">Q190899</a> - How to Determine 
+the OS Type in a Logon Script<br>
+Gettype.exe - Resource Kit
+<br>
+WINVER.exe - Opens the GUI Version dialogue box (Help, About) <br>
+FILEVER - DLL version information (Resource Kit, XP Support tool)<br>
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dn302074%28v=vs.85%29.aspx">OS  version changes</a> in Windows 8.1 and Windows Server 2012 R2 <br>
+<a href="https://en.wikipedia.org/wiki/Timeline_of_Microsoft_Windows">Wikipedia - Timeline of Microsoft Windows</a><br>
+Powershell: <a href="http://ss64.com/ps/get-wmiobject-win32.html">Get OS and Service pack</a><br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/uname.html">uname -r</a> - Print system information</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="ver.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

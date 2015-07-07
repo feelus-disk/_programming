@@ -1,0 +1,111 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>InstalledApps - Get applications installed | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>InstalledApps.ps1</h1> 
+<p>List  the applications installed on one or more machines.<br>
+Call the script below passing the name of a text file containing the machines to query.<br>
+The output is written to a set of text files in the current directory, one per machine:  Installed_Applications_&lt;machine_name&gt;.txt</p>
+<pre>Param($file)
+
+function GetCompInfo{
+    Param($srv)
+    # Ping the machine to see if it is online
+    $online=PingMachine $mc
+    if ($online -eq $true)
+    {
+        Get-InstalledApps $srv |sort-object | out-file -filepath "Installed_Applications_$srv.txt"
+    }
+    else
+    {
+        Write-Verbose "     - Ping Failed!"
+        Write-Host "Error: $srv not Pingable" -fore RED
+    }
+}
+
+function Get-InstalledApps {
+    Param([string]$server)
+    Begin{
+        function CheckRegKey{
+            param([string]$srv)
+            $key = "Software\Microsoft\Windows\CurrentVersion\Uninstall"
+            $type = [Microsoft.Win32.RegistryHive]::LocalMachine
+            $regKey =[Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey($type, $Srv)
+            $regKey = $regKey.OpenSubKey($key)
+            foreach($sub in $regKey.GetSubKeyNames())
+            {
+                if($regKey.OpenSubKey($sub).GetValue("DisplayName"))
+                {
+                    $regKey.OpenSubKey($sub).GetValue("DisplayName")
+                }
+                else
+                {
+                    $sub
+                }
+            }
+        }
+        $process = @()
+    }
+    Process{
+        if($_)
+        {
+            $process += $_
+        }
+    }
+    End{
+        if($Server)
+        {
+            $process += $Server
+        }
+        foreach($s in $process)
+        {
+            CheckRegKey $s
+        }
+    }
+} 
+
+function PingMachine {
+   Param([string]$machinename)
+   $pingresult = Get-WmiObject win32_pingstatus -f "address='$machinename'"
+   if($pingresult.statuscode -eq 0) {$true} else {$false}
+}
+
+## Main
+
+if($file -and (test-Path $file))
+{
+    foreach($comp in (get-Content $file))
+    {
+        Write-Host " +++ Processing Computer [$Comp] +++"
+        GetCompInfo $comp
+    }
+}</pre>
+<p>
+  <b>Example</b></p>
+<p> Call the script above passing the name of a text file containing the machines to query, one per line.<br>
+Assuming the script above is saved in the current directory as InstalledApps.ps1</p>
+<p><span class="code">PS C:\&gt; ./installedapps workstations.txt </span></p>
+<p class="quote"><i>&ldquo;In any collection of data, the figure most obviously correct, beyond all need of checking, is the mistake&rdquo; ~ Finagle's Third Law</i></p>
+<p><b>Related:</b></p>
+<p><b></b><a href="http://ss64.com/nt/psinfo.html">psinfo</a> - List information about a system</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-installedapps.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

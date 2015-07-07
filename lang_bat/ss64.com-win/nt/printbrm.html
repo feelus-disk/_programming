@@ -1,0 +1,92 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>PRINTBRM.exe | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>PRINTBRM.exe</h1> 
+<p>Print queue Backup/Recovery/Migration.</p>
+<pre>Syntax
+      PRINTBRM -b -s <i>\\server_name</i> -f <i>file_name</i> <i>options</i>
+
+      PRINTBRM -r -s <i>\\server_name</i> -f <i>file_name</i> <i>options</i>
+
+      PRINTBRM -q <i>options</i>
+
+Key
+   -s <i>server_name</i> The unc path to the print server.
+   -b             Back up the server to the specified file.
+   -r             Restore the configuration in the file to the server.
+   -q             Query the server or the backup file.
+   -f <i>file_name   </i>The backup file.
+   -d <i>directory</i>   Unpack the backup file to the directory (with -r),
+                  or repack a backup file from the directory (with -b).
+   -o force       Forces overwriting of existing objects.
+   -p all         Publish all printers in the directory, or
+   -p org         Publish the printers that were originally published.
+   -nobin         Omit binary files from the backup.
+   -lpr2tcp       Convert LPR ports to standard TCP/IP ports on restore.
+   -c <i>file_name</i>   Use the specified configuration file.
+   -noacl         Remove ACLs from print queues on restore.
+   -?             Help</pre>
+<p>PrintBRM may not be included in the Windows <a href="path.html">PATH</a> but will be found at <span class="code">%Windir%\System32\spool\tools\brintbrm.exe</span></p>
+<p>In Windows 2008 PrintBRM  replaces the old Win 2003 PrintMig utility, it is backwards compatible with 2003.<br>
+in Windows Server 2012 PrintBRM supports both v3 and v4 print drivers and can backup to .CAB files greater than 2 GB .</p>
+<p>Get a list of all printer share names for a print server: <span class="code">net view \\printserv1</span></p>
+<p>PrintBRM can be run over the network to remote servers, but the Print$ share must exist on both the source and target server and the Remote Registry Service must be running.</p>
+<p>If you move printers to a different domain, use the <span class="code">-NoACL</span> parameter  to prevent the restoration of  print queue’s ACLs.</p>
+<p>A backup or export operation using PrintBRM produces a compressed file that is used for the restore or import operation. This includes XML files for drivers, forms, port monitors, ports, printers, spooler directories. These details can be edited by using the<span class="code"> -d </span>option to unpack the file to XML, edit the files and then repack into a modified export file.</p>
+<p><b>Example</b></p>
+<p> Backup your printer queues:</p>
+<p class="code">C:\&gt; Printbrm.exe –b –nobin –s \\PrintServer64 –f C:\scripts\backup.printerExport</p>
+<p> On the new print server computer, manually install the updated printer drivers. <br>
+Create a BrmConfig.xml configuration file to map the old drivers to the new drivers:</p>
+<pre>&lt;BrmConfig&gt;
+  &lt;PLUGINS&gt;
+  &lt;/PLUGINS&gt;
+
+  &lt;LanguageMonitors&gt;
+  &lt;/LanguageMonitors&gt;
+
+  &lt;DriverMap&gt;
+    &lt;DRV old=&quot;OldDriverName1&quot; new=&quot;NewDriverName1&quot;/&gt;
+    &lt;DRV old=&quot;OldDrverName2&quot; new=&quot;NewDriverName2&quot;/&gt;
+  &lt;/DriverMap&gt;
+&lt;/BrmConfig&gt;</pre>
+<p>Restore the printers specifying your configuration file using your configuration file:<br>
+<span class="code">C:\&gt; PrintBrm.exe –r –c BrmConfig.xml –f D:\scripts\backup.printerExport –o force</span></p>
+<p class="quote"><i>&ldquo;Lots of people want to ride with you in the limo, but what you want is someone who will take the bus with you when the limo breaks down&rdquo; ~ Oprah Winfrey</i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="net_share.html">NET PRINT</a> - View and Delete print jobs<br>
+<a href="print.html">PRINT</a> - Print a text file<br>
+<a href="http://ss64.com/vb/syntax-printsave.html">PrintSave.vbs</a> - Save and Restore Windows Printer Connections<br>
+<a href="http://support.microsoft.com/?id=938923">Q938923</a> - Back up and  restore printers from Win Server 2003 to Win Server 2008<br>
+Equivalent bash command (Linux):<a href="http://ss64.com/bash/printf.html"> printf</a> - Format and print data</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="printbrm.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

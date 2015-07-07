@@ -1,0 +1,112 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Get-ChildItem gci | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Get-ChildItem</h1> 
+<p>Get  the items and child items in a folder or registry key. (dir / ls / gci)</p>
+<pre>Syntax
+      Get-ChildItem <b>[</b> [-path] <i>string</i>[] <b>|</b> [-literalPath] <i>string</i>[] <b>]</b> 
+         [[-filter] <i>string</i>] [-include <i>string</i>[]]  [-exclude <i>string</i>[]] [-name] 
+            [-recurse] [-force] [-UseTransaction] [<i>CommonParameters</i>]
+
+Key
+   -path <i>string</i>
+       The paths to the items from which content is to be retrieved.
+       Wildcards are permitted. Default is the current directory (.)
+
+   -literalPath <i>string</i>
+       Like Path above, only the value is used exactly as typed.
+       No characters are interpreted as wildcards. If the path includes any
+       escape characters then enclose the path in single quotation marks.
+        
+   -include <i>string</i>
+       Include only the specified items from the Path. e.g. 'May*'
+        
+   -exclude <i>string</i>
+       Omit the specified items from the Path e.g. '*SS64*'
+        
+   -filter <i>string</i>
+       A filter in the provider's format or language. 
+       The exact syntax of the filter (wildcard support etc) depends on the provider.
+       Filters are more efficient than -include/-exclude, because the provider
+       applies the filter when retrieving the objects, rather than having 
+       PowerShell filter the objects after they are retrieved.
+	   
+   -name 
+       Retrieve only the names of the items.
+       This is useful when piping the names of the child items to another command.
+        
+   -recurse 
+       Get the items plus all child items of the location(s).
+       Only for paths that point to a container such as C:\Windows or C:\Windows\*
+       A path such as *.txt will not have any child items.
+
+   -force
+       Get all items including hidden or system files, but will not override
+       security/file permissions.
+        
+   -UseTransaction
+       Include the command in the active <a href="syntax-transactions.html">transaction</a>.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Standard <a href="get-alias.html">Aliases</a> for Get-ChildItem:<span class="code"> dir, list, ls, <b>gci</b></span></p>
+<p>When listing files and sub-directories, get-childitem will return the mode (attributes), last write time, file size (length), and the filename.<br>
+Valid modes (attributes) are: <span class="code">d</span> (directory), <span class="code">a</span> (archive), <span class="code">r</span> (read-only), <span class="code">h</span> (hidden), and <span class="code">s</span> (system).</p>
+<p>The default path is the current directory  ' . ' <br>
+To specify all  the items in the current directory use '<span class="code">*</span>'</p>
+<p><b>Wildcards</b></p>
+<p>When listing a single folder (without recursion), you can do
+<span class="code">get-childitem c:\music\*.mp3</span><br>
+Unlike  the CMD shell, in PowerShell the path filter of <span class="code">c:\music\*.mp3</span> is applied only to files not folders (or other containers)<br>
+The way 
+to apply a wildcard recursively to a whole tree of items in PowerShell is to use the -include parameter:<br> 
+<span class="code">get-childitem c:\music\ -include *.mp3 -recurse</span><br>
+<br>
+This change in syntax was required because some providers (such as the registry provider) allow backslashes in a value name, separating the -path from the -include string makes it possible to use <span class="code">get-childitem</span> against any provider: files, registry, processes etc.</p>
+<p><b>Examples</b></p>
+<p>Get   the child items in the current location:<br>
+<span class="code">PS C:\&gt; get-childitem</span><br>
+<br>
+List all the .XLS files in a folder and all sub-folders:<br>
+<span class="code">PS C:\&gt; $a = get-childitem \\Server64\Work\ -Include *.xls -Recurse</span><br>
+<span class="code">PS C:\&gt; $a.Count</span></p>
+<p> List all the .XLS files in a folder:<br>
+<span class="code">PS C:\&gt; get-childitem \\Server64\Work\* -Include *.xls</span></p>
+<p>List all the files owned by BillG:<span class="code"><br>
+PS C:\&gt; PS C:\&gt; get-childitem C:\Work\ -recurse | get-acl | where {$_.Owner -match &quot;BillG&quot;}</span></p>
+<p>Get a list of sub-folder names and store in $folders<span class="code"><br>
+PS C:\&gt; $folders = gci 'C:\YourDir' | Where-Object{($_.PSIsContainer)} | foreach-object{$_.Name}</span></p>
+<p>Measure the size of a folder:<br>
+<span class="code">PS C:\&gt; Get-ChildItem C:\Work\ -Recurse -Force |
+<a href="measure-object.html">Measure-Object</a> -property length -sum </span></p>
+<p>Get all the certificates in the certificate store, use the dynamic parameter <span class="code">-codesigningcert</span> to get only certificates with code-signing authority. ( see &quot;get-help certificate&quot; for more)<br>
+<span class="code">PS C:\&gt; get-childitem cert:\. -recurse -codesigningcert</span></p>
+<p class="quote"><i>&ldquo;You [humans] think that you an insignificant, while there is a great universe contained in you&rdquo; ~ Ali ibn Abi Talib</i></p>
+<p><b>Related:</b><br>
+<br>
+<a href="get-item.html">Get-Item</a> - Get a file object or get a registry (or other namespace) object<br>    
+<a href="get-location.html">Get-Location</a> - Display the current location<br>    
+<a href="join-path.html">Join-Path -resolve</a> - Combine a path and child-path</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="get-childitem.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Receive-Job | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Receive-Job</h1> 
+<p>Get the results of  PowerShell background jobs in the current session.</p>
+<pre>Syntax
+      Receive-Job [-Job] Job[] [[-ComputerName] <i>string</i>[]] [-Keep] [-NoRecurse] [<i>CommonParameters</i>]
+
+      Receive-Job [[-InstanceId] <i>Guid</i>[]] [-Keep] [-NoRecurse] [<i>CommonParameters</i>]
+
+      Receive-Job [-Job] <i>Job</i>[] [[-Location] <i>string</i>[]] [-Keep] [-NoRecurse] [<i>CommonParameters</i>]
+
+      Receive-Job [[-Name] <i>string</i>[]] [-Keep] [-NoRecurse] [<i>CommonParameters</i>]
+
+      Receive-Job [-Job] <i>Job</i>[] [[-Session] <i>PSSession</i>[]] [-Keep] [-NoRecurse] [<i>CommonParameters</i>]
+
+      Receive-Job [-Id] <i>Int32</i>[] [-Keep] [-NoRecurse] [<i>CommonParameters</i>]
+
+Key
+   -ComputerName<i>string</i>[]
+       Get the results of jobs that were run on the specified computers.
+       Enter the computer names. The default is all jobs in the current session.
+
+       This parameter selects from among the job results that are stored on the local computer.
+       It does not get data from remote computers. To get job results that are stored on remote
+       computers, use the Invoke-Command cmdlet to run a Receive-Job command remotely.
+
+    -Id <i>Int32</i>[]
+       Get the results of only jobs with the specified IDs.
+       The default is all jobs in the current session.
+
+       The ID is an integer that uniquely identifies the job within the current session.
+       It is easier to remember and to type than the instance ID, but it is unique only
+       within the current session. You can type one or more IDs (separated by commas).
+       To find the ID of a job, type &quot;Get-Job&quot; without parameters.
+
+   -InstanceId <i>Guid</i>[]
+       Get the results of jobs with the specified instance IDs.
+       The default is all jobs in the current session.
+
+       An instance ID is a GUID that uniquely identifies the job on the computer.
+       To find the instance ID of a job, use Get-Job.
+
+   -Job <i>Job</i>[]
+       The job for which results are being retrieved.
+       This parameter is required in a Receive-Job command.
+       Enter a variable that contains the job or a command that gets the job.
+       You can also pipe a job object to Receive-Job.
+
+   -Keep
+       Save the job results in the system, even after you have received them.
+       By default, the job results are deleted when they are retrieved. 
+
+       To delete the results, use Receive-Job to receive them again without the
+       Keep parameter, close the session, or use Remove-Job to delete the job from the session.
+
+   -Location <i>string</i>[]
+       Get only the results of jobs with the specified location.
+       The default is all jobs in the current session.
+
+   -Name <i>string</i>[]
+       Get the results of jobs with the specified friendly name.
+       The default is all jobs in the current session.
+
+   -NoRecurse
+       Get results only from the specified job.
+       By default, Receive-Job also gets the results of all child jobs of the specified job.
+
+   -Session <i>PSSession</i>[]
+       Get the results of jobs that were run in the specified PowerShell session (PSSession).
+       Enter a variable that contains the PSSession or a command that gets the PSSession,
+       such as a Get-PSSession command.
+       The default is all jobs in the current session.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p> Standard <a href="get-alias.html">Aliases</a> for Receive-Job:<span class="code"> rcjb</span></p>
+<p>Receive-Job  gets the results of jobs started with <a href="start-job.html">Start-Job</a> or the -AsJob parameter of any cmdlet.</p>
+<p> When  a PowerShell background job is started, the results do not appear immediately. Instead, the command returns an object representing the background job. The job object contains useful information about the job, but it does not contain the results.<br>
+<br>To get the results of the command, use  <span class="code">Receive-Job</span>. Receive-Job gets the results that have been generated by the time that the Receive-Job command is submitted. If the results are not yet complete, you can run additional Receive-Job commands to get the remaining results. <br>
+<br>By default, job results are deleted from the system when you receive them, the <span class="code">-Keep</span> parameter can use used to save the results. To delete the job results, receive them again (without <span class="code">-Keep</span>), close the session, or use  <a href="remove-job.html">Remove-Job</a>  to delete the job from the session.</p>
+<p><b>Examples</b></p>
+<p>Get  the results of a particular job:</p>
+<p><span class="code">PS C:\&gt; $job = start-job -scriptblock {get-process}<br>
+PS C:\&gt; receive-job -job $job<br>
+</span>Alternatively with a pipeline: <span class="code"><br>
+PS C:\&gt; $job | receive-job</span></p>
+<p>Start a background job that runs Get-Service  on server64 and server65:</p>
+<p><span class="code">PS C:\&gt; $j = invoke-command -computername Server64, Server65 -scriptblock {get-service} -AsJob</span></p>
+<p>List the two child jobs created by the above, then Receive the results of the second:</p>
+<p><span class="code">PS C:\&gt; $j.childjobs</span><br>
+<span class="code">PS C:\&gt; receive-job -name Job2 -keep</span><br>
+<br>Create PSSessions on two servers, then use  Invoke-Command  to run a Start-Job command in each of the PSSessions:</p>
+<p class="code">PS C:\&gt; $s = new-pssession -computername Server64, Server65<br>
+PS C:\&gt; $j = invoke-command -session $s -scriptblock {start-job -scriptblock {get-eventlog -logname system}}<br>
+PS C:\&gt; $j<br>
+PS C:\&gt; $results = invoke-command -session $s -scriptblock {param($j) receive-job -job $j} -ArgumentList $j</p>
+<p>Using Invoke-Command to run  Start-Job, will start independent jobs on each of the  computers. As a result, the command above returns two job objects representing  jobs 
+run locally on two different computers.<br>
+<br>In the same way the final Invoke-Command above  runs a Receive-Job command in each of the PSSessions  and saves the results to $results.<br>
+<br>Because $j is a local variable, the script block uses the &quot;param&quot; keyword to declare the variables in the command and the ArgumentList parameter to supply the value of $j.</p>
+<p class="quote"><i>“Don't tell people how to do things. Tell them what to do and let them surprise you with their results” ~  General George S. Patton</i>
+<p><b>Related:</b><br><br>
+<a href="get-job.html">Get-Job</a> - Get PowerShell background jobs that are running<br> 
+<a href="remove-job.html">Remove-Job</a> - Delete a PowerShell background job
+<!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="receive-job.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

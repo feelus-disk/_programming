@@ -1,0 +1,119 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Start-Transaction | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Start-Transaction</h1>
+<p>Start a transaction.</p>
+<pre>Syntax
+      Start-Transaction [-Independent]
+         [-RollbackPreference {Error | TerminatingError | Never}]
+            [-Timeout <i>int</i>] [-Confirm] [-WhatIf]  [<i>CommonParameters</i>]
+
+Key
+   -Independent
+       Start a transaction that is independent of any transactions in progress.
+       By default, if you use Start-Transaction while another transaction is in
+       progress, a new subscriber is added to the transaction in progress.
+       This parameter only takes effect when a transaction is already in progress in the session. 
+        
+       By default, if you use Start-Transaction while a transaction is in progress,
+       the existing transaction object is reused and the subscriber count is
+       incremented. The effect is much like joining the original transaction.
+       An Undo-Transaction command will roll back the entire the transaction.
+       To complete the transaction, a Complete-Transaction command must be run for
+       each subscriber. Because most transactions that are in progress at the same time
+       are related, the default is sufficient for most uses.
+        
+       If you use the -Independent parameter, a new transaction is created that
+       can be completed or undone without affecting the original transaction.
+       However, because only one transaction can be active at a time, the new
+       transaction must be completed or rolled back before resuming the original transaction.
+        
+   -RollbackPreference <i>RollbackSeverity</i>
+       The conditions under which a transaction is automatically rolled back.
+       Valid values:
+        
+         <u>Error</u>              The transaction is rolled back automatically if a 
+                            terminating or non-terminating error occurs.
+         Terminating error  The transaction is rolled back automatically if a
+                            terminating error occurs.
+         Never              The transaction is never rolled back automatically.
+        
+   -Timeout <i>int</i>
+       The maximum time, in minutes, that the transaction may be active.
+       When the time-out expires, the transaction is automatically rolled back. 
+        
+       By default, there is no time-out for transactions that are started at
+       the command line. When transactions are started by a script, the
+       default time-out is 30 minutes.
+
+   -Confirm
+       Prompt for confirmation before executing the command.
+
+   -WhatIf
+       Describe what would happen if the command was executed without actually
+       executing the command.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Start-Transaction  starts a transaction, which is a series of commands that are managed as a unit. A transaction can be completed (&quot;committed&quot;), or it can be completely undone (&quot;rolled back&quot;) so that any data changed by 
+the transaction is restored to its original state. Because the commands in a transaction are managed as a unit, either all the commands are committed or all are rolled back. </p>
+<p>By default, transactions are rolled back automatically if any command in the transaction generates an error,  the -RollbackPreference parameter may be used to change this behavior.<br>
+<br>
+The cmdlets used in a transaction must be designed to support transactions. Cmdlets that support transactions have 
+a -UseTransaction parameter. <br>
+To perform transactions in a provider, the provider must support transactions. The  PowerShell Registry provider in Windows Vista and later versions of Windows supports transactions.</p>
+<p><b>Examples</b></p>
+<p>Show the properties and methods of the transaction object:</p>
+<p><span class="code">PS C:\&gt; get-transaction | get-member</span></p>
+<p>Show  the property values of a transaction object for a transaction that has been committed:</p>
+<p><span class="code">PS C:\&gt; cd hklm:\software<br>
+HKLM:\SOFTWARE&gt; Start-Transaction<br>
+HKLM:\SOFTWARE&gt; New-Item SS64 -UseTransaction<br>
+HKLM:\SOFTWARE&gt; Complete-Transaction<br>
+HKLM:\SOFTWARE&gt; Get-Transaction</span></p>
+<p>Use the -Timeout parameter of Start-Transaction to start a transaction that must be completed within two minutes. If the transaction is not complete when the timeout expires, it will roll back automatically:</p>
+<pre> PS C:\&gt; start-transaction -timeout 2
+ # Wait two minutes...
+ PS C:\&gt; get-transaction
+ PS C:\&gt; new-item HKCU:\Software\SS64 -UseTransaction
+ PS C:\&gt; start-transaction -timeout 2
+ # Wait two minutes...
+ PS C:\&gt;&gt; get-transaction
+
+ RollbackPreference SubscriberCount Status
+ ------------------ --------------- -----------
+ Error              1               RolledBack 
+ 
+ PS C:\&gt; New-item HKCU:\Software\SS64 -UseTransaction
+ New-Item : Cannot use transaction. The transaction has been rolled back or has timed out.
+ At line:1 char:9
+ + new-item &lt;&lt;&lt;&lt; MyCompany -UseTransaction</pre>
+<p>When the timeout expires, you are not notified, but the Status property of the transaction object is set to RolledBack and commands that use the UseTransaction parameter fail.</p>
+<p class="quote"><i>“For every sale you miss because you're too enthusiastic, you will miss a hundred because you're not enthusiastic enough” ~ Zig Ziglar</i></p>
+<p><b>Related:</b></p>
+<p><a href="complete-transaction.html">Complete-Transaction</a> - Commit the transaction<br>
+<a href="use-transaction.html">Use-Transaction</a> - Add a command or expression to the transaction <br>
+<a href="undo-transaction.html">Undo-Transaction</a> - Roll back a transaction</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="start-transaction.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

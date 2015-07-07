@@ -1,0 +1,152 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Powershell - Password expiry reminder email | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>PowerShell - password expiry reminder email</h1>
+<p>When connected to the domain with a Windows computer, you will normally be  warned at logon if your password is about to expire. A remotly connected (VPN/Citrix) user may never see this  warning, this can lead to unexpected password expiries that waste the time of both  remote workers and IT helpdesk staff.</p>
+<p>The script below can be run to send an HTML formatted email alert to users before their password expires. If the script is scheduled to run once per day, users whose password is due to expire in less than 5 days will get a daily reminder email.</p>
+<p> Change the values in <b>bold</b> to match your environment.</p>
+<pre># New-PasswordReminder.ps1
+
+###################################
+# Get the max Password age from AD 
+###################################
+function Get-maxPwdAge{
+   $root = [ADSI]"LDAP://<b>SS64domain</b>"
+   $filter = "(&(objectcategory=domainDNS)(distinguishedName=<b>DC=example,DC=com</b>))"
+   $ds = New-Object system.DirectoryServices.DirectorySearcher($root,$filter)
+   $dc = $ds.findone()
+   [int64]$maxpwdage = [System.Math]::Abs( $dc.properties.item("maxPwdAge")[0])
+   $maxpwdage/864000000000
+}
+
+###################################
+# Function to send HTML email to each user
+###################################
+
+function send_email ($days_remaining, $email, $name ) 
+{
+ $today = Get-Date
+ $today = $today.ToString("dddd (yyy-MMMM-dd)")
+ $date_expire = [DateTime]::Now.AddDays($days_remaining);
+ $date_expire = $date_expire.ToString("dddd (yyy-MMMM-dd)")
+ $SmtpClient = new-object system.net.mail.smtpClient 
+ $mailmessage = New-Object system.net.mail.mailmessage 
+ $SmtpClient.Host = "<b>MAIL64.example.com</b>" 
+ $mailmessage.from = "IT Helpdesk &lt;<b>your_email@example.com</b>&gt;" 
+ $mailmessage.To.add($email)
+ $mailmessage.Subject = "$name, Your password will expire soon."
+ $mailmessage.IsBodyHtml = $true
+
+ $mailmessage.Body = @"
+&lt;h5&gt;&lt;font face=Arial&gt;Dear $name, &lt;/font&gt;&lt;/h5&gt;
+&lt;h5&gt;&lt;font face=Arial&gt;Your password will expire in &lt;font color=red>&lt;strong&gt;$days_remaining&lt;/strong&gt;&lt;/font&gt; days
+ on &lt;strong&gt;$date_expire&lt;/strong&gt;&lt;br /&gt;&lt;br /&gt;
+Your domain password is required for Computer Login, remote VPN, and Email Access.&lt;br /&lt;br /&gt;
+To change your password, press CTRL-ALT-DEL and choose Change Password.&lt;br /&gt;&lt;br /&gt;
+For your password to be valid it must be 8 or more characters long and&lt;br /&gt;
+contain a mix of THREE of the following FOUR properties:&lt;br /&gt;&lt;br /&gt;
+    uppercase letters (A-Z)&lt;br /&gt;
+    lowercase letters (a-z)&lt;br /&gt;
+    numbers (0-9)&lt;br /&gt;
+    symbols (!"£$%^&*)&lt;br /&gt;&lt;br /&gt;
+If you have any questions, please contact the IT Helpdesk on <b>0000 000 000</b> &lt;br /&gt;&lt;br /&gt;
+ Generated on : $today&lt;br /&gt;&lt;br /&gt;
+_____________ &lt;br /&gt;
+&lt;br /&gt;&lt;/font&gt;&lt;/h5&gt;
+"@
+
+ $smtpclient.Send($mailmessage) 
+}
+
+###################################
+# Search for Non-disabled AD users that have a Password Expiry.
+###################################
+
+$strFilter = "(&(objectCategory=User)(logonCount>=0)(!(userAccountControl:1.2.840.113556.1.4.803:=2))(!(userAccountControl:1.2.840.113556.1.4.803:=65536)))"
+
+$objDomain = New-Object System.DirectoryServices.DirectoryEntry
+$objSearcher = New-Object System.DirectoryServices.DirectorySearcher
+$objSearcher.SearchRoot = $objDomain
+$objSearcher.PageSize = 1000
+$objSearcher.Filter = $strFilter
+$colResults = $objSearcher.FindAll();
+
+# how many days before PW expiry do we start sending reminder emails?
+$max_alert = <b>5</b>
+
+
+# Get the maximum password lifetime
+$max_pwd_life=Get-maxPwdAge
+
+$userlist = @()
+foreach ($objResult in $colResults)
+   {$objItem = $objResult.Properties; 
+   if ( $objItem.mail.gettype.IsInstance -eq $True) 
+      {      
+         $user_name = $objItem.name
+         $user_email = $objItem.email
+         #Transform the DateTime readable format
+         $user_logon = [datetime]::FromFileTime($objItem.lastlogon[0])
+         $result = $objItem.pwdlastset 
+         $user_pwd_last_set = [datetime]::FromFileTime($result[0])
+
+         #calculate the difference in Day from last time a password was set
+         $diff_date = [INT]([DateTime]::Now - $user_pwd_last_set).TotalDays;
+
+   $Subtracted = $max_pwd_life - $diff_date
+         if (($Subtracted) -le $max_alert) {
+            $selected_user = New-Object psobject
+            #$selected_user | Add-Member NoteProperty -Name "Name" -Value $objItem.name[0]
+            $selected_user | Add-Member NoteProperty -Name "Name" -Value $objItem.Item("displayname")
+            $selected_user | Add-Member NoteProperty -Name "Email" -Value $objItem.mail[0]
+            $selected_user | Add-Member NoteProperty -Name "LastLogon" -Value $user_logon
+            $selected_user | Add-Member NoteProperty -Name "LastPwdSet" -Value $user_pwd_last_set
+            $selected_user | Add-Member NoteProperty -Name "RemainingDays" -Value ($Subtracted)
+            $userlist+=$selected_user
+         }
+      }
+   }
+   
+###################################
+# Send email to each user
+###################################
+   foreach ($userItem in $userlist )
+   {
+    if ($userItem.RemainingDays -ge 0) {
+      send_email $userItem.RemainingDays $userItem.Email $userItem.Name
+      # send_email $userItem.RemainingDays testing@example.com $userItem.Name
+       }
+   }
+
+# END</pre>
+<p> Based on a script by <a href="http://my.bergersoft.net/2009/05/26/how-to-send-password-expire-alert-to-ad-users-with-powershell/">Levente Veres</a><br>
+This script assumes that you have not used <a title="Fine Grained Password policies" href="http://technet.microsoft.com/en-us/library/cc770394%28WS.10%29.aspx">Fine Grained Password policies </a>(Windows Server 2008), to override the Default Domain Policy.</p>
+<p>The default windows domain logon password reminder is 14 days, if you are also sending reminders by email, you may wish to reduce the logon reminder to 5 days or so, this can be  configured in the Default Domain Group Policy under <span class="code">Interactive logon: Prompt user to change password before expiration</span>.</p>
+<p class="quote"><i>&ldquo;I've seen  things you people wouldn't believe. Attack ships on fire off the  shoulder of Orion. I watched c-beams glitter in the dark near the  Tannhäuser Gate. All those moments will be lost in time, like tears in  rain&ldquo; ~ <a href="http://en.wikipedia.org/wiki/Tears_in_rain_soliloquy">Bladerunner</a></i></p>
+<p><b>Related:</b></p>
+<p><a href="http://www.ehloworld.com/318">ehloworld.com</a> - PW expiry reminder that will handle Fine Grained password policies (PowerShell)<br>
+<a href="http://blogs.msdn.com/b/adpowershell/archive/2010/02/26/find-out-when-your-password-expires.aspx">Find out when your Password Expires</a> - AD PowerShell blog - includes Fine Grained Password Policies.<br>
+<a href="http://www.sheenaustin.com/2009/06/19/active-directory-password-expiry-reminder-email/">Sheen austin</a> - AD Password Expiry Reminder Email (VBScript)<br>
+<a href="http://thelowedown.wordpress.com/2008/12/04/active-directory-automated-password-expiration-warnings/">Thelowedown</a> - AD Automated password expiration warnings (Perl)</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-expiry.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,357 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Windows Environment Variables  | Windows CMD | SS64.com</title>
+
+<style type="text/css">
+.grn { color: #009900; 	font-weight: bold; }
+#tbl
+{
+ border-collapse: collapse;
+ text-align: lef-t;
+ border: 1px solid grey; padding: 4px; width: 95%
+}
+#tbl td
+{
+	border-bottom: 1px solid #999;
+		padding: 6px 8px;
+}
+#tbl tbody tr:hover td
+{
+	background-color: #ddd;
+}
+td:nth-child(2) {  
+ text-align: center;
+}
+</style>
+</head>
+<body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Windows Environment Variables</h1> 
+<p> Environment variables are  mainly used within batch files, they can be created, 
+modified and deleted for a session using the <a href="set.html">SET</a> command. To make permanent changes, use <a href="setx.html">SETX</a> <br>
+<br>Variables can be displayed using either <a href="set.html">SET</a> or 
+<a href="echo.html">ECHO</a>.</p>
+<p>Variables have a percent sign on both sides: <span class="code">%ThisIsAVariable%</span><br>
+The variable name can include spaces, punctuation and mixed case: <span class="code">%_Another Ex.ample%<br>
+</span>(This is unlike <a href="syntax-args.html">Parameter variables</a> which only have one % sign and are always one character long: <span class="code">%A </span> )</p>
+<p>In a batch file the default behaviour is to read and expand variables <b>one line</b> at a time, for example:</p>
+<p><span class="code">&nbsp;SET /P _price=&quot;Enter the price: &quot;<br>
+&nbsp;ECHO %_price%</span></p>
+<p>The above will work, but the  version below will fail because <span class="code">%_price%</span> will remain undefined until processing reaches the next line, this behaviour can be changed using <a href="setlocal.html"><span class="code">SETLOCAL EnableDelayedExpansion</span></a></p>
+<p><span class="code">&nbsp;SET /P _price=&quot;Enter the price: &quot; <a href="syntax-redirection.html">&amp;</a> ECHO %_price%<br>
+&nbsp;ECHO That didnt work! </span></p>
+<h2>Standard (built-in) Environment Variables</h2>
+<table id="tbl">
+<tbody><tr>
+<th>Variable</th>
+<th>Volatile<br>
+(Read-Only)</th>
+<th>Default value in
+Windows 7/2008</th>
+</tr>
+<tr>
+<td class="code">ALLUSERSPROFILE</td>
+<td>&nbsp;</td>
+<td>C:\ProgramData</td>
+</tr>
+<tr>
+<td class="code">APPDATA</td>
+<td>&nbsp;</td>
+<td>C:\Users\<i>{username}</i>\AppData\Roaming</td>
+</tr>
+<tr>
+<td><span class="code">CD</span></td>
+<td>Y</td>
+<td>The current directory (string).</td>
+</tr>
+<tr>
+<td><span class="code">ClientName</span></td>
+<td>Y</td>
+<td>Terminal servers only - the ComputerName of a remote host.</td>
+</tr>
+<tr>
+<td><span class="code">CMDEXTVERSION</span></td>
+<td>Y</td>
+<td>The current Command Processor Extensions version number.
+(NT = &quot;1&quot;, Win2000+ =  &quot;2&quot;.)</td>
+</tr>
+<tr>
+<td><span class="code">CMDCMDLINE</span></td>
+<td>Y</td>
+<td>The original command line that invoked the <a href="cmd.html">Command Processor</a>.</td>
+</tr>
+<tr>
+<td class="code">CommonProgramFiles</td>
+<td>&nbsp;</td>
+<td>C:\Program Files\Common Files</td>
+</tr>
+
+<tr>
+<td class="code"> COMMONPROGRAMFILES(x86)</td>
+<td>&nbsp;</td>
+<td>C:\Program Files (x86)\Common Files</td>
+</tr>
+<tr>
+<td class="code">COMPUTERNAME</td>
+<td>&nbsp;</td>
+<td><i>{computername}</i></td>
+</tr>
+<tr>
+<td class="code">COMSPEC</td>
+<td>&nbsp;</td>
+
+<td>C:\Windows\System32\cmd.exe or if running a 32 bit <a href="https://en.wikipedia.org/wiki/WoW64">WOW</a> - C:\Windows\SysWOW64\cmd.exe</td>
+</tr>
+<tr>
+<td><span class="code">DATE</span></td>
+<td>Y</td>
+<td>The current date using same region specific format as <a href="date.html">DATE</a>.</td>
+</tr>
+<tr>
+<td><span class="code">ERRORLEVEL</span></td>
+<td>Y</td>
+<td>The current ERRORLEVEL value, automatically set when a program exits.</td>
+</tr>
+<tr>
+<td class="code">HighestNumaNodeNumber</td>
+<td>Y (hidden)</td>
+<td>The highest <a href="http://msdn.microsoft.com/en-gb/library/windows/desktop/aa363804%28v=vs.85%29.aspx">NUMA</a> node number on this computer.</td>
+</tr>
+<tr>
+<td class="code">HOMEDRIVE</td>
+<td>Y</td>
+<td>C:</td>
+</tr>
+<tr>
+<td class="code">HOMEPATH</td>
+
+<td>Y</td>
+<td>\Users\<i>{username}</i></td>
+</tr>
+<tr>
+<td class="code">LOCALAPPDATA</td>
+<td>&nbsp;</td>
+<td>C:\Users\<i>{username}</i>\AppData\Local</td>
+</tr>
+<tr>
+<td class="code">LOGONSERVER</td>
+<td>&nbsp;</td>
+<td>\\{domain_logon_server}</td>
+</tr>
+<tr>
+<td><span class="code">NUMBER_OF_PROCESSORS</span></td>
+<td>Y</td>
+<td>The Number of processors running on the machine.</td>
+</tr>
+<tr>
+<td><span class="code">OS</span></td>
+<td>Y</td>
+<td>Operating system on the user's workstation.</td>
+</tr>
+<tr>
+<td><a href="path.html" class="code">PATH</a></td>
+
+<td>User and<br>
+System</td>
+<td>C:\Windows\System32\;C:\Windows\;C:\Windows\System32\Wbem;<i>{plus program paths}</i></td>
+</tr>
+<tr>
+<td class="code">PATHEXT</td>
+<td><br></td>
+<td>.COM; .EXE; .BAT; .CMD; .VBS; .VBE; .JS ; .WSF; .WSH; .MSC<br>
+The syntax is like the PATH variable - semicolon separators.</td>
+</tr>
+<tr>
+<td><span class="code">PROCESSOR_ARCHITECTURE</span></td>
+<td>Y</td>
+<td><span class="code">AMD64/IA64/x86 </span>This doesn't tell you the architecture of the processor but only of the current process, so it returns &quot;x86&quot; for a 32 bit <a href="https://en.wikipedia.org/wiki/WoW64">WOW</a> process running on 64 bit Windows. See <a href="syntax-64bit.html">detecting OS 32/64 bit</a></td>
+</tr>
+<tr>
+<td class="code">PROCESSOR_ARCHITEW6432</td>
+<td>&nbsp;</td>
+<td>=<span class="code">%ProgramFiles%</span> (only available on <a href="syntax-64bit.html">64 bit</a> systems)</td>
+</tr>
+<tr>
+<td><span class="code">PROCESSOR_IDENTIFIER</span></td>
+<td>Y</td>
+<td>Processor ID of the user's workstation.</td>
+</tr>
+<tr>
+<td><span class="code">PROCESSOR_LEVEL</span></td>
+<td>Y</td>
+<td> Processor level of the user's workstation.</td>
+</tr>
+<tr>
+<td><span class="code">PROCESSOR_REVISION</span></td>
+<td>Y</td>
+<td> Processor version of the user's workstation.</td>
+</tr>
+<tr>
+<td><span class="code">ProgramW6432</span></td>
+<td>&nbsp;</td>
+<td>=<span class="code">%PROCESSOR_ARCHITECTURE%</span> (only available on <a href="syntax-64bit.html">64 bit</a> systems)</td>
+</tr>
+<tr>
+
+<td class="code">ProgramData</td>
+<td>&nbsp;</td>
+<td>C:\ProgramData</td>
+</tr>
+
+<tr>
+<td class="code">ProgramFiles</td>
+<td>&nbsp;</td>
+<td>C:\Program Files</td>
+</tr>
+<tr>
+<td><span class="code">ProgramFiles(x86)</span> <sup>1</sup></td>
+<td>&nbsp;</td>
+
+<td>C:\Program Files (x86)</td>
+</tr>
+<tr>
+<td class="code">PROMPT</td>
+<td>&nbsp;</td>
+<td>Code for current command <a href="prompt.html">prompt</a> format,usually $P$G<br>
+<span class="code">C:&gt;</span> </td>
+</tr>
+<tr>
+<td class="code">PSModulePath</td>
+<td>&nbsp;</td>
+<td>%SystemRoot%\system32\WindowsPowerShell\v1.0\Modules\</td>
+</tr>
+<tr>
+<td class="code">Public</td>
+
+<td>&nbsp;</td>
+<td>C:\Users\Public</td>
+</tr>
+<tr>
+<td><a href="syntax-random.html" class="code">RANDOM</a></td>
+<td>Y</td>
+<td>A random decimal number between 0 and 32767.</td>
+</tr>
+<tr>
+<td><span class="code">%SessionName%</span></td>
+<td>&nbsp;</td>
+<td>Terminal servers only -  for a terminal server session, SessionName is a combination of the connection name, followed by #S<i>essionNumber</i>. For a console session, SessionName returns &quot;Console&quot;. </td>
+</tr>
+<tr>
+<td class="code">SYSTEMDRIVE</td>
+<td>&nbsp;</td>
+<td>C:</td>
+</tr>
+<tr>
+
+<td class="code">SYSTEMROOT</td>
+<td>&nbsp;</td>
+<td>C:\Windows </td>
+</tr>
+<tr>
+<td><span class="code">TEMP</span> and <span class="code">TMP</span></td>
+<td>User Variable</td>
+
+<td>C:\Users\<i>{Username}</i>\AppData\Local\Temp<br>
+Under XP this was \<i>{username}</i>\<b>Local Settings</b>\Temp </td>
+</tr>
+<tr>
+<td><span class="code">TIME</span></td>
+<td>Y</td>
+<td>The current time using same format as <a href="time.html">TIME</a>. </td>
+</tr>
+<tr>
+<td class="code"><a href="http://blogs.msdn.com/b/tihot/archive/2004/05/28/144226.aspx">UserDnsDomain</a></td>
+<td>Y<br>
+User Variable</td>
+<td>Set if a user is a logged on to a domain and returns the fully qualified DNS domain that the currently logged on user's account belongs to.</td>
+</tr>
+<tr>
+<td class="code"> USERDOMAIN</td>
+<td>&nbsp;</td>
+<td>{userdomain}</td>
+</tr>
+<tr>
+<td class="code">USERDOMAIN_roamingprofile</td>
+<td>&nbsp;</td>
+<td>The user domain  for RDS or standard roaming profile paths. Windows 8/2012  or Windows 7/2008 with <a href="http://support.microsoft.com/kb/2664408">Q2664408</a></td>
+</tr>
+<tr>
+<td class="code">USERNAME</td>
+<td>&nbsp;</td>
+<td><i>{username}</i></td>
+</tr>
+<tr>
+<td class="code">USERPROFILE</td>
+
+<td>&nbsp;</td>
+<td>%SystemDrive%\Users\<i>{username}</i></td>
+</tr>
+<tr>
+<td class="code">WINDIR</td>
+<td>&nbsp;</td>
+<td>C:\Windows</td>
+</tr>
+</tbody></table>
+<p><sup>1</sup> Only on 64 bit systems, is used to store 32 bit programs.</p>
+<p>Unless stated otherwise, all the variables above are System variables</p>
+<p>Environment variables are stored in the registry:</p>
+<p> User Variables: <span class="code">HKEY_CURRENT_USER\Environment</span><br>
+  System Variables: <span class="code">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment</span></p>
+<p>By default, files stored under <b>Local Settings </b>do not roam with a roaming profile.</p>
+<p>Dynamic environment variables are read-only and are computed each time the variable is expanded. When all variables are listed with SET, these will not appear in the list. Do not attempt to directly SET a dynamic variable.  <br>
+</p>
+<h2><abbr title="Discovered by SmartGenius, Menno Vogels, npocmaka and Carlos">Undocumented</abbr> Dynamic variables (read only)</h2>
+<p><span class="code">%__APPDIR__%</span>   The  directory path to the current application .exe,  terminated with a trailing backslash. - <a href="http://ss64.org/viewtopic.php?id=1950">forum thread</a>.<br>
+<span class="code">%__CD__%</span>   The current directory,  terminated with a trailing backslash.<br>
+<span class="code">%=C:%</span>   The current directory  of the C: drive.<br>
+<span class="code">%=D:%</span>   The current directory  of the D: drive if drive D: has been accessed in the current CMD session.<br>
+<span class="code">%DPATH%</span>   Related to the (deprecated) <a href="path.html#dpath">DPATH</a> command.<br>
+<span class="code">%=ExitCode%</span>   The hex value of the last return code set by <a href="exit.html">EXIT /B</a><br>
+<span class="code">%=ExitCodeAscii%</span>   The <a href="http://ss64.com/ascii.html">ASCII</a> value of the last return code set by EXIT /B if greater than 32.<br>
+<span class="code">%FIRMWARE_TYPE%</span> The boot type of the system: <span class="code"><u>Legacy</u> ,UEFI,Not implemented ,Unknown</span> Windows 8/2012.<br>
+<span class="code">%KEYS%</span>   Related to the (deprecated) KEYS command.</p>
+<h2>Pass variables between batch scripts</h2>
+<p><b></b>There are several ways to pass values between batch files, or between a batch file and the command line, see the <a href="call.html">CALL</a> and <a href="setlocal.html">SETLOCAL</a> pages for full details. </p>
+<p>A child process by default inherits a copy of all environment variables  from its parent,  this makes environment variables unsuitable for storing <i>secret</i> information such as API keys or user passwords, especially in rare occasions like crashes where a crash log will often include the full OS environment at the time of the crash. PowerShell/Get-Credential is a more secure approach.</p>
+<p><i class="quote">&ldquo;Men may be convinced, but they cannot be pleased against their will. But though taste is obstinate, it is very variable, and time often prevails when arguments have failed&rdquo; ~ Samuel Johnson</i><br>
+<br>
+<b>Related:</b></p>
+<p><a href="syntax-folders.html">User Shell Folders</a> - Standard folder locations for XP and Windows 7<br>
+<a href="syntax-64bit.html">Detecting 32 vs 64 bit Windows</a><br>
+<a href="call.html">CALL</a> - Evaluate environment variables<br>
+<a href="set.html">SET</a> - View environment variables, set local variables<br>
+<a href="setx.html">SETX</a> - Set environment variables<br>
+<a href="http://support.microsoft.com/?kbid=100843">Q100843</a> - The four types of environment variable <br>
+<a href="http://support.microsoft.com/?kbid=286705">Q286705</a> - Set compatibility variables<br>
+<a href="http://support.microsoft.com/kb/242557">Q242557</a> - Registry Settings for Folder Redirection<br>
+<a href="http://stackoverflow.com/questions/6379619/explain-how-dos-batch-newline-variable-hack-works">StackOverflow</a> - 
+Storing a Newline in a variable<br>
+<a href="http://download.microsoft.com/download/3/b/a/3ba6d659-6e39-4cd7-b3a2-9c96482f5353/Managing%20Roaming%20User%20Data%20Deployment%20Guide.doc">Managing Roaming User Data Deployment Guide</a> - Microsoft.com (Word Doc)</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-variables.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

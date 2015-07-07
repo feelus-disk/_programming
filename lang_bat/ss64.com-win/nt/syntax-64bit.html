@@ -1,0 +1,126 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<link rel="STYLESHEET" href="../tables.css" type="text/css">
+<title>Detect 64 vs 32 bit Windows | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ntsyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Detecting 64 bit vs 32 bit Windows </h1>
+<p>Before starting to look at this, its important to be clear about what you mean by &quot;64 bit&quot;. You can have a 64 bit CPU, a 64 bit operating system and a 64 bit process running. It is equally possible to have 64 bit CPU, a 32 bit operating system installed and a 16 bit process running.</p>
+<p>The table below shows a few of the combinations you may need to account for:</p>
+<table>
+<tr>
+<td>&nbsp;</td>
+<td>CPU Hardware</td>
+<td>Operating System </td>
+<td>Process</td>
+</tr>
+<tr>
+<td>Windows 3.1</td>
+<td>16</td>
+<td>16</td>
+<td>16</td>
+</tr>
+<tr>
+<td><b>Windows 95/NT </b></td>
+<td><b>32</b></td>
+<td><b>32</b></td>
+<td><b>32</b></td>
+</tr>
+<tr>
+<td>Windows XP (16 bit compatibility)</td>
+<td>32</td>
+<td>32</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Windows XP</td>
+<td>32</td>
+<td>32</td>
+<td>32</td>
+</tr>
+<tr>
+<td><b>Windows XP on new hardware</b></td>
+<td><b>64</b></td>
+<td><b>32</b></td>
+<td><b>32</b></td>
+</tr>
+<tr>
+<td>Windows 7/2008 on old hardware</td>
+<td>32</td>
+<td>32</td>
+<td>32</td>
+</tr>
+<tr>
+<td>Windows 7/2008 (32 bit compatibility)</td>
+<td>64</td>
+<td>64</td>
+<td>32 (WOW) </td>
+</tr>
+<tr>
+<td><b>Windows 7/2008</b></td>
+<td><b>64</b></td>
+<td><b>64</b></td>
+<td><b>64</b></td>
+</tr>
+</table>
+<h2>Detect 64 bit processor hardware</h2>
+<p> In Vista and greater, you can use <span class="code">wmic os get osarchitecture</span>, or in WMI <span class="code">Win32_ComputerSystem/OSArchitecture</span> sadly this is not supported in XP or 2003 <br> 
+There are a number of promising looking  options in WMI and Systeminfo, but they all pertain to the OS not the CPU.</p>
+<h2>Detect a 64 bit Operating System </h2>
+<p><span class="code">:: Installed OS<br>
+Set _Bitness=64<br>
+IF %PROCESSOR_ARCHITECTURE% == x86 (<br>
+&nbsp;&nbsp;IF NOT DEFINED PROCESSOR_ARCHITEW6432 Set _Bitness=32<br>
+&nbsp;&nbsp;)<br>
+Echo Operating System is %_Bitness% bit</span></p>
+<p>Via David Wang&rsquo;s blog post: <a href="http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx">Detect OS Bitness</a></p>
+<h2>Detect a 64 bit Process</h2>
+<p>On Windows 7, running <span class="code">C:\windows\SysWOW64\cmd.exe</span> will launch a 32 bit instance of CMD.exe even if the OS is 64 bit. Applications that are compiled for a 32 bit processor will run in a similar way. We can detect this with the <span class="code">%PROCESSOR_ARCHITECTURE%</span> <a href="syntax-variables.html">environment</a> variable. </p>
+<pre>:: Process
+If %PROCESSOR_ARCHITECTURE% == x86 (
+   Set _ps_bitness=32
+   ) ELSE ( Set _ps_bitness=64)
+Echo Process is %_ps_bitness% Bit
+</pre>
+<h2>Program Files location for 32 bit applications </h2>
+<pre>:: Program Files location for 32 bit apps
+If DEFINED ProgramFiles(x86) Set _programs=%ProgramFiles(x86)%
+If Not DEFINED ProgramFiles(x86) Set _programs=%ProgramFiles%
+Echo Program Files location for 32 bit apps:
+Echo %_programs%</pre>
+<h2>Program Files location for 64 bit applications </h2>
+<p class="code">:: Program Files location for 64 bit apps<br>
+Echo %ProgramFiles%</p>
+<p>C:\Windows\System32\ will contain either 32 bit or 64 bit programs, the path has been kept as 'system32' for backwards compatibility. When running 32 bit WOW, the 32 bit versions are called from C:\Windows\SysWOW64\</p>
+<p><i class="quote">&ldquo;It's not so much that we're afraid of change or so in love with the old ways, but it's that place in between that we fear... it's like being between trapezes&rdquo; ~ Marilyn Ferguson</i><br>
+<br>
+<b>Related:</b></p>
+<p><a href="http://support.microsoft.com/kb/556009">Q556009</a> - How to check if a computer is running a 32 bit or 64 bit Operating System.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-64bit.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

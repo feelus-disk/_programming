@@ -1,0 +1,115 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Regedit | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>REGEDIT </h1> 
+<p>Import, export or delete registry settings from a text (.REG) file</p>
+<pre>Syntax
+      Export the Registry (all HKLM plus current user)
+      REGEDIT /E <i>pathname</i>
+
+      Export part of the Registry
+      REGEDIT /E <i>pathname</i> "RegPath"
+
+      Import a reg script
+      REGEDIT <i>pathname</i>
+
+      Silent import
+      REGEDIT /S <i>pathname</i>
+
+      Start the regedit GUI
+      REGEDIT 
+
+      Open multiple copies of GUI (XP and 2003 only)
+      REGEDIT -m
+
+Key
+   /E : Export 
+
+   /S : Silent Import</pre>
+<p>Under Windows NT 4 all registry scripts start with: <span class="code">REGEDIT4</span> (This version string will also work in all later versions of Windows.) </p>
+<p>Add keys and values to the registry:</p>
+<p>  Create a text file like this:</p>
+<pre>Windows Registry Editor Version 5.00 
+
+[HKEY_CURRENT_USER\SomeKey]
+"SomeStringValue"=&quot;Hello&quot;
+</pre>
+<p>Note the registry file should contain a blank line at the bottom of the file.</p>
+<p>When double clicking this .reg file the key and value will be added. Alternatively run REGEDIT MYKEY.REG from the command line.</p>
+<p>To activate registry changes in HKEY_CURRENT_USER without logging off: <br>
+<span class="code"><a href="rundll32.html">RUNDLL32.EXE</a> USER32.DLL,UpdatePerUserSystemParameters ,1 ,True</span></p>
+<h2>Delete keys and values from the registry:</h2>
+<p>  Create a reg file like this, notice the hyphen inside the first bracket </p>
+<pre>Windows Registry Editor Version 5.00 
+[-HKEY_CURRENT_USER\SomeKey]  </pre>
+<p>When double clicking this .reg file the key "SomeKey" will be deleted along with all string, binary or Dword values in that key.<br>
+<br>If you want to just delete values, leaving the key in place, set the value you want to delete = to a hyphen<br>
+e.g. </p>
+<pre>Windows Registry Editor Version 5.00 
+[HKEY_CURRENT_USER\SomeKey]
+"SomeStringValue"=-
+</pre>
+<p>Again double clicking this .reg file will delete the values specified, or you can use <span class="code">REGEDIT /s MyDeleteScript.REG</span></p>
+<h2>Compare the Registry of two machines</h2>
+<p><a href="windiff.html">Windiff</a> is your friend, this simple GUI utility from the <a href="http://ss64.com/links/windows.html#kits">resource kit</a> will list all the differences.
+<h2>Add Comments</h2>
+<p>Within a registry file, comments can be preceded by "; " <br>
+e.g.<br>
+  <span class="code">;<br>
+  ; Turn the NUMLOCK on at login<br>
+  ;<br>
+  [HKEY_CURRENT_USER\Control Panel\Keyboard]<br>
+"InitialKeyboardIndicators"="2"</span><p>Batch files will  ignore any semicolons before a command, so this can be used to create a <a href="http://www.robvanderwoude.com/regedit.php#SelfContained">self-contained registry script</a>.
+<h2>Open the regedit GUI at a given Key</h2>
+<p>Regedit remembers the last registry key that was opened from  the last time it was running. This is stored in the registry under:<br>
+<span class="code">HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit<br>
+[LastKey]</span><br>
+ We can set the <span class="code">LastKey</span> value property  from the command line
+with a REG ADD command.<br>
+<span class="code"><br>
+Set &quot;_mykey=HKEY_CURRENT_USER\Software\Microsoft&quot; <br>
+REG ADD &quot;HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit&quot; /v &quot;LastKey&quot; /d &quot;%_mykey%&quot; /f <br>
+Start /b regedit</span>
+<p><i class="quote">&ldquo;I never make stupid mistakes. Only very, very clever ones&rdquo; -  <a href="http://www.bbc.co.uk/radio1/johnpeel/index.shtml">John Peel</a></i><br>
+<br>
+<b>Related:</b><br>
+<br>
+<a href="reg.html">REG</a> - Read, Set or Delete registry keys and values <br>
+<a href="set.html">SET</a> - Display, set, or remove Windows NT environment variables <br>
+<a href="setx.html"> SETX</a> - Set environment variables permanently<br>
+<a href="wmic.html">WMIC REGISTRY</a> - Set registry options through WMI<br>
+Powershell: <a href="http://ss64.com/ps/get-itemproperty.html">Get-ItemProperty</a> / <a href="http://ss64.com/ps/set-itemproperty.html">Set-ItemProperty</a> - Retrieve / save registry Keys<br>
+<a href="http://support.microsoft.com/default.aspx?Product=winxp&scid=kb;en-us;322756">Q322756</a> - How to backup and edit the registry<br>
+<a href="http://support.microsoft.com/kb/310516">Q310516</a> - How to add, modify, or delete registry subkeys and values<br>
+DuReg - Registry Size Estimator. (<a href="http://ss64.com/links/windows.html#kits">Win 2K ResKit</a>) <br>
+<a href="syntax-reghacks.html">Registry</a> - Commonly tweaked user interface settings (XP)</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="regedit.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

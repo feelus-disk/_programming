@@ -1,0 +1,131 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>For - Looping commands | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>FOR</h1> 
+<p>Conditionally perform a command several times. </p>
+<pre> syntax-<a href="for2.html">FOR-Files</a>
+       FOR %%parameter IN (set) DO <i>command</i> 
+   
+ syntax-<a href="for_r.html">FOR-Files-Rooted at Path</a>   
+       FOR <b>/R </b>[[drive:]path] %%parameter IN (set) DO <i>command</i> 
+   
+ syntax-<a href="for_d.html">FOR-Folders</a>
+       FOR <b>/D</b> %%parameter IN (folder_set) DO <i>command</i> 
+   
+ syntax-<a href="for_l.html">FOR-List of numbers</a>   
+       FOR <b>/L</b> %%parameter IN (start,step,end) DO <i>command</i> 
+   
+ syntax-<a href="for_f.html">FOR-File contents</a>   
+       FOR <b>/F</b> ["options"] %%parameter IN (filenameset) DO <i>command</i> 
+   
+       FOR <b>/F </b>["options"] %%parameter IN (&quot;Text string to process&quot;) DO <i>command</i>
+   
+ syntax-<a href="for_cmd.html">FOR-Command Results</a> 
+       FOR <b>/F</b> ["options"] %%parameter IN ('command to process') DO <i>command</i></pre>
+<p>The operation of the FOR command can be summarised as... </p>
+<ul>
+<li>Take a set of data</li>
+<li>Make a FOR Parameter <span class="code">%%G</span> equal to some part of that data</li>
+<li>Perform a command (optionally using the parameter as part of the command).</li>
+<li>Repeat for each item of data</li>
+</ul>
+<p> If you are using the FOR command at the command line rather than in a batch program,  use just one percent sign: <span class="code">%G</span> instead of <span class="code">%%G</span><b>.</b></p>
+<p> <b>FOR Parameters</b><br>
+<br>
+The first parameter  has to be defined using a single character, for example the letter G.<br>
+<br>
+<span class="code">FOR %%G IN ...</span><br>
+<br>
+In each iteration of a FOR loop, the<span class="code"> IN ( ....)</span> clause is evaluated and %%G set to a different value<br>
+<br>
+If this clause results in a single value then %%G is set equal to that value and the command is performed.<br>
+<br>
+If the clause results in a multiple values then extra parameters are implicitly defined to hold each. These are automatically assigned in alphabetical order <span class="code">%%H %%I %%J ...</span>(implicit parameter definition)</p>
+<p>If the parameter refers to a  file, then <a href="syntax-args.html">enhanced variable reference</a> may be used to  extract the filename/path/date/size.</p>
+<p>You can of course pick any letter of the alphabet other than %%G. <br>
+<br>
+<span class="code">%%G</span> is a good choice because it does not conflict with any of the pathname <a href="syntax-args.html">format letters</a> (a, d, f, n, p, s, t, x) and provides the longest run of non-conflicting letters for use as implicit parameters.<br>
+G &gt; H &gt; I &gt; J &gt; K &gt; L &gt; M<br>
+Format letters are case sensitive, so using a capital letter is also a good way to avoid conflicts <span class="code">%%A</span> rather than <span class="code">%%a</span>. <br>
+<br>
+<b>Examples</b></p>
+<p class="code">FOR /F &quot;tokens=1-5&quot; %%A IN (&quot;This is a short sentence&quot;) DO @echo %%A %%B %%D</p>
+<p> will result in the output: <span class="code">This is short</span></p>
+<p>Create a set of 26 folders, one for each letter of the alphabet: </p>
+<p class="code">FOR %%G IN (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z) DO (md C:\demo\%%G)</p>
+<p><b>Running multiple commands in a FOR loop </b><br>
+Within a FOR loop, variables are expanded at the start of the loop and don&rsquo;t update until the entire DO section has completed. <br>
+The following example  counts  the files in the current folder, but %count% always returns 1: </p>
+<p class="code">@echo off<br>
+SET count=1 <br>
+&nbsp;FOR /f "tokens=*" %%G IN ('dir /b') DO <b>(</b><br>   
+&nbsp;echo %count%:%%G<br>   
+&nbsp;set /a count+=1 <b>)</b></p>
+<p>To update variables within each iteration of the loop we must either use <a href="setlocal.html">EnableDelayedExpansion</a> or else  use the <a href="call.html">CALL :subroutine</a> mechanism as shown below:</p>
+<p class="code">@echo off<br>
+SET count=1<br>
+FOR /f "tokens=*" %%G IN ('dir /b') DO <b>(</b>call :subroutine &quot;%%G&quot;<b>)</b><br>
+GOTO :eof<br> 
+<br>
+:subroutine<br>  
+&nbsp;echo %count%:%1<br>  
+&nbsp;set /a count+=1<br>
+&nbsp;GOTO :eof</p>
+<p><b>Nested FOR commands</b><br>
+<br>
+FOR commands can be nested <span class="code">FOR %%G... DO (for %%U... do ...) </span><br>
+when nesting commands choose a different letter for each part. you can then 
+refer to both parameters in the final DO command.</p>
+<p>For an example of exiting the inner loop of two nested FOR loops, see the <a href="exit.html">EXIT</a> page.<br>
+<br>
+If <a href="cmd.html">Command Extensions</a> are disabled, the FOR command will 
+only support the basic syntax with no enhanced variables:<br>
+FOR %%parameter IN (set) DO command [command-parameters] </p>
+<p>FOR is an <a href="syntax-internal.html">internal</a> command.<br>
+  <br>
+  <i class="quote">&ldquo;Those who cannot remember the past are condemned to repeat it&rdquo; - George Santayana </i><br>
+  <br>
+  <b>Related:</b><br>
+  <br>
+  <a href="for2.html">FOR</a> - Loop through a set of files in one folder<br>
+  <a href="for_r.html">FOR /R</a> - Loop through files (recurse subfolders) <a href="for_d.html"><br>
+  FOR /D</a> - Loop through several folders<br>
+  <a href="for_l.html">FOR /L</a> - Loop through a range of numbers<br>
+  <a href="for_f.html">FOR /F</a> - Loop through items in a text file<br>
+  <a href="for_cmd.html">FOR /F</a> - Loop through the output of a command<br>
+  <a href="syntax-args.html">Parameters/arguments</a> <span class="code">%~</span> options<br>
+  <a href="forfiles.html">FORFILES</a> - Batch process multiple files<br>
+  <a href="goto.html">GOTO</a> - Direct a batch program to jump to a labelled line<br>
+  <a href="if.html">IF</a> - Conditionally perform a command <br>
+  Powershell:  <a href="http://ss64.com/ps/foreach-object.html">ForEach-Object</a> - Loop for each object in the pipeline<br>
+  Equivalent bash command (Linux): <a href="http://ss64.com/bash/for.html">for var in [list]; do</a> - Expand <var>list</var>, and execute <var>commands</var></p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="for.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Certreq Request certificate | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>CERTREQ</h1> 
+<p>Request certificate from a certification authority (CA), retrieve a  response to a previous request from a CA, create a new request from  an .inf file, accept and install a response to a request, construct a cross-certification or qualified subordination request from  an existing CA certificate or request, or to sign a cross-certification  or qualified subordination request. </p>
+<pre>Syntax
+      Certreq [-submit] [-retrieve <i>RequestID</i>] [-new] [-accept] [-policy] [-sign]
+                 [-attrib AttributeString] [-binary] [-config <i>CAMachineName</i>\<i>CAName</i>]
+                    [-crl] [-rpc] [-cert CertID]
+                       [<i>RequestFileIn</i> | <i>CertChainFileIn</i> | <i>FullResponseFileIn</i> | <i>CertFileIn</i> | <i>PolicyFileIn</i>]
+                          [<i>RequestFileOut</i> | <i>CertChainFileOut</i> | <i>FullResponseFileOut</i> | <i>CertFileOut</i> | <i>PKCS10FileOut</i>]
+	  
+Key
+   -submit
+          Submit a request to a CA.
+
+   -retrieve <i>RequestID</i>
+          Retrieve a response to a previous request from a CA.
+
+   -new
+          Create a new request from an .inf file.
+
+   -accept
+          Accept and install a response to a certificate request.
+
+   -policy
+          Set the policy for a request.
+
+   -sign
+          Sign a cross-certification or qualified subordination request.
+
+   -attrib <i>AttributeString
+</i>          The Name and Value string pairs, separated by a colon.
+          Separate Name and Value string pairs with \n (for example, Name1:Value1\nName2:Value2).
+
+   -binary
+          Format output files as binary instead of base64-encoded.
+
+   -config <i>CAMachineName</i>\<i>CAName</i>
+          Process the operation using the CA specified in the configuration
+          string, which is CAMachineName\CAName.
+
+   -crl
+          Include certificate revocation lists (CRLs) in the output to the base64-encoded
+          PKCS #7 file specified by CertChainFileOut or to the base64-encoded file
+          specified by RequestFileOut.
+
+   -rpc
+          Instructs Active Directory Certificate Services (AD CS) to use a 
+          remote procedure call (RPC) server connection instead of Distributed COM.
+
+   -cert CertID
+          The signing certificate by common name, serial number, Secure Hash Algorithm
+          (SHA-1) key, or certificate hash.
+
+   CertChainFileIn
+          The base64-encoded or binary certificate chain input file to use.
+
+   FullResponseFileIn
+          The base64-encoded or binary full response input file to use.
+
+   CertFileIn
+          The base64-encoded or binary certificate input file to use.
+
+   RequestFileIn
+          The base64-encoded or binary input file to use.
+          The file can be a PKCS #10 certificate request, a PKCS #7 certificate renewal
+          request, a KEYGEN tag format certificate request, a Certificate Management protocol
+          using Cryptographic Message Syntax (CMS) request (this protocol is also known as CMC),
+          or a certificate file of the CA that you want to cross-certify.
+
+   PolicyFileIn
+          The .inf input file that contains the extension definitions to use to qualify a request.
+
+   RequestFileOut
+          The base64-encoded file to which you want to send output.
+
+   PKCS10FileOut
+          The base64-encoded PKCS #10 file to which you want to send output.
+
+   CertFileOut
+          The binary or base64-encoded X.509 v3 file to which you want to send output.
+
+   CertChainFileOut
+          The binary or base64-encoded PKCS #7 file to which you want to send output.
+
+   FullResponseFileOut
+          The binary or base64-encoded full response file to which you want to send output.
+
+   -?     Display a list of certreq commands.</pre>
+<p> You must specify the <i>CAComputerName</i> or <i>CAName</i> in -config <i>CAComputerName</i>\<i>CAName</i>. Otherwise, the Select Certificate Authority dialog box appears and displays a list of all CAs that are available.</p>
+<p>To retrieve the certificate after the CA has actually issued it use certreq -retrieve <i>RequestID</i>, you can also use this command to retrieve any certificate that has ever been issued by the CA, including revoked or expired certificates, without regard to whether the certificate's request was ever in the pending state.</p>
+<p> If you submit a request to the CA, the policy module of the CA may temporarily leave the request in a pending state and return the <i>RequestID</i> for display. Eventually, the CA&rsquo;s administrator will issue the certificate or deny the request.</p>
+<h2>Examples</h2>
+<p>Sample request.inf</p>
+<p class="code">;----------------- request.inf</p>
+<p class="code">[Version] <br>
+  Signature=&quot;$Windows NT$ </p>
+<p class="code">[NewRequest]<br>
+  Subject = &quot;CN=dc01.ss64.com&quot; ; must be the FQDN of domain controller<br>
+  ;EncipherOnly = FALSE<br>
+  Exportable = FALSE  ; TRUE = Private key is exportable<br>
+  KeyLength = 1024    ; Common key sizes: 512, 1024, 2048, <br>
+  ;    4096, 8192, 16384<br>
+  KeySpec = 1             ; Key Exchange<br>
+  KeyUsage = 0xA0     ; Digital Signature, Key Encipherment<br>
+  MachineKeySet = True<br>
+  ProviderName = &quot;Microsoft RSA SChannel Cryptographic Provider&quot;<br>
+  ProviderType = 12<br>
+  RequestType = CMC<br>
+  <br>
+  ; Omit entire section if CA is an enterprise CA<br>
+  [EnhancedKeyUsageExtension]<br>
+  OID=1.3.6.1.5.5.7.3.1 ; Server Authentication<br>
+  <br>
+  [RequestAttributes]<br>
+  CertificateTemplate = WebServer ;Omit  line if CA is a stand-alone CA<br>
+  ;SAN=&quot;dns=dc01.ss64.com&amp;dns=.ss64.com&amp;dns=ldap.ss64.com&quot;<br>
+  ;-----------------</p>
+<p>Create a new request from an .inf file:
+<p class="code">certreq -new request.inf result.txt</p>
+<p>  Supply the text of result.txt to your CA to obtain a signed certificate (and an intermediate CA certificate, if applicable.)</p>
+<p> Submit a request to a CA:</p>
+<p class="code">certreq -submit result.txt certificate.cer</p>
+<p> Retrieve a response to a previous request from a CA:</p>
+<p class="code">certreq -retrieve [-binary] [-config CAMachineName\CAName] [-crl] [-rpc] RequestID [CertFileOut [CertChainFileOut [FullResponseFileOut]]] </p>
+<p>Accept and install a response to a certificate request:</p>
+<p class="code">certreq -accept c:\certificates\certificate.cer</p>
+<p>Construct a cross-certification or qualified subordination request from an existing CA certificate or request:</p>
+<p class="code">certreq -policy [-attrib AttributeString] [-binary] [-cert CertID] [RequestFileIn [PolicyFileIn [RequestFileOut [PKCS10FileOut]]]]  </p>
+<p>Sign a cross-certification or qualified subordination request:</p>
+<p><span class="code">certreq -sign [-binary] [-certCertID] [-crl] [RequestFileIn [RequestFileOut]]</span><br>
+  <br>
+  <i class="quote">&ldquo;The certified  quality of person's actual education reflects in the degree of respect  he employs in his words while talking with others&rdquo; ~Anuj Somany</i><br>
+  <br>
+  <b>Related:</b><br>
+  <br>
+  <a href="slmgr.html">SLMGR</a> - Software Licensing Management<br>
+<a href="certutil.html">CERTUTIL</a> - Utility for certification authority (CA) files and services</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="certreq.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

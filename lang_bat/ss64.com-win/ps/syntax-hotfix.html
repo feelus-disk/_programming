@@ -1,0 +1,162 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>HotFixInfo - Powershell script | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>HotFixInfo.ps1</h1> 
+<p>Generate an Excel spreadsheet listing  the servers which have a particular hot fix installed. <br>
+By default it will check for the <a href="http://www.microsoft.com/technet/security/bulletin/MS08-067.mspx">conflicker patch KB958644</a> but you can change this to any QFE patch. </p>
+<p>This is based on the <a href="http://www.powershellpro.com/conficker-worm-detection/605/">original script by Jesse N. Hamrick</a> at PowerShellPro. This version outputs a line for every server, so you can see the machines which *don't* have the patch, also the script has been adjusted to work with any regional version of MS Excel.</p>
+<pre>
+# ======================================================
+# HotFixInfo.ps1
+#
+# Original Author: Jesse N. Hamrick - PowerShellPro.com
+# Updated: 27/11/2009 Simon Sheppard - SS64.com
+#
+# Enumerate hot fixes on all Servers/computers in AD.
+# Sends results to an Excel spreadsheet.
+# filters for KB958644 (confliker defense)
+
+# Excel must be installed on the computer running the script.
+
+# 
+# ======================================================
+
+# Functions
+
+# ======================================================
+# Create a spreadsheet and place results.
+# Uses WMIObject Win32_QuickFixEngineering to gather hotfix
+# info.
+# ======================================================
+Function loadExcel {
+param ([string]$kbaseArticle)
+$Excel = New-Object -Com Excel.Application
+$ci = [System.Globalization.CultureInfo]'en-us'
+# Add a new workbook
+$Excelwb = $Excel.workbooks.psbase.gettype().InvokeMember(
+"Add",[Reflection.BindingFlags]::InvokeMethod,$null, $Excel.workbooks, $null, $ci)
+
+$Excel.visible = $True
+
+$Sheet = $Excelwb.Worksheets.Item(1)
+$Sheet.Cells.Item(1,1).formulalocal = "Computer Name"
+$Sheet.Cells.Item(1,2).formulalocal = "Q Article"
+$Sheet.Cells.Item(1,3).formulalocal = "Installer"
+$Sheet.Cells.Item(1,4).formulalocal = "Install Date"
+$Sheet.Cells.Item(1,5).formulalocal = "Description"
+
+$intRow = 2
+$WorkBook = $Sheet.UsedRange
+$WorkBook.Interior.ColorIndex = 19
+$WorkBook.Font.ColorIndex = 11
+$WorkBook.Font.Bold = $True
+
+foreach ($StrComputer in $colComputers){
+   #Write-Host "processing $StrComputer" 
+   $reply = gwmi win32_PingStatus -Filter "Address='$strComputer'"
+   if ($reply.statusCode -eq "0"){
+      Write-Host "processing $StrComputer to xl" 
+      $Sheet.Cells.Item($intRow, 1).formulalocal = $StrComputer
+      $SheetcolItems = gwmi Win32_quickFixEngineering -Comp $StrComputer
+      foreach ($objItem in $SheetcolItems){
+         If ($objItem.HotFixID -eq $kbaseArticle){
+            Write-Host "kb found" 
+            $Sheet.Cells.Item($intRow, 2).formulalocal = "$kbaseArticle Installed"
+            $Sheet.Cells.Item($intRow, 3).formulalocal = $objItem.InstalledBy
+            $Sheet.Cells.Item($intRow, 4).formulalocal = $objItem.InstalledOn
+            $Sheet.Cells.Item($intRow, 5).formulalocal = $objItem.Description
+         }
+      }
+   $intRow = $intRow + 1
+   }
+}
+$WorkBook.EntireColumn.AutoFit()
+clear
+
+#Save workbook
+$Excel.workbooks.psbase.gettype().InvokeMember(
+"SaveAs",[Reflection.BindingFlags]::InvokeMethod,$null, $Excelwb, <b>"c:\hotfix-$kbaseArticle.xls"</b>, $ci) > $null
+
+#Close workbook
+#$Excel.workbooks.psbase.gettype().InvokeMember(
+#"Close",[Reflection.BindingFlags]::InvokeMethod,$null, $Excelwb, 0, $ci) > $null
+
+#Quit excel
+#$Excel.Quit()
+
+}
+# END OF Excel function
+
+# ========================================================
+# Enumerate computer objects
+# ========================================================
+Function ListComputers {
+$strCategory = "computer"
+$strOS = "Windows*Server*"
+
+$objDomain = New-Object System.DirectoryServices.DirectoryEntry
+
+$objSearcher = New-Object System.DirectoryServices.DirectorySearcher
+$objSearcher.SearchRoot = $objDomain
+
+# Uncomment to search <b>all computers</b>
+# $objSearcher.Filter = ("(objectCategory=$strCategory)")
+# Uncomment to seach <b>only Servers</b>
+$objSearcher.Filter = ("(&(objectCategory=$strCategory)(OperatingSystem=$strOS))")
+
+$colProplist = "name"
+foreach ($i in $colPropList){$objSearcher.PropertiesToLoad.Add($i)}
+
+$colResults = $objSearcher.FindAll()
+
+foreach ($objResult in $colResults)
+{$objComputer = $objResult.Properties; $objComputer.name}
+}
+#END OF ListComputers FUNCTION
+
+# ========================================================
+# Script Body
+# ========================================================
+$erroractionpreference = "SilentlyContinue"
+
+# Call the ListComputers Function and save results to
+# an array called $colComputer. Results are sorted alphabetically.
+$colComputers = ListComputers | Sort-Object
+
+# Call the Excel Function, which will use the $colComputers
+# array to enumerate hotfix info for each computer in the domain.
+loadExcel <b>"KB958644"</b>
+
+#END OF SCRIPT ===============================================
+</pre>
+<p>
+  <b>Example</b></p>
+<p> Save the script above as HotFixInfo.ps1 and run it to create the spreadsheet "C:\hotfix-KB958644.xls"</p>
+<p><span class="code">PS C:\&gt; ./HotFixInfo.ps1</span></p>
+<p>To adapt this script to check  a different KBase update, just edit the items in Bold above, also if you have Excel 2007 change the file extension to .xlsx </p>
+<p class="quote"><i>&ldquo;Ignorance more frequently begets confidence than does knowledge&rdquo; ~ Charles Darwin</i></p>
+<p><b>Related:</b></p>
+<p><a href="syntax-installedapps.html">InstalledApps</a> - List the applications installed<br>
+<a href="syntax-pshinfo.html">pshinfo</a> - List Ram, Disk Space, Service pack, Uptime</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-hotfix.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

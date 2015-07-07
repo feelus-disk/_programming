@@ -1,0 +1,170 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Cacls - Modify Access Control List | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>CACLS.exe</h1> 
+<p>Display or modify Access Control Lists (ACLs) for files and folders. For Vista and greater use <a href="icacls.html">icacls</a>.<br>
+  <br>
+  Access Control Lists apply only to files stored on an NTFS formatted drive, 
+  each ACL determines which users (or groups of users) can read or edit the file. 
+  When a new file is created it normally inherits ACL's from the folder where 
+it was created.</p>
+<pre>Syntax
+      CACLS <i>pathname</i> [<i>options</i>]
+	  
+Options:
+
+   /T   Search the pathname including all subfolders. 
+   /E   Edit ACL (leave existing rights unchanged)
+   /C   Continue on access denied errors. 
+<br>   /G <i>user</i>:<i>permission</i>
+        Grant access rights, permision can be:
+          R  Read 
+          W  Write
+          C  Change (read/write) 
+          F  Full control
+          N  None
+		 
+   /R <i>user</i>
+        Revoke specified user's access rights (only valid with /E). 
+
+   /P <i>user</i>:<i>permission</i>
+        Replace access rights, permission can be: 
+          R  Read
+          W  Write
+          C  Change (read/write) 
+          F  Full control
+          N  None
+
+   /D <i>user</i>
+        Deny access to <i>user</i>.
+
+   /s:<i>sddl</i>
+        Replace the ACL(s) with those specified in the SDDL string  &bull;
+        (not valid with /e, /g, /r, /p, or /d). </pre>
+<p>In all the options above &quot;<i>user</i>&quot; can be a UserName 
+or a group (either local or global)</p>
+<p> &bull; = Windows 7/2008 or above<br>
+  <br>
+  You can specify more than one user:permission in a single command. Wildcards can be used to specify multiple files.</p>
+<p>If a UserName or WGname includes spaces then it must 
+be surrounded with quotes e.g. &quot;Authenticated Users&quot;<br>
+<br>
+If no options are specified CACLS will display the ACLs for the file(s)</p>
+<p>  Setting Deny permission (/D) will deny access to a user even if they also belong to a group that 
+grants access.</p>
+<h2>Limitations</h2>
+<p>Cacls cannot display or modify the ACL state of files locked in exclusive use.</p>
+<p>Cacls cannot set the following permissions: <span class="code">change permissions, take ownership, execute</span>, <span class="code"> delete</span> use <a href="xcacls.html">XCACLS</a> to set any of these. </p>
+<h2> Using CACLS</h2>
+<ul>
+<li>The CACLS command does not provide a /Y switch to automatically      answer 'Y' to the Y/N prompt. However, you can <a href="syntax-redirection.html">pipe</a>      the 'Y' character into the CACLS command using <a href="echo.html">ECHO</a>,      use the following syntax:<br><br>
+<span class="code">ECHO Y| CACLS <i>filename</i> /g <i>username</i>:<i>permission</i></span><br>
+<br> 
+</li>
+<li> To edit a file you must have the &quot;Change&quot; ACL (or be the file's owner)<br>
+</li>
+<li>To use the CACLS command and change an ACL requires &quot;FULL Control&quot;<br>
+</li>
+<li>File &quot;Ownership&quot; will always override all ACL's - you always have Full Control over files that you create.<br></li>
+<li>If CACLS is used without the /E switch all existing rights on [pathname] will be replaced, any attempt to use the /E switch to change a [user:permission] that already exists will raise an error. To be sure the 
+ CALCS command will work without errors use /E /R to remove ACL rights for the user concerned, then use /E to add the desired rights.<br></li>
+<li>The /T option will only traverse subfolders below<b> 
+</b>the <b>current</b> directory</li>
+</ul>
+<p>If no options are specified CACLS will display the current ACLs<br>
+e.g. To display the current folder<br>
+ CACLS .<br>
+Display permissions for one file
+<br>
+CACLS MyFile.txt<br>
+Display permissions for multiple files
+<br>
+CACLS *.txt<br>
+<br>
+Inherited folder permissions are displayed as:</p>
+<pre> OI - Object inherit    - This folder and files. (no inheritance to subfolders)
+ CI - Container inherit - This folder and subfolders.
+ IO - Inherit only      - The ACE does not apply to the current file/directory
+
+These can be combined as folllows:
+ (OI)(CI)	    This folder, subfolders, and files.
+ (OI)(CI)(IO)	Subfolders and files only.
+     (CI)(IO)  Subfolders only.
+ (OI)    (IO)	Files only. </pre>
+<p>So BUILTIN\Administrators:(OI)(CI)F means that both files and Subdirectories will inherit 'F' (Fullcontrol) <br>
+similarly (CI)R means Directories will inherit 'R' (Read folders only = List permission)</p>
+<p>To actually change the inheritance of a folder/directory use <a href="icacls.html">iCACLS /grant</a> or <a href="icacls.html">iCACLs /deny </a></p>
+<p>When cacls is applied to the current folder only there is no inheritance and so no output.</p>
+<h2>Errors when changing permissions</h2>
+<p>If a user or group has a permission on a file or folder and you grant a second permission to the same user/group on the same folder, NTFS will sometimes produce the error message &quot;<span class="code">The parameter is incorrect</span>&quot; To fix this (or prevent it happening) revoke the permission first <span class="code">/e /r</span> and then apply a fresh grant <span class="code">/e /g</span></p>
+<p><span class="code">No mapping between account names and security IDs was done</span><br>
+This error indicates that cacls looked up the group or username given in Active Directory and didn't find anything, often this means that you need to prefix the name with a domain name <span class="code">ss64dom\user64</span> or (for a local account) the name of the machine <span class="code">pc64\localUser2</span> also check for simple typos.</p>
+<p><b>Examples:</b><br>
+<br>
+Add Read-Only  permission to a single file <br>
+<span class="code">CACLS myfile.txt /E /G &quot;Power Users&quot;:R</span></p>
+<p>Add Full Control permission to a second group of users<br>
+<span class="code">CACLS myfile.txt /E /G &quot;FinanceUsers&quot;:F</span></p>
+<p>  Now revoke the Read permissions from the first group<br>
+<span class="code">CACLS myfile.txt /E /R &quot;Power Users&quot;</span><br>
+<br>
+Now give the first group Full-control:<br>
+<span class="code">CACLS myfile.txt /E /G &quot;Power Users&quot;:F</span></p>
+<p>Give the Finance group  Full Control of a folder and all sub folders <br>
+<span class="code">CACLS c:\docs\work /E /T /C /G &quot;FinanceUsers&quot;:F</span><br>
+<br>
+<i class="quote">&ldquo;It's easier to ask forgiveness than it is to get permission&rdquo; ~ Rear Admiral Grace Hopper</i><br>
+<br>
+<b>Related:</b><br>
+<br>
+<a href="attrib.html">ATTRIB</a> - Display or change file attributes<br>
+<a href="icacls.html">iCACLS</a> - Change file and folder permissions (ACLs)<br>
+<a href="xcacls.html">XCACLS</a> - Change file and folder permissions (ACLs)<br>
+Powershell: <a href="http://ss64.com/ps/set-acl.html">Set-Acl</a> - Set permissions<br>
+<a href="http://www.microsoft.com/technet/sysinternals/FileAndDisk/AccessEnum.mspx">AccessEnum</a> - GUI 
+to browse a tree view of user privs<br>
+<a href="dir.html">DIR /Q</a> - Display the owner for a list of files (try it for Program files) <br>
+<a href="perms.html">PERMS</a> - Show permissions for a user<br>
+FIXACLS - Restore default privs (Resource Kit supplement 2)<br>
+<a href="fsutil.html">FSUTIL</a> - File System Options<br>
+<a href="ntrights.html">NTRIGHTS</a> - Edit user account rights<br>
+SHOWACL - Show file Access Control Lists (Windows 2000)<br>
+<a href="takeown.html">TAKEOWN</a> - Take ownership of files <br>
+<a href="http://support.microsoft.com/?id=237701">Q237701</a> - Cacls cannot apply security to root<br>
+<a href="http://support.microsoft.com/?id=271876">Q271876</a> - Complex ACLs impair directory service performance<br>
+<a href="http://support.microsoft.com/?id=834721">Q834721</a> - Permissions on Folder are incorrectly ordered <br>
+<a href="http://support.microsoft.com/?id=135268">Q135268</a> - How to use CACLS.EXE in a Batch File<br>
+<a href="http://support.microsoft.com/?id=245031">Q245031</a> - Error when using the | pipe symbol<br>
+<a href="syntax-permissions.html">NT Permissions</a> explained <br>
+ACL utils: <a href="http://sourceforge.net/projects/setacl/">SetACL</a> or <a href="http://www.gbordier.com/gbtools/">FileACL</a> (free)<br>
+Equivalent bash command (Linux):<a href="http://ss64.com/bash/chmod.html">chmod</a> - Change access permissions</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="cacls.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>set-eol.ps1 CR/LF | PowerShell | SS64.com</title>
+
+<style type="text/css">
+.tab1
+{
+	background-color: #ddd;
+	border-collapse: collapse;
+}
+.tab1 td
+{
+	border-bottom: 1px solid #999;
+		padding: 2px 8px;
+}
+.tab1 tbody tr:hover td
+{
+	background-color: #ccc;
+}
+</style></head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem -->
+<h1>set-eol.ps1</h1>
+<p>A PowerShell script to change the line endings of a text file.<br>
+This script will work even for a source file that contains a mixture of different file endings.</p>
+<pre># set-eol.ps1
+# Change the line endings of a text file to: Windows (CR/LF), Unix (LF) or Mac (CR)
+# Requires PowerShell 3.0 or greater
+
+# Syntax
+#       ./set-eol.ps1 -lineEnding {mac|unix|win} -file FullFilename
+
+#     mac, unix or win  : The file endings desired.
+#     FullFilename      : The full pathname of the file to be modified.
+
+#     ./set-eol win &quot;c:\demo\data.txt&quot;
+
+[CmdletBinding()]
+Param(
+  [Parameter(Mandatory=$True,Position=1)]
+    [ValidateSet(&quot;mac&quot;,&quot;unix&quot;,&quot;win&quot;)] 
+    [string]$lineEnding,
+  [Parameter(Mandatory=$True)]
+    [string]$file
+)
+
+# Convert the friendly name into a PowerShell EOL character
+Switch ($lineEnding) {
+  &quot;mac&quot;  { $eol=&quot;`r&quot; }
+  &quot;unix&quot; { $eol=&quot;`n&quot; }
+  &quot;win&quot;  { $eol=&quot;`r`n&quot; }
+} 
+
+# Replace CR+LF with LF
+$text = [IO.File]::ReadAllText($file) -replace &quot;`r`n&quot;, &quot;`n&quot;
+[IO.File]::WriteAllText($file, $text)
+
+# Replace CR with LF
+$text = [IO.File]::ReadAllText($file) -replace &quot;`r&quot;, &quot;`n&quot;
+[IO.File]::WriteAllText($file, $text)
+
+#  At this point all line-endings should be LF.
+
+# Replace LF with intended EOL char
+if ($eol -ne &quot;`n&quot;) {
+  $text = [IO.File]::ReadAllText($file) -replace &quot;`n&quot;, $eol
+  [IO.File]::WriteAllText($file, $text)
+}
+Echo &quot;   ** Completed **&quot;
+</pre>
+<p> The script loads the whole file into memory so may not be suitable for very large files. 
+ 
+
+The normal PowerShell routine  to replace characters is  <a href="replace.html">.replace</a> but
+that will add a trailing CR/LF, so we use <span class="code">::WriteAllText</span> instead.</p>
+<p>An alternative and much simpler method <a href="http://powershell.com/cs/blogs/tips/archive/2014/10/03/normalizing-line-endings.aspx">from PowerShell.com</a>, is below. Get-Content will identify even non-standard line breaks, so the result is a string array of lines. When these are written these back to a new file, <a href="set-content.html">Set-Content</a> will replace the default Windows CR/LF line endings.</p>
+<pre>$OldFile = &quot;$home\input.txt&quot;
+$NewFile = &quot;$home\output.txt&quot;
+Get-Content $OldFile | Set-Content -Path $NewFile</pre>
+<p class="quote"><i>&ldquo;Well, it's all right, if you live the life you please, Well, it's all right, even if the sun don't shine, Well, it's all right, we're going to the end of the line&rdquo; ~ Traveling Wilburys, End Of The Line</i></p>
+<p><b>Related:</b></p>
+<p><a href="http://ss64.com/ascii.html">ASCII table</a><br>
+<b></b> <a href="syntax-stampme.html">StampMe</a> - Rename a file with the current Date/Time.<a href="syntax-functions.html"></a></p>
+<!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-set-eol.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

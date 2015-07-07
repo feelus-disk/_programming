@@ -1,0 +1,147 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Winrm -remote | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1><a href="winrm.html">WINRM</a> -remote </h1> 
+<p>Windows Remote Management<br>
+  <br>
+  When connecting remotely, you can specify which credentials, authentication mechanisms, proxy access type,
+proxy credentials and proxy authentication mechanisms to use.</p>
+<pre>Syntax
+      winrm <i>OPERATION</i> -remote:<i>VALUE</i> [-unencrypted] [-usessl]
+         [-authentication:<i>VALUE</i>] [-username:<i>USERNAME</i>] 
+            [-password:<i>PASSWORD</i>] [-certificate:<i>THUMBPRINT</i>]
+               [-proxyaccess:<i>VALUE</i>] [-proxyauth:<i>VALUE</i>]  
+                  [-proxyusername:<i>USERNAME</i>] [-proxypassword:<i>PASSWORD</i>]
+
+Key:
+   -r[emote]:<i>VALUE</i>
+                  Identifier of remote system, a simple host name or a complete URL.
+
+                  [TRANSPORT://]HOST[:PORT][/PREFIX]
+
+                  Transport: One of HTTP or HTTPS; default is HTTP.
+                  Host: a DNS name, NetBIOS name, or IP address.
+                  Port: If port is not specified then the following default rules apply:
+                          * If transport is specified to HTTP then port 80 is used.
+                          * If transport is specified to HTTPS then port 443 is used.
+                          * If transport is not specified and -usessl is not specified then port
+                            5985 is used for an HTTP connection.
+                          * If transport is not specified and -usessl is specified then port 5986
+                            is used for an HTTPS connection.
+                  Prefix: Defaults to wsman.
+
+   -a[uthentication]:<i>VALUE</i>
+                  If none are specified the current 
+                  logged-on user's credentials will be used.
+                  The authentication mechanism used:
+                    -a:None
+                    -a:Basic
+                    -a:Digest
+                    -a:Negotiate
+                    -a:Kerberos
+                    -a:Certificate
+                    -a:CredSSP
+
+   -u[sername]:<i>USERNAME</i>
+                  The username on a remote machine. The user must
+                  be member of local Administrators group on remote machine.
+                  e.g. -username:USERNAME or -username:DOMAIN\USERNAME for
+                  a domain account.
+                  If Kerberos is used, and  -username is not supplied, then
+                  the current logged-on domain user's credentials are used.
+
+   -p[assword]:<i>PASSWORD</i>
+                  The password, applies only if -username is used.
+
+   -c[ertificate]:<i>THUMBPRINT</i>
+                  The thumbprint of a certificate that must exist in the local
+                  machine store or in the current user store.
+                  The certificate must be intended for client authentication.
+                  Applies only if -a:Certificate is used.
+                  If your THUMBPRINT contains spaces, enclose in double quotes:
+                  -c:7c0cf52026401f38a2d6348761b1dd1477c4f16d
+                  -c:"7c 0c f4 20 26 40 1f 38 a2 d6 34 87 61 b1 dd 14 77 c4 f1 6d"
+
+   -p[roxy]ac[cess]:<i>VALUE</i>
+                 The proxy settings to retrieve when connecting to a remote machine:
+                 -pac:ie_settings  (default)
+                 -pac:winhttp_settings
+                 -pac:auto_detect
+                 -pac:no_proxy
+
+   -p[roxy]a[uth]:<i>VALUE</i>
+                 The authentication mechanism used to authenticate with a proxy:
+                 -pa:Basic
+                 -pa:Digest
+                 -pa:Negotiate
+                 If -proxyauth is used then -proxyaccess is required.
+
+   -p[roxy]u[sername]:<i>USERNAME</i>
+                  The username to authenticate with proxy. Cannot be used on local machine.
+                  If the user account is a local account on the remote machine,
+                  the syntax should be in the form -proxyusername:USERNAME
+                  If the username is a domain account, the syntax should be in the form
+                  -proxyusername:DOMAIN\USERNAME
+                  If -proxyusername is used then -proxyauth is required.
+
+   -p[roxy]p[assword]:<i>PASSWORD</i>
+                  Password, applies only if -proxyusername is used.
+
+   -un[encrypted] No encryption will be used when doing remote operations over
+                  HTTP. Unencrypted traffic is not allowed by default and must
+                  be enabled in the local configuration.
+
+   -[use]ssl      Use an SSL connection when doing remote operations.
+                  The transport in the remote option should not be specified.</pre>
+<p> When connecting remotely, you can specify which credentials, authentication mechanisms, proxy access type,
+proxy credentials and proxy authentication mechanisms to use.</p>
+<p>Note: IPv6 addresses must be enclosed in brackets.</p>
+<p>Note: When using HTTPS, the machine name must match the server's certificate
+common name (CN) unless -skipCNcheck is used.</p>
+<p>Note: Defaults for port and prefix can be changed in the local configuration.</p>
+<p>Note: If an authentication mechanism is not specified, Kerberos is used unless
+one of the conditions below is true, in which case Negotiate is used:<br>
+- Explicit credentials are supplied and the destination host is trusted<br>
+- The destination host is &quot;localhost&quot;, &quot;127.0.0.1&quot; or &quot;[::1]&quot;<br>
+- The client computer is in group and the destination host is trusted.</p>
+<p>Note: Not all authentication mechanisms are enabled by default. Allowed
+authentication mechanisms can be controlled by local configuration 
+or group policy.</p>
+<p>Note: Most operations will require an authentication mode other than None.</p>
+<p>Note: Certificate authentication can be used only with the HTTPS transport.
+To configure an HTTPS listener for the WinRM service run the command:<br>
+<span class="code">winrm quickconfig -transport:HTTPS</span></p>
+<p class="quote"><i>“Calm self-confidence is as far from conceit as the desire to earn a decent living is remote from greed&rdquo; ~ Channing Pollock Read</i></p>
+<p><b>Related:</b></p>
+<p>  <a href="winrs.html">WINRS</a> - Windows Remote Shell<br>
+<a href="winrm.html">WINRM</a> - Windows Remote Management, manage active remote shells &amp; WinRS configuration.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="winrm-remote.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

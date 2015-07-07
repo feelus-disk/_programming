@@ -1,0 +1,116 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Copy files | Windows CMD | SS64.com</title>
+
+<style type="text/css">
+.style2 {font-weight: bold}
+</style></head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>COPY </h1> 
+<p>Copy one or more files to another location.</p>
+<pre>Syntax<br>      COPY [<i>options</i>] [/A|/B] <i>source</i> [/A|/B] [+ <i>source2</i> [/A|/B]...] [<i>destination</i> [/A|/B]]
+
+      COPY <i>source1</i> + <i>source2</i>.. <i>destination</i> [<i>options</i>]<br><br>Key
+     <i>source</i> :  Pathname for the file or files to be copied.<br>
+        /A  :  ASCII text file (default)
+        /B  :  Binary file copy - will copy extended characters.
+        /D  :  Allow the destination file to be created decrypted.<br>
+<i>destination</i> :  Pathname for the new file(s).<br>
+        /V  :  <a href="verify.html">Verify</a> that the new files were written correctly.<br>
+        /N  :  If at all possible, use only a short filename (8.3) when creating
+               a destination file. This may be necessary when copying between disks
+               that are formatted differently e.g NTFS and VFAT, or when archiving 
+               data to an ISO9660 CDROM.<br>        /L  :  If source is a symbolic link copy the link to the target
+               instead of the actual file the source link points to.
+
+        /Y  :  Suppress confirmation prompt.
+
+        /-Y :  Enable confirmation prompt.
+<br>        /Z  :  Copy files in restartable mode. If the copy is interrupted <br>               part way through, it will restart if possible. (use on slow networks)
+</pre>
+<p><b> Binary copies<br> 
+  </b>&quot;COPY 
+/B ... &quot; will copy files in binary mode.</p>
+<p>The /A and /B options may appear in multiple locations, with different meanings depending on location.<br>
+Before any <i>source</i> - they will set the default mode for all <i>source</i> and <i>destination</i> files. <br>
+After a <i>source</i> - they will set the mode for that <i>source</i>.<br>
+After the <i>destination</i> - they will set the mode for the <i>destination</i>.<br>
+  <br>
+  <b>Combine files</b> <br>
+  To combine files, specify a single file for the destination, but multiple files 
+  as the source. To specify more than one file use wildcards or list the files 
+  with a + in between each (file1+file2+file3)<br>
+  When copying multiple files in this way the first file must exist or else the 
+copy will fail, a workaround for this is COPY null + file1 + file2 dest1</p>
+<p>COPY will accept UNC pathnames<b></b> </p>
+<p><b>Copy from the console</b> (accept user input) </p>
+<p><span class="code">COPY CON filename.txt </span><br>
+Then type the input text followed by ^Z (Control key &amp; Z)</p>
+<p>To do this in Powershell use the following function: </p>
+<p class="code">function copycon {<br> [system.console]::in.readtoend()<br>
+}</p>
+<p>  <span class="body style2">Prompt to overwrite destination file</span></p>
+<p><span class="body">NT 4 will overwrite destination files without any prompt, Windows 2000 and above will prompt unless the COPY command is being executed from within a batch script.<br>
+To force the overwriting of destination files under both NT4 and Windows2000 
+use the COPYCMD environment variable:</span></p>
+<p> <span class="code">SET COPYCMD=/Y</span><br>
+<br>
+This will turn off the prompt in Win2000 and will be ignored by NT4 (which overwrites   
+by default)</p>
+<p><b>Examples:</b><br>
+<br>
+In the current folder<br>
+<span class="code">COPY oldfile.doc newfile.doc</span><br>
+<br>
+Copy from a different folder/directory: <br>
+<span class="code">COPY &quot;C:\my work\some file.doc&quot; &quot;D:\New docs\newfile.doc&quot;</span><br>
+<br>
+Specify the source only, with a wildcard will copy all the files into the current directory:<br>
+<span class="code">COPY </span><span class="code">&quot;C:\my work\*.doc&quot;</span><br>
+<br>
+Specify the source  with a wildcard and the destination as a single file, this is generally only useful with plain text files. <br>
+<span class="code">COPY &quot;C:\my work\*.txt&quot; &quot;D:\New docs\combined.txt&quot; </span><br>
+<br>
+Quiet copy (no feedback on screen)<br>
+<span class="code">COPY oldfile.doc newfile.doc &gt;nul<i></i></span></p>
+<p>COPY is an <a href="syntax-internal.html">internal</a> command.<i><br>
+  <br>
+  <span class="quote">&ldquo;Success seems to be connected with action. Successful men keep moving. They make mistakes, but they don&rsquo;t quit&rdquo; ~ Conrad Hilton</span></i><br>
+  <br>
+  <b>Related:</b><br>
+  <br>
+  <a href="robocopy.html">ROBOCOPY</a> - Robust File and Folder Copy <br>
+  <a href="xcopy.html">XCOPY</a> - Copy files and folders <br>
+  <a href="move.html">MOVE</a> - Move a file from one folder to another <br>
+  Fcopy - File Copy for MMQ (copy changed files & compress. (<a href="http://ss64.com/links/windows.html#kits">Win 2K ResKit</a>)<br>
+  Permcopy - Copy share & file ACLs from one share to another. (<a href="http://ss64.com/links/windows.html#kits">Win 2K ResKit</a>) <br>
+  PowerShell: <a href="http://ss64.com/ps/copy-item.html">Copy-Item</a> - Copy an item from one location to another<br>
+  Equivalent bash command (Linux):<a href="http://ss64.com/bash/cp.html"> cp</a> - Copy one or more files to another location.</p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="copy.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

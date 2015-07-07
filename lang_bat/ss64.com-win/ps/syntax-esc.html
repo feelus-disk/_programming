@@ -1,0 +1,166 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Escape characters | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_pssyntax.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Escape characters, Delimiters and Quotes </h1> 
+<p>The PowerShell escape character is the grave-accent(<span class="code">`</span>) </p>
+<p>The escape character can be used in three ways:</p>
+<p>1) When used at the end of a line, it is a continuation character - so the command will continue on the next line.</p>
+<p>2) To  indicate that the next character following should be passed without substitution. For example <span class="code">$myVariable</span> will normally be expanded to display the variables contents but <span class="code"> `$myVariable</span> will just be passed as <span class="code">$myVariable</span></p>
+<p>3) When used inside double quotation marks, the escape character indicates that the following character should be interpreted as a 'special' character.</p>
+<h2>Special characters</h2>
+<p>Special characters are used to format/position string output.</p>
+<pre>
+   `0  Null
+   `a  Alert bell/beep
+   `b  Backspace
+   `f  Form feed (use with printer output)
+   `n  New line
+   `r  Carriage return
+<span class="code"> `r`n</span>  Carriage return + New line
+   `t  Horizontal tab
+   `v  Vertical tab (use with printer output)</pre>
+<p> Using the Escape character to avoid special meaning.<br>
+</p>
+<pre>   ``  To avoid using a Grave-accent as the escape character
+   `#  To avoid using # to create a comment
+   `'  To avoid using ' to delimit a string
+   `"  To avoid using &quot; to delimit a string</pre>
+<p> When setting a string variable the # character does not need to be escaped, but at the command line  # will act as a comment unless escaped:</p>
+<p class="code">PS C:\&gt; echo 1 # 1<br>
+1 <br>
+PS C:\&gt; echo 1 `# 1<br>
+1<br>
+#<br>
+1</p>
+<p>The escaped quotes allow quotation marks to be displayed on screen rather than being interpreted as the start or end of a string. The same effect can also be achieved by doubling-up the quote marks:<span class="code"> &quot;&quot;</span> or<span class="code"> ''</span><br>
+For powershell.exe, the horizontal tab stops are every 8th character.</p>
+<p>Examples</p>
+<pre>PS C:\> Write-Host &quot;First Line `nSecond line&quot;
+First Line
+Second Line
+
+PS C:\&gt; &quot;12`t90`n1234567890&quot;
+ 12      90
+ 1234567890
+
+PS C:\> Write-Host &quot;Header1`tHeader2 `n123.45`t600&quot;
+ Header1 &nbsp;Header2
+ 123.45&nbsp;&nbsp;&nbsp;600
+
+PS C:\> &quot;`a `a&quot;<br>&lt;Two audible beeps are produced.&gt;
+</pre>
+<h2><a id="quotes"></a>Quotation Marks</h2>
+<p>Either single or double  quotes may be used to specify a literal string.</p>
+<p>Single-Quoted Strings (<span class="code">'</span>)<br>
+When you enclose a string in single quotation marks, any variable names in the string such as <span class="code">'$myVar'</span> will appear exacly as typed when the command is processed. Expressions in single-quoted strings are not evaluated, not even escape characters or any of the Special characters listed above. If the string contains any embedded single quotes, they must be doubled  (replace <span class="code"> ' </span> with <span class="code">''</span>)</p>
+<p><span class="code">$msg = 'Every &quot;lecture&quot; should cost $5000' </span></p>
+<p>Double-Quoted Strings (<span class="code">&quot;</span>)<br>
+When you enclose a string in double quotation marks, any variable names in the string such as <span class="code">"$myVar"</span> will be
+replaced with the variable's value when the
+command is processed. You can prevent this substitution by prefixing the <span class="code">$</span> with an escape character. Any embedded  	double quotes can be escaped<span class="code"> `&quot; </span>or doubled (replace <span class="code"> " </span> with <span class="code">""</span>)</p>
+<p><span class="code">$msg = &quot;Every &quot;&quot;lecture&quot;&quot; should cost `$5000&quot;<br>
+$msg = &quot;Every 'lecture' should cost `$5000&quot;<br>
+$var = 45 </span><span class="code"><br>
+&quot;The value of &quot; + '$var' + &quot;is '$var'&quot; <br>
+&quot;The value of `$var is '$var'&quot;<br> 
+$query = &quot;SELECT * FROM Customers WHERE Name LIKE '%JONES%'&quot;</span></p>
+<h2>Verbatim arguments --%</h2>
+<p>In PowerShell 3.0 the special marker<span class="code"> --% </span>is a signal to PowerShell to stop interpreting any remaining characters on the line. This can be used to call a non-PowerShell utility and pass along some quoted parameters exactly as is.</p>
+<p>for example instead of escaping every character that PowerShell may interpret:<br>
+<span class="code">PS C:\&gt; FIND.EXE '&quot;Search Text&quot;' &quot;C:\Program Files `(x86`)\Demo\text.txt</span>&quot;<br>
+we can instead use:
+<br>
+<span class="code">PS C:\&gt; FIND.EXE  --% </span><span class="code">&quot;Search Text&quot; &quot;C:\Program Files (x86)\Demo\text.txt</span>&quot;<br>
+</p>
+<p>Any PowerShell <a href="syntax-variables.html">variables</a> after the<span class="code"> --%</span>  won’t be expanded but you can work around this by building up the  command string using more than one variable:</p>
+<p class="code">$command = 'FIND.EXE --%'<br>
+$params =  &quot;C:\Program Files (x86)\Demo\text.txt&quot;<br>
+<br>
+&amp; $command &quot;Search Text&quot; $params;</p>
+<p>If the command type is Application, the parameter <span class="code">--%</span> is not passed to the command. The arguments after --% have any <a href="syntax-env.html">environment variables</a> (strings surrounded by %) automatically expanded. For example: <br>
+<span class="code">PS C:\&gt; FINDSTR.EXE --% &quot;%ProgramFiles%&quot;</span> <br>
+In the above %ProgramFiles% is replaced with the value <span class="code">$env:ProgramFiles</span></p>
+<h2>Concatenating Strings</h2>
+<p> Concatenate strings with<span class="code"> + </span><br>
+In many cases, when combining simple strings, the <span class="code">+</span> operator is not needed: <br>
+<span class="code">PS C:\&gt; $first = "abcde" <br>
+PS C:\&gt; $second = "FGHIJ" <br>
+PS C:\&gt; "$first $second" <br>
+abcde FGHIJ </span></p>
+<p>but when combining more complex objects, the <span class="code">+</span> operator becomes very useful: <br>
+For example if we retrieve an environment variable   <br>
+<span class="code">$drive = gci <a href="syntax-env.html">env:</a>SystemDrive </span><br>
+This returns a DictionaryEntry object with <span class="code">.name</span> and <span class="code">.value</span> properties. </p>
+<p># Adding this to a string will give the wrong result <br>
+<span class="code">PS C:\&gt; "aaa $drive bbb" <br>
+aaa System.Collections.DictionaryEntry bbb </span></p>
+<p># Concatenating it with a string is closer, but still wrong: <br>
+<span class="code">PS C:\&gt; "aaa " + $drive + " bbb" <br>
+aaa System.Collections.DictionaryEntry bbb </span></p>
+<p># Specify the <span class="code">.value</span> property and concatenate that with <span class="code">+</span> to get the desired result: <br>
+<span class="code">PS C:\&gt; "aaa " + $drive.value + " bbb" <br>
+aaa C: bbb</span></p>
+<p># Alternatively use the <span class="code">$( )</span> <a href="syntax-operators.html">SubExpression</a> operator:<br>
+<span class="code">PS C:\&gt; "aaa $($drive.value) bbb" <br>
+aaa C: bbb</span><br>
+<br>
+(an easier method would be using <span class="code">$drive = <b>$</b><a href="syntax-env.html">env:</a>SystemDrive </span>which will return a system.string in the first place.)</p>
+<h2>Backslash \</h2>
+<p>In many programming languages including C# (.Net) and most UNIX shells the escape character is<span class="code"> \ </span><br>
+</p>
+<p> PowerShell is a <b>Windows</b> shell, and Windows already uses the backslash as a path separator  <span class="code">C:\Windows\&hellip;</span>.</p>
+<p>In Windows CMD the escape character is<span class="code"> <a href="http://ss64.com/nt/syntax-esc.html#escape">^</a></span> although this was not a great choice as ^ is a valid character in NTFS filenames.</p>
+<p>The PowerShell designers could have adopted the   forward slash as a path separator <span class="code">C:/Windows/&hellip;</span> , and then allocated the backslash as the escape character but this would have caused huge confusion and so instead they left paths unchanged and allocated<span class="code"> ` </span>as the escape character.</p>
+<p> The backtick ` is a valid character in NTFS filenames, so should you encounter one in a filename, it will need to be escaped.<br>
+</p>
+<p>In some PowerShell expressions (matching operations) a backslash character will be interpreted as the start of a <a href="syntax-regex.html">Regular Expression</a>, (e.g. <span class="code">\w</span> = match word)<br>
+To escape this and  treat the backslash as an ordinary character, double it (replace<span class="code"> \ </span>with<span class="code"> \\ </span>) </p>
+<h2><a id="here"></a>Here strings</h2>
+<p>A here string is a
+single-quoted or double-quoted string which can span multiple lines.<br>
+Expressions in single-quoted strings are not evaluated.</p>
+<p>All the
+lines in a here-string are interpreted as strings, even though they are
+not enclosed in quotation marks.</p>
+<p> <span class="code">$myHereString = <b>@'</b><br> 
+some text with &quot;quotes&quot; and variable names  $printthis <br> 
+some more text <br>
+<b>'@ </b></span><br>
+<br>
+<span class="code">$anotherHereString = <b>@&quot;</b><br>
+The value of `$var is $var<br>
+some more text <br>
+<b>&quot;@</b></span></p>
+<p> Inside a here-string, double and single quotes are not special but quoted literally, all line breaks are preserved. </p>
+<p>The @ character is also used to create <a href="syntax-arrays.html">arrays</a>, create <a href="syntax-hash-tables.html">hash tables</a> and as a <a href="syntax-hash-tables.html#splat">splat</a> operator.</p>
+<p class="quote"><i>&ldquo;Be not angry that you cannot make others as you wish them to be, since you cannot make yourself as you wish to be&rdquo; - Thomas A Kempis</i></p>
+<p><b>Related:</b></p>
+<p><a href="http://connect.microsoft.com/PowerShell/feedback/details/376207/">Bug report</a> - Executing commands which require quotes and variables is practically impossible.<br>
+<a href="http://www.rlmueller.net/PowerShellEscape.htm">Escaping Distinguished Names</a> - Richard L. Mueller<br>
+<a href="http://blogs.technet.com/b/josebda/archive/2012/03/03/using-windows-powershell-to-run-old-command-line-tools-and-their-weirdest-parameters.aspx">Using  PowerShell to run old command line tools</a> -  Jose Barreto<br>
+<a href="invoke-expression.html">Invoke-Expression</a> -   Run a PowerShell expression<br>
+<a href="join-path.html">Join-Path</a> - Combine a path and child-path<br>
+  <b></b> <a href="syntax-pipeline.html">Pipelines</a> - Pass objects down the pipeline<br>
+<a href="syntax-variables.html">Variables</a> - PowerShell Variables (int, String)</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="syntax-esc.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

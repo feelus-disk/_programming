@@ -1,0 +1,111 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Slow Network Browsing in XP | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Slow network browsing in Windows XP</h1> 
+<h2> 
+  1) Shortcuts in 'My Network Places' make network
+  browsing very slow. </h2>
+<p>  If the 'My Network Places' folder contains a shortcut to a network share, then 
+  each refresh of the explorer window will attempt to read icon information from 
+  every file in the remote location, causing the system to slow to a crawl. <br>
+  <br>
+  Removing all shortcuts from 'My Network Places' will return the system response 
+  to normal. <br>
+  <br>
+  Every time you open a file via a UNC name, Windows XP will automatically add 
+  another shortcut to the 'My Network Places' folder - so the issue tends to get 
+  worse over time. <br>
+  <br>
+  You can prevent the automatic addition of shortcuts with the registry setting below: <br>
+<span class="code">Windows Registry Editor Version 5.00<br>
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer]<br>
+&quot;NoRecentDocsNethood&quot;=dword:00000001</span></p>
+<p><a href="http://support.microsoft.com/?kbid=841978">Q841978</a> -  Explorer.exe stops responding when you use network shortcuts (XP)<br>
+  <br>
+  Similar issues affect the Start menu and Desktop - placing a shortcut to a network 
+  resource in either location can drastically slow down system response, particularly 
+  when the network resource is unavailable. Shortcuts to <i>Domains</i> or <i>Machines</i> don&rsquo;t suffer from these problems as they always have the same icon. A sensible routine for managing desktop shortcuts for ALL Users can be found <a href="http://ask.metafilter.com/172010/Shortcuts-and-Memory#2474481">here</a>. </p>
+<p>There are two methods of accessing the network that  avoid this 
+performance problem: </p>
+<ul>
+<li>  Create a <a href="net_share.html">drive map</a> and use this to browse the network 
+files<br>
+</li>
+<li>Create a shortcut to explorer.exe and pass the UNC name of the resource.<br>
+<span class="code">explorer /e, \\Server\FileShare<br>
+</span></li>
+</ul>
+<h2>2) Explorer randomly locks files</h2>
+<p>There are <a href="http://www.techspot.com/vb/topic48091.html">reports</a> that Windows Explorer can run very slowly or stop responding if some of the profile permissions get corrupted. </p>
+<p>To fix this logout and login with a different (Administrator level) account and rename this folder: </p>
+<p class="code">C:\Documents and Settings\&lt;profilename&gt;\Local Settings\Application Data\Microsoft\Windows </p>
+<p>  When you login again the folder will be re-created with the correct permissions.<br>
+</p>
+<h2>3) Listing the contents of a shared folder is slow - Desktop.ini</h2>
+<p>Another issue that will  slow down browsing is the desktop.ini feature. This issue affects Windows clients using mapped drives or UNC connections, this issue was  fixed in XP sp2 (<a href="http://support.microsoft.com/?kbid=840309">Q840309</a>), but from <a href="http://support.microsoft.com/kb/326549">Q326549</a> has re-emerged in Windows 7.</p>
+<p>When listing a directory, Windows  will search for and parse Desktop.ini files. This will noticably affect performance when a large number of subfolders are involved, it does this for the current folder and one level down the directory tree.</p>
+<p>Desktop.ini can be used to provide a custom icon, thumbnail view, and can make normal file folders into 'Special Folders' (eg Fonts, History, Temporary Internet Files, &quot;My Music&quot;, &quot;My Pictures&quot;, and &quot;My Documents&quot;). </p>
+<p>Desktop.ini files are only visible in Windows Explorer if you first un-check &quot;Hide protected operating system files&quot; (under Tools, Options, View)</p>
+<p>To see the file locks created by this process run the following command on the file server, while a client is (slowly) listing a large directory:<br> 
+<span class="code">NET FILE | Find &quot;desktop.ini&quot;</span></p>
+<p>A quick solution to this performance problem is to remove the READ_ONLY <a href="attrib.html">attribute</a> from the folder and/or delete the non-essential desktop.ini files.</p>
+<h2>Other browsing issues</h2>
+<p>Also consider: AntiVirus software, DNS configuration, the NTFS volume  (security descriptors &amp; indexes) <a href="defrag.html">defrag</a> and <a href="chkdsk.html">CHKDSK</a>.</p>
+<p class="quote">  <i>"Total world oil reserves amount to one thousand billion barrels, yearly 
+              consumption is 27 billion barrels&quot; ~ BP 
+  Amoco </i></p>
+<p><b> Related:</b>
+<p><a href="http://ss64.com/vb/syntax-profile.html">CleanRoamingProfile.vbs</a> - VBScript to delete selected files from a roaming profile.<br>
+<a href="http://blogs.technet.com/b/markrussinovich/archive/2005/06/15/an-explosion-of-audit-records.aspx">SysInternals</a> - Mark Russinovich - Desktop.ini files fill up the audit event log. <br>
+<a href="http://support.microsoft.com/?kbid=904160">Q904160</a> - File sharing on the network is slower than expected (WinServer 2003 SP1)<br>
+<a href="http://support.microsoft.com/kb/885189/">Q885189</a> - Slow performance from a mapped drive - Windows Server 2003<br>
+<a href="http://support.microsoft.com/?kbid=841978">Q841978</a> - Explorer.exe stops responding when you use network shortcuts (XP)<br>  
+<a href="http://support.microsoft.com/?kbid=834350">Q834350</a> - Access to network resources is slower<br>
+<a href="http://support.microsoft.com/?kbid=822219">Q822219</a> - Slow File Server Performance<br>
+<a href="http://support.microsoft.com/?kbid=819017">Q819017</a> - Long delay before files appear in My Computer (XP) <br>
+<a href="http://support.microsoft.com/?kbid=816375">Q816375</a> - XP Explorer pane flickers<br>
+<a href="http://support.microsoft.com/?kbid=814112">Q814112</a> - Network shares open slowly SMB/AntiVirus scanning <br>
+<a href="http://support.microsoft.com/kb/326549">Q326549</a> - Read-only &amp; System attributes for folders<br>
+<a href="http://support.microsoft.com/?kbid=321281">Q321281</a> - Desktop.ini does not work correctly when you customise the Default Profile<br>
+<a href="http://support.microsoft.com/?kbid=320138">Q320138</a> - Disable automatic search for network printers and folders (XP)<br>
+<a href="http://support.microsoft.com/?kbid=320829">Q320829</a> - Increase the <i>Request Size Buffer</i> on the file server - (try between 32 and 64 Kb)<br>
+<a href="http://support.microsoft.com/kb/319470/">Q319470</a> - Office2000: Screen response is slow  in Save As dialog box in Word<br>
+<a href="http://support.microsoft.com/?kbid=315237">Q315237</a> - 100-Megabit network packets<br>
+
+<a href="http://support.microsoft.com/?kbid=312403">Q312403</a> - Distributed Link Tracking <br>
+<a href="http://support.microsoft.com/kb/265396/">Q265396</a> - Slow network performance on a share that uses NTFS
+<br>
+<a href="http://support.microsoft.com/?kbid=245800">Q245800</a> - Delay viewing shares (Windows 98/2000) <br>
+<a href="cleanmgr.html">CleanMgr</a> - Automated cleanup of Temp files, recycle bin<br>
+<a href="http://pubs.logicalexpressions.com/Pub0009/LPMArticle.asp?ID=56">Max Cached Icons</a> - Resize the icon cache
+<!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="slow_browsing.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

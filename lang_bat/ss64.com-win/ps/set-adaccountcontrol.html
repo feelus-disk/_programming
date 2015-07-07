@@ -1,0 +1,190 @@
+<!doctype html><html>
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>Set-ADAccountControl | PowerShell | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_ps.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/ps">PowerShell</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/ps/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>Set-ADAccountControl</h1> 
+<p>Modify the user account control (UAC) values for an AD account.</p>
+<pre>Syntax
+      Set-ADAccountControl [-Identity] <i>ADAccount</i>
+        [-AccountNotDelegated <i>bool</i>] [-AllowReversiblePasswordEncryption <i>bool</i>]
+           [-AuthType {<u>Negotiate</u> | Basic}] [-CannotChangePassword <i>bool</i>]
+              [-Credential <i>PSCredential</i>] [-DoesNotRequirePreAuth <i>bool</i>]
+                 [-Enabled <i>bool</i>] [-HomedirRequired <i>bool</i>] [-MNSLogonAccount <i>bool</i>]
+                    [-Partition <i>String</i>] [-PassThru] [-PasswordNeverExpires <i>bool</i>]
+                       [-PasswordNotRequired <i>bool</i>] [-Server <i>String</i>]
+                          [-TrustedForDelegation <i>bool</i>] [-TrustedToAuthForDelegation <i>bool</i>]
+                             [-UseDESKeyOnly <i>bool</i>] [-Confirm] [-WhatIf] [<a href="common.html"><i>CommonParameters</i></a>]
+
+Key
+   -AccountNotDelegated <i>bool</i>
+       Security delegation. When True, the security context of the user is not
+       delegated to a service even when the service account is set as trusted for
+       Kerberos delegation. Sets the AccountNotDelegated property for an AD account.
+       This parameter also sets the ADS_UF_NOT_DELEGATED flag of the AD User Account
+       Control (UAC) attribute.
+       Values for this parameter: $false or 0, $true or 1
+
+   -AllowReversiblePasswordEncryption <i>bool</i>
+       Whether reversible password encryption is allowed for the account.
+       This parameter sets the AllowReversiblePasswordEncryption property of the account.
+       This also sets the ADS_UF_ENCRYPTED_TEXT_PASSWORD_ALLOWED flag of
+       the AD User Account Control (UAC) attribute.
+       Values for this parameter: $false or 0, $true or 1
+
+   -AuthType {<u>Negotiate</u> | Basic}
+       The authentication method to use: Negotiate (or 0), Basic (or 1)
+       A Secure Sockets Layer (SSL) connection is required for Basic authentication.
+
+   -CannotChangePassword <i>bool</i>
+       Whether the account password can be changed.
+       Sets the 'CannotChangePassword' property of an account.
+       Values for this parameter: $false or 0, $true or 1
+
+   -Credential <i>PSCredential</i>
+       A user account that has permission to perform this action.
+       The default is the current user unless the cmdlet is run from an AD PowerShell provider drive
+       in which case the account associated with the drive is the default.
+
+       &quot;User64&quot; or &quot;Domain01\User64&quot; or a <a href="get-credential.html">PSCredential</a> object.
+
+   -DoesNotRequirePreAuth <i>bool</i>
+       Is Kerberos pre-authentication required to logon using the user/computer account.
+       This parameter sets the ADS_UF_DONT_REQUIRE_PREAUTH flag of the AD User Account Control (UAC) attribute.
+       Possible values: $false (or 0), $true (or 1)
+
+   -Enabled <i>bool</i>
+       Is the account is enabled. An enabled account requires a password.
+       This parameter sets the Enabled property for an account object.
+       This parameter also sets the ADS_UF_ACCOUNTDISABLE flag of the AD UAC attribute.
+       Possible values: $false (or 0), $true (or 1)
+
+   -HomedirRequired <i>bool</i>
+       Is a home directory is required for the account.
+       This parameter sets the ADS_UF_HOMEDIR_REQUIRED flag of the AD UAC attribute.
+       Possible values: $false (or 0), $true (or 1)
+
+   -Identity <i>ADAccount</i>
+       Specify an AD domain object by providing one of the following values.
+       (The identifier in parentheses is the LDAP display name for the attribute.)
+
+          Distinguished Name 
+            Example: DC=Helvetia,DC=corp,DC=SS64,DC=com 
+          GUID (objectGUID) 
+            Example: 599c4d2e-f72d-4d20-8a78-030d69495f20
+          Security Identifier (objectSid) 
+            Example: S-1-5-21-5165297888-301467370-576410423-1803
+          Security Accounts Manager (SAM) Account Name (sAMAccountName)
+            Example: Helvetia
+
+       The cmdlet searches the default naming context or partition to find the object.
+       If two or more objects are found, the cmdlet returns a non-terminating error.
+
+       This parameter can also get this object through the pipeline or you can set this
+       parameter to an object instance.
+
+   -MNSLogonAccount <i>bool</i>
+       Is the account is a Majority Node Set (MNS) logon account.
+       This parameter also sets the ADS_UF_MNS_LOGON_ACCOUNT flag of the AD User Account Control (UAC) attribute.
+       Use MNS logon accounts to configure a multi-node cluster without a shared disk drive.
+       Possible values: $false (or 0), $true (or 1)
+
+   -Partition <i>string</i>
+       The distinguished name of an AD partition.
+       The distinguished name must be one of the naming contexts on the current
+       directory server. The cmdlet searches this partition to find the object defined by
+       the -Identity parameter. 
+       The following two examples show how to specify a value for this parameter.
+          -Partition &quot;CN=Configuration,DC=Europe,DC=Test,DC=SS64,DC=com&quot;
+          -Partition &quot;CN=Schema,CN=Configuration,DC=Europe,DC=Test,DC=SS64,DC=com&quot;
+          
+       In many cases, a <a href="partition-defaults.html">default value</a> will be used for -Partition if no value is specified.
+
+   -PassThru
+       Return the new or modified object.
+       By default (i.e. if -PassThru is not specified), this cmdlet does not generate any output.
+
+   -PasswordNeverExpires <i>bool</i>
+       Specifies whether the password of an account can expire.
+       This parameter cannot be set to True for an account that also has ChangePasswordAtLogon = True.
+
+       This parameter sets the PasswordNeverExpires property of an account object.
+       This parameter also sets the ADS_UF_DONT_EXPIRE_PASSWD flag of the AD User Account Control (UAC) attribute.
+       Possible values: $false (or 0), $true (or 1)<br>        <br>   -Server <i>string</i>
+       The AD Domain Services instance to connect to, this may be a Fully qualified domain name,
+       NetBIOS name, Fully qualified directory server name (with or without port number) or AD Snapshot instance.
+
+       Examples: demo.SS64.com  demo  demoDC02.demo.ss64.com  demoDC02.demo.ss64.com:3268
+
+   -TrustedForDelegation <i>bool</i>
+       Specifies whether an account is trusted for Kerberos delegation.
+       A service that runs under an account that is trusted for Kerberos delegation can assume the
+       identity of a client requesting the service.
+       This parameter sets the TrustedForDelegation property of an account object.
+       This value also sets the ADS_UF_TRUSTED_FOR_DELEGATION flag of the AD UAC attribute.
+       Possible values: $false (or 0), $true (or 1)
+
+   -TrustedToAuthForDelegation <i>bool</i>
+       Specifies whether an account is enabled for delegation.
+       When this parameter is set to true, a service running under such an account can
+       impersonate a client on other remote servers on the network.
+       This parameter sets the ADS_UF_TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION flag of the AD UAC attribute.
+       Possible values: $false (or 0), $true (or 1)
+
+   -UseDESKeyOnly <i>bool</i>
+       Specifies whether an account is restricted to use only Data Encryption Standard (DES) encryption
+       types for keys.<br>       This parameter sets the ADS_UF_USE_DES_KEY_ONLY flag of the AD User Account Control attribute.
+       Possible values: $false (or 0), $true (or 1)
+
+   -Confirm
+       Prompt for confirmation before executing the command.
+
+   -WhatIf
+       Describe what would happen if you executed the command, without actually executing the command.
+
+   <a href="common.html">CommonParameters</a>:
+       -Verbose, -Debug, -ErrorAction, -ErrorVariable, -WarningAction, -WarningVariable,
+       -OutBuffer -OutVariable.</pre>
+<p>Set-ADAccountControl  modifies the user account control (UAC) values for an AD user or computer account.<br>
+<br>
+The <span class="code">-Identity</span> parameter specifies the AD account to modify. Identify an account by its distinguished name (DN), GUID, security identifier (SID) or security accounts manager (SAM) account name. Alternatively set the <span class="code">-Identity</span> parameter to a user object <a href="syntax-variables.html">variable</a>, or pass a user object through the PowerShell <a href="syntax-pipeline.html">pipeline</a>. For example, from the <a href="search-adaccount.html">Search-ADAccount</a>, <a href="get-aduser.html">Get-ADUser</a>, <a href="get-adcomputer.html">Get-ADComputer</a> or <a href="get-adserviceaccount.html">Get-ADServiceAccount</a> cmdlets.</p>
+<p><b>Examples</b></p>
+<p>Sets the UAC flag on the user account User64 to make sure that a password is required for logon:</p>
+<p><span class="code">PS C:\&gt; Set-ADAccountControl user64 -PasswordNotRequired $false</span></p>
+<p>Sets the password of the user to never expire:</p>
+<p><span class="code">PS C:\&gt; Set-ADAccountControl user64 -PasswordNeverExpires $true</span></p>
+<p>Set the security descriptor of the user so they cannot change their own password:</p>
+<p><span class="code">PS C:\&gt; Set-ADAccountControl 'CN=user64,OU=UserAccounts,DC=SS64,DC=com' -CannotChangePassword $true</span></p>
+<p>Set the flag on userAccountControl so that the account cannot be delegated:</p>
+<p><span class="code">PS C:\&gt; Set-ADAccountControl SQLAdmin1 -AccountNotDelegated $true</span></p>
+<p>Set the flag on userAccountControl so that the account is  trusted to authenticate for delegation:</p>
+<p><span class="code">PS C:\&gt; Set-ADAccountControl 'CN=IIS01 SvcAccount,OU=ServiceAccounts,OU=Managed,DC=SS64,DC=com' -TrustedToAuthForDelegation $true</span></p>
+<p>The specified computer is now set to be trusted for delegation:</p>
+<p><span class="code">PS C:\&gt; Set-ADAccountControl -Identity &quot;Server64&quot; -TrustedForDelegation $true</span></p>
+<p class="quote"><i>“I think the key is for women not to set any limits” ~ Martina Navratilova</i></p>
+<p><b>Related:</b></p>
+<p><a href="set-adaccountexpiration.html">Set-adAccountExpiration</a> - Set the expiration date for an AD account<br>
+<a href="enable-adaccount.html">Enable-adAccount</a> - Enable an Active Directory account<br>
+<a href="reset-adserviceaccountpassword.html">Reset-adServiceAccountPassword</a> - Reset the service account password for a computer<br>
+<a href="http://support.microsoft.com/kb/305144">Q305144</a> - UserAccountControl flags - user account properties
+</p><!-- #BeginLibraryItem "/Library/foot_ps.lbi" --><p><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- PowerShell336 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:336px;height:280px"
+     data-ad-client="ca-pub-6140977852749469"
+     data-ad-slot="6318961509"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="set-adaccountcontrol.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2014<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>

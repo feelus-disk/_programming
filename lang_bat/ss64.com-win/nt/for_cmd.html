@@ -1,0 +1,155 @@
+<!doctype html><html lang="en">
+<head><meta charset="UTF-8">
+<link rel="STYLESHEET" href="../main.css" type="text/css">
+<title>For - Loop through command output | Windows CMD | SS64.com</title>
+</head><body><!-- #BeginLibraryItem "/Library/head_nt.lbi" --><div id="tnav"><ul>
+<li class="tbtn"><a href="http://ss64.com/"> ( &nbsp;SS64 &nbsp;)</a></li>
+<li class="tbtn"><a href="http://ss64.com/nt">CMD</a></li>
+<li class="tbtn"><a href="syntax.html">Syntax</a></li>
+<li><div id="search"><form action="http://www.google.com/search" method="get">
+<button tabindex="-1" type="submit" id="q-img"></button>
+<input type="text" name="q" id="q" size="27" maxlength="255" onblur="if(this.value=='')this.value='Search…';" onclick="if(this.value=='Search…')this.value='';" value="Search…">
+<input type="hidden" name="sitesearch" value="ss64.com/nt/"></form></div></li>
+</ul></div><!-- #EndLibraryItem --><h1>FOR /F</h1>
+<p>Loop command: against the results of another command.</p>
+<pre>Syntax
+      FOR <b>/F</b> ["<i>options</i>"] %%<i>parameter</i> IN (<b>'<i>command_to_process</i>'</b>) DO <i>command</i>
+
+Key
+   options:
+      delims=<i>xxx</i>   The delimiter character(s)
+                   (default = a space)
+      skip=<i>n</i>       A number of lines to skip at the beginning. 
+                   (default = 0)
+
+      eol=;        Character at the start of each line to indicate a comment
+                   The default is a semicolon ;
+
+      tokens=<i>n</i>     The numbered items to  read from each line 
+                   (default = 1)
+
+      usebackq     Use the alternate quoting style:                        
+                   - Use double quotes for long file names in &quot;<i>filenameset</i>&quot;.
+                   - Use single quotes for 'Text string to process'
+                   - Use back quotes for `command_to_process`
+
+  <i>command_to_process</i> : The output of the 'command_to_process' is 
+                        passed into the FOR parameter.
+
+  <i>command</i>     :  The command to carry out, including any 
+                 command-line parameters.
+
+  %%<i>parameter</i> :  A replaceable parameter:
+                 in a batch file use <b>%%</b>G (on the command line <b>%</b>G)</pre>
+<p>FOR /F processing of a command consists of reading the output from the command one line at a time and then breaking the line up into individual items of data or 'tokens'. The DO command is then executed with the parameter(s) set to the token(s) found.<br>
+<br>The FOR command is the answer to innumerable questions where you want to take the output of some command, store it in a variable (%%G) then do something with the result.</p>
+<p>For example the PING command returns serveral lines including one like:</p>
+<p class="code">Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),</p>
+<p>To select that one line of output, you can search for the text &quot;loss&quot; (which is always present), then use the Tokens parameter to select the number of lost packets, here this is <span class="code">0</span> but it will vary each time you run the command.</p>
+<p class="code">set _ping_cmd=ping -n 5 127.0.0.1</p>
+<p class="code">FOR /f &quot;tokens=4 delims=(=&quot; %%G IN ('%_ping_cmd% ^|find &quot;loss&quot;') DO echo Result is [%%G]</p>
+<p>The tricky part is always splitting up the line of interest into the right tokens, in this case I'm splitting on the characters '=' and '('<br>
+these two characters split the line into 5 chunks of text and we pull out the fourth one with &quot;tokens=4&quot;</p>
+<p>By default, /F breaks up the command output at each blank space, and any blank lines are skipped. <br>
+You can override this default parsing behavior by specifying the "options" parameter. 
+The options must be contained within &quot;quotes&quot;</p>
+<p>It is possible to use the syntax on this page to parse a text file with <a href="type.html">TYPE</a> <span class="code">('Type somefile.txt')</span> but you will get much better performance using  <a href="for_f.html">FOR /F File contents</a> <span class="code">(somefile.txt)</span> as that will save loading TYPE.EXE.</p>
+<h2>usebackq</h2>
+<p>This option is useful when dealing with a command that already contains one or more straight quotes.<br>
+The backquote character ` is just below the ESC key on most keyboards. See the <a href="for_f.html">FOR /F</a> page for other effects of usebackq. </p>
+<p>Usebackq can be abbreviated to <span class="code">useback</span> (undocumented.)</p>
+<h2>Skip</h2>
+<p>SKIP will skip processing a number of lines from the beginning of the file.<br>
+SKIP includes empty lines, but after the SKIP is complete, FOR /F ignores (does not iterate) empty lines.</p>
+<h2>eol</h2>
+<p>The default end-of-line character is a semicolon ';' when the FOR command reads a text file (or even a character string), any line that STARTS with the eol character will be ignored. In other words it is treated as a comment. <br>
+Use <span class="code"> eol=X</span> to change the eol character to X. </p>
+<p>Often you will want to turn this feature off so that every line of your data file is processed,  in theory &quot;eol=&quot; should turn this feature off, but in practice this fails to work correctly - it will set eol to whatever the next character is, often the quote or space character. One workaround  is to set eol to some unusual character that you don&rsquo;t expect to ever encounter in the data file e.g. <span class="code">&quot;eol=&euro;&quot;</span> or <span class="code">&quot;eol=&not;&quot;</span>. Another method is to   escape every <a href="syntax-esc.html#delimiters">delimiter</a><span class="code"> For /f tokens^=*^ delims^=^ eol^= %%a in (file.txt) do...</span> (see forum for a <a href="http://ss64.org/viewtopic.php?id=1544">discussion</a> of this)</p>
+<h2>Delims</h2>
+<p>More than one delimiter may be specified so a string like '<span class="code">abcd+efg+hijk;lmno;pqr</span>' can be broken up using <span class="code">&quot;delims=;+&quot;</span>. </p>
+<p>You can use any character as a delimiter, but they are case sensitive.<br>
+If you don&rsquo;t specify delims it will default to "<span class="code">delims=&lt;tab&gt;&lt;space&gt;</span>"<br>
+<br>
+n.b. some text editors will enter the TAB character as a series of spaces, specifying more than one delimiter has been known to cause problems with some data sets.</p>
+<h2> Tokens</h2>
+<p><span class="code">tokens=2,4,6</span> will cause the second, fourth and sixth items on each line to be processed<br>
+<br>
+<span class="code">tokens=2-6</span> will cause the second, third, fourth, fifth and sixth items on each line to be processed<br>
+<br>
+<span class="code">tokens=*</span> will cause all items on each line to be processed<br>
+<br>
+<span class="code">tokens=3*</span> will process the third token and the 4th + all subsequent items, this can also be written as <span class="code">tokens=3,*</span><br>
+<br>
+Each token specified will cause a corresponding parameter letter to be allocated. The letters used for tokens are case sensitive.<br>
+<br>
+If the last character in the <span class="code">tokens=</span> string is an asterisk, then additional parameters are allocated for all the remaining text on the line.</p>
+<p>The following <a href="http://ss64.com/ascii.html">ASCII characters</a> may be used as FOR tokens:<br>
+ASCII 63 - 93 inclusive, 31 tokens:<span class="code"> ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ]</span><br>
+ASCII 95-123 inclusive, 29 tokens:<span class="code"> _ ` a b c d e f g h i j k l m n o p q r s t u v w x y z {</span><br>
+(there are <a href="http://stackoverflow.com/a/8520993/1720814">a few</a> other characters that can  be used, but require <a href="syntax-esc.html#escape">escaping</a>)</p>
+<p>A single FOR /F command can never parse more than 31 tokens, to use more  requires a <a href="http://stackoverflow.com/a/8520993/1720814">workaround</a> with multiple FOR commands.</p>
+<p>Matching the same token more than once (<span class="code">tokens=1,2,1</span>) may give <a href="http://stackoverflow.com/questions/25950181/why-for-f-sets-empty-values-for-repeated-numbers-in-the-rest-of-tokens">unpredictable</a> results. Token variables can of course be used multiple times: <span class="code">Echo %%G %%H %%G</span><br>
+<br>
+FOR tokens variables (or parameter names) are global, so in complex scripts which <a href="call.html">call</a> one FOR statement from within another FOR statement you can refer to both sets of parameters.</p>
+<p>The precedence/priority of FOR command options is: usebackq &gt; skip &gt; eol &gt; delims &gt; tokens</p>
+<p>The <i>command_to_process</i> can be almost any internal or external command, but there are a few commands that have no effect when are called through FOR /F - SHIFT, SETLOCAL, ENDLOCAL, CALL:Subroutine.</p>
+<p><b>Examples:</b><br>
+<br>To ECHO from the command line, the name of every environment variable. </p>
+<pre>   FOR /F "delims==" %G IN ('SET') DO @Echo %G</pre>
+<p>The same command with usebackq:</p>
+<pre>   FOR /F "usebackq delims==" %G IN (`SET`) DO @Echo %G</pre>
+<p>To put the Windows Version into an environment variable</p>
+<pre>   @echo off 
+   ::parse the VER command 
+   FOR /F "tokens=4*" %%G IN ('ver') DO SET _version=%%G 
+   :: show the result 
+   echo %_version%</pre>
+<p>List all the text files in a folder:</p>
+<pre>   FOR /F "tokens=*" %%G IN ('dir /b C:\docs\*.txt') DO echo %%G
+</pre>
+<p> The &quot;tokens=*&quot; has been added to match all parts of any long filenames returned by the DIR command.</p>
+<p>List all the text files in a folder, including the full path:</p>
+<pre>   FOR /F "tokens=*" %%G IN ('dir/b<b> /s</b> ^&quot;c:\program files\*.txt^&quot;') DO echo %%G</pre>
+<p> We use<span class="code"> DIR /S</span> (even if the folder has no subfolders) to make <a href="dir.html">DIR</a> return the <b>full</b> path to each file.<br>
+In the example above the long filename has to be surrounded in &quot;quotes&quot; and those quotes have to be escaped using ^<br>
+<br>
+Although the above is a trivial example, being able to set a variable equal to each long filename in turn allows much more complex processing to be done. </p>
+<p>More examples can be found on the <a href="syntax.html">Syntax / Batch Files pages</a> and the other FOR pages below.</p>
+<p>FOR is an <a href="syntax-internal.html">internal</a> command.</p>
+<p><i class="quote">&ldquo;History never repeats itself, Mankind always does&rdquo; - Voltaire</i><br>
+<br>
+<b>Related:</b><br>
+<a href="for.html"><br>
+FOR</a> - Summary of FOR Loop commands<br>
+<a href="for2.html">FOR</a> - Loop through a set of files in one folder<br>
+<a href="for_r.html">FOR /R</a> - Loop through files (recurse subfolders) <a href="for_d.html"><br>
+FOR /D</a> - Loop through several folders<br>
+<a href="for_l.html">FOR /L</a> - Loop through a range of numbers<br>
+<a href="for_f.html">FOR /F</a> - Loop through items in a text file <br>
+<a href="setlocal.html">SETLOCAL</a> - Control the visibility of variables inside a FOR loop<br>
+<a href="forfiles.html">FORFILES</a> - Batch process multiple files<br>
+<a href="goto.html">GOTO</a> - Direct a batch program to jump to a labelled line<br>
+<a href="if.html">IF</a> - Conditionally perform a command<br>
+Powershell: <a href="http://ss64.com/ps/foreach-object.html">ForEach-Object</a> - Loop for each object in the pipeline<br>
+Equivalent bash command (Linux): <a href="http://ss64.com/bash/for.html">for</a> - Expand <var>words</var>, and execute <var>commands</var></p><!-- #BeginLibraryItem "/Library/foot_nt.lbi" --><p><script type="text/javascript"><!--
+google_ad_client = "pub-6140977852749469";
+google_alternate_color = "CCCCCC";
+google_ad_width = 300;
+google_ad_height = 250;
+google_ad_format = "300x250_as";
+google_ad_type = "text_image";
+google_ad_channel ="0282121944";
+google_color_border = "CCCCCC";
+google_color_bg = "CCCCCC";
+google_color_link = "000000";
+google_color_text = "333333";
+google_color_url = "0000FF";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></p>
+<hr>
+<div id=bl class="footer"><a href="for_cmd.html#"><img src="../images/top.png" width="30" height="22" alt="Back to the Top"></a></div>
+<div id=br class="footer, tagline">&copy; Copyright <a href="http://ss64.com/">SS64.com</a> 1999-2015<br>
+Some rights reserved</div><!-- #EndLibraryItem --></body>
+</html>
