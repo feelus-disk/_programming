@@ -1,0 +1,381 @@
+Content-Type: multipart/related; start=<op.mhtml.1316696453144.f4278054173d360f@169.254.252.130>; boundary=----------WLiSNf21z5Pz6AoAEwgIUm
+Content-Location: http://www.lib.ru/LINUXGUIDE/sockets.txt
+Subject: =?utf-8?Q?=D0=90.=D0=A2=D0=B0=D0=BD=D0=B0=D0=B5=D0=B2.=20=D0=9F=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D0=B8=D1=80=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5=20=D1=81=D0=BE=D0=BA=D0=B5=D1=82=D0=BE=D0=B2?=
+MIME-Version: 1.0
+
+------------WLiSNf21z5Pz6AoAEwgIUm
+Content-Disposition: inline; filename=sockets.htm
+Content-Type: text/html; charset=windows-1251; name=sockets.htm
+Content-ID: <op.mhtml.1316696453144.f4278054173d360f@169.254.252.130>
+Content-Location: http://www.lib.ru/LINUXGUIDE/sockets.txt
+Content-Transfer-Encoding: 8bit
+
+<html><head><title>А.Танаев. Программирование сокетов</title></head><body><pre><div align=right><form action=/LINUXGUIDE/sockets.txt><select name=format><OPTION VALUE="_Contents">Содержание<OPTION VALUE="_with-big-pictures.html">Fine HTML<OPTION VALUE="_with-big-pictures.html">Printed version<OPTION VALUE="_Ascii.txt">txt(Word,КПК)<OPTION VALUE="">Lib.ru html</select><input type=submit value=go></form></div><pre>
+<ul><a name=0></a><h2>А.Танаев. Программирование сокетов</h2></ul>
+---------------------------------------------------------------
+ <a href=http://wist.ifmo.ru/info/index.html>http://wist.ifmo.ru/info/index.html</a>
+---------------------------------------------------------------
+</pre>
+
+Для обеспечения сетевых коммуникаций используются сокеты. Сокет это
+конечная точка сетевых коммуникаций. Каждый использующийся сокет имеет
+тип и ассоциированный с ним процесс. Сокеты существуют внутри
+коммуникационных доменов. Домены это абстракции, которые подразумевают
+конкретную структуру адресации и множество протоколов, которое определяет
+различные типы сокетов внутри домена. Примерами коммуникационных доменов
+могут быть: <I>UNIX домен</I>, <I>Internet домен</I>, и т.д.
+<p>
+В Internet домене сокет - это комбинация IP адреса и номера порта, которая
+однозначно определяет отдельный сетевой процесс во всей глобальной сети
+Internet. Два сокета, один для хоста-получателя, другой для хоста-отправителя,
+определяют соединение для протоколов, ориентированных на установление связи,
+таких, как TCP.
+<p>
+<UL>
+<LI><A HREF="#Creation">Создание сокета</A>
+<LI><A HREF="#LocalNames">Привязка к локальным именам</A>
+<LI><A HREF="#Connect">Установление связи</A>
+<LI><A HREF="#Translate">Передача данных</A>
+<LI><A HREF="#Close">Закрывание сокетов</A>
+<LI><A HREF="#Example">Пример функции, для установления WWW коннекции</A>
+</UL>
+
+<hr size=5>
+<A NAME="Creation"><H2>Создание сокета</H2></A>
+Для создания сокета используется системный вызов socket.
+<p>
+<b>s = socket(domain, type, protocol);</b>
+<p>
+Этот вызов основывается на информации о коммуникационном домене и типе
+сокета. Для использования особенностей Internet, значения параметров должны
+быть следующими:
+
+<DL>
+<DT><b>communication domain</b> -
+<DD> AF_INET (Internet протоколы).
+<DT><b>type of the socket</b> -
+<DD>SOCK_STREAM; Этот тип обеспечивает
+последовательный, надежный, ориентированный на установление
+двусторонней связи поток байтов.
+</DL>
+	Выше был упомянут сокет с типом stream. Краткое описание других типов
+сокетов приведено ниже:
+<DL>
+<DT><b>Datagram socket</b> -
+<DD>поддерживает двусторонний поток данных. Не
+гарантируется, что этот поток будет последовательным, надежным,
+и что данные не будут дублироваться. Важной характеристикой
+данного сокета является то, что границы записи данных
+предопределены.
+<DT><b>Raw socket</b> -
+<DD>обеспечивает возможность пользовательского доступа к
+низлежащим коммуникационным протоколам, поддерживающим
+сокет-абстракции. Такие сокеты обычно являются датаграм-
+ориентированными.
+</DL>
+	Функция socket создает конечную точку для коммуникаций и возвращает
+файловый дескриптор, ссылающийся на сокет, или -1 в случае ошибки. Данный
+дескриптор используется в дальнейшем для установления связи.
+<p>
+	Для создания сокета типа <I>stream</I> с протоколом <I>TCP</I>, обеспечивающим
+коммуникационную поддержку, вызов функции socket должен быть следующим:
+<p>
+<b>s = socket(AF_INET, SOCK_STREAM, 0);</b>
+<p>
+
+<hr>
+
+<A NAME="LocalNames"><h2>Привязка к локальным именам</h2></A>
+
+Сокет создается без имени. Пока с сокетом не будет связано имя, удаленные
+процессы не имеют возможности ссылаться на него и, следовательно, на данном
+сокете не может быть получено никаких сообщений. Коммуникационные
+процессы используют для данных целей ассоциации. В Internet домене ассоциация
+складывается из локального и удаленного адреса и из локального и удаленного
+порта. В большинстве доменов ассоциация должна быть уникальной.
+<p>
+В Internet домене связывание сокета и имени может быть весьма сложным, но,
+к счастью, обычно нет необходимости специально привязывать адрес и номер
+порта к сокету, так как функции connect и send автоматически свяжут данный
+сокет с подходящим адресом, если это не было сделано до их вызова.
+<p>
+Для связывания сокета с адресом и номером порта используют системный
+вызов bind:
+<p>
+<b>bind(s, name, namelen);</b>
+<p>
+Привязываемое имя (name) это строка байт переменной длины, которая
+интерпретируется поддерживаемым протоколом. Интерпретация может
+различаться в различных коммуникационных доменах.
+
+<hr>
+
+<A NAME="Connect"><h2>Установление связи</h2></A>
+
+Со стороны клиента связь устанавливается с помощью стандартной функции
+connect:
+<p>
+<b>error = connect(s, serveraddr, serveraddrlen);</b>
+<p>
+которая инициирует установление связи на сокете, используя дескриптор сокета s
+и информацию из структуры <i>serveraddr</i>, имеющей тип <i>sockaddr_in</i>, которая
+содержит адрес сервера и номер порта на который надо установить связь. Если
+сокет не был связан с адресом, connect автоматически вызовет системную функцию
+bind.
+<p>
+Connect возвращает 0, если вызов прошел успешно. Возвращенная величина -1
+указывает на то, что в процессе установления связи произошла некая ошибка. В
+случае успешного вызова функции процесс может работать с дескриптором сокета,
+используя функции read и write, и закрывать канал используя функцию close.
+<p>
+Со стороны сервера процесс установления связи сложнее.
+Когда сервер желает предложить один из своих сервисов, он связывает сокет с
+общеизвестным адресом, ассоциирующимся с данным сервисом, и пассивно
+слушает этот сокет. Для этих целей используется системный вызов listen:
+<p>
+<b>error = listen(s, qlength);</b>
+<p>
+где <b>s</b> это дескриптор сокета, а <b>qlength</b> это максимальное количество запросов на
+установление связи, которые могут стоять в очереди, ожидая обработки сервером;
+это количество может быть ограничено особенностями системы.
+<p>
+	Когда сервер получает запрос от клиента и принимает решение об
+установлении связи, он создает новый сокет и связывает его с ассоциацией,
+эквивалентной 'слушающему сокету'. Для Internet домена это означает тот же
+самый номер порта. Для этой цели используется системный вызов accept:
+<p>
+<b>newsock = accept(s, clientaddr, clientaddrlen);</b>
+<p>
+Сокет, ассоциированный клиентом, и сокет, который был возвращен
+функцией accept, используются для установления связи между сервером и
+клиентом.
+<p>
+Процесс установления связи показан на рисунке 1.
+<p>
+<CENTER>
+ <IMG SRC="sockets.gif" ALT="IMAGE">
+<br>
+Рис. 1: Взаимодействие клиента и сервера
+</CENTER>
+<p>
+<hr>
+
+<A NAME="Translate"><h2>Передача данных</h2></A>
+
+Когда связь установлена, с помощью различных функций может начаться
+процесс передачи данных. При наличии связи, пользователь может посылать и
+получать сообщения с помощью функций read и write:
+<p>
+<b>write(s, buf, sizeof(buf));
+read(s, buf, sizeof(buf));</b>
+<p>
+Вызовы send и recv практически идентичны read и write, за исключением
+того, что добавляется аргумент флагов.
+<p>
+<b>send(s, buf, sizeof(buf), flags);
+recv(s, buf, sizeof(buf), flags);</b>
+<p>
+Могут быть указаны один или более флагов с помощью ненулевых значений,
+таких, как следующие:
+<UL>
+<LI><b>MSG_OOB</b> - Посылать/получать данные, характерные для сокетов типа stream.
+<LI><b>MSG_PEEK</b> - Просматривать данные без чтения. когда указывается в recv,
+любые присутствующие данные возвращаются пользователю, но сами данные
+остаются как "непрочитанные". Следующий read или recv вызванный на
+данном сокете вернет прочитанные в прошлый раз данные.
+<LI><b>MSG_DONTROUTE</b> - посылать данные без маршрутизации пакетов.
+(Используется только процессами, управляющими таблицами маршрутизации.)
+</UL>
+
+<hr>
+
+<A NAME="Close"><h2>Закрывание сокетов</h2></A>
+
+Когда взаимодействующие модули решают прекратить передачу данных и
+закрыть сеанс связи, они обмениваются трехсторонним рукопожатием с
+сегментами, содержащими установленный бит "От отправителя больше нет
+данных" (этот бит еще называется FIN бит).
+<p>
+Если сокет больше не используется, процесс может закрыть его с помощью
+функции close, вызвав ее с соответствующим дескриптором сокета:
+<p>
+<b>close(s);</b>
+<p>
+Если данные были ассоциированы с сокетом, обещающим доставку (сокет
+типа stream), система будет пытаться осуществить передачу этих данных. Тем не
+менее, по истечении довольно таки длительного промежутка времени, если данные
+все еще не доставлены, они будут отброшены. Если пользовательский процесс
+желает прекратить любую передачу данных, он может сделать это с помощью
+вызова shutdown на данном сокете для его закрытия. Вызов shutdown вызывает
+"моментальное" отбрасывание всех стоящих в очереди данных. Формат вызова
+следующий:
+<p>
+<b>shutdown(s, how);</b>
+<p>
+где how имеет одно из следующих значений:
+<UL>
+<LI>0 - если пользователь больше не желает читать данные
+<LI>1 - если данные больше не будут посылаться
+<LI>2 - если данные не будут ни посылаться ни получаться
+</UL>
+<hr>
+
+<A NAME="Example"><h2>Пример функции, для установления WWW коннекции</h2></A>
+<pre>
+/*
+-----------------------------------------------------------
+  MakeConnection
+
+  Function allocates a socket and estabishes a connection
+  with remote host. Default port number 80.
+
+  Input : WWW server name (with port number, if it is not 80)
+  Output : file descriptor on success
+              -1 on error
+
+-----------------------------------------------------------
+*/
+int MakeConnection(unsigned char* ServerName){
+  int s;
+  struct sockaddr_in ssin;
+  struct hostent* hp;
+  int PortNum;
+  unsigned char strHlp[STRNGLEN], *pch;
+
+  /* use default port number - 80 or specific number from the
+     server name */
+  strcpy(strHlp,ServerName);
+  pch = strchr(strHlp,':');
+  if(pch==NULL){
+    PortNum = 80;
+  }else{
+    pch[0] = '\0';
+    pch++;
+    PortNum = atoi(pch);
+    if(PortNum==0){
+      PortNum = 80;
+    }
+  }
+
+  /* get host by name - resolve host name into IP address */
+  if( (hp=gethostbyname(strHlp)) == NULL  )
+  {
+     return -1;
+  }
+
+  bzero(&ssin, sizeof(ssin));
+  bcopy(hp->h_addr, &ssin.sin_addr, hp->h_length);
+  ssin.sin_family = hp->h_addrtype;
+  ssin.sin_port = htons(PortNum);
+
+  /* allocate a socket */
+  if((s=socket(AF_INET, SOCK_STREAM, 0))==-1)
+  {
+     return -1;
+  }
+
+  /* make a connection */
+  if(connect(s, &ssin, sizeof(ssin), 0)==-1){
+
+     return -1;
+  }
+
+  return s; /* socket descriptor */
+}
+</pre>
+<pre><hr noshade><small>Популярность: <b>8</b>, Last-modified: Thu, 28 May 1998 14:26:10 GMT
+</small>
+
+</body></html>
+
+------------WLiSNf21z5Pz6AoAEwgIUm
+Content-Disposition: inline; filename=sockets.gif
+Content-Type: image/gif; name=sockets.gif
+Content-Location: http://www.lib.ru/LINUXGUIDE/sockets.gif
+Content-Transfer-Encoding: Base64
+
+R0lGODdhxQH/APcAAAAAAL8AAAC/AL+/AAAAv78AvwC/v8DAwMDcwKbK8AAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/78KCgpICAgP8AAAD/AP//
+AAAA//8A/wD//////ywAAAAAxQH/AEAI/wAPCBxIsKDBgwgTKlzIsKHDhxAjSpxI
+saLFixgzatzIseNEAP9CihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz6tzJsyUA
+gSB7Ch1KtKjRo0iTKl3KtObPA0GbSp1KtarVqzQBRI0qUmtXrVu9/gNLNmRZsmLF
+YjX5lOvat3Djyp3b9aRaunjb4t3Lt+/VtEEDjw2MdrBZtyQR2/W7Vm9TrncZS55s
+FOxRyCwV79RMuStQqZDTjjX7ta5h0qNNq06dmnPn12zRyra81PXIwlNtU3YMu7fv
+x5F/PxZ++3Ntxrpdlj1MuPBs5s1BLkc5u3pW2nuTg0bOlHdS7X+Jx/+cLh78W/NV
+0d/0jlR9bpiu3b8kL36y5uAr5Q+vbVyp/sH3bZaZT3bhV19PBoY3YH7c8QdVd+vd
+leBM2iX334HzJVbdhhw+h5OFBPp14Xj9fXcZdjKNiBuGkk233IuWyQbdaijC16B/
+JbZ3I4v7+VZjZTu2lyOPRMo1YpEUBnnZkEg26eSTtylZGZNQVjnekVYKhdiLWGGp
+HJVZhnmamCJGuVhJmLEmHVtmpuSlT2CSKeecdL1ZlJ35xUmnfXuyiOdQf7qpJ4JS
+WhVon3MdypOibA26aKGZSYhok6Hpx6hOlybmqIBOBTfheCGq5Famk/q3IINlOkjq
+ald++uGpopb/WmSFsGbX3aaYmujUlWfK6meBoKaK44PHCevrsVpCCiiuOa1qk7PI
+0gltVrcSG+212EbY4bbcdrtttdNmK+64RLJH7rnoZmtuuuy2i+i67sYrr5Xwzmvv
+vX4yi+++5YWFZnPMlQYYgKhJGO6X1vKr8GaE9bprrOfWu/DERtJH3Z0HSkzUj6Zt
+VdqYgnVMWshtUvyhc666ybGbF7d8Wcb6muyuxZy+dvCyCcvs68rv/VqfxoQa2ynA
+h502sGG0cenVljGu+OTNGQq9ZM4vS91qyro6iXWdymoZ87PNcplrrQ63euzWVbMc
+Kl/QAv0ohTzXrDaqM1vNJt1sgwvhiWBH/102slC/OjfZXKu6d1+Bz9pdw0k3LtrR
+Sydr98ZfP4x4vIkLlznhd1au8+T2bo63kFR/zqfpiXWNoOeotyf6u6zG5rHjBs+e
+ctust36y7panSK3f3+XOO+fD926r4cVefnzxOoLudekYO58181S9Pjjpbate8t1/
+U288msAvHzz0G1+H9u8Q52f9wrSOnpfeyd95fuprd++95NfnX/iw2Ut/P6Xa24zw
+bOS//ymugJgaoAEX2KwAJpB8DIyg99wmwQqijoIWzKDJMKjBDvKLgx4M4bxAKMIS
+souEJkzhuFCowhZGi4Uu1KC/uAcoxCkwhgYMC9OKNhq1LA07MhqTEP+NdEMcUqxS
+33tbdopoRPalj1wwbKKcfggwGFGRZrGjobqYKEWtMU4wVxxZw1z2RGxFsYuhS1P7
+avgzLi5ofSrET9wiBSLwlRF/xDljklBDP9u1RnY1qpTHLNihq13njkMEUhshiMYw
+zS9SnYFjVtzYyIo9kkySpBAlK2nETKZok8yDIxYVxCNPkoiRQVNehMQosDEOzDqt
+sdCGUnTJ6onvllPrnyphM0pZmlI5LXJgs0CpxfdRao6/+aX9jAQ/UyGQftB0ZuuQ
+uMddYu9weQOm/synTHohkoy4nBIqlQi3HY7NfcUcITPRmc5ENXN68EGm4L4JvlGa
+MZvsjGY4Ozf/TrkZUpH53B4U6eghadJToPsbny7l17f62VFc6uEQNpf5UHwqdKKA
+upB8FNPNdKXpX8GyZi4xmtAu/pCVPUQZD2sZULjgrp/ntGgae8NS3z3zQ8Ss6D4j
+1tF1ilScbfOWUIfqrRP2dKdxeelRK7jUm9oSeZxsYjeVGlUpTvWdVUXf8K4KVZuN
+6qsrlFdkxqqbj37MUFjNKjgXOMgCia1gdQmiWSn6vKaKNYRMw42LgKhXvmKNqmqN
+IVf5F1jBChOnMPWgXQF32PXkVJ/GlGkjB3vR+CE1PYXlo2SBSlJ3NmaxdXPqsx6L
+UM9mtqSRraxBLxsbupoUWAT8KT8XOjTR/8T0oJotrQvLqk3ZUi6x86RlgG7rWj6C
+9p7E021S0wrQfzZ3rcWVqkPb6VPVwlO4t7HTGrdZyTq29DzMjZ7rtNrS44aVu9Rd
+blebVxl5Rld2ykUjNW3qW5zRNrWnVW9969rZ6ubXpY0dLXDXE+D/pm2zszVwCSl7
+TQXjtcCTHLCDJ1wn0lL4wvbFsIYjaeENe1jA5v3waZ/ikRKb+MQoTrGKV8ziFrv4
+xRshqoxnTOMa2/jGOM6xjnfM4x77+MdADvKGOiziIs+HyEZOsqiQrOQmo4nJTo7y
+WKAs5SbrscpYhpOEs8xlhIW4y52kMpg9fOUxn62X5bPhls18rbnmlv+NeREzm8vF
+MciBTDohAwyeY7nENc95Z9kFqRB9uOejBfqsiZLzny8XtyA+dK/ROQvtsuhSRS86
+nP85lDLLfOlSoveFlu60TwwNWfq+d1KcFjXfVBZc6ILaz6quDeOKBrk9JzK+b25z
+qGMtqlk3jYcfm9B2zbhrXrt1lgQDEJ4drVPqCBlmsDY2TfU8XeL6CMmTlnaplehd
+OOeRyW2VtnudLexRfZfAiwzXmgBJxYC523HQsfVXvuzF2j1ra8N1NTk1B+5c/7Fg
+ek6amcD4ZnrTuaDYNXWzKY1Hfkfb1Fsyrm05ur2PkoyB3FJOTVkzuHFbm6bYDrit
+m0Y0K7o72X3/NbgTT1eeYi/a4+ELZrq1faJMgdbgqaY5zGE3c5p3KnTQVnkLha7f
+bz88gqbc+YEzFvTFCVnHvCyrUO/tyY0j6OlQX+/S8XvIlLZypV+cEZ/VJ9GEi/a6
+qOWsZbkOt0MjzZVhR/StNYTwYyLYvyNde9rLqcN4F9KKRDv5vEdtXgazPcF6N20k
+VWT1z7L87hlOPN6RpPSzo9Xymjx6byGfzMZznrWNCW+a96syN8tM3clOouIbvNrD
+szq9i/J8xGCv76KzHu2rx22gKq+w+MT284sisuFr7+94Er08uN325BHferMN/uML
+j36vj99qUn6a4bbPe/M1Lkd/Rpf6Pcs+/+2LL37m456g7L1+bnk/RdBznPjg1fpz
+58N+7n+LoFjPv/73j2PC35/0wad51YZ+Wzd+78dTxndfxTV85pd+ZodrMbeAJ3Rs
+/3d+EHiAe/dbCihcnqJRm3dqe1Ju3dJfF8iAGkiCmOKBHyh9snIk9tRwLBiD8UdY
+kscwDaVxIOhITWV62GeA1nd7DphRN2h8F5hCkiKDORh+1hWEGRhHtAZGUPiEYEd3
+KgJhmbeByzd0kuZ2Q1Rrowd8AiSAyQVgvQccKBNwYrci9Qd/oSd/4gWG5zVtKDiD
+S1iAudcu4PeG7vdAWFh+A4U5VvhJYnhuXRJad4V5gpiH07QvJhh5f/+miD0Ch8M0
+iP8le6XSiPw1ZpCIWYh4SpvoczDYhJkIih4ViJ5IihPYifDhckgXSqa4ipRoVRP0
+ikcWi4b1P+b2fJdHg1GnIb6oLiMEVlzYK/nGibxIYZ/IcvExSHaGUmPnKoA1Ycm4
+G9hHcR0jcBXFW24YWNNoM5DlIsZFIz4UjoTIhwbWjbykemOIhGGIjmLijjRlPg9Y
+jpMIj6hIXq7niPcYh5KIWPa4jyHVj45li1v1jz9Di172WpOFkFoWVPxHY8hhkJ6m
+irXYh2S4h0PHkJkhfBppg9zYkUtGkD64ixdZWJi4OiLJjj+4kh9JkQlZgyVpjOcI
+koKSksrnh9v/N2I0SR0c2YlOk1XLhm4A2I5z2IYB2YMKeZPqV4jb6G0YiYFIKYts
+WIQkCYR2mIWwxxkSiXxLSX4xqX0WSHjZ9SbD9jeWeD/d1pVVCZZMaH8jSYjdtpU+
+k3xeSYdWOX9ueZUlOHdJSZcnGYAWWXo2N4L495CGeZiI+YLzVoFPOZCBSW42t451
+KZXn9pdECZNk95Z0CZVK2ZdTaZnmiJn+9ydlqZkZCZc7aRc9GT21ZB62IZeUt5mT
+yZTH2JahuIIHBZsHBIKgWY9FiW6WUk1UeYudmYTb0ZS3yTC8x3hnmUGKSY8yeZd6
+mI+k2Jv++JssuY/W6ZjYuZYAuZ0g1p3RcwmQnImToxiWdkme4OkUqymQsbaeEeaQ
+iVlU5DmcT1Wb9clYLtmQ+QmM+7mRNtmfPpKajRKgAtpdrHigipWgCipDDNqghPSg
+ECpBOTehQCmhFspWGJqhuLihHDpBHvqhoQQU81miJnqiKJqiKrqiiXkAAQEAOw==
+
+------------WLiSNf21z5Pz6AoAEwgIUm--

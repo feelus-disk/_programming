@@ -1,0 +1,833 @@
+<html><head>
+
+   <META NAME="KeyWords" CONTENT="сети,CISCO,Internetworking Technology Overview,обзор,протоколы,описание,BGP,Основы технологии,Формат пакета,Сообщения,Открывающее сообщение,Сообщения о корректировках,Сообщения keepalive,Уведомления">
+
+   <META NAME="Description" CONTENT="Internetworking Technology Overview, В. Плешаков, Глава 27.  BGP">
+
+   <META NAME="Robots" CONTENT="ALL">
+
+   <META NAME="Document-State" CONTENT="Static">
+
+   
+
+<title>Глава 27.  BGP</title>
+
+<link rel="stylesheet" href="../../css/citforum.css">
+<style>
+
+</style>
+
+<meta http-equiv="content-type" content="text/html; charset=Windows-1251">
+</head>
+<body bgcolor=#FFFFFF link=#006890 vlink=#003860 alink=#800000 text=#000000 topmargin="0" marginheight="0">
+<a name=top></a>
+
+
+
+
+
+<!-- counters -->
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+<td><!--TopList COUNTER--><script language="JavaScript"><!--
+d=document;js=10;a=';r='+escape(d.referrer)
+//--></script><script language="JavaScript1.1"><!--
+js=11;a+=';j='+navigator.javaEnabled()
+//--></script><script language="JavaScript1.2"><!--
+js=12;s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+//--></script><script language="JavaScript1.3"><!--
+js=13//--></script><script language="JavaScript"><!--
+d.write('<img src="http://top.list.ru/counter'+
+'?id=26978;js='+js+a+'" alt="" height=1 width=1>')
+if(js>11)d.write('<'+'!-- ')//--></script><noscript><img
+src="http://top.list.ru/counter?js=na;id=26978"
+height=1 width=1 alt=""></noscript><script language="JavaScript"><!--
+if(js>11)d.write('--'+'>')
+//--></script><!--TopList COUNTER--></td>
+<td><!--LiveInternet counter--><script language="JavaScript"><!--
+document.write('<img src="http://counter.yadro.ru/hit?r'+
+escape(document.referrer)+((typeof(screen)=='undefined')?'':
+';s'+screen.width+'*'+screen.height+'*'+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+';u'+escape(document.URL)+
+';i'+escape('Жж'+document.title)+';'+Math.random()+
+'" width=1 height=1 alt="">')//--></script><!--/LiveInternet--></td>
+<td><img src="http://counter.rambler.ru/top100.cnt?13078" alt="" width=1 height=1 border=0></td>
+</tr></table>
+<!-- end of counters -->
+
+
+
+<center><table width=990 cellpadding=0 cellspacing=0>
+<tr><td>
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr valign=bottom>
+  <td align="left"><a href="http://citforum.ru/"><img src="../../pictures/logos/citlogo8.gif" width=140 height=44 border=0 alt=Logo></a></td>
+
+      <td align="right" width="100%" style="padding-bottom: 10px"><nobr><font size=2><b>Море(!) аналитической информации!</b></font></nobr></td>
+    </tr>
+    </table>
+
+
+
+
+<center style="margin-top: 3px">
+<!--  AdRiver code START. Type:728x90 Site: citforum PZ: 0 BN: 1 -->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write(
+'<iframe src="http://ad.adriver.ru/cgi-bin/erle.cgi?'
++ 'sid=137295&bn=1&target=blank&bt=36&pz=0&rnd=' + RndNum4NoCash + '&tail256=' + ar_Tail
++ '" frameborder=0 vspace=0 hspace=0 width=728 height=90 marginwidth=0'
++ ' marginheight=0 scrolling=no></iframe>');
+//--></script>
+<noscript>
+<a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=137295&bn=1&bt=36&pz=0&rnd=1013420086" target=_blank>
+<img src="http://ad.adriver.ru/cgi-bin/rle.cgi?sid=137295&bn=1&bt=36&pz=0&rnd=1013420086" alt="-AdRiver-" border=0 width=728 height=90></a>
+</noscript>
+<!--  AdRiver code END  -->
+
+</center>
+
+
+</td></tr>
+<tr><td>
+
+<table cellpadding=0 cellspacing=0 border=0 width=100% style="padding-top: 3px">
+<tr><td>
+<table   cellspacing=0 cellpadding=0 border=0 width=100%>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=931 height=1 alt="" border=0></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr><td bgcolor=#008080>
+
+<table cellspacing=1 cellpadding=3 border=0 width=100%>
+<tr>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/consulting/">IT-консалтинг</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/SE/">Software Engineering</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/programming/">Программирование</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/database/">СУБД</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/security/">Безопасность</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/internet/">Internet</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/nets/">Сети</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/operating_systems/">Операционные системы</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/hardware/">Hardware</a></font></td>
+<!--
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/faq/>FAQ (ЧаВО)</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/howto/>HOWTO</a></font></td>
+--> 
+</tr>
+</table>
+
+</td></tr>
+</table>
+
+</td></tr>
+<tr><td>
+<table cellpadding=0 cellspacing=0 border=0 width=100% style="padding-top: 3px">
+<tr valign=top>
+
+<td width=98% style="padding: 0 5px">
+
+
+<div class="document">
+
+
+<H3>
+
+Глава 27.  BGP.
+
+</H3>
+
+<b>
+
+        <UL type=disk>
+
+<LI> <a href="27.shtml#27.1">Библиографическая справка</a>
+
+<LI> <a href="27.shtml#27.2">Основы технологии</a>
+
+<LI> <a href="27.shtml#27.3">Формат пакета</a>
+
+<LI> <a href="27.shtml#27.4">Сообщения</a>
+
+<UL type=disk>
+
+<li> <a href="27.shtml#27.4.1">Открывающее сообщение</a>
+
+<li> <a href="27.shtml#27.4.2">Сообщения о корректировках</a>
+
+<li> <a href="27.shtml#27.4.3">Сообщения keepalive</a>
+
+<li> <a href="27.shtml#27.4.4">Уведомления</a>
+
+</UL>
+
+        </UL>
+
+</b>
+
+<h4>
+
+<a name="27.1"> Библиографическая справка</a>
+
+</h4><p align=justify>
+
+
+
+Протоколы внешних роутеров предназначены для маршрутизации 
+
+между доменами маршрутизации. В терминологии Internet (международной
+
+сети, об'единяющей университеты, правительственные учреждения,
+
+научно-исследовательские организации и частные коммерческие концерны)
+
+доменом маршрутизации называется автономная система (AS). Первым 
+
+протоколом внешних роутеров, получившим широкое признание в 
+
+Internet, был протокол EGP
+
+(Смотри Главу 26 &quot;<a href="26.shtml">ЕGP</a>&quot;).
+
+Хотя технология
+
+EGP пригодна для сетей, он имеет ряд недостатков, в том числе тот факт,
+
+что это скорее протокол досягаемости, а не маршрутизации.
+
+<p align=justify>
+
+Протокол Граничных роутеров (<i>Border Gateway Protocol - BGP</i>)
+
+является попыткой решить самую серьезную проблему EGP. BGP  
+
+является протоколом маршрутизации между AS, созданным для применения 
+
+в Internet. В отличие от EGP, BGP предназначен для обнаружения 
+
+маршрутных петель. BGP можно назвать следующим поколением EGP. И
+
+действительно, BGP и другие протоколы маршрутизации между AS постепенно
+
+вытесняют EGP из Internet. Версия 3 BGP определена в Запросах для
+
+Комментария (RFC) 1163.
+
+
+
+<h4>
+
+<a name="27.2"> Основы технологии</a>
+
+</h4><p align=justify>
+
+
+
+Хотя BGP разработан как протокол маршрутизации между AS, он может 
+
+использоваться для маршрутизации как в пределах, так и между AS. Два
+
+соседа BGP, сообщающихся из различных AS, должны находиться в 
+
+одной и той же физической сети. Роутеры BGP, находящиеся в
+
+пределах одной и той же AS, сообщаются друг с другом, чтобы обеспечить 
+
+согласующееся представление о данной AS и определить, какой из 
+
+роутеров BGP данной AS будет служить в качестве точки соединения
+
+при передаче сообщений в определенные внешние AS и при их приеме.
+
+<p align=justify>
+
+Некоторые AS являются просто каналами для прохождения через них 
+
+сетевого трафика. Другими словами, некоторые AS переносят трафик,
+
+источник которого не находится в их пределах и который не предназначен
+
+для них. BGP должен взаимодействовать с любыми протоколами 
+
+маршрутизации внутри AS, которые существуют в пределах этих проходных
+
+AS.
+
+<p align=justify>
+
+Сообщения о корректировках BGP состоят из пар &quot;сетевой номер/тракт AS&quot;.
+
+Тракт AS содержит последовательность из AS, через которые может быть
+
+достигнута указанная сеть. Эти сообщения о корректировке отправляются
+
+с помощью механизма транспортировки TCP для обеспечения надежной 
+
+доставки.
+
+<p align=justify>
+
+Обмен исходной информацией между двумя роутерами является 
+
+содержанием всей маршрутной таблицы BGP. С изменением маршрутной
+
+таблицы отправляются инкрементные корректировки. В отличие от некоторых
+
+других протоколов маршрутизации BGP не требует периодического 
+
+обновления всей маршрутной таблицы. Вместо этого роутеры BGP
+
+хранят новейшую версию маршрутной таблицы каждого равноправного
+
+члена. Хотя BGP поддерживает маршрутную таблицу всех возможных
+
+трактов к какой-нибудь конкретной сети, в своих сообщениях о
+
+корректировке он об'являет только об основных (оптимальных) маршрутах.
+
+<p align=justify>
+
+Показатель BGP представляет собой произвольное число единиц, 
+
+характеризующее степень предпочтения какого-нибудь конкретного 
+
+маршрута. Эти показатели обычно устанавливаются администратором сети
+
+с помощью конфигурационных файлов. Степень предпочтения может 
+
+базироваться на любом числе критериев, включая число AS (тракты с 
+
+меньшим числом AS как правило лучше), тип канала (стабильность, 
+
+быстродействие и надежность канала) и другие факторы.
+
+
+
+<h4>
+
+<a name="27.3"> Формат пакета</a>
+
+</h4><p align=justify>
+
+
+
+Формат пакета представлен на Рис. 27-1.
+
+<p><center>
+
+<img src="../../pictures/it/ito/27-1.gif">
+
+</center><p align=justify>
+
+Пакеты BGP имеют общий 19-байтовый заголовок, состоящий их трех полей.
+
+<p align=justify>
+
+Поле маркера (<i>marker</i>) имеет длину 16 байтов и содержит величину, 
+
+которую получатель сообщения может предсказывать. Это поле используется
+
+для установки подлинности.
+
+<p align=justify>
+
+Поле длины (<i>length</i>) содержит полную длину сообщения в байтах.
+
+<p align=justify>
+
+Поле типа (<i>type</i>) определяет тип сообщения.
+
+
+
+<h4>
+
+<a name="27.4"> Сообщения</a>
+
+</h4><p align=justify>
+
+
+
+RFC 1163 определяет 4 типа сообщений:
+
+<dl>
+
+<dd> <a href="27.shtml#27.4.1">Открывающие сообщения</a>
+
+<dd> <a href="27.shtml#27.4.2">Сообщения о корректировке</a>
+
+<dd> <a href="27.shtml#27.4.3">Уведомления</a>
+
+<dd> <a href="27.shtml#27.4.4">Сообщения keepalive (продолжай действовать)</a>
+
+</dl>
+
+<p align=justify>
+
+После того, как соединение протокола транспортного уровня организовано,
+
+первым сообщением, отправляемым каждой стороной, является открывающее
+
+сообщение. Если открывающее сообщение приемлемо для получателя, то 
+
+отправителю отсылается сообщение keepalive, подтверждающее получение 
+
+открывающего сообщения. После успешного подтверждения принятия 
+
+открывающего сообщения может быть произведен обмен корректировками, 
+
+сообщениями keepalive и уведомлениями.
+
+<p align=justify><b>
+
+<a name="27.4.1"> Открывающие сообщения</a>
+
+</b><br>
+
+В дополнение к обычному заголовку пакета BGP в открывающих сообщениях
+
+выделяют несколько полей. Поле версии (<i>version</i>) обеспечивает номер
+
+версии BGP и дает возможность получателю проверять, совпадает ли его 
+
+версия с версией отправителя. Поле автономной системы (<i>autonomous
+
+system</i>) обеспечивает номер AS отправителя. Поле времени удерживания
+
+(<i>hold time</i>) указывает максимальное число секунд, которые могут 
+
+пройти без получения какого-либо сообщения от передающего устройства,
+
+прежде чем считать его отказавшим. Поле кода удостоверения  
+
+(<i>authentication code</i>) указывает на используемый код удостоверения
+
+(если он имеется). Поле данных удостоверения (<i>autentication data</i>) 
+
+содержит фактические данные удостоверения (при их наличии).
+
+<p align=justify><b>
+
+<a name="27.4.2"> Сообщения о корректировке</a>
+
+</b><br>
+
+Сообщения о корректировках BGP обеспечивают корректировки маршрутизации
+
+для других систем BGP. Информация этих сообщений используется для 
+
+построения графика, описывающего взаимоотношения между различными AS.
+
+В дополнение к обычному заголовку BGP сообщения о корректировках имеют
+
+несколько дополнительных полей. Эти поля обеспечивают маршрутную 
+
+информацию путем перечисления атрибутов трактов, соответствующих 
+
+каждой сети.
+
+
+
+В настоящее время BGP определяет 5 атрибутов:
+
+</dl>
+
+<dt> <i>Origin</i>
+
+<dd>	Источник. Может иметь одно из трех значений: <i>IGP</i>, <i>EGP</i> и
+
+	<i>incomplete</i> (незавершенный).
+
+	Атрибут IGP означает, что данная сеть 
+
+	является частью данной AS. Атрибут EGP означает, что первоначальные
+
+	сведения о данной информации получены от протокола EGP. Реализации
+
+	BGP склонны oтдавать предпочтение маршрутам IGP перед маршрутами EGP,
+
+	т.к. маршрут EGP отказывает при наличии маршрутных петель. Атрибут
+
+	incomplete используется для указания того, что о данной сети известно
+
+	через какие-то другие средства.
+
+<dt> <i>AS path</i>
+
+<dd> 	Путь AS. Обеспечивает фактический перечень AS на пути к
+
+	пункту назначения.
+
+<dt> <i>Next hop</i>
+
+<dd>	Следующая пересылка. Обеспечивает адрес IP роутера,
+
+	который должен быть использован в качестве следующей пересылки
+
+	к сетям, перечисленным в сообщении о корректировке.
+
+<dt> <i>Unreachable</i>
+
+<dd>	Недосягаемый. Указывает (при его наличии), что какой-нибудь
+
+	маршрут больше не является досягаемым.
+
+<dt> <i>Inter-AS metric</i>
+
+<dd>	Показатель сообщения между AS. Обеспечивает для
+
+	какого-нибудь роутера BGP возможность рекламировать свои затраты 
+
+	на маршруты к пунктам назначения, находящимся в пределах его AS. Эта
+
+	информация может быть использована роутерами, которые являются
+
+	внешними по отношению к AS рекламодателя, для выбора оптимального 
+
+	маршрута к конкретному пункту назначения, находящемуся в пределах
+
+	данной AS.
+
+</dl>
+
+
+
+<p align=justify><b>
+
+<a name="27.4.4"> Сообщения keepalive (продолжай действовать)</a>
+
+</b><br>
+
+Сообщения keepalive не содержат каких-либо дополнительных полей помимо
+
+тех, которые содержатся в заголовке BGP. Эти сообщения отправляются
+
+довольно часто для того, чтобы препятствовать истечению периода времени
+
+удерживания таймера.
+
+
+
+<p align=justify><b>
+
+<a name="27.4.3"> Уведомления</a>
+
+</b><br>
+
+Уведомления отправляются в том случае, если была обнаружена сбойная 
+
+ситуация, и один роутер хочет сообщить другому, почему он 
+
+закрывает соединение между ними. Помимо обычного заголовка BGP 
+
+уведомления содержат поле кода ошибки (<i>error code</i>),
+
+поле подкода ошибки
+
+(<i>error subcode</i>) и данные ошибки (<i>error data</i>).
+
+Поле кода ошибки указывает
+
+тип ошибки, который может быть одним из перечисленных ниже:
+
+<dl>
+
+<dt> <i>Message header error</i>
+
+<dd>	Ошибка в заголовке сообщения. Указывает на
+
+	проблему в заголовке сообщения, такую, как неприемлемая длина 
+
+	сообщения, неприемлемое значение поля маркера или неприемлемый тип
+
+	сообщения.
+
+<dt> <i>Open message error</i>
+
+<dd>	Ошибка в открывающем сообщении. Указывает на
+
+	наличие проблемы в открывающем сообщении, такой, как необеспечиваемый
+
+	номер версии, неприемлемый номер AS или адрес IP и необеспечиваемый
+
+	код удостоверения.
+
+<dt> <i>Update message error</i>
+
+<dd>	Ошибка в сообщении о корректировке. Указывает
+
+	на наличие проблемы в сообщении о корректировке. Примерами таких 
+
+	проблем могут быть неправильно сформированный перечень атрибутов,
+
+	ошибка в перечне атрибутов и недействительный атрибут следующей 
+
+	пересылки.
+
+<dt> <i>Hold time expired</i>
+
+<dd>	Время удерживания истекло. Указывает на истечение
+
+	периода времени удерживания, после чего узел BGP будет об'явлен 
+
+	недействующим.
+
+</dl>
+
+
+
+<p><center><font size=-1>
+
+[<a href="26.shtml">Назад</a>]
+
+[<a href="index.shtml">Содержание</a>]
+
+[<a href="28.shtml">Вперед</a>]
+
+</font></center>
+
+<p>
+
+</div>
+
+
+<center><table><tr><td><a href=http://vip.gfi.ru/?source=banner:cit_vip rel=nofollow target=_blank><img src="../../a/gfi_110x52.png" width=110 height=52 border=0></a><td><a href=http://vip.gfi.ru/?source=banner:cit_vip rel=nofollow target=_blank style=font-size:15px;font-family:arial,sans-serif;font-weight:bold;text-decoration:none;color:black><nobr>Зарегистрируйте номер 007-101-303</nobr><br><nobr>на сайте VIP.GFI.RU и получите</nobr><br><nobr>наши продукты <span style=font-size:20px;color:red>БЕСПЛАТНО</span></nobr></a></table>
+</center>
+
+<center>
+
+
+</center>
+
+</td>
+
+
+<td>
+
+<table cellspacing=0 cellpadding=0 border=0 width="100%" align=right><tr>
+<td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0></td>
+<td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=2 height=1 border=0></td>
+<td>
+
+<table cellpadding=0 cellspacing=0 border=0>
+
+<tr><td align="center"><!--  AdRiver code START. Type:240x400 Site: citforum PZ: 0 BN: 1 -->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write(
+'<iframe src="http://ad.adriver.ru/cgi-bin/erle.cgi?'
++ 'sid=137295&bn=1&target=blank&bt=22&pz=0&rnd=' + RndNum4NoCash + '&tail256=' + ar_Tail
++ '" frameborder=0 vspace=0 hspace=0 width=240 height=400 marginwidth=0'
++ ' marginheight=0 scrolling=no></iframe>');
+//--></script>
+<noscript>
+<a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=137295&bn=1&bt=22&pz=0&rnd=1132854728" target=_blank>
+<img src="http://ad.adriver.ru/cgi-bin/rle.cgi?sid=137295&bn=1&bt=22&pz=0&rnd=1132854728" alt="-AdRiver-" border=0 width=240 height=400></a>
+</noscript>
+
+<!--  AdRiver code END  --></td></tr>
+
+
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#ffffff>
+<font size=2>
+<p><b>Новости мира IT:</b>
+<ul class=column>
+<!--<b><a target=_blank href=http://citcity.ru/20070/>4&#x2013;5 декабря пройдёт &#xab;Платформа 2009&#xbb;</a></b>
+<hr>-->
+
+<li>30.01 - <a href=http://citforum.ru/news/33316/>Доступна операционная система Chrome OS 40</a><li>30.01 - <a href=http://citforum.ru/news/33315/>Microsoft представит облачный сервис Cosmos для коммерческого использования</a><li>30.01 - <a href=http://citforum.ru/news/33314/>Apple обновила OS X Yosemite до версии 10.10.2</a><li>30.01 - <a href=http://citforum.ru/news/33313/>Ideum Duet: кофейный столик с двумя встроенными компьютерами и двумя ОС</a><li>30.01 - <a href=http://citforum.ru/news/33312/>Intel выпустила процессоры Broadwell с поддержкой vPro</a><li>30.01 - <a href=http://citforum.ru/news/33311/>Microsoft покажет на MWC 2015 смартфоны на базе Windows 10</a><li>29.01 - <a href=http://citforum.ru/news/33310/>YouTube отказался от Flash в пользу HTML5</a><li>29.01 - <a href=http://citforum.ru/news/33309/>Касперский назвал умные телевизоры новой мишенью для хакеров</a><li>29.01 - <a href=http://citforum.ru/news/33308/>Вышел браузер Opera 27</a><li>29.01 - <a href=http://citforum.ru/news/33307/>В метро Петербурга запустили систему бесконтактных платежей PayPass</a><li>29.01 - <a href=http://citforum.ru/news/33306/>Прибыль Microsoft упала на 11 %</a><li>29.01 - <a href=http://citforum.ru/news/33305/>Tele2 развернёт в Москве мобильную сеть 3G/4G</a><li>29.01 - <a href=http://citforum.ru/news/33304/>AMD разрабатывает семейство графических процессоров Arctic Islands</a><li>28.01 - <a href=http://citforum.ru/news/33303/>Интернет-гиганты Tencent и Alibaba стали самыми дорогими брендами Китая</a><li>28.01 - <a href=http://citforum.ru/news/33302/>Основатель Opera Software представил новый web-браузер Vivaldi</a><li>28.01 - <a href=http://citforum.ru/news/33301/>Mozilla хочет принести виртуальную реальность в веб</a><li>28.01 - <a href=http://citforum.ru/news/33300/>Обновилась операционная система PC-BSD</a><li>28.01 - <a href=http://citforum.ru/news/33299/>В Fujitsu создана система определения сонливости водителей</a><li>28.01 - <a href=http://citforum.ru/news/33298/>Проект интеллектуального чемодана Bluesmart привлёк более $2 млн</a><li>28.01 - <a href=http://citforum.ru/news/33297/>За 10 дней продано более 50 тысяч Tizen-смартфонов Samsung Z1</a>
+
+</ul>
+<p><a target=_blank href=http://citforum.ru/news/><b>Архив новостей</b></a>
+</font>
+<p align=right><a href=http://citforum.ru/news/rss/news.xml><img src="../../pictures/xml_rss.gif" border=0 width=36 height=14></a>
+</td></tr>
+
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td style="padding-left: 5px; min-width: 240px"><p><b>Последние комментарии:</b>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/32977/#comments>Новый &#xab;антипиратский&#xbb; закон вступит в силу 1 мая 2015 года</a>&nbsp;(29)<br>
+		<div class=comments_menu_date>31 Январь, 17:47		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33307/#comments>В метро Петербурга запустили систему бесконтактных платежей PayPass</a>&nbsp;(2)<br>
+		<div class=comments_menu_date>31 Январь, 15:59		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33316/#comments>Доступна операционная система Chrome OS 40</a>&nbsp;(3)<br>
+		<div class=comments_menu_date>30 Январь, 18:34		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/gazeta/59/#comments>Брешь в конфиденциальности (Практика использования сети Интернет в конкурентной разведке)</a>&nbsp;(29)<br>
+		<div class=comments_menu_date>30 Январь, 12:10		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33314/#comments>Apple обновила OS X Yosemite до версии 10.10.2</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>30 Январь, 10:06		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33311/#comments>Microsoft покажет на MWC 2015 смартфоны на базе Windows 10</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>30 Январь, 09:22		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33309/#comments>Касперский назвал умные телевизоры новой мишенью для хакеров</a>&nbsp;(3)<br>
+		<div class=comments_menu_date>30 Январь, 09:21		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/32291/#comments>Выпущен защищенный планшет для чиновников на основе российской ОС</a>&nbsp;(18)<br>
+		<div class=comments_menu_date>29 Январь, 21:03		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/24552/#comments>Взломана защита от копирования приложений для Android</a>&nbsp;(7)<br>
+		<div class=comments_menu_date>29 Январь, 20:52		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33301/#comments>Mozilla хочет принести виртуальную реальность в веб</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>29 Январь, 09:16		</div>
+	</div></td></tr>
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td><div id="cse" style="width: 100%;">Loading</div>
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript"> 
+  google.load('search', '1', {language : 'ru'});
+  google.setOnLoadCallback(function() {
+    var customSearchControl = new google.search.CustomSearchControl('018117224161927867877:xbac02ystjy');
+    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+    customSearchControl.draw('cse');
+  }, true);
+</script>
+<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+</td></tr>
+
+<tr><td align="center"><!-- Soloway 240x400 code START-->
+<script language="javascript" type="text/javascript"><!--
+if(typeof(ar_cn)=="undefined") var ar_cn=1;
+var ar_Tail=document.referrer ? escape(document.referrer) : 'unknown';
+var ar_link="http://ad.adriver.ru/cgi-bin/erle.cgi?sid=126751&bt=49&target=blank&tail256=" + ar_Tail;
+document.write('<div style="visibility:hidden;height:0px;"><iframe id="ar_container_'+ar_cn+'" width=1 height=1 marginwidth=0 marginheight=0 scrolling=no frameborder=0><\/iframe><\/div><div id="ad_ph_'+ar_cn+'"><\/div>');
+function ar_getDoc(t,n,l){var doc;if(t<100){if(document.all && !window.opera){doc = window.frames['ar_container_'+n].document}
+else if(document.getElementById){doc=document.getElementById('ar_container_'+n).contentDocument}
+if(!doc){setTimeout('ar_getDoc('+(++t)+','+n+',"'+l+'")', 100)}else {var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+doc.write ('<sc'+'ript language="JavaScript" type="text/javascript">var ar_bnum='+n+';<\/sc'+'ript>');
+doc.write ('<sc'+'ript language="JavaScript" type="text/javascript" src="'+l+'&rnd='+RndNum4NoCash+'"><\/sc'+'ript>');}}}
+(function(num,link){function addEvent(e,t,f){if(e.addEventListener)e.addEventListener(t,f,false);else if(e.attachEvent)e.attachEvent('on'+t,f)}
+function removeEvent(e,t,f){if(e.removeEventListener)e.removeEventListener(t,f,false);else if(e.detachEvent)e.detachEvent('on'+t,f)}
+var BannerLoader={top:0,height:400,cm:document.compatMode=="CSS1Compat",
+scroll:function(){var ch=self.innerHeight||this.cm&&document.documentElement.clientHeight||document.body.clientHeight;
+var st=self.pageYOffset||this.cm&&document.documentElement.scrollTop||document.body.scrollTop;
+var sh=self.scrollHeight||this.cm&&document.documentElement.scrollHeight||document.body.scrollHeight;
+if((st-this.top<=this.height*0.2&&st+ch-this.top>=this.height*0.8)||(sh-this.top<=this.height*0.8&&(sh-st-ch<1||sh<ch))){
+removeEvent(window,'scroll',this.sfunc);ar_getDoc(0,num,link)}},
+sfunc: function(){BannerLoader.scroll()},init:function(){var t=this,obj=document.getElementById('ad_ph_'+num);
+if(obj){while(obj.offsetParent){t.top += obj.offsetTop; obj = obj.offsetParent}
+addEvent(window,'scroll',this.sfunc);t.scroll()}}};addEvent(window, 'load', function(){BannerLoader.init()})})(ar_cn++,ar_link);
+//--></script>
+<!-- Soloway 240x400 code END -->
+</td></tr>
+
+<tr><td align="center">
+<font size="2"><a class=head href=http://forum.citforum.ru/>Форумы</a>
+<a class=head href=http://citforum.ru/gazeta/>Газета</a></font>
+</td></tr>
+</table>
+
+</td>
+<td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=2 height=1 border=0></td>
+<td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0></td>
+</tr></table>
+
+</td>
+ <!--no_right-->
+
+</tr>
+</table>
+</td>
+
+</tr></table>
+
+<p>
+<table   cellspacing=0 cellpadding=0 border=0 width=100%>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=931 height=1 alt="" border=0></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr><td bgcolor=#008080>
+
+<table cellspacing=1 cellpadding=3 border=0 width=100%>
+<tr>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/consulting/">IT-консалтинг</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/SE/">Software Engineering</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/programming/">Программирование</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/database/">СУБД</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/security/">Безопасность</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/internet/">Internet</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/nets/">Сети</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/operating_systems/">Операционные системы</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/hardware/">Hardware</a></font></td>
+<!--
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/faq/>FAQ (ЧаВО)</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/howto/>HOWTO</a></font></td>
+--> 
+</tr>
+</table>
+
+</td></tr>
+</table>
+
+<p>
+
+<table width=100%>
+<tr><td>
+<a href="http://citforum.ru/about/"><font size=2>Информация для рекламодателей</font></a> 
+</td><td><font size=2>PR-акции, размещение рекламы &mdash; <a href="mailto:adv@citforum.ru">adv@citforum.ru</a>,
+<br>тел. +7 495 6608306, ICQ 232284597</font>
+</td><td align=right><font size=2>Пресс-релизы &mdash; <a href=mailto:pr@citforum.ru>pr@citforum.ru</a></font>
+</td></tr></table>
+
+
+<table cellspacing=0 cellpadding=0 border=0 width="100%"><tr><td><img src="../../pictures/1x1.gif" width=1 height=5 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr></table>
+
+<table cellspacing=0 cellpadding=4 border=0 width=100%><tr>
+<td><font size=2>
+<a href=http://www.citforum.ru/feedback.php?page=/nets/ito/27.shtml&server=citforum.ru>Послать комментарий</a><br>
+<a href="http://citforum.ru/how.shtml">Информация для авторов</a>
+
+</font></td>
+
+<td><a href=http://top100.rambler.ru/cgi-bin/stats_top100.cgi?13078><img src="../../pictures/logos/banner-88x31-rambler-darkblue2.gif" width=88 height=31 border=0 alt="Rambler's Top100"></a></td>
+<td><!--TopList LOGO--><a target=_top href="http://top.list.ru/jump?from=26978"><img src="http://top.list.ru/counter?id=26978;t=54;l=1" border=0 height=31 width=88 alt="TopList"></a><!--TopList LOGO--></td>
+<td>
+<!--LiveInternet logo--><a href="http://www.liveinternet.ru/click" target=_blank><img
+src="http://counter.yadro.ru/logo?12.6" border=0
+alt="liveinternet.ru: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"
+width=88 height=31></a><!--/LiveInternet-->
+</td>
+
+<td align=right valign=bottom><FONT SIZE=1 face="Arial, sans-serif">This Web server launched on February 24, 1997<br>
+Copyright &copy; 1997-2000 CIT, &copy; 2001-2015 <a href="http://citforum.ru/info.shtml">CIT Forum</a></font></td>
+</tr></table>
+
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr><tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr></table>
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr><td align=center><font size=1 face="Arial, sans-serif"><b>Внимание!</b> Любой из материалов, опубликованных на этом сервере, не может быть  воспроизведен в какой бы то ни было форме и какими бы то ни было средствами без письменного разрешения владельцев авторских прав. <a href="http://citforum.ru/copyright.shtml">Подробнее...</a></td></tr></table>
+
+
+</table></center>
+
+
+<!-- AdGravity Javascript code START-->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write('<sc' + 'ript language="JavaScript" src="http://ad.adriver.ru/cgi-bin/erle.cgi?sid=126751&bt=16&target=blank&tail256="' + ar_Tail + '"></sc' + 'ript>');
+//--></script>
+<!-- AdGravity Javascript code END -->
+
+
+
+
+</body>
+
+</html>
+

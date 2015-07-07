@@ -1,0 +1,145 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><link rel="stylesheet" href="../tpl/style.css@f4e332aa" type="text/css" /><link rel="prev" href="14" /><link rel="next" href="16" /><link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' /><style type="text/css">h1,h2,h3,h4{font-family:'Open Sans',sans-serif}</style><title>Перевод RFC 2223 — Инструкции авторам RFC (RFC про RFC), стр. 15</title><meta name="author" content="J. Postel, J. Reynolds" /><link rel="alternate" type="application/rss+xml" title="RFC2.ru - Русские Переводы RFC" href="../rss.xml"></head><body><div id="content"><div id="nav"><div class="icon i0"></div> <a href="../index.html" accesskey="`">На Главную</a></div><div id="search" class="ya-site-form ya-site-form_inited_no"><form action="http://yandex.ru/sitesearch" method="get" target="_blank"><input type="hidden" name="searchid" value="2154295"/><input type="hidden" name="l10n" value="ru"/><input type="hidden" name="reqenc" value=""/><input type="hidden" name="submit" value="Найти"/><input type="search" value="" name="text" placeholder="Поиск по RFC2.ru" /></form></div><div itemscope itemtype="http://schema.org/ScholarlyArticle"><meta itemprop="inLanguage" content="ru" /><meta itemprop="editor" content="ru" /><div id="header"><h1><a itemprop="headline" href="../2223.rfc">RFC 2223 — Инструкции авторам RFC (RFC про RFC)</a></h1></div><dl class="mute"><dt></dt><dd><div class="icon i1"></div> RFC: 2223</dd><dd><div class="icon i3"></div> Оригинал: <a href="original" target="_blank" rel="nofollow"><span itemprop="alternativeHeadline">Instructions to RFC Authors</span></a></dd><dd><div class="icon i7"></div> Предыдущие версии: RFC 825, RFC 1111, RFC 1543</dd><dd><div class="icon i2"></div> Категория: <span itemprop="articleSection">Информационный</span></dd><dd><div class="icon i4"></div> Дата публикации: <time itemprop="datePublished" datetime="1997-10-02">Октябрь 1997</time></dd><dd><div class="icon i5"></div> Авторы: <span itemprop="author">J. Postel</span>, <span itemprop="author">J. Reynolds</span></dd><dd><div class="icon i6"></div> Перевод: <span itemprop="editor">Колесников Иван</span></dd></dl><div class="pages"><p class="r"> <h2 class="pt"><span class="z">RFC 2223,</span> Страница 15 из 16</h2></p><ul><li><noindex><a href="print" rel="nofollow">Одной Страницей</a></noindex></li><li><a accesskey="1" title="Первая страница" href="../2223.rfc" class="arr">&lArr;</a></li><li><a accesskey="2" title="На страницу назад" href="14"><b>&larr;</b></a></li><li><a class="x" href="../2223.rfc">1</a></li><li><a class="x" href="2">2</a></li><li><a class="x" href="3">3</a></li><li><a class="x" href="4">4</a></li><li><a class="x" href="5">5</a></li><li><a class="x" href="6">6</a></li><li><a class="x" href="7">7</a></li><li><a href="8">8</a></li><li><a href="9">9</a></li><li><a href="10">10</a></li><li><a href="11">11</a></li><li><a href="12">12</a></li><li><a href="13">13</a></li><li><a href="14">14</a></li><li class="this"><span>15</span></li><li><a href="16">16</a></li><li><a accesskey="3" title="На страницу вперед" href="16">&rarr;</a></li><li><a accesskey="4" title="Последняя страница" href="16">&rArr;</a></li></ul></div><div id="text" itemprop="articleBody"><h2 id="p20">20. Приложение: nroff-макрос для RFC</h2><p>Как правило мы используем самые простейшие функции nroff. Мы используем макрос "ms" так: "nroff -ms input-file > output-file". Однако, мы не может заставить nroff правильно выполнять установку символа новой страницы после последней видимой строки на странице и без лишних символов конца строки перед первой видимой строкой на следующей странице. Мы хотим:</p><pre>последняя видимая строка на странице i
+^L
+первая видимая строка на странице i+1</pre><p>Пришлось хакнуть всё это дело. Мы используем perl-скрипт, названный "fix.pl". В итоге команда для обработки файла становится такой:</p><pre>nroff -ms input-file | fix.pl > output-file</pre><p>Ныне существующий perl-скрипт такой:</p><pre>#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#! /local/bin/perl
+
+# fix.pl  17-Nov-93  Craig Milo Rogers at USC/ISI
+#
+#     Стилистические указания для RFCшек требуют от страниц быть
+# разделенными следующим образом: &lt;последняя-непустая-строка&gt;
+# &lt;строка-начала-новой-страницы&gt;&lt;первая-непустая-строка&gt;.
+# К сожалению, NROFF не хочет выдавать такую последовательность.
+# Данный скрипт правит документы формата RFC путем поиска сочетания
+# "FORMFEED[Page", заменой "FORMFEED" на пробелы, добавлением строки 
+# начала новой страницы и удалением невидимого символа перед следующим
+# видимым символом.
+#
+#     Есть одно отличие между выводом этого скрипта и программами "fix.sh"
+# и "pg" его заменяющими: этот скрипт вставляет новую строку после
+# конца страницы после последней страницы в файле, в то время как
+# более ранние программы оставляли одиночным символ конца страницы в 
+# качестве последнего символа в файле. Чтобы получить одиночные
+# символы конца страницы раскомментируйте вторую команду замещения. 
+# Чтобы убрать последний символ конца страницы раскомментируйте третью 
+# команду замещения.
+#
+#     Данный скрипт должен запускаться в качестве фильтра следующим
+# образом:
+#
+# nroff -ms input-file | fix.pl > output-file
+#
+#     Когда обрабатываете данным скриптом пожалуйста учитывайте следующие
+# моменты:
+#
+# 1) ISI хранит perl в "/local/bin/perl"; ваша система возможно хранит
+# его в другом месте.
+# 2) На системах с CRLF-форматированием окончаний строк, символы "\n"
+# возможно придется заменить на \r\n".
+
+$* = 1;                             # Включаем многострочные шаблоны.
+undef $/;                           # Читаем весь файл единым потоком.
+
+while (&lt;&gt;) {                        # Прочитываем полностью входящий файл.
+    s/FORMFEED(\[Page\s+\d+\])\s+/        \1\n\f\n/g;
+                                    # Правим окончания страниц.
+#    s/\f\n$/\f/;                   # Нужен одиночный символ страницы в
+                                    # конце?
+#    s/\f\n$//;                     # Не нужен символ страницы в конце?
+    print;                          # Печатаем измененный файл.
+}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</pre><p>Данный скрипт можно также скопировать с: ftp://ftp.isi.edu/in-notes/rfc-editor/fix.pl</p><p>И вот для демонстрации используемых возможностей nroff, приведен пример статьи, подготовленной в стилистике RFC:</p><pre>.pl 10.0i
+.po 0
+.ll 7.2i
+.lt 7.2i
+.nr LL 7.2i
+.nr LT 7.2i
+.ds LF Waitzman
+.ds RF PUTFFHERE[Page %]
+.ds CF
+.ds LH RFC 1149
+.ds RH 1 April 1990
+.ds CH IP Datagrams on Avian Carriers
+.hy 0
+.ad l
+.in 0
+Network Working Group                                        D. Waitzman
+Request for Comments: 1149                                       BBN STC
+                                                            1 April 1990
+
+
+.ce
+A Standard for the Transmission of IP Datagrams on Avian Carriers
+
+.ti 0
+Status of this Memo
+
+.fi
+.in 3
+This memo describes an experimental method for the encapsulation of IP
+datagrams in avian carriers.  This specification is primarily useful
+in Metropolitan Area Networks.  This is an experimental, not recommended
+standard.  Distribution of this memo is unlimited.
+
+.ti 0
+Overview and Rational
+
+Avian carriers can provide high delay, low throughput, and low
+altitude service.  The connection topology is limited to a single
+point-to-point path for each carrier, used with standard carriers, but
+many carriers can be used without significant interference with each
+other, outside of early spring.  This is because of the 3D ether space
+available to the carriers, in contrast to the 1D ether used by
+IEEE802.3.  The carriers have an intrinsic collision avoidance system,
+which increases availability.  Unlike some network technologies, such
+as packet radio, communication is not limited to line-of-sight
+distance.  Connection oriented service is available in some cities,
+usually based upon a central hub topology.
+
+.ti 0
+Frame Format
+
+The IP datagram is printed, on a small scroll of paper, in
+hexadecimal, with each octet separated by whitestuff and blackstuff.
+The scroll of paper is wrapped around one leg of the avian carrier.
+A band of duct tape is used to secure the datagram's edges.  The
+bandwidth is limited to the leg length.  The MTU is variable, and
+paradoxically, generally increases with increased carrier age.  A
+typical MTU is 256 milligrams.  Some datagram padding may be needed.
+
+Upon receipt, the duct tape is removed and the paper copy of the
+datagram is optically scanned into a electronically transmittable
+form.
+
+.ti 0
+Discussion
+
+Multiple types of service can be provided with a prioritized pecking
+order.  An additional property is built-in worm detection and
+eradication.  Because IP only guarantees best effort delivery, loss of
+a carrier can be tolerated.  With time, the carriers are
+self-regenerating.  While broadcasting is not specified, storms can
+cause data loss.  There is persistent delivery retry, until the
+carrier drops.  Audit trails are automatically generated, and can
+often be found on logs and cable trays.
+
+.ti 0
+Security Considerations
+
+.in 3
+Security is not generally a problem in normal operation, but special
+measures must be taken (such as data encryption) when avian carriers
+are used in a tactical environment.
+
+.ti 0
+Author's Address
+
+.nf
+David Waitzman
+BBN Systems and Technologies Corporation
+BBN Labs Division
+10 Moulton Street
+Cambridge, MA 02238
+
+Phone: (617) 873-4323
+
+EMail: dwaitzman@BBN.COM</pre></div></div><noindex><div class="pages"><p class="r"> <b>Страница 15 из 16</b></p><ul><li><noindex><a href="print" rel="nofollow">Одной Страницей</a></noindex></li><li><a title="Первая страница" href="../2223.rfc" class="arr">&lArr;</a></li><li><a title="На страницу назад" href="14"><b>&larr;</b></a></li><li><a class="x" href="../2223.rfc">1</a></li><li><a class="x" href="2">2</a></li><li><a class="x" href="3">3</a></li><li><a class="x" href="4">4</a></li><li><a class="x" href="5">5</a></li><li><a class="x" href="6">6</a></li><li><a class="x" href="7">7</a></li><li><a href="8">8</a></li><li><a href="9">9</a></li><li><a href="10">10</a></li><li><a href="11">11</a></li><li><a href="12">12</a></li><li><a href="13">13</a></li><li><a href="14">14</a></li><li class="this"><span>15</span></li><li><a href="16">16</a></li><li><a title="На страницу вперед" href="16">&rarr;</a></li><li><a title="Последняя страница" href="16">&rArr;</a></li></ul></div></noindex><div id="disqus_thread"></div><script type="text/javascript">var disqus_shortname="rfc2",disqus_title="RFC 2223 - Инструкции авторам RFC (RFC про RFC)",disqus_identifier="2223.rfc",disqus_url="http://rfc2.ru/2223.rfc";(function(){var dsq=document.createElement("script");dsq.type="text/javascript";dsq.async=true;dsq.src = "//"+disqus_shortname+".disqus.com/embed.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(dsq);})();</script><div class="bubble">2007 - 2014 © <a href="../index.html" title="Русские переводы RFC">Русские переводы RFC</a>, IETF, ISOC.</div></div><div id="bottom" style="position:static !important;bottom:auto !important"><div class="bubble"><ul><li><!--723572853672--></li></ul></div></div><!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter4680559 = new Ya.Metrika({id:4680559, webvisor:true, clickmap:true, accurateTrackBounce:true, trackHash:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="http://mc.yandex.ru/watch/4680559" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter --></body></html>
