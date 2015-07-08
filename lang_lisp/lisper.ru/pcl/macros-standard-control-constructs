@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>Макросы: Стандартные управляющие конструкции</title> <link href="../css/style.css" rel="stylesheet" type="text/css" /><link href="../css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="http://lisper.ru/register">Регистрация</a> | <a href="http://lisper.ru/login?done=/pcl/macros-standard-control-constructs">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="../image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="../vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="http://lisper.ru/">Главная</a> </li><li> <a href="http://lisper.ru/articles/">Статьи</a> </li><li> <a href="http://lisper.ru/planet/">Планета</a> </li><li> <a href="http://lisper.ru/forum/">Форум</a> </li><li> <a href="http://lisper.ru/apps/">Сервисы</a> </li><li> <a href="index.html">Practical Common Lisp</a> </li><li> <a href="http://lisper.ru/wiki/">Wiki</a> </li><li> <a href="http://lisper.ru/files/">Файлы</a> </li><li> <a href="http://lisper.ru/search">Поиск</a> </li> </ul> </div> <div id="content"> <table width="100%"> <tbody> <tr> <td width="20%" align="left"> <a href="variables">Предыдущая</a> </td> <td width="60%" align="center"> <a href="index.html">Оглавление</a> </td> <td width="20%" align="right"> <a href="macros-defining-your-own">Следующая</a> </td> </tr> </tbody> </table> <div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="macros-standard-control-constructs#7. &#x41C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x44B;: &#x421;&#x442;&#x430;&#x43D;&#x434;&#x430;&#x440;&#x442;&#x43D;&#x44B;&#x435; &#x443;&#x43F;&#x440;&#x430;&#x432;&#x43B;&#x44F;&#x44E;&#x449;&#x438;&#x435; &#x43A;&#x43E;&#x43D;&#x441;&#x442;&#x440;&#x443;&#x43A;&#x446;&#x438;&#x438;">7. Макросы: Стандартные управляющие конструкции</a><ul><li><div><a href="macros-standard-control-constructs#WHEN &#x438; UNLESS">WHEN и UNLESS</a></div></li><li><div><a href="macros-standard-control-constructs#COND">COND</a></div></li><li><div><a href="macros-standard-control-constructs#AND, OR &#x438; NOT">AND, OR и NOT</a></div></li><li><div><a href="macros-standard-control-constructs#&#x426;&#x438;&#x43A;&#x43B;&#x44B;">Циклы</a><ul><li><div><a href="macros-standard-control-constructs#DOLIST &#x438; DOTIMES">DOLIST и DOTIMES</a></div></li><li><div><a href="macros-standard-control-constructs#DO">DO</a></div></li><li><div><a href="macros-standard-control-constructs#&#x412;&#x441;&#x435;&#x43C;&#x43E;&#x433;&#x443;&#x449;&#x438;&#x439; LOOP">Всемогущий LOOP</a></div></li></ul></div></li></ul></div></li></ul></div></div>
+<div class="chapter" id="7. &#x41C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x44B;: &#x421;&#x442;&#x430;&#x43D;&#x434;&#x430;&#x440;&#x442;&#x43D;&#x44B;&#x435; &#x443;&#x43F;&#x440;&#x430;&#x432;&#x43B;&#x44F;&#x44E;&#x449;&#x438;&#x435; &#x43A;&#x43E;&#x43D;&#x441;&#x442;&#x440;&#x443;&#x43A;&#x446;&#x438;&#x438;"><h3>7. Макросы: Стандартные управляющие конструкции</h3>
+
+
+<p>В то время, как многие из идей, появившиеся в Лиспе, от условных выражений до сборки мусора, были добавлены в другие языки, есть одна особенность языка, которая продолжает делать Common Lisp стоящим  особняком от всех, это его система макросов. К несчастью, слово "макрос" описывает множество вещей в компьютерных науках, к которым макросы Common Lisp имеют неявное и метафорическое отношение FIXME. Это приводит к бесконечным недопониманиям, когда адепты Лиспа пытаются объяснить другим, насколько макросы замечательны.<a class="fn_top" id="fnt__1" href="macros-standard-control-constructs#fn__1">1)</a> 
+</p>
+<p>Чтобы понять макросы Лиспа, необходимо подойти к делу со свободной головой, без предубеждений, основанных на других вещах, которые также оказались названными словом "макросы". Итак, давайте начнём нашу тему с шага назад и обзора различных путей, которыми создаются расширения в языках.
+</p>
+<p>Всем программистам должна быть привычна идея о том, что определение языка может включать стандартную библиотеку функций, которая строится на "ядре" языка – библиотеку, которая могла бы быть написана посредством языка любым программистом, если бы она не была определена как часть стандартной библиотеки. Стандартная библиотека языка Си, например, может быть написана почти полностью на переносимом Си. Аналогично, большая часть всё растущего набора классов и интерфейсов, которые поставляются в стандартном наборе Java Development Kit (JDK), написаны на "чистом" Java.
+</p>
+<p>Одним из преимуществ определения языков в терминах "ядро плюс стандартная библиотека", это лёгкость в понимании и воплощении. Однако реальная выгода заключается в выразительности – многое из того, про что вы думаете как про "язык", на самом деле просто библиотека – язык легко расширять. Если в Си нет функции для той или иной необходимой вам задачи, вы можете её написать и теперь у вас есть слегка улучшенная версия Си. Точно так же в языках, таких как Java или Smalltalk, где почти все интересные части "языка" определены в терминах классов, определяя новый класс, вы расширяете язык, делая его более подходящим для написания программ, делающих то, что вам надо.
+</p>
+<p>В то время, как Common Lisp поддерживает оба этих метода расширения языка, макросы дают Лиспу ещё один путь.  Как было упомянуто кратко в Главе 4, каждый макрос определяет свой собственный синтаксис – определение того, как s-выражения, которые ему передаются, будут превращены в Лисп-формы. С помощью макросов, как части ядра языка, возможно создавать новые синтаксические управляющие конструкции, такие как <code>WHEN</code>, <code>DOLIST</code> и <code>LOOP</code>, а так же формы определений вроде <code>DEFUN</code> и <code>DEFPARAMETER</code>, как часть "стандартной библиотеки", вместо встраивания их в ядро. Это имеет свои последствия для реализации языка, но как программиста на Лисп, вас будет больше заботить то, что это даёт вам ещё один способ расширения языка, делая его языком, лучше подходящим для выражения решений ваших собственных программистских проблем.
+</p>
+<p>В данный момент может показаться, что преимущества от наличия ещё одного пути расширения языка будет легко понять. Но по некоторой причине большое количество программистов, которые фактически не использовали макросы Лиспа и которые не задумываются о создании новых функциональных абстракций или определений новых иерархий классов для решения своих задач, панически боятся самой мысли о том, что они будут иметь возможность описания новых синтаксических абстракций. Наиболее общей причиной "макрофобии", похоже является плохой опыт от использования других "макросистем". Простой страх перед неизвестным несомненно так же играет определенную роль. Чтобы избежать макрофобических реакций, я буду постепенно знакомить вас с данным предметом, через обсуждение нескольких стандартных макросов и конструкций контроля, определённых в Common Lisp. Это те вещи, которые нужно было бы встроить в ядро языка, если бы в Лиспе не было макросов. Когда вы используете их, вам не надо беспокоиться, что они сделаны в виде макросов, но они представляют из себя хороший пример того, что вы можете сделать с помощью макросов.<a class="fn_top" id="fnt__2" href="macros-standard-control-constructs#fn__2">2)</a> В следующей главе я покажу вам, как вы можете определять свои собственные макросы.
+</p>
+
+
+
+
+
+<div class="chapter" id="WHEN &#x438; UNLESS"><h3>WHEN и UNLESS</h3>
+
+<p>Как вы уже видели, наиболее базовую форму условного выражения – <em>если x, делай y; иначе делай z</em> – представляет специальный оператор <code>IF</code>, который имеет следующую базовую форму:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/e_cnd.htm" class="symbol">condition</a> then-form [else-form]</span>)</span><br/></pre>
+
+<p><em>condition</em> вычисляется и, если его значение не <code>NIL</code>, тогда <em>then-form</em> выполняется и полученное значение возвращается. Иначе выполняется <em>else-form</em>, если она есть, и её значение возвращается. Если <em>condition</em> даёт <code>NIL</code> и нет <em>else-form</em>, тогда <code>IF</code> возвращает <code>NIL</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren2">(<span class="">&gt; 2 3</span>)</span> <span class="string">"Yup"</span> <span class="string">"Nope"</span></span>)</span> ==&gt; "Nope"<br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren2">(<span class="">&gt; 2 3</span>)</span> <span class="string">"Yup"</span></span>)</span>        ==&gt; NIL<br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren2">(<span class="">&gt; 3 2</span>)</span> <span class="string">"Yup"</span> <span class="string">"Nope"</span></span>)</span> ==&gt; "Yup"<br/></pre>
+
+<p>Однако, <code>IF</code> не является вообще-то такой уж замечательной синтаксической конструкцией, потому что <em>then-form</em> и <em>else-form</em>, каждая ограничена одной лисп-формой. Это значит, что если вы хотите выполнить последовательность действий в каком-либо из этих случаев, вам надо обернуть их в какой-то другой синтаксис. Например, предположим, в середине программы спам-фильтра, вы захотите сохранить в файле сообщение, как спам, и обновить базу данных по спаму, если сообщение - спам. Вы не можете написать так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren2">(<span class="">spam-p current-message</span>)</span><br/>    <span class="paren2">(<span class="">file-in-spam-folder current-message</span>)</span><br/>    <span class="paren2">(<span class="">update-spam-database current-message</span>)</span></span>)</span><br/></pre>
+
+<p>потому что вызов <code>update-spam-database</code> будет принят за случай <em>else</em>, а не как часть ветви <em>then</em>. Другой специальный оператор <code>PROGN</code>, выполняет любое число форм по порядку и возвращает значение последней формы. Так что вы могли бы получить желаемое, записав всё следующим образом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren2">(<span class="">spam-p current-message</span>)</span><br/>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"><i><span class="symbol">progn</span></i></a><br/>      <span class="paren3">(<span class="">file-in-spam-folder current-message</span>)</span><br/>      <span class="paren3">(<span class="">update-spam-database current-message</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Это не так уж и ужасно. Однако, учитывая количество раз, когда вам придётся использовать эту идиому, не трудно представить себе, что через некоторое время это станет утомительно. "Почему", вы можете спросить у себя, "Лисп не предоставляет возможность выразить то, что на самом деле мне надо, скажем 'Если x верно, делай то, то и ещё вот это'?" Другими словами, через некоторое время, вы заметите повторяемость сочетания <code>IF</code> плюс <code>PROGN</code> и захотите как-то абстрагироваться от этих деталей, вместо того, чтобы каждый раз заново переписывать их.
+</p>
+<p>Это как раз то, что предоставляют макросы. В данном случае, Коммон Лисп поставляется со стандартным макросом <code>WHEN</code>, с которым всё можно написать так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren2">(<span class="">spam-p current-message</span>)</span><br/>  <span class="paren2">(<span class="">file-in-spam-folder current-message</span>)</span><br/>  <span class="paren2">(<span class="">update-spam-database current-message</span>)</span></span>)</span><br/></pre>
+
+<p>Но если бы он не был встроен в стандартную библиотеку, вы могли бы самостоятельно определить <code>WHEN</code> как макрос, используя запись с обратной кавычкой, которую я обсуждал в Главе 3:<a class="fn_top" id="fnt__3" href="macros-standard-control-constructs#fn__3">3)</a>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/e_cnd.htm" class="symbol">condition</a> &amp;rest body</span>)</span><br/>  `<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> ,<a href="http://www.lispworks.com/reference/HyperSpec/Body/e_cnd.htm" class="symbol">condition</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"><i><span class="symbol">progn</span></i></a> ,@body</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Сопутствующим макросу <code>WHEN</code> является <code>UNLESS</code>, который оборачивает условие, выполняя формы из тела, только если условие ложно. Другими словами:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">unless</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/e_cnd.htm" class="symbol">condition</a> &amp;rest body</span>)</span><br/>  `<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_not.htm" class="symbol">not</a> ,<a href="http://www.lispworks.com/reference/HyperSpec/Body/e_cnd.htm" class="symbol">condition</a></span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"><i><span class="symbol">progn</span></i></a> ,@body</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Конечно, это довольно тривиальные макросы. Тут нет никакой страшной чёрной магии; они просто абстрагируют  некоторые детали языковой бухгалтерии, позволяя вам выражать свои намерения немного более ясно. Но их тривиальность имеет важное значение: так как система макросов встроена в язык, вы можете писать тривиальные макросы вроде <code>WHEN</code> и <code>UNLESS</code>, которые дают вам небольшую, но реальную выгоду в ясности, которая затем умножается в тысячу раз когда вы используете их. В Главах 24, 26 и 31 вы увидите, как макросы могут быть использованы  для серьёзных вещей, создавая целый предметно-ориентированный (domain-specific), встроенный язык. Но сначала, давайте закончим наше обсуждение стандартных макросов управления.
+</p>
+
+
+</div><div class="chapter" id="COND"><h3>COND</h3>
+
+
+<p>Ещё один случай, когда непосредственное <code>IF</code> выражение может оказаться ужасным, это когда у вас есть условное выражение с множественными ветвлениями: <em>если A, делай X, иначе, если B, делай Y; иначе делай Z</em>. Нет никакой логической проблемы в написании такой цепочки условных выражений с <code>IF</code>, но получится не очень красиво.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> a<br/>    <span class="paren2">(<span class="">do-x</span>)</span><br/>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> b<br/>       <span class="paren3">(<span class="">do-y</span>)</span><br/>       <span class="paren3">(<span class="">do-z</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>И это будет выглядеть ещё более ужасно, если вам понадобится включить множество форм для <em>then</em> случаев, привлекая несколько <code>PROGN</code>. Так что ничего удивительного, что Коммон Лисп предоставляет макрос для выражения условия с множеством ветвлений: <code>COND</code>. Вот базовый вид:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a><br/>  <span class="paren2">(<span class="">test-1 form*</span>)</span><br/>      .<br/>      .<br/>      .<br/>  <span class="paren2">(<span class="">test-N form*</span>)</span></span>)</span><br/></pre>
+
+<p>Каждый элемент в теле представляет одну ветвь условия и состоит из списка, содержащего форму условия и ноль или более форм для выполнения, если выбрана эта ветвь. Условия вычисляются в том порядке, в каком расположены ветви до тех пор, пока одно из них не даст истину. В этой точке, оставшиеся формы из ветви выполняются и значение последней формы ветви возвращается как результат работы всего <code>COND</code>. Если ветвь не содержит форм после условия, то возвращается само значение условия. По соглашению, ветвь представляющая последний случай <em>else</em> в цепочке <em>if/else-if</em> записывается с условием <code>T</code>. Подойдёт любое не-<code>NIL</code> значение, но <code>T</code> служит дорожным знаком при чтении кода. Таким образом вы можете записать предыдущее вложенное <code>IF</code> выражение, используя <code>COND</code>, вот так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren2">(<span class="">a <span class="paren3">(<span class="">do-x</span>)</span></span>)</span><br/>      <span class="paren2">(<span class="">b <span class="paren3">(<span class="">do-y</span>)</span></span>)</span><br/>      <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="paren3">(<span class="">do-z</span>)</span></span>)</span></span>)</span><br/></pre>
+
+
+
+</div><div class="chapter" id="AND, OR &#x438; NOT"><h3>AND, OR и NOT</h3>
+
+
+<p>При написании условий в <code>IF</code>, <code>WHEN</code>, <code>UNLESS</code> и <code>COND</code> формах, три оператора оказываются очень полезны, это булевы логические операторы <code>AND</code>, <code>OR</code> и <code>NOT</code>.
+</p>
+<p><code>NOT</code> - это функция, которая строго говоря не относится к этой главе, но она очень тесно связана с <code>AND</code> и <code>OR</code>. Она берёт свой аргумент и обращает его значение истинности, возвращая <code>T</code>, если аргумент <code>NIL</code> и <code>NIL</code> в ином случае.
+</p>
+<p><code>AND</code> и <code>OR</code>, однако являются макросами. Они представляют логические конъюнкцию и дизъюнкцию произвольного числа подформ и определены как макросы, так что они оптимальны в выполнении. Это значит, что они вычисляют ровно столько своих подформ, в порядке слева направо, сколько необходимо для конечного значения. То есть <code>AND</code> останавливается и возвращает <code>NIL</code> сразу же, как только одна из подформ выдаст <code>NIL</code>. Если все подформы выдают не-<code>NIL</code> результат, она возвращает значение последней подформы. <code>OR</code>, с другой стороны, останавливается, как только одна из подформ выдаст не-<code>NIL</code> и возвращает полученное значение. Если ни одна из подформ не выдаст истину, <code>OR</code> возвращает <code>NIL</code>. Вот несколько примеров:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_not.htm" class="symbol">not</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span>             ==&gt; T<br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_not.htm" class="symbol">not</a> <span class="paren2">(<span class="">= 1 1</span>)</span></span>)</span>         ==&gt; NIL<br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a> <span class="paren2">(<span class="">= 1 2</span>)</span> <span class="paren2">(<span class="">= 3 3</span>)</span></span>)</span> ==&gt; NIL<br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> <span class="paren2">(<span class="">= 1 2</span>)</span> <span class="paren2">(<span class="">= 3 3</span>)</span></span>)</span>  ==&gt; T<br/></pre>
+
+
+
+</div><div class="chapter" id="&#x426;&#x438;&#x43A;&#x43B;&#x44B;"><h3>Циклы</h3>
+
+
+<p>Управляющие конструкции — ещё один вид циклических конструкций в LISP. <a class="fn_top" id="fnt__4" href="macros-standard-control-constructs#fn__4">4)</a> Циклические средства в Коммон Лисп, в дополнение к мощности и гибкости, являются интересным уроком по программированию в стиле "получить всё и сразу", чему поспособствовали макросы.
+</p>
+<p>Как оказалось, ни один из 25 специальных операторов Лиспа не поддерживает напрямую структуру циклов. Все циклические конструкции контроля в Лиспе - это макросы, построенные на двух специальных операторах, которые представляют собой примитивное <em>goto</em> средство.<a class="fn_top" id="fnt__5" href="macros-standard-control-constructs#fn__5">5)</a> Как многие хорошие абстракции, синтаксические или нет, циклические макросы в Лиспе построены как набор слоёв абстракций, начиная с основы, которой являются те два специальных оператора.
+</p>
+<p>В самом низу (оставляя в стороне специальные операторы) находится наиболее общая конструкция контроля <code>DO</code>. Хотя и очень мощный, <code>DO</code> страдает, как и многие абстракции общего назначения, от чрезмерности для простых ситуаций. Так что Лисп предоставляет два других макроса, <code>DOLIST</code> and <code>DOTIMES</code>, которые менее гибки, чем <code>DO</code>, но лучше поддерживают наиболее распространённые случаи цикла по элементам списка или цикла с подсчётом. Хотя конкретная реализация LISP может реализовать эти макросы как ей угодно, обычно они реализованы как макросы, которые раскрываются в соответствующий <code>DO</code> цикл. Таким образом <code>DO</code> предоставляет базовую структурную конструкцию цикла поверх нижележащих примитивов, представленных специальными операторами Коммон Лиспа, а <code>DOLIST</code> и <code>DOTIMES</code> представляют две лёгкие в использовании, хотя и менее общие конструкции. И, как вы увидите в следующей главе, вы можете строить свои собственные конструкции цикла поверх <code>DO</code> в ситуациях, где <code>DOLIST</code> и <code>DOTIMES</code> вам не подходят.
+</p>
+<p>Наконец, макрос <code>LOOP</code> представляет собой полномасштабный мини-язык для выражения циклических конструкций на не Лиспо-, а англо-подобном (или, как минимум, Алголо-подобном)  языке. Некоторые хакеры Лиспа любят <code>LOOP</code>; другие ненавидят его. Фанаты <code>LOOP</code> любят его за то, что он предоставляет краткий способ выразить определённые, обычно необходимые циклические конструкции. Его недоброжелатели не любят его, потому что он недостаточно похож на остальной Лисп. Однако, к какому бы лагерю вы не примкнули, это замечательный пример возможностей макросов добавлять новые конструкции в язык.
+</p>
+
+
+
+
+<div class="chapter" id="DOLIST &#x438; DOTIMES"><h3>DOLIST и DOTIMES</h3>
+
+
+<p>Я начну с лёгких для использования <code>DOLIST</code> и <code>DOTIMES</code> макросов.
+</p>
+<p><code>DOLIST</code> проходит по всем элементам списка, выполняя тело цикла с переменной, содержащей последовательно элементы списка.<a class="fn_top" id="fnt__6" href="macros-standard-control-constructs#fn__6">6)</a> Вот базовый скелет (оставляя некоторые эзотерические опции):
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dolist.htm" class="symbol">dolist</a> <span class="paren2">(<span class="">var list-form</span>)</span><br/>  body-form*</span>)</span><br/></pre>
+
+<p>Когда цикл стартует, <em>list-form</em> выполняется один раз, чтобы создать список. Затем тело цикла выполняется для каждого элемента в списке, с переменной <em>var</em>, содержащей значение элемента. Например:
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dolist.htm" class="symbol">dolist</a> <span class="paren2">(<span class="">x '<span class="paren3">(<span class="">1 2 3</span>)</span></span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> x</span>)</span></span>)</span><br/>
+1<br/>
+2<br/>
+3<br/>
+NIL<br/></p></pre>
+
+<p>Использованная таким образом, форма <code>DOLIST</code>, в целом, возвращает <code>NIL</code>.
+</p>
+<p>Если вы хотите прервать цикл <code>DOLIST</code> до окончания списка, можете использовать <code>RETURN</code>.
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dolist.htm" class="symbol">dolist</a> <span class="paren2">(<span class="">x '<span class="paren3">(<span class="">1 2 3</span>)</span></span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> x</span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_evenpc.htm" class="symbol">evenp</a> x</span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_return.htm" class="symbol">return</a></span>)</span></span>)</span></span>)</span><br/>
+1<br/>
+2<br/>
+NIL<br/></p></pre>
+
+<p><code>DOTIMES</code>  - это конструкция цикла верхнего уровня для циклов с подсчётом. Основной вид более-менее такой же, как у <code>DOLIST</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> <span class="paren2">(<span class="">var count-form</span>)</span><br/>  body-form*</span>)</span><br/></pre>
+
+<p><em>count-form</em> должна выдать целое число. Каждый раз, в процессе цикла, <em>var</em> содержит последовательные целые от 0 до на единицу меньшего, чем то число.  Например:
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> <span class="paren2">(<span class="">i 4</span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> i</span>)</span></span>)</span><br/>
+0<br/>
+1<br/>
+2<br/>
+3<br/>
+NIL<br/></p></pre>
+
+<p>Так же, как и с <code>DOLIST</code>, вы можете использовать <code>RETURN</code>, чтобы прервать цикл раньше.
+</p>
+<p>Так как тела обоих <code>DOLIST</code> и <code>DOTIMES</code> циклов могут содержать любые типы выражений, вы так же можете делать циклы вложенными. Например, чтобы напечатать таблицу умножения от 1x1 = 1 до 20x20 = 400, вы можете написать такую пару вложенных циклов <code>DOTIMES</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> <span class="paren2">(<span class="">x 20</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> <span class="paren3">(<span class="">y 20</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~3d "</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1+</a> x</span>)</span> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1+</a> y</span>)</span></span>)</span></span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~%"</span></span>)</span></span>)</span><br/></pre>
+
+
+
+
+
+
+
+
+</div><div class="chapter" id="DO"><h3>DO</h3>
+
+
+<p>Хотя <code>DOLIST</code> и <code>DOTIMES</code> удобны и легки в использовании, они недостаточно гибки, чтобы использоваться для любых циклов. Например, что если вы захотите менять на каждом шаге несколько переменных параллельно? Или использовать произвольное выражение для проверки окончания цикла? Если ни <code>DOLIST</code>, ни <code>DOTIMES</code> не подходят для ваших целей, у вас всё ещё есть доступ к наиболее общему циклу <code>DO</code>.
+</p>
+<p>Там, где <code>DOLIST</code> и <code>DOTIMES</code> предоставляют только одну переменную цикла, <code>DO</code> позволяет вам держать любое число переменных и даёт вам полный контроль над тем, как они будут изменяться на каждом шаге цикла. Вы так же определяете проверку, которая говорит когда циклу завершиться и может предоставлять форму для вычисления в конце цикла, чтобы сформировать возвращаемое значение для всего <code>DO</code> в целом. Базовый шаблон выглядит так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class="">variable-definition*</span>)</span><br/>    <span class="paren2">(<span class="">end-test-form result-form*</span>)</span><br/>  statement*</span>)</span><br/></pre>
+
+<p>Каждое <em>variable-definition</em> (определение переменной) вводит переменную, которая будет в поле видимости тела цикла. Полная форма одного определения переменной, это список, содержащий три элемента.
+</p>
+<pre class="code"><span class="paren1">(<span class="">var init-form step-form</span>)</span><br/></pre>
+
+<p><em>init-form</em> будет выполнена в начале цикла и полученное значение присвоено переменной <em>var</em>.  Перед каждой последующей итерацией цикла, <em>step-form</em> будет выполнена и её значение присвоено <em>var</em>.  Форма <em>step-form</em> необязательна; если её не будет, переменная останется с тем же значением от итерации к итерации, пока вы прямо не назначите ей новое значение в теле цикла. Так же, как и с присвоением переменным значений в <code>LET</code>, если форма <em>init-form</em> не задана, переменной присваивается <code>NIL</code>. Так же, как и в <code>LET</code>, вы можете использовать просто имя переменной, вместо списка, содержащего только имя.
+</p>
+<p>В начале каждой итерации, после того, как все переменные цикла получили свои новые значения, выполняется форма <em>end-test-form</em>. До тех пор, пока она вычисляется в <code>NIL</code>, итерация происходит, выполняя <em>statement</em> по порядку.
+</p>
+<p>Когда вычисление формы <em>end-test-form</em> выдаст истину, будет вычислена форма <em>result-form</em> и значение, полученное в результате, будет возвращено как значение всего выражения <code>DO</code>.
+</p>
+<p>На каждом шаге итерации, шаговые формы для переменных вычисляются прежде придания новых значений этим переменным. Это значит, что вы можете ссылаться на любую другую переменную внутри шаговых форм.<a class="fn_top" id="fnt__7" href="macros-standard-control-constructs#fn__7">7)</a> Таким образом, цикл выглядит так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">n 0 <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1+</a> n</span>)</span></span>)</span><br/>     <span class="paren3">(<span class="">cur 0 next</span>)</span><br/>     <span class="paren3">(<span class="">next 1 <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> cur next</span>)</span></span>)</span></span>)</span><br/>    <span class="paren2">(<span class=""><span class="paren3">(<span class="">= 10 n</span>)</span> cur</span>)</span></span>)</span><br/></pre>
+
+<p>шаговые формы <em>(1+ n)</em>, <em>next</em>, и <em>(+ cur next)</em> все вычисляются, использую старое значение <em>n</em>, <em>cur</em> и <em>next</em>. Только после вычисления всех шаговых форм, переменные получают свои новые значения. (Математически образованные читатели могут заметить, что это частично эффективный способ подсчёта одиннадцатого числа Фибоначчи.)
+</p>
+<p>Этот пример также иллюстрирует ещё одну характеристику <code>DO</code> – так как вы можете изменять на каждом шаге несколько переменных, вам зачастую не понадобится тело цикла вообще. В другой раз, вы можете обойтись без результирующей формы, в частности, если вы используете цикл, как конструкцию контроля. Эта гибкость, однако, является причиной по которой выражение  <code>DO</code> может стать плохо читаемым. Что, собственно, все эти скобки здесь делают? Лучший способ понять <code>DO</code> выражение, это держать в голове основной шаблон.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class="">variable-definition*</span>)</span><br/>    <span class="paren2">(<span class="">end-test-form result-form*</span>)</span><br/>  statement*</span>)</span><br/></pre>
+
+<p>Шесть скобок в этом шаблоне, это только те, которые требуются самим <code>DO</code>. Вам нужна одна пара для закрытия описания переменных, одна пара для закрытия теста окончания и результирующей формы и одна пара для закрытия всего выражения. Другие формы внутри <code>DO</code> могут потребовать своих собственных пар скобок – определения переменных, это обычно списки, например. К тому же форма проверки окончания, это зачастую функция. Однако скелет <code>DO</code>  цикла всегда будет одним и тем же. Вот несколько примеров цикла <code>DO</code> со скелетом, отмеченным фигурными скобочками вместо обычных (они используются только для демонстрационных целей – это не часть стандартного синтаксиса CL. – прим. ред.):
+FIXME
+</p>
+<pre class="code"><p>{do {<span class="paren1">(<span class="">i 0 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1+</a> i</span>)</span></span>)</span>}<br/>
+    {<span class="paren1">(<span class="">&gt;= i 4</span>)</span>}<br/>
+  <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> i</span>)</span>}<br/></p></pre>
+
+<p>Заметьте, что форма для результата пропущена. Это, однако, не особо распространённое использование <code>DO</code>, так как такой цикл гораздо проще написать используя <code>DOTIMES</code>.<a class="fn_top" id="fnt__8" href="macros-standard-control-constructs#fn__8">8)</a>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> <span class="paren2">(<span class="">i 4</span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> i</span>)</span></span>)</span><br/></pre>
+
+<p>Другой пример, в котором отсутствует тело цикла для вычисления чисел Фибоначчи:
+</p>
+<pre class="code"><p>{do {<span class="paren1">(<span class="">n 0 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1+</a> n</span>)</span></span>)</span><br/>
+     <span class="paren1">(<span class="">cur 0 next</span>)</span><br/>
+     <span class="paren1">(<span class="">next 1 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> cur next</span>)</span></span>)</span>}<br/>
+    {<span class="paren1">(<span class="">= 10 n</span>)</span> cur}}<br/></p></pre>
+
+<p>Наконец, следующий пример демонстрирует цикл <code>DO</code>, в котором нет привязанных переменных. Он крутится, пока текущее время меньше, чем значение глобальной переменной, печатая "Waiting" каждую минуту. Заметьте, что даже без переменных цикла, вы всё равно нуждаетесь в пустом списке для списка переменных.
+</p>
+<pre class="code"><p>{do {}<br/>
+    {<span class="paren1">(<span class="">&gt; <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_un.htm" class="symbol">get-universal-time</a></span>)</span> <span class="special">*some-future-date*</span></span>)</span>}<br/>
+  <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"Waiting~%"</span></span>)</span><br/>
+  <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sleep.htm" class="symbol">sleep</a> 60</span>)</span>} <br/></p></pre>
+
+
+
+
+
+</div><div class="chapter" id="&#x412;&#x441;&#x435;&#x43C;&#x43E;&#x433;&#x443;&#x449;&#x438;&#x439; LOOP"><h3>Всемогущий LOOP</h3>
+
+
+<p>Для простых случаев у вас есть <code>DOLIST</code> и <code>DOTIMES</code>. И если они не удовлетворяют вашим нуждам, вы можете вернуться к совершенно общему <code>DO</code>. Чего ещё можно хотеть?
+</p>
+<p>Однако оказывается, что удобные идиомы для циклов появляются снова и снова, такие, как циклы по элементам различных структур с данными: списков, векторов, хэш-таблиц и пакетов, либо накопление значений разными способами в процессе цикла: собирание, подсчёт, суммирование, минимизация или максимизация. Если вы нуждаетесь в цикле, который бы делал одну из этих вещей (или несколько одновременно), макрос <code>LOOP</code> может предоставить вам простой путь это выразить.
+</p>
+<p>Макрос <code>LOOP</code> на самом деле бывает двух видов: простой и расширенный. Простая версия проста как только можно: бесконечный цикл без связанных с ним переменных. Скелет выглядит так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a><br/>  body-form*</span>)</span><br/></pre>
+
+<p>Формы внутри тела выполняются каждый раз в процессе цикла, который будет длиться вечно, пока вы не используете <code>RETURN</code>, чтобы прервать его. Например, вы могли бы записать предыдущий <code>DO</code> цикл с простым <code>LOOP</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren3">(<span class="">&gt; <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_un.htm" class="symbol">get-universal-time</a></span>)</span> <span class="special">*some-future-date*</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_return.htm" class="symbol">return</a></span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"Waiting~%"</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sleep.htm" class="symbol">sleep</a> 60</span>)</span></span>)</span><br/></pre>
+
+<p>Расширенный <code>LOOP</code> – несколько иной зверь. Он отличается использованием специальных ключевых слов, которые представляют язык специального назначения для выражения различных конструкций циклов. Это ничего не значит, что не все Лисповоды любят язык расширенного <code>LOOP</code>. Как минимум один из создателей Коммон Лиспа ненавидит его. Критики <code>LOOP</code> жалуются, что его синтаксис совсем не лисповский. (другими словами, в нём недостаточно скобок). Любители <code>LOOP</code> замечают, что в этом то и весь смысл: сложные циклические конструкции достаточно тяжелы для восприятия и без заворачивания их в туманный синтаксис <code>DO</code>. Лучше, говорят они, иметь немного более наглядный синтаксис, который давал бы вам какие-то подсказки о том, что происходит.
+</p>
+<p>Вот, например, характерный <code>DO</code> цикл, который собирает числа от 1 до 10 в список:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">nums <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span> <span class="paren3">(<span class="">i 1 <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1+</a> i</span>)</span></span>)</span></span>)</span><br/>    <span class="paren2">(<span class=""><span class="paren3">(<span class="">&gt; i 10</span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_revers.htm" class="symbol">nreverse</a> nums</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_push.htm" class="symbol">push</a> i nums</span>)</span></span>)</span> ==&gt; <span class="paren1">(<span class="">1 2 3 4 5 6 7 8 9 10</span>)</span><br/></pre>
+
+<p>У опытного Лиспера не будет никаких проблем понять этот код – это просто вопрос понимания основной формы <code>DO</code> цикла и распознания <code>PUSH</code>/<code>NREVERSE</code> идиомы для построения списка. Но это не совсем прозрачно. Версия с <code>LOOP</code>, с другой стороны, почти понятна как предложение на английском. (цикл по <em>i</em> от 1 до 10, собирая <em>i</em>) 
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for i from 1 to 10 collecting i</span>)</span> ==&gt; <span class="paren1">(<span class="">1 2 3 4 5 6 7 8 9 10</span>)</span><br/></pre>
+
+<p>Далее, ещё несколько примеров простого использования <code>LOOP</code>. Вот сумма квадратов первых десяти чисел:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x from 1 to 10 summing <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_exp_e.htm" class="symbol">expt</a> x 2</span>)</span></span>)</span> ==&gt; 385<br/></pre>
+
+<p>Это – подсчёт числа гласных в строке:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x across <span class="string">"the quick brown fox jumps over the lazy dog"</span><br/>      counting <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_.htm" class="symbol">find</a> x <span class="string">"aeiou"</span></span>)</span></span>)</span> ==&gt; 11<br/></pre>
+
+<p>Вот вычисление одиннадцатого числа Фибоначчи, аналогично использованному ранее циклу <code>DO</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for i below 10<br/>      <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a> a = 0 then b<br/>      <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a> b = 1 then <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> b a</span>)</span><br/>      finally <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_return.htm" class="symbol">return</a>  a</span>)</span></span>)</span><br/></pre>
+
+<p>Символы <code>across</code>, <code>and</code>, <code>below</code>, <code>collecting</code>, <code>counting</code>, <code>finally</code>, <code>for</code>, <code>from</code>, <code>summing</code>, <code>then</code> и  <code>to</code> являются  некоторыми из ключевых слов цикла, чьё присутствие обозначает, что перед нами расширенная версия <code>LOOP</code>. <a class="fn_top" id="fnt__9" href="macros-standard-control-constructs#fn__9">9)</a>
+</p>
+<p>Я приберегу подробности о <code>LOOP</code> для Главы 22, однако сейчас стоит заметить, что это ещё один пример того, как макросы могут быть использованы для расширения основы языка. В то время как <code>LOOP</code> предоставляет свой собственный язык для выражения циклических конструкций, он никак не отрезает вас от остального Лиспа. Ключевые слова <code>LOOP</code> разбираются в соответствии с его грамматикой, но остальной код внутри <code>LOOP</code>, это обычный Лисп-код.
+</p>
+<p>И так же стоит отметить ещё раз, что хотя макрос <code>LOOP</code> гораздо более сложный, чем <code>WHEN</code> или <code>UNLESS</code>, он просто ещё один макрос. Если бы он не был включён в стандартную библиотеку, вы могли бы сделать это сами или взять стороннюю библиотеку, которая это сделает.
+</p>
+<p>На этом я завершу наш тур по основным управляющим конструкциям, реализованным при помощи макросов. Теперь вы готовы взглянуть поближе на то, как определять свои собственные макросы.
+</p></div></div></div><div class="footnotes"><div><a class="fn_bot" id="fn__1" href="macros-standard-control-constructs#fnt__1">1)</a>Чтобы посмотреть на что это недопонимание похоже, найдите самую длинную ветвь в Usenet из кросспостов между comp.lang.lisp и другой comp.lang.* группой со словом macro в заголовке. Примерные диалоги выглядят так:
+
+Лиспер: "Лисп является лучшим из-за своих макросов!";
+
+Другой: "Ты думаешь Лисп хорош из-за макросов?! Но макросы ужасны и являются злом; Лисп должно быть ужасен и является злом."</div><div><a class="fn_bot" id="fn__2" href="macros-standard-control-constructs#fnt__2">2)</a>Другим важным классом языковых конструкций, которые сделаны на  макросах, являются все конструкции-определения, такие как: <code>DEFUN</code>, <code>DEFPARAMETER</code>, <code>DEFVAR</code> и другие. В Главе 24 вы будете определять ваши собственные макросы-определения, которые позволят вам осмысленно писать код для чтения и записи двоичных данных.</div><div><a class="fn_bot" id="fn__3" href="macros-standard-control-constructs#fnt__3">3)</a>Вы не можете на самом деле использовать это определение в Лиспе, потому что незаконно переопределять имена из пакета <code>COMMON-LISP</code>, откуда и берётся <code>WHEN</code>. Но если вы по-настоящему хотите попробовать написать этот макрос, вам надо изменить его имя, поменять на какое-то другое, например на <code>my-when</code>.</div><div><a class="fn_bot" id="fn__4" href="macros-standard-control-constructs#fnt__4">4)</a>В дополнение к рекурсии. – прим. ред.</div><div><a class="fn_bot" id="fn__5" href="macros-standard-control-constructs#fnt__5">5)</a>Специальными операторами, если вы хотите знать, являются <code>TAGBODY</code> and <code>GO</code>. Сейчас нет необходимости обсуждать их, но я рассмотрю их в Главе 20.</div><div><a class="fn_bot" id="fn__6" href="macros-standard-control-constructs#fnt__6">6)</a><code>DOLIST</code> похож на <code>foreach</code> из Перла или <code>for</code> из Питона. Джава добавила похожую конструкцию цикла вместе с "улучшенным" <code>for</code> циклом в Java 1.5, как часть JSR-201. Заметьте, какое отличие есть у макросов. Программист на Лиспе, который заметил общий шаблон в своём коде, может написать макрос, чтобы получить для себя абстракцию этого шаблона на уровне исходников. Программист на Джаве, который заметил такой же шаблон, должен убедить Sun, что этот частный шаблон стоит добавления в язык. Затем Sun должна опубликовать JSR и созвать представителей промышленности, "экспертную группу", чтобы всё утвердить. Этот процесс, по словам Sun, занимает примерно 18 месяцев. После этого все авторы компиляторов, должны обновить свои компиляторы для поддержки нового свойства. И даже когда любимый компилятор программиста на Джаве, поддержит новую версию Джавы, он возможно не сможет использовать новую особенность до тех пора, пока ему не позволят нарушить совместимость исходных кодов с предыдущей версией Джавы. Так неудобство, которое программист на Коммон Лисп может разрешить для себя за пять минут, может портить жизнь программисту на Джаве годами.</div><div><a class="fn_bot" id="fn__7" href="macros-standard-control-constructs#fnt__7">7)</a>Вариант <code>DO</code>, <code>DO*</code>, назначает каждой переменной её значение перед вычислением шаговой формы для последующих переменных. За деталями обратитесь к руководству по выбранному вами Коммон Лиспу.</div><div><a class="fn_bot" id="fn__8" href="macros-standard-control-constructs#fnt__8">8)</a><code>DOTIMES</code> так же предпочтительней, потому что раскрытие макроса будет скорее всего включать декларации, которые позволяют компилятору генерировать более эффективный код.</div><div><a class="fn_bot" id="fn__9" href="macros-standard-control-constructs#fnt__9">9)</a>Ключевые слова цикла, это несколько неудачный термин, так как они не являются ключевыми словами-символами. Фактически, <code>LOOP</code> не волнует пакет, из которого эти символы. Когда макрос <code>LOOP</code> разбирает своё тело, он считает, что любые, с соответствующим названием символы, эквивалентны. Вы можете даже использовать настоящие ключевые слова, если хотите – <code>:for</code>, <code>:across</code> и так далее – потому что они также имеют правильное название. Но большинство людей просто используют простые символы. Потому что ключевые слова в цикле используются только как синтаксические маркеры, и даже не важно, если они уже использованы для других целей – как имена для функций или переменных.</div></div></div> <table width="100%"> <tbody> <tr> <td width="20%" align="left"> <a href="variables">Предыдущая</a> </td> <td width="60%" align="center"> <a href="index.html">Оглавление</a> </td> <td width="20%" align="right"> <a href="macros-defining-your-own">Следующая</a> </td> </tr> </tbody> </table> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

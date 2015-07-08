@@ -1,0 +1,2676 @@
+//не чувствителен к регистру
+//глава 4: проэкт по точному определению М-выражений и их компиляции или хотябы трансляции в S-ыражения
+//не был ни завершен ни явно заброшен. он просто был отложен на неопределенное будущее
+//а тем временем появилось новое поколение программистов
+//сущ. правило наименьшего управления
+//онтогенез повторяет филогенез
+,
+	quit
+	help
+	cd
+	pwd
+C-c C-z	перейти к взаимодействию с лисп
+C-c C-]	slime-close-all-parens-in-sexp
+C-c C-q	slime-close-parens-at-point ???
+C-M-q	перевыровнять выражение
+C-c M-q	перевыровнять функцию
+стр 47 - комментарии
+--------
+C-c C-c	slime-compile-defun
+C-c C-l	slime-load-file
+C-c C-k	???
+C-c ret	slime-macroexpand-1 ...
++ меню смотри
+load file/compiled-file
+compile-file file
+--------
+атом - объект или пустой список
+объект - вычисляется сам в себя
+	значения в значения
+	имена-переменных в значения
+	ключи в ключи
+(имя аргументы); имя должно быть символом ; (lambda ...) - макросом вычисляется в символ
+	имя это имя функции или имя макроса или имя спец.оператора
+	при компиляции, если имя до сих пор не определено - это имя функции
+спецоператоров всего 25: if quote let function setq progn ........
+макросы вычисляются в 2 стадии
+--------
+символ - идентификатор
+имена, символы ; одинаковые имена - один и тот же объект
+	буквы, цифры точки
+	кроме пробел()'"`,:;\|
+	если они не экранированы или не окружены ||
+	но экранированные символы не подлежат апкейсу, в отличие от неэкранированных
+	*...* - глобальные
+	+...+ - константы
+	%[%]... - низкоуровневые
+	по стандарту используют:a-z*+-/12<=>&
+строки	("...")\экранирует \ и "
+T
+Nil
+символ-ключ (:имя);plist - список свойств
+; callback - обратный вызов
+; hook - перехват события
+числа	целые (бесконечной длины, дроби)
+	10, можно в конце ставить точку, 20/2 #xA #o12 #b1010 #nr12344 n in 2..36, #b10101/10111
+	с плавающей точкой
+	s-short f-single d-double l-long e-default
+	комплексные (позволяют указывать главные значения и точки ветвления)
+	#c(re im) re,im - любые числа, одинаковой большей и данных точностью
+символы, строки
+	#\char Space Newline Tab Page Rubout Linefeed Return Backspace
+массивы (включая многомерные)
+	#(...)
+	#*01101011101
+списки
+хеш-таблицы
+потоки ввода/вывода
+переносимое представление имен файлов
+=== самопомощь ===
+describe x
+apropos str
+=== функции и макросы ===
+atom x ; fun, type specifier
+consp x ; not (atom x)
+listp x ; or (consp x) (eq x nil)
+null x ; (eq x nil) ; (not x) ; fun, type specifier, class name
+'(zxc); = (quote (zxc)) не вычислять список, а просто его вернуть , даже ничего не подставлять ; спец.оператор
+#'функция; (function fun); функция - не значение, и сама в себя не вычисляется ; spec.op, type specifier, class name
+	если переменной уже присвоили функцию этим способом, то при дальнейшей передачи так делать не надо
+	;а можно написать функцию, возвращающую функцию
+`;='; но можно внутри списка использовать ,
+,; заставляет вычислять выражения внутри `(...)
+,@;вклеивает список, полученный в результате вычисления
+!!!	... см макрос once-only в конце 8й главы
+	внешняя , соответствует внутреннему `
+	`1(   `2(  ,2(   ,1smth  )  )   )
+	??? как всавить в `2  результат вычисления ,1 вне ,2 ???
+	,,@(...) - после вычисления ,@ получится список, перед каждым элементом которого будет ,
+funcall fun args; нельзя просто так переменную со значением функции применить к аргументам
+apply fun arglist
+defun имя список-аргументов "optional documentation string" тело
+	; macro
+	если количество аргументов не соответствует - ошибка
+	&optional var var var ; по умолчанию nil, так же как &key
+		значение по умолчанию может быть выражением
+	&rest var ; все оставшиеся аргументы скомпонуются в список и запишутся в var
+		их гарантируется минимум 50, а обычно 4096 и более
+	&key : foo(&key a (b 20) (c 30 isget) ((:apple a) 70 a-s-p));
+		то (foo :a 2) => a=2, b=20 c=30 sget=nil;а может быть isget=t; isget named supplied-p
+	последнюю вещь лучше не комбинировать с предыдущими (стр 54)
+defmacro name varlist "optional documentation string" body ; аргументы макросов не вычисляются
+	? в каком порядке вычисляются макросы ?, и имеет ли это значение
+	+ varlist может содержать списки деструктируемых параметров
+	&body - тоже, что и &rest, только среда будет его выравнивать специальным образом
+	&lexpr ???
+	&whole - получает все аргументы как один список
+	!выражения макроса должны вычисляться 1 раз, если не оговорено обратное
+	!выражения макроса должны вычисляться попорядку
+	!внутренние имена не должны взаимодействовать с окружением
+gensym ; #:G№ - обычный синтаксис для неинтернированных символов
+	можно примерно тоже делать пакетами (гл 21)
+macroexpand-1 expr
+documentation ??? ; получение "optional documentation string"
+lambda список-аргументов тело
+	можно использовать переменные из контекста
+block ?? ; блок кода (с именем) гл.20
+return-from block-name value ; возврат
+progn op op op ; spec.op
+=== переменные ===
+строгая динамическая типизация
+стр 60 основы переменных 2й абзац про ссылки ???
+лексические - как локальные, только существуют, пока на них есть привязки (например из ананимных функций, которые замкнуты на них)
+динамические
+defconstant var value "opt doc str" ; после этого имя нельзя пересвязывать
+defparameter var value "opt doc str" ; всегда присваивает начальное значение переменной
+defvar var value "opt doc str" ; присваивает нач. значение, только если переменная не определена
+	также можно создавать несвязанные переменные (если не инициализировать)
+	переменные остаются во время редактирования исходного кода
+let ((var val) ... var ...) body ; спец. оператор ; var = (var nil) ; сначала все иниц. выражения, а потом зоздаются переменные
+let* ...; тоже что множество вложенных let
+	временно пересвязывает ИМЯ и ЗНАЧЕНИЕ переменной
+setf var value ; macro
+setq var value ; spec.op
+multiple-value-bind (vars...) func body ; macro; функ возвращает несколько значений, с которыми связываются с варз, послеичего боди
+destructing-bind (params) list body ; разбирает список, а если это список свойств, то и &key из него извлечет
+разрушающие - меняющие состояние
+	для побочных эффектов
+	утилизирующие - повторно использующие конс-ячейки
+==ввод-вывод==
+with-open-file (stream-var filename ...) body ; macro, открывает файл, выполняет с ним боди, и гарантирует, что файл закроется
+	:direction :output ; вывод
+	:if-exists :supersede ; если существует - перезаписать
+format куда что ...
+	t=*tandard-output*
+	*query-io*
+	~s - список
+	~a - ключ без :, строку без "", да и просто лисп-выражение
+	~d - число
+	~nt - следующее выводить с nй позиции;???
+	~% - \n
+	~{...~} выводить циклически содержимое списка при помощи ...
+	~:[true-string~;false-string~]
+force-output where ; fflush()
+
+print what where ; печатает в лисповом формате
+read where ; прочитанное возвращает
+with-standard-io-sintax (print ...) ; гарантирует, что переменным, влияющим на  print присвоены стд. значения
+
+read-line where;возвращает строку
+parse-integer string
+	:junk-allwed t;игнорировать ошибки
+y-or-n-p приглашение; методично требует y or n, пока не булет введено y or n
+=== логика и ветвление ===
+not val; 
+or ... ; макрос, возвращает первое значение, отличное от nil
+and ... ; macro
+if cond then [else] ; спец-оператор 
+when cond body ; возвращает результат боди или нил
+unless cond body
+cond 
+	(a (do-a))
+	(b (do-b))
+	(c (do-c)) ; macro
+=== циклы ===
+return [val]; выполняет боди, пока не будет вызван (return)
+do ( (var [initval [stepval]])*) (end-test-form finally-body) body
+dotimes (var count) body ; [0..count)
+dolist (var list) body;macro выполняет боди с каждым var=очередному элементу списка
+loop body;
+loop while ~list collecting ~smth
+		summing
+		never
+loop for ~i from ~min to ~max by ~step do ~smth
+	across ~string
+	below ~n
+...	and var = val then next-val
+loop repeat ~n do ~smth
+	finally ...
+loop for ~k being the hash-keys in ~table using (hash-value v) do ~body ; пройтись по всей хеш-таблице
+=== математика ===
+incf var [val=1] ; ++ +=val
+decf var [val=1] ; -- -=val
+1+ x ; (+ x 1)
+1- x ; (- x 1)
++ (+)=0 (+ x)=x (+ a b c d)=a+b+c+d 
+* (*)=1 (* x)=x (* a b c d)=a*b*c*d
+- (- x)=-x (- a b c d)=a-b-c-d
+/ (/ x)=1/x (/ a b c d)=a/b/c/d
+mod a b ; a%b (+ (*(floor   (/ x y))y) (mod x y)) == x
+rem a b ; a%b (+ (*(truncate(/ x y))y) (rem x y)) == x
+floor x ; в отрицательную сторону
+ceiling x ; в положительную сторону
+truncate x ; в меньшую по модулю сторону
+round x ; к ближайшему целому
+--выш мат--
+exp val
+expt val
+sqrt n ; корень
+isqrt n ; корень, округленный в меньшую сторону
+sin
+cos
+tan
+sinh
+cosh
+tanh
+asin
+acos
+atan
+asinh
+acosh
+atanh
+--сравнения и проверки--
+< a b ... ; a<b возрастают
+> a b ... ; a>b убывают
+<= ... ; не убывают
+>= ... ; не возрастают
+min ...
+max ...
+zerop n ; ==0
+minusp x ; <0
+plusp x ; >0
+evenp n ; !(n%2)
+oddp n ; (n%2)
+equal строка строка ; стр 44
+eq x x ; полное совпадение ; не надо применять его к числам и символам ; не проверяет типы
+eql x x ; если одного класса и равны
+tree-equal x x ; eql к элементам деревьев
+	:test
+= a b c ... ; a==b && b==c ... - математически, независимо от типов
+/= a b c ... ; попарно не равны
+equal x x ; списки - рекурсивно, строки - если одинаковы, битовые вектора...
+equalp x x ; тоже, только для строк игнорирует регистр, 1 и 1.0 тоже равны, и для массивов тоже
+	smthp - predicate
+	case sensitive:
+char=
+char/=
+char<
+char>
+char<=
+char>=
+	case insensitive:
+char-equal
+char-not-equal
+char lessp
+char-greaterp
+char-not-greaterp
+char-not-lessp
+для строк тоже самое, но они сравнивают только 2 строки
+	но есть доп аргументы: :start1 :end1 :start2 :end2
+	кроме string= & string-equal возвращают вместо t позицию, где строки начинают отличаться
+=== последовательности ===
+length array
+elt array pos ; возвращает lvalue, если что - выдаст ошибку, ориентируется на указатель заполнения
+count obj array ; n
+find obj array ; obj or nil
+position obj array ; n or nil
+remove obj array ; newarray
+delete obj array ; портит array
+substitute newobj oldobj array ; newarray
+nsubstitute newobj oldobj array ; изменяет список
+	:test compare-predicat ; default eql
+	:key getfunction ; - сопоставляющая элементам последовательности другие значения
+	:start pos :end pos
+	:from-end bool ; reverse
+	:count n ; кол-во заменяемых или удаляемых элементов
+	-if ; -:test
+	-if-not ; -:test
+
+remove-if-not pred list;возвращает только элементы, удовлетворяющие предикату
+remove-duplicates array ; -:count
+reverse list ; не копируют сами элементы
+nreverse list ; не создает конс-ячеек, портит исходный список
+copy-seq list ; не копируют сами элементы (?)
+concatenate type .... ; type='list, 'vector, 'string
+sort seq pred
+stable-sort seq pred ; деструктивные функции: меняют аргумент, и результат надо куда-то присвоить
+merge type ... ; сливает 2 отсортированные последовательности
+	:key getfunction ; - сопоставляющая элементам последовательности другие значения
+subseq seq first [last] ; возвращает подпоследовательность (lvalue)
+fill seq val :start pos :end pos
+search subseq seq ; поиск подпоследоват. в последоват.
+mismatch seq seq :fromend bool ; позиция где начинают отличаться
+every pred seq [seq*] ; по минимальной длинне послед-ей
+some pred seq [seq*]
+notany pred seq [seq*]
+notevery pred seq [seq*]
+reduce func seq ; var=(func s1 s2); var=(func var s3); var=(func var s4)
+	:initial-value
+	:стандартные
+--вектора--
+vector elements ; создает вектор
+make-array list-sizes/size ; более общая чем вектор
+	:initial-element el
+	:fill-pointer size
+	:adjustable bool ; с изменяемым ли размером
+	:element-type 'character , 'bit
+vector-push what where
+vectot-pop where
+vector-push-extend what where ; размер вектора ей не помеха
+--списки--
+cons first second
+car pair ; lvalue
+cdr pair ; lvalue
+list ... ; создает список
+list* ... ; создает список из всех элементов кроме последнего, который добавляет в cdr последней  чейки
+make-list n &key initial-element
+copy-list list
+copy-tree tree
+append list list list ... ; сцепляет списки
+nconc list list list ...; то же что append, но переменные изменяются
+revappend x y ; = (append (reverse x) y)
+nreconc x y ; = (append (nreverse x) y)
+
+first list ; lvalue
+rest list ; lvalue
+second list ; lvalue
+third list ; lvalue
+...
+tenth list
+nth n list
+nthcdr n list
+car list
+cdr list
+... до 4 букв
+last list [n=1] ; последние n ячеек
+butlast list n ; копия списка без последних n ячеек
+nbutlast list n ;
+ldiff list obj ; копия чписка до obj; обратное действие append
+tailp tail list ; t, если tail - хвост list'a
+push what where;macro
+pushnew
+pop where;macro
+
+mapcar fun list; проходится по списку и к каждому элементу list применяет fun
+map func &rest seqs
+map-into resseq func &rest seqs
+maplist fun list ; fun получает cons-ячейки
+malcan fun list ; mapcar, только с результатами производится append
+mapcon fun list ; maplist, только с результатами производится append
+mapc fun list ; maplist, только используются побочные действия функций
+mapl fun list ; maplist, только используются побочные действия функций
+nreverse list 
+subst new old tree ; заменяет элементы в дереве
+	:key :test
+subst-if
+subst-if-not
+nsubst new old tree ; заменяет элементы в дереве
+	:key :test
+nsubst-if
+nsubst-if-not
+assoc key alist :test :key ; возвращает нужную пару
+assoc-if
+assoc-if-not
+acons k1 v1 alist ; (cons (cons k1 v1) alist)
+	alist = ((k1.v1)(k2.v2)(k3.v3))
+copy-alist alist
+pairlis list list ; возвращает ассоциативный список
+rotatef vara varb varc ; справо налево
+shiftf vara varb val ; справо налево
+adjoin val set ; добавляет элемент в список-множество
+member
+member-if
+member-if-not
+intersection
+union
+set-difference
+set-exclusive-or :key :test
+n--..--
+subsetp subset set ; не имеет значения, как они отсортированы или неотсорт.
+
+getf plist ключ ; возвращает lvalue, всегда использует eq
+remf plist key ; t, если удалил, всегда использует eq
+get-properties plist key-list ; возвращает key value tail
+symbol-plist ??? каждый символический объект имеет список свойств, см главу 24
+get symbol key ; = getf (symbol-plist symbol) key
+;put symbol key value ; emacs
+remprop symbol key ; = remf (symbol-plist symbol) key
+aref a 0 ; элемент массива
+field o ; слот с именем field
+--хеш-таблицы--
+make-hash-table
+	:test default=#'eql #'eq #'equal #'equalp
+gethash key table ; return:(lvalue present)
+remhash key table
+maphash func table ; (funk key value) и так по всем элементам
+==разное==
+random n
+==time==
+get-universal-time ; текущее время в секундах с ...
+sleep sec ;
+===================================
+a
+abort
+abort-message
+abs
+access-fn
+accessor
+accessor-or-slot-name
+acons
+acos
+acosh
+action
+add-method
+adjoin
+adjust-array
+adjustable-array-p
+after-loop
+alias
+aliases
+alist
+allocate-instance
+alpha-char-p
+alphanumericp
+and
+ansi-loop:
+append
+apply
+apropos
+apropos-list
+arch-name
+arch:
+area
+aref
+arg-specs
+arg1
+arg2
+arg3
+arglist
+args
+args-var
+arithmetic-error
+arithmetic-error-operands
+arithmetic-error-operation
+array
+array-dimension
+array-dimension-limit
+array-dimensions
+array-displacement
+array-element-type
+array-form
+array-has-fill-pointer-p
+array-in-bounds-p
+array-rank
+array-rank-limit
+array-row-major-index
+array-total-size
+array-total-size-limit
+arrayp
+asdf-utilities:
+asdf:
+ash
+asin
+asinh
+assert
+assoc
+assoc-if
+assoc-if-not
+atan
+atanh
+atom
+atsign?
+attrs
+--------
+b
+backend-function-name
+base
+base-char
+base-opcode
+base-string
+before
+before-loop
+bignum
+bindings
+binds
+bit
+bit-and
+bit-andc1
+bit-andc2
+bit-eqv
+bit-ior
+bit-nand
+bit-nor
+bit-not
+bit-orc1
+bit-orc2
+bit-vector
+bit-vector-p
+bit-xor
+bits
+blablabla
+block
+body
+boole
+boole-1
+boole-2
+boole-and
+boole-andc1
+boole-andc2
+boole-c1
+boole-c2
+boole-clr
+boole-eqv
+boole-ior
+boole-nand
+boole-nor
+boole-orc1
+boole-orc2
+boole-set
+boole-xor
+boolean
+both-case-p
+boundp
+break
+broadcast-stream
+broadcast-stream-streams
+built-in-class
+butlast
+by
+byte
+byte-position
+byte-size
+--------
+c
+caaaar
+caaadr
+caaar
+caadar
+caaddr
+caadr
+caar
+cadaar
+cadadr
+cadar
+caddar
+cadddr
+caddr
+cadr
+call-arguments-limit
+call-method
+call-next-method
+car
+case
+cases
+catch
+ccase
+ccl:
+cdaaar
+cdaadr
+cdaar
+cdadar
+cdaddr
+cdadr
+cdar
+cddaar
+cddadr
+cddar
+cdddar
+cddddr
+cdddr
+cddr
+cdr
+ceiling
+cell
+cell-error
+cell-error-name
+cells
+cerror
+change-class
+channel
+char
+char-code
+char-code-limit
+char-downcase
+char-equal
+char-greaterp
+char-int
+char-lessp
+char-name
+char-not-equal
+char-not-greaterp
+char-not-lessp
+char-upcase
+char/=
+char<
+char<=
+char=
+char>
+char>=
+character
+characterp
+check-type
+circle-check?
+cis
+cl
+cl-user:
+cl:
+class
+class-name
+class-of
+class-slots
+classes
+clauses
+clear-input
+clear-output
+close
+closed
+clrhash
+code-char
+coerce
+collections
+collectors
+common-lisp-user:
+common-lisp:
+compilation-speed
+compile
+compile-file
+compile-file-pathname
+compiled-function
+compiled-function-p
+compiler-macro
+compiler-macro-function
+complement
+complex
+complexp
+compute-applicable-methods
+compute-restarts
+conc-name
+concatenate
+concatenated-stream
+concatenated-stream-streams
+cond
+condition
+conjugate
+connection
+cons
+consp
+constantly
+constantp
+constructor
+container
+context
+continue
+control-error
+copy-alist
+copy-list
+copy-pprint-dispatch
+copy-readtable
+copy-seq
+copy-structure
+copy-symbol
+copy-tree
+cos
+cosh
+count
+count-if
+count-if-not
+crf
+crf-form
+cross-reference:
+ctypecase
+current
+--------
+d
+data
+datum
+db-link
+debug
+decf
+decl-name
+declaim
+declaration
+declare
+declsform
+decode-float
+decode-universal-time
+def
+default
+default-body
+default-p
+defclass
+defconstant
+defgeneric
+define-compiler-macro
+define-condition
+define-if-not
+define-method-combination
+define-modify-macro
+define-setf-expander
+define-symbol-macro
+defmacro
+defmethod
+defpackage
+defparameter
+defsetf
+defstruct
+deftype
+defun
+defvar
+delete
+delete-duplicates
+delete-file
+delete-if
+delete-if-not
+delete-package
+delta
+delta-cons
+delta-time
+denominator
+deposit-field
+describe
+describe-object
+dest
+destination
+destructor
+destructuring-bind
+device
+dialog
+digit-char
+digit-char-p
+dir
+direction
+directory
+directory-namestring
+dirent
+disassemble
+division-by-zero
+do
+do*
+do-all-symbols
+do-external-symbols
+do-symbols
+doc
+doc-p
+docstring
+documentation
+dolist
+dotimes
+double-float
+double-float-epsilon
+double-float-negative-epsilon
+dpb
+dribble
+dt
+dynamic-extent
+dynamic-extent-arglist
+--------
+ecase
+echo-stream
+echo-stream-input-stream
+echo-stream-output-stream
+ed
+eighth
+element-count
+elements
+else
+elt
+elt1
+elt2
+encode-universal-time
+encoding-name
+end
+end-of-file
+endp
+enough-namestring
+ensure-directories-exist
+ensure-generic-function
+entry
+eof-error-p
+eof-value
+epilogue
+eq
+eql
+equal
+equalp
+err-num
+errno
+error
+etypecase
+eval
+eval-when
+evenp
+every
+exclusive
+exp
+export
+expr
+expression
+expt
+extended-char
+external-format
+--------
+f
+fake
+fboundp
+fceiling
+fd
+fdefinition
+feature
+ffloor
+fifth
+file
+file-author
+file-error
+file-error-pathname
+file-length
+file-namestring
+file-position
+file-stream
+file-string-length
+file-write-date
+filename
+fill
+fill-pointer
+find
+find-all-symbols
+find-class
+find-if
+find-if-not
+find-method
+find-package
+find-restart
+find-symbol
+finish-output
+first
+fixnum
+flag
+flags
+flet
+float
+float-digits
+float-precision
+float-radix
+float-sign
+floating-point-inexact
+floating-point-invalid-operation
+floating-point-overflow
+floating-point-underflow
+floatp
+floor
+fmakunbound
+fn
+for
+force-output
+form
+form-var
+formals
+format
+format-args
+format-string
+formatter
+forms
+fourth
+frame-number
+freelist
+fresh-line
+from
+from-ucs
+fround
+ftd
+ftruncate
+ftype
+fulltag
+fulltag-misc
+funcall
+function
+function-keywords
+function-lambda-expression
+function-place
+function-spec
+functionp
+functions
+--------
+g721
+g734
+g79735
+g79808
+g79860
+g79879
+g80001
+g80198
+g80409
+g80536
+g80774
+g80976
+g81152
+g81361
+g81416
+g81507
+g81574
+g81665
+g81723
+g81922
+g81962
+g82074
+g82114
+g82226
+g82374
+g82396
+g82418
+g82440
+g82462
+g82502
+g82614
+g82708
+g82730
+g82752
+g82774
+g82796
+g82818
+g82858
+g82970
+g83067
+g84097
+g84245
+g84318
+g84463
+g84482
+g84802
+g84821
+g85074
+g85215
+g85360
+g85559
+g85753
+g85862
+g85881
+g86044
+g86129
+g86214
+g86305
+g86435
+g86565
+g86605
+g86789
+g87045
+g87083
+g87226
+g87425
+g87501
+g87679
+g87767
+g87819
+g87871
+g87920
+g87969
+g88054
+g88109
+g88194
+g88591
+g89040
+g89239
+g89315
+gcd
+generic-function
+gensym
+gentemp
+get
+get-decoded-time
+get-dispatch-macro-character
+get-internal-real-time
+get-internal-run-time
+get-macro-character
+get-output-stream-string
+get-properties
+get-setf-expansion
+get-universal-time
+getf
+gethash
+gf
+go
+gpr-form
+graphic-char-p
+gray:
+group-name
+--------
+h
+handler
+handler-bind
+handler-case
+hard-reg-class-fpr-mode-double
+hash-index
+hash-table
+hash-table-count
+hash-table-p
+hash-table-rehash-size
+hash-table-rehash-threshold
+hash-table-size
+hash-table-test
+head-var
+header
+header-var
+host
+host-namestring
+htab
+--------
+i
+identifiers
+identity
+idx
+if
+ignorable
+ignore
+ignore-errors
+imagpart
+immvars
+import
+in
+in-package
+incf
+include
+include-args
+index
+indicator
+info
+init
+init-p
+initform
+initforms
+initial-values
+initialize-instance
+initializer
+inline
+input-stream
+input-stream-p
+inspect
+inspector:
+instance
+instance-form
+instance-slots
+int
+integer
+integer-decode-float
+integer-length
+integerp
+interactive
+interactive-stream-p
+intern
+internal-time-units-per-second
+intersection
+invalid-method-error
+invoke-debugger
+invoke-restart
+invoke-restart-interactively
+ioblock
+isqrt
+istruct-name
+ivector
+--------
+k
+key
+keyword
+keyword:
+keywordp
+known
+------
+l
+label-values
+labels
+lambda
+lambda-list
+lambda-list-keywords
+lambda-parameters-limit
+last
+lcm
+ldb
+ldb-test
+ldiff
+least-negative-double-float
+least-negative-long-float
+least-negative-normalized-double-float
+least-negative-normalized-long-float
+least-negative-normalized-short-float
+least-negative-normalized-single-float
+least-negative-short-float
+least-negative-single-float
+least-positive-double-float
+least-positive-long-float
+least-positive-normalized-double-float
+least-positive-normalized-long-float
+least-positive-normalized-short-float
+least-positive-normalized-single-float
+least-positive-short-float
+least-positive-single-float
+len
+length
+length-by-1st-unit
+length-by-code
+let
+let*
+level
+lexpr
+line
+link
+lisp-function
+lisp-implementation-type
+lisp-implementation-version
+lispbox-file
+list
+list*
+list-all-packages
+list-form
+list-length
+listen
+listp
+lm
+load
+load-logical-pathname-translations
+load-time-value
+locally
+location
+locative
+lock
+log
+logand
+logandc1
+logandc2
+logbitp
+logcount
+logeqv
+logical-pathname
+logical-pathname-translations
+logior
+lognand
+lognor
+lognot
+logorc1
+logorc2
+logtest
+logxor
+long-float
+long-float-epsilon
+long-float-negative-epsilon
+long-site-name
+loop
+loop-body
+loop-finish
+lower-case-p
+lr
+------
+m
+machine-instance
+machine-type
+machine-version
+macro-function
+macroexpand
+macroexpand-1
+macrolet
+magic
+main-body
+make-array
+make-broadcast-stream
+make-concatenated-stream
+make-condition
+make-dispatch-macro-character
+make-echo-stream
+make-hash-table
+make-instance
+make-instances-obsolete
+make-list
+make-load-form
+make-load-form-saving-slots
+make-method
+make-package
+make-pathname
+make-random-state
+make-sequence
+make-string
+make-string-input-stream
+make-string-output-stream
+make-symbol
+make-synonym-stream
+make-two-way-stream
+makunbound
+map
+map-into
+mapc
+mapcan
+mapcar
+mapcon
+maphash
+mapl
+maplist
+mask
+mask-field
+max
+max-p
+max-units-per-char
+member
+member-if
+member-if-not
+memspec
+merge
+merge-pathnames
+metaclass-wrapper
+method
+method-combination
+method-combination-error
+method-combination-type
+method-qualifiers
+min
+min-args
+minusp
+mismatch
+mod
+mode
+mode-names
+modes
+modrm-byte
+mon:
+monitor:
+more
+most-negative-double-float
+most-negative-fixnum
+most-negative-long-float
+most-negative-short-float
+most-negative-single-float
+most-positive-double-float
+most-positive-fixnum
+most-positive-long-float
+most-positive-short-float
+most-positive-single-float
+msg
+muffle-warning
+multiple-value-bind
+multiple-value-call
+multiple-value-list
+multiple-value-prog1
+multiple-value-setq
+multiple-values-limit
+--------
+n
+n0
+name
+name&flags
+name-and-options
+name-char
+name-or-offset
+names
+namestring
+nbutlast
+nconc
+nested
+new
+new-class-wrapper-hash-index
+new-env-var
+new-refinfo-form
+new-value
+next-method-p
+next-sp
+nil
+nintersection
+ninth
+no-applicable-method
+no-next-method
+nodevars
+non-header-cells
+not
+notany
+notevery
+notinline
+nreconc
+nreverse
+nset-difference
+nset-exclusive-or
+nstring-capitalize
+nstring-downcase
+nstring-upcase
+nsublis
+nsubst
+nsubst-if
+nsubst-if-not
+nsubstitute
+nsubstitute-if
+nsubstitute-if-not
+nth
+nth-value
+nthcdr
+null
+number
+numberp
+numerator
+numform
+nunion
+------
+obj
+object
+object>>
+oddp
+offset
+old-env
+old-value
+oldest
+op
+open
+open-stream-p
+openmcl-mop:
+openmcl-socket:
+operation
+operator
+optimize
+options
+or
+origin
+os:
+other-attrs
+other-case
+others
+otherwise
+output-stream-p
+override
+------
+p
+package
+package-error
+package-error-package
+package-name
+package-nicknames
+package-shadowing-symbols
+package-use-list
+package-used-by-list
+packagep
+pairlis
+paramlist
+parmdefs
+parmvar
+parse-error
+parse-integer
+parse-namestring
+pathname
+pathname-device
+pathname-directory
+pathname-host
+pathname-match-p
+pathname-name
+pathname-type
+pathname-version
+pathnamep
+patterns
+peek-char
+pending
+per-line?
+percent-time
+phase
+pi
+pkg
+place
+plusp
+pointer
+pop
+port
+position
+position-if
+position-if-not
+post-process
+pprint
+pprint-dispatch
+pprint-exit-if-list-exhausted
+pprint-fill
+pprint-indent
+pprint-linear
+pprint-logical-block
+pprint-newline
+pprint-pop
+pprint-tab
+pprint-tabular
+pred
+prefix
+prefixes
+prin1
+prin1-to-string
+princ
+princ-to-string
+print
+print-not-readable
+print-not-readable-object
+print-object
+print-unreadable-object
+printing
+probe-file
+proc-info
+proclaim
+prog
+prog*
+prog1
+prog2
+progn
+program-error
+progv
+prologue
+provide
+psetf
+psetq
+ptr
+push
+pushnew
+--------
+ql-allegro:
+ql-ccl:
+ql-clisp:
+ql-cmucl:
+ql-config:
+ql-dist:
+ql-ecl:
+ql-gunzipper:
+ql-http:
+ql-impl-util:
+ql-impl:
+ql-lispworks:
+ql-minitar:
+ql-network:
+ql-progress:
+ql-release-index:
+ql-sbcl:
+ql-setup:
+ql-util:
+ql:
+qlb-abcl:
+qualifiers
+qualifiers-and-specializers
+quicklisp-client:
+quicklisp:
+quote
+qwe
+--------
+random
+random-state
+random-state-p
+rassoc
+rassoc-if
+rassoc-if-not
+ratio
+rational
+rationalize
+rationalp
+read
+read-byte
+read-char
+read-char-no-hang
+read-delimited-list
+read-from-string
+read-line
+read-preserving-whitespace
+read-sequence
+reader-error
+readtable
+readtable-case
+readtablep
+real
+realp
+realpart
+recname
+record-name
+reduce
+ref
+refinfo
+refinfo-var
+regnum
+regspec
+regval
+reinitialize-instance
+relative-pathname
+rem
+remf
+remhash
+remove
+remove-duplicates
+remove-if
+remove-if-not
+remove-method
+remprop
+rename-file
+rename-package
+replace
+report
+require
+reserved
+resource
+rest
+restart
+restart-bind
+restart-case
+restart-name
+result
+result-form
+result-spec
+results
+ret
+retry.
+return
+return-from
+revappend
+reverse
+rex-prefix
+room
+rotatef
+round
+routine-descriptor
+row-major-aref
+rplaca
+rplacd
+--------
+s
+safety
+satisfies
+saved-file
+sbit
+scale-float
+schar
+sd
+search
+second
+seg-var
+segvar
+selector
+sequence
+serious-condition
+set
+set-difference
+set-dispatch-macro-character
+set-exclusive-or
+set-macro-character
+set-pprint-dispatch
+set-syntax-from-char
+setf
+setf:
+setq
+seventh
+sgf
+shadow
+shadowing-import
+shared-initialize
+shiftf
+short-float
+short-float-epsilon
+short-float-negative-epsilon
+short-site-name
+signal
+signed-byte
+signum
+simple-array
+simple-base-string
+simple-bit-vector
+simple-bit-vector-p
+simple-condition
+simple-condition-format-arguments
+simple-condition-format-control
+simple-error
+simple-string
+simple-string-p
+simple-type-error
+simple-vector
+simple-vector-p
+simple-warning
+sin
+single-float
+single-float-epsilon
+single-float-negative-epsilon
+sinh
+sixth
+size
+sleep
+slot-boundp
+slot-entries
+slot-exists-p
+slot-list
+slot-makunbound
+slot-missing
+slot-unbound
+slot-value
+slots
+software-type
+software-version
+some
+soname
+sort
+source
+sp
+space
+spec
+special
+special-operator-p
+specializers
+specifier
+speclist
+specs
+speed
+speedy
+spno
+sqrt
+ssd
+stable-sort
+stack-frame
+standard
+standard-char
+standard-char-p
+standard-class
+standard-generic-function
+standard-method
+standard-object
+start
+step
+storage
+storage-condition
+storage-p
+store-value
+str
+stream
+stream-element-type
+stream-error
+stream-error-stream
+stream-external-format
+stream-form
+stream-sym
+stream-var
+streamp
+string
+string-capitalize
+string-downcase
+string-equal
+string-greaterp
+string-left-trim
+string-lessp
+string-not-equal
+string-not-greaterp
+string-not-lessp
+string-right-trim
+string-stream
+string-trim
+string-upcase
+string/=
+string<
+string<=
+string=
+string>
+string>=
+stringp
+strings
+struct
+structure
+structure-class
+structure-object
+style-warning
+sublis
+subseq
+subsetp
+subst
+subst-if
+subst-if-not
+substitute
+substitute-if
+substitute-if-not
+subtag
+subtypep
+suffix
+supers
+svref
+swank-backend:
+swank-io-package:
+swank-loader:
+swank-match:
+swank-mop:
+swank-rpc:
+swank:
+sxhash
+sym
+symbol
+symbol-function
+symbol-macrolet
+symbol-name
+symbol-package
+symbol-plist
+symbol-value
+symbolp
+syms
+synonym-stream
+synonym-stream-symbol
+------
+t
+table
+tag
+tagbody
+tagname
+tail
+tail-var
+tailp
+tan
+tanh
+target
+target-var
+target:
+tcr
+temps
+tenth
+termination?
+terpri
+test
+the
+the-init-list
+then
+thing
+third
+threshold
+throw
+time
+timeout
+to
+to-size
+to-ucs
+trace
+translate-logical-pathname
+translate-pathname
+trap-function
+tree-equal
+truename
+truncate
+two-way-stream
+two-way-stream-input-stream
+two-way-stream-output-stream
+type
+type-error
+type-error-datum
+type-error-expected-type
+type-keyword
+type-name
+type-of
+typecase
+typep
+types-and-classes
+typespec
+------
+unbound-slot
+unbound-slot-instance
+unbound-variable
+unboxed-case
+undefined-function
+unexport
+unintern
+union
+units
+unless
+unread-char
+unsigned-byte
+untrace
+unuse-package
+unwind-protect
+update-instance-for-different-class
+update-instance-for-redefined-class
+upgraded-array-element-type
+upgraded-complex-part-type
+upper-case-p
+use-package
+use-value
+user-head-var
+user-homedir-pathname
+-------
+v
+val
+valform
+value
+value1
+values
+values-list
+valvar
+var
+var-val-pairs
+variable
+varlist
+vars
+varsym
+vector
+vector-pop
+vector-push
+vector-push-extend
+vectorp
+version
+vinsn
+vinsn-name
+vreg-var
+vsp
+--------
+warn
+warning
+weights
+when
+whole
+whostate
+wild-pathname-p
+win32:
+with
+with-accessors
+with-compilation-unit
+with-condition-restarts
+with-hash-table-iterator
+with-input-from-string
+with-open-file
+with-open-stream
+with-output-to-string
+with-package-iterator
+with-simple-restart
+with-slots
+with-standard-io-syntax
+without-interrupts
+wrapper
+write
+write-byte
+write-char
+write-line
+write-sequence
+write-string
+write-to-string
+--------
+x
+x8632:
+x8664:
+x86:
+xfer-var
+xp
+xref:
+------
+y
+y-or-n-p
+yes-or-no-p
+youngest
+--------
+zerop
+------
+1+
+1-
+2-P
+2011-02-04
+3-P
++
+++
++++
+*
+**
+***
+*BREAK-ON-SIGNALS*
+*COMPILE-FILE-PATHNAME*
+*COMPILE-FILE-TRUENAME*
+*COMPILE-PRINT*
+*COMPILE-VERBOSE*
+*DEBUG-IO*
+*DEBUGGER-HOOK*
+*DEFAULT-PATHNAME-DEFAULTS*
+*ERROR-OUTPUT*
+*FEATURES*
+*GENSYM-COUNTER*
+*LOAD-PATHNAME*
+*LOAD-PRINT*
+*LOAD-TRUENAME*
+*LOAD-VERBOSE*
+*MACROEXPAND-HOOK*
+*MODULES*
+*PACKAGE*
+*PRINT-ARRAY*
+*PRINT-BASE*
+*PRINT-CASE*
+*PRINT-CIRCLE*
+*PRINT-ESCAPE*
+*PRINT-GENSYM*
+*PRINT-LENGTH*
+*PRINT-LEVEL*
+*PRINT-LINES*
+*PRINT-MISER-WIDTH*
+*PRINT-PPRINT-DISPATCH*
+*PRINT-PRETTY*
+*PRINT-RADIX*
+*PRINT-READABLY*
+*PRINT-RIGHT-MARGIN*
+*QUERY-IO*
+*RANDOM-STATE*
+*READ-BASE*
+*READ-DEFAULT-FLOAT-FORMAT*
+*READ-EVAL*
+*READ-SUPPRESS*
+*READTABLE*
+*STANDARD-CLASS-WRAPPER*
+*STANDARD-INPUT*
+*STANDARD-METHOD-CLASS*
+*STANDARD-OUTPUT*
+*TARGET-FTD*
+*TERMINAL-IO*
+*TRACE-OUTPUT*
+
+===================================
+(defmacro once-only ((&rest names) &body body)
+  (let ((gensyms (loop for n in names collect (gensym))))
+    `(let (,@(loop for g in gensyms collect `(,g (gensym))))
+      `(let (,,@(loop for g in gensyms for n in names collect ``(,,g ,,n)))
+	,(let (,@(loop for n in names for g in gensyms collect `(,n ,g)))
+	  ,@body)))))
+(once-only (a b c d) body)
+(LET 
+  ( (#:G99 (GENSYM)) 
+    (#:G100 (GENSYM)) 
+    (#:G101 (GENSYM)) 
+    (#:G102 (GENSYM))) 
+  (LIST* 'LET (LIST* (LIST (LIST* #:G99 (LIST A)) 
+			(LIST* #:G100 (LIST B)) 
+			(LIST* #:G101 (LIST C)) 
+			(LIST* #:G102 (LIST D))) 
+		(LIST (LET ((A #:G99) 
+			(B #:G100) 
+			(C #:G101) 
+			(D #:G102)) 
+				BODY)))))
+(LET 
+  ( (#:G99 (GENSYM)) 
+    (#:G100 (GENSYM)) 
+    (#:G101 (GENSYM)) 
+    (#:G102 (GENSYM))) 
+  `(LET  ( 	(,#:G99  ,A) 
+		(,#:G100 ,B) 
+		(,#:G101 ,C) 
+		(,#:G102 ,D))
+	    (LET 	( (A #:G99) 
+			  (B #:G100) 
+			  (C #:G101) 
+			  (D #:G102)) 
+			BODY)))))
+===================================
+=== macroexpand ===
+(dolist (var list) body)
+(BLOCK NIL 
+  (LET* ((#:G1 LIST)) 
+    (TAGBODY (GO #:G3) #:G2 
+      (TAGBODY 
+	(LET* ((VAR (CAR #:G1))) 
+	  (TAGBODY BODY))) 
+      (SETQ #:G1 (CDR (THE LIST #:G1))) 
+      #:G3 
+      (UNLESS (NULL #:G1) (GO #:G2)))))
+
+
+
+(dotimes (var list) body)
+(BLOCK NIL 
+  (LET ((#:G5 LIST) (VAR 0)) 
+    (DECLARE (CCL::UNSETTABLE VAR)) 
+    (IF (CCL::INT>0-P #:G5) 
+      (TAGBODY #:G4 
+	BODY 
+	(LOCALLY 
+	  (DECLARE (CCL::SETTABLE VAR)) 
+	  (SETQ VAR (1+ VAR))) 
+	(UNLESS (EQL VAR #:G5) (GO #:G4)))) 
+    NIL))
+
+
+(incf (decf *var*))
+(LET* 
+  ( (#:G39 *VAR*) 
+    (#:G40 (- *VAR* 1)) 
+    (#:G41 1) 
+    (#:G38 (+ (SETQ #:G39 #:G40) #:G41)))
+  (DECLARE (TYPE BIT #:G41) (TYPE T #:G38)) 
+  (FUNCALL #'(SETF SETQ) #:G38 #:G39 #:G40))
+===================================
+-:
+&ALLOW-OTHER-KEYS
+*BREAK-ON-SIGNALS*
+*COMPILE-FILE-PATHNAME*
+*COMPILE-FILE-TRUENAME*
+*COMPILE-PRINT*
+*COMPILE-VERBOSE*
+*DEBUG-IO*
+*DEBUGGER-HOOK*
+*DEFAULT-PATHNAME-DEFAULTS*
+*ERROR-OUTPUT*
+*GENSYM-COUNTER*
+*LOAD-PATHNAME*
+*LOAD-PRINT*
+*LOAD-TRUENAME*
+*LOAD-VERBOSE*
+*MACROEXPAND-HOOK*
+*PRINT-ARRAY*
+*PRINT-BASE*
+*PRINT-CASE*
+*PRINT-CIRCLE*
+*PRINT-ESCAPE*
+*PRINT-GENSYM*
+*PRINT-LENGTH*
+*PRINT-LEVEL*
+*PRINT-LINES*
+*PRINT-MISER-WIDTH*
+*PRINT-PPRINT-DISPATCH*
+*PRINT-PRETTY*
+*PRINT-RADIX*
+*PRINT-READABLY*
+*PRINT-RIGHT-MARGIN*
+*QUERY-IO*
+*RANDOM-STATE*
+*READ-BASE*
+*READ-DEFAULT-FLOAT-FORMAT*
+*READ-EVAL*
+*READ-SUPPRESS*
+*STANDARD-CLASS-WRAPPER*
+*STANDARD-INPUT*
+*STANDARD-METHOD-CLASS*
+*STANDARD-OUTPUT*
+*TARGET-FTD*
+*TERMINAL-IO*
+*TRACE-OUTPUT*
+-
+1-
+2-P
+2011-02-04
+3-P
+ABORT-MESSAGE
+ACCESS-FN
+ACCESSOR-OR-SLOT-NAME
+ADD-METHOD
+ADJUST-ARRAY
+ADJUSTABLE-ARRAY-P
+AFTER-LOOP
+ALLOCATE-INSTANCE
+ALPHA-CHAR-P
+ANSI-LOOP:
+APROPOS-LIST
+ARCH-NAME
+ARG-SPECS
+ARGS-VAR
+ARITHMETIC-ERROR
+ARITHMETIC-ERROR-OPERANDS
+ARITHMETIC-ERROR-OPERATION
+ARRAY-DIMENSION
+ARRAY-DIMENSION-LIMIT
+ARRAY-DIMENSIONS
+ARRAY-DISPLACEMENT
+ARRAY-ELEMENT-TYPE
+ARRAY-FORM
+ARRAY-HAS-FILL-POINTER-P
+ARRAY-IN-BOUNDS-P
+ARRAY-RANK
+ARRAY-RANK-LIMIT
+ARRAY-ROW-MAJOR-INDEX
+ARRAY-TOTAL-SIZE
+ARRAY-TOTAL-SIZE-LIMIT
+ASDF-UTILITIES:
+ASSOC-IF
+ASSOC-IF-NOT
+BACKEND-FUNCTION-NAME
+BASE-CHAR
+BASE-OPCODE
+BASE-STRING
+BEFORE-LOOP
+BIT-AND
+BIT-ANDC1
+BIT-ANDC2
+BIT-EQV
+BIT-IOR
+BIT-NAND
+BIT-NOR
+BIT-NOT
+BIT-ORC1
+BIT-ORC2
+BIT-VECTOR
+BIT-VECTOR-P
+BIT-XOR
+BOOLE-1
+BOOLE-2
+BOOLE-AND
+BOOLE-ANDC1
+BOOLE-ANDC2
+BOOLE-C1
+BOOLE-C2
+BOOLE-CLR
+BOOLE-EQV
+BOOLE-IOR
+BOOLE-NAND
+BOOLE-NOR
+BOOLE-ORC1
+BOOLE-ORC2
+BOOLE-SET
+BOOLE-XOR
+BOTH-CASE-P
+BROADCAST-STREAM
+BROADCAST-STREAM-STREAMS
+BUILT-IN-CLASS
+BYTE-POSITION
+BYTE-SIZE
+CALL-ARGUMENTS-LIMIT
+CALL-METHOD
+CALL-NEXT-METHOD
+CELL-ERROR
+CELL-ERROR-NAME
+CHANGE-CLASS
+CHAR-CODE
+CHAR-CODE-LIMIT
+CHAR-DOWNCASE
+CHAR-EQUAL
+CHAR-GREATERP
+CHAR-INT
+CHAR-LESSP
+CHAR-NAME
+CHAR-NOT-EQUAL
+CHAR-NOT-GREATERP
+CHAR-NOT-LESSP
+CHAR-UPCASE
+CHECK-TYPE
+CIRCLE-CHECK?
+CL-USER:
+CLASS-NAME
+CLASS-OF
+CLASS-SLOTS
+CLEAR-INPUT
+CLEAR-OUTPUT
+CODE-CHAR
+COMMON-LISP-USER:
+COMMON-LISP:
+COMPILATION-SPEED
+COMPILE-FILE
+COMPILE-FILE-PATHNAME
+COMPILED-FUNCTION
+COMPILED-FUNCTION-P
+COMPILER-MACRO
+COMPILER-MACRO-FUNCTION
+COMPUTE-APPLICABLE-METHODS
+COMPUTE-RESTARTS
+CONC-NAME
+CONCATENATED-STREAM
+CONCATENATED-STREAM-STREAMS
+CONTROL-ERROR
+COPY-ALIST
+COPY-LIST
+COPY-PPRINT-DISPATCH
+COPY-READTABLE
+COPY-SEQ
+COPY-STRUCTURE
+COPY-SYMBOL
+COPY-TREE
+COUNT-IF
+COUNT-IF-NOT
+CRF-FORM
+CROSS-REFERENCE:
+DB-LINK
+DECL-NAME
+DECODE-FLOAT
+DECODE-UNIVERSAL-TIME
+DEFAULT-BODY
+DEFAULT-P
+DEFINE-COMPILER-MACRO
+DEFINE-CONDITION
+DEFINE-IF-NOT
+DEFINE-METHOD-COMBINATION
+DEFINE-MODIFY-MACRO
+DEFINE-SETF-EXPANDER
+DEFINE-SYMBOL-MACRO
+DELETE-DUPLICATES
+DELETE-FILE
+DELETE-IF
+DELETE-IF-NOT
+DELETE-PACKAGE
+DELTA-CONS
+DELTA-TIME
+DEPOSIT-FIELD
+DESCRIBE-OBJECT
+DESTRUCTURING-BIND
+DIGIT-CHAR
+DIGIT-CHAR-P
+DIRECTORY-NAMESTRING
+DIVISION-BY-ZERO
+DO-ALL-SYMBOLS
+DO-EXTERNAL-SYMBOLS
+DO-SYMBOLS
+DOC-P
+DOUBLE-FLOAT
+DOUBLE-FLOAT-EPSILON
+DOUBLE-FLOAT-NEGATIVE-EPSILON
+DYNAMIC-EXTENT
+DYNAMIC-EXTENT-ARGLIST
+ECHO-STREAM
+ECHO-STREAM-INPUT-STREAM
+ECHO-STREAM-OUTPUT-STREAM
+ELEMENT-COUNT
+ENCODE-UNIVERSAL-TIME
+ENCODING-NAME
+END-OF-FILE
+ENOUGH-NAMESTRING
+ENSURE-DIRECTORIES-EXIST
+ENSURE-GENERIC-FUNCTION
+EOF-ERROR-P
+EOF-VALUE
+ERR-NUM
+EVAL-WHEN
+EXTENDED-CHAR
+EXTERNAL-FORMAT
+FILE-AUTHOR
+FILE-ERROR
+FILE-ERROR-PATHNAME
+FILE-LENGTH
+FILE-NAMESTRING
+FILE-POSITION
+FILE-STREAM
+FILE-STRING-LENGTH
+FILE-WRITE-DATE
+FILL-POINTER
+FIND-ALL-SYMBOLS
+FIND-CLASS
+FIND-IF
+FIND-IF-NOT
+FIND-METHOD
+FIND-PACKAGE
+FIND-RESTART
+FIND-SYMBOL
+FINISH-OUTPUT
+FLOAT-DIGITS
+FLOAT-PRECISION
+FLOAT-RADIX
+FLOAT-SIGN
+FLOATING-POINT-INEXACT
+FLOATING-POINT-INVALID-OPERATION
+FLOATING-POINT-OVERFLOW
+FLOATING-POINT-UNDERFLOW
+FORCE-OUTPUT
+FORM-VAR
+FORMAT-ARGS
+FORMAT-STRING
+FRAME-NUMBER
+FRESH-LINE
+FROM-UCS
+FULLTAG-MISC
+FUNCTION-KEYWORDS
+FUNCTION-LAMBDA-EXPRESSION
+FUNCTION-PLACE
+FUNCTION-SPEC
+GENERIC-FUNCTION
+GET-DECODED-TIME
+GET-DISPATCH-MACRO-CHARACTER
+GET-INTERNAL-REAL-TIME
+GET-INTERNAL-RUN-TIME
+GET-MACRO-CHARACTER
+GET-OUTPUT-STREAM-STRING
+GET-PROPERTIES
+GET-SETF-EXPANSION
+GET-UNIVERSAL-TIME
+GPR-FORM
+GRAPHIC-CHAR-P
+GROUP-NAME
+HANDLER-BIND
+HANDLER-CASE
+HARD-REG-CLASS-FPR-MODE-DOUBLE
+HASH-INDEX
+HASH-TABLE
+HASH-TABLE-COUNT
+HASH-TABLE-P
+HASH-TABLE-REHASH-SIZE
+HASH-TABLE-REHASH-THRESHOLD
+HASH-TABLE-SIZE
+HASH-TABLE-TEST
+HEAD-VAR
+HEADER-VAR
+HOST-NAMESTRING
+IGNORE-ERRORS
+IN-PACKAGE
+INCLUDE-ARGS
+INIT-P
+INITIAL-VALUES
+INITIALIZE-INSTANCE
+INPUT-STREAM
+INPUT-STREAM-P
+INSTANCE-FORM
+INSTANCE-SLOTS
+INTEGER-DECODE-FLOAT
+INTEGER-LENGTH
+INTERACTIVE-STREAM-P
+INTERNAL-TIME-UNITS-PER-SECOND
+INVALID-METHOD-ERROR
+INVOKE-DEBUGGER
+INVOKE-RESTART
+INVOKE-RESTART-INTERACTIVELY
+ISTRUCT-NAME
+LABEL-VALUES
+LAMBDA-LIST
+LAMBDA-LIST-KEYWORDS
+LAMBDA-PARAMETERS-LIMIT
+LDB-TEST
+LEAST-NEGATIVE-DOUBLE-FLOAT
+LEAST-NEGATIVE-LONG-FLOAT
+LEAST-NEGATIVE-NORMALIZED-DOUBLE-FLOAT
+LEAST-NEGATIVE-NORMALIZED-LONG-FLOAT
+LEAST-NEGATIVE-NORMALIZED-SHORT-FLOAT
+LEAST-NEGATIVE-NORMALIZED-SINGLE-FLOAT
+LEAST-NEGATIVE-SHORT-FLOAT
+LEAST-NEGATIVE-SINGLE-FLOAT
+LEAST-POSITIVE-DOUBLE-FLOAT
+LEAST-POSITIVE-LONG-FLOAT
+LEAST-POSITIVE-NORMALIZED-DOUBLE-FLOAT
+LEAST-POSITIVE-NORMALIZED-LONG-FLOAT
+LEAST-POSITIVE-NORMALIZED-SHORT-FLOAT
+LEAST-POSITIVE-NORMALIZED-SINGLE-FLOAT
+LEAST-POSITIVE-SHORT-FLOAT
+LEAST-POSITIVE-SINGLE-FLOAT
+LENGTH-BY-1ST-UNIT
+LENGTH-BY-CODE
+LISP-FUNCTION
+LISP-IMPLEMENTATION-TYPE
+LISP-IMPLEMENTATION-VERSION
+LISPBOX-FILE
+LIST-ALL-PACKAGES
+LIST-FORM
+LIST-LENGTH
+LOAD-LOGICAL-PATHNAME-TRANSLATIONS
+LOAD-TIME-VALUE
+LOGICAL-PATHNAME
+LOGICAL-PATHNAME-TRANSLATIONS
+LONG-FLOAT
+LONG-FLOAT-EPSILON
+LONG-FLOAT-NEGATIVE-EPSILON
+LONG-SITE-NAME
+LOOP-BODY
+LOOP-FINISH
+LOWER-CASE-P
+MACHINE-INSTANCE
+MACHINE-TYPE
+MACHINE-VERSION
+MACRO-FUNCTION
+MACROEXPAND-1
+MAIN-BODY
+MAKE-ARRAY
+MAKE-BROADCAST-STREAM
+MAKE-CONCATENATED-STREAM
+MAKE-CONDITION
+MAKE-DISPATCH-MACRO-CHARACTER
+MAKE-ECHO-STREAM
+MAKE-HASH-TABLE
+MAKE-INSTANCE
+MAKE-INSTANCES-OBSOLETE
+MAKE-LIST
+MAKE-LOAD-FORM
+MAKE-LOAD-FORM-SAVING-SLOTS
+MAKE-METHOD
+MAKE-PACKAGE
+MAKE-PATHNAME
+MAKE-RANDOM-STATE
+MAKE-SEQUENCE
+MAKE-STRING
+MAKE-STRING-INPUT-STREAM
+MAKE-STRING-OUTPUT-STREAM
+MAKE-SYMBOL
+MAKE-SYNONYM-STREAM
+MAKE-TWO-WAY-STREAM
+MAP-INTO
+MASK-FIELD
+MAX-P
+MAX-UNITS-PER-CHAR
+MEMBER-IF
+MEMBER-IF-NOT
+MERGE-PATHNAMES
+METACLASS-WRAPPER
+METHOD-COMBINATION
+METHOD-COMBINATION-ERROR
+METHOD-COMBINATION-TYPE
+METHOD-QUALIFIERS
+MIN-ARGS
+MODE-NAMES
+MODRM-BYTE
+MOST-NEGATIVE-DOUBLE-FLOAT
+MOST-NEGATIVE-FIXNUM
+MOST-NEGATIVE-LONG-FLOAT
+MOST-NEGATIVE-SHORT-FLOAT
+MOST-NEGATIVE-SINGLE-FLOAT
+MOST-POSITIVE-DOUBLE-FLOAT
+MOST-POSITIVE-FIXNUM
+MOST-POSITIVE-LONG-FLOAT
+MOST-POSITIVE-SHORT-FLOAT
+MOST-POSITIVE-SINGLE-FLOAT
+MUFFLE-WARNING
+MULTIPLE-VALUE-BIND
+MULTIPLE-VALUE-CALL
+MULTIPLE-VALUE-LIST
+MULTIPLE-VALUE-PROG1
+MULTIPLE-VALUE-SETQ
+MULTIPLE-VALUES-LIMIT
+NAME-AND-OPTIONS
+NAME-CHAR
+NAME-OR-OFFSET
+NEW-CLASS-WRAPPER-HASH-INDEX
+NEW-ENV-VAR
+NEW-REFINFO-FORM
+NEW-VALUE
+NEXT-METHOD-P
+NEXT-SP
+NO-APPLICABLE-METHOD
+NO-NEXT-METHOD
+NON-HEADER-CELLS
+NSET-DIFFERENCE
+NSET-EXCLUSIVE-OR
+NSTRING-CAPITALIZE
+NSTRING-DOWNCASE
+NSTRING-UPCASE
+NSUBST-IF
+NSUBST-IF-NOT
+NSUBSTITUTE-IF
+NSUBSTITUTE-IF-NOT
+NTH-VALUE
+OLD-ENV
+OLD-VALUE
+OPEN-STREAM-P
+OPENMCL-MOP:
+OPENMCL-SOCKET:
+OTHER-ATTRS
+OTHER-CASE
+OUTPUT-STREAM-P
+PACKAGE-ERROR
+PACKAGE-ERROR-PACKAGE
+PACKAGE-NAME
+PACKAGE-NICKNAMES
+PACKAGE-SHADOWING-SYMBOLS
+PACKAGE-USE-LIST
+PACKAGE-USED-BY-LIST
+PARSE-ERROR
+PARSE-INTEGER
+PARSE-NAMESTRING
+PATHNAME-DEVICE
+PATHNAME-DIRECTORY
+PATHNAME-HOST
+PATHNAME-MATCH-P
+PATHNAME-NAME
+PATHNAME-TYPE
+PATHNAME-VERSION
+PEEK-CHAR
+PER-LINE?
+PERCENT-TIME
+POSITION-IF
+POSITION-IF-NOT
+POST-PROCESS
+PPRINT-DISPATCH
+PPRINT-EXIT-IF-LIST-EXHAUSTED
+PPRINT-FILL
+PPRINT-INDENT
+PPRINT-LINEAR
+PPRINT-LOGICAL-BLOCK
+PPRINT-NEWLINE
+PPRINT-POP
+PPRINT-TAB
+PPRINT-TABULAR
+PRIN1-TO-STRING
+PRINC-TO-STRING
+PRINT-NOT-READABLE
+PRINT-NOT-READABLE-OBJECT
+PRINT-OBJECT
+PRINT-UNREADABLE-OBJECT
+PROBE-FILE
+PROC-INFO
+PROGRAM-ERROR
+QL-ALLEGRO:
+QL-CCL:
+QL-CLISP:
+QL-CMUCL:
+QL-CONFIG:
+QL-DIST:
+QL-ECL:
+QL-GUNZIPPER:
+QL-HTTP:
+QL-IMPL-UTIL:
+QL-IMPL:
+QL-LISPWORKS:
+QL-MINITAR:
+QL-NETWORK:
+QL-PROGRESS:
+QL-RELEASE-INDEX:
+QL-SBCL:
+QL-SETUP:
+QL-UTIL:
+QLB-ABCL:
+QUALIFIERS-AND-SPECIALIZERS
+QUICKLISP-CLIENT:
+RANDOM-STATE
+RANDOM-STATE-P
+RASSOC-IF
+RASSOC-IF-NOT
+READ-BYTE
+READ-CHAR
+READ-CHAR-NO-HANG
+READ-DELIMITED-LIST
+READ-FROM-STRING
+READ-LINE
+READ-PRESERVING-WHITESPACE
+READ-SEQUENCE
+READER-ERROR
+READTABLE-CASE
+RECORD-NAME
+REFINFO-VAR
+REINITIALIZE-INSTANCE
+RELATIVE-PATHNAME
+REMOVE-DUPLICATES
+REMOVE-IF
+REMOVE-IF-NOT
+REMOVE-METHOD
+RENAME-FILE
+RENAME-PACKAGE
+RESTART-BIND
+RESTART-CASE
+RESTART-NAME
+RESULT-FORM
+RESULT-SPEC
+RETURN-FROM
+REX-PREFIX
+ROUTINE-DESCRIPTOR
+ROW-MAJOR-AREF
+SAVED-FILE
+SCALE-FLOAT
+SEG-VAR
+SERIOUS-CONDITION
+SET-DIFFERENCE
+SET-DISPATCH-MACRO-CHARACTER
+SET-EXCLUSIVE-OR
+SET-MACRO-CHARACTER
+SET-PPRINT-DISPATCH
+SET-SYNTAX-FROM-CHAR
+SHADOWING-IMPORT
+SHARED-INITIALIZE
+SHORT-FLOAT
+SHORT-FLOAT-EPSILON
+SHORT-FLOAT-NEGATIVE-EPSILON
+SHORT-SITE-NAME
+SIGNED-BYTE
+SIMPLE-ARRAY
+SIMPLE-BASE-STRING
+SIMPLE-BIT-VECTOR
+SIMPLE-BIT-VECTOR-P
+SIMPLE-CONDITION
+SIMPLE-CONDITION-FORMAT-ARGUMENTS
+SIMPLE-CONDITION-FORMAT-CONTROL
+SIMPLE-ERROR
+SIMPLE-STRING
+SIMPLE-STRING-P
+SIMPLE-TYPE-ERROR
+SIMPLE-VECTOR
+SIMPLE-VECTOR-P
+SIMPLE-WARNING
+SINGLE-FLOAT
+SINGLE-FLOAT-EPSILON
+SINGLE-FLOAT-NEGATIVE-EPSILON
+SLOT-BOUNDP
+SLOT-ENTRIES
+SLOT-EXISTS-P
+SLOT-LIST
+SLOT-MAKUNBOUND
+SLOT-MISSING
+SLOT-UNBOUND
+SLOT-VALUE
+SOFTWARE-TYPE
+SOFTWARE-VERSION
+SPECIAL-OPERATOR-P
+STABLE-SORT
+STACK-FRAME
+STANDARD-CHAR
+STANDARD-CHAR-P
+STANDARD-CLASS
+STANDARD-GENERIC-FUNCTION
+STANDARD-METHOD
+STANDARD-OBJECT
+STORAGE-CONDITION
+STORAGE-P
+STORE-VALUE
+STREAM-ELEMENT-TYPE
+STREAM-ERROR
+STREAM-ERROR-STREAM
+STREAM-EXTERNAL-FORMAT
+STREAM-FORM
+STREAM-SYM
+STREAM-VAR
+STRING-CAPITALIZE
+STRING-DOWNCASE
+STRING-EQUAL
+STRING-GREATERP
+STRING-LEFT-TRIM
+STRING-LESSP
+STRING-NOT-EQUAL
+STRING-NOT-GREATERP
+STRING-NOT-LESSP
+STRING-RIGHT-TRIM
+STRING-STREAM
+STRING-TRIM
+STRING-UPCASE
+STRUCTURE-CLASS
+STRUCTURE-OBJECT
+STYLE-WARNING
+SUBST-IF
+SUBST-IF-NOT
+SUBSTITUTE-IF
+SUBSTITUTE-IF-NOT
+SWANK-BACKEND:
+SWANK-IO-PACKAGE:
+SWANK-LOADER:
+SWANK-MATCH:
+SWANK-MOP:
+SWANK-RPC:
+SYMBOL-FUNCTION
+SYMBOL-MACROLET
+SYMBOL-NAME
+SYMBOL-PACKAGE
+SYMBOL-PLIST
+SYMBOL-VALUE
+SYNONYM-STREAM
+SYNONYM-STREAM-SYMBOL
+TAIL-VAR
+TARGET-VAR
+THE-INIT-LIST
+TO-SIZE
+TO-UCS
+TRANSLATE-LOGICAL-PATHNAME
+TRANSLATE-PATHNAME
+TRAP-FUNCTION
+TREE-EQUAL
+TWO-WAY-STREAM
+TWO-WAY-STREAM-INPUT-STREAM
+TWO-WAY-STREAM-OUTPUT-STREAM
+TYPE-ERROR
+TYPE-ERROR-DATUM
+TYPE-ERROR-EXPECTED-TYPE
+TYPE-KEYWORD
+TYPE-NAME
+TYPE-OF
+TYPES-AND-CLASSES
+UNBOUND-SLOT
+UNBOUND-SLOT-INSTANCE
+UNBOUND-VARIABLE
+UNBOXED-CASE
+UNDEFINED-FUNCTION
+UNREAD-CHAR
+UNSIGNED-BYTE
+UNUSE-PACKAGE
+UNWIND-PROTECT
+UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
+UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+UPGRADED-ARRAY-ELEMENT-TYPE
+UPGRADED-COMPLEX-PART-TYPE
+UPPER-CASE-P
+USE-PACKAGE
+USE-VALUE
+USER-HEAD-VAR
+USER-HOMEDIR-PATHNAME
+VALUES-LIST
+VAR-VAL-PAIRS
+VECTOR-POP
+VECTOR-PUSH
+VECTOR-PUSH-EXTEND
+VINSN-NAME
+VREG-VAR
+WILD-PATHNAME-P
+WITH-ACCESSORS
+WITH-COMPILATION-UNIT
+WITH-CONDITION-RESTARTS
+WITH-HASH-TABLE-ITERATOR
+WITH-INPUT-FROM-STRING
+WITH-OPEN-FILE
+WITH-OPEN-STREAM
+WITH-OUTPUT-TO-STRING
+WITH-PACKAGE-ITERATOR
+WITH-SIMPLE-RESTART
+WITH-SLOTS
+WITH-STANDARD-IO-SYNTAX
+WITHOUT-INTERRUPTS
+WRITE-BYTE
+WRITE-CHAR
+WRITE-LINE
+WRITE-SEQUENCE
+WRITE-STRING
+WRITE-TO-STRING
+XFER-VAR
+Y-OR-N-P
+YES-OR-NO-P

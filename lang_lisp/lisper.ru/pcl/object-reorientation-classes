@@ -1,0 +1,707 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>ООП: Классы</title> <link href="../css/style.css" rel="stylesheet" type="text/css" /><link href="../css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="http://lisper.ru/register">Регистрация</a> | <a href="http://lisper.ru/login?done=/pcl/object-reorientation-classes">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="../image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="../vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="http://lisper.ru/">Главная</a> </li><li> <a href="http://lisper.ru/articles/">Статьи</a> </li><li> <a href="http://lisper.ru/planet/">Планета</a> </li><li> <a href="http://lisper.ru/forum/">Форум</a> </li><li> <a href="http://lisper.ru/apps/">Сервисы</a> </li><li> <a href="index.html">Practical Common Lisp</a> </li><li> <a href="http://lisper.ru/wiki/">Wiki</a> </li><li> <a href="http://lisper.ru/files/">Файлы</a> </li><li> <a href="http://lisper.ru/search">Поиск</a> </li> </ul> </div> <div id="content"> <table width="100%"> <tbody> <tr> <td width="20%" align="left"> <a href="object-reorientation-generic-functions">Предыдущая</a> </td> <td width="60%" align="center"> <a href="index.html">Оглавление</a> </td> <td width="20%" align="right"> <a href="a-few-format-recipes">Следующая</a> </td> </tr> </tbody> </table> <div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="object-reorientation-classes#17. &#x41F;&#x435;&#x440;&#x435;&#x445;&#x43E;&#x434;&#x438;&#x43C; &#x43A; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x430;&#x43C;: &#x41A;&#x43B;&#x430;&#x441;&#x441;&#x44B;">17. Переходим к объектам: Классы</a><ul><li><div><a href="object-reorientation-classes#DEFCLASS">DEFCLASS</a></div></li><li><div><a href="object-reorientation-classes#&#x421;&#x43F;&#x435;&#x446;&#x438;&#x444;&#x438;&#x43A;&#x430;&#x442;&#x43E;&#x440;&#x44B; &#x441;&#x43B;&#x43E;&#x442;&#x43E;&#x432;">Спецификаторы слотов</a></div></li><li><div><a href="object-reorientation-classes#&#x418;&#x43D;&#x438;&#x446;&#x438;&#x430;&#x43B;&#x438;&#x437;&#x430;&#x446;&#x438;&#x44F; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x430;">Инициализация объекта</a></div></li><li><div><a href="object-reorientation-classes#&#x424;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438; &#x434;&#x43E;&#x441;&#x442;&#x443;&#x43F;&#x430;">Функции доступа</a></div></li><li><div><a href="object-reorientation-classes#''WITH-SLOTS'' &#x438; ''WITH-ACCESSORS''">''WITH-SLOTS'' и ''WITH-ACCESSORS''</a></div></li><li><div><a href="object-reorientation-classes#&#x421;&#x43B;&#x43E;&#x442;&#x44B;, &#x432;&#x44B;&#x434;&#x435;&#x43B;&#x44F;&#x435;&#x43C;&#x44B;&#x435; &#x434;&#x43B;&#x44F; &#x43A;&#x43B;&#x430;&#x441;&#x441;&#x43E;&#x432;">Слоты, выделяемые для классов</a></div></li><li><div><a href="object-reorientation-classes#&#x421;&#x43B;&#x43E;&#x442;&#x44B; &#x438; &#x43D;&#x430;&#x441;&#x43B;&#x435;&#x434;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435;">Слоты и наследование</a></div></li><li><div><a href="object-reorientation-classes#&#x41C;&#x43D;&#x43E;&#x436;&#x435;&#x441;&#x442;&#x432;&#x435;&#x43D;&#x43D;&#x43E;&#x435; &#x43D;&#x430;&#x441;&#x43B;&#x435;&#x434;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435;">Множественное наследование</a></div></li><li><div><a href="object-reorientation-classes#&#x41F;&#x440;&#x430;&#x432;&#x438;&#x43B;&#x44C;&#x43D;&#x44B;&#x439; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x43D;&#x43E;-&#x43E;&#x440;&#x438;&#x435;&#x43D;&#x442;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x43D;&#x44B;&#x439; &#x434;&#x438;&#x437;&#x430;&#x439;&#x43D;">Правильный объектно-ориентированный дизайн</a></div></li></ul></div></li></ul></div></div>
+<div class="chapter" id="17. &#x41F;&#x435;&#x440;&#x435;&#x445;&#x43E;&#x434;&#x438;&#x43C; &#x43A; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x430;&#x43C;: &#x41A;&#x43B;&#x430;&#x441;&#x441;&#x44B;"><h3>17. Переходим к объектам: Классы</h3>
+
+<p>Если обобщенные функции являются глаголами объектной системы, то классы являются
+существительными.  Как я упоминал в предыдущей главе, все значения в программах на  Common
+Lisp являются экземплярами какого-то из классов.  Более того, все классы образуют иерархию
+на вершине которой находится класс <code>T</code>.
+</p>
+<p>Иерархия классов состоит из двух основных семейств классов: встроенных и определенных
+пользователем.  Классы, которые представляют типы данных, которые мы изучали до сих пор –
+такие как <code>INTEGER</code>, <code>STRING</code> и <code>LIST</code>, являются встроенными.  Они находятся в
+отдельном разделе иерархии классов, организованные соответствующими связями дочерних и
+родительских классов, и для работы с ними используются функции, которые я описывал на
+протяжении всей книги.  Вы не можете унаследовать от этих классов, но как вы увидели в
+предыдущем разделе, вы можете определить специализированные методы для них, эффективно
+расширяя поведения этих классов.<a class="fn_top" id="fnt__1" href="object-reorientation-classes#fn__1">1)</a>
+</p>
+<p>Но когда вы создаете новые существительные – например, классы, которые использовались в
+предыдущей главе для представления банковских счетов, то вам нужно определить ваши
+собственные классы.  Это и будет темой данной главы.
+</p>
+
+
+
+
+
+
+<div class="chapter" id="DEFCLASS"><h3>DEFCLASS</h3>
+
+<p>Вы можете создать собственный класс с помощью макроса <code>DEFCLASS</code>.  Поскольку поведение
+класса определяется обобщенными функциями, и методами, специализированными для класса, то
+<code>DEFCLASS</code> отвечает только за определение класса как типа данных.
+</p>
+<p>Класс, как тип данных, состоит из трех частей: имени, отношения к другим классам и имен
+слотов.<a class="fn_top" id="fnt__2" href="object-reorientation-classes#fn__2">2)</a>  Базовая форма <code>DEFCLASS</code> выглядит
+достаточно просто.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> name <span class="paren2">(<span class="">direct-superclass-name*</span>)</span><br/>  <span class="paren2">(<span class="">slot-specifier*</span>)</span></span>)</span><br/></pre>
+
+<p>Что такое классы, определенные пользователем?
+</p><blockquote> "Определенные пользователем классы" – термин не из стандарта языка. Определёнными пользователем классами я называю подклассы класса <code>STANDARD-OBJECT</code>, а также классы, у которых метакласс – <code>STANDARD-CLASS</code>. Но поскольку я не собираюсь говорить о способах определения классов, которые не наследуют <code>STANDARD-OBJECT</code> и чей метакласс – это не <code>STANDARD-CLASS</code>, вам можно не обращать на это внимания. Определённые пользователем – не идеальный термин, потому что реализация может определять некоторые классы таким же способом. Но ещё большей путаницей будет называть эти классы стандартными, поскольку встроенные классы (например, <code>INTEGER</code> и <code>STRING</code>) тоже стандартные, если не сказать больше, потому что они определены стандартом языка, но они не расширяют (не наследуют) <code>STANDARD-OBJECT</code>. Чтобы ещё больше запутать дело, пользователь может также определять классы, не наследующие <code>STANDARD-OBJECT</code>. В частности, макрос <code>DEFSTRUCT</code> тоже определяет новые классы. Но это во многом для обратной совместимости – <code>DEFSTRUCT</code> появился раньше, чем CLOS и был изменен, чтоб определять классы, когда CLOS добавлялся в язык. Но создаваемые им классы достаточно ограничены по сравнению с классами, созданными с помощью <code>DEFCLASS</code>. Итак, я буду обсуждать только классы, создаваемые с помощью <code>DEFCLASS</code>, которые используют заданный по умолчанию метакласс <code>STANDARD-CLASS</code> и, за неимением лучшего термина, назову их "определёнными пользователем классами".</blockquote>
+<p>Также как с функциями и переменными, вы можете использовать в качестве имени класса любой
+символ.<a class="fn_top" id="fnt__3" href="object-reorientation-classes#fn__3">3)</a>  Имена
+классов находятся в собственном пространстве имен, отдельно от имен функций и переменных,
+так что вы можете задать для класса то же самое имя, что и существующие функция и
+переменная.  Вы будете использовать имя класса в качестве аргумента функции
+<code>MAKE-INSTANCE</code>, которая создает новые экземпляры классов, определенных пользователем.
+</p>
+<p>Опция <code>direct-superclass-names</code> используется для указания имен классов, от которых будет
+проводиться наследование данного класса.  Если ни одного класса не указано, то он будет
+унаследован от <code>STANDARD-OBJECT</code>.  Все классы, указанные в данной опции, должны быть
+классами, определенными пользователем, чтобы быть увереным, что каждый новый класс
+происходит от <code>STANDARD-OBJECT</code>.  <code>STANDARD-OBJECT</code> является подклассом <code>T</code>, так что
+все классы, определенные пользователем, являются частью одной иерархии классов, которая
+также содержит все встроенные классы.
+</p>
+<p>На время отвлекаясь от упоминания спецификаторов слотов, запись <code>DEFCLASS</code> для некоторых
+из классов, которые мы использовали в предыдущей главе, может выглядеть следующим образом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> bank-account <span class="paren2">(<span class=""/>)</span> ...</span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> checking-account <span class="paren2">(<span class="">bank-account</span>)</span> ...</span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> savings-account <span class="paren2">(<span class="">bank-account</span>)</span> ...</span>)</span><br/></pre>
+
+<p>В разделе "Множественное наследование" я объясню, что означает указание более чем одного суперкласса в
+списке опции <code>direct-superclass-names</code>.
+</p>
+
+
+</div><div class="chapter" id="&#x421;&#x43F;&#x435;&#x446;&#x438;&#x444;&#x438;&#x43A;&#x430;&#x442;&#x43E;&#x440;&#x44B; &#x441;&#x43B;&#x43E;&#x442;&#x43E;&#x432;"><h3>Спецификаторы слотов</h3>
+
+<p>Большая часть <code>DEFCLASS</code> состоит из списка спецификаторов слотов.  Каждый спецификатор
+определяет слот, который будет частью экземпляра класса.  Каждый слот в экземпляре
+является местом, которое может хранить значение, к которому можно получить доступ через
+функцию <code>SLOT-VALUE</code>. <code>SLOT-VALUE</code> в качестве аргументов принимает объект и имя слота
+и возвращает значение нужного слота в данном объекте.  Эта функция может использоваться
+вместе с <code>SETF</code> для установки значений слота в объекте.
+</p>
+<p>Класс также наследует спецификаторы слотов от своих суперклассов, так что набор слотов,
+присутствующих в любом объекте, является объединением всех слотов, указанных в форме
+<code>DEFCLASS</code> для класса, а также указанных для всех его суперклассов.
+</p>
+<p>По минимуму, спецификатор слота указывает его имя, так что спецификатор может быть простым
+именем.  Например, вы можете определить класс <code>bank-account</code> с двумя слотами –
+<code>customer-name</code> и <code>balance</code>, например, вот так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> bank-account <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">customer-name<br/>   balance</span>)</span></span>)</span><br/></pre>
+
+<p>Каждый экземпляр этого класса содержит два слота: один для хранения имени клиента, а
+второй – для хранения текущего баланса счета.  Используя данное определение вы можете
+создать новые объекты <code>bank-account</code> с помощью <code>MAKE-INSTANCE</code>.
+</p><pre>(make-instance 'bank-account) ==&gt; #&lt;BANK-ACCOUNT @ #x724b93ba&gt;<br/></pre>
+<p>Аргументом <code>MAKE-INSTANCE</code> является имя класса, а возвращаемым значением – новый
+объект.<a class="fn_top" id="fnt__4" href="object-reorientation-classes#fn__4">4)</a>   Печатное
+представление объекта определяется обобщенной функцией <code>PRINT-OBJECT</code>.  В этом случае,
+подходящим методом будет тот, который предоставляется реализацией и специализированный для
+<code>STANDARD-OBJECT</code>.  Поскольку не каждый объект может быть выведен таким образом, чтобы
+потом быть считанным назад, то метод печати для <code>STANDARD-OBJECT</code> использует синтаксис
+<code>#&lt;&gt;</code>, который заставит процедуру чтения выдать ошибку, если он попытается прочитать
+его.  Оставшаяся часть представления зависит от реализации, но обычно оно похоже на
+результат, приведенный выше, включая имя класса и некоторое значение, например, адрес
+объекта в памяти.  В главе 23 вы увидите пример того, как определить метод для
+<code>PRINT-OBJECT</code> чтобы некоторые классы можно было вывести в более информативной форме.
+</p>
+<p>Используя данное определение <code>bank-account</code>, новые объекты будут создаваться со слотами,
+которые не связаны со значениями.  Любая попытка получить значение для несвязанного
+значения приведет к выдаче ошибки, так что вы должны задать значение до того, как вы
+будете считывать значения.
+</p><pre>(defparameter *account* (make-instance 'bank-account))  ==&gt; *ACCOUNT*<br/>(setf (slot-value *account* 'customer-name) "John Doe") ==&gt; "John Doe"<br/>(setf (slot-value *account* 'balance) 1000)             ==&gt; 1000<br/></pre>
+<p>Теперь вы можете получать значения слотов.
+</p><pre>(slot-value *account* 'customer-name) ==&gt; "John Doe"<br/>(slot-value *account* 'balance)       ==&gt; 1000<br/></pre>
+
+
+</div><div class="chapter" id="&#x418;&#x43D;&#x438;&#x446;&#x438;&#x430;&#x43B;&#x438;&#x437;&#x430;&#x446;&#x438;&#x44F; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x430;"><h3>Инициализация объекта</h3>
+
+<p>Поскольку мы мало что можем сделать с объектом, который имеет пустые
+слоты, было бы хорошо иметь возможность создавать объекты с инициализированными
+слотами.  Common Lisp предоставляет три способа управления начальными значениями слотов.  Первые
+два требуют добавления опций в спецификаторы слотов в <code>DEFCLASS</code>: с помощью опции
+<code>:initarg</code> вы можете указать имя, которое потом будет использоваться как именованный
+параметр при вызове <code>MAKE-INSTANCE</code> и переданное значение будет сохранено в слоте.
+Вторая опция – <code>:initform</code>, позволяет вам указать выражение на Lisp, которое будет
+использоваться для вычисления значения, если при вызове <code>MAKE-INSTANCE</code> не был передан
+аргумент <code>:initarg</code> .  В заключение, для полного контроля за инициализацией объекта, вы
+можете определить метод для обобщенной функции <code>INITIALIZE-INSTANCE</code>, которую вызывает
+<code>MAKE-INSTANCE</code>.<a class="fn_top" id="fnt__5" href="object-reorientation-classes#fn__5">5)</a>
+</p>
+<p>Спецификатор слота, который включает опции, такие как <code>:initarg</code> или <code>:initform</code>,
+записывается как список, начинающийся с имени слота, за которым следуют опции.  Например,
+если вы измените определение <code>bank-account</code> таким образом, чтобы позволить передавать
+имя клиента и начальный баланс при вызове <code>MAKE-INSTANCE</code>, а также чтобы установить для
+баланса начальное значение равное нулю, вы должны написать:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> bank-account <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">customer-name<br/>    <span class="keyword">:initarg</span> <span class="keyword">:customer-name</span></span>)</span><br/>   <span class="paren3">(<span class="">balance<br/>    <span class="keyword">:initarg</span> <span class="keyword">:balance</span><br/>    <span class="keyword">:initform</span> 0</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Теперь вы можете одновременно создавать счет и указывать значения слотов.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*account*</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'bank-account <span class="keyword">:customer-name</span> <span class="string">"John Doe"</span> <span class="keyword">:balance</span> 1000</span>)</span></span>)</span><br/></pre>
+<pre>(slot-value *account* 'customer-name) ==&gt; "John Doe"<br/>(slot-value *account* 'balance)       ==&gt; 1000<br/></pre>
+<p>Если вы не передадите аргумент <code>:balance</code> при вызове <code>MAKE-INSTANCE</code>, то вызов
+<code>SLOT-VALUE</code> для слота <code>balance</code> будет получен вычислением формы, указанной опцией
+<code>:initform</code>.  Но, если вы не передадите аргумент <code>:customer-name</code>, то слот
+<code>customer-name</code> будет пустой, и попытка считывания значения из него, приведет к
+выдаче ошибки.
+</p><pre>(slot-value (make-instance 'bank-account) 'balance)       ==&gt; 0<br/>(slot-value (make-instance 'bank-account) 'customer-name) ==&gt; Ошибка (error)<br/></pre>
+<p>Если вы хотите убедиться, что имя клиента было задано при создании счета, то вы можете
+выдать ошибку в начальном выражении (<code>initform</code>), поскольку оно будет вычислено только
+если начальное значение (<code>initarg</code>) не было задано.  Вы также можете использовать
+начальные формы, которые создают разные значения при каждом запуске – начальное выражение
+вычисляется заново для каждого объекта.  Для эксперементирования с этими возможностями, вы
+можете изменить спецификатор слота <code>customer-name</code> и добавить новый слот,
+<code>account-number</code>, который инициализируется значением увеличивающегося счетчика.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*account-numbers*</span> 0</span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> bank-account <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">customer-name<br/>    <span class="keyword">:initarg</span> <span class="keyword">:customer-name</span><br/>    <span class="keyword">:initform</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_error.htm" class="symbol">error</a> <span class="string">"Must supply a customer name."</span></span>)</span></span>)</span><br/>   <span class="paren3">(<span class="">balance<br/>    <span class="keyword">:initarg</span> <span class="keyword">:balance</span><br/>    <span class="keyword">:initform</span> 0</span>)</span><br/>   <span class="paren3">(<span class="">account-number<br/>    <span class="keyword">:initform</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> <span class="special">*account-numbers*</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>В большинстве случаев, комбинации опций <code>:initarg</code> и <code>:initform</code> будет достаточно для
+нормальной инициализации объекта.  Однако, хотя начальное выражение может быть любым
+выражением Lisp, оно не имеет доступа к инициализируемому объекту, так что оно не может
+инициализировать один слот, основываясь на значении другого.  Для выполнения такой задачи
+вам необходимо определить метод для обобщенной функции <code>INITIALIZE-INSTANCE</code>.
+</p>
+<p>Основной метод <code>INITIALIZE-INSTANCE</code>, специализированный для <code>STANDARD-OBJECT</code> берет
+на себя заботу об инициализации слотов, основываясь на данных, заданных опциями
+<code>:initarg</code> и <code>:initform</code>.  Поскольку вы не захотите вмешиваться в этот процесс, то
+наиболее широко применяемым способом является определение метода <code>:after</code>,
+специализированного для вашего класса.<a class="fn_top" id="fnt__6" href="object-reorientation-classes#fn__6">6)</a>  Например, предположим, что вы хотите
+добавить слот <code>account-type</code>, который должен быть установлен в значение <code>:gold</code>,
+<code>:silver</code> или <code>:bronze</code>, основываясь на начальном балансе счета.  Вы можете изменить
+определение класса на следующее, добавляя слот <code>account-type</code> без каких либо опций:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> bank-account <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">customer-name<br/>    <span class="keyword">:initarg</span> <span class="keyword">:customer-name</span><br/>    <span class="keyword">:initform</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_error.htm" class="symbol">error</a> <span class="string">"Must supply a customer name."</span></span>)</span></span>)</span><br/>   <span class="paren3">(<span class="">balance<br/>    <span class="keyword">:initarg</span> <span class="keyword">:balance</span><br/>    <span class="keyword">:initform</span> 0</span>)</span><br/>   <span class="paren3">(<span class="">account-number<br/>    <span class="keyword">:initform</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> <span class="special">*account-numbers*</span></span>)</span></span>)</span><br/>   account-type</span>)</span></span>)</span><br/></pre>
+
+<p>После этого вы можете определить метод <code>:after</code> для <code>INITIALIZE-INSTANCE</code>, который
+установит значение слота <code>account-type</code>, основываясь на значении, которое было сохранено
+в слоте <code>balance</code>.<a class="fn_top" id="fnt__7" href="object-reorientation-classes#fn__7">7)</a>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_init_i.htm" class="symbol">initialize-instance</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span> &amp;key</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">balance <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span></span>)</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'account-type</span>)</span><br/>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a><br/>            <span class="paren5">(<span class=""><span class="paren6">(<span class="">&gt;= balance 100000</span>)</span> <span class="keyword">:gold</span></span>)</span><br/>            <span class="paren5">(<span class=""><span class="paren6">(<span class="">&gt;= balance 50000</span>)</span> <span class="keyword">:silver</span></span>)</span><br/>            <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="keyword">:bronze</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Указание <code>&amp;key</code> в списке параметров требуется обязательно, чтобы сохранить список параметров соответствующим
+списку параметров обобщенной функции– список параметров, указанный для функции
+<code>INITIALIZE-INSTANCE</code> включает <code>&amp;key</code> чтобы позволить отдельным методам передавать
+собственные именованные параметры, но при этом, он не требует указания конкретных
+названий.  Таким образом, каждый метод должен указывать <code>&amp;key</code>, даже если он не
+указывает ни одного именованного параметра.
+</p>
+<p>С другой стороны, если метод <code>INITIALIZE-INSTANCE</code>, специализированный для конкретного
+класса, указывает именованный параметр, то этот параметр становится допустимым параметром
+для функции <code>MAKE-INSTANCE</code> при создании экземпляра данного класса.  Например, если банк
+иногда платит процент начального баланса в качестве премии при открытии счета, то вы
+можете реализовать эту функцию, используя метод <code>INITIALIZE-INSTANCE</code>, который получает
+именованный аргумент, указывающий процент премии, например вот так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_init_i.htm" class="symbol">initialize-instance</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span><br/>                                       &amp;key opening-bonus-percentage</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> opening-bonus-percentage<br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span><br/>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span> <span class="paren5">(<span class="">/ opening-bonus-percentage 100</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Путем определения метода <code>INITIALIZE-INSTANCE</code>, вы делаете <code>:opening-bonus-percentage</code>
+допустимым аргументом функции <code>MAKE-INSTANCE</code> при создании объекта <code>bank-account</code>.
+</p><pre>CL-USER&gt; (defparameter *acct* (make-instance<br/>                                'bank-account<br/>                                 :customer-name "Sally Sue"<br/>                                 :balance 1000<br/>                                 :opening-bonus-percentage 5))<br/>*ACCT*<br/>CL-USER&gt; (slot-value *acct* 'balance)<br/>1050<br/></pre>
+
+
+
+
+
+
+
+</div><div class="chapter" id="&#x424;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438; &#x434;&#x43E;&#x441;&#x442;&#x443;&#x43F;&#x430;"><h3>Функции доступа</h3>
+
+<p><code>MAKE-INSTANCE</code> и <code>SLOT-VALUE</code> дают вам возможности для создания и работы с
+экземплярами ваших классов.  Все остальные операции могут быть реализованы в терминах этих
+двух функций.  Однако, как знает всякий, знакомый с принципами правильного
+объектно-ориентированного программирования, прямой доступ к слотам (полям или
+переменным-членам) объекта может привести к получению уязвимого кода.
+Проблема заключается в том, что прямой доступ к слотам делает ваш код слишком связанным с
+конкретной структурой классов.  Например, предположим, что вы решили изменить определение
+<code>bank-account</code> таким образом, что вместо хранения текущего баланса в виде числа, вы
+храните его в виде списка списаний и помещений денег на счет, вместе с датами этих
+операций.  Код, который имеет прямой доступ к слоту <code>balance</code> скорее всего будет сломан,
+если вы измените определение класса, удалив слот или храня список в данном слоте. С другой
+стороны, если вы определить функцию <code>balance</code>, которая осуществляет доступ к слоту, то
+вы можете позже переопределить ее, чтобы сохранить ее поведение, даже если изменится
+внутреннее представление данных.  И код, который использует такую функцию будет продолжать
+нормально работать не требуя внесения изменений.
+</p>
+<p>Другим преимуществом использования функций доступа вместо прямого доступа к слотам через
+<code>SLOT-VALUE</code> является то, что их использование позволяет вам ограничить возможность
+внешней модификации слота.<a class="fn_top" id="fnt__8" href="object-reorientation-classes#fn__8">8)</a> Для пользователей класса <code>bank-account</code> может быть удобным
+использование функций доступа для получения текущего баланса, но вы можете захотеть, чтобы
+все изменения баланса производились через другие предоставляемые вами функции, такие как
+<code>deposit</code> и <code>withdraw</code>.  Если клиент знает, что он сможет работать с объектами только
+через определенный набор функций, то вы можете предоставить ему функцию <code>balance</code>, но
+сделать так, чтобы для нее нельзя было выполнить <code>SETF</code>, чтобы баланс был доступен
+только для чтения.
+</p>
+<p>В заключение, использование функций доступа делает ваш код более аккуратным, поскольку вы
+избегаете использования множества менее понятных функций <code>SLOT-VALUE</code>.
+</p>
+<p>Определение функции, которая читает содержимое слота <code>balance</code> является тривиальным.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> balance <span class="paren2">(<span class="">account</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span></span>)</span><br/></pre>
+
+<p>Однако, если вы знаете, что вы будете определять подклассы для <code>bank-account</code>, то может
+быть хорошей идеей определение <code>balance</code> в качестве обобщенной функции.  Таким образом
+вы можете определить разные методы для <code>balance</code> для некоторых подклассов, или расширить
+ее возможности с помощью вспомогательных методов. Так что вместо предыдущего примера
+можете написать следующее:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defgen.htm" class="symbol"><i><span class="symbol">defgeneric</span></i></a> balance <span class="paren2">(<span class="">account</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> balance <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span></span>)</span><br/></pre>
+
+<p>Как я только что обсуждал, вы не хотите, чтобы пользователь имел возможность устанавливать
+баланс напрямую, но для других слотов, таких как <code>customer-name</code>, вы также можете
+захотеть предоставить функцию для установки их значений.  Наиболее понятным способом будет
+определение такой функции как <code>SETF</code>-функции.
+</p>
+<p><code>SETF</code>-функция является способом расширения функциональности <code>SETF</code>, определяя новый
+вид места (place), для
+которого известно как устанавливать его значение.  Имя <code>SETF</code>-функции является списком
+из двух элементов, где первый элемент является символом <code>setf</code>, а второй – другим
+символом, обычно именем функции, которая используется для доступа к месту, значение
+которого будет устанавливать функция <code>SETF</code>.  <code>SETF</code>-функция может получать любое
+количество аргументов, но первым аргументом всегда является значение, присваиваемое
+выбранному месту.<a class="fn_top" id="fnt__9" href="object-reorientation-classes#fn__9">9)</a>  Например, вы можете определить <code>SETF</code>-функцию для установки
+значения слота <code>customer-name</code> в классе <code>bank-account</code> следующим образом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> customer-name</span>)</span> <span class="paren2">(<span class="">name account</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'customer-name</span>)</span> name</span>)</span></span>)</span><br/></pre>
+
+<p>После вычисления этого определения, выражения, подобные этому:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class="">customer-name my-account</span>)</span> <span class="string">"Sally Sue"</span></span>)</span><br/></pre>
+
+<p>будут компилироваться как вызов <code>SETF</code>-функции, которую вы только что определили с
+значением "Sally Sue" в качестве первого аргумента, и значением <code>my-account</code> в качестве
+второго аргумента.
+</p>
+<p>Конечно, также как с функциями чтения, вы вероятно захотите, чтобы ваша <code>SETF</code>-функция
+была обобщенной, так что вы должны ее определить примерно так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defgen.htm" class="symbol"><i><span class="symbol">defgeneric</span></i></a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> customer-name</span>)</span> <span class="paren2">(<span class="">value account</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> customer-name</span>)</span> <span class="paren2">(<span class="">value <span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'customer-name</span>)</span> value</span>)</span></span>)</span><br/></pre>
+
+<p>И конечно, вы также можете определить функцию чтения для <code>customer-name</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defgen.htm" class="symbol"><i><span class="symbol">defgeneric</span></i></a> customer-name <span class="paren2">(<span class="">account</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> customer-name <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'customer-name</span>)</span></span>)</span><br/></pre>
+
+<p>Это позволит вам писать следующим образом:
+</p><pre>(setf (customer-name *account*) "Sally Sue") ==&gt; "Sally Sue"<br/>(customer-name *account*)                    ==&gt; "Sally Sue"<br/></pre>
+<p>Нет ничего сложного в написании этих функций доступа, но написание этих функций вручную
+просто не соответствует The Lisp Way.  Так что <code>DEFCLASS</code> поддерживает три опции для
+слотов, которые позволяют вам автоматически создавать функции чтения и записи значений
+отдельных слотов.
+</p>
+<p>Опция <code>:reader</code> указывает имя, которое будет использоваться как имя обобщенной функции,
+которая принимает объект в качестве своего единственного аргумента.  Когда вычисляется
+<code>DEFCLASS</code>, то создается соответствующая обобщенная функция (если она еще не
+определена конечно).  После этого для данной обобщенной функции создается метод,
+специализированный для нового класса и возвращающий значение слота.  Имя функции может
+быть любым, но обычно используют то же самое имя, что и имя самого слота.  Так что вместо
+явного задания обобщенной функции <code>balance</code> и метода для нее, как это было показано
+раньше, вы можете просто изменить спецификатор слота <code>balance</code> в определении класса
+<code>bank-account</code> на следующее:
+</p>
+<pre class="code"><span class="paren1">(<span class="">balance<br/> <span class="keyword">:initarg</span> <span class="keyword">:balance</span><br/> <span class="keyword">:initform</span> 0<br/> <span class="keyword">:reader</span> balance</span>)</span><br/></pre>
+
+<p>Опция <code>:writer</code> используется для создания обобщенной функции и метода для установки
+значения слота.  Создаваемая функция и метод следуют требованиям для <code>SETF</code>-функции,
+получая новое значение как первый аргумент, и возвращая его в качестве результата, так что
+вы можете определить <code>SETF</code>-функцию задавая имя, такое как <code>(setf customer-name)</code>.
+Например, вы можете определить методы чтения и записи для слота <code>customer-name</code>, просто
+изменяя спецификатор слота на следующее определение:
+</p>
+<pre class="code"><span class="paren1">(<span class="">customer-name<br/> <span class="keyword">:initarg</span> <span class="keyword">:customer-name</span><br/> <span class="keyword">:initform</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_error.htm" class="symbol">error</a> <span class="string">"Must supply a customer name."</span></span>)</span><br/> <span class="keyword">:reader</span> customer-name<br/> <span class="keyword">:writer</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> customer-name</span>)</span></span>)</span><br/></pre>
+
+<p>Поскольку достаточно часто требуется определение обеих функций доступа, то <code>DEFCLASS</code>
+также имеет опцию <code>:accessor</code>, которая создает и функцию чтения, и соответствующую
+<code>SETF</code>-функцию.  Так что вместо предыдущего примера можно написать следующим образом:
+</p>
+<pre class="code"><span class="paren1">(<span class="">customer-name<br/> <span class="keyword">:initarg</span> <span class="keyword">:customer-name</span><br/> <span class="keyword">:initform</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_error.htm" class="symbol">error</a> <span class="string">"Must supply a customer name."</span></span>)</span><br/> <span class="keyword">:accessor</span> customer-name</span>)</span><br/></pre>
+
+<p>В заключение, опишу еще одну опцию, о которой вы должны знать: опция <code>:documentation</code>
+позволяет вам задать строку, которая описывает данный слот.  Собирая все в кучу и добавляя
+методы чтения для слотов <code>account-number</code> и <code>account-type</code>, определение <code>DEFCLASS</code>
+для класса <code>bank-account</code> будет выглядеть примерно так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> bank-account <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">customer-name<br/>    <span class="keyword">:initarg</span> <span class="keyword">:customer-name</span><br/>    <span class="keyword">:initform</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_error.htm" class="symbol">error</a> <span class="string">"Must supply a customer name."</span></span>)</span><br/>    <span class="keyword">:accessor</span> customer-name<br/>    <span class="keyword">:documentation</span> <span class="string">"Customer's name"</span></span>)</span><br/>   <span class="paren3">(<span class="">balance<br/>    <span class="keyword">:initarg</span> <span class="keyword">:balance</span><br/>    <span class="keyword">:initform</span> 0<br/>    <span class="keyword">:reader</span> balance<br/>    <span class="keyword">:documentation</span> <span class="string">"Current account balance"</span></span>)</span><br/>   <span class="paren3">(<span class="">account-number<br/>    <span class="keyword">:initform</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> <span class="special">*account-numbers*</span></span>)</span><br/>    <span class="keyword">:reader</span> account-number<br/>    <span class="keyword">:documentation</span> <span class="string">"Account number, unique within a bank."</span></span>)</span><br/>   <span class="paren3">(<span class="">account-type<br/>    <span class="keyword">:reader</span> account-type<br/>    <span class="keyword">:documentation</span> <span class="string">"Type of account, one of :gold, :silver, or :bronze."</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+
+
+</div><div class="chapter" id="''WITH-SLOTS'' &#x438; ''WITH-ACCESSORS''"><h3>''WITH-SLOTS'' и ''WITH-ACCESSORS''</h3>
+
+<p>В то время как функции доступа делают ваш код более легким для сопровождения, они все еще
+достаточно многословны.  И конечно будут моменты, когда вы будете писать методы, которые
+реализуют низкоуровневое поведение класса, так что вы можете осознанно осуществлять доступ
+к слотам для установки значений слотов, для которых нет функций записи, или для получения
+значений из слотов, без использования функций чтения.
+</p>
+<p>Это как раз тот случай, для которого и предназначен макрос <code>SLOT-VALUE</code>; однако, он
+также достаточно многословен.  Если функция или метод осуществляют доступ к одному и тому
+же слоту несколько раз, то исходный код будет засорен вызовами функций доступа и
+<code>SLOT-VALUE</code>.  Например, даже достаточно простой метод, такой как следующий пример,
+который вычисляет пеню для <code>bank-account</code> если баланс снижается ниже некоторого
+минимума, будет засорен вызовами <code>balance</code> и <code>SLOT-VALUE</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> assess-low-balance-penalty <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren3">(<span class="">&lt; <span class="paren4">(<span class="">balance account</span>)</span> <span class="special">*minimum-balance*</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">decf</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren5">(<span class="">balance account</span>)</span> .01</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>И если вы решите, что вы хотите осуществлять прямой доступ к слоту для того, чтобы
+избежать вызова вспомогательных методов, то ваш код будет еще больше замусоренным.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> assess-low-balance-penalty <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren3">(<span class="">&lt; <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span> <span class="special">*minimum-balance*</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">decf</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> account 'balance</span>)</span> .01</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Два стандартных макроса – <code>WITH-SLOTS</code> и <code>WITH-ACCESSORS</code>, могут помочь избавиться от
+этого мусора.  Оба макроса создают блок кода, в которых могут использоваться простые имена
+переменных для обращения к слотам определенного объекта.  <code>WITH-SLOTS</code> предоставляет
+прямой доступ к слотам, также как при использовании <code>SLOT-VALUE</code>, в то время как
+<code>WITH-ACCESSORS</code> предоставляет сокращенный способ вызова функций доступа.
+</p>
+<p>Базовая форма  <code>WITH-SLOTS</code> выглядит следующим образом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_slts.htm" class="symbol"><i><span class="symbol">with-slots</span></i></a> <span class="paren2">(<span class="">slot*</span>)</span> instance-form<br/>  body-form*</span>)</span><br/></pre>
+
+<p>Каждый элемент списка <code>slot</code> может быть либо именем слота,которое также является именем переменной, либо списком из двух
+элементов, где первый аргумент является именем, которое будет использоваться как
+переменная, а второй – именем соответствующего слота.  Выражение <code>instance-form</code>
+вычисляется один раз для получения объекта, к слотам которого будет производиться доступ.
+Внутри тела макроса, каждое вхождение имени переменной преобразуется в вызов
+<code>SLOT-VALUE</code> с использованием объекта и имени слота в качестве аргументов.<a class="fn_top" id="fnt__10" href="object-reorientation-classes#fn__10">10)</a>  Таким
+образом, вы можете переписать <code>assess-low-balance-penalty</code> вот так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> assess-low-balance-penalty <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_slts.htm" class="symbol"><i><span class="symbol">with-slots</span></i></a> <span class="paren3">(<span class="">balance</span>)</span> account<br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren4">(<span class="">&lt; balance <span class="special">*minimum-balance*</span></span>)</span><br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">decf</a> balance <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> balance .01</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>или используя списочную запись, вот так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> assess-low-balance-penalty <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_slts.htm" class="symbol"><i><span class="symbol">with-slots</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">bal balance</span>)</span></span>)</span> account<br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren4">(<span class="">&lt; bal <span class="special">*minimum-balance*</span></span>)</span><br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">decf</a> bal <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> bal .01</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Если вы определили <code>balance</code> с использованием опции <code>:accessor</code>, а не <code>:reader</code>, то
+вы также можете использовать макрос <code>WITH-ACCESSORS</code>.  Форма <code>WITH-ACCESSORS</code>
+такая же как <code>WITH-SLOTS</code> за тем исключением, что каждый элемент списка слотов является
+списком из двух элементов, содержащих имя переменной и имя функции доступа.  Внутри тела
+<code>WITH-ACCESSORS</code>, ссылка на одну из переменных, аналогична вызову соответствующей
+функции доступа.  Если функция доступа разрешает выполнение <code>SETF</code>, то тоже самое
+возможно и для переменной.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> assess-low-balance-penalty <span class="paren2">(<span class=""><span class="paren3">(<span class="">account bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_acce.htm" class="symbol"><i><span class="symbol">with-accessors</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">balance balance</span>)</span></span>)</span> account<br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren4">(<span class="">&lt; balance <span class="special">*minimum-balance*</span></span>)</span><br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">decf</a> balance <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> balance .01</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Первое вхождение <code>balance</code> является именем переменной, а второе – именем функции
+доступа; они не обязательно должны быть одинаковыми.  Например, вы можете написать метод
+для слияния двух счетов, используя два вызова <code>WITH-ACCESSORS</code>, для каждого из счетов.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> merge-accounts <span class="paren2">(<span class=""><span class="paren3">(<span class="">account1 bank-account</span>)</span> <span class="paren3">(<span class="">account2 bank-account</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_acce.htm" class="symbol"><i><span class="symbol">with-accessors</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">balance1 balance</span>)</span></span>)</span> account1<br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_acce.htm" class="symbol"><i><span class="symbol">with-accessors</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">balance2 balance</span>)</span></span>)</span> account2<br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> balance1 balance2</span>)</span><br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> balance2 0</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Выбор между использованием <code>WITH-SLOTS</code> и <code>WITH-ACCESSORS</code> примерно таков, как и выбор
+между использованием <code>SLOT-VALUE</code> и функций доступа: низкоуровневый код, которые
+обеспечивает основную функциональность класса, может использовать <code>SLOT-VALUE</code> или
+<code>WITH-SLOTS</code> для работы со слотами напрямую, если функции доступа не поддерживают нужный
+стиль работы, или если хочется явно избежать использования вспомогательных методов, которые
+могут быть определены для функций доступа.  Но в общем вы должны использовать функции
+доступа или <code>WITH-ACCESSORS</code>, если только у вас не имеются конкретные причины не делать
+этого.
+</p>
+
+</div><div class="chapter" id="&#x421;&#x43B;&#x43E;&#x442;&#x44B;, &#x432;&#x44B;&#x434;&#x435;&#x43B;&#x44F;&#x435;&#x43C;&#x44B;&#x435; &#x434;&#x43B;&#x44F; &#x43A;&#x43B;&#x430;&#x441;&#x441;&#x43E;&#x432;"><h3>Слоты, выделяемые для классов</h3>
+
+<p>Заключительной опцией, которую вам необходимо знать, является опция <code>:allocation</code>.
+Значением опции <code>:allocation</code> может быть либо <code>:instance</code>, либо <code>:class</code>, и по
+умолчанию оно равно  <code>:instance</code>, если оно не было явно указано.  Когда слот имеет
+значение опции равное <code>:class</code>,  то слот имеет только одно значение, которое сохраняется
+внутри класса и используется всеми экземплярами.
+</p>
+<p>Однако доступ к слотам со значением <code>:class</code> производится также как и для слотов со
+значением <code>:instance</code> – доступ производится с помощью <code>SLOT-VALUE</code> или функции
+доступа, что значит, что вы можете получить доступ только через экземпляр класса, хотя это
+значение не хранится в этом экземпляре.  Опции <code>:initform</code> и <code>:initarg</code> имеют точно
+такой же эффект, за тем исключением, что начальное выражение вычисляется один раз, при
+определении класса, а не при создании экземпляра.  С другой стороны, передача начальных
+аргументов <code>MAKE-INSTANCE</code> установит значение, затрагивая все экземпляры данного класса.
+</p>
+<p>Поскольку вы не можете получить слот, выделенный для класса, не имея экземпляра класса,
+такие слоты не являются полными аналогами статических членов в таких языках как Java, C++ и
+Python.<a class="fn_top" id="fnt__11" href="object-reorientation-classes#fn__11">11)</a>  В значительной степени, слоты выделенные для класса в основном используются
+для уменьшения потребляемой памяти; если вы создаете много экземпляров класса и они все
+имеют ссылку на один и тот же объект (например, список разделяемых ресурсов), то вы можете
+сократить использование памяти путем объявления такого слота, выделяемым для класса, а не
+для экземпляра.
+</p>
+
+
+
+</div><div class="chapter" id="&#x421;&#x43B;&#x43E;&#x442;&#x44B; &#x438; &#x43D;&#x430;&#x441;&#x43B;&#x435;&#x434;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435;"><h3>Слоты и наследование</h3>
+
+<p>Как обсуждалось в предыдущей главе, классы наследуют поведение от своих суперклассов
+благодаря механизмам обобщенных функции – метод специализированный для класса <code>A</code> также
+применим не только к экземплярам класса <code>A</code>, но также и к экземплярам классов,
+унаследованных от <code>A</code>.  Классы также наследуют от своих суперклассов слоты, но этот
+механизм немного отличается.
+</p>
+<p>В Common Lisp конкретный объект может иметь только один слот с определенным именем.
+Однако возможно, что в иерархии наследования класса несколько классов будут иметь слоты с
+одним и тем же именем.  Это может случиться либо потому, что подкласс включает
+спецификатор слота с тем же именем, что и слот указанный в суперклассе, либо потому, что
+несколько суперклассов имеют слоты с одним и тем же именем.
+</p>
+<p>Common Lisp решает эту проблему путем слияния всех спецификаторов с одним и тем же именем
+из нового класса и всех его суперклассов для создания отдельных спецификаторов для каждого
+уникального имени слота.  При слиянии спецификатор, разные опции спецификаторов слотов
+рассматриваются по разному.  Например, поскольку слот может иметь только одно значение по
+умолчанию, то если несколько классов указывают опцию <code>:initform</code>, то новый класс будет
+использовать эту опцию из наиболее специализированного класса.  Это позволяет подклассам
+указывать собственные значение по умолчанию, а не те, которые были унаследованы.
+</p>
+<p>С другой стороны, опции <code>:initargs</code> не должны быть взаимоисключающими – каждая опция
+<code>:initarg</code> создает именованный параметр, который может быть использован для
+инициализации слота; множественные параметры не приводят к конфликту, так что новый
+спецификатор слота будет содержать все опции <code>:initargs</code>. Вызывающие
+<code>MAKE-INSTANCE</code> могут использовать любое из имен, указанных в <code>:initargs</code> для
+инициализации слота. Если вызывающий указывает несколько именованных аргументов,
+которые инициализируют один и тот же слот, то используется то, которое стоит левее всех
+остальных в списке аргументов <code>MAKE-INSTANCE</code>.
+</p>
+<p>Унаследованные опции <code>:reader</code>, <code>:writer</code> и <code>:accessor</code> не включаются в новый
+спецификатор слота, поскольку методы, созданные при объявлении суперкласса будут
+автоматически применяться к новому классу.  Однако новый класс может создать свои
+собственные функции доступа, путем объявления собственных опций <code>:reader</code>, <code>:writer</code>
+или <code>:accessor</code>.
+</p>
+<p>И в заключение, опция <code>:allocation</code>, подобно <code>:initform</code>, определяется наиболее
+специализированным классом, определяющим данный слот.  Таким образом, возможно сделать
+так, что экземпляры одного класса будут использовать слот с опцией <code>:class</code>, а
+экземпляры его подклассов могут иметь свои собственные значения опции <code>:instance</code> для
+слота с тем же именем.  А их подклассы, в свою очередь, могут переопределить этот слот с
+опцией <code>:class</code>, так что все экземпляры данного класса снова будут делить между собой
+единственный экземпляр слота.  В последнем случае, слот, разделяемый экземплярами
+под-подклассов отличается от слота, разделяемого оригинальным суперклассом.
+</p>
+<p>Например, у вас имеются следующие классы:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> foo <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">a <span class="keyword">:initarg</span> <span class="keyword">:a</span> <span class="keyword">:initform</span> <span class="string">"A"</span> <span class="keyword">:accessor</span> a</span>)</span><br/>   <span class="paren3">(<span class="">b <span class="keyword">:initarg</span> <span class="keyword">:b</span> <span class="keyword">:initform</span> <span class="string">"B"</span> <span class="keyword">:accessor</span> b</span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> bar <span class="paren2">(<span class="">foo</span>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">a <span class="keyword">:initform</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_error.htm" class="symbol">error</a> <span class="string">"Must supply a value for a"</span></span>)</span></span>)</span><br/>   <span class="paren3">(<span class="">b <span class="keyword">:initarg</span> <span class="keyword">:the-b</span> <span class="keyword">:accessor</span> the-b <span class="keyword">:allocation</span> <span class="keyword">:class</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>При создании экземпляра класса <code>bar</code>, вы можете использовать унаследованный начальный
+аргумент <code>:a</code> для указания значения для слота <code>a</code> и, в действительности, должны
+сделать это для того, чтобы избежать ошибок, поскольку опция <code>:initform</code> определенная
+<code>bar</code> замещает опцию, унаследованную от <code>foo</code>. Для инициализации слота <code>b</code>, вы
+можете использовать либо унаследованный аргумент <code>:b</code>, либо новый аргумент <code>:the-b</code>.
+Однако, поскольку для слота <code>b</code> в определении <code>bar</code> указана опция <code>:allocation</code>, то
+указанное значение будет храниться в слоте, используемом всеми экземплярами
+<code>bar</code>. Доступ к этому слоту может быть может быть осуществлен либо с помощью метода
+обобщенной функции <code>b</code>, специализированного для <code>foo</code>, либо с помощью нового метода
+обобщенной функции <code>the-b</code>, который специализирован для <code>bar</code>.  Для доступа к слоту
+<code>a</code> классов <code>foo</code> или <code>bar</code>, вы продолжите использовать обобщенную функцию <code>a</code>.
+</p>
+<p>Обычно, слияние определений слотов происходит достаточно гладко.  Однако важно помнить,
+что при использовании множественного наследования два не относящихся друг к другу слота,
+имеющих одно и тоже имя, в новом классе будут слиты в один слот.  Так что методы,
+специализированные для разных классов могут работать с одним и тем же слотом, когда они
+будут применяться к классу, унаследованному от этих классов.  На практике это не
+доставляет особых проблем, поскольку, как вы увидите в главе 21, вы можете использовать
+пакетную систему для того, чтобы избежать коллизий между именами в коде.
+</p>
+
+
+
+</div><div class="chapter" id="&#x41C;&#x43D;&#x43E;&#x436;&#x435;&#x441;&#x442;&#x432;&#x435;&#x43D;&#x43D;&#x43E;&#x435; &#x43D;&#x430;&#x441;&#x43B;&#x435;&#x434;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435;"><h3>Множественное наследование</h3>
+
+<p>Все классы, которые вы до сих пор видели имели только один суперкласс. Common Lisp также
+поддерживает множественное наследование – класс может иметь несколько прямых
+суперклассов, наследуя соответствующие методы и спецификаторы слотов из всех этих классов.
+</p>
+<p>Множественное наследование не вносит кардинальных изменений в механизмы наследования,
+которые я уже обсуждал – каждый класс определенный пользователем уже имеет несколько
+суперклассов, поскольку они все наследуются от <code>STANDARD-OBJECT</code>, который унаследован от
+<code>T</code>, так что по крайней мере имеется два суперкласса.  Затруднение, которое вносит
+множественное наследование заключается в том, что класс может иметь более одного
+непосредственного суперкласса.  Это усложняет понятие специфичности класса, которое
+используется при построении эффективных методов для обобщенных функции и при слиянии
+спецификаторов слотов.
+</p>
+<p>Так что, если бы классы могли иметь только один непосредственный суперкласс, то упорядочение
+классов по специфичности будет тривиальным – класс и все его суперклассы могут быть
+выстроены в линию начиная с самого класса, за которым следует один прямой суперкласс, за
+которым следует его суперкласс, и так далее, до класса <code>T</code>.  Но когда класс имеет
+несколько непосредственных суперклассов, то эти классы обычно не связаны друг с другом –
+конечно, если один класс был подклассом другого, вам не нужно наследовать класс от
+обоих.  В этом случае, правила по которому подклассы более специфичны чем суперклассы
+недостаточно для упорядочения всех суперклассов.  Так что Common Lisp использует второе
+правило, которое сортирует не относящиеся друг к другу суперклассы по порядку в котором
+они перечислены в определении непосредственных суперклассов в <code>DEFCLASS</code> – классы,
+указанные в списке первыми, считаются более специфичными, чем классы, указанные в списке
+последними.  Это правило считается достаточно произвольным, но оно позволяет каждому
+классу иметь линейный список следования классов, который может использоваться для определения
+того, какой из суперклассов будет считаться более специфичным чем другой.  Однако
+заметьте, что нет глобального упорядочения классов – каждый класс имеет собственный
+список следования классов, и одни и те же классы могут стоять на разных позициях в списках
+списках следования разных классов.
+</p>
+<p>Для того, чтобы увидеть как это работает, давайте добавим новый класс к нашему банковскому
+приложению: <code>money-market-account</code>.  Этот счет объединяет в себе характеристики чекового
+(<code>checking-account</code>) и сберегательного (<code>savings-account</code>) счетов: клиент может
+выписывать чеки, но кроме того он получает проценты.  Вы можете определить его следующим
+образом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> money-market-account <span class="paren2">(<span class="">checking-account savings-account</span>)</span> <span class="paren2">(<span class=""/>)</span></span>)</span><br/></pre>
+
+<p>Список следования класса <code>money-market-account</code> будет следующим:
+</p>
+<pre class="code"><span class="paren1">(<span class="">money-market-account<br/> checking-account<br/> savings-account<br/> bank-account<br/> <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_std_ob.htm" class="symbol">standard-object</a><br/> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br/></pre>
+
+<p>Заметьте, как список удовлетворяет обоим правилам: каждый класс появляется раньше своих
+суперклассов, а <code>checking-account</code> и <code>savings-account</code> располагаются в порядке,
+указанном в <code>DEFCLASS</code>.
+</p>
+<p>Этот класс не определяет своих собственных слотов, но унаследует слоты от обоих
+суперклассов, включая слоты, которые те унаследовали от своих суперклассов.  Аналогичным
+образом, все методы, которые применимы к любому из классов в списке следования, также
+будут применимы к объекту <code>money-market-account</code>.  Поскольку все спецификаторы
+одинаковых слотов объединяются, то не имеет значения, что <code>money-market-account</code> дважды
+наследует одни и те же слоты из <code>bank-account</code>.<a class="fn_top" id="fnt__12" href="object-reorientation-classes#fn__12">12)</a>
+</p>
+<p>Множественное наследование наиболее просто понять когда суперклассы предоставляют
+совершенно независимые наборы слотов и методов.  Например, <code>money-market-account</code>
+унаследует слоты и поведение по работе с чеками от <code>checking-account</code>, а слоты и
+поведение по вычислению процентов – от <code>savings-account</code>.  Вам не нужно беспокоиться о
+списке следования класса для методов и слотов, унаследованных только от одного или
+другого суперкласса.
+</p>
+<p>Однако, также возможно унаследовать методы для одних и тех же обобщенных функций от
+различных суперклассов.  В этом случае, в игру включается список список следования классов.
+Например, предположим, что банковское приложение определяет обобщенную функцию
+<code>print-statement</code>, которая используется для генерации месячных отчетов.  Вероятно, что
+уже будут определены методы <code>print-statement</code> специализированные для.
+<code>checking-account</code> и <code>savings-account</code>.  Оба этих метода будут применимы для
+экземпляров класса <code>money-market-account</code>, но тот, который специализирован для
+<code>checking-account</code> будет считаться более специфичным, чем специализированный для
+<code>savings-account</code>, поскольку <code>checking-account</code> имеет больший приоритет перед
+<code>savings-account</code> в списке следования классов <code>money-market-account</code>.
+</p>
+<p>Предполагается, что унаследованные методы являются основными методами, и вы не определяли
+других методов, специализированных для <code>checking-account</code>, которые будут использоваться,
+если вы выполните <code>print-statement</code> для <code>money-market-account</code>.  Однако, это не
+обязательно даст вам то поведение, которое вы хотите, поскольку вы хотите чтобы отчет для
+нового счета содержал элементы из отчетов по чековому и сберегательному счетов.
+</p>
+<p>Вы можете изменить поведение <code>print-statement</code> для <code>money-market-accounts</code> несколькими
+способами.  Непосредственным способом является определение основного метода,
+специализированного для <code>money-market-account</code>.  Это даст вам полный контроль за
+поведением, но вероятно потребует написания кода для опций, которые я буду вскоре
+обсуждать.  Проблема заключается в том, что хотя вы можете использовать
+<code>CALL-NEXT-METHOD</code> для передачи управления "вверх", следующему методу, а именно,
+специализированному для <code>checking-account</code>, но не существует способа вызвать конкретный
+менее специфичный метод, например, специализированный для <code>savings-account</code>.  Так что
+если вы хотите иметь возможность использования кода, который создает часть отчета,
+специфичную для <code>savings-account</code>, то вам нужно разбить этот код на отдельные функции,
+которые вы сможете вызвать напрямую из методов <code>print-statement</code> классов
+<code>money-market-account</code> и <code>savings-account</code>.
+</p>
+<p>Другой возможностью является написание основных методов всех трех классов так, чтобы они
+вызывали <code>CALL-NEXT-METHOD</code>.  Тогда метод, специализированный для
+<code>money-market-account</code> будет использовать <code>CALL-NEXT-METHOD</code> для вызова метода,
+специализированного для <code>checking-account</code>.  Затем, этот метод вызовет
+<code>CALL-NEXT-METHOD</code>, что приведет к запуску метода для <code>savings-account</code>, поскольку он
+будет следующим наиболее специфичным методом в списке следования классов для
+<code>money-market-account</code>.
+</p>
+<p>Конечно, если вы не хотите полагаться на соглашения о стиле кодирования (что каждый метод
+будет вызывать <code>CALL-NEXT-METHOD</code>) чтобы убедиться, что все применимые методы будут
+вызваны в некоторый момент времени, вы должны подумать об использовании вспомогательных
+методов.  В этом случае, вместо определения основного метода <code>print-statement</code> для
+<code>checking-account</code> и <code>savings-account</code>, вы можете определить их как методы <code>:after</code>,
+оставляя один основной метод для <code>bank-account</code>.  Так что <code>print-statement</code>, вызванный
+для <code>money-market-account</code>, выдаст базовую информацию о счете, которая будет выведена
+основным методом, специализированным для <code>bank-account</code>, за которым следуют
+дополнительные детали, выведенные методами <code>:after</code> специализированными для
+<code>savings-account</code> и <code>checking-account</code>. И если вы хотите добавить детали, специфичные
+для <code>money-market-accounts</code>, вы можете определить метод <code>:after</code>, специализированный
+для <code>money-market-account</code>, который будет выполнен последним.
+</p>
+<p>Преимуществом использования вспомогательных методов является то, что становится понятным
+какие из методов является ответственным за реализацию обобщенной функции, и какие из них
+вносят дополнительные детали в работу функции.  Недостатком этого подходя является то, что
+вы не получаете точного контроля за порядком, в котором будут выполняться вспомогательные
+методы – если вы хотите, чтобы часть отчета, приготовленного для <code>checking-account</code>
+печаталась перед частью <code>savings-account</code>, то вы должны изменить порядок в котором
+<code>money-market-account</code> наследуются от этих классов.  Но это достаточно трагическое
+изменение, которое затрагивает другие методы и унаследованные слоты.  В общем, если вы
+обнаружите, что рассматриваете изменение списка непосредственных суперклассов как способ
+тонкой настройки поведения специфических методов, то вы скорее всего должны сделать шаг
+назад и заново обдумать ваш подход.
+</p>
+<p>С другой стороны, если вы не заботитесь о порядке наследования, но хотите, чтобы он был
+последовательным для разных обобщенных функций, то использование вспомогательных методов
+может быть одним из методов.  Например, если в добавление к <code>print-statement</code> вы имеете
+функцию <code>print-detailed-statement</code>, то вы можете реализовать обе функции используя
+методы<code>:after</code> для разных подклассов <code>bank-account</code>, и порядок частей и для основного
+и детального отчета будет одинаков.
+</p>
+
+
+</div><div class="chapter" id="&#x41F;&#x440;&#x430;&#x432;&#x438;&#x43B;&#x44C;&#x43D;&#x44B;&#x439; &#x43E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x43D;&#x43E;-&#x43E;&#x440;&#x438;&#x435;&#x43D;&#x442;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x43D;&#x44B;&#x439; &#x434;&#x438;&#x437;&#x430;&#x439;&#x43D;"><h3>Правильный объектно-ориентированный дизайн</h3>
+
+<p>Это все о главных возможностях объектной системы Common Lisp.  Если у вас имеется большой
+опыт объектно-ориентированного программирования, вы вероятно увидите как возможности
+Common Lisp могут быть использованы для реализации правильного объектно-ориентированного
+дизайна.  Однако, если у вас небольшой опыт объектно-ориентированного программирования, то
+вам понадобиться провести некоторое время чтобы освоиться с объектно-ориентированным
+мышлением.  К сожалению это достаточно большой раздел, находящийся за пределами данной
+книги.  Или, как указано в справочной странице по объектной системе Perl, "Теперь, вам
+нужно лишь выйти и купить книгу о методологии объектно-ориентированного дизайна, и
+провести с нею следующие шесть месяцев".  Или вы можете продолжить чтение до практических
+глав, далее в этой книге, где вы увидите несколько примеров того, как эти возможности
+используются на практике.  Однако сейчас вы готовы к тому, чтобы взять перерыв и перейти
+от теории объектно-ориентированного программирования к другой теме – как можно полезно
+использовать мощную, но немного загадочную функцию Common Lisp – FORMAT.
+</p>
+</div></div><div class="footnotes"><div><a class="fn_bot" id="fn__1" href="object-reorientation-classes#fnt__1">1)</a>Определение новых методов для существующих классов может
+показаться странным для людей, которые использовали статически типизированные языки, такие
+как C++ и Java, в которых все методы классов должны быть определены как часть определения
+класса.  А вот программисты, которые имеют опыт программирования на Smalltalk и Objective
+C не найдут в этой функциональности ничего странного.</div><div><a class="fn_bot" id="fn__2" href="object-reorientation-classes#fnt__2">2)</a>В других объектно-ориентированных языках слоты могут называться полями,
+переменными-членами класса или аттрибутами.</div><div><a class="fn_bot" id="fn__3" href="object-reorientation-classes#fnt__3">3)</a>Также, как и при именовании функции и переменных, это не совсем правда, что вы
+можете использовать для класса любое имя – вы не можете использовать имена, определенные
+стандартом.  В главе 21 вы увидите как можно избежать таких конфликтов имен.</div><div><a class="fn_bot" id="fn__4" href="object-reorientation-classes#fnt__4">4)</a>В действительности, аргументом <code>MAKE-INSTANCE</code> может быть либо имя класса, или
+объект класса, возвращаемый функциями <code>CLASS-OF</code> или <code>FIND-CLASS</code>.</div><div><a class="fn_bot" id="fn__5" href="object-reorientation-classes#fnt__5">5)</a>Другим способом установки значений слотов, является использование
+опции <code>:default-initargs</code> при объявлении <code>DEFCLASS</code>.  Эта опция используется для
+указания выражений, которые будут вычислены для нахождения аргументов для отдельных
+параметров инициализации, которые не получили значение при вызове <code>MAKE-INSTANCE</code>.  В
+текущий момент времени вам не нужно беспокоиться о <code>:default-initargs</code>.</div><div><a class="fn_bot" id="fn__6" href="object-reorientation-classes#fnt__6">6)</a>Добавление метода <code>:after</code> к
+<code>INITIALIZE-INSTANCE</code> является аналогом на Common Lisp определению конструктора в Java
+или C++, или методу <code><span class="underline">init</span></code> в Python.</div><div><a class="fn_bot" id="fn__7" href="object-reorientation-classes#fnt__7">7)</a>Одна из ошибок, которую вы могли сделать до того, как освоились
+со вспомогательными методами, является в определении метода для <code>INITIALIZE-INSTANCE</code>,
+но без квалификатора <code>:after</code>.  Если вы сделаете это, вы получите новый основной метод,
+который скроет метод, вызываемый по умолчанию.  Вы можете удалить ненужный основной метод
+с помощью функций <code>REMOVE-METHOD</code> и <code>FIND-METHOD</code>.  Некоторые среды разработки могут
+предоставлять графический интерфейс для выполнения данной задачи.
+
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rm_met.htm" class="symbol">remove-method</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_init_i.htm" class="symbol">initialize-instance</a><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_m.htm" class="symbol">find-method</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_init_i.htm" class="symbol">initialize-instance</a> <span class="paren3">(<span class=""/>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_c.htm" class="symbol">find-class</a> 'bank-account</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+</div><div><a class="fn_bot" id="fn__8" href="object-reorientation-classes#fnt__8">8)</a>Конечно, предоставление функции доступа в действительности не
+ограничивает ничего, поскольку сторонний код все равно может использовать <code>SLOT-VALUE</code>
+для прямого доступа к слотам. Common Lisp не предоставляет строгой инкапсуляции слотов,
+как это делают C++ и Java; однако, если автор класса предоставляет функции доступа и вы
+игнорируете их, вместо этого используя <code>SLOT-VALUE</code>, то вы должны лучше знать, что вы
+делаете.  Кроме этого, имеется возможность использования пакетной системы, которую я буду
+обсуждать в главе 21, чтобы ограничить прямой доступ к некоторым слотам путем отсутствия
+экспорта имен слотов.</div><div><a class="fn_bot" id="fn__9" href="object-reorientation-classes#fnt__9">9)</a>Одним из следствий определения <code>SETF</code>-функции (например, <code>(setf
+foo)</code>) является то, что если вы также определяете соответствующую функцию доступа, в нашем
+случае это <code>foo</code>, то вы можете использовать все макросы изменяющие значения,
+которые построены на основе <code>SETF</code>, такие как <code>INCF</code>, <code>DECF</code>, <code>PUSH</code> и <code>POP</code>,
+для нового вида места.</div><div><a class="fn_bot" id="fn__10" href="object-reorientation-classes#fnt__10">10)</a>Имена
+"переменных", предоставляемые <code>WITH-SLOTS</code> и <code>WITH-ACCESSORS</code> не являются настоящими
+переменными; они реализуются специальным видом макросов, называемых символьными макросами,
+которые позволяют простому имени преобразовываться в произвольный код.  Символьные макросы
+были введены в язык для поддержки <code>WITH-SLOTS</code> и <code>WITH-ACCESSORS</code>, но вы также можете
+использовать их для своих целей.  Я их более подробно опишу в главе 20.</div><div><a class="fn_bot" id="fn__11" href="object-reorientation-classes#fnt__11">11)</a>Meta Object Protocol (MOP), который не является частью стандарта языка, но
+поддерживается большинством реализаций Common Lisp, предоставляет функцию
+<code>class-prototype</code>, которая возвращает экземпляр класса, который может использоваться для
+доступа к слотам, выделенным для класса.  Если вы используете реализацию, которая
+поддерживает MOP и вы переносите программу с другого языка, который часто использует
+статические переменные, то эта функция облегчит этот процесс.  Но все не настолько
+однозначно.</div><div><a class="fn_bot" id="fn__12" href="object-reorientation-classes#fnt__12">12)</a>Другими словами, Common Lisp не
+страдает от проблемы наследования (diamond inheritance problem), которая имеется в C++.  В
+C++, когда один класс наследуется от двух классов, которые оба наследуют переменную от
+общего суперкласса, то он наследует эту переменную дважды, что ведет к беспорядку.</div></div></div> <table width="100%"> <tbody> <tr> <td width="20%" align="left"> <a href="object-reorientation-generic-functions">Предыдущая</a> </td> <td width="60%" align="center"> <a href="index.html">Оглавление</a> </td> <td width="20%" align="right"> <a href="a-few-format-recipes">Следующая</a> </td> </tr> </tbody> </table> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

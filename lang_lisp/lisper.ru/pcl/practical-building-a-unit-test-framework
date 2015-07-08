@@ -1,0 +1,336 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>Практикум: Каркас для юнит-тестирования</title> <link href="../css/style.css" rel="stylesheet" type="text/css" /><link href="../css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="http://lisper.ru/register">Регистрация</a> | <a href="http://lisper.ru/login?done=/pcl/practical-building-a-unit-test-framework">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="../image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="../vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="http://lisper.ru/">Главная</a> </li><li> <a href="http://lisper.ru/articles/">Статьи</a> </li><li> <a href="http://lisper.ru/planet/">Планета</a> </li><li> <a href="http://lisper.ru/forum/">Форум</a> </li><li> <a href="http://lisper.ru/apps/">Сервисы</a> </li><li> <a href="index.html">Practical Common Lisp</a> </li><li> <a href="http://lisper.ru/wiki/">Wiki</a> </li><li> <a href="http://lisper.ru/files/">Файлы</a> </li><li> <a href="http://lisper.ru/search">Поиск</a> </li> </ul> </div> <div id="content"> <table width="100%"> <tbody> <tr> <td width="20%" align="left"> <a href="macros-defining-your-own">Предыдущая</a> </td> <td width="60%" align="center"> <a href="index.html">Оглавление</a> </td> <td width="20%" align="right"> <a href="numbers-characters-and-strings">Следующая</a> </td> </tr> </tbody> </table> <div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="practical-building-a-unit-test-framework#9. &#x41F;&#x440;&#x430;&#x43A;&#x442;&#x438;&#x43A;&#x443;&#x43C;: &#x41A;&#x430;&#x440;&#x43A;&#x430;&#x441; &#x434;&#x43B;&#x44F; &#x44E;&#x43D;&#x438;&#x442;-&#x442;&#x435;&#x441;&#x442;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x44F;.">9. Практикум: Каркас для юнит-тестирования.</a><ul><li><div><a href="practical-building-a-unit-test-framework#&#x414;&#x432;&#x430; &#x43F;&#x435;&#x440;&#x432;&#x44B;&#x445; &#x43F;&#x43E;&#x434;&#x445;&#x43E;&#x434;&#x430;">Два первых подхода</a></div></li><li><div><a href="practical-building-a-unit-test-framework#&#x420;&#x435;&#x444;&#x430;&#x43A;&#x442;&#x43E;&#x440;&#x438;&#x43D;&#x433;">Рефакторинг</a></div></li><li><div><a href="practical-building-a-unit-test-framework#&#x427;&#x438;&#x43D;&#x438;&#x43C; &#x432;&#x43E;&#x437;&#x432;&#x440;&#x430;&#x449;&#x430;&#x435;&#x43C;&#x43E;&#x435; &#x437;&#x43D;&#x430;&#x447;&#x435;&#x43D;&#x438;&#x435;">Чиним возвращаемое значение</a></div></li><li><div><a href="practical-building-a-unit-test-framework#&#x423;&#x43B;&#x443;&#x447;&#x448;&#x435;&#x43D;&#x438;&#x435; &#x43E;&#x442;&#x447;&#x451;&#x442;&#x430;">Улучшение отчёта</a></div></li><li><div><a href="practical-building-a-unit-test-framework#&#x412;&#x44B;&#x44F;&#x432;&#x43B;&#x435;&#x43D;&#x438;&#x435; &#x430;&#x431;&#x441;&#x442;&#x440;&#x430;&#x43A;&#x446;&#x438;&#x439;">Выявление абстракций</a></div></li><li><div><a href="practical-building-a-unit-test-framework#&#x418;&#x435;&#x440;&#x430;&#x440;&#x445;&#x438;&#x44F; &#x442;&#x435;&#x441;&#x442;&#x43E;&#x432;">Иерархия тестов</a></div></li><li><div><a href="practical-building-a-unit-test-framework#&#x41F;&#x43E;&#x434;&#x432;&#x435;&#x434;&#x435;&#x43D;&#x438;&#x435; &#x438;&#x442;&#x43E;&#x433;&#x43E;&#x432;">Подведение итогов</a></div></li></ul></div></li></ul></div></div>
+<div class="chapter" id="9. &#x41F;&#x440;&#x430;&#x43A;&#x442;&#x438;&#x43A;&#x443;&#x43C;: &#x41A;&#x430;&#x440;&#x43A;&#x430;&#x441; &#x434;&#x43B;&#x44F; &#x44E;&#x43D;&#x438;&#x442;-&#x442;&#x435;&#x441;&#x442;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x44F;."><h3>9. Практикум: Каркас для юнит-тестирования.</h3>
+
+<p>В этой главе вы вернётесь к написанию кода и разработаете простой каркас для юнит-тестирования Lisp. Это даст вам возможность использовать в реальном коде некоторые возможности языка, о которых вы узнали после главы 3, включая макросы и динамические переменные.
+</p>
+<p>Вашей главной целью при проектировании каркаса для тестирования будут: лёгкость добавления новых тестов, запуск различных наборов тестов и отслеживание проваленных тестов. Вы сосредоточите усилия на проектировании каркаса, который можно использовать при интерактивной разработке.
+</p>
+<p>Главная особенность автоматизированного тестирования состоит в том, что каркас отвечает за проверку, все ли тесты выполнились успешно. Вам не требуется тратить время на то, чтобы пробираться сквозь результаты, сверяя их с ожидаемыми — компьютер может сделать это гораздо быстрее и аккуратнее вас. Как следствие, каждый тест должен быть выражением, которое вырабатывает логическое значение — истина или ложь, тест выполнен успешно или провалился. К примеру, если вы тестируете встроенную функцию <code>+</code>, следующие выражения являются вполне разумными тестами <a class="fn_top" id="fnt__1" href="practical-building-a-unit-test-framework#fn__1">1)</a>:
+</p>
+<pre class="code"><span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/><span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/><span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/></pre>
+
+<p>Функции с побочными эффектами необходимо тестировать слегка по-другому — вам
+придётся вызвать функцию и затем проверить наличие ожидаемых побочных эффектов
+<a class="fn_top" id="fnt__2" href="practical-building-a-unit-test-framework#fn__2">2)</a>. Но в любом случае каждый тест сводится к логическому выражению:
+сработало или не сработало.
+</p>
+<div class="chapter" id="&#x414;&#x432;&#x430; &#x43F;&#x435;&#x440;&#x432;&#x44B;&#x445; &#x43F;&#x43E;&#x434;&#x445;&#x43E;&#x434;&#x430;"><h3>Два первых подхода</h3>
+
+<p>Если бы вы тестировали вручную, вы бы вводили эти выражения в REPL и проверяли
+бы, что они возвращают <code>T</code>. Но вам нужен каркас, который позволяет с лёгкостью
+организовывать и запускать эти тесты в любое время. Если вы хотите начать с
+самой простой работающей версии, вы можете просто написать функцию, которая
+вычисляет все тесты и возвращает <code>T</code> в случае успешного прохождения всех
+тестов (используя <code>AND</code> для этого).
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Для запуска тестов просто вызовите <code>test-+</code>.
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-+</span>)</span><br/>
+T<br/></p></pre>
+
+<p>Пока функция возвращает <code>T</code>, вы знаете, что тесты проходят. Такой способ
+организации тестов также весьма выразителен — вам не нужно писать много кода,
+обслуживающего тестирование. Однако при первом же проваливающемся тесте вы
+заметите, что отчёт о тестировании оставляет желать лучшего: если <code>test-+</code>
+возвращает <code>NIL</code>, вы знаете, что какой-то тест провалился, но не имеете
+понятия, какой именно.
+</p>
+<p>Давайте попробуем другой простой (можно даже сказать — глупый) подход: чтобы
+проверить, что случилось с каждым тестом, напишем так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~:[FAIL~;pass~] ... ~a~%"</span> <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span> '<span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~:[FAIL~;pass~] ... ~a~%"</span> <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span> '<span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~:[FAIL~;pass~] ... ~a~%"</span> <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span> '<span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Теперь каждый тест будет сообщать результат отдельно. Часть <code>~:[FAIL~;pass~]</code>
+форматной строки <code>FORMAT</code> печатает <code>FAIL</code> если первый аргумент ложен и
+<code>pass</code> — если истинен <a class="fn_top" id="fnt__3" href="practical-building-a-unit-test-framework#fn__3">3)</a> . Теперь запуск <code>test-+</code> покажет подробности
+происходящего.
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-+</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/>
+NIL<br/></p></pre>
+
+<p>В этот раз отчёт выглядит гораздо лучше, но сам код ужасен. Повторяющиеся вызовы
+<code>FORMAT</code> и утомительное дублирование тестовых выражений напрашиваются на
+рефакторинг. Дублирование выражений особо раздражает, потому что если вы
+опечатаетесь, то и результаты тестирования будут промаркированы неверно.
+</p>
+<p>Другая проблема состоит в том, что вы не получаете единого ответа, прошли ли все
+тесты успешно. Для трёх тестов достаточно легко проверить, что вывод не содержит
+строчек <code>FAIL</code>, но при наличии сотен тестов это начнёт надоедать.
+</p>
+</div><div class="chapter" id="&#x420;&#x435;&#x444;&#x430;&#x43A;&#x442;&#x43E;&#x440;&#x438;&#x43D;&#x433;"><h3>Рефакторинг</h3>
+
+<p>Что вам действительно нужно — это способ писать тесты так элегантно, как в
+первой функции <code>test-+</code>, которая возвращает <code>T</code> или <code>NIL</code>, но также
+отчитывается о результатах индивидуальных тестов, так, как во второй
+версии. Поскольку вторая версия близка по функциональности к тому, что вам
+нужно, лучшее, что вы можете сделать — проверить, можно ли исключить из неё
+раздражающее дублирование.
+</p>
+<p>Простейший способ избавиться от повторяющихся похожих вызовов <code>FORMAT</code> —
+создать новую функцию.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> report-result <span class="paren2">(<span class="">result form</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~:[FAIL~;pass~] ... ~a~%"</span> result form</span>)</span></span>)</span><br/></pre>
+
+<p>Теперь вы можете писать <code>test-+</code>, вызывая <code>report-result</code> вместо
+<code>FORMAT</code>. Не слишком упрощает жизнь, но по крайней мере если вы решите
+изменить вид выдаваемых результатов, то вам придётся менять код только в одном
+месте.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">report-result <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span> '<span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span></span>)</span><br/>  <span class="paren2">(<span class="">report-result <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span> '<span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span></span>)</span><br/>  <span class="paren2">(<span class="">report-result <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span> '<span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Следующее, что нужно сделать — избавиться от дублирования тестового выражения,
+с присущим дублированию риском неправильной маркировки результата
+тестирования. Что вам нужно — это возможность обработать тестовое выражение
+одновременно как код (для получения результата теста) и как данные (для
+использования в качестве метки теста). Использование кода, как данных — это
+безошибочный признак того, что вам нужен макрос. Или, если посмотреть на это с
+другой стороны, вам нужен способ автоматизировать подверженное ошибкам написание
+вызовов <code>report-result</code>. Неплохо было бы написать что-то, похожее на
+</p>
+<pre class="code"><span class="paren1">(<span class="">check <span class="paren2">(<span class="">= <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span></span>)</span><br/></pre>
+
+<p>и чтобы это означало следующее:
+</p>
+<pre class="code"><span class="paren1">(<span class="">report-result <span class="paren2">(<span class="">= <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span> '<span class="paren2">(<span class="">= <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span></span>)</span><br/></pre>
+
+<p>Написание макроса для выполнения этой трансформации тривиально.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> check <span class="paren2">(<span class="">form</span>)</span><br/>  `<span class="paren2">(<span class="">report-result ,form ',form</span>)</span></span>)</span><br/></pre>
+
+<p>Теперь вы можете изменить <code>test-+</code>, чтобы использовать <code>check</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">check <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span></span>)</span><br/>  <span class="paren2">(<span class="">check <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span></span>)</span><br/>  <span class="paren2">(<span class="">check <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Раз уж вы устраняете дублирование, почему бы не избавиться от повторяющихся
+вызовов <code>check</code>? Можно заставить <code>check</code> принимать произвольное количество
+аргументов и заворачивать каждый из них в вызов <code>report-result</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> check <span class="paren2">(<span class="">&amp;body forms</span>)</span><br/>  `<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"><i><span class="symbol">progn</span></i></a><br/>     ,@<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for f in forms collect `<span class="paren4">(<span class="">report-result ,f ',f</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Это определение использует общепринятую идиому — оборачивание набора форм в
+вызов <code>PROGN</code>, чтобы сделать их единой формой. Заметьте, как можно
+использовать <code>,@</code> для вклеивания результата выражения, которое
+возвращает список выражений, которые сами по себе созданы с помощью шаблона,
+созданного обратной кавычкой.
+</p>
+<p>С новой версией <code>check</code> можно написать новую версию <code>test-+</code> следующим образом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">check<br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>что эквивалентно следующему коду:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"><i><span class="symbol">progn</span></i></a><br/>    <span class="paren3">(<span class="">report-result <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span> '<span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span></span>)</span><br/>    <span class="paren3">(<span class="">report-result <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span> '<span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span></span>)</span><br/>    <span class="paren3">(<span class="">report-result <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span> '<span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Благодаря макросу <code>check</code>, этот вариант столь же краток, как первая версия <code>test-+</code>,
+но раскрывается в код, который делает то же самое, что вторая версия. Кроме
+того, вы можете внести любые изменения в поведение <code>test-+</code>, изменяя только
+<code>check</code>.
+</p>
+</div><div class="chapter" id="&#x427;&#x438;&#x43D;&#x438;&#x43C; &#x432;&#x43E;&#x437;&#x432;&#x440;&#x430;&#x449;&#x430;&#x435;&#x43C;&#x43E;&#x435; &#x437;&#x43D;&#x430;&#x447;&#x435;&#x43D;&#x438;&#x435;"><h3>Чиним возвращаемое значение</h3>
+
+<p>Вы можете начать с изменения <code>test-+</code> таким образом, чтобы его возвращаемое значение показывало, все ли тесты завершились успешно. Поскольку <code>check</code> отвечает за генерацию кода, который запускает тесты, вам нужно изменить его так, чтобы генерируемый код подсчитывал результаты тестов.
+</p>
+<p>Для начала можно внести небольшое изменение в <code>report-result</code>, чтобы он возвращал результат выполняемого им теста.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> report-result <span class="paren2">(<span class="">result form</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~:[FAIL~;pass~] ... ~a~%"</span> result form</span>)</span><br/>  result</span>)</span><br/></pre>
+
+<p>Теперь, когда <code>report-result</code> возвращает значение теста, кажется, что вы можете просто изменить <code>PROGN</code> на <code>AND</code>. К сожалению, <code>AND</code> не будет работать так, как вам хочется в этом случае, из-за своего прерывания, как только один из тестов провалится, <code>AND</code> пропустит остальные. С другой стороны, если бы вы имели конструкцию, которая действует как <code>AND</code>, но не прерываясь, вы могли бы её использовать на месте <code>PROGN</code>. Common Lisp не предоставляет такой конструкции, но это не помешает вам использовать её: вы с легкостью можете написать макрос, предоставляющий такую конструкцию.
+</p>
+<p>Оставляя тесты в стороне на минуту, вам нужен макрос (назовём его <code>combine-results</code>), который позволит вам сказать
+</p>
+<pre class="code"><span class="paren1">(<span class="">combine-results<br/>  <span class="paren2">(<span class="">foo</span>)</span><br/>  <span class="paren2">(<span class="">bar</span>)</span><br/>  <span class="paren2">(<span class="">baz</span>)</span></span>)</span><br/></pre>
+
+<p>и это будет значить
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">unless</a> <span class="paren3">(<span class="">foo</span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">unless</a> <span class="paren3">(<span class="">bar</span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">unless</a> <span class="paren3">(<span class="">baz</span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span><br/>  result</span>)</span><br/></pre>
+
+<p>Единственный нетривиальный момент в написании этого макроса - это введение переменной (<code>result</code> в предыдущем кусочке кода) в раскрытие макроса. Как вы видели в предыдущей главе, использование обычных имён для переменных в раскрытом макросе может заставить протекать абстракцию, так что вам нужно будет создать уникальное имя, что делается с помощью <code>with-gensyms</code>. Вы можете определить <code>combine-results</code> так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> combine-results <span class="paren2">(<span class="">&amp;body forms</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-gensyms</span></i> <span class="paren3">(<span class="">result</span>)</span><br/>    `<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">,result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br/>      ,@<span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for f in forms collect `<span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">unless</a> ,f <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> ,result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span></span>)</span><br/>      ,result</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Теперь вы можете исправить <code>check</code>, просто заменив <code>PROGN</code> на <code>combine-results</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> check <span class="paren2">(<span class="">&amp;body forms</span>)</span><br/>  `<span class="paren2">(<span class="">combine-results<br/>    ,@<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for f in forms collect `<span class="paren4">(<span class="">report-result ,f ',f</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>С этой версией <code>check</code> <code>test-+</code> должен выдавать результаты своих трёх тестов и затем возвращать <code>T</code>, показывая, что все тесты завершились успешно <a class="fn_top" id="fnt__4" href="practical-building-a-unit-test-framework#fn__4">4)</a>.
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-+</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/>
+T<br/></p></pre>
+
+<p>Если вы измените один из тестов так, чтобы он проваливался <a class="fn_top" id="fnt__5" href="practical-building-a-unit-test-framework#fn__5">5)</a>, возвращаемое значение изменится на <code>NIL</code>.
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-+</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+FAIL ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -5</span>)</span><br/>
+NIL<br/></p></pre>
+
+
+</div><div class="chapter" id="&#x423;&#x43B;&#x443;&#x447;&#x448;&#x435;&#x43D;&#x438;&#x435; &#x43E;&#x442;&#x447;&#x451;&#x442;&#x430;"><h3>Улучшение отчёта</h3>
+
+<p>Пока вы тестируете только одну функцию, результаты тестирования обозримы. Если какой-то тест проваливается, всё, что вам нужно сделать - это найти его в конструкции <code>check</code> и понять, почему он не срабатывает. Но если вы пишете много тестов, вы, возможно, захотите структурировать их, а не запихивать все больше и больше тестов в одну функцию. Например, предположим, что вы хотите добавить несколько тестов для функции <code>*</code>. Вы могли бы написать новую функцию тестирования.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-* <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">check<br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 2</span>)</span> 4</span>)</span><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 3 5</span>)</span> 15</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Теперь у вас есть две тестовые функции, так что вы возможно захотите написать ещё одну функцию, которая запускает все тесты. Это достаточно легко.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-arithmetic <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">combine-results<br/>   <span class="paren3">(<span class="">test-+</span>)</span><br/>   <span class="paren3">(<span class="">test-*</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>В этой функции вы используете <code>combine-results</code> вместо <code>check</code>, потому что и <code>test-+</code>, и <code>test-*</code> сами позаботятся о выводе результатов своих тестов. Когда вы запустите <code>test-arithmetic</code>, вы получите следующий результат:
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-arithmetic</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 2</span>)</span> 4</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 3 5</span>)</span> 15</span>)</span><br/>
+T<br/></p></pre>
+
+<p>Теперь представьте, что один из тестов провалился, и вам нужно найти проблему. Для пяти тестов и двух тестовых функций это будет не так сложно. Но представьте себе, что у вас 500 тестов, разнесённых по 20 функциям. Неплохо было бы, чтобы результаты сообщали вам, в какой функции находится каждый тест.
+</p>
+<p>Поскольку код, который печатает результаты тестов, собран в <code>report-result</code>, вам нужен способ передать в неё информацию о том, в какой тестовой функции вы находитесь. Вы можете добавить параметр, сообщающий это, в <code>report-result</code>, но <code>check</code>, который генерирует вызовы <code>report-result</code>, не знает, из какой функции он вызван, что означает, что вам придётся изменить вызовы <code>check</code>, передавая аргумент, который он будет передавать дальше, в <code>report-result</code>.
+</p>
+<p>Это в точности та проблема, для решения которой были придуманы динамические переменные. Если вы создадите динамическую переменную, которая привязывается к имени тестовой функции, то <code>report-result</code> сможет использовать её, а <code>check</code> может ничего о ней не знать.
+</p>
+<p>Для начала определим переменную на верхнем уровне.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*test-name*</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span><br/></pre>
+
+<p>Теперь слегка изменим <code>report-result</code>, чтобы включить <code>*test-name*</code> в вывод <code>FORMAT</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~:[FAIL~;pass~] ... ~a: ~a~%"</span> result <span class="special">*test-name*</span> form</span>)</span><br/></pre>
+
+<p>После этих изменений тестовые функции всё ещё работают, но выдают следующие результаты из-за того, что <code>*test-name*</code> нигде не привязывается к значению, отличному от начального:
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-arithmetic</span>)</span><br/>
+pass ... NIL: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... NIL: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+pass ... NIL: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/>
+pass ... NIL: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 2</span>)</span> 4</span>)</span><br/>
+pass ... NIL: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 3 5</span>)</span> 15</span>)</span><br/>
+T<br/></p></pre>
+
+<p>Для того, чтобы правильно выдавать имена тестовых функций в выводе, вам нужно изменить их.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class=""><span class="special">*test-name*</span> 'test-+</span>)</span></span>)</span><br/>    <span class="paren3">(<span class="">check<br/>      <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>      <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>      <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> test-* <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class=""><span class="special">*test-name*</span> 'test-*</span>)</span></span>)</span><br/>    <span class="paren3">(<span class="">check<br/>      <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 2</span>)</span> 4</span>)</span><br/>      <span class="paren4">(<span class="">= <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 3 5</span>)</span> 15</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Теперь результаты правильно помечены именами тестовых функций.
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-arithmetic</span>)</span><br/>
+pass ... TEST-+: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... TEST-+: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+pass ... TEST-+: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/>
+pass ... TEST-*: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 2</span>)</span> 4</span>)</span><br/>
+pass ... TEST-*: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 3 5</span>)</span> 15</span>)</span><br/>
+T<br/></p></pre>
+
+</div><div class="chapter" id="&#x412;&#x44B;&#x44F;&#x432;&#x43B;&#x435;&#x43D;&#x438;&#x435; &#x430;&#x431;&#x441;&#x442;&#x440;&#x430;&#x43A;&#x446;&#x438;&#x439;"><h3>Выявление абстракций</h3>
+
+<p>При внесении изменений в тестовые функции, вы снова получили дублирующийся код. Тестовые функции не только дважды включают своё имя — первый раз при определении, второй раз при связывании с глобальной переменной <code>*test-name*</code> — но обе они начинаются совершенно одинаково ( вся разница — имя функции ). Вы могли бы попытаться избавиться от дублирования просто потому, что это некрасиво. Но если рассмотреть причину, вызвавшую дублирование, более подробно, то можно извлечь довольно важный урок по использованию макросов.
+</p>
+<p>Причина, по которой обе функции начинаются одинаково, в том, что они обе предназначены для тестирования. Дублирование  возникает из-за того, что тестовая функция — это только одна половина абстракции. Эта абстракция существует в вашей голове, но в коде нет возможности сказать "это — тестовая функция" другим способом, кроме как написанием соответствующего паттерна.
+</p>
+<p>К сожалению, неполные абстракции — плохие помошники при написании программ. Полуабстракция, описанная в коде соответствующим паттерном, гарантирует вам массовое дублирование кода со всеми сопутствующими проблемами поддержки этого кода в дальнейшем. Более того, так как подобные абстракции целиком существуют только в наших мыслях, у нас нет никакой  возможности убедиться, что разные программисты ( или даже один и тот же — но в разное время ) одинаково понимают одну и ту же абстракцию. Дабы полностью абстрагировать идею, вам нужно как-то выразить фразу "это — тестовая функция" соответствующим паттерном. Другими словами, вам нужен макрос.
+</p>
+<p>Так как паттерн, который вы пытаетесь написать, представляет собой вызов <code>DEFUN</code> — и ещё немного кода — вам нужен макрос, раскрывающийся в вызов <code>DEFUN</code>. Вы будете использовать этот макрос вместо <code>DEFUN</code> для определения тестовых функций, так что имеет смысл назвать его <code>deftest</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> <i><span class="symbol">deftest</span></i> <span class="paren2">(<span class="">name parameters &amp;body body</span>)</span><br/>  `<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> ,name ,parameters<br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class=""><span class="special">*test-name*</span> ',name</span>)</span></span>)</span><br/>      ,@body</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Используя этот макрос, вы можете переписать <code>test-+</code> следующим образом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><i><span class="symbol">deftest</span></i> test-+ <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">check<br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>    <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span></span>)</span></span>)</span><br/></pre>
+
+</div><div class="chapter" id="&#x418;&#x435;&#x440;&#x430;&#x440;&#x445;&#x438;&#x44F; &#x442;&#x435;&#x441;&#x442;&#x43E;&#x432;"><h3>Иерархия тестов</h3>
+
+<p>Теперь, когда у вас есть полноценные тестовые функции, может возникнуть вопрос — должна ли функция <code>test-arithmetic</code> также быть тестовой? Казалось бы — если вы определите её с помощью <code>deftest</code>, то её связывание с <code>*test-name*</code> скроет связывания <code>test-+</code> и <code>test-*</code> — и это отразится на выводе результатов тестов.
+</p>
+<p>Но представьте, что у вас есть тысяча ( или даже больше ) тестов, которые нужно как-то упорядочить. На самом нижнем уровне находятся такие функции как <code>test-+</code> и <code>test-*</code>, непосредственно выполняющие проверку. При наличии тысяч тестов их потребуется каким-либо образом упорядочить. Такие функции как <code>test-arithmetic</code> могут группировать схожие тестовые функции в наборы тестов. Допустим, что некоторые низкоуровневые тестовые функции могут использоваться в разных наборах тестов. Тогда вполне возможна такая ситуация, что тест будет пройден в одном контексте и провалится в другом. Если это случится, вам наверняка захочется узнать несколько больше, чем просто имя провалившегося теста.
+</p>
+<p>Если вы определите <code>test-arithmetic</code> посредством <code>deftest</code>, сделав небольшие изменения при связывании с <code>*test-name*</code>, то сможете получить отчёты с более подробным описанием контекста выполнившегося теста:
+</p>
+<pre class="code"><p>pass ... <span class="paren1">(<span class="">TEST-ARITHMETIC TEST-+</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/></p></pre>
+
+<p>Поскольку процесс определения тестовых функций описан отдельным паттерном, изменить отчёт можно и не меняя код самих тестовых функций <a class="fn_top" id="fnt__6" href="practical-building-a-unit-test-framework#fn__6">6)</a>. Сделать так, чтобы <code>*test-name*</code> хранил список имён тестовых функций вместо имени последней вызванной функции, очень просто. Вам нужно всего лишь изменить связывание:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class=""><span class="special">*test-name*</span> ',name</span>)</span></span>)</span><br/></span></span></pre>
+
+<p>на такое:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class=""><span class="special">*test-name*</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_append.htm" class="symbol">append</a> <span class="special">*test-name*</span> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> ',name</span>)</span></span>)</span></span>)</span></span>)</span><br/></span></span></pre>
+
+<p>Так как <code>APPEND</code> возвращает новый список, составленный из его аргументов, это версия будет связывать <code>*test-name*</code> со списком, содержащим старое значение <code>*test-name*</code>, с новым именем, добавленным в конец списка <a class="fn_top" id="fnt__7" href="practical-building-a-unit-test-framework#fn__7">7)</a>. После выхода из функции, старое значение <code>*test-name*</code> восстанавливается.
+</p>
+<p>Теперь вы можете переопределить <code>test-arithmetic</code> используя <code>deftest</code> вместо <code>DEFUN</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><i><span class="symbol">deftest</span></i> test-arithmetic <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">combine-results<br/>   <span class="paren3">(<span class="">test-+</span>)</span><br/>   <span class="paren3">(<span class="">test-*</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>В результате вы получите именно то, что хотели:
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-arithmetic</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-ARITHMETIC TEST-+</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-ARITHMETIC TEST-+</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-ARITHMETIC TEST-+</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-ARITHMETIC TEST-*</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 2</span>)</span> 4</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-ARITHMETIC TEST-*</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 3 5</span>)</span> 15</span>)</span><br/>
+T<br/></p></pre>
+
+<p>С ростом количества тестов, вы можете добавлять новые уровни — и пока они будут определяться через <code>deftest</code>, вывод результата будт корректен. Так, если вы определите таким образом <code>test-math</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><i><span class="symbol">deftest</span></i> test-math <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class="">test-arithmetic</span>)</span></span>)</span><br/></pre>
+
+<p>то получите вот такой результат:
+</p>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class="">test-math</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-MATH TEST-ARITHMETIC TEST-+</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2</span>)</span> 3</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-MATH TEST-ARITHMETIC TEST-+</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 2 3</span>)</span> 6</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-MATH TEST-ARITHMETIC TEST-+</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> -1 -3</span>)</span> -4</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-MATH TEST-ARITHMETIC TEST-*</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 2</span>)</span> 4</span>)</span><br/>
+pass ... <span class="paren1">(<span class="">TEST-MATH TEST-ARITHMETIC TEST-*</span>)</span>: <span class="paren1">(<span class="">= <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 3 5</span>)</span> 15</span>)</span><br/>
+T<br/></p></pre>
+
+</div><div class="chapter" id="&#x41F;&#x43E;&#x434;&#x432;&#x435;&#x434;&#x435;&#x43D;&#x438;&#x435; &#x438;&#x442;&#x43E;&#x433;&#x43E;&#x432;"><h3>Подведение итогов</h3>
+
+<p>Вы могли бы продолжить работу над этим каркасом, добавляя новые возможности — но как каркас для написания тестов без особого напряжения и с возможностью использовать <code>REPL</code>, это очень неплохое начало. Ниже код приведён полностью, все 26 строк:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*test-name*</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> <i><span class="symbol">deftest</span></i> <span class="paren2">(<span class="">name parameters &amp;body body</span>)</span><br/>  <span class="string">"Define a test function. Within a test function we can call<br/>   other test functions or use 'check' to run individual test<br/>   cases."</span><br/>  `<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> ,name ,parameters<br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class=""><span class="special">*test-name*</span> <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_append.htm" class="symbol">append</a> <span class="special">*test-name*</span> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> ',name</span>)</span></span>)</span></span>)</span></span>)</span><br/>      ,@body</span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> check <span class="paren2">(<span class="">&amp;body forms</span>)</span><br/>  <span class="string">"Run each expression in 'forms' as a test case."</span><br/>  `<span class="paren2">(<span class="">combine-results<br/>    ,@<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for f in forms collect `<span class="paren4">(<span class="">report-result ,f ',f</span>)</span></span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> combine-results <span class="paren2">(<span class="">&amp;body forms</span>)</span><br/>  <span class="string">"Combine the results (as booleans) of evaluating 'forms' in order."</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-gensyms</span></i> <span class="paren3">(<span class="">result</span>)</span><br/>    `<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">,result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br/>      ,@<span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for f in forms collect `<span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">unless</a> ,f <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> ,result <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span></span>)</span><br/>      ,result</span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> report-result <span class="paren2">(<span class="">result form</span>)</span><br/>  <span class="string">"Report the results of a single test case. Called by 'check'."</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~:[FAIL~;pass~] ... ~a: ~a~%"</span> result <span class="special">*test-name*</span> form</span>)</span><br/>  result</span>)</span><br/></pre>
+
+<p>Этот пример прекрасно иллюстрирует обычный ход программирования на языке <code>Lisp</code>, так что давайте рассмотрим процесс его написания ещё раз.
+</p>
+<p>Вы начали с постановки задачи — вычислить совокупность булевых выражений и узнать — все ли они возвращают <code>true</code>. Простое <code>AND</code> работало и синтаксически было абсолютно верно — но вывод результатов оставлял желать лучшего. Тогда вы написали немного действительно глуповатого кода, битком набитого повторениями и способствующими ошибкам выражениями, чтобы всё работало так, как вы хотели.
+</p>
+<p>Естественно, что вы решили попробовать привести вторую версию программы к более ясному и красивому виду. Вы начали со стандартного приёма — выделения части кода в отдельную функцию — <code>report-result</code>. Увы, но использование <code>report-result</code> утомительно и чревато ошибками — тестовое выражение приходится писать дважды. Тогда вы написали макрос <code>check</code> для автоматически корректного вызова <code>report-result</code>.
+</p>
+<p>В процессе написания макроса <code>check</code>, вы добавили возможность оборачивать несколько вызовов <code>report-result</code> в один вызов <code>check</code>, сделав новую версию <code>test-+</code> столь же краткой, как и первоначальную с <code>AND</code>.
+</p>
+<p>Следующей задачей было исправить <code>check</code> таким образом, чтобы генерируемый этим макросом код возвращал <code>t</code> или <code>nil</code> в зависимости от того, все ли тесты прошли удачно. Прежде чем переиначивать <code>check</code>, вы предположили, что у вас есть непрерываемая <code>AND</code> конструкция. В этом случае правка <code>check</code> — тривиальное дело. Вы обнаружили, что хотя такой конструкции и нет, написать её самим совсем не трудно. После написания <code>combine-results</code> исправить <code>check</code> было элементарным делом.
+</p>
+<p>Затем, всё, что оставалось, это сделать более удобным отчёт. Начав с исправления тестовых функций, вы представили их как особый вид функций — и в результате написали макрос <code>deftest</code>, выделив паттерн, отличающий тестовые функции от всех прочих.
+</p>
+<p>Наконец, с помощью макроса <code>deftest</code>, разделившего определение тестовой функции от лежащей в её основе структуры, вы получили возможность улучшить вывод результатов не меняя при этом сами тестовые функции.
+</p>
+<p>Теперь, имея представление об основах — функциях, переменных и макросах; получив немного опыта по их практическому применению; вы готовы начать изучение богатой стандартной библиотеки функций и типов данных языка <code>Common Lisp</code>.
+</p></div></div><div class="footnotes"><div><a class="fn_bot" id="fn__1" href="practical-building-a-unit-test-framework#fnt__1">1)</a>Разумеется, это только для большей наглядности — написание тестов для встроенных функций, таких, как <code>+</code>, может выглядеть несколько несуразно. Ведь если даже столь простые вещи не работают, трудно ожидать, что и тесты отработают так, как было задумано. С другой стороны, большинство реализаций Common Lisp написано на самом Common Lisp — и в этом случае наборы тестов для функций стандартной библиотеки уже не выглядят нелепостью.</div><div><a class="fn_bot" id="fn__2" href="practical-building-a-unit-test-framework#fnt__2">2)</a>Побочные эффекты также могут использоваться для сообщения об ошибках; про систему обработки ошибок в Common Lisp я расскажу в 19 главе.
+После прочтения этой главы вы можете подумать над тем, как объединить оба варианта.</div><div><a class="fn_bot" id="fn__3" href="practical-building-a-unit-test-framework#fnt__3">3)</a>Более подробно и эта, и другие управляющие команды <code>FORMAT</code> будут обсуждаться в 18 главе.</div><div><a class="fn_bot" id="fn__4" href="practical-building-a-unit-test-framework#fnt__4">4)</a>Если функция <code>test-+</code> была откомпилирована — а это могло случиться и неявно в некоторых реализациях Common Lisp — вам потребуется заново определить её, чтобы изменения вступили в силу. В интерпретируемом же коде макросы обычно раскрываются каждый раз заново — при каждом выполнении функции — позволяя пронаблюдать эффект от изменения макроса сразу.</div><div><a class="fn_bot" id="fn__5" href="practical-building-a-unit-test-framework#fnt__5">5)</a>Просто измените один их тестов таким образом чтобы он проваливался — это проще, чем изменить поведение функции <code>+</code>.</div><div><a class="fn_bot" id="fn__6" href="practical-building-a-unit-test-framework#fnt__6">6)</a>В любом случае — если наши тестовые функции была скомпилированы, вам нужно будет перекомпилировать их после внесения изменений в макрос.</div><div><a class="fn_bot" id="fn__7" href="practical-building-a-unit-test-framework#fnt__7">7)</a>Как вы увидите в 12 главе, добавление в конец списка с помощью <code>APPEND</code> — не самый эффективный способ построения списка. Но пока нам достаточно и этого — пока глубина вложенности структуры тестов не слишком велика, это смотрится не так уж и плохо. А при необходимости — всегда можно просто чуть изменить определение <code>deftest</code>.</div></div></div> <table width="100%"> <tbody> <tr> <td width="20%" align="left"> <a href="macros-defining-your-own">Предыдущая</a> </td> <td width="60%" align="center"> <a href="index.html">Оглавление</a> </td> <td width="20%" align="right"> <a href="numbers-characters-and-strings">Следующая</a> </td> </tr> </tbody> </table> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>
