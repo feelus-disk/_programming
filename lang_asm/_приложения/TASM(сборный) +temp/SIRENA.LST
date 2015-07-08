@@ -1,0 +1,153 @@
+Turbo Assembler	 Version 4.1	    14/10/09 06:49:18	    Page 1
+sirena.asm
+
+
+
+      1				     ;программа	сирена
+      2				     ;---------------------
+      3				     ;
+      4				     ;
+      5				     ;
+      6				     ;
+      7				     ;
+      8				     masm;
+      9	0000			     model small;
+     10	0000			     stack 100h;
+     11				     ;delay macro time
+     12				     ;
+     13				     ;
+     14				     ;	     local ext,iter
+     15				     ;	     push cx;
+     16				     ;	     mov cx,time;
+     17				     ;ext:
+     18				     ;	     push cx;
+     19				     ;	     mov cx,5000;
+     20				     ;iter:
+     21				     ;	     loop iter;
+     22				     ;	     pop cx;
+     23				     ;	     loop ext;
+     24				     ;	     pop cx;
+     25				     ;endm
+     26	0000			     .data
+     27	0000  0A5B		     tonelow dw	     2651;
+     28	0002  00		     cnt     db	     0;
+     29	0003  ????		     temp    dw	     ?;
+     30	0005			     .code
+     31	0000			     main:
+     32	0000  B8 0000s			     mov ax,@data;
+     33	0003  8E D8			     mov ds,ax;
+     34	0005  B8 0000			     mov ax,0;
+     35	0008			     go:
+     36				     ;
+     37	0008  B0 0B			     mov al,0BH;B6h
+     38	000A  E6 43			     out 43h,al;
+     39	000C  E4 61			     in	al,61h;
+     40	000E  0C 03			     or	al,3;
+     41	0010  E6 61			     out 61h,al;
+     42	0012  B9 0823			     mov cx,2083;
+     43	0015			     musicup:
+     44				     ;
+     45	0015  A1 0000r			     mov ax,tonelow;
+     46	0018  E6 42			     out 42h,al;
+     47	001A  86 C4			     xchg al,ah;
+     48	001C  E6 42			     out 42h,al;
+     49	001E  83 06 0000r 01		     add tonelow,1;
+     50				     ;	     delay 1;
+     51	0023  51			     push cx;
+     52	0024  B9 000A			     mov cx,10;time
+     53	0027			     ext1:
+     54	0027  51			     push cx;
+     55	0028  B9 1388			     mov cx,5000;
+     56	002B			     iter1:
+     57	002B  E2 FE			     loop iter1;
+Turbo Assembler	 Version 4.1	    14/10/09 06:49:18	    Page 2
+sirena.asm
+
+
+
+     58	002D  59			     pop cx;
+     59	002E  E2 F7			     loop ext1;
+     60	0030  59			     pop cx;
+     61
+     62	0031  8B 16 0000r		     mov dx,tonelow;
+     63	0035  89 16 0003r		     mov temp,dx;
+     64	0039  E2 DA			     loop musicup;
+     65	003B  B9 0823			     mov cx,2083;
+     66	003E			     musicdown:
+     67	003E  A1 0003r			     mov ax,temp;
+     68	0041  E6 42			     out 42h,al;
+     69	0043  8A C4			     mov al,ah;
+     70	0045  E6 42			     out 42h,al;
+     71	0047  83 2E 0003r 01		     sub temp,1;
+     72				     ;	     delay 1;
+     73	004C  51			     push cx;
+     74	004D  B9 000A			     mov cx,10;time;
+     75	0050			     ext:
+     76	0050  51			     push cx;
+     77	0051  B9 1388			     mov cx,5000;
+     78	0054			     iter:
+     79	0054  E2 FE			     loop iter;
+     80	0056  59			     pop cx;
+     81	0057  E2 F7			     loop ext;
+     82	0059  59			     pop cx;
+     83
+     84	005A  E2 E2			     loop musicdown;
+     85	005C			     nosound:
+     86	005C  E4 61			     in	al,61h;
+     87	005E  24 FC			     and al,0FCh;
+     88	0060  E6 61			     out 61h,al;
+     89	0062  BA 0A5B			     mov dx,2651;
+     90	0065  89 16 0000r		     mov tonelow,dx;
+     91	0069  FE 06 0002r		     inc cnt;
+     92				     ;
+     93	006D  80 3E 0002r 05		     cmp cnt,5;
+     94	0072  75 94			     jne go;
+     95	0074			     exit:
+     96	0074  B8 4C00			     mov ax,4C00h;
+     97	0077  CD 21			     int 21h;
+     98				     end main;
+Turbo Assembler	 Version 4.1	    14/10/09 06:49:18	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "14/10/09"
+??FILENAME			  Text	 "sirena  "
+??TIME				  Text	 "06:49:18"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 _TEXT
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 SIRENA
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 2
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+CNT				  Byte	 DGROUP:0002
+EXIT				  Near	 _TEXT:0074
+EXT				  Near	 _TEXT:0050
+EXT1				  Near	 _TEXT:0027
+GO				  Near	 _TEXT:0008
+ITER				  Near	 _TEXT:0054
+ITER1				  Near	 _TEXT:002B
+MAIN				  Near	 _TEXT:0000
+MUSICDOWN			  Near	 _TEXT:003E
+MUSICUP				  Near	 _TEXT:0015
+NOSOUND				  Near	 _TEXT:005C
+TEMP				  Word	 DGROUP:0003
+TONELOW				  Word	 DGROUP:0000
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  STACK				  16  0100 Para	  Stack	  STACK
+  _DATA				  16  0005 Word	  Public  DATA
+_TEXT				  16  0079 Word	  Public  CODE
+

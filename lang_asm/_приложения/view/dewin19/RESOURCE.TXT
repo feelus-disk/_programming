@@ -1,0 +1,68 @@
+ FindResource  QuickInfo  Overview  Group
+
+The FindResource function determines the location of a resource with the specified type and name in the specified module. 
+
+HRSRC FindResource(
+
+    HMODULE  hModule,	// resource-module handle 
+    LPCTSTR  lpName,	// address of resource name  
+    LPCTSTR  lpType 	// address of resource type 
+   );	
+
+
+Parameters
+
+hModule
+
+Identifies the module whose executable file contains the resource. 
+
+lpName
+
+Specifies the name of the resource. For more information, see the Remarks section. 
+
+lpType
+
+Specifies the resource type. For more information, see the Remarks section. For standard resource types, this parameter can be one of the following values: 
+
+Value	Meaning
+RT_ACCELERATOR	Accelerator table
+RT_BITMAP	Bitmap resource
+RT_DIALOG	Dialog box
+RT_FONT	Font resource
+RT_FONTDIR	Font directory resource
+RT_MENU	Menu resource
+RT_RCDATA	Application-defined resource (raw data)
+RT_STRING	String-table entry
+RT_MESSAGETABLE	Message-table entry
+RT_CURSOR	Hardware-dependent cursor resource
+RT_GROUP_CURSOR	Hardware-independent cursor resource
+RT_ICON	Hardware-dependent icon resource
+RT_GROUP_ICON	Hardware-independent icon resource
+RT_VERSION	Version resource
+
+
+Return Value
+
+If the function succeeds, the return value is a handle to the specified resource's info block. To obtain a handle to the resource, pass this handle to the LoadResource function. 
+If the function fails, the return value is NULL. To get extended error information, call GetLastError. 
+
+Remarks
+
+If the high-order word of the lpName or lpType parameter is zero, the low-order word specifies the integer identifier of the name or type of the given resource. Otherwise, those parameters are long pointers to null-terminated strings. If the first character of the string is a pound sign (#), the remaining characters represent a decimal number that specifies the integer identifier of the resource's name or type. For example, the string "#258" represents the integer identifier 258. 
+
+An application should reduce the amount of memory required for the resources by referring to them by integer identifier instead of by name. 
+An application can use FindResource to find any type of resource, but this function should be used only if the application must access the binary resource data when making subsequent calls to LoadLibrary and LockResource. 
+To use a resource immediately, an application should use one of the following resource-specific functions to find and load the resources in one call: 
+
+Function	Action
+FormatMessage	Loads and formats a message-table entry.
+LoadAccelerators	Loads an accelerator table.
+LoadBitmap	Loads a bitmap resource.
+LoadCursor	Loads a cursor resource.
+LoadIcon	Loads an icon resource.
+LoadMenu	Loads a menu resource.
+LoadString	Loads a string-table entry.
+
+
+For example, an application can use the LoadIcon function to load an icon for display on the screen. However, the application should use FindResource and LoadResource if it is loading the icon to copy its data to another application. 
+

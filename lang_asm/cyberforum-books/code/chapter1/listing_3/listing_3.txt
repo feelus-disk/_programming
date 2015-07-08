@@ -1,0 +1,44 @@
+.text:00401000 _main	proc near			; CODE XREF: start+16E?p
+.text:00401000		push	ebx
+.text:00401001		mov	ebx, ds:FreeConsole
+.text:00401007		push	esi
+.text:00401008		push	edi
+.text:00401009		call	ebx			; FreeConsole
+.text:0040100B		call	ds:AllocConsole
+.text:00401011		mov	edi, ds:GetStdHandle
+.text:00401017		push	0FFFFFFF5h		; nStdHandle
+.text:00401019		call	edi			; GetStdHandle
+.text:0040101B		push	0FFFFFFF6h		; nStdHandle
+.text:0040101D		mov	esi, eax
+.text:0040101F		call	edi			; GetStdHandle
+.text:00401021		push	0			; lpReserved
+.text:00401023		mov	edi, eax
+.text:00401025		mov	eax, lpString
+.text:0040102A		push	offset NumberOfCharsWritten
+; lpNumberOfCharsWritten
+.text:0040102F		push	eax			; lpString
+.text:00401030		call	ds:lstrlenA
+.text:00401036		mov	ecx, lpString
+.text:0040103C		push	eax			; nNumberOfCharsToWrite
+.text:0040103D		push	ecx			; lpBuffer
+.text:0040103E		push	esi			; hConsoleOutput
+.text:0040103F		call	ds:WriteConsoleA
+.text:00401045		push	0			; lpReserved
+.text:00401047		push	offset NumberOfCharsWritten 
+; lpNumberOfCharsRead
+.text:0040104C		push	64h			; nNumberOfCharsToRead
+.text:0040104E		push	offset unk_4072C8	; lpBuffer
+.text:00401053		push	edi			; hConsoleInput
+.text:00401054		call	ds:ReadConsoleA
+.text:0040105A		push	esi			; hObject
+.text:0040105B		mov	esi, ds:CloseHandle
+.text:00401061		call	esi			; CloseHandle
+.text:00401063		push	edi			; hObject
+.text:00401064		call	esi			; CloseHandle
+.text:00401066		call	ebx			; FreeConsole
+.text:00401068		pop	edi
+.text:00401069		pop	esi
+.text:0040106A		xor	eax, eax
+.text:0040106C		pop	ebx
+.text:0040106D		retn
+.text:0040106D _main	endp

@@ -1,0 +1,43 @@
+.text:00401000 ; BOOL __stdcall DialogFunc(HWND,UINT,WPARAM,LPARAM)
+.text:00401000 DialogFunc      proc near; DATA XREF: WinMain(x,x,x,x)+6?o
+.text:00401000
+.text:00401000		hDlg            = dword ptr  4
+.text:00401000		arg_4           = dword ptr  8
+.text:00401000
+.text:00401000		cmp     [esp+arg_4], 10h
+.text:00401005		jnz     short loc_401014
+.text:00401007		mov     eax, [esp+hDlg]
+.text:0040100B		push    0	; nResult
+.text:0040100D		push    eax	; hDlg
+.text:0040100E		call    ds:EndDialog
+.text:00401014
+.text:00401014 loc_401014:   ; CODE XREF: DialogFunc+5?j
+.text:00401014		xor     eax, eax
+.text:00401016		retn
+.text:00401016 DialogFunc      endp
+.text:00401016
+.text:00401016 ; --------------------------------------------------------
+.text:00401017                 align 10h
+.text:00401020
+.text:00401020 ; ------- S U B R O U T I N E ----------------------------
+.text:00401020
+.text:00401020
+.text:00401020 ; __stdcall WinMain(x,x,x,x)
+.text:00401020 _WinMain@16     proc near               ; CODE XREF: start+186 p
+.text:00401020
+.text:00401020 hInstance       = dword ptr  4
+.text:00401020
+.text:00401020		mov     eax, [esp+hInstance]
+.text:00401024		push    0			; dwInitParam
+.text:00401026		push    offset DialogFunc	; lpDialogFunc
+.text:0040102B		push    0			; hWndParent
+.text:0040102D		push    offset TemplateName	; lpTemplateName
+.text:00401032		push    eax	; hInstance
+.text:00401033		call    ds:DialogBoxParamA 
+; Create a modal dialog box from a
+.text:00401033; dialog box template resource
+.text:00401039		push    0	; uExitCode
+.text:0040103B		call    ds:ExitProcess
+.text:00401041		int     3               
+; Trap to Debugger
+.text:00401041 _WinMain@16     endp

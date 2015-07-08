@@ -1,0 +1,368 @@
+<HTML><HEAD>
+<TITLE>Калашников.ru - Ассемблер? Это просто!.. (Выпуск № 011)</TITLE>
+
+<P align=center><A 
+href="http://ad.ir.ru/bb.cgi?cmd=go&amp;pubid=128269&amp;pg=2&amp;vbn=10001&amp;nocache=77524" 
+target=_top><IMG alt="InterReklama " border=0 
+src="http://ad.ir.ru/bb.cgi?cmd=ad&amp;pubid=128269&amp;pg=2&amp;vbn=10001&amp;nocache=77524"></A></P>
+<P align=center><A href="http://www.ir.ru" target=_top><FONT size=1>InterReklama 
+Advertising</FONT></A> </P>
+<HR>
+
+<CENTER></CENTER>
+<DIV align=center>
+<CENTER>
+<TABLE bgColor=#8fd0da border=3 borderColor=#000080 cellPadding=2 cellSpacing=3 
+width="100%">
+<TBODY>
+<TR>
+<TD>
+<TABLE bgColor=#28756d border=4 width="100%">
+<TBODY>
+<TR>
+<TD>
+<P align=center><FONT size=5><STRONG>Здравсвуйте, дорогие любители 
+Ассемблера!</STRONG></FONT></P>
+<HR>
+
+<P align=center><FONT size=4><STRONG>Выпуск № 
+011</STRONG></FONT></P></TD></TR></TBODY></TABLE>
+<P align=right><EM>Раз-два-три.</EM></P>
+<P align=right><EM>Локаторы протри.</EM></P>
+<P align=right><EM>Четыре-три-два-раз.</EM></P>
+<P align=right><EM>Рассылочка для Вас! Оп!</EM></P>
+<P align=right><STRONG>С.Г.</STRONG></P>
+<HR>
+
+<P align=center><FONT color=#000040 size=5><STRONG>Что у нас 
+сегодня?</STRONG></FONT></P>
+<UL>
+<LI>
+<P align=left><A href="#letters"><FONT color=#800040 size=3><STRONG>Ваши 
+письма</STRONG></FONT></A></P>
+<LI>
+<P align=left><A href="#shell"><FONT color=#800040 
+size=3><STRONG>Оболочка</STRONG></FONT></A></P>
+<LI>
+<P align=left><A href="#results"><FONT color=#800040 
+size=3><STRONG>Результаты блиц-опроса</STRONG></FONT></A></P></LI></UL>
+<HR>
+
+<P align=center><A name=letters><FONT size=5><STRONG>Ваши 
+письма.</STRONG></FONT></A></P>
+<P align=left>Благодарю всех, кто поздравил меня с рождением сына. Спасибо 
+за приятные слова, за пожелания.</P>
+<P align=left>Ко мне пришло письмо от Вадима, которые задал несколько 
+вопросов, а также указал на неточность в прошлой рассылке. Давайте 
+попробуем вместе разобраться. Вот письмо:</P>
+<P align=left>___________________</P>
+<P align=left><EM>Здравствуйте!<BR>1. Я хотел бы, чтобы вы поподробнее 
+рассказали о программе, которая сама себя загружает </EM>(Выпуск N 
+009)<EM>, в частности то, почему нет выхода из нее int 20h?<BR></EM></P>
+<P align=left><EM>2. А также по поводу этих строк:<BR>&gt; int 21h<BR>&gt; 
+ret<BR>Что делает ret в данном случае?<BR></EM></P>
+<P align=left><EM>3. В новой программе:<BR>&gt; mov word ptr 
+Int_21h_vect+2,es ;обратите внимание на запись. Я так понял, что эта 
+строка записывает регистр es не в переменную word, а на 2 байта дальше. 
+Прав ли я?</EM></P>
+<P align=left><EM>4. Также в этих строках:<BR>&gt; int 27h<BR>&gt; ; 
+</EM><EM><STRONG><U>Функция 27h прерывания 21h</U></STRONG></EM><EM> 
+выходит в DOS (как 20h), при этом оставив нашу программу 
+резидентной.<BR>&gt; DX должен указывать на последний байт, остающийся в 
+памяти (это как раз метка Init).<BR>Что за int 27h, по вашим же словам 
+должно быть mov ah,27h / int 21 ?<BR><BR>Vadim</EM></P>
+<P align=left>__________________</P>
+<P align=left>Начнем по-порядку.</P>
+<P align=left>1 и 2. В данном случае все просто. Я думаю, что если вы 
+смотрели в отладчике эту программу, то наверняка заметили, что отладчик 
+переходит по адресу CS:0000 на команду int 20h, которая и завершает 
+работу. Использование инструкции ret для завершения программы 
+предпочтительней, т.к. мы экономим один байт. Однако, это работает только 
+в том случае, если мы не трогали стек (не изменяли регистры SS:SP). Все 
+наверное помнят, что при загрузке *.com-программы вершина стека 
+устанавливается на конец нашего сегмента, т.е. SP=0FFFFh. Если мы зайдем в 
+процедуру или в прерывание, то SP уменьшится на два (SP=SP-2, т.е. SP 
+будет равен 0FFFDh). Поэтому и не происходит путаницы: выходить ли в DOS 
+или вернуться из процедуры. В любом случае, выход в DOS происходит только 
+в том случае, если SP=0FFFFh.</P>
+<P align=left>3. Этот вопрос мы рассмотрим чуть-чуть позже, когда будем 
+проходить подробно типы переменных.</P>
+<P align=left>4. Здесь, дорогие мои, я допустил досадную ошибку. Не 
+функция 27h прерывания 21h оставляет программу резидентной в памяти, а 
+прерывание 27h. Вот, собственно, и все!</P>
+<P align=left>_______________</P>
+<P align=left>Т.к. вы заинтересовались Ассемблером и уже написали ни одну 
+программку, то я уже могу вас немножко попугать.</P>
+<P align=left>Многие до сих пор присылают письма с просьбой объяснить, как 
+написать ту или иную программу (процедуру). Еще раз хотелось бы попросить: 
+<U>друзья мои, не спешите</U>! Я просто физически не могу ответить на 
+такие письма, т.к. это отнимает уйму времени. Писать на Ассемблере не 
+так-то быстро, как, например, на Бейсике. Вы уже знаете, сколько нужно 
+напечатать символов для того, чтобы просто вывести строку на экран. На 
+Бейсике это выглядит так:</P>
+<P align=left>print "Строка"</P>
+<P align=left>Ассемблер - трудоемкий язык, но очень гибкий и интересный. 
+Именно потому, что на нем довольно тяжело писать программы (я бы даже 
+сказал не тяжело, а трудоемко), его не хотят учить. Более того, те, кто 
+попробовал изучить Ассемблер и не смог ничего понять, начинают говорить, 
+что Ассемблер - устаревший язык, и никто на нем уже не пишет. Пишут, 
+дорогие мои! Еще как пишут! И мы с вами увидим, как можно написать такую 
+бы казалось сложную программу, как оболочка под DOS.</P>
+<HR>
+
+<P align=center><A name=shell><FONT 
+size=5><STRONG>Оболочка.</STRONG></FONT></A></P>
+<P align=left>Сегодня начинаем рассматривать довольно большую тему: 
+оболочка типа Norton Commander. Цель данного раздела в нашей рассылке - не 
+написать полноценную оболочку, а подвести вас к тому, чтобы вы ее написали 
+сами. Мы будем рассматривать <STRONG>подпрограммы, прерывания, вывод на 
+экран, рисование окошек, графическую заставку, команды 486 процессора, 
+работу с файлами и дисками, XMS-память, клавиатуру, мышь</STRONG> и пр. 
+После того, как рассмотрим необходимые функции (команды, прерывания), вы 
+сможете без труда написать свою собственную оболочку не хуже, чем 
+известнейший Norton Commander, правда, работать она будет существенно 
+быстрее. Мы же будем писать оболочку, которая выполняет простейшие 
+функции. Почему так? Многие из вас (или даже все) хотят быстрее (или 
+желают в глубине души) перейти к <EM>Windows</EM>. Правда ведь? Вот мы с 
+вами быстренько (но не галопом!) напишем оболочку,
+параллельно изучая все 
+основные функции DOS.</P>
+<P align=left>Из данного раздела вы также узнаете, как работают программы 
+с файлами, что находится "внутри" Norton Commander'а, а также много чего 
+интересного. Вы поймете, что работа программиста (написание программы) - 
+это большой и тяжелый, но очень интересный труд.</P>
+<P align=left>Итак, для того, чтобы написать хорошую оболочку на языке 
+Ассемблера, нам будет вполне достаточно *.com-файла (т.е. размер оболочки 
+не будет превышать 64 Кб). "Хватит ли нам?" - спросите вы. Конечно! 
+Вспомните Volcov Commander, который имеет *.com формат. Все зависит от 
+того, насколько хорошо вы умеете писать, оптимизировать программы, а также 
+сокращать код, делать алгоритм оптимальным. Все это будем изучать.</P>
+<P align=left>Вот "скелет" нашей будущей оболочки:</P>
+<P align=left>____________</P>
+<P align=left>CSEG segment</P>
+<P align=left>assume cs:CSEG, ds:CSEG, es:CSEG, ss:CSEG</P>
+<P align=left>org 100h</P>
+<P align=left>Begin_shell:</P>
+<P align=left><EM>; Проверим видеорежим</EM></P>
+<P align=left>call Check_video</P>
+<P align=left><EM>; Выведем сообщение-приветствие</EM></P>
+<P align=left>mov ah,9</P>
+<P align=left>mov dx,offset Mess_about</P>
+<P align=left>int 21h</P>
+<P align=left><EM><STRONG>; Вызывем главную процедуру</STRONG></EM></P>
+<P align=left>call Main_proc</P>
+<P align=left><EM>; Сюда мы вернемся только, когда пользователь решит 
+выйти в DOS.</EM></P>
+<P align=left>int 20h</P>
+<P align=left><FONT size=4><STRONG>; Здесь будут идти процедуры в 
+произвольном порядке</STRONG></FONT></P>
+<P align=left><STRONG>;</STRONG><FONT color=#e9200a><STRONG> Главная 
+процедура, где будут происходить все действия</STRONG></FONT></P>
+<P align=left>include main.asm</P>
+<P align=left><FONT color=#ff8040>; Процедуры работы с дисплеем 
+тут:</FONT></P>
+<P align=left>include display.asm</P>
+<P align=left><FONT color=#008000>; Процедуры работы с файлами:</FONT></P>
+<P align=left>include files.asm</P>
+<P align=left><FONT color=#004080>; Процедуры работы с 
+клавиатурой:</FONT></P>
+<P align=left>include keyboard.asm</P>
+<P align=left><FONT color=#800000>; Тексты</FONT></P>
+<P align=left>include messages.asm</P>
+<P align=left><FONT color=#408080><EM>; И другие. Со временем 
+добавим...</EM></FONT></P>
+<P align=left>CSEG ends</P>
+<P align=left>Begin_shell endp</P>
+<P align=left>_______________</P>
+<P align=left>Вы видите здесь новый оператор: include. Это оператор именно 
+Ассемблера (MASM, TASM); он не будет занимать места в ассемблированной 
+программе (*.com). Include очень удобно пользоваться, когда программа 
+большая. Вы сейчас все поймете.</P>
+<P align=left>Что нужно сделать? Вам необходимо создать в каталоге, где 
+будет находится ассемблерный головной файл (т.е. который мы только что 
+сделали), еще четыре файла (пока что пустых, с нулевой длиной): main.asm, 
+display.asm, files.asm, keyboard.asm, messages.asm. Как это сделать? 
+Нажмите в оболочке (DOS-navigator, Norton Commander и т.п.) клавиши 
+Shift+F4. Введите соответствующее имя (перечислены выше). Нажмите "Enter", 
+а затем просто "F2" и "ESC". Должно все получится.</P>
+
+<P align=left><FONT size=4><STRONG>
+Здесь и далее файлы-приложения можно найти в архиве Issues.exe, который Вы
+скачали или получили по почте. Если по каким-то причинам необходимых файлов
+Вы не нашли, то их отдельно можно скачать на сайте 
+<a href="http://www.Kalashnikoff.ru">http://www.Kalashnikoff.ru</a>,
+либо написать пустое письмо по адресу <a href="mailto:AssmEnclosures@Kalashnikoff.ru">
+AssmEnclosures@Kalashnikoff.ru</a>. Архив файлов-приложений будет выслан Вам в
+течение трех суток с момента получения Вашего письма. Многие ссылки
+на файлы-приложения уже устарели. Просьба не пользоваться ими!
+</strong></FONT></P>
+
+<P align=left>Итак, начало готово. Можно нашу оболочку ассемблировать. 
+Обратите внимание, что среди файлов, которые вы перекачали и распаковали, 
+есть файл с именем shell.asm. <STRONG>Это наш головной файл</STRONG>. Его 
+и нужно будет ассемблировать.</P>
+<P align=left><STRONG><U>ВНИМАНИЕ!</U></STRONG> НЕ пытайтесь 
+ассемблировать файлы main.asm, display.asm, files.asm, keyboard.asm, 
+messages.asm. Ничего не получится! Они сами автоматически ассемблируются 
+при запуске ассемблера с такими параметрами (если у вас MASM):</P>
+<P align=left>ML.EXE shell.asm /AT</P>
+<P align=left>или так (если у вас TASM):</P>
+<P align=left>TASM.EXE shell.asm</P>
+<P align=left>TLINK.EXE shell.obj /t /x</P>
+<P align=left>Все! Должен получится файл shell.com. Запустите и 
+посмотрите, как он работает. Затем внимательно изучите все файлы с 
+расширением *.asm. Обратите внимание на оформление программ, на отступы. 
+Думаю, что ничего сложного нет.</P>
+<P align=left>Теперь давайте рассмотрим новые функции.</P>
+<P align=left><FONT color=#800040><STRONG>Функция 0Fh прерывания 10h: 
+получить текущее состояние дисплея:</STRONG></FONT></P>
+<TABLE border=3 borderColor=#000080 cellSpacing=1 width="65%">
+<TBODY>
+<TR>
+<TD vAlign=top><STRONG>Вход:</STRONG></TD>
+<TD>AH =0Fh</TD></TR>
+<TR>
+<TD vAlign=top><STRONG>Выход:</STRONG></TD>
+<TD>AL=текущий видеорежим (текстовый/графический)
+<P>AH=число текстовых колонок на экране</P>
+<P>BH=номер активной страницы</P></TD></TR></TBODY></TABLE>
+<P align=left><FONT color=#000000>Вообще прерывание 10h - это набор 
+функций BIOS (ПЗУ) по управлению дисплеем.</FONT></P>
+<P align=left><FONT color=#000000>Дисплей может находится в двух режимах: 
+текстовом и графическом. В свою очередь, текстовые и графические режимы 
+могут разделяться на подгруппы. Например, тестовый режим 40х25, тестовый 
+режим 80х25 (наиболее удобный и часто используемый; например, Norton 
+Commander), графический режим 4-х цветный (CGA) (Digger помните?), 
+графический 16-и цветный и пр.</FONT></P>
+<P align=left><FONT color=#000000>Ниже приведу список некоторых 
+режимов:</FONT></P>
+<P align=left><FONT color=#000000>1 - текст 40х25</FONT></P>
+<P align=left><FONT color=#000000>3 - текст 80х25</FONT></P>
+<P align=left><FONT color=#000000>4 - графика 320х200</FONT></P>
+<P align=left><FONT color=#000000>6 - графика 640х200</FONT></P>
+<P align=left><FONT color=#000000>Более подробное описание режимов можно 
+найти здесь: </FONT><A 
+href="http://asm.kalashnikoff.ru/prog/"><FONT 
+color=#0000ff>http://asm.kalashnikoff.ru/prog</FONT></A></P>
+<P align=left><FONT color=#000000>Как видно из функции:</FONT></P>
+<P align=left><FONT color=#000000>mov ah,0Fh</FONT></P>
+<P align=left><FONT color=#000000>int 10h</FONT></P>
+<P align=left><FONT color=#000000>cmp al,3</FONT></P>
+<P align=left><FONT color=#000000>je Ok_video</FONT></P>
+<P align=left><FONT color=#000000>мы проверяем, установлен ли текущий 
+режим 3 (т.е. текстовый 80х25). Если так, то проверяем на текущую 
+видеостраницу. Если нет, то установим его функцией 0 прерывания 
+10h:</FONT></P>
+<P align=left><FONT color=#000000>mov ax,3</FONT></P>
+<P align=left><FONT color=#000000>int 10h</FONT></P>
+<P align=left><FONT color=#000000>При выполнении данной функции происходит
+очистка экрана, даже если текущий режим был 3. Кстати, этого не делает DOS 
+Navigator. Попробуйте написать простую программу, которая бы устанавливала 
+графический режим 4 и запустите ее из DOS Navigator'а. Увидите, что 
+получится...</FONT></P>
+<P align=left><FONT color=#000000>Далее. Видеокарта как правило имеет 
+достаточно памяти для размещения более одной текстовой видеостраницы (если 
+у вас VGA или EGA монитор, то можно смело утверждать, что ваша видеокарта 
+имеет 8 видеостраниц). Для чего они нужны? Обычно нет необходимости 
+переключаться на другие страницы (первую, вторую и т.д.). Все отображается 
+на нулевой странице. Однако, есть программы, которые используют первую и 
+вторую видеостраницы и "забывают" переключиться на нулевую перед выходом. 
+В нашей оболочке мы будем выводить все символы прямым отображением в 
+видеобуфер на нулевую страницу (так быстрее). Если, не дай бог, текущей 
+будет первая или вторая страница, то мы, естественно, ничего не увидим. 
+Для этого следует проверить, установлена ли нулевая страница или нет. 
+Кстати, многие оболочки этого тоже не делают...</FONT></P>
+<P align=left><FONT color=#800040><STRONG>Функция 05h прерывания 10h: 
+установить текущую видеостраницу:</STRONG></FONT></P>
+<TABLE border=3 borderColor=#000080 cellSpacing=1 width="65%">
+<TBODY>
+<TR>
+<TD vAlign=top><STRONG>Вход:</STRONG></TD>
+<TD>AH =05h
+<P>AL=видеостраница</P></TD></TR>
+<TR>
+<TD vAlign=top><STRONG>Выход:</STRONG></TD>
+<TD>ничего</TD></TR></TBODY></TABLE>
+<P>Попробуйте поэкспериментировать с данными прерываниями.</P>
+<HR>
+
+<P align=center><A name=results><FONT size=5><STRONG>Результаты 
+блиц-опроса.</STRONG></FONT></A></P>
+<P><STRONG>1. Все внимательно прочитал несколько раз, но ничего не понял - 
+2</STRONG></P>
+<P><STRONG>2. Плохо объясняешь. "Дошло" на третьи сутки - 1</STRONG></P>
+<P><STRONG>3. "Дошло" с трудом. Желательно объяснять поподробнее. А так 
+все нормально - 8</STRONG></P>
+<P><STRONG>4. Тяжело, но интересно. Продолжай в том же духе! - 
+11</STRONG></P>
+<P><STRONG>5. Все отлично! Классно объясняешь! - 15</STRONG></P>
+<P><STRONG>6. Элементарщина! Скорее бы к Windows перейти... - 
+12</STRONG></P>
+<HR>
+
+<P>А сегодня я закругляюсь. Извините, на этой неделе ну 
+<STRONG>очень</STRONG> мало времени. Следующая рассылка выйдет потолще. В 
+ней мы продолжим изучать вирус и резидент. Да, кстати, напишем классный 
+резидент (точнее, классное использование резидента). У меня есть уже 
+кое-какие наметки по данному вопросу.</P>
+<P>Удачи вам!</P>
+<P><FONT size=5><STRONG>С уважением,</STRONG></FONT></P>
+<DIV align=left>
+<TABLE bgColor=#369a86 border=4>
+<TBODY>
+<TR>
+<TD>
+<P align=center><FONT size=4><STRONG><U>Автор 
+рассылки:</U></STRONG><U> Калашников Олег</U></FONT></P>
+<P><STRONG>E-mail:</STRONG> <A 
+href="mailto:assembler@beep.ru">assembler@beep.ru</A></P>
+<P><STRONG>URL:</STRONG> <A 
+href="http://www.Kalashnikoff.ru">http://www.Kalashnikoff.ru</A></P>
+<P><STRONG>UIN (Тетя Ася): 
+68951340</STRONG></P></TD></TR></TBODY></TABLE></DIV></TD></TR></TBODY></TABLE></CENTER></DIV>
+
+<hr>
+
+<p align="center">[<a href="012.htm">Следующий выпуск</a>] [<a target=_BLANK href="http://www.Kalashnikoff.ru/">На главную страницу</a>]</p>
+
+<HR NOSHADE><CENTER>
+<!-- SpyLOG v2 f:0211 --><script language="javascript">  
+u="u496.71.spylog.com";d=document;nv=navigator;na=nv.appName;p=1;  
+bv=Math.round(parseFloat(nv.appVersion)*100);  
+n=(na.substring(0,2)=="Mi")?0:1;rn=Math.random();z="p="+p+"&rn="+rn;y="";  
+y+="<a href='http://"+u+"/cnt?f=3&p="+p+"&rn="+rn+"' target=_blank>";  
+y+="<img src='http://"+u+"/cnt?"+z+  
+"&r="+escape(d.referrer)+"&pg="+escape(window.location.href)+"' border=0 width=88 height=31 alt='SpyLOG'>";  
+y+="</a>"; d.write(y);if(!n) { d.write("<"+"!--"); }//--></script><noscript><p align="center"><a 
+href="http://u496.71.spylog.com/cnt?f=3&amp;p=1" 
+target="_blank"><img src="http://u496.71.spylog.com/cnt?p=1" alt="SpyLOG" align="middle" border="0"></a> 
+<a href="http://u496.71.spylog.com/cnt?f=3&amp;p=1" target="_blank"></noscript></a> 
+<a href="http://u496.71.spylog.com/cnt?f=3&amp;p=1" target="_blank"> 
+<script language="javascript1.2"><!-- if(!n) { d.write("--"+">"); }//--></script></a> 
+<!-- SpyLOG --> 
+ 
+ <a target=_top href="http://www.one.ru"><img src="http://cnt.one.ru/cgi-bin/cnt.cgi?id=16871&t=9" width=88 height=31 alt="be number one" border=0></a> 
+ 
+ <script language="JavaScript"><!-- 
+d=document;a='';a+=';r='+escape(d.referrer) 
+js=10//--></script><script language="JavaScript1.1"><!-- 
+a+=';j='+navigator.javaEnabled() 
+js=11//--></script><script language="JavaScript1.2"><!-- 
+s=screen;a+=';s='+s.width+'*'+s.height 
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth) 
+js=12//--></script><script language="JavaScript1.3"><!-- 
+js=13//--></script><script language="JavaScript"><!-- 
+d.write('<a href="http://top.list.ru/jump?from=87856"'+ 
+' target=_top><img src="http://top.list.ru/counter'+ 
+'?id=87856;t=54;js='+js+a+';rand='+Math.random()+ 
+'" alt="TopList"'+' border=0 height=31 width=88></a>') 
+if(js>11)d.write('<'+'!-- ')//--></script><noscript><a 
+target=_top href="http://top.list.ru/jump?from=87856"><img 
+src="http://top.list.ru/counter?js=na;id=87856;t=54" 
+border=0 height=31 width=88 
+alt="TopList"></a></noscript><script language="JavaScript"><!-- 
+if(js>11)d.write('--'+'>')//--></script> 
+ 
+<br><br> 
+
+</HTML>

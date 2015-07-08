@@ -1,0 +1,102 @@
+ 
+
+.SECT .TEXT
+stcstart:			!  1
+	PUSH mesg1		!  2
+	PUSH mesg2		!  3
+	CALL strngcpy		!  4
+	ADD  SP,4		!  5
+	PUSH 0			!  6
+	PUSH 1			!  7
+	SYS			!  8
+strngcpy:			!  9
+	PUSH CX			! 10
+	PUSH SI			! 11
+	PUSH DI			! 12
+	PUSH BP			! 13
+	MOV  BP,SP		! 14
+	MOV  AX,0		! 15
+	MOV  DI,10(BP)		! 16
+	MOV  CX,-1		! 17
+	REPNZ SCASB		! 18
+	NEG  CX			! 19
+	DEC CX			! 20
+	MOV  SI,10(BP)		! 21
+	MOV  DI,12(BP)		! 22
+	PUSH DI			! 23
+	REP  MOVSB		! 24
+	CALL stringpr		! 25
+	MOV  SP,BP		! 26
+	POP  BP			! 27
+	POP  DI			! 28
+	POP  SI			! 29
+	POP  CX			! 30
+	RET			! 31
+.SECT .DATA			! 32
+mesg1: .ASCIZ "Have a look\n"	! 33
+mesg2: .ASCIZ "qrst\n"		! 34
+_EXIT	   =	  1	! seven system call numbers
+_READ	   =	  3
+_WRITE	   =	  4
+_OPEN	   =	  5
+_CLOSE	   =	  6
+_CREAT	   =	  8
+_LSEEK	   =	 19
+_GETCHAR   =	117	! five system subroutine numbers
+_SPRINTF   =	121
+_PUTCHAR   =	122
+_SSCANF	   =	125
+_PRINTF	   =	127
+STDIN	   =	  0	! three initially opened file descriptors
+STDOUT	   =	  1
+STDERR	   =	  2
+.SECT .TEXT		! Definition of section header labels
+TxtSecHd:
+.SECT .DATA
+DatSecHd:
+.SECT .TEXT
+.SECT .TEXT
+stpstart:			!  1
+	PUSH msg1		!  2
+	CALL stringpr		!  3
+	PUSH msg2		!  4
+	CALL stringpr		!  5
+	ADD  SP,4		!  6
+	PUSH 0			!  7
+	PUSH 1			!  8
+	SYS			!  9
+stringpr:			! 10
+	PUSH CX			! 11
+	PUSH SI			! 12
+	PUSH DI			! 13
+	PUSH BP			! 14
+	MOV  BP,SP		! 15
+	MOV  AX,0		! 16
+	MOV  DI,10(BP)		! 17
+	MOV  SI,DI		! 18
+	MOV  CX,-1		! 19
+	REPNZ SCASB		! 20
+	! INC  CX			! 21
+	NOT  CX			! 22
+	DEC  CX
+	MOV  DI,strpribf	! 23
+	PUSH CX			! 24
+	PUSH DI			! 25
+	PUSH STDOUT		! 26
+	PUSH _WRITE		! 27
+	REP  MOVSB		! 28
+	STOSB			! 29
+	SYS			! 30
+	MOV  SP,BP		! 31
+	POP  BP			! 32
+	POP  DI			! 33
+	POP  SI			! 34
+	POP  CX			! 35
+	RET			! 36
+.SECT .DATA			! 37
+.SECT .BSS			! 38
+strpribf:			! 39
+	.SPACE 88		! 40
+.SECT .DATA			! 41
+msg1: .ASCIZ "Look here msg1\n"	! 42
+msg2: .ASCIZ "And msg 2\n"	! 43

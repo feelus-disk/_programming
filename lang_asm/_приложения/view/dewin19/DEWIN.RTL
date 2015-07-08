@@ -1,0 +1,170 @@
+; Turbo Pascal 7.0 runtime
+; проверка достаточности размера стека перед созданием стекового кадра
+05 00 02 72 0D 2B C4 73 09 F7 D8 3B 06 ?? ?? 72 01 CB B8 proc _stacklen
+
+8B DC 8C DA 36 C5 77 0A 36 C4 7F 06 36 8B 4F 04 \
+FC F3 A4 8E DA CA 0A 00 proc _memcpy
+
+FC 8B DC 8C DA 36 C4 7F 08 36 C5 77 04 AC \
+AA 8A C8 32 ED F3 A4 8E DA CA 04 00 proc _pstrcpy
+
+FC 8B DC 8C DA 36 C5 77 0A 36 C4 7F 06 \
+36 8B 4F 04 AC 3A C1 76 02 8A C1 AA 8A C8 \
+32 ED F3 A4 8E DA CA 0A 00 proc _pstrncpy
+
+FC 8B DC 8C DA 36 C4 7F 08 36 C5 77 04 \
+26 8A 0D 32 ED AC 26 00 05 73 08 26 C6 05 FF \
+8A C1 F6 D0 03 F9 47 8A C8 F3 A4 8E DA CA 04 00 proc _pstrcat
+
+FC 8B DC 8C DA 36 C5 77 08 36 C4 7F 04 AC \
+26 8A 25 47 8A C8 3A CC 76 02 8A CC 0A C9 74 06 \
+32 ED F3 A6 75 02 3A C4 8E DA CA 08 00 proc _pstrcmp
+
+E8 -> \
+0A C0 74 F9 0A C9 74 F5 55 8B EA 33 D7 81 E2 00 80 86 D0 \
+02 D1 12 F0 8A C8 81 CD 00 80 81 CF 00 80 52 0A E4 75 04 \
+0B DB 74 0D 0A ED 75 26 0B F6 75 22 91 87 DE 87 EF 8B C1 \
+F7 E5 8B DA 8B C6 F7 E5 03 D8 83 D2 00 8B CA 8B C7 F7 E5 \
+03 C1 83 D2 00 <- \
+72 ?? CB proc _mul
+
+0A C9 74 ?? E8 -> \
+0A C0 74 F5 55 8B EA 33 D7 81 CF 00 80 81 CD 00 80 \
+81 E2 00 80 86 C2 2A D1 1A F0 52 B0 02 BA 01 00 3B EF \
+75 06 3B DE 75 02 3A E5 72 06 2A E5 1B DE 1B EF D1 D2 \
+72 11 D0 E4 D1 D3 D1 D5 73 E2 2A E5 1B DE 1B EF F8 <- \
+72 ?? CB proc _div
+
+; умножение longint
+80 3E ?? ?? 02 72 1B 66 C1 E0 10 66 0F AC D0 10 66 C1 E1 \
+10 66 0F AC D9 10 66 F7 E9 66 0F A4 C2 10 CB \
+8B F0 8B FA F7 E1 50 52 8B C6 F7 E3 8B D8 8B C7 F7 E1 \
+8B C8 5A 58 03 D3 03 D1 CB proc _longmul
+
+; деление longint
+80 3E ?? ?? 02 72 27 66 C1 E0 10 66 0F AC D0 10 66 C1 E1 10 \
+66 0F AC D9 10 74 5E 66 99 66 F7 F9 66 8B CA 66 0F A4 C2 10 \
+66 0F A4 CB 10 CB 55 33 ED 0B D2 79 08 45 F7 D8 83 D2 00 \
+F7 DA 0B DB 74 3E 79 0B 45 45 F7 D9 83 D3 00 F7 DB 74 33 \
+55 8B F1 8B FB 33 DB 8B CA 8B D0 33 C0 BD ?? ?? D1 E0 D1 D2 \
+D1 D1 D1 D3 40 2B CE 1B DF 73 05 48 03 CE 13 DF 4D 75 E9 5D \
+EB 16 5D B8 ?? ?? E9 ?? ?? E3 F7 93 92 F7 F1 93 F7 F1 8B CA \
+8B D3 33 DB D1 ED 73 08 F7 D9 83 D3 00 F7 DB 45 4D 75 07 \
+F7 D8 83 D2 00 F7 DA 5D CB proc _longdiv
+
+; Win 3.1 Borland C++, Copyright 95, CodeGuard
+45 55 8B EC 56 57 C4 7E 06 8B 4E 0A 8A 46 0C 8A E0 FC \
+F7 C7 01 00 74 04 E3 09 AA 49 D1 E9 F3 AB 73 01 AA \
+5F 5E 5D 4D CB proc _fmemset( void far *, int size, char n )
+
+45 55 8B EC 56 57 1E 8B 46 0E 8B C8 E3 14 C5 76 06 \
+C4 7E 0A FC F3 A6 8A 44 FF 32 E4 26 8A 4D FF 32 ED \
+1F 2B C1 5F 5E 5D 4D CB proc _fmemcmp( void far *, void far *, int size)
+
+45 55 8B EC 56 57 8C DA C4 7E 06 C5 76 0A 8B 4E 0E D1 E9 \
+FC F3 A5 73 01 A4 8E DA 8B 56 08 8B 46 06 5F 5E 5D 4D \
+CB proc _fmemcpy( void far *to, void far *from, int size)
+
+;-- from BC++ 3.1 cwl.lib --
+
+45 55 8B EC 56 57 8C DA FC 33 C0 8B D8 C4 7E 0A 8B F7 32 C0 \
+B9 FF FF F2 AE F7 D1 8B FE C5 76 06 F3 A6 8A 44 FF 26 8A 5D FF \
+2B C3 8E DA 5F 5E 5D 4D CB proc _strcmp( char far *, char far *)
+
+45 55 8B EC 56 57 FC C4 7E 0A 8B F7 32 C0 B9 FF FF F2 AE \
+F7 D1 1E 8C C0 8E D8 C4 7E 06 F3 A4 1F 8B 56 08 8B 46 06 \
+5F 5E 5D 4D CB proc _strcpy( char far *, char far *)
+
+45 55 8B EC 56 57 8C DA FC C4 7E 0A 8B F7 8B 46 0E 8B C8 E3 1E \
+8B D8 32 C0 F2 AE 2B D9 8B CB 8B FE C5 76 06 F3 A6 8A 44 FF \
+26 8A 5D FF 32 E4 8A FC 2B C3 8E DA 5F 5E \
+5D 4D CB proc _strncmp
+
+45 55 8B EC 56 57 FC C4 7E 0A 8B F7 32 C0 8B 5E 0E 8B CB F2 AE \
+2B D9 1E 8C C7 8E DF C4 7E 06 87 CB F3 A4 8B CB F3 AA 1F 8B 56 08 \
+8B 46 06 5F 5E 5D 4D CB proc _strncpy
+
+45 55 8B EC 56 57 1E FC C5 76 06 C4 7E 0A 8B 4E 0E 33 C0 8B D8 \
+BA 7A 61 E3 24 AC 26 8A 1D 0A C0 74 1C AE E1 F3 3A C6 72 06 \
+3A C2 77 02 2C 20 3A DE 72 07 3A DA 77 03 80 EB 20 3A C3 74 DA \
+2B C3 1F 5F 5E 5D 4D CB proc _strnicmp
+
+45 55 8B EC 56 57 FC 1E C4 7E 06 8B D7 32 C0 B9 FF FF F2 AE \
+06 8D 75 FF C4 7E 0A B9 FF FF F2 AE F7 D1 2B F9 06 1F 07 87 F7 \
+F7 C6 01 00 74 02 A4 49 D1 E9 F3 A5 73 01 A4 92 8C C2 1F 5F 5E \
+5D 4D CB proc _strcat( char far *, char far *)
+
+45 55 8B EC 56 FC 1E C5 76 06 8A 5E 0A F7 C6 01 00 74 09 AC 3A C3 \
+74 1C 22 C0 74 11 AD 3A C3 74 14 22 C0 74 08 3A E3 74 0B 22 E4 75 EF \
+1F 33 D2 33 C0 EB 07 46 8D 44 FE 8C DA 1F 5E \
+5D 4D CB proc _strchr( char far *, char c)
+
+45 55 8B EC 83 EC 04 33 C9 EB 2C 8B 46 0C 8B 56 0A 89 46 FE 89 56 FC \
+EB 11 C4 5E 06 26 8A 07 C4 5E FC 26 3A 07 74 19 FF 46 FC C4 5E FC \
+26 80 3F 00 75 E6 FF 46 06 41 C4 5E 06 26 80 3F 00 75 CB 8B C1 \
+8B E5 5D 4D CB proc _strcspn
+
+45 55 8B EC 56 57 8C DA FC C5 76 06 C4 7E 0A 33 C0 8B D8 B9 7A 61 \
+AC 26 8A 1D 0A C0 74 1C AE 74 F5 3A C5 72 06 3A C1 77 02 2C 20 3A DD \
+72 07 3A D9 77 03 80 EB 20 3A C3 74 DC 2B C3 8E DA 5F \
+5E 5D 4D CB proc _stricmp( char far *, char far *)
+
+45 55 8B EC 57 C4 7E 06 33 C0 3B 46 08 75 04 3B C7 74 0A FC B9 FF FF \
+F2 AE 91 F7 D0 48 5F 5D 4D CB proc _strlen( char far *)
+
+45 55 8B EC 56 FC 1E C5 76 06 8B D6 EB 0B 2C 41 3C 19 77 05 \
+04 61 88 44 FF AC 22 C0 75 F0 92 8C DA 1F 5E \
+5D 4D CB proc _strlwr( char far *)
+
+8B 0E ?? ?? 8B 1E ?? ?? BA 5A 01 B8 35 4E E8 ?? ?? 05 01 00 \
+83 D2 00 89 16 ?? ?? A3 ?? ?? A1 ?? ?? 99 25 FF 7F CB proc _rand(void)
+
+; [push si di] at entry, missing [cwd]
+56 57 8B 0E ?? ?? 8B 1E ?? ?? BA 5A 01 B8 35 4E E8 ?? ?? 05 01 00 \
+83 D2 00 89 16 ?? ?? A3 ?? ?? A1 ?? ?? 25 FF 7F 5F 5E CB proc _rand(void)
+
+45 55 8B EC 56 57 C4 5E 0A 26 8A 07 98 0B C0 75 08 8B 56 08 \
+8B 46 06 EB 52 1E FC C4 7E 06 06 8B DF 33 C0 B9 FF FF F2 AE \
+F7 D1 87 CA C4 7E 0A 06 8B EF 33 C0 B9 FF FF F2 AE 41 \
+F7 D1 1F 07 8B F5 AC 87 FB 87 CA F2 AE 8B DF 75 04 3B CA \
+73 09 33 DB 8E C3 BB 01 00 EB 0D 87 CA E3 09 8B C1 49 F3 A6 \
+8B C8 75 D9 1F 8B C3 48 8C C2 5F 5E 5D \
+4D CB proc _strstr( char far *, char far *)
+
+; BC++ 3.1 cwl.lib
+45 55 8B EC B4 2A CD 21 C4 5E 06 26 88 47 04 26 88 17 26 88 77 01 \
+26 89 4F 02 5D 4D CB proc __dos_getdate(void far *)
+
+; BC++ 3.1 cwl.lib
+45 55 8B EC B4 2C CD 21 C4 5E 06 26 88 2F 26 88 4F 01 26 88 77 02 \
+26 88 57 03 5D 4D CB proc __dos_gettime(void far *)
+
+; with [push si di] at entry
+45 55 8B EC 56 57 B4 2A CD 21 C4 5E 06 26 89 0F 26 89 57 02 \
+5F 5E 5D 4D CB proc __dos_getdate(void far *)
+
+; with [push si di] at entry
+45 55 8B EC 56 57 B4 2C CD 21 C4 5E 06 26 89 0F 26 89 57 02 \
+5F 5E 5D 4D CB proc __dos_gettime(void far *)
+
+45 55 8B EC 83 EC 0C 56 57 16 8D 46 FC 50 90 0E \
+calln "__dos_getdate(void far *)" 83 C4 04 \
+16 8D 46 F8 50 90 0E calln "__dos_gettime(void far *)" \
+83 C4 04 16 8D 46 F8 50 16 8D 46 FC 50 90 0E \
+;        call    3A00
+E8 ?? ?? 83 C4 08 89 56 F6 89 46 F4 8B 46 06 0B 46 08 \
+74 0D C4 5E 06 8B 46 F4 26 89 57 02 26 89 07 8B 56 F6 \
+8B 46 F4 5F 5E C9 4D CB proc ttttttttttime
+
+; BC++ 3.1 cwl.lib
+56 96 92 85 C0 74 02 F7 E3 E3 05 91 F7 E6 03 C1 96 F7 E3 \
+03 D6 5E C3 proc N_LXMUL@
+
+; BC++ 3.1 cwl.lib
+56 96 92 85 C0 74 02 F7 E3 E3 05 91 F7 E6 03 C1 96 F7 E3 03 D6 \
+5E CB proc F_LXMUL@
+
+; BC++ 3.1 cwl.lib
+56 96 92 85 C0 74 02 F7 E3 E3 05 91 F7 E6 03 C1 96 F7 E3 03 D6 \
+5E CB proc LXMUL@
+

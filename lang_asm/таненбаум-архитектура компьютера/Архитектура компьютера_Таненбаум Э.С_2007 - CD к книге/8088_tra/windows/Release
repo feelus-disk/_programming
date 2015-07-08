@@ -1,0 +1,33 @@
+	IMPLEMENTATION ISSUES AND PROBLEMS
+
+The assembler requires that the sections are defined in the order 
+TEXT, DATA, BSS. After the first occurrences, the remaining section
+directives can appear in any order. It is advisable to give the 0
+addresses in all three sections a global label, so they can be
+referred to by code and data. The header file "syscalnr.h" defines
+the system call numbers and the sections in the right order.
+It also supplies the initial labels "TxtSectHd" and "DaSecHd",
+so all the requirements are automatically met if it is included in
+the first line of the (first) source file.
+
+It is necessary that the names of labels, variables and constants
+are unique over all source files. The line numbers mentioned by the
+assembler in case of errors and warnings are with respect to the ".$"
+file. This means, for example, that the position of the error in the
+".s" file will be 20 lines lower when the file with system call
+numbers "syscalnr.s" is included in the first line.
+
+There are several known bugs as follows:
+
+1.   There is a problem in the overflow flag and the carry flag in
+     the IMUL.
+
+2.   Far jumps and calls generate segmentation faults and must not
+     be used.
+
+3.   In instructions with segment override, the source list pointer
+     in the tracer misses one instruction, and in the segment register
+     change the stack window loses track of where it is.
+
+Our intention is to correct the problems with the segment
+registers in forthcoming versions.

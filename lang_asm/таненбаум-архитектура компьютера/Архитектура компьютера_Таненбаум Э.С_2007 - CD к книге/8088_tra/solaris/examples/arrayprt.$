@@ -1,0 +1,62 @@
+ 
+_EXIT	   =	  1	! seven system call numbers
+_READ	   =	  3
+_WRITE	   =	  4
+_OPEN	   =	  5
+_CLOSE	   =	  6
+_CREAT	   =	  8
+_LSEEK	   =	 19
+_GETCHAR   =	117	! five system subroutine numbers
+_SPRINTF   =	121
+_PUTCHAR   =	122
+_SSCANF	   =	121
+_PRINTF	   =	127
+STDIN	   =	  0	! three initially opened file descriptors
+STDOUT	   =	  1
+STDERR	   =	  2
+.SECT .TEXT		! Definition of section header labels
+TxtSecHd:
+.SECT .DATA
+DatSecHd:
+.SECT .TEXT
+
+vecpstrt:			 !  2
+	MOV  BP,SP		 !  3
+	PUSH vec1		 !  4
+	MOV  CX,vec2-vec1	 !  5
+	SHR  CX			 !  6
+	PUSH CX			 !  7
+	CALL vecprint		 !  8
+	MOV  SP,BP		 !  9
+	PUSH 0			 ! 10
+	PUSH _EXIT		 ! 11
+	SYS			 ! 12
+
+.SECT .DATA			 ! 13
+vec1:   .WORD 3,4,7,11,3	 ! 14
+vec2:   .WORD 2,6,3,1,0		 ! 15
+frmatkop:			 ! 16
+.ASCIZ "The array contains "	 ! 17
+frmatint: .ASCIZ " %d"		 ! 18
+.SECT .TEXT			 ! 19
+vecprint:			 ! 20
+	PUSH BP			 ! 21
+	MOV  BP,SP		 ! 22
+	MOV  CX,4(BP)		 ! 23
+	MOV  BX,6(BP)		 ! 24
+	MOV  SI,0		 ! 25
+	PUSH (BX)		 ! 26
+	PUSH frmatkop		 ! 27
+	PUSH _PRINTF		 ! 28
+	SYS			 ! 29
+	MOV  -4(BP),frmatint	 ! 30
+1:	SYS			 ! 31
+	INC  SI			 ! 32
+	MOV  DI,(BX)(SI)	 ! 33
+	MOV  -2(BP),DI		 ! 34
+	LOOP 1b			 ! 35
+	PUSH '\n'		 ! 36
+	PUSH _PUTCHAR		 ! 37
+	SYS			 ! 38
+	MOV  SP,BP		 ! 39
+	RET			 ! 40

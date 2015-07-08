@@ -1,0 +1,194 @@
+;; файл макросов постпроцессора DeWin
+<find>
+mov     ax,[bp-
+mov     bx,[bp-
+mov     dx,[bp-
+call    far ptr 
+;; рассматриваем строки относительно левого края
+;; для 32-бит <base> должно быть 16 (адрес содержит больше символов)
+<base>8
+<repl>
+;; 1st arg    proc_name   
+<mid 0,11,0> <mid 3,16,0>
+
+<find>
+push    [si
+push    <xdigit>
+call    far <xdigit>
+? USER.GetDlgItem
+<repl>
+<mid 3,2,0>( <mid 1,8,0>, <mid 0,8,0> );
+
+<find>
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+push    <xdigit>
+call    far <xdigit>
+? USER.MessageBOX
+<repl>
+<mid 7,2,0>( <mid 1,18,0>, <mid 3,18,0>, <mid 4,8,0>, <mid 5,8,0> );
+
+<find>
+push    ds      ; "
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+call    far <xdigit>
+? KERNEL.GetPRIVATEPROFILEINT
+<repl>
+<mid 8,2,0>( <mid 0,18,0>, <mid 2,18,0>, <mid 4,8,0>, <mid 5,18,0> );
+
+<find>
+push    <xdigit>
+call    far <xdigit>
+? USER.GetSystemMETRICS
+<repl>
+<mid 2,2,0>( <mid 0,8,0> );
+
+<find>
+push    ds      ; "
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+lea     ax,[bp-
+push    ss
+push    ax
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+call    far <xdigit>
+? KERNEL.GetPRIVATEPROFILEString
+<repl>
+<mid 13,2,0>( <mid 0,18,0>, <mid 2,18,0>, <mid 4,18,0>, &<mid 6,11,0>, <mid 9,8,0>, <mid 10,18,0> );
+
+<find>
+push    ds      ; "
+push    <xdigit>
+push    ds      ; "
+push    <xdigit>
+lea     ax,[
+push    ?s
+push    ax
+push    ds      ; "
+push    <xdigit>
+call    far <xdigit>
+? KERNEL.WritePRIVATEPROFILEString
+<repl>
+<mid 10,2,0>( <mid 0,18,0>, <mid 2,18,0>, &<mid 4,11,0>, <mid 7,18,0> );
+
+<find>
+mov     al,[bp-
+leave
+retn
+<repl>
+;;             1st arg
+RETURN byte <mid 0,11,0>
+
+<find>
+les     di,dword ptr [bp
+mov     es:[di],ax
+<repl>
+*(word *)(<mid 0,11,0>) := ax
+
+<find>
+les     di,dword ptr [bp
+mov     ax,es:[di]
+mov     [bp-<xdigit>],ax
+<repl>
+<mid 2,8,','> := *(word *)(<mid 0,11,0>)
+
+<find>
+push    ds      ; "
+push    <xdigit>
+lea     ax,[bp
+push    ss
+push    ax
+call    far <xdigit>
+? USER._WSPRINTF
+add     w sp,
+<repl>
+<mid 6,2,0>( <mid 0,18,0>, &<mid 2,11,0>, ... );
+
+<find>
+mov     cx,0FFFF
+xor     ax,ax
+repne
+scasb
+Not  w cx
+<repl>
+_strlen()
+
+<find>
+mov     ax,<astring>
+mov     [bp-<xdigit>],ax
+<repl>
+<mid 1,8,','> = <mid 0,11,0>
+
+<find>
+les     di,dword ptr [bp
+mov     ax,es:[di]
+<repl>
+ax := *(word *)(<mid 0,11,0>)
+
+<find>
+les     di,dword ptr [bp
+mov     es:[di],al
+<repl>
+*(word *)(<mid 0,11,0>) := al
+
+<find>
+les     di,dword ptr [bp
+mov     al,es:[di]
+<repl>
+al := *(word *)(<mid 0,11,0>)
+
+<find>
+shr     w cx,1
+rep
+movsw
+adc     cx,cx
+rep
+movsb 
+<repl>
+_memcpy()
+
+<find>
+lea     di,[bp
+push    ss
+push    di
+<repl>
+push    &[ ss:<mid 0,11,0> ]
+
+<find>
+xor     ax,ax
+mov     [bp-<xdigit>],ax
+<repl>
+<mid 1,8,','> := (int) 0
+
+<find>
+les     di,dword ptr [bp
+mov     byte ptr es:[di],<xdigit>
+<repl>
+*[ <mid 0,11,0> ] := (int) <mid 1,25,0>
+
+<find>
+operand size
+push    0000
+push    ds
+push    [bp
+call    far <xdigit>
+; USER.FINDWindow
+<repl>
+<mid 5,2,0>( 0, <mid 3,8,0> );
+
+;;---------------------------------------------------------------------------
+
+<end>

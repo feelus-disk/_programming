@@ -1,0 +1,264 @@
+
+
+
+OBJECT(3)            Amsterdam Compiler Kit             OBJECT(3)
+
+
+
+NAME
+     wr_open, wr_close, wr_ohead, wr_sect,  wr_outsect,  wr_emit,
+     wr_putc,  wr_relo,  wr_name, wr_string, wr_arhdr, wr_ranlib,
+     wr_int2, wr_long, wr_bytes,  rd_open,  rd_fdopen,  rd_close,
+     rd_ohead,    rd_sect,    rd_outsect,    rd_emit,    rd_relo,
+     rd_rew_relo,  rd_name,   rd_string,   rd_arhdr,   rd_ranlib,
+     rd_int2,  rd_unsigned2,  rd_long, rd_bytes, rd_fd - routines
+     to read and write ACK-object files and libraries
+
+SYNOPSIS
+     #include <out.h>
+     #include <arch.h>
+     #include <ranlib.h>
+     #include <object.h>
+
+     int wr_open(filename)
+     char *filename;
+
+     void wr_close()
+
+     void wr_ohead(head)
+     struct outhead *head;
+
+     void wr_sect(sect, cnt)
+     struct outsect *sect;
+     unsigned int cnt;
+
+     void wr_outsect(sectionnr)
+     int sectionnr;
+
+     void wr_emit(emit, cnt)
+     char *emit;
+     long cnt;
+
+     void wr_putc(ch)
+
+     void wr_relo(relo, cnt)
+     struct outrelo *relo;
+     unsigned int cnt;
+
+     void wr_name(name, cnt)
+     struct outname *name;
+     unsigned int cnt;
+
+     void wr_string(stringaddr, cnt)
+     char *stringaddr;
+     long cnt;
+
+     void wr_arhdr(fd, arhdr)
+     struct ar_hdr *arhdr;
+
+
+
+
+
+5th ACK distribution    $Revision: 1.11 $                       1
+
+
+
+
+
+
+OBJECT(3)            Amsterdam Compiler Kit             OBJECT(3)
+
+
+
+     void wr_ranlib(fd, ran, cnt)
+     struct ranlib *ran;
+     long cnt;
+
+     void wr_int2(fd, i)
+
+     void wr_long(fd, l)
+     long l;
+
+     void wr_bytes(fd, buf, l)
+     char *buf;
+     long l;
+
+     int rd_open(filename)
+     char *filename;
+
+     int rd_fdopen(fd)
+
+     void rd_close()
+
+     void rd_ohead(head)
+     struct outhead *head;
+
+     void rd_sect(sect, cnt)
+     struct outsect *sect;
+     unsigned int cnt;
+
+     void rd_outsect(sectionnr)
+     int sectionnr;
+
+     void rd_emit(emit, cnt)
+     char *emit;
+     long cnt;
+
+     void rd_relo(relo, cnt)
+     struct outrelo *relo;
+     unsigned int cnt;
+
+     void rd_rew_relo(head)
+     struct outhead *head;
+
+     void rd_name(name, cnt)
+     struct outname *name;
+     unsigned int cnt;
+
+     void rd_string(stringaddr, cnt)
+     char *stringaddr;
+     long cnt;
+
+     int rd_arhdr(fd, arhdr)
+     struct ar_hdr *arhdr;
+
+
+
+
+5th ACK distribution    $Revision: 1.11 $                       2
+
+
+
+
+
+
+OBJECT(3)            Amsterdam Compiler Kit             OBJECT(3)
+
+
+
+     void rd_ranlib(fd, ran, cnt)
+     struct ranlib *ran;
+     long cnt;
+
+     int rd_int2(fd)
+
+     unsigned int rd_unsigned2(fd)
+
+     long rd_long(fd)
+
+     void rd_bytes(fd, buf, l)
+     char *buf;
+     long l;
+
+     int rd_fd()
+
+DESCRIPTION
+     These routines come in handy when reading  or  writing  ACK-
+     object files or libraries. No checking is performed.
+
+     _W_r__o_p_e_n opens the file _f_i_l_e_n_a_m_e for writing and  initializes
+     some  of  this  modules  local variables.  It must be called
+     before writing parts of the object file.  It returns 1 if it
+     succeeds, 0 if it fails.
+
+     _W_r__c_l_o_s_e closes the object file. Don't forget  to  call  it,
+     because it might flush internal buffers.
+
+     _W_r__o_h_e_a_d writes the _h_e_a_d  header  structure.   This  routine
+     must be called before the routines to write the other parts.
+
+     _W_r__s_e_c_t  writes  _c_n_t  section  headers,  starting  at  _s_e_c_t.
+     Before  writing  a section, its section header must be writ-
+     ten.
+
+     _W_r__o_u_t_s_e_c_t indicates that the next section to be written  is
+     _s_e_c_t_i_o_n_n_r.   This routine can be used to switch between sec-
+     tions.
+
+     _W_r__e_m_i_t writes _c_n_t bytes, starting at _e_m_i_t, of  the  current
+     section.
+
+     _W_r__p_u_t_c adds character _c_h to the current section.
+
+     _W_r__r_e_l_o writes _c_n_t outrelo structures, indicated by _r_e_l_o, in
+     the relocation information part of the object file.
+
+     _W_r__n_a_m_e writes _c_n_t outname structures, indicated by _n_a_m_e, in
+     the name-table part of the object file.
+
+     _W_r__s_t_r_i_n_g writes _c_n_t bytes, indicated by _s_t_r_i_n_g_a_d_d_r, in  the
+     string table part of the object file.
+
+
+
+5th ACK distribution    $Revision: 1.11 $                       3
+
+
+
+
+
+
+OBJECT(3)            Amsterdam Compiler Kit             OBJECT(3)
+
+
+
+     The next few routines can be used  independantly:   _W_r__a_r_h_d_r
+     writes  the  archive  member header _a_r_h_d_r to file descriptor
+     _f_d.
+
+     _W_r__r_a_n_l_i_b writes _c_n_t ranlib structures, indicated by _r_a_n, to
+     file descriptor _f_d.
+
+     _W_r__i_n_t_2 writes a 2-byte integer _i to file descriptor _f_d, low
+     order byte first.
+
+     _W_r__l_o_n_g writes a 4-byte integer _l to file descriptor _f_d, low
+     order word first, low order byte first.
+
+     _W_r__b_y_t_e_s writes _l bytes from _b_u_f to file descriptor _f_d.
+
+     Most of the _r_d_ routines are the opposite of  the  _w_r_  rou-
+     tines. However, a few of them deserve special mentioning:
+
+     _R_d__f_d_o_p_e_n initialises for reading an "object file" from file
+     descriptor  _f_d, at its current position.  This is useful for
+     reading an object that resides in an archive.  It returns  1
+     if  it  succeeds,  0 otherwise.  When using this entry point
+     for reading, _r_d__c_l_o_s_e does not have to be called.
+
+     _R_d__r_e_w__r_e_l_o rewinds the relocation part, so that it  can  be
+     read again.  _L_e_d(6) sometimes needs this.
+
+     _R_d__u_n_s_i_g_n_e_d_2 reads two bytes from  file  descriptor  _f_d  and
+     interpretes them as an unsigned integer.
+
+     _R_d__a_r_h_d_r returns 1 if a header was read, and  0  on  end-of-
+     file.
+
+     When using any of the  reading  routines,  a  routine  named
+     _r_d__f_a_t_a_l  must  be defined.  It is called when a read fails,
+     and is not supposed to return.  Likewise, a routine _w_r__f_a_t_a_l
+     must be defined when using any of the writing routines.
+
+FILES
+     ~em/h/out.h
+     ~em/h/arch.h
+     ~em/h/ranlib.h
+     ~em/modules/lib/libobject.a: the library in which these rou-
+     tines reside
+
+SEE ALSO
+     ack.out(5), arch(1), aal(1)
+
+DIAGNOSTICS
+     The routines _w_r__o_p_e_n, _r_d__o_p_e_n, and  _r_d__f_d_o_p_e_n  return  0  if
+     they fail, and 1 if they succeed.
+
+
+
+
+5th ACK distribution    $Revision: 1.11 $                       4
+
+
+

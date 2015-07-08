@@ -1,0 +1,137 @@
+! Program to show file access by reading
+! an entire file, and storing the addresses
+! of the records. Afterwards these records 
+! can be randomly accessed by the SEEK and
+! READ calls. See text section 9.8.7.
+
+#include "..\\syscalnr.h"	!  1
+bufsiz	= 512			!  2
+.SECT .TEXT			!  3
+infbufst:			!  4
+	MOV  BP,SP		!  5
+	MOV  DI,filnam		!  6
+	PUSH _GETCHAR		!  7
+1:	SYS			!  8
+	CMPB AL,'\n'		!  9
+	JL   9f			! 10
+	JE   1f			! 11
+	STOSB			! 12
+	JMP  1b			! 13
+1:	PUSH 4			! 14
+	PUSH filnam		! 15
+	PUSH _OPEN		! 16
+	SYS			! 17
+	CMP  AX,0		! 18
+	JL   9f			! 19
+	MOV  (fildes),AX	! 20
+	MOV  BX,0		! 21
+	MOV  SI,linhed+2	! 22
+1:	CALL vulbuf		! 23
+	CMP  CX,0		! 24
+	JLE  3f			! 25
+2:	MOVB AL,'\n'		! 26
+	REPNE  SCASB		! 27
+	JNE  1b			! 28
+	INC  (count)		! 29
+	MOV  AX,BX		! 30
+	SUB  AX,CX		! 31
+	XCHG SI,DI		! 32
+	STOS			! 33
+	XCHG SI,DI		! 34
+	CMP  CX,0		! 35
+	JNE  2b			! 36
+	JMP  1b			! 37
+
+9:	MOV  SP,BP		! 38
+	PUSH filnam		! 39
+	PUSH errmess		! 40
+	PUSH _PRINTF		! 41
+	SYS			! 42
+	PUSH _EXIT		! 43
+	PUSH _EXIT		! 44
+	SYS			! 45
+
+3:	CALL getnum		! 46
+	CMP  AX,0		! 47
+	JLE  8f			! 48
+	MOV  BX,(curlin)	! 49
+	CMP  BX,0		! 50
+	JLE  7f			! 51
+	CMP  BX,(count)		! 52
+	JG   7f			! 53
+	SHL  BX,1		! 54
+	MOV  CX,linhed(BX)	! 55
+	MOV  AX,linhed-2(BX)	! 56
+	PUSH 0			! 57
+	PUSH 0			! 58
+	PUSH AX			! 59
+	PUSH (fildes)		! 60
+	PUSH _LSEEK		! 61
+	SYS			! 62
+	SUB  CX,AX		! 63
+	PUSH CX			! 64
+	PUSH buf		! 65
+	PUSH (fildes)		! 66
+	PUSH _READ		! 67
+	SYS			! 68
+	ADD  SP,4		! 69
+	PUSH 1			! 70
+	PUSH _WRITE		! 71
+	SYS			! 72
+	ADD  SP,14		! 73
+	JMP  3b			! 74
+
+8:	PUSH scanerr		! 75
+	PUSH _PRINTF		! 76
+	SYS			! 77
+	ADD  SP,4		! 78
+	JMP  3b			! 79
+
+7:	PUSH 0			! 80
+	PUSH _EXIT		! 81
+	SYS			! 82
+
+vulbuf:				! 83
+	PUSH bufsiz		! 84
+	PUSH buf		! 85
+	PUSH (fildes)		! 86
+	PUSH _READ		! 87
+	SYS			! 88
+	ADD  SP,8		! 89
+	MOV  CX,AX		! 90
+	ADD  BX,CX		! 91
+	MOV  DI,buf		! 92
+	RET			! 93
+
+getnum:				! 94
+	MOV  DI,filnam		! 95
+	PUSH _GETCHAR		! 96
+1:	SYS			! 97
+	CMPB AL,'\n'		! 98
+	JL   9b			! 99
+	JE   1f			!100
+	STOSB			!101
+	JMP  1b			!102
+1:	MOVB (DI),'\0'		!103
+	PUSH curlin		!104
+	PUSH numfmt		!105
+	PUSH filnam		!106
+	PUSH _SSCANF		!107
+	SYS			!108
+	ADD  SP,10		!109
+	RET			!110
+
+.SECT .DATA			!111
+errmess:			!112
+.ASCIZ "Open %s failed\n"	!113
+numfmt:	.ASCIZ "%d"		!114
+scanerr:			!115
+.ASCIZ "No number. Try again\n"	!116
+.ALIGN 2			!117
+.SECT .BSS			!118
+filnam: .SPACE 80		!119
+fildes: .SPACE 2		!120
+linhed: .SPACE 8192		!121
+curlin: .SPACE 4		!122
+buf:	.SPACE bufsiz+2		!123
+count:  .SPACE 2		!124

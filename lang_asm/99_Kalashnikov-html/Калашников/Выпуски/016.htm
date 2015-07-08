@@ -1,0 +1,1102 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<title>Калашников.ru - Ассемблер? Это просто!.. (Выпуск № 016)</title>
+</head>
+
+<body bgcolor="#EBD2A5" text="#000000" link="#660000" vlink="#000000" alink="#000000">
+
+<P align=center><A 
+href="http://ad.ir.ru/bb.cgi?cmd=go&pubid=128269&pg=2&vbn=10001&nocache=77524" 
+target=_top><IMG alt="InterReklama " border=0 
+src="http://ad.ir.ru/bb.cgi?cmd=ad&pubid=128269&pg=2&vbn=10001&nocache=77524"></A></P>
+<P align=center><A href="http://www.ir.ru" target=_top><FONT size=1>InterReklama 
+Advertising</FONT></A> </P>
+<HR>
+
+<div align="center"><center>
+
+<table border="3" cellpadding="3" cellspacing="3" width="100%"
+bgcolor="#8DC7C7" bordercolor="#000040">
+<tr>
+<td width="100%"><div align="center"><center><table
+border="3" cellpadding="3" cellspacing="3" width="100%"
+bgcolor="#009797" bordercolor="#000040">
+<tr>
+<td width="100%"><p align="center"><font size="5"><strong>Здравствуйте,
+уважаемые подписчики!</strong></font></p>
+<hr>
+<p align="center"><font size="4"><em><strong>Выпуск
+N 016</strong></em></font></p>
+</td>
+</tr>
+</table>
+</center></div><p align="right"><em>Ели мясо
+мужики,</em></p>
+<p align="right"><em>Пивом запива-а-али.</em></p>
+<p align="right"><em>Что рассылка к ним
+пришла</em></p>
+<p align="right"><em>Они совсем не
+знали...</em></p>
+<hr>
+<p align="center"><font size="4"><em><strong>Сегодня
+в рассылке:</strong></em></font></p>
+<ul>
+<li><a href="#debugger"><font color="#800040">Как
+работает отладчик</font></a></li>
+<li><a href="#crackdebug"><font color="#800040">Способы
+обойти отладку программы</font></a></li>
+</ul>
+<hr>
+<p align="center"><a name="debugger"><font size="4"><strong>Как
+работает отладчик</strong></font></a></p>
+<p>Для дальнейшего изучения
+Ассемблера, нам нужно
+рассмотреть, как работает
+простейший отладчик (таковым
+является AFD. Было бы хорошо,
+если бы вы взяли его на <a
+href="http://www.Kalashnikoff.ru"><font color="#0000FF">нашем
+сайте</font></a> и
+поэкспериментировали с ним).</p>
+<p>Интересно, а вы задумывались
+над тем, как отладчик выполняет
+программу пошагово? Можно ли
+его обмануть?</p>
+<p>Естественно, дорогие мои!
+Обмануть отладчик на
+Ассемблере очень просто. Мы уже
+рассматривали с вами два
+способа:</p>
+<p>1. Перенести стек в тело
+программы;</p>
+<p>2. Прочитать саму себя заново
+с диска.</p>
+<p>Однако, второй способ мы так и
+не разобрали. Почему же
+отладчик работал неверно, если
+мы читали саму себя в память?</p>
+<p>Давайте разберемся сперва с
+работой самог<strong>о</strong>
+отладчика. Между прочим, это
+очень интересно.</p>
+<p><strong>Прерывание 03.</strong></p>
+<p>Вы уже знаете, что существует
+ряд прерываний, выполняющих те
+или иные функции при
+возникновении некоторых
+ситуации. Например:</p>
+<ul>
+<li>при нажатии на клавиши
+Shift+PrintScreen вызывается <strong>05</strong>
+прерывание;</li>
+<li>при нажатии на любую
+клавишу вызывается <strong>09</strong>
+прерывание;</li>
+<li>прерывание же <strong>1Ch</strong>
+вообще вызывается
+автоматически примерно 18
+раз в секунду.</li>
+</ul>
+<p>В этом мы уже убедились из
+прошлого выпуска рассылки, где
+перехватывали перечисленные
+выше прерывания и &quot;творили
+беспредел&quot; с оболочками DOS.</p>
+<p>Вообще номера прерываний от 0
+до 1Fh &quot;обслуживаются&quot; BIOS
+(ПЗУ). Все остальные доступны
+программисту или операционной
+системе. Например, MS-DOS
+использует номера от 20h до 2Fh (int
+20h - выход из программы; int 21h -
+комплекс процедур и т.д.).</p>
+<p>Что значит &quot;обслуживаются
+ПЗУ&quot;? Это значит, что
+обработчики этих прерываний
+находятся в области BIOS (ПЗУ-
+Постоянное Запоминающее
+Устройство), в то время, как
+обработчики 20h - 2Fh и до 0FFh
+находятся в ОЗУ - Оперативное
+Запоминающее Устройство (т.е.
+та область памяти, которая
+теряется при выключении /
+перезагрузке компьютера в
+отличие от ПЗУ). Естественно, мы
+можем перехватить как
+прерывания ПЗУ (от 0 до 1Fh), так и
+все остальные, что мы уже
+делали.</p>
+<p><strong>Прерывание с номером 3
+примечательно тем, что:</strong></p>
+<ul>
+<li><strong>во-первых</strong>,
+используется для отладки
+программ, в частности, для
+работы AFD и CV;</li>
+<li><strong>во-вторых</strong>, для его
+вызова необходим всего
+один байт - 0CCh, чего не
+скажешь о вызове других
+прерываний. Например, int 20h -
+0CDh 20h, т.е. два байта;</li>
+<li><strong>в-третьих</strong>,
+обработчик 03 прерывания
+изначально содержит всего
+одну инструкцию: iret, т.е.
+при вызове данного
+прерывания происходит
+моментальный возврат.
+Можете, кстати, проверить,
+принудительно вызвав
+данное прерывание в любом
+месте вашей программы.
+Ничего не произойдет.</li>
+</ul>
+<p><em>Пояснение.</em>
+Принудительно вызвать
+прерывание 03 - записать в любом
+месте нашей программы int 3.</p>
+<p>При отладке программы
+отладчик перехватывает 03h
+прерывание. Проще говоря,
+устанавливает вектор (адрес)
+данного прерывания на некую <u>свою</u>
+процедуру. Выполняя одну
+команду (когда пользователь
+нажимает клавиши F1 или F2),
+отладчик просто сохраняет
+следующий за текущей командой
+байт и вместо него вписывает <strong>0CCh,
+т.е. int 3</strong>. Естественно, что
+на экран отладчик выводит
+данную инструкцию в ее
+нормальном, первозданном виде,
+а не int 3.</p>
+<p>Все просто смотрится на
+примере. Возьмем такую
+простейшую программу, которая
+выводит один символ 'Q' на экран
+в текущую позицию курсора:</p>
+<p>_______</p>
+<p>cseg segment<br>
+assume cs:cseg, ds:cseg, es:cseg, ss:cseg<br>
+org 100h</p>
+<p>Begin:<br>
+mov ah,2<br>
+mov dl,'Q'<br>
+int 21h</p>
+<p>ret</p>
+<p>cseg ends<br>
+end Begin</p>
+<p>_______</p>
+<p>Вот как это выглядит в
+отладчике (только что
+загрузили ее под AFD):</p>
+<div align="center"><center><table border="1"
+cellspacing="1" width="100%">
+<tr>
+<td align="center" width="5%" bgcolor="#00A4A4">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Смещение</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Инструкция
+Ассемблера</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Машинный
+код</strong></td>
+<td align="center" width="35%" bgcolor="#00A4A4"><strong>Что
+на экране</strong></td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#00CC00">»</td>
+<td align="center" width="20%" bgcolor="#00CC00"><strong>0100h</strong></td>
+<td width="20%" bgcolor="#00CC00">mov ah,2</td>
+<td width="20%" bgcolor="#00CC00">0B402h</td>
+<td width="35%" bgcolor="#00CC00">MOV AH,02</td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0102h</strong></td>
+<td width="20%">mov dl,'Q'</td>
+<td width="20%">0B251h</td>
+<td width="35%">MOV DL,51</td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0104h</strong></td>
+<td width="20%">int 21h</td>
+<td width="20%">0CD21h</td>
+<td width="35%">INT 21</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center"><strong>0106h</strong></td>
+<td>ret</td>
+<td>0C3h</td>
+<td>RET</td>
+</tr>
+</table>
+</center></div><p><em><strong>Таблица N 1. Шаг
+первый: только что загрузились</strong></em></p>
+<p><em>Примечание.</em> <font color="#009700">Зеленым</font>
+цветом (или символом '»')
+помечена текущая команда, т.е.
+команда, которая выполнится
+после нажатия клавиши F1/F2 в AFD.</p>
+<p>В колонке &quot;<strong>Смещение</strong>&quot;
+указываем, по какому смещению
+находится в памяти команда. В
+колонке &quot;<strong>Инструкция
+Ассемблера</strong>&quot; - реальные
+ассемблерные команды,
+расположенные по
+соответствующему смещению, а в
+колонке &quot;<strong>Машинный код</strong>&quot;
+- машинный код команды в
+шестнадцатеричной системе из
+колонки &quot;Инструкция
+Ассемблера&quot;. Колонка &quot;<strong>Что
+на экране</strong>&quot; отражает то,
+что отладчик показывает нам на
+экране, а также оригинальный
+код команд.</p>
+<p><em>________</em></p>
+<p><em>К слову.</em></p>
+<p>Посмотреть машинные коды
+соответствующих команд
+Ассемблера можно в любом
+отладчике, а лучше - в <a
+href="http://asm.kalashnikoff.ru/prog"><font
+color="#0000FF">Hacker's View</font></a>.</p>
+<p><strong>Реальные ассемблерные
+команды</strong> - команды, которые
+на самом деле находятся в
+памяти по соответствующему
+смещению (читайте дальше - все
+будет понятно).</p>
+<p><em>________</em></p>
+<p>Итак, запускаем нашу
+программу под отладчиком AFD.
+Команда mov ah,2 расположится по
+адресу 100h, а mov dl,'Q' - 102h (см.
+Таблицу N 1). Естественно, что
+отладчик сразу не даст
+программе работать, а просто
+загрузит ее в память и выведет
+на экран инструкции
+Ассемблера.</p>
+<p><strong>Внимание!</strong>
+Пользователь нажимает F2. AFD
+запоминает один байт по адресу
+102h (первый байт следующей за mov
+ah,2 команды. В нашем случае - 0B2h),
+записывает туда 0CCh, т.е. команду
+int 3 и выполняет инструкцию mov
+ah,2. После этого процессор
+выполнит не команду mov dl,'Q', а int 3
+(вызывет прерывание 03, адрес
+которого указывает на
+определенную процедуру
+обработки отладчика AFD
+(отладчик-то перехватывает это
+прерывание сразу после
+загрузки!)).</p>
+<p>Вот, что получится, когда
+пользователь нажмет клавишу F2:</p>
+<div align="center"><center><table border="1"
+cellspacing="1" width="100%">
+<tr>
+<td align="center" width="5%" bgcolor="#00A4A4">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Смещение</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Инструкция
+Ассемблера</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Машинный
+код</strong></td>
+<td align="center" colspan="2" width="42%"
+bgcolor="#00A4A4"><strong>Что на
+экране</strong></td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0100h</strong></td>
+<td width="20%">mov ah,2</td>
+<td width="20%">0B402h</td>
+<td width="35%">MOV AH,02</td>
+<td width="7%">0B402h</td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#00CC00">»</td>
+<td align="center" width="20%" bgcolor="#00CC00"><strong>0102h</strong></td>
+<td width="20%" bgcolor="#00CC00">int 3</td>
+<td width="20%" bgcolor="#00CC00">0CCh</td>
+<td width="35%" bgcolor="#00CC00">MOV DL,51</td>
+<td width="7%" bgcolor="#00CC00">0B251h</td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0103h</strong></td>
+<td width="20%">push cx</td>
+<td width="20%">51h</td>
+<td width="35%">----</td>
+<td width="7%">----</td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0104h</strong></td>
+<td width="20%">int 21h</td>
+<td width="20%">0CD21h</td>
+<td width="35%">INT 21</td>
+<td width="7%">0CD21h</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center"><strong>0106h</strong></td>
+<td>ret</td>
+<td>0C3h</td>
+<td>RET</td>
+<td width="7%">0C3h</td>
+</tr>
+</table>
+</center></div><p><em><strong>Таблица N 2.
+Нажали F2 первый раз.</strong></em></p>
+<p>Что делает процедура
+обработки 03h прерывание?
+Допустим, текущая команда
+находится по адресу 0102h (см.
+Таблицу N 2). Пользователь
+нажимает F1/F2. Прерывание 03
+делает следующее:</p>
+<ol>
+<li>Сохраняет все изменяемые
+отладчиком регистры в
+памяти;</li>
+<li>Восстанавливает
+сохраненный байт (0B2h) по
+адресу 102h;</li>
+<li>Высчитывает количество
+байт следующей команды
+(т.е. mov dl,'Q', т.е. два байта,
+т.е. 0B251h);</li>
+<li>Получив адрес следующей за
+mov dl,'Q' команды (у нас - 104h),
+заносит по этому адресу
+значение 0CCh (т.е. int 3),
+предварительно сохранив
+затертый байт (у нас - 0CDh) в
+своей переменной;</li>
+<li>Выполняется инструкция mov
+dl,'Q' и за ней же сразу int 3,
+которая и передаст
+управление отладчику
+(процедуре обработки 03
+прерывания);</li>
+<li>Процедура обработки 03
+изменяет кое-что на экране;</li>
+<li>Выполняет некоторые
+другие действия (все
+зависит от конкретного
+отладчика);</li>
+<li>И ждет от вас дальнейших
+указаний (т.е. клавишу!).</li>
+</ol>
+<p>Вот, что получится, когда
+пользователь второй раз нажмет
+F2:</p>
+<div align="center"><center><table border="1"
+cellspacing="1" width="100%">
+<tr>
+<td align="center" width="5%" bgcolor="#00A4A4">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Смещение</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Инструкция
+Ассемблера</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Машинный
+код</strong></td>
+<td align="center" colspan="2" width="42%"
+bgcolor="#00A4A4"><strong>Что на
+экране</strong></td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0100h</strong></td>
+<td width="20%">mov ah,2</td>
+<td width="20%">0B402h</td>
+<td width="35%">MOV AH,02</td>
+<td width="7%">0B402h</td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#8DC7C7">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#8DC7C7"><strong>0102h</strong></td>
+<td width="20%" bgcolor="#8DC7C7">mov dl,'Q'</td>
+<td width="20%" bgcolor="#8DC7C7">0B251h</td>
+<td width="35%" bgcolor="#8DC7C7">MOV DL,51</td>
+<td width="7%" bgcolor="#8DC7C7">0B251h</td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#00CC00">»</td>
+<td align="center" width="20%" bgcolor="#00CC00"><strong>0104h</strong></td>
+<td width="20%" bgcolor="#00CC00">int 3</td>
+<td width="20%" bgcolor="#00CC00">0CCh</td>
+<td width="35%" bgcolor="#00CC00">INT 21</td>
+<td width="7%" bgcolor="#00CC00">0CD21h</td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0105h</strong></td>
+<td width="20%">and bx,ax</td>
+<td width="20%">21C3h</td>
+<td width="35%">RET</td>
+<td width="7%">0C3h</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center"><strong>0107h</strong></td>
+<td>&quot;мусор&quot;</td>
+<td>&quot;мусор&quot;</td>
+<td>&quot;мусор&quot;</td>
+<td width="7%">&nbsp;</td>
+</tr>
+</table>
+</center></div><p><em><strong>Таблица N 3.
+Нажали F2 второй раз.</strong></em></p>
+<p>Обратите внимание, какой
+машинный код находится по
+адресу <strong>0105h</strong> - 21C3h. Перед
+ним, по адресу 0104h, находится
+код 0CCh (int 3).</p>
+<p>Как вы уже поняли, команда
+Ассемблера может занимать
+один, два и более байт
+(например, mov ah,2 - 0B402h - два байта;
+ret - 0C3h - один байт). Если мы
+&quot;вручную&quot; в процессе
+работы рассматриваемой нами
+программы заменим 0B4h на,
+скажем, 0C3h, то вместо mov ah,2 мы
+получим ret (машинный код
+которой 0C3h). Но команда ret
+однобайтовая в отличие от mov ah,2.
+Куда же денется второй байт
+команды mov ah,2 (02h)? Процессор
+просто поймет 02 как add dh,[CD51+BP+SI].
+Но т.к. данная команда занимает
+аж 4 байта, то процессор
+&quot;присоединит&quot; к 02h еще и 0B2h,
+51h, 0CDh. Все. Код пошел путаться...</p>
+<p>Вот что происходит по
+смещению 105h в Таблице 3!
+Процессор распознал 21h как and.
+Но после and должны идти
+приемник и источник (например,
+and ax,11b). Следовательно,
+процессор возьмет следующий за
+21h байт, которым будет 0C3h. 21C3h
+как раз и есть AND BX,AX! Похоже на
+кривое зеркало или
+&quot;испорченный телефон&quot;
+(игра такая была в моей
+молодости)...</p>
+<p>Отсюда и появляется по
+смещению 103h какой-то <font size="4">push
+cx</font> в Таблице N 2.</p>
+<p><strong>Вывод:</strong> если вы &quot;на
+лету&quot; меняете код своей же
+программы (по разным причинам),
+имейте в виду, что однобайтовую
+команду нужно менять на
+однобайтовую, двухбайтовую на
+двухбайтовую и т.д. Можно,
+конечно, менять две
+однобайтовые на одну
+двухбайтовую и пр. Можно даже,
+изменив всего один байт,
+сделать всю программу (или ее
+часть) другой. Т.е., например, в
+Hacker's View вы видите один код, а
+выполняет программа совсем
+другие действия. Но это вы еще
+поймете при экспериментах...</p>
+<p>Еще вопрос: <strong>почему же
+тогда отладчик работает
+нормально, &quot;искривив&quot;
+код?</strong> Неужели вы не знаете?
+Int 3 ведь восстанавливает код,
+который был изменен!</p>
+<p>Получим так:</p>
+<div align="center"><center><table border="1"
+cellspacing="1" width="100%">
+<tr>
+<td align="center" width="5%" bgcolor="#00A4A4">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Смещение</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Инструкция
+Ассемблера</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Машинный
+код</strong></td>
+<td align="center" colspan="2" width="42%"
+bgcolor="#00A4A4"><strong>Что на
+экране</strong></td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0100h</strong></td>
+<td width="20%">mov ah,2</td>
+<td width="20%">0B402h</td>
+<td width="35%">MOV AH,02</td>
+<td width="7%">0B402h</td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#8DC7C7">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#8DC7C7"><strong>0102h</strong></td>
+<td width="20%" bgcolor="#8DC7C7">mov dl,'Q'</td>
+<td width="20%" bgcolor="#8DC7C7">0B251h</td>
+<td width="35%" bgcolor="#8DC7C7">MOV DL,51</td>
+<td width="7%" bgcolor="#8DC7C7">0B251h</td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#8DC7C7">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#8DC7C7"><strong>0104h</strong></td>
+<td width="20%" bgcolor="#8DC7C7">int 21h</td>
+<td width="20%" bgcolor="#8DC7C7">0CD21h</td>
+<td width="35%" bgcolor="#8DC7C7">INT 21</td>
+<td width="7%" bgcolor="#8DC7C7">0CD21h</td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#00CC00">»</td>
+<td align="center" width="20%" bgcolor="#00CC00"><strong>0105h</strong></td>
+<td width="20%" bgcolor="#00CC00">int 3</td>
+<td width="20%" bgcolor="#00CC00">0CCh</td>
+<td width="35%" bgcolor="#00CC00">RET</td>
+<td width="7%" bgcolor="#00CC00">0C3h</td>
+</tr>
+</table>
+</center></div><p><em><strong>Таблица N 4.
+Нажали F2 третий раз.</strong></em></p>
+<p>Хорошо получилось здесь: ret и
+int 3 занимают по одному байту.</p>
+<p>И последняя таблица:</p>
+<div align="center"><center><table border="1"
+cellspacing="1" width="100%">
+<tr>
+<td align="center" width="5%" bgcolor="#00A4A4">&nbsp;</td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Смещение</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Инструкция
+Ассемблера</strong></td>
+<td align="center" width="20%" bgcolor="#00A4A4"><strong>Машинный
+код</strong></td>
+<td align="center" width="35%" bgcolor="#00A4A4"><strong>Что
+на экране</strong></td>
+</tr>
+<tr>
+<td align="center" width="5%" bgcolor="#00CC00">»</td>
+<td align="center" width="20%" bgcolor="#00CC00"><strong>0100h</strong></td>
+<td width="20%" bgcolor="#00CC00">mov ah,2</td>
+<td width="20%" bgcolor="#00CC00">0B402h</td>
+<td width="35%" bgcolor="#00CC00">MOV AH,02</td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0102h</strong></td>
+<td width="20%">mov dl,'Q'</td>
+<td width="20%">0B251h</td>
+<td width="35%">MOV DL,51</td>
+</tr>
+<tr>
+<td align="center" width="5%">&nbsp;</td>
+<td align="center" width="20%"><strong>0104h</strong></td>
+<td width="20%">int 21h</td>
+<td width="20%">0CD21h</td>
+<td width="35%">INT 21</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td align="center"><strong>0106h</strong></td>
+<td>ret</td>
+<td>0C3h</td>
+<td>RET</td>
+</tr>
+</table>
+</center></div><p><em><strong>Таблица N 5.
+Нажали F2 четвертый и последний
+раз. Пришли к тому, с чего
+начинали (Таблица N 1). Но не
+забываем про int 20h!</strong></em></p>
+<p>Отладчик пишет: &quot;<em>Program
+terminated OK</em>&quot;.</p>
+<p>Всё!</p>
+<hr>
+<p align="center"><a name="crackdebug"><font size="4"><strong>Способы
+обойти отладку программы</strong></font></a></p>
+<p><strong>Как же нам сделать так,
+чтобы AFD не смог производить
+отладку нашей программы
+(помимо двух способов, которые
+мы уже рассмотрели (см. начало
+настоящего выпуска))?</strong></p>
+<p>Очень легко! <strong>Рассуждаем </strong>--&gt;
+AFD перехватывает 3 прерывание
+--&gt; AFD вставляет 0CCh (int 3) после
+каждой команды --&gt; Процедура обработки 03 прерывания AFD
+постоянно останавливает нашу
+программу...</p>
+<p>Подумайте...</p>
+<p><em>Подсказка: нужно сделать
+что-то с обработчиком 03
+прерывания...</em></p>
+<p>Подумайте, подумайте...</p>
+<p><em>Код команды iret - 0СFh...</em></p>
+<p>Думайте, думайте... Я пока за
+пивком сгоняю...</p>
+<p>...</p>
+<p><em>&quot;Ах, хорошо!&quot; - сказал
+Олег, глотнув своей любимой </em><a
+href="http://www.baltika.ru"><font color="#0000FF"><em>&quot;Балтики&quot;</em></font></a><em>...</em></p>
+<p>Надеюсь, что многие нашли не
+один, а несколько способов.
+Рассмотрим один.</p>
+<p><strong>Нам нужно записать в
+самое начало обработчика 03
+прерывания команду iret.</strong>
+Один из способов получения
+адреса обработчика того или
+иного прерывания нам известен:
+функция 35h прерывания 21h.</p>
+<p>Однако, можно получить и
+поменять адрес не прибегая к
+функциям 35h и 25h 21h-ого
+прерывания, хотя Microsoft делать
+так не советует. Но мы все равно
+рассмотрим.</p>
+<p>Все текущие адреса
+обработчиков прерываний
+находятся в так называемой
+таблице векторов прерываний,
+которая расположена по адресу
+0000:0000h. Как вы знаете, адрес
+обработчика любого прерывания
+занимает 4 байта: сегмент (2
+байта) и смещение (2 байта),
+причем первые два байта - это
+смещение, а вторые - сегмент (мы
+уже знаем, что все данные в
+компьютере хранятся &quot;задом
+наперед&quot;, включая
+расположение сегмент:
+смещение). Вспомните что
+возвращает функция 35h
+прерывания 21h. Т.о. адрес
+нулевого прерывания будет
+здесь: 0000:0000h, первого - 0000:0004h,
+второго - 0000:0008h и т.д. Вот пример
+чтения адреса обработчика
+21h-ого прерывания из таблицы
+векторов прерываний:</p>
+<p>_____________</p>
+<p>...</p>
+<p>xor ax,ax<br>
+mov es,ax <em>;Аннулируем ES</em></p>
+<p>mov bx,es:[21h*4] <em>;В BX - смещение</em><br>
+mov es,es:[21h*4+2] <em>;В ES - сегмент</em></p>
+<p><em>;Сохраним адрес 21h-ого на
+будущее</em><br>
+mov Int_21h_offset,bx <em>;Сохраним
+смещение</em><br>
+mov Int_21h_segment,es<em> ;Сохраним
+сегмент</em></p>
+<p>mov ah,2<br>
+mov dl,'!'<br>
+<strong>pushf</strong> <em>;Зачем здесь pushf -
+вы знаете...</em><br>
+<strong>call dword ptr [Int_21h_offset] </strong><em><strong>;Равносильно
+int 21h</strong></em></p>
+<p>...</p>
+<p>Int_21h_offset dw ?<br>
+Int_21h_segment dw ?</p>
+<p>...</p>
+<p>_____________</p>
+<p>Думаю, что пример не
+нуждается в пояснении. Однако,
+обратите внимание на следующие
+строки:</p>
+<p>mov bx,es:[21h*4]<br>
+mov es,es:[21h*4+2]</p>
+<p>Ассемблер, в отличие от
+языков высокого уровня,
+вычислит выражение в
+квадратных скобках всего один
+раз. Т.е. процессор, выполняя
+приведенные выше строки, не
+будет постоянно вычислять,
+сколько будет 21h*4+2. А как такое
+возможно?</p>
+<p>Для начала вычислим сами:
+21h*4+2=134 (86h). Подобные выражения,
+встречающиеся в программе,
+вычисляются на стадии
+ассемблирования, т.е.
+программой-ассемблером (MASM /
+TASM). Запустив программу под
+отладчиком, мы увидим, что
+строка mov es,es:[21h*4+2] будет
+отображаться как mov es,es:[86h].
+Учитывая это, можно смело
+писать, например, так:</p>
+<p>mov ax,(23+5)*3</p>
+<p>mov cx,34h+98/2</p>
+<p>не беспокоясь за то, что такие
+строки будут постоянно
+вычисляться процессором, тем
+самым замедляя работу.</p>
+<p>А зачем это нужно? Неужели
+самому сложно высчитать и
+записать результат? Ответ
+прост: для удобства и
+наглядности в процессе
+написания программы. В нашем
+случае мы сразу видим, что в ES
+заносится сегмент
+21h-прерывания:</p>
+<p>mov es,es:[<strong>21h</strong>*4<strong>+2</strong>]</p>
+<p><strong>21h</strong> - прерывание; <strong>+2</strong>
+- сегмент.</p>
+<p>А если бы так было записано: mov
+es,es:[86h], то нам пришлось бы тогда
+постоянно высчитывать,
+вспоминать, что именно мы
+загружаем в ES. Можно, конечно,
+делать пометки в виде
+примечаний. Но это уж на ваше
+усмотрение: кому как удобней...</p>
+<p>Имейте только в виду, что
+выражения вида mov ax,[bx+di]
+остаются как есть! Откуда знать
+ассемблеру (MASM / TASM), какие
+значения находятся в регистрах
+BX и DI в момент ассемблирования?
+В данном выражении в AX
+поместится сумма чисел,
+которые в момент выполнения
+этой команды находятся в
+регистрах BX и DI.</p>
+<p>А зачем перед [21h*4+2] стоит
+регистр ES? Конечно, можно
+опустить ES, но тогда мы получим
+не адрес 21h-ого прерывания, а
+что-то совсем другое.</p>
+<p>ES указывает на то, что нужно
+загрузить слово в ES, которое
+расположено по смещению 21h*4+2,
+причем из сегмента не
+какого-нибудь, а именно из того,
+который указан в ES. Поэтому мы,
+собственно, и загружали в
+начале нуль в ES (а по какому
+сегменту находится таблица
+векторов прерываний? См. выше):</p>
+<p>xor ax,ax<br>
+mov es,ax <em>;Аннулируем ES</em><br>
+...<br>
+mov es,es:[21h*4+2] <em>;В ES - сегмент</em></p>
+<p>_____________</p>
+<p>Давайте вернемся к отладчику.
+Итак, нам нужно занести в
+первый байт процедуры
+обработки прерывания 03 команду
+iret, тем самым &quot;вырубив&quot;
+отладчик. Прежде получим адрес
+обработчика прерывания 03:</p>
+<p>xor ax,ax<br>
+mov es,ax</p>
+<p>mov bx,es:[03h*4] <em>;В BX - смещение</em><br>
+mov es,es:[03h*4+2] <em>;В ES - сегмент</em></p>
+<p>Теперь занесем iret (машинный
+код iret - <strong>0CFh</strong>) в самое
+начало обработчика:</p>
+<p>mov byte ptr es:[bx],0CFh</p>
+<p>Отладчик в нокауте!</p>
+<p>_________</p>
+<p>Для того, чтобы лучше понять
+работу отладчика в
+файле-приложении найдите
+&quot;!DEBUG.ASM&quot;. Что нужно сделать:</p>
+<ol>
+<li>Изучите описания в данном
+файле;</li>
+<li>Получите &quot;!DEBUG.COM&quot;;</li>
+<li>Запустите его из DOS;</li>
+<li>Запустите файл под
+отладчиком AFD или CodeView;</li>
+<li><strong>Обратите внимание, что
+после команды call следует nop;</strong></li>
+<li>В AFD нажмите 4 раза F2 (до тех
+пор, пока не появится
+надпись &quot;Program terminated OK&quot;);</li>
+<li>В CodeView нажмите 4 раза F10 (до
+тех пор, пока не появится
+надпись &quot;Process XXXX terminated
+normally&quot;);</li>
+<li>Выйдите из отладчика;</li>
+<li>Запустите снова файл под
+отладчиком. <strong>Все
+внимание на команду NOP,
+если таковая имеется!</strong></li>
+</ol>
+<p>Вот вам и доказательства...</p>
+<p>___________</p>
+  <p class="Normal" style="line-height:normal">Усвоив
+  приведенный в данной главе материал,
+  надеюсь, что вы без труда поймете, почему
+  при перечитывании программы самой себя в
+  память, отладчик работает неверно. Причем,
+  что именно он делает? Вот еще таблица:<o:p>
+  </o:p>
+  </p>
+  <div align="center">
+    <table border="2" style="border-collapse:collapse;
+ mso-table-layout-alt:fixed;border:none;mso-border-alt:solid windowtext .5pt;
+ mso-padding-alt:0cm 0cm 0cm 0cm" cellpadding="3" bordercolor="#000000" bgcolor="#C0C0C0">
+      <tr>
+        <td width="85" style="width:64.0pt;border:solid windowtext .5pt;background:
+  #E0E0E0;padding:0cm 0cm 0cm 0cm">
+          <p class="Normal" align="center" style="text-align:center;line-height:normal"><strong>Смещение</strong></p>
+        </td>
+        <td width="161" style="width:120.5pt;border:solid windowtext .5pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;background:#E0E0E0;padding:
+  0cm 0cm 0cm 0cm">
+          <p class="Normal" align="center" style="text-align:center;line-height:normal"><strong>Инструкция
+          Ассемблера</strong></p>
+        </td>
+        <td width="142" style="width:106.3pt;border:solid windowtext .5pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;background:#E0E0E0;padding:
+  0cm 0cm 0cm 0cm">
+          <p class="Normal" align="center" style="text-align:center;line-height:normal"><strong>Машинный
+          код</strong></p>
+        </td>
+        <td width="140" style="width:105.1pt;border:solid windowtext .5pt;border-left:
+  none;mso-border-left-alt:solid windowtext .5pt;background:#E0E0E0;padding:
+  0cm 0cm 0cm 0cm">
+          <p class="Normal" align="center" style="text-align:center;line-height:normal"><strong>Что
+          на экране</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td width="85" style="width:64.0pt;border:solid windowtext .5pt;border-top:
+  none;mso-border-top-alt:solid windowtext .5pt;background:#F3F3F3;padding:
+  0cm 0cm 0cm 0cm">
+          <p class="Normal" align="center" style="text-align:center;line-height:normal"><strong><span lang="EN-US" style="mso-ansi-language:EN-US">0120h</span></strong><span lang="EN-US" style="mso-ansi-language:EN-US"><o:p>
+          </o:p>
+          </span></p>
+        </td>
+        <td width="161" style="width:120.5pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  background:#F3F3F3;padding:0cm 0cm 0cm 0cm">
+          <p class="Normal" style="line-height:normal"><span lang="EN-US" style="mso-ansi-language:
+  EN-US">int 21h<o:p>
+          </o:p>
+          </span></p>
+        </td>
+        <td width="142" style="width:106.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  background:#F3F3F3;padding:0cm 0cm 0cm 0cm">
+          <p class="Normal" style="line-height:normal"><span lang="EN-US" style="mso-ansi-language:
+  EN-US">0CD21h<o:p>
+          </o:p>
+          </span></p>
+        </td>
+        <td width="140" valign="top" style="width:105.1pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  background:#F3F3F3;padding:0cm 0cm 0cm 0cm">
+          <p class="Normal" style="line-height:normal"><span lang="EN-US" style="mso-ansi-language:
+  EN-US">INT 21<o:p>
+          </o:p>
+          </span></p>
+        </td>
+      </tr>
+      <tr>
+        <td width="85" style="width:64.0pt;border:solid windowtext .5pt;border-top:
+  none;mso-border-top-alt:solid windowtext .5pt;padding:0cm 0cm 0cm 0cm" bgcolor="#FFFFFF">
+          <p class="Normal" align="center" style="text-align:center;line-height:normal"><strong><span lang="EN-US" style="mso-ansi-language:EN-US">0122h</span></strong><span lang="EN-US" style="mso-ansi-language:EN-US"><o:p>
+          </o:p>
+          </span></p>
+        </td>
+        <td width="161" style="width:120.5pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0cm 0cm 0cm 0cm" bgcolor="#FFFFFF">
+          <p class="Normal" style="line-height:normal"><span lang="EN-US" style="mso-ansi-language:
+  EN-US">int 3<o:p>
+          </o:p>
+          </span></p>
+        </td>
+        <td width="142" style="width:106.3pt;border-top:none;border-left:none;
+  border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0cm 0cm 0cm 0cm" bgcolor="#FFFFFF">
+          <p class="Normal" style="line-height:normal"><span lang="EN-US" style="mso-ansi-language:
+  EN-US">0CCh<o:p>
+          </o:p>
+          </span></p>
+        </td>
+        <td width="140" valign="top" style="width:105.1pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
+  mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
+  padding:0cm 0cm 0cm 0cm" bgcolor="#FFFFFF">
+          <p class="Normal" style="line-height:normal"><span lang="EN-US" style="mso-ansi-language:
+  EN-US">RET<o:p>
+          </o:p>
+          </span></p>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <p class="Normal" style="line-height:normal" align="center"><span lang="EN-US" style="mso-ansi-language:
+EN-US">&nbsp;</span><b style="mso-bidi-font-weight:normal"><span style="font-size:10.0pt;font-family:
+Arial">Таблица № 6.<o:p>
+  </o:p>
+  </span></b></p>
+  <p class="Normal" style="line-height:normal">&nbsp;Здесь приведен
+  кусок программы, которая считывает себя в
+  память. Представьте, что полный код такой:</p>
+  <p class="Normal" style="line-height:normal">&nbsp;<o:p>
+  </o:p>
+  </p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span lang="EN-US" style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;;
+mso-ansi-language:EN-US">…<o:p>
+  </o:p>
+  </span></p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span lang="EN-US" style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;;
+mso-ansi-language:EN-US">mov ah,3Fh<o:p>
+  </o:p>
+  </span></p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span lang="EN-US" style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;;
+mso-ansi-language:EN-US">mov bx,Handle<o:p>
+  </o:p>
+  </span></p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span lang="EN-US" style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;;
+mso-ansi-language:EN-US">mov cx,offset Finish-100h<o:p>
+  </o:p>
+  </span></p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span lang="EN-US" style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;;
+mso-ansi-language:EN-US">mov dx,offset Begin<o:p>
+  </o:p>
+  </span></p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">int
+  21h</span><span style="font-family:Arial;mso-bidi-font-family:&quot;Times New Roman&quot;"><span style="mso-tab-count:1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span>;<em>Эта строка…</em></p>
+  <p class="Normal" style="line-height:normal"><span style="font-family:Arial;
+mso-bidi-font-family:&quot;Times New Roman&quot;">&nbsp;<o:p>
+  </o:p>
+  </span></p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">ret</span><span style="font-family:Arial;mso-bidi-font-family:&quot;Times New Roman&quot;"><span style="mso-tab-count:1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><em>;…и эта строка приведены в
+  Таблице № 6</em></p>
+  <p class="Normal" style="text-indent:36.0pt;line-height:normal"><span style="font-family:&quot;Courier New&quot;;mso-bidi-font-family:&quot;Times New Roman&quot;">…<o:p>
+  </o:p>
+  </span></p>
+  <p class="Normal" style="line-height:normal">Внимательно
+  посмотрите на колонки &quot;Инструкция
+  Ассемблера&quot; и &quot;Что на экране&quot;.
+  Подумайте, что произойдет, если мы колонку
+  &quot;Что на экране&quot; скопируем в колонку
+  &quot;Инструкция Ассемблера&quot;? В таком
+  случае просто затрется <span style="font-family:Arial;mso-bidi-font-family:&quot;Times New Roman&quot;">int
+  3</span> (0CCh). То же самое происходит, если мы
+  читаем свою программу в память с диска. На
+  диске ведь вместо <span style="font-family:Arial;mso-bidi-font-family:&quot;Times New Roman&quot;">int
+  3</span> будет <span style="font-family:Arial;mso-bidi-font-family:&quot;Times New Roman&quot;">ret</span>!
+  А как отладчик получит управление, если <span style="font-family:Arial;
+mso-bidi-font-family:&quot;Times New Roman&quot;">int 3</span> в памяти
+  затирается (перезаписывается)?</p>
+  <p class="Normal" style="line-height:normal">В приложении к
+  данному выпуску вы найдете файлы типа
+  Dbg16_01.asm. Посмотрите их, почитайте описания,
+  запустите под отладчиком (некоторые
+  программы могут зависать при отладке даже
+  под ОС Windows 9x). Думаю, что многое станет
+  понятным.</p>
+<hr>
+<p><strong>С уважением,</strong></p>
+<hr>
+<div align="center"><center><table border="4"
+cellpadding="2" width="100%" bgcolor="#53A6A6"
+bordercolor="#808080" bordercolorlight="#FFFFFF">
+<tr>
+<td width="33%"><p align="center"><font size="4"><strong>Автор
+рассылки:</strong></font></p>
+<p align="center"><em><strong>Калашников
+Олег</strong></em></p>
+<p align="center"><a
+href="http://www.Kalashnikoff.ru"><strong>www.Kalashnikoff.ru</strong></a></p>
+</td>
+<td width="33%"><p align="center"><font size="5"><strong>E-mail:</strong></font></p>
+<p align="center"><a
+href="mailto:assembler@beep.ru">assembler@beep.ru</a></p>
+</td>
+<td width="34%"><p align="center"><font size="4"><strong>UIN
+(Тетя Ася):</strong></font></p>
+<p align="center"><font color="#0000FF">68951340</font></p>
+</td>
+</tr>
+<tr>
+<td colspan="3" bgcolor="#448686"><font
+color="#400040" size="1"><strong>(С)
+Авторское право.</strong>
+Запрещается использование
+материала из рассылки в
+коммерческих целях без
+письменного согласия
+автора.</font></td>
+</tr>
+</table>
+</center></div></td>
+</tr>
+</table>
+</center></div>
+
+<hr>
+
+<p align="center">[<a href="017.htm">Следующий выпуск</a>] [<a target=_BLANK href="http://www.Kalashnikoff.ru/">На главную страницу</a>]</p>
+
+<HR NOSHADE><CENTER>
+<!-- SpyLOG v2 f:0211 --><script language="javascript">  
+u="u496.71.spylog.com";d=document;nv=navigator;na=nv.appName;p=1;  
+bv=Math.round(parseFloat(nv.appVersion)*100);  
+n=(na.substring(0,2)=="Mi")?0:1;rn=Math.random();z="p="+p+"&rn="+rn;y="";  
+y+="<a href='http://"+u+"/cnt?f=3&p="+p+"&rn="+rn+"' target=_blank>";  
+y+="<img src='http://"+u+"/cnt?"+z+  
+"&r="+escape(d.referrer)+"&pg="+escape(window.location.href)+"' border=0 width=88 height=31 alt='SpyLOG'>";  
+y+="</a>"; d.write(y);if(!n) { d.write("<"+"!--"); }//--></script><noscript><p align="center"><a 
+href="http://u496.71.spylog.com/cnt?f=3&amp;p=1" 
+target="_blank"><img src="http://u496.71.spylog.com/cnt?p=1" alt="SpyLOG" align="middle" border="0"></a> 
+<a href="http://u496.71.spylog.com/cnt?f=3&amp;p=1" target="_blank"></noscript></a> 
+<a href="http://u496.71.spylog.com/cnt?f=3&amp;p=1" target="_blank"> 
+<script language="javascript1.2"><!-- if(!n) { d.write("--"+">"); }//--></script></a> 
+<!-- SpyLOG --> 
+ 
+ <a target=_top href="http://www.one.ru"><img src="http://cnt.one.ru/cgi-bin/cnt.cgi?id=16871&t=9" width=88 height=31 alt="be number one" border=0></a> 
+ 
+ <script language="JavaScript"><!-- 
+d=document;a='';a+=';r='+escape(d.referrer) 
+js=10//--></script><script language="JavaScript1.1"><!-- 
+a+=';j='+navigator.javaEnabled() 
+js=11//--></script><script language="JavaScript1.2"><!-- 
+s=screen;a+=';s='+s.width+'*'+s.height 
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth) 
+js=12//--></script><script language="JavaScript1.3"><!-- 
+js=13//--></script><script language="JavaScript"><!-- 
+d.write('<a href="http://top.list.ru/jump?from=87856"'+ 
+' target=_top><img src="http://top.list.ru/counter'+ 
+'?id=87856;t=54;js='+js+a+';rand='+Math.random()+ 
+'" alt="TopList"'+' border=0 height=31 width=88></a>') 
+if(js>11)d.write('<'+'!-- ')//--></script><noscript><a 
+target=_top href="http://top.list.ru/jump?from=87856"><img 
+src="http://top.list.ru/counter?js=na;id=87856;t=54" 
+border=0 height=31 width=88 
+alt="TopList"></a></noscript><script language="JavaScript"><!-- 
+if(js>11)d.write('--'+'>')//--></script> 
+ 
+<br><br> 
+
+</body>
+</html>

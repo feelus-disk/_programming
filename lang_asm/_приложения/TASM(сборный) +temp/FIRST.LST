@@ -1,0 +1,74 @@
+Turbo Assembler	 Version 4.1	    13/10/09 20:43:26	    Page 1
+first.asm
+
+
+
+      1				     ;dl:=°хёЄэрфЎхЄшЁшўэюх ўшёыю
+      2				     masm;
+      3	0000			     data segment para public "data"
+      4	0000  82 A5 A4 A8 E2 A5	20+  message db	"Ведите	две шестнадцетиричные цифры,$"
+      5	      A4 A2 A5 20 E8 A5	E1+
+      6	      E2 AD A0 A4 E6 A5	E2+
+      7	      A8 E0 A8 E7 AD EB	A5+
+      8	      20 E6 A8 E4 E0 EB	2C+
+      9	      24
+     10	0024			     data ends
+     11	0000			     stk segment stack
+     12	0000  0100*(3F)			     db	256 dup("?")
+     13	0100			     stk ends
+     14	0000			     code segment para public "code"
+     15	0000			     main    proc
+     16				     assume cs:code,ds:data,ss:stk;
+     17	0000  B8 0000s			     mov ax,data;
+     18	0003  8E D8			     mov ds,ax;
+     19	0005  B4 09			     mov ah,9;
+     20	0007  BA 0000r			     mov dx,offset message;
+     21	000A  CD 21			     int 21h;
+     22	000C  33 C0			     xor ax,ax;
+     23	000E  B4 01			     mov ah,1;
+     24	0010  CD 21			     int 21h;
+     25	0012  8A D0			     mov dl,al;
+     26	0014  80 EA 30			     sub dl,30h;
+     27	0017  80 FA 09			     cmp dl,9h;
+     28	001A  7E 03			     jle M1;
+     29	001C  80 EA 07			     sub dl,7h;
+     30	001F  B1 04		     M1:     mov cl,4h;
+     31	0021  D2 E2			     shl dl,cl;
+     32	0023  CD 21			     int 21h;
+     33	0025  2C 30			     sub al,30h;
+     34	0027  3C 09			     cmp al,9h;
+     35	0029  7E 02			     jle M2;
+     36	002B  2C 07			     sub al,7h;
+     37	002D  02 D0		     M2:     add dl,al;
+     38	002F  B8 4C00			     mov ax,4C00h;
+     39	0032  CD 21			     int 21h;
+     40	0034			     main endp
+     41	0034			     code ends
+     42				     end main
+Turbo Assembler	 Version 4.1	    13/10/09 20:43:26	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "13/10/09"
+??FILENAME			  Text	 "first	  "
+??TIME				  Text	 "20:43:26"
+??VERSION			  Number 040A
+@CPU				  Text	 0101H
+@CURSEG				  Text	 CODE
+@FILENAME			  Text	 FIRST
+@WORDSIZE			  Text	 2
+M1				  Near	 CODE:001F
+M2				  Near	 CODE:002D
+MAIN				  Near	 CODE:0000
+MESSAGE				  Byte	 DATA:0000
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+CODE				  16  0034 Para	  Public  CODE
+DATA				  16  0024 Para	  Public  DATA
+STK				  16  0100 Para	  Stack
+

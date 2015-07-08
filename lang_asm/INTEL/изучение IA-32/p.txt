@@ -1,0 +1,1081 @@
+00 /r 		ADD r/m8,r8 		1/3 		Add byte register to r/m byte
+
+01 /r 		ADD r/m16,r16 		1/3 		Add word register to r/m word
+01 /r 		ADD r/m32,r32 		1/3 		Add dword register to r/m dword
+
+02 /r 		ADD r8,r/m8 		1/2 		Add r/m byte to byte register
+
+03 /r 		ADD r16,r/m16 		1/2 		Add r/m word to word register
+03 /r 		ADD r32,r/m32 		1/2 		Add r/m dword to dword register
+
+04 ib 		ADD AL,imm8 		1 		Add immediate byte to AL
+
+05 id 		ADD EAX,imm32 		1 		Add immediate dword to EAX
+05 iw 		ADD AX,imm16 		1 		Add immediate word to AX
+
+06 		PUSH ES 		1 		Push ES
+
+07 		POP ES 			3 		Pop top of stack into ES
+
+08 /r 		OR r/m8,r8 		1/3 		OR byte register to r/m byte
+
+09 /r 		OR r/m16,r16 		1/3 		OR word register to r/m word
+09 /r 		OR r/m32,r32 		1/3 		OR dword register to r/m dword
+
+0A /r 		OR r8,r/m8 		1/2 		OR byte register to r/m byte
+
+0B /r 		OR r16,r/m16 		1/2 		OR word register to r/m word
+0B /r 		OR r32,r/m32 		1/2 		OR dword register to r/m dword
+
+0C ib 		OR AL,imm8 		1 		OR immediate byte to AL
+
+0D id 		OR EAX,imm32 		1 		OR immediate dword to EAX
+0D iw 		OR AX,imm16 		1 		OR immediate word to AX
+
+0E 		PUSH CS 		1 		Push CS
+----------------
+0F 00 /0 	SLDT r/m16 		2 		Store LDTR to EA word
+0F 00 /0 	SLDT r/m32 		2 		Store LDTR to low 16 bits of r/m32 High 16 bits are undefined
+0F 00 /1 	STR r/m16 		2 		Store task register to EA word
+0F 00 /2 	LLDT r/m16 		9 		Load selector r/m16 into LDTR
+0F 00 /3 	LTR r/m16 		10 		Load EA word into task register
+0F 00 /4 	VERR r/m16 		7 		Set ZF=1 if segment can be read, selector in r/m16
+0F 00 /5 	VERW r/m16 		7 		Set ZF=1 if segment can be written, selector in r/m16
+
+0F 01 /0 	SGDT m 			4 		Store GDTR to m
+0F 01 /1 	SIDT m 			4 		Store IDTR to m
+0F 01 /2 	LGDT m16&32 		6 		Load m into GDTR
+0F 01 /3 	LIDT m16&32 		6 		Load m into IDTR
+0F 01 /4 	SMSW r/m16 		4 		Store machine status word to EA word
+0F 01 /6 	LMSW r/m16 		8 		Load r/m16 in machine status word
+0F 01/7 	INVLPG m 		25 		Invalidate TLB Entry
+
+0F 02 /r 	LAR r16,r/m16 		8 		r16 ¬ r/m16 masked by FF00
+0F 02 /r 	LAR r32,r/m32 		8 		r32 ¬ /m32 masked by 00FxFF00
+
+0F 03 /r 	LSL r16,r/m16 		8 		Load: r16 ¬ segment limit, selector r/m16 (byte granular)
+0F 03 /r 	LSL r16,r/m16 		8 		Load: r16 ¬ segment limit, selector r/m16 (page granular)
+0F 03 /r 	LSL r32,r/m32 		8 		Load: r32 ¬ segment limit, selector r/m32 (byte granular)
+0F 03 /r 	LSL r32,r/m32 		8 		Load: r32 ¬ segment limit, selector r/m32 (page granular)
+?
+0F 06 		CLTS 			10 		Clear task-switched flag
+?
+0F 08 		INVD 			15 		Invalidate Entire Cache
+
+0F 09 		WBINVD 			2000+ 		Write-Back and Invalidate Entire Cache
+?
+0F 20 /r 	MOV r32,CR0-4 		4 		Move (control register) to (register)
+
+0F 21/r 	MOV r32, DR0-DR3 	11 		Move (debug register) to (register)
+0F 21/r 	MOV r32, DR4-DR5 	12 		Move (debug register) to (register)
+0F 21/r 	MOV r32, DR6-DR7 	11 		Move (debug register) to (register)
+
+0F 22 /r 	MOV CR0,r32 		22 		Move (register) to (control register 0)
+0F 22 /r 	MOV CR2,r32 		12 		Move (register) to (control register 2)
+0F 22 /r 	MOV CR3,r32 		21/46 		Move (register) to (control register 3)
+0F 22 /r 	MOV CR4,r32 		14 		Move (register) to (control register 4)
+
+0F 23 /r 	MOV DR0-DR3, r32 	11 		Move (register) to (debug register)
+0F 23 /r 	MOV DR4-DR5, r32 	12 		Move (register) to (debug register)
+0F 23 /r 	MOV DR6-DR7,r32 	11 		Move (register) to (debug register)
+?
+0F 30 		WRMSR 			30-45 		Write the value in EDX:EAX to Model Specific Register indicated by ECX
+
+0F 31 		RDTSC 			6-11* 		Read Time Stamp Counter into EDX:EAX
+
+0F 32 		RDMSR 			20-24 		Read Model Specific Register indicated by ECX into EDX:EAX
+?
+0F 80 cw/cd 	JO rel16/32 		1 		Jump near if overflow (OF=1)
+
+0F 81 cw/cd 	JNO rel16/32 		1 		Jump near if not overflow (OF=0)
+
+0F 82 cw/cd 	JB rel16/32 		1 		Jump near if below (CF=1)
+0F 82 cw/cd 	JC rel16/32 		1 		Jump near if carry (CF=1)
+0F 82 cw/cd 	JNAE rel16/32 		1 		Jump near if not above or equal (CF=1)
+
+0F 83 cw/cd 	JAE rel16/32 		1 		Jump near if above or equal (CF=0)
+0F 83 cw/cd 	JNB rel16/32 		1 		Jump near if not below (CF=0)
+0F 83 cw/cd 	JNC rel16/32 		1 		Jump near if not carry (CF=0)
+
+0F 84 cw/cd 	JE rel16/32 		1 		Jump near if equal (ZF=1)
+0F 84 cw/cd 	JZ rel16/32 		1 		Jump near if 0 (ZF=1)
+0F 84 cw/cd 	JZ rel16/32 		1 		Jump near if 0 (ZF=1)
+
+0F 85 cw/cd 	JNE rel16/32 		1 		Jump near if not equal (ZF=0)
+0F 85 cw/cd 	JNZ rel16/32 		1 		Jump near if not zero (ZF=0)
+
+0F 86 cw/cd 	JBE rel16/32 		1 		Jump near if below or equal (CF=1 or ZF=1)
+0F 86 cw/cd 	JNA rel16/32 		1 		Jump near if not above (CF=1 or ZF=1)
+
+0F 87 cw/cd 	JA rel16/32 		1 		Jump near if above (CF=0 and ZF=0)
+0F 87 cw/cd 	JNBE rel16/32 		1 		Jump near if not below or equal (CF=0 and ZF=0)
+
+0F 88 cw/cd 	JS rel16/32 		1 		Jump near if sign (SF=1)
+
+0F 89 cw/cd 	JNS rel16/32 		1 		Jump near if not sign (SF=0)
+
+0F 8A cw/cd 	JP rel16/32 		1 		Jump near if parity (PF=1)
+0F 8A cw/cd 	JPE rel16/32 		1 		Jump near if parity even (PF=1)
+
+0F 8B cw/cd 	JNP rel16/32 		1 		Jump near if not parity (PF=0)
+0F 8B cw/cd 	JPO rel16/32 		1 		Jump near if parity odd (PF=0)
+
+0F 8C cw/cd 	JL rel16/32 		1 		Jump near if less (SF<>OF)
+0F 8C cw/cd 	JNGE rel16/32 		1 		Jump near if not greater or equal (SF<>OF)
+
+0F 8D cw/cd 	JGE rel16/32 		1 		Jump near if greater or equal (SF=OF)
+0F 8D cw/cd 	JNL rel16/32 		1 		Jump near if not less (SF=OF)
+
+0F 8E cw/cd 	JLE rel16/32 		1 		Jump near if less or equal (ZF=1 or SF<>OF)
+0F 8E cw/cd 	JNG rel16/32 		1 		Jump near if not greater (ZF=1 or SF<>OF)
+
+0F 8F cw/cd 	JG rel16/32 		1 		Jump near if greater (ZF=0 and SF=OF)
+0F 8F cw/cd 	JNLE rel16/32 		1 		Jump near if not less or equal (ZF=0 and SF=OF)
+
+0F 90 		SETO r/m8 		1/2 		Set byte if overflow (OF=1)
+
+0F 91 		SETNO r/m8 		1/2 		Set byte if not overflow (OF=0)
+
+0F 92 		SETB r/m8 		1/2 		Set byte if below (CF=1)
+0F 92 		SETC r/m8 		1/2 		Set if carry (CF=1)
+0F 92 		SETNAE r/m8	 	1/2 		Set byte if not above or equal (CF=1)
+
+0F 93 		SETAE r/m8 		1/2 		Set byte if above or equal (CF=0)
+0F 93 		SETNB r/m8 		1/2 		Set byte if not below (CF=0)
+0F 93 		SETNC r/m8 		1/2 		Set byte if not carry (CF=0)
+
+0F 94 		SETE r/m8 		1/2 		Set byte if equal (ZF=1)
+0F 94 		SETZ r/m8 		1/2 		Set byte if zero (ZF=1)
+
+0F 95 		SETNE r/m8 		1/2 		Set byte if not equal (ZF=0)
+0F 95 		SETNZ r/m8 		1/2 		Set byte if not zero (ZF=0)
+
+0F 96 		SETBE r/m8 		1/2 		Set byte if below or equal (CF=1 or (ZF=1)
+0F 96 		SETNA r/m8 		1/2 		Set byte if not above (CF=1 or ZF=1)
+
+0F 97 		SETA r/m8 		1/2 		Set byte if above (CF=0 and ZF=0)
+0F 97 		SETNBE r/m8 		1/2 		Set byte if not below or equal (CF=0 and ZF=0)
+
+0F 98 		SETS r/m8 		1/2 		Set byte if sign (SF=1)
+
+0F 99 		SETNS r/m8 		1/2 		Set byte if not sign (SF=0)
+
+0F 9A 		SETP r/m8 		1/2 		Set byte if parity (PF=1)
+0F 9A 		SETPE r/m8 		1/2 		Set byte if parity even (PF=1)
+
+0F 9B 		SETNP r/m8 		1/2 		Set byte if not parity (PF=0)
+0F 9B 		SETPO r/m8 		1/2 		Set byte if parity odd (PF=0)
+
+0F 9C 		SETL r/m8 		1/2 		Set byte if less (SF<>OF)
+0F 9C 		SETNGE r/m8 		1/2 		Set if not greater or equal (SF<>OF)
+
+0F 9D 		SETGE r/m8 		1/2 		Set byte if greater or equal (SF=OF)
+0F 9D 		SETNL r/m8 		1/2 		Set byte if not less (SF=OF)
+
+0F 9E 		SETLE r/m8 		1/2 		Set byte if less or equal (ZF=1 or SF<>OF)
+0F 9E 		SETNG r/m8 		1/2 		Set byte if not greater (ZF=1 or SF<>OF)
+
+0F 9F 		SETG r/m8 		1/2 		Set byte if greater (ZF=0 and SF=OF)
+0F 9F 		SETNLE r/m8 		1/2 		Set byte if not less or equal (ZF=0 and SF=OF)
+
+0F A0 		PUSH FS 		1 		Push FS
+
+0F A1 		POP FS 			3 		Pop top of stack into FS
+
+0F A2 		CPUID 			14 		EAX ¬ CPU identification information
+
+0F A3 		BT r/m16,r16 		4/9 		Save bit in carry flag
+0F A3 		BT r/m32,r32 		4/9 		Save bit in carry flag
+
+0F A4 		SHLD r/m16,r16,imm8 	4 		r/m16 gets SHL of r/m16 concatenated with r16
+0F A4 		SHLD r/m32,r32,imm8 	4 		r/m32 gets SHL of r/m32 concatenated with r32
+
+0F A5 		SHLD r/m16,r16,CL 	4/5 		r/m16 gets SHL of r/m16 concatenated with r16
+0F A5 		SHLD r/m32,r32,CL 	4/5 		r/m32 gets SHL of r/m32 concatenated with r32
+
+0F A8 		PUSH GS 		1 		Push GS
+
+0F A9 		POP GS 			3 		Pop top of stack into GS
+
+0F AA 		RSM 			83 		Resume operation of interrupted program
+
+0F AB 		BTS r/m16,r16 		7/13 		Save bit in carry flag and set
+0F AB 		BTS r/m32,r32 		7/13 		Save bit in carry flag and set
+
+0F AC 		SHRD r/m16,r16,imm8 	4 r/m16 	gets SHR of r/m16 concatenated with r16
+0F AC 		SHRD r/m32,r32,imm8 	4 r/m32 	gets SHR of r/m32 concatenated with r32
+
+0F AD 		SHRD r/m16,r16,CL 	4/5 		r/m16 gets SHR of r/m16 concatenated with r16
+0F AD 		SHRD r/m32,r32,CL 	4/5 		r/m32 gets SHR of r/m32 concatenated with r32
+
+0F AF /r 	IMUL r16,r/m16 		10 		word register ¬ word register * r/m word
+0F AF /r 	IMUL r32,r/m32 		10 		dword register ¬ dword register * r/m dword
+
+0F B0/r 	CMPXCHG r/m8,r8 	6 		Compare AL with r/m byte. If equal, set ZF and load byte reg into r/m byte. Else, clear ZF and load r/m byte into AL.
+
+0F B1/r 	CMPXCHG r/m16,r16 	6 		Compare AX with r/m word. If equal, set ZF and load word reg into r/m word. Else, clear ZF and load r/m word into AX.
+0F B1/r 	CMPXCHG r/m32,r32 	6 		Compare EAX with r/m dword. If equal, set ZF and load dword reg into r/m dword. Else, clear ZF and load r/m dword into EAX.
+
+0F B2 /r 	LSS r16,m16:16 		4/pm=8 		Load SS:r16 with pointer from memory
+0F B2 /r 	LSS r32,m16:32 		4/pm=8 		Load SS:r32 with pointer from memory
+
+0F B3 		BTR r/m16,r16 		7/13 		Save bit in carry flag and reset
+0F B3 		BTR r/m32,r32 		7/13 		Save bit in carry flag and reset
+
+0F B4 /r 	LFS r16,m16:16 		4 		Load FS:r16 with pointer from memory
+0F B4 /r 	LFS r32,m16:32 		4 		Load FS:r32 with pointer from memory
+
+0F B5 /r 	LGS r16,m16:16 		4 		Load GS:r16 with pointer from memory
+0F B5 /r 	LGS r32,m16:32 		4 		Load GS:r32 with pointer from memory
+
+0F B6 /r 	MOVZX r16,r/m8 		3 		Move byte to word with zero-extend
+0F B6 /r 	MOVZX r32,r/m8 		3 		Move byte to dword, zero-extend
+
+0F B7 /r 	MOVZX r32,r/m16 	3 		Move word to dword, zero-extend
+
+0F BA /4 ib 	BT r/m16,imm8 		4 		Save bit in carry flag
+0F BA /4 ib 	BT r/m32,imm8 		4 		Save bit in carry flag
+0F BA /5 ib 	BTS r/m16,imm8 		7/8 		Save bit in carry flag and set
+0F BA /5 ib 	BTS r/m32,imm8 		7/8 		Save bit in carry flag and set
+0F BA /6 ib 	BTR r/m16,imm8 		7/8 		Save bit in carry flag and reset
+0F BA /6 ib 	BTR r/m32,imm8 		7/8 		Save bit in carry flag and reset
+0F BA /7 ib 	BTC r/m16,imm8 		7/8 		Save bit in carry flag and complement
+0F BA /7 ib 	BTC r/m32,imm8 		7/8 		Save bit in carry flag and complement
+
+0F BB 		BTC r/m16,r16 		7/13 		Save bit in carry flag and complement
+0F BB 		BTC r/m32,r32 		7/13 		Save bit in carry flag and complement
+
+0F BC 		BSF r16,r/m16 		6-34/6-35 	Bit scan forward on r/m word
+0F BC 		BSF r32,r/m32 		6-42/6-43 	Bit scan forward on r/m dword
+
+0F BD 		BSR r16,r/m16 		7-39/7-40 	Bit scan reverse on r/m word
+0F BD 		BSR r32,r/m32 		7-71/7-72 	Bit scan reverse on r/m dword
+
+0F BE /r 	MOVSX r16,r/m8 		3 		Move byte to word with sign-extend
+0F BE /r 	MOVSX r32,r/m8 		3 		Move byte to dword, sign-extend
+
+0F BF /r 	MOVSX r32,r/m16 	3 		Move word to dword, sign-extend
+
+0F C0/r 	XADD r/m8,r8 		3/4 		Exchange byte register and r/m byte; load sum into r/m byte.
+
+0F C1/r 	XADD r/m16,r16 		3/4 		Exchange word register and r/m word; load sum into r/m word.
+0F C1/r 	XADD r/m32,r32 		3/4 		Exchange dword register and r/m dword; load sum into r/m dword.
+?
+0F C7 /1 m64 	CMPXCHG8B r/m64 	10 		Compare EDX:EAX with r/m qword. If equal, set ZF and load ECX:EBX into r/m qword. Else, clear ZF and load r/m qword into EDX:EAX.
+0F C8+rd 	BSWAP r32 		1 		Swap bytes to convert little/big endian data in a 32-bit register to big/little endian form.
+?
+----------------
+10 /r 		ADC r/m8,r8 		1/3 		Add with carry byte register to r/m byte
+
+11 /r 		ADC r/m16,r16 		1/3 		Add with carry word register to r/m word
+11 /r 		ADC r/m32,r32 		1/3 		Add with CF dword register to r/m dword
+
+12 /r 		ADC r8,r/m8 		1/2 		Add with carry r/m byte to byte register
+
+13 /r 		ADC r16,r/m16 		1/2 		Add with carry r/m word to word register
+13 /r 		ADC r32,r/m32 		1/2 		Add with CF r/m dword to dword register
+
+14 ib 		ADC AL,imm8 		1 		Add with carry immediate byte to AL
+
+15 id 		ADC EAX,imm32 		1 		Add with carry immediate dword to EAX
+15 iw 		ADC AX,imm16 		1 		Add with carry immediate word to AX
+
+16 		PUSH SS 		1 		Push SS
+
+17 		POP SS 			3 		Pop top of stack into SS
+
+18 /r 		SBB r/m8,r8 		1/3 		Subtract with borrow byte register from r/m byte
+
+19 /r 		SBB r/m16,r16 		1/3 		Subtract with borrow word register from r/m word
+19 /r 		SBB r/m32,r32 		1/3 		Subtract with borrow dword register from r/m dword
+
+1A /r 		SBB r8,r/m8 		1/2 		Subtract with borrow r/m byte from byte register
+
+1B /r 		SBB r16,r/m16 		1/2 		Subtract with borrow r/m word from word register
+1B /r 		SBB r32,r/m32 		1/2 		Subtract with borrow r/m dword from dword register
+
+1C ib 		SBB AL,imm8 		1 		Subtract with borrow immediate byte from AL
+
+1D id 		SBB EAX,imm32 		1 		Subtract with borrow immediate dword from EAX
+1D iw 		SBB AX,imm16 		1 		Subtract with borrow immediate word from AX
+
+1E 		PUSH DS 		1 		Push DS
+
+1F 		POP DS 			3 		Pop top of stack into DS
+
+20 /r 		AND r/m8,r8 		1/3 		AND byte register to r/m byte
+
+21 /r 		AND r/m16,r16 		1/3 		AND word register to r/m word
+21 /r 		AND r/m32,r32 		1/3 		AND dword register to r/m dword
+
+22 /r 		AND r8,r/m8 		1/2 		AND r/m byte to byte register
+
+23 /r 		AND r16,r/m16 		1/2 		AND r/m word to word register
+23 /r 		AND r32,r/m32 		1/2 		AND r/m dword to dword register
+
+24 ib 		AND AL,imm8 		1 		AND immediate byte to AL
+
+25 id 		AND EAX,imm32 		1 		AND immediate dword to EAX
+25 iw 		AND AX,imm16 		1 		AND immediate word to AX
+
+27 		DAA 			3 		Decimal adjust AL after addition
+
+28 /r 		SUB r/m8,r8 		1/3 		Subtract byte register from r/m byte
+
+29 /r 		SUB r/m16,r16 		1/3 		Subtract word register from r/m word
+29 /r 		SUB r/m32,r32 		1/3 		Subtract dword register from r/m dword
+
+2A /r 		SUB r8,r/m8 		1/2 		Subtract r/m byte from byte register
+
+2B /r 		SUB r16,r/m16 		1/2 		Subtract r/m word from word register
+2B /r 		SUB r32,r/m32 		1/2 		Subtract r/m dword from dword register
+
+2C ib 		SUB AL,imm8 		1 		Subtract immediate byte from AL
+
+2D id 		SUB EAX,imm32 		1 		Subtract immediate dword from EAX
+2D iw 		SUB AX,imm16 		1 		Subtract immediate word from AX
+
+2F 		DAS 			3 		Decimal adjust AL after subtraction
+
+30 /r 		XOR r/m8,r8 		1/3 		Exclusive-OR byte register to r/m byte
+
+31 /r 		XOR r/m16,r16 		1/3 		Exclusive-OR word register to r/m word
+31 /r 		XOR r/m32,r32 		1/3 		Exclusive-OR dword register to r/m dword
+
+32 /r 		XOR r8,r/m8 		1/2 		Exclusive-OR byte register to r/m byte
+
+33 /r 		XOR r16,r/m16 		1/2 		Exclusive-OR word register to r/m word
+33 /r 		XOR r32,r/m32 		1/2 		Exclusive-OR dword register to r/m dword
+
+34 ib 		XOR AL,imm8 		1 		Exclusive-OR immediate byte to AL
+
+35 id 		XOR EAX,imm32 		1 		Exclusive-OR immediate dword to EAX
+35 iw 		XOR AX,imm16 		1 		Exclusive-OR immediate word to AX
+?
+37 		AAA 			3 		ASCII adjust AL after addition
+
+38 /r 		CMP r/m8,r8 		1/2 		Compare byte register to r/m byte
+
+39 /r 		CMP r/m16,r16 		1/2 		Compare word register to r/m word
+39 /r 		CMP r/m32,r32 		1/2 		Compare dword register to r/m dword
+
+3A /r 		CMP r8,r/m8 		1/2 		Compare r/m byte to byte register
+
+3B /r 		CMP r16,r/m16 		1/2 		Compare r/m word to word register
+3B /r 		CMP r32,r/m32 		1/2 		Compare r/m dword to dword register
+
+3C ib 		CMP AL,imm8 		1 		Compare immediate byte to AL
+
+3D id 		CMP EAX,imm32 		1 		Compare immediate dword to EAX
+3D iw 		CMP AX,imm16 		1 		Compare immediate word to AX
+?
+3F 		AAS 			3 		ASCII adjust AL after subtraction
+
+40+ rd 		INC r32 		1 		Increment dword register by 1
+40+ rw 		INC r16 		1 		Increment word register by 1
+?
+48+rd 		DEC r32 		1 		Decrement dword register by 1
+48+rw 		DEC r16 		1 		Decrement word register by 1
+?
+50+rd 		PUSH r32 		1 		Push register dword
+50+rw 		PUSH r16 		1 		Push register word
+?
+58+ rd 		POP r32 		1 		Pop top of stack into dword register
+58+ rw 		POP r16 		1 		Pop top of stack into word register
+?
+60 		PUSHA 			5 		Push AX, CX, DX, BX, original SP, BP, SI, and DI
+60 		PUSHAD 			5 		Push EAX, ECX, EDX, EBX, original ESP, EBP, ESI, and EDI
+
+61 		POPA 			5 		Pop DI, SI, BP, BX, DX, CX, and AX
+61 		POPAD			5 		Pop EDI, ESI, EBP, EDX, ECX, and EAX
+
+62 /r 		BOUND r16,m16&16	8 (within bounds) int+32 (out of bounds)	Check if r16 is within bounds
+62 /r 		BOUND r32,m32&32	8 (within bounds) int+32 (out of bounds)	Check if r32 is within bounds
+
+63 /r 		ARPL r/m16,r16 		pm=7 		Adjust RPL of r/m16 to not less than RPL of r16
+?
+68 		PUSH imm16 		1 		Push immediate word
+68 		PUSH imm32 		1 		Push immediate dword
+
+69 /r id 	IMUL r32,imm32 		10 		dword register ¬r/m32 * immediate dword
+69 /r id 	IMUL r32,r/ m32,imm32 	10 		dword register ¬r/m32 * immediate dword
+69 /r iw 	IMUL r16,imm16 		10 		word register ¬r/m16 * immediate word
+69 /r iw 	IMUL r16,r/ m16,imm16 	10 		word register ¬r/m16 * immediate word
+
+6A 		PUSH imm8 		1 		Push immediate byte
+
+6B /r ib 	IMUL r16,imm8 		10 		word register ¬ word register * sign-extended immediate byte
+6B /r ib 	IMUL r16,r/m16,imm8 	10 		word register ¬r/m16 * sign-extended immediate byte
+6B /r ib 	IMUL r32,imm8 		10 		dword register ¬ dword register * sign-extended immediate byte
+6B /r ib 	IMUL r32,r/m32,imm8 	10 		dword register ¬r/m32 * sign-extended immediate byte
+
+6C 		INS m8,DX 		9,pm=6*/24**,VM=22 	Input byte from port DX into ES:(E)DI
+6C 		INSB 			9,pm=6*/24**,VM=22 	Input byte from port DX into ES:(E)DI
+
+6D 		INS m16,DX 		9,pm=6*/24**,VM=22 	Input word from port DX into ES:(E)DI
+6D 		INS m32,DX 		9,pm=6*/24**,VM=22 	Input dword from port DX into ES:(E)DI
+6D 		INSD 			9,pm=6*/24**,VM=22 	Input dword from port DX into ES:(E)D
+6D 		INSW 			9,pm=6*/24**,VM=22 	Input word from port DX into ES:(E)DI
+
+6E 		OUTS DX,r/m8 		13,pm=10*/27**,VM=25 	Output byte [(E)SI] to port in DX
+6E 		OUTSB 			13,pm=10*/27**,VM=25 	Output byte DS:[(E)SI] to port in DX
+
+6F 		OUTS DX,r/m16 		13,pm=10*/27**,VM=25 	Output word [(E)SI] to port in DX
+6F 		OUTS DX,r/m32 		13,pm=10*/27**,VM=25 	Output dword [(E)SI] to port in DX
+6F 		OUTSD 			13,pm=10*/27**,VM=25 	Output dword DS:[(E)SI] to port in DX
+6F 		OUTSW 			13,pm=10*/27**,VM=25 	Output word DS:[(E)SI] to port in DX
+
+70 cb 		JO rel8 		1 		Jump short if overflow (OF=1)
+
+71 cb 		JNO rel8 		1 		Jump short if not overflow (OF=0)
+
+72 cb 		JB rel8 		1 		Jump short if below (CF=1)
+72 cb 		JC rel8 		1 		Jump short if carry (CF=1)
+72 cb 		JNAE rel8 		1 		Jump short if not above or equal (CF=1)
+
+73 cb 		JAE rel8 		1 		Jump short if above or equal (CF=0)
+73 cb 		JNB rel8 		1 		Jump short if not below (CF=0)
+73 cb 		JNC rel8 		1 		Jump short if not carry (CF=0)
+
+74 cb 		JE rel8 		1 		Jump short if equal (ZF=1)
+74 cb 		JZ rel8 		1 		Jump short if zero (ZF = 1)
+
+75 cb 		JNE rel8 		1 		Jump short if not equal (ZF=0)
+75 cb 		JNZ rel8 		1 		Jump short if not zero (ZF=0)
+
+76 cb 		JBE rel8 		1 		Jump short if below or equal (CF=1 or ZF=1)
+76 cb 		JNA rel8 		1 		Jump short if not above (CF=1 or ZF=1)
+
+77 cb 		JA rel8 		1 		Jump short if above (CF=0 and ZF=0)
+77 cb 		JNBE rel8 		1 		Jump short if not below or equal (CF=0 and ZF=0)
+
+78 cb 		JS rel8 		1 		Jump short if sign (SF=1)
+
+79 cb 		JNS rel8 		1 		Jump short if not sign (SF=0)
+
+7A cb 		JP rel8 		1 		Jump short if parity (PF=1)
+7A cb 		JPE rel8 		1 		Jump short if parity even (PF=1)
+
+7B cb 		JNP rel8 		1 		Jump short if not parity (PF=0)
+7B cb 		JPO rel8 		1 		Jump short if parity odd (PF=0)
+
+7C cb 		JL rel8 		1 		Jump short if less (SF<>OF)
+7C cb 		JNGE rel8 		1 		Jump short if not greater or equal (SF<>OF)
+
+7D cb 		JGE rel8 		1 		Jump short if greater or equal (SF=OF)
+7D cb 		JNL rel8 		1 		Jump short if not less (SF=OF)
+
+7E cb 		JLE rel8 		1 		Jump short if less or equal (ZF=1 or SF<>OF)
+7E cb 		JNG rel8 		1 		Jump short if not greater (ZF=1 or SF<>OF)
+
+7F cb 		JG rel8 		1 		Jump short if greater (ZF=0 and SF=OF)
+7F cb 		JNLE rel8 		1 		Jump short if not less or equal (ZF=0 and SF=OF)
+
+80 /0 ib 	ADD r/m8,imm8 		1/3 		Add immediate byte to r/m byte
+80 /1 ib 	OR r/m8,imm8 		1/3 		OR immediate byte to r/m byte
+80 /2 ib 	ADC r/m8,imm8 		1/3 		Add with carry immediate byte to r/m byte
+80 /3 ib 	SBB r/m8,imm8 		1/3 		Subtract with borrow immediate byte from r/m byte
+80 /4 ib 	AND r/m8,imm8 		1/3 		AND immediate byte to r/m byte
+80 /5 ib 	SUB r/m8,imm8 		1/3 		Subtract immediate byte from r/m byte
+80 /6 ib 	XOR r/m8,imm8 		1/3 		Exclusive-OR immediate byte to r/m byte
+80 /7 ib 	CMP r/m8,imm8 		1/2 		Compare immediate byte to r/m byte
+
+81 /0 id 	ADD r/m32,imm32 	1/3 		Add immediate dword to r/m dword
+81 /0 iw 	ADD r/m16,imm16 	1/3 		Add immediate word to r/m word
+81 /1 id 	OR r/m32,imm32 		1/3 		OR immediate dword to r/m dword
+81 /1 iw 	OR r/m16,imm16 		1/3 		OR immediate word to r/m word
+81 /2 id 	ADC r/m32,imm32 	1/3 		Add with CF immediate dword to r/m dword
+81 /2 iw 	ADC r/m16,imm16 	1/3 		Add with carry immediate word to r/m word
+81 /3 id 	SBB r/m32,imm32 	1/3 		Subtract with borrow immediate dword from r/m dword
+81 /3 iw 	SBB r/m16,imm16 	1/3 		Subtract with borrow immediate word from r/m word
+81 /4 id 	AND r/m32,imm32 	1/3 		AND immediate dword to r/m dword
+81 /4 iw 	AND r/m16,imm16 	1/3 		AND immediate word to r/m word
+81 /5 id 	SUB r/m32,imm32 	1/3 		Subtract immediate dword from r/m dword
+81 /5 iw 	SUB r/m16,imm16 	1/3 		Subtract immediate word from r/m word
+81 /6 id 	XOR r/m32,imm32 	1/3 		Exclusive-OR immediate dword to r/m dword
+81 /6 iw 	XOR r/m16,imm16 	1/3 		Exclusive-OR immediate word to r/m word
+81 /7 id 	CMP r/m32,imm32 	1/2 		Compare immediate dword to r/m dword
+81 /7 iw 	CMP r/m16,imm16 	1/2 		Compare immediate word to r/m word
+?
+83 /0 ib 	ADD r/m16,imm8 		1/3 		Add sign-extended immediate byte to r/m word
+83 /0 ib 	ADD r/m32,imm8 		1/3 		Add sign-extended immediate byte to r/m dword
+83 /1 ib 	OR r/m16,imm8 		1/3 		OR sign-extended immediate byte with r/m word
+83 /1 ib 	OR r/m32,imm8 		1/3 		OR sign-extended immediate byte with r/m dword
+83 /2 ib 	ADC r/m16,imm8 		1/3 		Add with CF sign-extended immediate byte to r/m word
+83 /2 ib 	ADC r/m32,imm8 		1/3 		Add with CF sign-extended immediate byte into r/m dword
+83 /3 ib 	SBB r/m16,imm8 		1/3 		Subtract with borrow sign-extended immediate byte from r/m word
+83 /3 ib 	SBB r/m32,imm8 		1/3 		Subtract with borrow sign-extended immediate byte from r/m dword
+83 /4 ib 	AND r/m16,imm8 		1/3 		AND sign-extended immediate byte with r/m word
+83 /4 ib 	AND r/m32,imm8 		1/3 		AND sign-extended immediate byte with r/m dword
+83 /5 ib 	SUB r/m16,imm8 		1/3 		Subtract sign-extended immediate byte from r/m word
+83 /5 ib 	SUB r/m32,imm8 		1/3 		Subtract sign-extended immediate byte from r/m dword
+83 /6 ib 	XOR r/m16,imm8 		1/3 		XOR sign-extended immediate byte with r/m word
+83 /6 ib 	XOR r/m32,imm8 		1/3 		XOR sign-extended immediate byte with r/m dword
+83 /7 ib 	CMP r/m16,imm8 		1/2 		Compare sign extended immediate byte to r/m word
+83 /7 ib 	CMP r/m32,imm8 		1/2 		Compare sign extended immediate byte to r/m dword
+
+84 /r 		TEST r/m8,r8 		1/2 		AND byte register with r/m byte
+
+85 /r 		TEST r/m16,r16 		1/2 		AND word register with r/m word
+85 /r 		TEST r/m32,r32 		1/2 		AND dword register with r/m dword
+
+86 /r 		XCHG r/m8,r8 		3 		Exchange byte register with EA byte
+86 /r 		XCHG r8,r/m8 		3 		Exchange byte register with EA byte
+
+87 /r 		XCHG r/m16,r16 		3 		Exchange word register with EA word
+87 /r 		XCHG r/m32,r32 		3 		Exchange dword register with EA dword
+87 /r 		XCHG r16,r/m16 		3 		Exchange word register with EA word
+87 /r 		XCHG r32,r/m32 		3 		Exchange dword register with EA dword
+
+88 /r 		MOV r/m8,r8 		1 		Move byte register to r/m byte
+
+89 /r 		MOV r/m16,r16 		1 		Move word register to r/m word
+89 /r 		MOV r/m32,r32 		1 		Move dword register to r/m dword
+
+8A /r 		MOV r8,r/m8 		1 		Move r/m byte to byte register
+
+8B /r 		MOV r16,r/m16 		1 		Move r/m word to word register
+8B /r 		MOV r32,r/m32 		1 		Move r/m dword to dword register
+
+8C /r 		MOV r/m16,Sreg* 	1 		Move segment register to r/m word
+
+8D /r 		LEA r16,m 		1 		Store effective address for m in register r16
+8D /r 		LEA r16,m 		1 		Store effective address for m in register r16
+8D /r 		LEA r16,m 		1 		Store effective address for m in register r16
+8D /r 		LEA r16,m 		1 		Store effective address for m in register r16
+8D /r 		LEA r32,m 		1 		Store effective address for m in register r32
+8D /r 		LEA r32,m 		1 		Store effective address for m in register r32
+8D /r 		LEA r32,m 		1 		Store effective address for m in register r32
+8D /r 		LEA r32,m 		1 		Store effective address for m in register r32
+
+8E /r 		MOV Sreg,r/m16 		2/3** 		Move r/m word to segment register
+8F /0 		POP m16 		3 		Pop top of stack into memory word
+8F /0 		POP m32 		3 		Pop top of stack into memory dword
+
+90 		NOP 			1 		No operation
+90+rd 		XCHG EAX,r32 		2 		Exchange dword register with EAX
+90+rd 		XCHG r32,EAX 		2 		Exchange dword register with EAX
+90+rw 		XCHG AX,r16 		2 		Exchange word register with AX
+90+rw 		XCHG r16,AX 		2 		Exchange word register with AX
+?
+98 		CBW 			3 		AX ¬ sign-extend of AL
+98 		CWDE 			3 		EAX ¬ sign-extend of AX
+
+99 		CDQ 			2 		EDX ¬ sign-extend of EAX
+99 		CWD 			2 		DX ¬ sign-extend of AX
+
+9A cd 		CALL ptr16:16 		4 		Call intersegment, to full pointer given*1
+9A cd 		CALL ptr16:16 		pm=21+ts 	Call to task*1
+9A cd 		CALL ptr16:16 		pm=22 		Call gate, same privilege*1
+9A cd 		CALL ptr16:16 		pm=44 		Call gate, more privilege, no parameters*1
+9A cd 		CALL ptr16:16 		pm=45+2x 	Call gate, more privilege, x parameters*1
+9A cp 		CALL ptr16:32 		4 		Call intersegment, to full pointer given*1
+9A cp 		CALL ptr16:32 		pm=21+ts 	Call to task*1
+9A cp 		CALL ptr16:32 		pm=22 		Call gate, same privilege*1
+9A cp 		CALL ptr16:32 		pm=44 		Call gate, more privilege, no parameters*1
+9A cp 		CALL ptr16:32 		pm=45+2x 	Call gate, more privilege, x parameters*1
+
+9B 		FWAIT 			(1-3) 		Alias for WAIT.
+9B 		WAIT 			1 		Causes processor to check for numeric exceptions.
+9B D9 /6 	FSTENV m14/28byte 	16 bit rm or vm=50;32 bit rm or vm=48;16 bit pm=49;32 bit pm =50; + at least 3 for FWAIT Store FPU environment to m14byte or m28byte after checking for unmasked floating-point error condition. Then mask all floating-point exceptions.*2
+9B D9 /7 	FSTCW m2byte 		2 + at least 1 for 	FWAIT Store FPU control word to m2byte after checking for unmasked floating-point error condition*2
+9B DB E2 	FCLEX 			9 + at least 1for FWAIT		Clear floating-point exception flags after checking for floating-point error conditions.*2
+9B DB E3 	FINIT 			16 		Initialize FPU after checking for unmasked floating-point error condition.*2
+9B DD /6 	FSAVE m94/108byte 	6 bit rm or vm=127 32 bit rm or vm=151 pm=124; + at least 3 for FWAIT Store FPU state to m94byte or m108byte after checking for unmasked floating-point error condition. Then re-initialize the FPU.*2
+9B DD /7 	FSTSW m2byte 		2 + at least 3 for FWAIT	Store FPU status word to mbyte after checking for unmasked floating-point error condition.*2
+9B DF E0 	FSTSW AX 		2 + at least 3 for FWAIT	Store FPU status word to AX register after checking for unmasked floating-point error condition.*2
+
+9C 		PUSHF 			pm=3, rm and vm=4 	Push FLAGS
+9C 		PUSHFD			pm=3,rm and vm=4 	Push EFLAGS
+
+9D 		POPF 			pm= 4,rm and vm= 6 	Pop top of stack FLAGS
+9D 		POPFD 			pm= 4,rm and vm= 6 	Pop top of stack into EFLAGS
+
+9E 		SAHF 			2 		Store AH into flags SF ZF xx AF xx PF xx CF
+
+9F 		LAHF 			2 		Load: AH = flags SF ZF xx AF xx PF xx CF
+
+A0 		MOV AL,moffs8 		1 		Move byte at (seg:offset) to AL
+
+A1 		MOV AX,moffs16 		1 		Move word at (seg:offset) to AX
+A1 		MOV EAX,moffs32 	1 		Move dword at (seg:offset) to EAX
+
+A2 		MOV moffs8,AL 		1 		Move AL to (seg:offset)
+
+A3 		MOV moffs16,AX 		1 		Move AX to (seg:offset)
+A3 		MOV moffs32,EAX 	1 		Move EAX to (seg:offset)
+
+A4 		MOVS m8,m8 		4 		Move byte [(E)SI] to ES:[(E)DI]
+A4 		MOVSB 			4 		Move byte DS:[(E)SI] to ES:[(E)DI]
+
+A5 		MOVS m16,m16 		4 		Move word [(E)SI] to ES:[(E)DI]
+A5 		MOVS m32,m32 		4 		Move dword [(E)SI] to ES:[(E)DI]
+A5 		MOVSD 			4 		Move dword DS:[(E)SI] to ES:[(E)DI]
+A5 		MOVSW 			4 		Move word DS:[(E)SI] to ES:[(E)DI]
+
+A6 		CMPS m8,m8 		5 		Compare bytes ES:[(E)DI] (second operand) with [(E)SI] (first operand)
+A6 		CMPSB 			5 		Compare bytes ES:[(E)DI] with DS:[SI]
+
+A7 		CMPS m16,m16 		5 		Compare words ES:[(E)DI] (second operand) with [(E)SI] (first operand)
+A7 		CMPS m32,m32 		5 		Compare dwords ES:[(E)DI] (second operand) with [(E)SI] (first operand)
+A7 		CMPSD 			5 		Compare dwords ES:[(E)DI] with DS:[SI]
+A7 		CMPSW 			5 		Compare words ES:[(E)DI] with DS:[SI]
+
+A8 ib 		TEST AL,imm8 		1 		AND immediate byte with AL
+
+A9 id 		TEST EAX,imm32 		1 		AND immediate dword with EAX
+A9 iw 		TEST AX,imm16 		1 		AND immediate word with AX
+
+AA 		STOS m8 		3 		Store AL in byte ES:[(E)DI], update (E)DI
+AA 		STOSB 			3 		Store AL in byte ES:[(E)DI], update (E)DI
+
+AB 		STOS m16 		3		Store AX in word ES:[(E)DI], update (E)DI
+AB 		STOS m32 		3 		Store EAX in dword ES:[(E)DI], update (E)DI
+AB 		STOSD 			3 		Store EAX in dword ES:[(E)DI], update (E)DI
+AB 		STOSW 			3 		Store AX in word ES:[(E)DI], update (E)DI
+
+AC 		LODS m8 		2 		Load byte [(E)SI] into AL
+AC 		LODSB 			2 		Load byte DS:[(E)SI] into AL
+
+AD 		LODS m16 		2 		Load word [(E)SI] into AX
+AD 		LODS m32 		2 		Load dword [(E)SI] into EAX
+AD 		LODSD 			2 		Load dword DS:[(E)SI] into EAX
+AD 		LODSW 			2 		Load word DS:[(E)SI] into AX
+
+AE 		SCAS m8 		4 		Compare bytes AL-ES:[(E)DI], update (E)DI
+AE 		SCASB 			4 		Compare bytes AL-ES:[(E)DI], update (E)DI
+
+AF 		SCAS m16 		4 		Compare words AX-ES:[(E)DI], update (E)DI
+AF 		SCAS m32	 	4 		Compare dwords EAX-ES:[(E)DI], update (E)DI
+AF 		SCASD 			4 		Compare dwords EAX-ES:[(E)DI], update (E)DI
+AF 		SCASW 			4 		Compare words AX-ES:[(E)DI], update (E)DI
+
+B0+ rb 		MOV reg8,imm8 		1 		Move immediate byte to register
+?
+B8+ rd 		MOV reg32,imm32 	1 		Move immediate dword to register
+B8+ rw 		MOV reg16,imm16 	1 		Move immediate word to register
+?
+C0 /0 ib 	ROL r/m8,imm8 		1/3 		Rotate 8 bits r/m byte left imm8 times
+C0 /1 ib 	ROR r/m8,imm8 		1/3 		Rotate 8 bits r/m word right imm8 times
+C0 /2 ib 	RCL r/m8,imm8 		8-25/10-27 	Rotate 9 bits (CF,r/m byte) left imm8 times
+C0 /3 ib 	RCR r/m8,imm8 		8-25/10-27 	Rotate 9 bits (CF,r/m byte) right imm8 times
+C0 /4 ib 	SAL r/m8,imm8 		1/3 		Multiply r/m byte by 2, imm8 times
+C0 /4 ib 	SHL r/m8,imm8 		1/3 		Multiply r/m byte by 2, imm8 times
+C0 /5 ib 	SHR r/m8,imm8 		1/3 		Unsigned divide r/m byte by 2, imm8 times
+C0 /7 ib 	SAR r/m8,imm8 		1/3 		Signed divide1 r/m byte by 2, imm8 times
+
+C1 /0 ib 	ROL r/m16,imm8 		1/3 		Rotate 16 bits r/m word left imm8 times
+C1 /0 ib 	ROL r/m32,imm8 		1/3 		Rotate 32 bits r/m dword left imm8 times
+C1 /1 ib 	ROR r/m16,imm8 		1/3 		Rotate 16 bits r/m word right imm8 times
+C1 /1 ib 	ROR r/m32,imm8 		1/3 		Rotate 32 bits r/m dword right imm8 times
+C1 /2 ib 	RCL r/m16,imm8 		8-25/10-27 	Rotate 17 bits (CF,r/m word) left imm8 times
+C1 /2 ib 	RCL r/m32,imm8 		8-25/10-27 	Rotate 33 bits (CF,r/m dword) left imm8 times
+C1 /3 ib 	RCR r/m16,imm8 		8-25/10-27 	Rotate 17 bits (CF,r/m word) right imm8 times
+C1 /3 ib 	RCR r/m32,imm8 		8-25/10-27 	Rotate 33 bits (CF,r/m dword) right imm8 times
+C1 /4 ib 	SAL r/m16,imm8 		1/3 		Multiply r/m word by 2, imm8 times
+C1 /4 ib 	SAL r/m32,imm8 		1/3 		Multiply r/m dword by 2, imm8 times
+C1 /4 ib 	SHL r/m16,imm8 		1/3 		Multiply r/m word by 2, imm8 times
+C1 /4 ib 	SHL r/m32,imm8 		1/3 		Multiply r/m dword by 2, imm8 times
+C1 /5 ib 	SHR r/m16,imm8 		1/3 		Unsigned divide r/m word by 2, imm8 times
+C1 /5 ib 	SHR r/m32,imm8 		1/3 		Unsigned divide r/m dword by 2, imm8 times
+C1 /7 ib 	SAR r/m16,imm8 		1/3 		Signed divide1 r/m word by 2, imm8 times
+C1 /7 ib 	SAR r/m32,imm8 		1/3 		Signed divide1r/m dword by 2, imm8 times
+
+C2 iw 		RET imm16 		3 		Return (near), pop imm16 bytes of parameters
+
+C3 		RET 			2 		Return (near) to caller
+
+C4 /r 		LES r16,m16:16 		4 		Load ES:r16 with pointer from memory
+C4 /r 		LES r32,m16:32 		4 		Load ES:r32 with pointer from memory
+
+C5 /r 		LDS r16,m16:16 		4 		Load DS:r16 with pointer from memory
+C5 /r 		LDS r32,m16:32 		4 		Load DS:r32 with pointer from memory
+
+C6 /0 		MOV r/m8,imm8 		1 		Move immediate byte to r/m byte
+
+C7 /0 		MOV r/m16,imm16 	1 		Move immediate word to r/m word
+C7 /0 		MOV r/m32,imm32 	1 		Move immediate dword to r/m dword
+
+C8 iw 00 	ENTER imm16,0 		11 		Make procedure stack frame
+C8 iw 01 	ENTER imm16,1 		15 		Make stack frame for procedure parameters
+C8 iw ib 	ENTER imm16,imm8 	15+2imm8 	Make stack frame for procedure parameters
+
+C9 		LEAVE 			3 		Set ESP to EBP, then pop EBP
+C9 		LEAVE 			3 		Set SP to BP, then pop BP
+
+CA iw 		RET imm16 		23 		Return (far), lesser privilege, pop imm16 bytes
+CA iw 		RET imm16 		4 		Return (far), same privilege, pop imm16 bytes
+
+CB 		RET 			23 		Return (far), lesser privilege, switch stacks
+CB 		RET 			4 		Return (far) to caller, same privilege
+
+CC 		INT 3 			13 		Interrupt 3—trap to debugger
+CC 		INT 3 			19+TS 		Interrupt 3—Protected Mode, via task gate
+CC 		INT 3 			27 		Interrupt 3—Protected Mode, same privilege
+CC 		INT 3 			44 		Interrupt 3—Protected Mode, more privilege
+CC 		INT 3 			56 		Interrupt 3—from V86 mode to PL 0
+
+CD ib 		INT imm8 		16 		Interrupt numbered by immediate byte
+CD ib 		INT imm8 		23+TS 		Interrupt—Protected Mode, via task gate
+CD ib 		INT imm8 		31 		Interrupt—Protected Mode, same privilege
+CD ib 		INT imm8 		48 		Interrupt—Protected Mode, more privilege
+CD ib 		INT imm8 		82 		Interrupt—from V86 mode to PL 0
+
+CE 		INTO 			Pass: 13,Fail: 4 	Interrupt 4—if overflow flag is 1
+CE 		INTO 			Pass: 19+TS, Fail: 4 	Interrupt 4—Protected Mode, via task gate
+CE 		INTO 			Pass: 27,Fail: 4 	Interrupt 4—Protected Mode, same privilege
+CE 		INTO 			Pass: 44,Fail: 4 	Interrupt 4—Protected Mode, more privilege
+CE 		INTO 			Pass: 56,Fail: 4 	Interrupt 4—from V86 mode to PL 0
+
+CF 		IRET 			10 		Interrupt return (far return and pop flags)
+CF 		IRET 			27 		Interrupt return to lesser privilege
+CF 		IRET 			8 		Interrupt return (from real or V86 mode)
+CF 		IRET 			TS+10 		Interrupt return, different task (NT = 1)
+CF 		IRETD 			10 		Interrupt return (far return and pop flags)
+CF 		IRETD 			27 		Interrupt return to lesser privilege
+CF 		IRETD 			TS+10 		Interrupt return, different task (NT = 1)
+
+D0 /0 		ROL r/m8,1 		1/3 		Rotate 8 bits r/m byte left once
+D0 /1 		ROR r/m8,1 		1/3 		Rotate 8 bits r/m byte right once
+D0 /2 		RCL r/m8,1 		1/3 		Rotate 9 bits (CF,r/m byte) left once
+D0 /3 		RCR r/m8,1 		1/3 		Rotate 9 bits (CF,r/m byte) right once
+D0 /4 		SAL r/m8,1 		1/3 		Multiply r/m byte by 2, once
+D0 /4 		SHL r/m8,1 		1/3 		Multiply r/m byte by 2, once
+D0 /5 		SHR r/m8,1 		1/3 		Unsigned divide r/m byte by 2, once
+D0 /7 		SAR r/m8,1 		1/3 		Signed divide1 r/m byte by 2, once
+
+D1 /0 		ROL r/m16,1 		1/3 		Rotate 16 bits r/m word left once
+D1 /0 		ROL r/m32,1 		1/3 		Rotate 32 bits r/m dword left once
+D1 /1 		ROR r/m16,1 		1/3 		Rotate 16 bits r/m word right once
+D1 /1 		ROR r/m32,1 		1/3 		Rotate 32 bits r/m dword right once
+D1 /2 		RCL r/m16,1 		1/3 		Rotate 17 bits (CF,r/m word) left once
+D1 /2 		RCL r/m32,1 		1/3 		Rotate 33 bits (CF,r/m dword) left once
+D1 /3 		RCR r/m16,1 		1/3 		Rotate 17 bits (CF,r/m word) right once
+D1 /3 		RCR r/m32,1 		1/3 		Rotate 33 bits (CF,r/m dword) right once
+D1 /4 		SAL r/m16,1 		1/3 		Multiply r/m word by 2, once
+D1 /4 		SAL r/m32,1 		1/3 		Multiply r/m dword by 2, once
+D1 /4 		SHL r/m16,1 		1/3 		Multiply r/m word by 2, once
+D1 /4 		SHL r/m32,1 		1/3 		Multiply r/m dword by 2, once
+D1 /5 		SHR r/m16,1 		1/3		Unsigned divide r/m word by 2, once
+D1 /5 		SHR r/m32,1 		1/3 		Unsigned divide r/m dword by 2, once
+D1 /7 		SAR r/m16,1 		1/3 		Signed divide1 r/m word by 2, once
+D1 /7 		SAR r/m32,1 		1/3 		Signed divide1 r/m dword by 2, once
+
+D2 /0 		ROL r/m8,CL 		4 		Rotate 8 bits r/m byte left CL times
+D2 /1 		ROR r/m8,CL 		4 		Rotate 8 bits r/m byte right CL times
+D2 /2 		RCL r/m8,CL 		7-24/9-26 	Rotate 9 bits (CF,r/m byte) left CL times
+D2 /3 		RCR r/m8,CL 		7-24/9-26 	Rotate 9 bits (CF,r/m byte) right CL times
+D2 /4 		SAL r/m8,CL 		4 		Multiply r/m byte by 2, CL times
+D2 /4 		SHL r/m8,CL 		4 		Multiply r/m byte by 2, CL times
+D2 /5 		SHR r/m8,CL 		4 		Unsigned divide r/m byte by 2, CL times
+D2 /7 		SAR r/m8,CL 		4 		Signed divide1 r/m byte by 2, CL times
+
+D3 /0 		ROL r/m16,CL 		4 		Rotate 16 bits r/m word left CL times
+D3 /0 		ROL r/m32,CL 		4 		Rotate 32 bits r/m dword left CL times
+D3 /1 		ROR r/m16,CL 		4 		Rotate 16 bits r/m word right CL times
+D3 /1 		ROR r/m32,CL 		4 		Rotate 32 bits r/m dword right CL times
+D3 /2 		RCL r/m16,CL 		7-24/9-26 	Rotate 17 bits (CF,r/m word) left CL times
+D3 /2 		RCL r/m32,CL 		7-24/9-26 	Rotate 33 bits (CF,r/m dword) left CL times
+D3 /3 		RCR r/m16,CL 		7-24/9-26 	Rotate 17 bits (CF,r/m word) right CL times
+D3 /3 		RCR r/m32,CL 		7-24/9-26 	Rotate 33 bits (CF,r/m dword) right CL times
+D3 /4 		SAL r/m16,CL 		4 		Multiply r/m word by 2, CL times
+D3 /4 		SAL r/m32,CL 		4 		Multiply r/m dword by 2, CL times
+D3 /4 		SHL r/m16,CL 		4 		Multiply r/m word by 2, CL times
+D3 /4 		SHL r/m32,CL 		4 		Multiply r/m dword by 2, CL times
+D3 /5 		SHR r/m16,CL 		4 		Unsigned divide r/m word by 2, CL times
+D3 /5 		SHR r/m32,CL 		4 		Unsigned divide r/m dword by 2, CL times
+D3 /7 		SAR r/m16,CL 		4 		Signed divide1 r/m word by 2, CL times
+D3 /7 		SAR r/m32,CL 		4 		Signed divide1r/m dword by 2, CL times
+
+D4 0A 		AAM 			18 		ASCII adjust AX after multiply
+
+D5 0A 		AAD 			10 		ASCII adjust AX before division
+?
+D7 		XLAT m8 		4 		Set AL to memory byte DS:[(E)BX + unsigned AL]
+D7 		XLATB 			4 		Set AL to memory byte DS:[(E)BX + unsigned AL]
+
+D8 /0 		FADD m32 real 		3/1 		Add m32real to ST.
+D8 /1 		FMUL m32real 		3/1 		Multiply ST by m32real.
+D8 /2 		FCOM m32real 		4/1 		Compare ST with m32real.
+D8 /3 		FCOMP m32real 		4/1 		Compare ST with m32real and pop ST.
+D8 /4 		FSUB m32real 		3/1 		Subtract m32real from ST.
+D8 /5 		FSUBR m32real 		3/1 		Replace ST with m32real – ST.
+D8 /6 		FDIV m32real 		39 		Divide ST by m32real.
+D8 /7 		FDIVR m32real 		39 		Replaces ST with m32real ? ST.
+D8 C0+i 	FADD ST, ST(i) 		3/1 		Add ST(i) to ST.
+D8 C8+i 	FMUL ST, ST(i) 		3/1 		Multiply ST by ST(i)
+D8 D0+i 	FCOM ST(i) 		4/1 		Compare ST with ST(i).
+D8 D1 		FCOM 			4/1 		Compare ST with ST(1).
+D8 D8+i 	FCOMP ST(i) 		4/1 		Compare ST with ST(i) and pop ST.
+D8 D9 		FCOMP 			4/1 		Compare ST with ST(1) and pop ST.
+D8 E0+i 	FSUB ST, ST(i) 		3/1 		Subtract ST(i) from ST®ST0.
+D8 E8+i 	FSUBR ST, ST(i) 	3/1 		Replace ST with ST(i) – ST.
+D8 F0+i 	FDIV ST, ST(i) 		39 		Divide ST by ST(i)
+D8 F8+i 	FDIVR ST, ST(i) 	39 		Replace ST by ST(i) ? ST.
+
+D9 /0 		FLD m32real 		1 		Push m32real onto the FPU stack.
+D9 /2 		FST m32real 		2 		Copy ST to m32real .
+D9 /3 		FSTP m32real 		2 		Copy ST to m32real and pop ST.
+D9 /4 		FLDENV m14/28byte 	rm or vm=37 16 bit pm=32 32 bit pm=33	Load FPU environment from m14byte or m28byte.
+D9 /5 		FNLDCW m2byte 		7 		Load FPU control word from m2byte.
+D9 /6 		FNSTENV m14/28byte 	16 bit rm or vm=50;32 bit rm or vm=48;16 bit pm=49;32 bit pm=50	Store FPU state to m14byte or m28byte without checking for unmasked floating-point error condition.* Then mask all floating-point exceptions.*2
+D9 /7 		FNSTCW m2byte 		2 		Store FPU control word to m2byte without checking for unmasked floating-point error condition.*2
+D9 C0+i 	FLD ST(i) 		1 		Push ST(i) onto the FPU stack.
+D9 C8+i 	FXCH ST(i) 		1 		Exchange the contents of ST and ST(i).
+D9 C9 		FXCH 			1 		Exchange the contents of ST and ST(1).
+D9 D0 		FNOP 			1 		No operation is performed.
+D9 E0 		FCHS 			1 		Replace ST with a value of opposite sign.
+D9 E1 		FABS 			1 		Replace ST with its absolute value.
+D9 E4 		FTST 			4/1 		Compare ST with 0.0.
+D9 E5 		FXAM 			21 		Report the type of object in the ST register.
+D9 E8 		FLD1 			2/2 		Push +1.0 onto the FPU Stack.
+D9 E9 		FLDL2T 			5/3 		Push log210 onto the FPU Stack.
+D9 EA 		FLDL2E 			5/3 		Push log2e onto the FPU Stack.
+D9 EB 		FLDPI 			5/3 		Push p onto the FPU Stack.
+D9 EC 		FLDLG2 			5/3 		Push log102 onto the FPU Stack.
+D9 ED 		FLDLN2 			5/3 		Push loge2 onto the FPU Stack.
+D9 EE 		FLDZ 			2/2 		Push +0.0 onto the FPU Stack.
+D9 F0 		F2XM1 			13-57 		Replace ST with (2ST–1)
+D9 F1 		FYL2X 			22-111 		Replace ST(1) with ST(1) ? log2ST and pop ST.
+D9 F2 		FPTAN 			17-173 		Replace ST with its tangent and push 1 onto the FPU stack.
+D9 F3 		FPATAN 			17-173 		Replace ST(1) with arctan(ST(1) ? ST) and pop ST.
+D9 F4 		FXTRACT 		13 		Separate ST into its exponent and significand; replace ST with the exponent and then push the significand onto the FPU stack.
+D9 F5 		FPREM1 			20-70 		Replace ST with the remainder obtained on dividing ST by ST(1).
+D9 F6 		FDECSTP 		1 		Decrement top-of-stack pointer for FPU register stack.
+D9 F7 		FINCSTP 		1 		Increment top-of-stack pointer for FPU register stack.
+D9 F8 		FPREM 			16-64 		Replace ST with the remainder obtained on dividing ST by ST(1).
+D9 F9 		FYL2XP1 		22-103 		Replace ST(1) with ST(1) ? log2(ST+1.0) and pop ST.
+D9 FA 		FSQRT 			70 		Replace ST with its square root.
+D9 FB 		FSINCOS 		17-137 		Compute the sine and cosine of ST; replace ST with the sine, and then push the cosine onto the FPU stack.
+D9 FC 		FRNDINT 		9-20 		Round ST to an integer.
+D9 FD 		FSCALE 			20-31 		Scale ST by ST(1).
+D9 FE 		FSIN 			16-126 		Replace ST with its sine.
+D9 FF 		FCOS 			18-124 		Replace ST with its cosine
+
+DA /0 		FIADD m32int 		7/4 		Add m32int to ST.
+DA /1 		FIMUL m32int 		7/4 		Multiply ST by m32int.
+DA /2 		FICOM m32int 		8/4 		Compare ST with m32int.
+DA /3 		FICOMP m32int 		8/4 		Compare ST with m32int and pop ST.
+DA /4 		FISUB m32int 		7/4 		Subtract m32int from ST.
+DA /5 		FISUBR m32int 		7/4 		Replace ST with m32int – ST.
+DA /6 		FIDIV m32int 		42 		Divide ST by m32int.
+DA /7 		FIDIVR m32int 		42 		Replace ST with m32int ? ST.
+DA E9 		FUCOMPP 		4/1 		Compare ST with ST(1) and pop ST twice.
+
+DB /0 		FILD m32int 		3/1 		Push m32int onto the FPU stack.
+DB /2 		FIST m32int 		6 		Store ST in m32int.
+DB /3 		FISTP m32int 		6 		Store ST in m32int and pop ST.
+DB /5 		FLD m80real 		3 		Push m80real onto the FPU stack.
+DB /7 		FSTP m80real 		3 		Copy ST to m80real and pop ST.
+DB E2 		FNCLEX 			9 		Clear floating-point exception flags without checking for floating-point error conditions.*2
+DB E3 		FNINIT 			12 		Initialize FPU without checking for unmasked floating-point error condition.*2
+
+DC /0 		FADD m64real 		3/1 		Add m64real to ST.
+DC /1 		FMUL m64real 		3/1 		Multiply ST by m64real.
+DC /2 		FCOM m64real 		4/1 		Compare ST with m64real.
+DC /3 		FCOMP m64real 		4/1 		Compare ST with m64real and pop ST.
+DC /4 		FSUB m64real 		3/1 		Subtract m64real from ST.
+DC /5 		FSUBR m64real 		3/1 		Replace ST with m64real – ST.
+DC /6 		FDIV m64real 		39 		Divide ST by m64real.
+DC /7 		FDIVR m64real 		39 		Replace ST with m64real ? ST.
+DC C0+i 	FADD ST(i), ST 		3/1 		Add ST to ST(i).
+DC C8+i 	FMUL ST(i), ST 		3/1 		Multiply ST(i) by ST.
+DC E0+i 	FSUBR ST(i), ST 	3/1 		Subtract ST from ST(i)®ST(i).
+DC E8+i 	FSUB ST(i), ST 		3/1 		Replace ST(i) with ST –ST(i).
+DC F0+i 	FDIVR ST(i), ST 	39 		Divide ST(i) = ST ? ST(i).
+DC F8+i 	FDIV ST(i), ST 		39 		Replace ST(i) with ST(i) ? ST
+
+DD /0 		FLD m64real 		1 		Push m64real onto the FPU stack.
+DD /2 		FST m64real 		2 		Copy ST to m64real.
+DD /3 		FSTP m64real 		2 		Copy ST to m64real and pop ST.
+DD /4 		FRSTOR m94/108byte 	16 bit rm or vm= 75 32 bit rm or vm= 95 pm = 70 	Load FPU state from m94byte or m108byte.
+DD /6 		FNSAVE m94/108byte 	16 bit rm or vm=127 32 bit rm or vm=151 pm=124	Store FPU state to m94byte or m108byte without checking for unmasked floating-point error condition.* Then re-initialize the FPU.*2
+DD /7 		FNSTSW m2byte 		2 		Store FPU status word to m2byte without checking for unmasked floating-point error condition. *2
+DD C0+i 	FFREE ST(i) 		1 		Tag ST(i) as empty.
+DD D0+i 	FST ST(i) 		1 		Copy ST to ST(i).
+DD D8+i 	FSTP ST(i) 		1 		Copy ST to ST(i) and pop ST.
+DD E0+i 	FUCOM ST(i) 		4/1 		Compare ST with ST(i).
+DD E1 		FUCOM 			4/1 		Compare ST with ST(1).
+DD E8+i 	FUCOMP ST(i) 		4/1 		Compare ST with ST(i) and pop ST.
+DD E9 		FUCOMP 			4/1 		Compare ST with ST(1) and pop ST.
+
+DE /0 		FIADD m16int 		7/4 		Add m16int to ST]
+DE /1 		FIMUL m16int 		7/4 		Multiply ST by m16int.
+DE /2 		FICOM m16int 		8/4 		Compare ST with m16int.
+DE /3 		FICOMP m16int 		8/4 		Compare ST with m16int and pop ST.
+DE /4 		FISUBm16int 		7/4 		Subtract m16int from ST.
+DE /5 		FISUBR m16int 		7/4 		Replace ST with m16int – ST.
+DE /6 		FIDIV m16int 		42 		Divide ST by m16int.
+DE /7 		FIDIVR m16int 		42 		Replace ST with m16int ? ST.
+DE C0+i 	FADDP ST(i), ST 	3/1 		Add ST to ST(i) and pop ST.
+DE C1 		FADDP 			3/1 		Add ST to ST(1) and pop ST.
+DE C8+i 	FMULP ST(i), ST 	3/1 		Multiply ST(i) by ST and pop ST.
+DE C9 		FMULP 			3/1 		Multiply ST(1) by ST and pop ST.
+DE D9 		FCOMPP 			4/1 		Compare ST with ST(1) and pop ST twice
+DE E0+i 	FSUBRP ST(i), ST 	3/1 		Subtract ST from ST(i) and pop ST.
+DE E1 		FSUBRP 			3/1 		Subtract ST from ST(1) and pop ST.
+DE E8+i 	FSUBP ST(i), ST 	3/1 		Replace ST(i) with ST –ST(i); pop ST.
+DE E9 		FSUBP 			3/1 		Replace ST(i) with ST –ST(i); pop ST.
+DE F0+i 	FDIVRP ST(i), ST 	39 		Divide ST(i) = ST ? ST(i) and pop ST.
+DE F1 		FDIVRP 			39 		Divide ST(1) = ST ? ST(1) and pop ST.
+DE F8+i 	FDIVP ST(i), ST 	39 		Replace ST(i) with ST(i) ? ST; pop ST.
+DE F9 		FDIVP 			39 		Replace ST(1) with ST(1) ? ST; pop ST.
+
+DF /0 		FILD m16int 		3/1 		Push m16int onto the FPU stack.
+DF /2 		FIST m16int 		6 		Store ST in m16int.
+DF /3 		FISTP m16int 		6 		Store ST in m16int and pop ST.
+DF /4 		FBLD m80 dec 		48-58 		Push m80dec onto the FPU stack.
+DF /5 		FILD m64int 		3/1 		Push m64int onto the FPU stack.
+DF /6 		FBSTP m80dec 		148-154 	Store ST in m80dec and pop ST.
+DF /7 		FISTP m64int 		6 		Store ST in m64int and pop ST.
+DF E0 		FNSTSW AX 		2 		Store FPU status word to AX register without checking for unmasked floating-point error condition.*2
+
+E0 cb 		LOOPNE rel8 		7/8 		DEC count; jump short if count <> 0 and ZF=0
+E0 cb 		LOOPNZ rel8 		7/8 		DEC count; jump short if count <> 0 and ZF=0
+
+E1 cb 		LOOPE rel8 		7/8 		DEC count; jump short if count <> 0 and ZF=1
+E1 cb 		LOOPZ rel8 		7/8 		DEC count; jump short if count <> 0 and ZF=1
+
+E2 cb 		LOOP rel8 		5/6 		DEC count; jump short if count <> 0
+
+E3 cb 		JCXZ rel8 		6,5 		Jump short if CX register is 0
+E3 cb 		JECXZ rel8 		6,5 		Jump short if ECX register is 0
+
+E4 ib 		IN AL,imm8 		7,pm=4*/21**,vm=19 	Input byte from immediate port into AL
+
+E5 ib 		IN AX,imm8 		7,pm=4*/21**,vm=19 	Input byte from immediate port into AX
+E5 ib 		IN EAX,imm8 		7,pm=4*/21**,vm=19 	Input byte from immediate port into EAX
+
+E6 ib 		OUT imm8,AL 		12,pm=9*/26**,vm=24 	Output byte AL to immediate port number
+
+E7 ib 		OUT imm8,AX 		12,pm=9*/26**,vm=24 	Output word AX to immediate port number
+E7 ib 		OUT imm8,EAX 		12,pm=9*/26**,vm=24 	Output dword EAX to immediate port number
+
+E8 cd 		CALL rel32 		1 		Call near, displacement relative to next instruction*1
+E8 cw 		CALL rel16 		1 		Call near, displacement relative to next instruction*1
+
+E9 cd 		JMP rel32 		1 		Jump near, displacement relative to next instruction
+E9 cw 		JMP rel16 		1 		Jump near, displacement relative to next instruction
+
+EA cd 		JMP ptr16:16 		18 		Jump to call gate, same privilege
+EA cd 		JMP ptr16:16 		19+TS 		Jump via task state segment
+EA cd 		JMP ptr16:16 		20+TS 		Jump via task gate
+EA cd 		JMP ptr16:16 		3 		Jump intersegment, 4-byte immediate address
+EA cp 		JMP ptr16:32 		18 		Jump to call gate, same privilege
+EA cp 		JMP ptr16:32 		19+TS 		Jump via task state segment
+EA cp 		JMP ptr16:32 		20+TS 		Jump via task gate
+EA cp 		JMP ptr16:32 		3 		Jump intersegment, 6-byte immediate address
+
+EB cb 		JMP rel8 		1 		Jump short
+
+EC 		IN AL,DX 		7,pm=4*/21**,vm=19 	Input byte from port DX into AL
+
+ED 		IN AX,DX 		7,pm=4*/21**,vm=19 	Input word from port DX into AX
+ED 		IN EAX,DX 		7,pm=4*/21**,vm=19 	Input dword from port DX into EAX
+
+EE 		OUT DX,AL 		12,pm=9*/25**,vm=24 	Output byte AL to port number in DX
+
+EF 		OUT DX,AX 		12,pm=9*/25**,vm=24 	Output word AX to port number in DX
+EF 		OUT DX,EAX 		12,pm=9*/25**,vm=24 	Output dword EAX to port number in DX
+
+F0 		LOCK 			1 		Assert LOCK# signal for the next instruction
+?
+F2 A6 		REPNE CMPS m8,m8 	7*3,8+4(E)CX*6 	Find matching bytes in ES:[(E)DI] and [(E)SI]
+F2 A7 		REPNE CMPSm16,m16	7*3,8+4(E)CX*6 	Find matching words in ES:[(E)DI] and [(E)SI]
+F2 A7 		REPNE CMPSm32,m32	7*3,8+4(E)CX*6 	Find matching dwords in ES:[(E)DI] and [(E)SI]
+F2 AE 		REPNE SCAS m8 		7*3,9+4(E)CX*6 	Find AL, starting at ES:[(E)DI]
+F2 AF 		REPNE SCAS m16 		7*3,9+4(E)CX*6 	Find AX, starting at ES:[(E)DI]
+F2 AF 		REPNE SCAS m32 		7*3,9+4(E)CX*6 	Find EAX, starting at ES:[(E)DI]
+
+F3 6C 		REP INS r/m8, DX 	11+3(E)CX,pm=8+3(E)CX*1/25+3(E)CX*2,VM=23+3(E)CX	Input (E)CX bytes from port DX into ES:[(E)DI]
+F3 6D 		REP INS r/m16,DX 	11+3(E)CX,pm=8+3(E)CX*1/25+3(E)CX*2,VM=23+3(E)CX	Input (E)CX words from port DX into ES:[(E)DI]
+F3 6D 		REP INS r/m32,DX 	11+3(E)CX,pm=8+3(E)CX*1/25+3(E)CX*2,VM=23+3(E)CX	Input (E)CX dwords from port DX into ES:[(E)DI]
+F3 6E 		REP OUTS DX,r/m8 	13+4(E)CX,m=10+4(E)CX*127+4(E)CX*2vm=25+4(E)CX	Output (E)CX bytes from [(E)SI] to port DX
+F3 6F 		REP OUTS DX,r/m16	13+4(E)CX,pm=10+4(E)CX*127+4(E)CX*2vm=25+4(E)CX	Output (E)CX words from [(E)SI] to port DX
+F3 6F 		REP OUTS DX,r/m32 	13+4(E)CX,pm=10+4(E)CX*127+4(E)CX*2vm=25+4(E)CX	Output (E)CX dwords from [(E)SI] to port DX
+F3 A4 		REP MOVS m8,m8 		6*3,13*4,13+(E)CX*5	Move (E)CX bytes from [(E)SI] to ES:[(E)DI]
+F3 A5 		REP MOVS m16,m16 	6*3,13*4,13+(E)CX*5	Move (E)CX words from [(E)SI] to ES:[(E)DI]
+F3 A5 		REP MOVS m32,m32 	6*3,13*4,13+(E)CX*5	Move (E)CX dwords from [(E)SI] to ES:[(E)DI]
+F3 A6 		REPE CMPS m8,m8 	*3,9+4(E)CX*6 	Find nonmatching bytes in ES:[(E)DI] and [(E)SI]
+F3 A7 		REPE CMPS m16,m16 	7*3,9+4(E)CX*6 	Find nonmatching words in ES:[(E)DI] and [(E)SI]
+F3 A7 		REPE CMPS m32,m32 	7*3,9+4(E)CX*6 	Find nonmatching dwords in ES:[(E)DI] and [(E)SI]
+F3 AA		REP STOS m8 		6*3,9(E)CX*6 	Fill (E)CX bytes at ES:[(E)DI] with AL
+F3 AB 		REP STOS m16 		6*3,9(E)CX*6 	Fill (E)CX words at ES:[(E)DI] with AX
+F3 AB 		REP STOS m32 		6*3,9(E)CX*6 	Fill (E)CX dwords at ES:[(E)DI] with EAX
+F3 AC 		REP LODS AL 		7*3,7+3(E)CX*6 	Load (E)CX bytes from [(E)SI] to AL
+F3 AD 		REP LODS AX 		7*3,7+3(E)CX*6 	Load (E)CX words from [(E)SI] to AX
+F3 AD 		REP LODS EAX 		7*3,7+3(E)CX*6 	Load (E)CX dwords from [(E)SI] to EAX
+F3 AE 		REPE SCAS m8 		7*3,9+4(E)CX*6 	Find non-AL byte starting at ES:[(E)DI]
+F3 AF 		REPE SCAS m16 		7*3,9+4(E)CX*6 	Find non-AX word starting at ES:[(E)DI]
+F3 AF 		REPE SCAS m32 		7*3,9+4(E)CX*6 	Find non-EAX dword starting at ES:[(E)DI]
+
+F4 		HLT 			? 		Halt
+
+F5 		CMC 			2 		Complement carry flag
+
+F6 /0 ib 	TEST r/m8,imm8 		1/2 		AND immediate byte with r/m byte
+F6 /2 		NOT r/m8 		1/3 		Reverse each bit of r/m byte
+F6 /3 		NEG r/m8 		1/3 		Two's complement negate r/m byte
+F6 /4 		MUL AL,r/m8 		11 		Unsigned multiply (AX ¬ AL * r/m byte)
+F6 /5 		IMUL r/m8 		11 		AX¬ AL * r/m byte
+F6 /6 		DIV AL,r/m8 		17 		Unsigned divide AX by r/m byte (AL=Quo,AH=Rem)
+F6 /7 		IDIV AL,r/m8 		22 		Signed divide AX (where AH must contain signextension of AL) by r/m byte. (Results: AL=Quo, AH=Rem)
+
+F7 /0 id 	TEST r/m32,imm32	1/2 		AND immediate dword with r/m dword
+F7 /0 iw 	TEST r/m16,imm16 	1/2 		AND immediate word with r/m word
+F7 /2 		NOT r/m16 		1/3 		Reverse each bit of r/m word
+F7 /2 		NOT r/m32 		1/3 		Reverse each bit of r/m dword
+F7 /3 		NEG r/m16		1/3 		Two's complement negate r/m word
+F7 /3 		NEG r/m32 		1/3 		Two's complement negate r/m dword
+F7 /4 		MUL AX,r/m16 		11 		Unsigned multiply (DX:AX ¬ AX * r/m word)
+F7 /4 		MUL EAX,r/m32 		10 		Unsigned multiply (EDX:EAX ¬ EAX * r/m dword)
+F7 /5 		IMUL r/m16 		11 		DX:AX ¬ AX * r/m word
+F7 /5 		IMUL r/m32 		10 		EDX:EAX ¬ EAX * r/m dword
+F7 /6 		DIV AX,r/m16 		25 		Unsigned divide DX:AX by r/m word (AX=Quo, DX=Rem)
+F7 /6 		DIV EAX,r/m32 		41 		Unsigned divide EDX:EAX by r/m dword (EAX=Quo, EDX=Rem)
+F7 /7 		IDIV AX,r/m16 		30 		Signed divide DX:AX (where DX must contain sign-extension of AX) by r/m word. (Results: AX=Quo, DX=Rem)
+F7 /7 		IDIV EAX,r/m32 		46 		Signed divide EDX:EAX (where EDX must contain sign-extension of EAX) by r/m dword. (Results: EAX=Quo, EDX=Rem)
+
+F8 		CLC 			2 		Clear carry flag
+
+F9 		STC 			2 		Set carry flag
+
+FA 		CLI 			7 		Clear interrupt flag; interrupts disabled when interrupt flag cleared
+
+FB 		STI 			7 		Set interrupt flag; interrupts enabled at the end of the next instruction
+
+FC 		CLD 			2 		Clear direction flag; SI and DI will increment during string instructions
+
+FD 		STD 			2 		Set direction flag so (E)SI and/or (E)DI decrement
+
+FE /0 		INC r/m8 		1/3 		Increment r/m byte by 1
+FE /1 		DEC r/m8 		1/3 		Decrement r/m byte by 1
+
+FF /0 		INC r/m16 		1/3 		Increment r/m word by 1
+FF /0 		INC r/m32 		1/3 		Increment r/m dword by 1
+FF /1 		DEC r/m16 		1/3 		Decrement r/m word by 1
+FF /1 		DEC r/m32 		1/3 		Decrement r/m dword by 1
+FF /2 		CALL r/m16 		2 		Call near, register indirect/memory indirect*1
+FF /2 		CALL r/m32 		2 		Call near, indirect*1
+FF /3 		CALL m16:16 		5 		Call intersegment, address at r/m dword*1
+FF /3 		CALL m16:16 		pm=21+ts 	Call to task*1
+FF /3 		CALL m16:16 		pm=22 		Call gate, same privilege*1
+FF /3 		CALL m16:16 		pm=44 		Call gate, more privilege, no parameters*1
+FF /3 		CALL m16:16 		pm=45+2x 	Call gate, more privilege, x parameters*1
+FF /3 		CALL m16:32 		5 		Call intersegment, address at r/m dword*1
+FF /3 		CALL m16:32 		pm=21+ts 	Call to task*1
+FF /3 		CALL m16:32 		pm=22 		Call gate, same privilege*1
+FF /3 		CALL m16:32 		pm=44 		Call gate, more privilege, no parameters*1
+FF /3 		CALL m16:32 		pm=45+2x 	Call gate, more privilege, x parameters*1
+FF /4 		JMP r/m16 		2 		Jump near indirect
+FF /4 		JMP r/m32 		2 		Jump near, indirect
+FF /5 		JMP m16:16 		18 		Jump to call gate, same privilege
+FF /5 		JMP m16:16 		19+TS 		Jump via task state segment
+FF /5 		JMP m16:16 		20+TS 		Jump via task gate
+FF /5 		JMP m16:16 		4 		Jump r/m16:16 indirect and intersegment
+FF /5 		JMP m16:32 		18		Jump to call gate, same privilege
+FF /5 		JMP m16:32 		19+TS 		Jump via task state segment
+FF /5 		JMP m16:32 		20+TS 		Jump via task gate
+FF /5 		JMP m16:32 		4 		Jump intersegment, address at r/m dword
+FF /6 		PUSH r/m16 		1/2 		Push reg/mem word
+FF /6 		PUSH r/m32 		1/2 		Push reg/mem dword

@@ -1,0 +1,100 @@
+# $Header: proto.make,v 1.5 91/10/22 14:35:13 Jacobs Exp $
+
+# Paths:
+SRC_HOME  = /evert/werkhoek/assembler/as_src
+
+# Evert: please read ...
+# You will have to change the SRC_HOME variable to reflect your
+# installation. you no longer need anything from ACK.
+#
+# Ceriel
+
+# UTIL_HOME = /usr/proj/em/Users.sparc
+
+TARGET_HOME	= $(SRC_HOME)
+
+# compiler set for target machine
+
+CC=gcc#				# compiler to be used for compiling ACK
+
+# always passed to $(CC) -c.
+COPTIONS=-O
+
+LDOPTIONS=#			# always passed to $(CC) when linking
+
+SUF=o#				# suffix of files produced with $(CC) -c
+
+# compiler set for producing runnable binaries (possibly using $(UTIL_HOME)).
+# This must describe the compiler with which $(UTIL_HOME) has been compiled.
+# If $(TARGET_HOME) is identical to $(UTIL_HOME), which usually will be
+# the case, this part does not have to be changed. Otherwise (when you are
+# cross-compiling ACK), you will have to change this part. Probable
+# replacements are given in comments. Maybe the installation script
+# has already changed them, but they should be checked to be sure.
+
+h	= $(TARGET_HOME)
+CDIR	= $(SRC_HOME)
+# CPP	= $(UTIL_HOME)/lib.bin/cpp
+DEF	=
+MDIR	= $(CDIR)
+
+FFLAG	=
+INCL	= -I$(CDIR) -I$(MDIR) -I$h -I. $(DEF)
+CFLAGS	= $(FFLAG) $(INCL) $(COPTIONS)
+YFLAGS	= -d
+LDFLAGS	= $(FFLAG) $(LDOPTIONS)
+
+CSRC	= $(CDIR)/comm3.c $(CDIR)/comm4.c $(CDIR)/comm5.c $(CDIR)/bigkeywh.c \
+	  $(CDIR)/comm6.c $(CDIR)/comm7.c $(CDIR)/comm8.c $(CDIR)/wr.c $(CDIR)/wr_bytes.c $(CDIR)/wr_putc.c
+COBJ	= comm3.$(SUF) comm4.$(SUF) comm5.$(SUF) bigkeywh.$(SUF) \
+	  comm6.$(SUF) comm7.$(SUF) comm8.$(SUF) wr.$(SUF) wr_bytes.$(SUF) wr_putc.$(SUF)
+MACHSRC	= $(MDIR)/mach0.c $(MDIR)/mach1.c $(MDIR)/mach2.c \
+	  $(MDIR)/mach3.c $(MDIR)/mach4.c $(MDIR)/mach5.c
+COMM	= $(CDIR)/comm0.h $(CDIR)/comm1.h $(CDIR)/comm2.y $(CSRC)
+
+all:	as88
+
+install:all
+
+clean:
+	rm -f *.$(SUF) as88 # as.[cy] y.tab.h
+
+pr:	$(MACHSRC)
+	@pr -n $(MACHSRC)
+
+opr:
+	make pr | opr
+as88:	$(COBJ) as.$(SUF)
+	$(CC) $(LDFLAGS) $(COBJ) as.$(SUF) -o as88
+
+# as.y:	$(CDIR)/comm2.y
+# 	$(CPP) -P -I$(MDIR) -I$h $(DEF) $(CDIR)/comm2.y >as.y
+# 	-@if test -f $(MDIR)/Expect ; then cat $(MDIR)/Expect ; else echo "expect 1 shift/reduce conflict"; fi
+
+# as.c:	as.y
+# 	yacc $(YFLAGS) as.y && mv y.tab.c as.c
+
+# y.tab.h:	as.c
+$(COBJ):	y.tab.h
+$(COBJ):	$(CDIR)/comm0.h $(MDIR)/mach0.c
+$(COBJ):	$(CDIR)/comm1.h $(MDIR)/mach1.c
+# as.y:		$(MDIR)/mach2.c
+# as.y:		$(MDIR)/mach4.c
+as.$(SUF):	as.c
+		$(CC) -c $(CFLAGS) as.c
+comm8.$(SUF):	$(CDIR)/comm8.c
+		$(CC) -c $(CFLAGS) $(CDIR)/comm8.c
+comm8.$(SUF):	$(MDIR)/mach5.c
+comm3.$(SUF):	$(CDIR)/comm3.c
+		$(CC) -c $(CFLAGS) $(CDIR)/comm3.c
+comm3.$(SUF):	$(MDIR)/mach3.c
+comm4.$(SUF):	$(CDIR)/comm4.c
+		$(CC) -c $(CFLAGS) $(CDIR)/comm4.c
+comm5.$(SUF):	$(CDIR)/comm5.c
+		$(CC) -c $(CFLAGS) $(CDIR)/comm5.c
+comm6.$(SUF):	$(CDIR)/comm6.c
+		$(CC) -c $(CFLAGS) $(CDIR)/comm6.c
+comm7.$(SUF):	$(CDIR)/comm7.c
+		$(CC) -c $(CFLAGS) $(CDIR)/comm7.c
+bigkeywh.$(SUF):	$(CDIR)/bigkeywh.c
+		$(CC) -c $(CFLAGS) $(CDIR)/bigkeywh.c
