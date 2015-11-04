@@ -1,0 +1,67 @@
+#!/usr/bin/ruby
+require 'getoptlong'
+require 'libRubyROOT'
+def help
+	puts "  Usage:
+    txt2root [-l logo] output_file
+    read histogram as text from STDIN, write as ROOT histogram to file
+  Flags: 
+    -l, --logo			name of the histogram
+    -h, --help      this help
+	"
+	exit
+end
+# args processing #{{{
+opts=GetoptLong.new(
+	["--logo","-l",GetoptLong::REQUIRED_ARGUMENT],
+	["--vbins","-v",GetoptLong::NO_ARGUMENT],
+	["--help","-h",GetoptLong::NO_ARGUMENT]
+)
+opts_hash={}
+opts.each{ |opt, arg|
+	opts_hash[opt]=arg
+}
+help if opts_hash["--help"]==""
+variable_size= opts_hash["--vbins"]==nil ? false : true
+logo= opts_hash["--logo"].to_s
+#}}}
+hist=0
+#{{{ fixed bins
+if not variable_size then 
+  data=STDIN.readlines
+  nbins=data.size
+  start=data[0].split[0].to_f
+  stop=data[-1].split[0].to_f
+  hist=TH1F.new(logo,logo,nbins,start,stop)
+  factor=nbins/(stop-start) 
+  i=0
+  while (!data.empty?) 
+    i+=1
+    line=data.shift.split
+    hist.SetBinContent(i,factor*line[1].to_f)
+    hist.SetBinError(i,factor*line[2].to_f)
+  end 
+end
+#}}}
+#{{{ variable bins
+if variable_size then
+  data=STDIN.readlines
+  data.map!{|line| line.split}
+  bins=data.map{|line| line[0].to_f}
+  bins << data[-1][1].to_f
+  hist=TH1F.new(logo+"vbins",logo,bins.size-1,bins)
+  data.each_with_index{|line,i|
+    puts line
+    factor=1
+    hist.SetBinContent(i+1,factor*line[2].to_f)
+    hist.SetBinError(i+1,factor*line[3].to_f)
+  }
+
+end
+
+#}}}
+#{{{ write to file
+file=TFile.new(ARGV[0],"recreate")
+hist.Write
+file.Close
+#}}}

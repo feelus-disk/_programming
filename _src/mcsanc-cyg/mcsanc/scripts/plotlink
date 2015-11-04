@@ -1,0 +1,74 @@
+#!/usr/bin/ruby
+require 'libRubyROOT'
+require 'getoptlong'
+require "yaml"
+#gROOT.LoadMacro("AtlasStyle.C")
+#gROOT.ProcessLine "SetAtlasStyle();"
+config=[]
+if File.exists?("plot.yaml") then
+  config=YAML::load(File.open("plot.yaml"))
+elsif File.exists?(ENV['HOME']+File::SEPARATOR+".plotlink.yaml") then
+  config=YAML::load(File.open(ENV['HOME']+File::SEPARATOR+".plotlink.yaml"))
+end
+opts=GetoptLong.new(
+	["--title","-t",GetoptLong::REQUIRED_ARGUMENT],
+	["--x-axis","-x",GetoptLong::REQUIRED_ARGUMENT],
+	["--help","-h",GetoptLong::NO_ARGUMENT],
+	["--y-axis","-y",GetoptLong::REQUIRED_ARGUMENT],
+	["--output","-o",GetoptLong::REQUIRED_ARGUMENT],
+	["--errors","-e",GetoptLong::NO_ARGUMENT],
+	["--2d",GetoptLong::NO_ARGUMENT],
+	["--nolegend","-L",GetoptLong::NO_ARGUMENT]
+)
+opts_hash={}
+opts.each{ |opt, arg|
+	opts_hash[opt]=arg
+}
+puts "Usage:
+	plotlink [--2d] [-e] [-o output] [-t title] [-x x-axis] [-y y-axis] file1 file2 ...
+
+  draw histograms on one plot
+  --2d draw surface
+  -e draw error bars
+  -o output file (format depends on extension .ps,.pdf .. )
+  -t diagram title
+  -x -y axis titles
+  files - saved root histograms, see cliplot.
+" if opts_hash["--help"]==""
+exit if ARGV==[]
+stack=THStack.new()
+legend=TLegend.new(0.68,0.70,0.88,0.85)
+ARGV.each_with_index { |file, index|   
+	f=TFile.new(file,"r")
+	i=TIter.new(f.GetListOfKeys)
+	hist=f.Get(i.Next.GetName)
+  hist_opts=( config[index] or {} )
+  hist_opts.each_pair { |name, val| 
+    begin 
+      eval "hist.Set#{name}(#{val})" 
+      rescue NoMethodError
+        puts "Bad option in config file: #{name}: #{val}"
+    end
+  }
+  hist=hist.GetHistogram if hist.ClassName == "TF2"
+  hist=hist.CreateHistogram if hist.ClassName == "TF1"
+  p "bu"
+	stack.Add(hist)
+  puts hist.Integral("width")
+	legend.AddEntry(hist,hist.GetTitle)
+}
+canvas=TCanvas.new
+draw_options='nostack HIST'
+draw_options+=' E' if opts_hash["--errors"]==""
+draw_options+=' SURF1' if opts_hash["--2d"]==""
+stack.Draw(draw_options)
+stack.GetXaxis.SetTitle(opts_hash["--x-axis"]) if opts_hash["--x-axis"]!=nil
+stack.GetYaxis.SetTitle(opts_hash["--y-axis"]) if opts_hash["--y-axis"]!=nil
+stack.SetTitle(opts_hash["--title"]) if opts_hash["--title"]!=nil
+legend.Draw if opts_hash["--nolegend"]!=""
+if opts_hash["--output"].nil? then
+  gApplication.Run
+else
+  canvas.Print(opts_hash["--output"])
+end
+exit

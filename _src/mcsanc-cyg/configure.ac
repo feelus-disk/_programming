@@ -1,0 +1,1 @@
+AC_INIT(mcsanc)

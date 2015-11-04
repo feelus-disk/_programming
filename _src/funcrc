@@ -1,0 +1,70 @@
+# -*- sh -*-
+
+chpwd()
+{
+    PWD="$PWD/$1"
+}
+easycd()
+{
+    [ ! -d "$1" ] && { echo easycd: no such directory; return 1; }
+    echo easycd before: "($OLDPWD)" "$PWD" -\> "$1" "($(pwd))"
+    OLDPWD="$PWD"
+    PWD="$PWD/$1"
+    echo easycd after: "($OLDPWD)" "$PWD" -\> "$1" "($(pwd))"
+    PWD=$(pwd -P)
+    echo easycd final: "($OLDPWD)" "$PWD" -\> "$1" "($(pwd))"
+}
+mycd()
+{
+    if [ $# == 0 ]
+    then
+	mycd ~
+	return;
+    else
+	case "$1" in
+	    *)	easycd "$1" && push PWD_ARRAY "$OLDPWD"
+		OLDPWD_ARRAY=( )
+		;;
+	    -)	if [ ${#PWD_ARRAY[*]} == 0 ]
+		then echo mycd: epsent old directory
+		else easycd "$(pop PWD_ARRAY)"
+		     push OLDPWD_ARRAY "$OLDPWD"
+		fi
+		;;
+	    +)	if [ ${#PWD_ARRAY[*]} == 0 ]
+		then echo mycd: epsent old old directory
+		else easycd "$(pop OLDPWD_ARRAY)"
+		     push PWD_ARRAY "$OLDPWD"
+		fi
+		;;
+	esac
+    fi
+    
+}
+
+pop()
+{
+    usage()
+    {
+	echo usage: pop array_name >&2
+    }
+    [ $# != 1 ] && { usage; return 1; }
+    
+    eval lastind='$((${#'$1'[*]}-1))'
+    [ $lastind -lt 0 ] && { echo array already void >&2; return 1; }
+    eval echo \$\{$1[$lastind]\}
+    eval unset $1[$lastind]
+}
+
+push()
+{
+    usage()
+    {
+	echo usage: push array_name value >&2
+    }
+    [ $# != 2 ] && { usage; return 1; }
+    
+    eval $1[$(eval echo '${#'$1'[*]}')]=\""$2"\"
+}
+
+

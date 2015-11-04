@@ -1,0 +1,45 @@
+#!/bin/bash
+tag=mcsanc
+while getopts t: name 
+do
+  case $name in
+    t) tag="$OPTARG"
+       shift $((OPTIND-1))  ;;
+  esac
+done
+if [ "$1" == "" ]; then 
+  echo "Usage:
+  $0 [-t job_tag] start_sid stop_sid [working_directory]"
+  exit
+fi
+HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+START=$1
+END=$2
+if [ "$3" == "" ]; then
+	CONFIG_DIR="${HOME}/share"
+else
+	CONFIG_DIR=$3
+fi
+
+mkdir ${CONFIG_DIR}/run
+cd ${CONFIG_DIR}/run
+
+rm -rf "${HOME}/run"/*
+for i in `seq $START $END`;do 
+	mkdir -p "${HOME}/run/${i}"
+	cp "${CONFIG_DIR}/ewparam.cfg" "${CONFIG_DIR}/input.cfg" "${HOME}/run/${i}"
+	sed -i "s/\(\s*seed\s*=\s*\)[0-9]*/\1${i}/" "${HOME}/run/${i}/input.cfg"
+	qsub -o "${tag}_${i}.out" -e "${tag}_${i}.err" <<EOF
+#!/bin/bash
+export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:\${TMPDIR}/mcsanc/lib/"
+export LHAPATH="\${TMPDIR}/mcsanc/lhapdf/PDFsets/"
+cd \$TMPDIR
+scp -p2r $(hostname):${HOME} .
+ls
+cd mcsanc/run/${i}
+../../src/mcsanc
+echo OUTPUT
+cat mcsanc-*-output.txt
+EOF
+done
+

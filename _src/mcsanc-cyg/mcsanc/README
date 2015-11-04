@@ -1,0 +1,147 @@
+----------------------------------------------------------------------
+                        mcsanc-v1.01 
+----------------------------------------------------------------------
+
+1) Introduction
+
+The mcsanc program is a Monte Carlo tool that allows to calculate NLO EW and
+QCD integrated and differential cross sections for several processes in
+proton-proton collisions. It is based on the SANC fortran modules
+[arXiv:0812.4207] for NLO cross section evaluation. 
+
+The third party packages included in the distributions are 
+ - Cuba library for MC integration [hep-ph/0404043]
+ - Looptools library for loop integral evaluation [hep-ph/9807565]
+These libraries need not to be installed separately.
+
+The PDFs are interfaced by calling LHAPDF, which have to be installed prior
+mcsanc installation. 
+
+The mcsanc code supports variable bin histograms, which however can be used
+only with gcc version later than 4.5.x. The program users guide is available at
+[arXiv:1301.3687]
+
+2) Installation, configuration, running
+
+The compilation procedure is standard for autotools package and requires GNU
+autotools to be installed on your system. After downloading the tarball, unpack
+and cd into resulting directory:
+
+> tar xzf mcsanc-v1.01.tgz && cd mcsanc-v1.01
+
+Run autotools to produce configure scripts:
+> autoreconf --force --install
+> ./configure
+> make
+
+Read ./configure --help for more details, e.g. custom LHAPDF location.
+
+The "share" directory contains configuration files input.cfg and ewparam.cfg.
+Edit input.cfg for general, PDF, vegas, cuts and histograms options. Note, that
+adding/removing cuts and histograms requires editing the source code file
+"src/kin_cuts.f". The electroweak parameters can be configured in ewparam.cfg.
+You can find detailed description of the config parameters in mcsanc manual
+[arXiv:1301.3687].
+
+Thanks to Cuba's multiprocessing feature, the calculations can be run on
+several cores if you have multiprocessor machine. By default all available
+cores are used, but their number can be limited to [N] by setting "CUBACORES"
+environment variable:
+> export CUBACORES=[N]
+
+This will apply only to your current login shell. Edit your ~.*rc file to set
+it for your account. Refer to Cuba documentation for more information.
+
+The executable is created in "src" folder, and the program is run from "share":
+> cd share
+> ../src/mcsanc [input.cfg]
+
+This will produce the summary output file mcsanc-...-output.txt and a 
+separate table file for each histogram. 
+
+3) process list and process selection.
+
+Current version of mcsanc have the following list of processes implemented:
+---------------------------------------------------
+ pid |    process pp -->
+---------------------------------------------------
+ 001 |  e^+(p_3) + e^-(p_4)                    
+ 002 |  \mu^+(p_3) + \mu^-(p_4)                
+ 003 |  \tau^+(p_3) + \tau^-(p_4)              
+ 004 |  Z^0(p_3) + H(p_4)                      
+-------------------------------------------------
+ 101 |  e^+(p_3) + {\nu}_e(p_4)                
+ 102 |  \mu^+(p_3) + {\nu}_{\mu}(p_4)          
+ 103 |  \tau^+(p_3) + {\nu}_{\tau}(p_4)        
+-101 |  e^-(p_3) + \bar{\nu}_e(p_4)            
+-102 |  \mu^-(p_3) + \bar{\nu}_{\mu}(p_4)      
+-103 |  \tau^-(p_3) + \bar{\nu}_{\tau}(p_4)    
+-------------------------------------------------
+ 104 |  W^+(p_3) + H(p_4)                      
+-104 |  W^-(p_3) + H(p_4)                      
+-------------------------------------------------
+ 105 |  t(p_3) + \bar{b}(p_4)   (s-channel)      
+ 106 |  t(p_3) + q(p_4)         (t-channel)            
+-105 |  \bar{t}(p_3) + b(p_4)   (s-channel)    
+-106 |  \bar{t}(p_3) + q(p_4)   (t-channel)      
+---------------------------------------------------
+
+The process is selected by specifying process ID in the input.cfg file. General
+rule is that first field of three-digit process ID corresponds to neutral
+current (0 or none) or charged current (-1 and 1 for negative and positive
+bosons). The other two digits specify the final particle choice: e(1), mu(2),
+tau(3), Higgs(4), t-quark (5 - not implemented). 
+
+For example, in the input.cfg:
+processid = -102 ! select pp->W- -> mu- nu process
+processId = 4   ! select pp->Z->HZ process
+
+4) File map 
+
+Cuba			- Monte Carlo integration library Cuba
+include			- mcsanc include files
+ |_ calo.h		- common block (CB) for recombination variables	
+ |_ ckm.h		- CB for CKM matrix
+ |_ compounds.h		- CB for component names and id's
+ |_ constants.h		- parameter definitions
+ |_ histogram.h		- CB for histogram values array
+ |_ kin_cuts.h		- CB for kinematic cuts
+ |_ kinematics.h	- CB for kinematic parameters
+ |_ process.h		- general config CB and process id's
+ |_ s2n_declare.h	- s2n CB's for SANC modules
+ |_ scales.h		- CB with scales for SANC modules
+ |_ ShmHist.h		- header file of the shared memory histogram class
+ |_ stats.h		- CB with run statistics
+ |_ vegas.h		- CB for vegas parameters
+Looptools		- Looptools library
+README			- this README
+SANC			- SANC library and modules
+share			- config files and run directory
+src			- mcsanc source files
+ |_ alphaz.f		- routines for running alpha_em calculation
+ |_ calc_proc.f		- component calculation selection
+ |_ csigfun.cc		- fortran interface for signal catching function
+ |_ hist_interface.cc	- fortran interface for histogramming
+ |_ init_run.f		- run initialization
+ |_ kin_cuts.f		- kinematic cuts and histogram filling
+ |_ lor_trans.f		- lorentz transformations
+ |_ main.f		- main function
+ |_ mt19937.f		- 3rd party random number generator
+ |_ pdf_conv.f		- PDF convolution routines
+ |_ print_ewpars.f	- output routines for EW parameters
+ |_ q?_?d.f		- component integration routines and integrands
+ |_ read_ewpars.f	- EW parameters reading
+ |_ read_input.f	- input reading
+ |_ run_stats.f		- final output and histogram printing
+ |_ s2n_init.f		- s2n parameter initialization
+ |_ sanc_interface.f	- sanc interface functions
+ |_ scalar.f		- scalar product for 4-vectors
+ |_ ShmHist.cc		- shared memory histogram methods
+ |_ timing.cc		- CPU timing routines
+ |_ utils.f		- algebraic calculations
+
+5) Contacts
+
+For bugs or questions, please address to:
+Serge Bondarenko <bondarenko@jinr.ru>
+Andrey Sapronov <andrey.a.sapronov@gmail.com>
