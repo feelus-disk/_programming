@@ -1,0 +1,170 @@
+<html lang="en">
+<head>
+<title>Parallel Make - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Make.html#Portable-Make" title="Portable Make">
+<link rel="prev" href="The-Make-Macro-SHELL.html#The-Make-Macro-SHELL" title="The Make Macro SHELL">
+<link rel="next" href="Comments-in-Make-Rules.html#Comments-in-Make-Rules" title="Comments in Make Rules">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Parallel-Make"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Comments-in-Make-Rules.html#Comments-in-Make-Rules">Comments in Make Rules</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="The-Make-Macro-SHELL.html#The-Make-Macro-SHELL">The Make Macro SHELL</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Make.html#Portable-Make">Portable Make</a>
+<hr>
+</div>
+
+<h3 class="section">12.10 Parallel Make</h3>
+
+<p><a name="index-Parallel-_0040command_007bmake_007d-1852"></a>
+Support for parallel execution in <samp><span class="command">make</span></samp> implementation varies. 
+Generally, using GNU make is your best bet.
+
+   <p>When NetBSD or FreeBSD <samp><span class="command">make</span></samp> are run in parallel mode, they will
+reuse the same shell for multiple commands within one recipe.  This can
+have various unexpected consequences.  For example, changes of directories
+or variables persist between recipes, so that:
+
+<pre class="example">     all:
+             @var=value; cd /; pwd; echo $$var; echo $$$$
+             @pwd; echo $$var; echo $$$$
+</pre>
+   <p class="noindent">may output the following with <code>make -j1</code>, at least on NetBSD up to
+5.1 and FreeBSD up to 8.2:
+
+<pre class="example">     /
+     value
+     32235
+     /
+     value
+     32235
+</pre>
+   <p class="noindent">while without <samp><span class="option">-j1</span></samp>, or with <samp><span class="option">-B</span></samp>, the output looks less
+surprising:
+
+<pre class="example">     /
+     value
+     32238
+     /tmp
+     
+     32239
+</pre>
+   <p class="noindent">Another consequence is that, if one command in a recipe uses <code>exit 0</code>
+to indicate a successful exit, the shell will be gone and the remaining
+commands of this recipe will not be executed.
+
+   <p>The BSD <samp><span class="command">make</span></samp> implementations, when run in parallel mode,
+will also pass the <samp><span class="command">Makefile</span></samp> recipes to the shell through
+its standard input, thus making it unusable from the recipes:
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     read:
+             @read line; echo LINE: $$line
+     <!-- $$ @c restore font-lock -->
+     $ <kbd>echo foo | make read</kbd>
+     LINE: foo
+     $ <kbd>echo foo | make -j1 read</kbd> # NetBSD 5.1 and FreeBSD 8.2
+     LINE:
+</pre>
+   <p class="noindent">Moreover, when FreeBSD <samp><span class="command">make</span></samp> (up at least to 8.2) is run in
+parallel mode, it implements the <code>@</code> and <code>-</code> &ldquo;recipe
+modifiers&rdquo; by dynamically modifying the active shell flags.  This
+behavior has the effects of potentially clobbering the exit status
+of recipes silenced with the <code>@</code> modifier if they also unset
+the <samp><span class="option">errexit</span></samp> shell flag, and of mangling the output in
+unexpected ways:
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     a:
+             @echo $$-; set +e; false
+     b:
+             -echo $$-; false; echo set -
+     $ <kbd>make a; echo status: $?</kbd>
+     ehBc
+     *** Error code 1
+     status: 1
+     $ <kbd>make -j1 a; echo status: $?</kbd>
+     ehB
+     status: 0
+     $ <kbd>make b</kbd>
+     echo $-; echo set -
+     hBc
+     set -
+     $ <kbd>make -j1 b</kbd>
+     echo $-; echo hvB
+</pre>
+   <p class="noindent">You can avoid all these issues by using the <samp><span class="option">-B</span></samp> option to enable
+compatibility semantics.  However, that will effectively also disable
+all parallelism as that will cause prerequisites to be updated in the
+order they are listed in a rule.
+
+   <p>Some make implementations (among them, FreeBSD <samp><span class="command">make</span></samp>, NetBSD
+<samp><span class="command">make</span></samp>, and Solaris <samp><span class="command">dmake</span></samp>), when invoked with a
+<samp><span class="option">-j</span><var>N</var></samp> option, connect the standard output and standard
+error of all their child processes to pipes or temporary regular
+files.  This can lead to subtly different semantics in the behavior
+of the spawned processes.  For example, even if the <samp><span class="command">make</span></samp>
+standard output is connected to a tty, the recipe command will not be:
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     all:
+             @test -t 1 &amp;&amp; echo "Is a tty" || echo "Is not a tty"
+     $ <kbd>make -j 2</kbd> # FreeBSD 8.2 make
+     Is not a tty
+     $ <kbd>make -j 2</kbd> # NetBSD 5.1 make
+     --- all ---
+     Is not a tty
+     $ <kbd>dmake -j 2</kbd> # Solaris 10 dmake
+     <var>hostname</var> --&gt; 1 job
+     <var>hostname</var> --&gt; Job output
+     Is not a tty
+</pre>
+   <p class="noindent">On the other hand:
+
+<pre class="example">     $ <kbd>make -j 2</kbd> # GNU make, Heirloom make
+     Is a tty
+</pre>
+   <p class="noindent">The above examples also show additional status output produced in parallel
+mode for targets being updated by Solaris <samp><span class="command">dmake</span></samp> and NetBSD
+<samp><span class="command">make</span></samp> (but <em>not</em> by FreeBSD <samp><span class="command">make</span></samp>).
+
+   <p>Furthermore, parallel runs of those <samp><span class="command">make</span></samp> implementations will
+route standard error from commands that they spawn into their own
+standard output, and may remove leading whitespace from output lines.
+
+   </body></html>
+

@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: DESTDIR</title>
+
+<meta name="description" content="automake: DESTDIR">
+<meta name="keywords" content="automake: DESTDIR">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Use-Cases.html#Use-Cases" rel="up" title="Use Cases">
+<link href="Preparing-Distributions.html#Preparing-Distributions" rel="next" title="Preparing Distributions">
+<link href="Renaming.html#Renaming" rel="prev" title="Renaming">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="DESTDIR"></a>
+<div class="header">
+<p>
+Next: <a href="Preparing-Distributions.html#Preparing-Distributions" accesskey="n" rel="next">Preparing Distributions</a>, Previous: <a href="Renaming.html#Renaming" accesskey="p" rel="prev">Renaming</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Building-Binary-Packages-Using-DESTDIR"></a>
+<h4 class="subsection">2.2.10 Building Binary Packages Using DESTDIR</h4>
+<a name="index-DESTDIR"></a>
+
+<p>The GNU Build System&rsquo;s <code>make install</code> and <code>make uninstall</code>
+interface does not exactly fit the needs of a system administrator
+who has to deploy and upgrade packages on lots of hosts.  In other
+words, the GNU Build System does not replace a package manager.
+</p>
+<p>Such package managers usually need to know which files have been
+installed by a package, so a mere <code>make install</code> is
+inappropriate.
+</p>
+<a name="index-Staged-installation"></a>
+
+<p>The <code>DESTDIR</code> variable can be used to perform a staged
+installation.  The package should be configured as if it was going to
+be installed in its final location (e.g., <code>--prefix /usr</code>), but
+when running <code>make install</code>, the <code>DESTDIR</code> should be set to
+the absolute name of a directory into which the installation will be
+diverted.  From this directory it is easy to review which files are
+being installed where, and finally copy them to their final location
+by some means.
+</p>
+<a name="index-Binary-package"></a>
+
+<p>For instance here is how we could create a binary package containing a
+snapshot of all the files to be installed.
+</p>
+<div class="example">
+<pre class="example">~/amhello-1.0 % <kbd>./configure --prefix /usr</kbd>
+&hellip;
+~/amhello-1.0 % <kbd>make</kbd>
+&hellip;
+~/amhello-1.0 % <kbd>make DESTDIR=$HOME/inst install</kbd>
+&hellip;
+~/amhello-1.0 % <kbd>cd ~/inst</kbd>
+~/inst % <kbd>find . -type f -print &gt; ../files.lst</kbd>
+~/inst % <kbd>tar zcvf ~/amhello-1.0-i686.tar.gz `cat ../files.lst`</kbd>
+./usr/bin/hello
+./usr/share/doc/amhello/README
+</pre></div>
+
+<p>After this example, <code>amhello-1.0-i686.tar.gz</code> is ready to be
+uncompressed in <samp>/</samp> on many hosts.  (Using <code>`cat ../files.lst`</code>
+instead of &lsquo;<samp>.</samp>&rsquo; as argument for <code>tar</code> avoids entries for
+each subdirectory in the archive: we would not like <code>tar</code> to
+restore the modification time of <samp>/</samp>, <samp>/usr/</samp>, etc.)
+</p>
+<p>Note that when building packages for several architectures, it might
+be convenient to use <code>make install-data</code> and <code>make
+install-exec</code> (see <a href="Two_002dPart-Install.html#Two_002dPart-Install">Two-Part Install</a>) to gather
+architecture-independent files in a single package.
+</p>
+<p>See <a href="Install.html#Install">Install</a>, for more information.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Preparing-Distributions.html#Preparing-Distributions" accesskey="n" rel="next">Preparing Distributions</a>, Previous: <a href="Renaming.html#Renaming" accesskey="p" rel="prev">Renaming</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

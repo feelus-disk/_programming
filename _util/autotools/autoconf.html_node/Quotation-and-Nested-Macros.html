@@ -1,0 +1,152 @@
+<html lang="en">
+<head>
+<title>Quotation and Nested Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="M4-Quotation.html#M4-Quotation" title="M4 Quotation">
+<link rel="prev" href="Quoting-and-Parameters.html#Quoting-and-Parameters" title="Quoting and Parameters">
+<link rel="next" href="Changequote-is-Evil.html#Changequote-is-Evil" title="Changequote is Evil">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Quotation-and-Nested-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Changequote-is-Evil.html#Changequote-is-Evil">Changequote is Evil</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Quoting-and-Parameters.html#Quoting-and-Parameters">Quoting and Parameters</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="M4-Quotation.html#M4-Quotation">M4 Quotation</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.1.4 Quotation and Nested Macros</h4>
+
+<p>The examples below use the following macros:
+
+<pre class="example">     define([car], [$1])
+     define([active], [ACT, IVE])
+     define([array], [int tab[10]])
+</pre>
+   <p>Each additional embedded macro call introduces other possible
+interesting quotations:
+
+<pre class="example">     car(active)
+     &rArr;ACT
+     car([active])
+     &rArr;ACT, IVE
+     car([[active]])
+     &rArr;active
+</pre>
+   <p>In the first case, the top level looks for the arguments of <code>car</code>,
+and finds &lsquo;<samp><span class="samp">active</span></samp>&rsquo;.  Because M4 evaluates its arguments
+before applying the macro, &lsquo;<samp><span class="samp">active</span></samp>&rsquo; is expanded, which results in:
+
+<pre class="example">     car(ACT, IVE)
+     &rArr;ACT
+</pre>
+   <p class="noindent">In the second case, the top level gives &lsquo;<samp><span class="samp">active</span></samp>&rsquo; as first and only
+argument of <code>car</code>, which results in:
+
+<pre class="example">     active
+     &rArr;ACT, IVE
+</pre>
+   <p class="noindent">i.e., the argument is evaluated <em>after</em> the macro that invokes it. 
+In the third case, <code>car</code> receives &lsquo;<samp><span class="samp">[active]</span></samp>&rsquo;, which results in:
+
+<pre class="example">     [active]
+     &rArr;active
+</pre>
+   <p class="noindent">exactly as we already saw above.
+
+   <p>The example above, applied to a more realistic example, gives:
+
+<pre class="example">     car(int tab[10];)
+     &rArr;int tab10;
+     car([int tab[10];])
+     &rArr;int tab10;
+     car([[int tab[10];]])
+     &rArr;int tab[10];
+</pre>
+   <p class="noindent">Huh?  The first case is easily understood, but why is the second wrong,
+and the third right?  To understand that, you must know that after
+M4 expands a macro, the resulting text is immediately subjected
+to macro expansion and quote removal.  This means that the quote removal
+occurs twice&mdash;first before the argument is passed to the <code>car</code>
+macro, and second after the <code>car</code> macro expands to the first
+argument.
+
+   <p>As the author of the Autoconf macro <code>car</code>, you then consider it to
+be incorrect that your users have to double-quote the arguments of
+<code>car</code>, so you &ldquo;fix&rdquo; your macro.  Let's call it <code>qar</code> for
+quoted car:
+
+<pre class="example">     define([qar], [[$1]])
+</pre>
+   <p class="noindent">and check that <code>qar</code> is properly fixed:
+
+<pre class="example">     qar([int tab[10];])
+     &rArr;int tab[10];
+</pre>
+   <p class="noindent">Ahhh!  That's much better.
+
+   <p>But note what you've done: now that the result of <code>qar</code> is always
+a literal string, the only time a user can use nested macros is if she
+relies on an <em>unquoted</em> macro call:
+
+<pre class="example">     qar(active)
+     &rArr;ACT
+     qar([active])
+     &rArr;active
+</pre>
+   <p class="noindent">leaving no way for her to reproduce what she used to do with <code>car</code>:
+
+<pre class="example">     car([active])
+     &rArr;ACT, IVE
+</pre>
+   <p class="noindent">Worse yet: she wants to use a macro that produces a set of <code>cpp</code>
+macros:
+
+<pre class="example">     define([my_includes], [#include &lt;stdio.h&gt;])
+     car([my_includes])
+     &rArr;#include &lt;stdio.h&gt;
+     qar(my_includes)
+     error--&gt;EOF in argument list
+</pre>
+   <p>This macro, <code>qar</code>, because it double quotes its arguments, forces
+its users to leave their macro calls unquoted, which is dangerous. 
+Commas and other active symbols are interpreted by M4 before
+they are given to the macro, often not in the way the users expect. 
+Also, because <code>qar</code> behaves differently from the other macros,
+it's an exception that should be avoided in Autoconf.
+
+   </body></html>
+

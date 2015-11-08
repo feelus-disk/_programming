@@ -1,0 +1,173 @@
+<html lang="en">
+<head>
+<title>config.status Invocation - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Running-configure-Scripts.html#Running-configure-Scripts" title="Running configure Scripts">
+<link rel="next" href="Obsolete-Constructs.html#Obsolete-Constructs" title="Obsolete Constructs">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="config.status-Invocation"></a>
+<a name="config_002estatus-Invocation"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Obsolete-Constructs.html#Obsolete-Constructs">Obsolete Constructs</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Running-configure-Scripts.html#Running-configure-Scripts">Running configure Scripts</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">17 config.status Invocation</h2>
+
+<p><a name="index-g_t_0040command_007bconfig_002estatus_007d-1966"></a>
+The <samp><span class="command">configure</span></samp> script creates a file named <samp><span class="file">config.status</span></samp>,
+which actually configures, <dfn>instantiates</dfn>, the template files.  It
+also records the configuration options that were specified when the
+package was last configured in case reconfiguring is needed.
+
+   <p>Synopsis:
+<pre class="example">     ./config.status <span class="roman">[</span><var>option</var><span class="roman">]</span>... <span class="roman">[</span><var>tag</var><span class="roman">]</span>...
+</pre>
+   <p>It configures each <var>tag</var>; if none are specified, all the templates
+are instantiated.  A <var>tag</var> refers to a file or other tag associated
+with a configuration action, as specified by an <code>AC_CONFIG_</code><var>ITEMS</var>
+macro (see <a href="Configuration-Actions.html#Configuration-Actions">Configuration Actions</a>).  The files must be specified
+without their dependencies, as in
+
+<pre class="example">     ./config.status foobar
+</pre>
+   <p class="noindent">not
+
+<pre class="example">     ./config.status foobar:foo.in:bar.in
+</pre>
+   <p>The supported options are:
+
+     <dl>
+<dt><samp><span class="option">--help</span></samp><dt><samp><span class="option">-h</span></samp><dd>Print a summary of the command line options, the list of the template
+files, and exit.
+
+     <br><dt><samp><span class="option">--version</span></samp><dt><samp><span class="option">-V</span></samp><dd>Print the version number of Autoconf and the configuration settings,
+and exit.
+
+     <br><dt><samp><span class="option">--config</span></samp><dd>Print the configuration settings in reusable way, quoted for the shell,
+and exit.  For example, for a debugging build that otherwise reuses the
+configuration from a different build directory <var>build-dir</var> of a
+package in <var>src-dir</var>, you could use the following:
+
+     <pre class="example">          args=`<var>build-dir</var>/config.status --config`
+          eval <var>src-dir</var>/configure "$args" CFLAGS=-g --srcdir=<var>src-dir</var>
+</pre>
+     <p class="noindent">Note that it may be necessary to override a <samp><span class="option">--srcdir</span></samp> setting
+that was saved in the configuration, if the arguments are used in a
+different build directory.
+
+     <br><dt><samp><span class="option">--silent</span></samp><dt><samp><span class="option">--quiet</span></samp><dt><samp><span class="option">-q</span></samp><dd>Do not print progress messages.
+
+     <br><dt><samp><span class="option">--debug</span></samp><dt><samp><span class="option">-d</span></samp><dd>Don't remove the temporary files.
+
+     <br><dt><samp><span class="option">--file=</span><var>file</var><span class="option">[:</span><var>template</var><span class="option">]</span></samp><dd>Require that <var>file</var> be instantiated as if
+&lsquo;<samp><span class="samp">AC_CONFIG_FILES(</span><var>file</var><span class="samp">:</span><var>template</var><span class="samp">)</span></samp>&rsquo; was used.  Both
+<var>file</var> and <var>template</var> may be &lsquo;<samp><span class="samp">-</span></samp>&rsquo; in which case the standard
+output and/or standard input, respectively, is used.  If a
+<var>template</var> file name is relative, it is first looked for in the build
+tree, and then in the source tree.  See <a href="Configuration-Actions.html#Configuration-Actions">Configuration Actions</a>, for
+more details.
+
+     <p>This option and the following ones provide one way for separately
+distributed packages to share the values computed by <samp><span class="command">configure</span></samp>. 
+Doing so can be useful if some of the packages need a superset of the
+features that one of them, perhaps a common library, does.  These
+options allow a <samp><span class="file">config.status</span></samp> file to create files other than the
+ones that its <samp><span class="file">configure.ac</span></samp> specifies, so it can be used for a
+different package, or for extracting a subset of values.  For example,
+
+     <pre class="example">          echo '@CC@' | ./config.status --file=-
+</pre>
+     <p class="noindent">provides the value of <code>@CC@</code> on standard output.
+
+     <br><dt><samp><span class="option">--header=</span><var>file</var><span class="option">[:</span><var>template</var><span class="option">]</span></samp><dd>Same as <samp><span class="option">--file</span></samp> above, but with &lsquo;<samp><span class="samp">AC_CONFIG_HEADERS</span></samp>&rsquo;.
+
+     <br><dt><samp><span class="option">--recheck</span></samp><dd>Ask <samp><span class="file">config.status</span></samp> to update itself and exit (no instantiation). 
+This option is useful if you change <samp><span class="command">configure</span></samp>, so that the
+results of some tests might be different from the previous run.  The
+<samp><span class="option">--recheck</span></samp> option reruns <samp><span class="command">configure</span></samp> with the same arguments
+you used before, plus the <samp><span class="option">--no-create</span></samp> option, which prevents
+<samp><span class="command">configure</span></samp> from running <samp><span class="file">config.status</span></samp> and creating
+<samp><span class="file">Makefile</span></samp> and other files, and the <samp><span class="option">--no-recursion</span></samp> option,
+which prevents <samp><span class="command">configure</span></samp> from running other <samp><span class="command">configure</span></samp>
+scripts in subdirectories.  (This is so other Make rules can
+run <samp><span class="file">config.status</span></samp> when it changes; see <a href="Automatic-Remaking.html#Automatic-Remaking">Automatic Remaking</a>,
+for an example). 
+</dl>
+
+   <p><samp><span class="file">config.status</span></samp> checks several optional environment variables that
+can alter its behavior:
+
+   <p><a name="CONFIG_005fSHELL"></a>
+
+<div class="defun">
+&mdash; Variable: <b>CONFIG_SHELL</b><var><a name="index-CONFIG_005fSHELL-1967"></a></var><br>
+<blockquote><p><a name="index-CONFIG_005fSHELL-1968"></a>The shell with which to run <samp><span class="command">configure</span></samp>.  It must be
+Bourne-compatible, and the absolute name of the shell should be passed. 
+The default is a shell that supports <code>LINENO</code> if available, and
+<samp><span class="file">/bin/sh</span></samp> otherwise. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>CONFIG_STATUS</b><var><a name="index-CONFIG_005fSTATUS-1969"></a></var><br>
+<blockquote><p><a name="index-CONFIG_005fSTATUS-1970"></a>The file name to use for the shell script that records the
+configuration.  The default is <samp><span class="file">./config.status</span></samp>.  This variable is
+useful when one package uses parts of another and the <samp><span class="command">configure</span></samp>
+scripts shouldn't be merged because they are maintained separately. 
+</p></blockquote></div>
+
+   <p>You can use <samp><span class="file">./config.status</span></samp> in your makefiles.  For example, in
+the dependencies given above (see <a href="Automatic-Remaking.html#Automatic-Remaking">Automatic Remaking</a>),
+<samp><span class="file">config.status</span></samp> is run twice when <samp><span class="file">configure.ac</span></samp> has changed. 
+If that bothers you, you can make each run only regenerate the files for
+that rule:
+<pre class="example">     config.h: stamp-h
+     stamp-h: config.h.in config.status
+             ./config.status config.h
+             echo &gt; stamp-h
+     
+     Makefile: Makefile.in config.status
+             ./config.status Makefile
+</pre>
+   <p>The calling convention of <samp><span class="file">config.status</span></samp> has changed; see
+<a href="Obsolete-config_002estatus-Use.html#Obsolete-config_002estatus-Use">Obsolete config.status Use</a>, for details.
+
+<!-- =================================================== Obsolete Constructs -->
+   </body></html>
+

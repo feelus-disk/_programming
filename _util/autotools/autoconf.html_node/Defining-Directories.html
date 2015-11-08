@@ -1,0 +1,104 @@
+<html lang="en">
+<head>
+<title>Defining Directories - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="FAQ.html#FAQ" title="FAQ">
+<link rel="prev" href="Why-Not-Imake.html#Why-Not-Imake" title="Why Not Imake">
+<link rel="next" href="Autom4te-Cache.html#Autom4te-Cache" title="Autom4te Cache">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Defining-Directories"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Autom4te-Cache.html#Autom4te-Cache">Autom4te Cache</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Why-Not-Imake.html#Why-Not-Imake">Why Not Imake</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="FAQ.html#FAQ">FAQ</a>
+<hr>
+</div>
+
+<h3 class="section">20.5 How Do I <code>#define</code> Installation Directories?</h3>
+
+<pre class="display">     My program needs library files, installed in <code>datadir</code> and
+     similar.  If I use
+     <pre class="example">          AC_DEFINE_UNQUOTED([DATADIR], [$datadir],
+            [Define to the read-only architecture-independent
+             data directory.])
+</pre>
+     
+     <p class="noindent">I get
+     <pre class="example">          #define DATADIR "${prefix}/share"
+</pre>
+</pre>
+   <p>As already explained, this behavior is on purpose, mandated by the
+GNU Coding Standards, see <a href="Installation-Directory-Variables.html#Installation-Directory-Variables">Installation Directory Variables</a>.  There are several means to achieve a similar goal:
+
+     <ul>
+<li>Do not use <code>AC_DEFINE</code> but use your makefile to pass the
+actual value of <code>datadir</code> via compilation flags. 
+See <a href="Installation-Directory-Variables.html#Installation-Directory-Variables">Installation Directory Variables</a>, for the details.
+
+     <li>This solution can be simplified when compiling a program: you may either
+extend the <code>CPPFLAGS</code>:
+
+     <pre class="example">          CPPFLAGS = -DDATADIR='"$(datadir)"' @CPPFLAGS@
+</pre>
+     <p class="noindent">If you are using Automake, you should use <code>AM_CPPFLAGS</code> instead:
+
+     <pre class="example">          AM_CPPFLAGS = -DDATADIR='"$(datadir)"'
+</pre>
+     <p class="noindent">Alternatively, create a dedicated header file:
+
+     <pre class="example">          DISTCLEANFILES = myprog-paths.h
+          myprog-paths.h: Makefile
+                  echo '#define DATADIR "$(datadir)"' &gt;$@
+</pre>
+     <p class="noindent">The gnulib module &lsquo;<samp><span class="samp">configmake</span></samp>&rsquo; provides such a header with all the
+standard directory variables defined, see <a href="../gnulib/configmake.html#configmake">configmake</a>.
+
+     <li>Use <code>AC_DEFINE</code> but have <samp><span class="command">configure</span></samp> compute the literal
+value of <code>datadir</code> and others.  Many people have wrapped macros to
+automate this task; for an example, see the macro <code>AC_DEFINE_DIR</code> from
+the <a href="http://www.gnu.org/software/autoconf-archive/">Autoconf Macro Archive</a>.
+
+     <p>This solution does not conform to the GNU Coding Standards.
+
+     <li>Note that all the previous solutions hard wire the absolute name of
+these directories in the executables, which is not a good property.  You
+may try to compute the names relative to <code>prefix</code>, and try to
+find <code>prefix</code> at runtime, this way your package is relocatable. 
+</ul>
+
+   </body></html>
+

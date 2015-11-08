@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: amhello's Makefile.am Setup Explained</title>
+
+<meta name="description" content="automake: amhello's Makefile.am Setup Explained">
+<meta name="keywords" content="automake: amhello's Makefile.am Setup Explained">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Hello-World.html#Hello-World" rel="up" title="Hello World">
+<link href="Generalities.html#Generalities" rel="next" title="Generalities">
+<link href="amhello_0027s-configure_002eac-Setup-Explained.html#amhello_0027s-configure_002eac-Setup-Explained" rel="prev" title="amhello's configure.ac Setup Explained">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="amhello_0027s-Makefile_002eam-Setup-Explained"></a>
+<div class="header">
+<p>
+Previous: <a href="amhello_0027s-configure_002eac-Setup-Explained.html#amhello_0027s-configure_002eac-Setup-Explained" accesskey="p" rel="prev">amhello's configure.ac Setup Explained</a>, Up: <a href="Hello-World.html#Hello-World" accesskey="u" rel="up">Hello World</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="amhello_0027s-Makefile_002eam-Setup-Explained-1"></a>
+<h4 class="subsection">2.4.3 <code>amhello</code>&rsquo;s <samp>Makefile.am</samp> Setup Explained</h4>
+
+<a name="index-Makefile_002eam_002c-Hello-World"></a>
+
+<p>We now turn to <samp>src/Makefile.am</samp>.  This file contains
+Automake instructions to build and install <samp>hello</samp>.
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = hello
+hello_SOURCES = main.c
+</pre></div>
+
+<p>A <samp>Makefile.am</samp> has the same syntax as an ordinary
+<samp>Makefile</samp>.  When <code>automake</code> processes a
+<samp>Makefile.am</samp> it copies the entire file into the output
+<samp>Makefile.in</samp> (that will be later turned into <samp>Makefile</samp> by
+<code>configure</code>) but will react to certain variable definitions
+by generating some build rules and other variables.
+Often <samp>Makefile.am</samp>s contain only a list of variable definitions as
+above, but they can also contain other variable and rule definitions that
+<code>automake</code> will pass along without interpretation.
+</p>
+<p>Variables that end with <code>_PROGRAMS</code> are special variables
+that list programs that the resulting <samp>Makefile</samp> should build.
+In Automake speak, this <code>_PROGRAMS</code> suffix is called a
+<em>primary</em>; Automake recognizes other primaries such as
+<code>_SCRIPTS</code>, <code>_DATA</code>, <code>_LIBRARIES</code>, etc. corresponding
+to different types of files.
+</p>
+<p>The &lsquo;<samp>bin</samp>&rsquo; part of the <code>bin_PROGRAMS</code> tells
+<code>automake</code> that the resulting programs should be installed in
+<var>bindir</var>.  Recall that the GNU Build System uses a set of variables
+to denote destination directories and allow users to customize these
+locations (see <a href="Standard-Directory-Variables.html#Standard-Directory-Variables">Standard Directory Variables</a>).  Any such directory
+variable can be put in front of a primary (omitting the <code>dir</code>
+suffix) to tell <code>automake</code> where to install the listed files.
+</p>
+<p>Programs need to be built from source files, so for each program
+<code><var>prog</var></code> listed in a <code><span class="nolinebreak">_PROGRAMS</span><!-- /@w --></code> variable,
+<code>automake</code> will look for another variable named
+<code><var>prog</var>_SOURCES</code> listing its source files.  There may be more
+than one source file: they will all be compiled and linked together.
+</p>
+<p>Automake also knows that source files need to be distributed when
+creating a tarball (unlike built programs).  So a side-effect of this
+<code>hello_SOURCES</code> declaration is that <samp>main.c</samp> will be
+part of the tarball created by <code>make dist</code>.
+</p>
+<p>Finally here are some explanations regarding the top-level
+<samp>Makefile.am</samp>.
+</p>
+<div class="example">
+<pre class="example">SUBDIRS = src
+dist_doc_DATA = README
+</pre></div>
+
+<p><code>SUBDIRS</code> is a special variable listing all directories that
+<code>make</code> should recurse into before processing the current
+directory.  So this line is responsible for <code>make</code> building
+<samp>src/hello</samp> even though we run it from the top-level.  This line
+also causes <code>make install</code> to install <samp>src/hello</samp> before
+installing <samp>README</samp> (not that this order matters).
+</p>
+<p>The line <code>dist_doc_DATA = README</code> causes <samp>README</samp> to be
+distributed and installed in <var>docdir</var>.  Files listed with the
+<code>_DATA</code> primary are not automatically part of the tarball built
+with <code>make dist</code>, so we add the <code>dist_</code> prefix so they get
+distributed.  However, for <samp>README</samp> it would not have been
+necessary: <code>automake</code> automatically distributes any
+<samp>README</samp> file it encounters (the list of other files
+automatically distributed is presented by <code>automake --help</code>).
+The only important effect of this second line is therefore to install
+<samp>README</samp> during <code>make install</code>.
+</p>
+<p>One thing not covered in this example is accessing the installation
+directory values (see <a href="Standard-Directory-Variables.html#Standard-Directory-Variables">Standard Directory Variables</a>) from your
+program code, that is, converting them into defined macros.  For this,
+see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Defining-Directories.html#Defining-Directories">Defining Directories</a> in <cite>The Autoconf Manual</cite>.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Previous: <a href="amhello_0027s-configure_002eac-Setup-Explained.html#amhello_0027s-configure_002eac-Setup-Explained" accesskey="p" rel="prev">amhello's configure.ac Setup Explained</a>, Up: <a href="Hello-World.html#Hello-World" accesskey="u" rel="up">Hello World</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

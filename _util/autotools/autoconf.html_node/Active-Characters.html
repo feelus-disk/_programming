@@ -1,0 +1,100 @@
+<html lang="en">
+<head>
+<title>Active Characters - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="M4-Quotation.html#M4-Quotation" title="M4 Quotation">
+<link rel="next" href="One-Macro-Call.html#One-Macro-Call" title="One Macro Call">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Active-Characters"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="One-Macro-Call.html#One-Macro-Call">One Macro Call</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="M4-Quotation.html#M4-Quotation">M4 Quotation</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.1.1 Active Characters</h4>
+
+<p>To fully understand where proper quotation is important, you first need
+to know what the special characters are in Autoconf: &lsquo;<samp><span class="samp">#</span></samp>&rsquo; introduces
+a comment inside which no macro expansion is performed, &lsquo;<samp><span class="samp">,</span></samp>&rsquo;
+separates arguments, &lsquo;<samp><span class="samp">[</span></samp>&rsquo; and &lsquo;<samp><span class="samp">]</span></samp>&rsquo; are the quotes
+themselves<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>,
+&lsquo;<samp><span class="samp">(</span></samp>&rsquo; and &lsquo;<samp><span class="samp">)</span></samp>&rsquo; (which M4 tries to match by pairs), and finally
+&lsquo;<samp><span class="samp">$</span></samp>&rsquo; inside a macro definition.
+
+   <p>In order to understand the delicate case of macro calls, we first have
+to present some obvious failures.  Below they are &ldquo;obvious-ified&rdquo;,
+but when you find them in real life, they are usually in disguise.
+
+   <p>Comments, introduced by a hash and running up to the newline, are opaque
+tokens to the top level: active characters are turned off, and there is
+no macro expansion:
+
+<pre class="example">     # define([def], ine)
+     &rArr;# define([def], ine)
+</pre>
+   <p>Each time there can be a macro expansion, there is a quotation
+expansion, i.e., one level of quotes is stripped:
+
+<pre class="example">     int tab[10];
+     &rArr;int tab10;
+     [int tab[10];]
+     &rArr;int tab[10];
+</pre>
+   <p>Without this in mind, the reader might try hopelessly to use her macro
+<code>array</code>:
+
+<pre class="example">     define([array], [int tab[10];])
+     array
+     &rArr;int tab10;
+     [array]
+     &rArr;array
+</pre>
+   <p class="noindent">How can you correctly output the intended results<a rel="footnote" href="#fn-2" name="fnd-2"><sup>2</sup></a>?
+
+   <div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> By itself, M4 uses &lsquo;<samp><span class="samp">`</span></samp>&rsquo; and &lsquo;<samp><span class="samp">'</span></samp>&rsquo;; it is the
+M4sugar layer that sets up the preferred quotes of &lsquo;<samp><span class="samp">[</span></samp>&rsquo; and &lsquo;<samp><span class="samp">]</span></samp>&rsquo;.</p>
+
+   <p class="footnote"><small>[<a name="fn-2" href="#fnd-2">2</a>]</small> Using
+<code>defn</code>.</p>
+
+   <hr></div>
+
+   </body></html>
+

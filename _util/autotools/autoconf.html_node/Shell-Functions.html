@@ -1,0 +1,137 @@
+<html lang="en">
+<head>
+<title>Shell Functions - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="Special-Shell-Variables.html#Special-Shell-Variables" title="Special Shell Variables">
+<link rel="next" href="Limitations-of-Builtins.html#Limitations-of-Builtins" title="Limitations of Builtins">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Shell-Functions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Limitations-of-Builtins.html#Limitations-of-Builtins">Limitations of Builtins</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Special-Shell-Variables.html#Special-Shell-Variables">Special Shell Variables</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.13 Shell Functions</h3>
+
+<p><a name="index-Shell-Functions-1766"></a>
+Nowadays, it is difficult to find a shell that does not support
+shell functions at all.  However, some differences should be expected.
+
+   <p>When declaring a shell function, you must include whitespace between the
+&lsquo;<samp><span class="samp">)</span></samp>&rsquo; after the function name and the start of the compound
+expression, to avoid upsetting <samp><span class="command">ksh</span></samp>.  While it is possible to
+use any compound command, most scripts use &lsquo;<samp><span class="samp">{...}</span></samp>&rsquo;.
+
+<pre class="example">     $ <kbd>/bin/sh -c 'a(){ echo hi;}; a'</kbd>
+     hi
+     $ <kbd>ksh -c 'a(){ echo hi;}; a'</kbd>
+     ksh: syntax error at line 1: `}' unexpected
+     $ <kbd>ksh -c 'a() { echo hi;}; a'</kbd>
+     hi
+</pre>
+   <p>Inside a shell function, you should not rely on the error status of a
+subshell if the last command of that subshell was <code>exit</code> or
+<code>trap</code>, as this triggers bugs in zsh 4.x; while Autoconf tries to
+find a shell that does not exhibit the bug, zsh might be the only shell
+present on the user's machine.
+
+   <p>Likewise, the state of &lsquo;<samp><span class="samp">$?</span></samp>&rsquo; is not reliable when entering a shell
+function.  This has the effect that using a function as the first
+command in a <samp><span class="command">trap</span></samp> handler can cause problems.
+
+<pre class="example">     $ <kbd>bash -c 'foo() { echo $?; }; trap foo 0; (exit 2); exit 2'; echo $?</kbd>
+     2
+     2
+     $ <kbd>ash -c 'foo() { echo $?; }; trap foo 0; (exit 2); exit 2'; echo $?</kbd>
+     0
+     2
+</pre>
+   <p>DJGPP bash 2.04 has a bug in that <samp><span class="command">return</span></samp> from a
+shell function which also used a command substitution causes a
+segmentation fault.  To work around the issue, you can use
+<samp><span class="command">return</span></samp> from a subshell, or &lsquo;<samp><span class="samp">AS_SET_STATUS</span></samp>&rsquo; as last command
+in the execution flow of the function (see <a href="Common-Shell-Constructs.html#Common-Shell-Constructs">Common Shell Constructs</a>).
+
+   <p>Not all shells treat shell functions as simple commands impacted by
+&lsquo;<samp><span class="samp">set -e</span></samp>&rsquo;, for example with Solaris 10 <samp><span class="command">/bin/sh</span></samp>:
+
+<pre class="example">     $ <kbd>bash -c 'f() { return 1; }; set -e; f; echo oops'</kbd>
+     $ <kbd>/bin/sh -c 'f() { return 1; }; set -e; f; echo oops'</kbd>
+     oops
+</pre>
+   <p>Shell variables and functions may share the same namespace, for example
+with Solaris 10 <samp><span class="command">/bin/sh</span></samp>:
+
+<pre class="example">     $ <kbd>f () { :; }; f=; f</kbd>
+     f: not found
+</pre>
+   <p class="noindent">For this reason, Autoconf (actually M4sh, see <a href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>)
+uses the prefix &lsquo;<samp><span class="samp">as_fn_</span></samp>&rsquo; for its functions.
+
+   <p>Handling of positional parameters and shell options varies among shells. 
+For example, Korn shells reset and restore trace output (&lsquo;<samp><span class="samp">set -x</span></samp>&rsquo;)
+and other options upon function entry and exit.  Inside a function,
+IRIX sh sets &lsquo;<samp><span class="samp">$0</span></samp>&rsquo; to the function name.
+
+   <p>It is not portable to pass temporary environment variables to shell
+functions.  Solaris <samp><span class="command">/bin/sh</span></samp> does not see the variable. 
+Meanwhile, not all shells follow the Posix rule that the assignment must
+affect the current environment in the same manner as special built-ins.
+
+<pre class="example">     $ <kbd>/bin/sh -c 'func() { echo $a;}; a=1 func; echo $a'</kbd>
+     &rArr;
+     &rArr;
+     $ <kbd>ash -c 'func() { echo $a;}; a=1 func; echo $a'</kbd>
+     &rArr;1
+     &rArr;
+     $ <kbd>bash -c 'set -o posix; func() { echo $a;}; a=1 func; echo $a'</kbd>
+     &rArr;1
+     &rArr;1
+</pre>
+   <p>Some ancient Bourne shell variants with function support did not reset
+&lsquo;<samp><span class="samp">$</span><var>i</var><span class="samp">, </span><var>i</var><span class="samp"> &gt;= 0</span></samp>&rsquo;, upon function exit, so effectively the
+arguments of the script were lost after the first function invocation. 
+It is probably not worth worrying about these shells any more.
+
+   <p>With AIX sh, a <samp><span class="command">trap</span></samp> on 0 installed in a shell function
+triggers at function exit rather than at script exit.  See <a href="trap.html#trap">Limitations of Shell Builtins</a>.
+
+   </body></html>
+

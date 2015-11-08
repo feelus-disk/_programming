@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Subdirectories</title>
+
+<meta name="description" content="automake: Subdirectories">
+<meta name="keywords" content="automake: Subdirectories">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Directories.html#Directories" rel="up" title="Directories">
+<link href="Conditional-Subdirectories.html#Conditional-Subdirectories" rel="next" title="Conditional Subdirectories">
+<link href="Directories.html#Directories" rel="prev" title="Directories">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Subdirectories"></a>
+<div class="header">
+<p>
+Next: <a href="Conditional-Subdirectories.html#Conditional-Subdirectories" accesskey="n" rel="next">Conditional Subdirectories</a>, Up: <a href="Directories.html#Directories" accesskey="u" rel="up">Directories</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Recursing-subdirectories"></a>
+<h3 class="section">7.1 Recursing subdirectories</h3>
+
+<a name="index-SUBDIRS_002c-explained"></a>
+
+<p>In packages using make recursion, the top level <samp>Makefile.am</samp> must
+tell Automake which subdirectories are to be built.  This is done via
+the <code>SUBDIRS</code> variable.
+<a name="index-SUBDIRS"></a>
+</p>
+<p>The <code>SUBDIRS</code> variable holds a list of subdirectories in which
+building of various sorts can occur.  The rules for many targets
+(e.g., <code>all</code>) in the generated <samp>Makefile</samp> will run commands
+both locally and in all specified subdirectories.  Note that the
+directories listed in <code>SUBDIRS</code> are not required to contain
+<samp>Makefile.am</samp>s; only <samp>Makefile</samp>s (after configuration).
+This allows inclusion of libraries from packages that do not use
+Automake (such as <code>gettext</code>; see also <a href="Third_002dParty-Makefiles.html#Third_002dParty-Makefiles">Third-Party Makefiles</a>).
+</p>
+<p>In packages that use subdirectories, the top-level <samp>Makefile.am</samp> is
+often very short.  For instance, here is the <samp>Makefile.am</samp> from the
+GNU Hello distribution:
+</p>
+<div class="example">
+<pre class="example">EXTRA_DIST = BUGS ChangeLog.O README-alpha
+SUBDIRS = doc intl po src tests
+</pre></div>
+
+<p>When Automake invokes <code>make</code> in a subdirectory, it uses the value
+of the <code>MAKE</code> variable.  It passes the value of the variable
+<code>AM_MAKEFLAGS</code> to the <code>make</code> invocation; this can be set in
+<samp>Makefile.am</samp> if there are flags you must always pass to
+<code>make</code>.
+<a name="index-MAKE"></a>
+<a name="index-AM_005fMAKEFLAGS"></a>
+</p>
+<p>The directories mentioned in <code>SUBDIRS</code> are usually direct
+children of the current directory, each subdirectory containing its
+own <samp>Makefile.am</samp> with a <code>SUBDIRS</code> pointing to deeper
+subdirectories.  Automake can be used to construct packages of
+arbitrary depth this way.
+</p>
+<p>By default, Automake generates <samp>Makefiles</samp> that work depth-first
+in postfix order: the subdirectories are built before the current
+directory.  However, it is possible to change this ordering.  You can
+do this by putting &lsquo;<samp>.</samp>&rsquo; into <code>SUBDIRS</code>.  For instance,
+putting &lsquo;<samp>.</samp>&rsquo; first will cause a prefix ordering of
+directories.
+</p>
+<p>Using
+</p>
+<div class="example">
+<pre class="example">SUBDIRS = lib src . test
+</pre></div>
+
+<p>will cause <samp>lib/</samp> to be built before <samp>src/</samp>, then the
+current directory will be built, finally the <samp>test/</samp> directory
+will be built.  It is customary to arrange test directories to be
+built after everything else since they are meant to test what has
+been constructed.
+</p>
+<p>In addition to the built-in recursive targets defined by Automake
+(<code>all</code>, <code>check</code>, etc.), the developer can also define his
+own recursive targets.  That is done by passing the names of such
+targets as arguments to the m4 macro <code>AM_EXTRA_RECURSIVE_TARGETS</code>
+in <samp>configure.ac</samp>.  Automake generates rules to handle the
+recursion for such targets; and the developer can define real actions
+for them by defining corresponding <code>-local</code> targets.
+</p>
+<div class="example">
+<pre class="example">% <kbd>cat configure.ac</kbd>
+AC_INIT([pkg-name], [1.0]
+AM_INIT_AUTOMAKE
+AM_EXTRA_RECURSIVE_TARGETS([foo])
+AC_CONFIG_FILES([Makefile sub/Makefile sub/src/Makefile])
+AC_OUTPUT
+% <kbd>cat Makefile.am</kbd>
+SUBDIRS = sub
+foo-local:
+        @echo This will be run by &quot;make foo&quot;.
+% <kbd>cat sub/Makefile.am</kbd>
+SUBDIRS = src
+% <kbd>cat sub/src/Makefile.am</kbd>
+foo-local:
+        @echo This too will be run by a &quot;make foo&quot; issued either in
+        @echo the 'sub/src/' directory, the 'sub/' directory, or the
+        @echo top-level directory.
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Conditional-Subdirectories.html#Conditional-Subdirectories" accesskey="n" rel="next">Conditional Subdirectories</a>, Up: <a href="Directories.html#Directories" accesskey="u" rel="up">Directories</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

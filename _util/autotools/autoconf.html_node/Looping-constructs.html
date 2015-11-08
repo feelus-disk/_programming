@@ -1,0 +1,347 @@
+<html lang="en">
+<head>
+<title>Looping constructs - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Conditional-constructs.html#Conditional-constructs" title="Conditional constructs">
+<link rel="next" href="Evaluation-Macros.html#Evaluation-Macros" title="Evaluation Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Looping-constructs"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Evaluation-Macros.html#Evaluation-Macros">Evaluation Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Conditional-constructs.html#Conditional-constructs">Conditional constructs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.5 Looping constructs</h4>
+
+<p>The following macros are useful in implementing recursive algorithms in
+M4, including loop operations.  An M4 list is formed by quoting a list
+of quoted elements; generally the lists are comma-separated, although
+<code>m4_foreach_w</code> is whitespace-separated.  For example, the list
+&lsquo;<samp><span class="samp">[[a], [b,c]]</span></samp>&rsquo; contains two elements: &lsquo;<samp><span class="samp">[a]</span></samp>&rsquo; and &lsquo;<samp><span class="samp">[b,c]</span></samp>&rsquo;. 
+It is common to see lists with unquoted elements when those elements are
+not likely to be macro names, as in &lsquo;<samp><span class="samp">[fputc_unlocked,
+fgetc_unlocked]</span></samp>&rsquo;.
+
+   <p>Although not generally recommended, it is possible for quoted lists to
+have side effects; all side effects are expanded only once, and prior to
+visiting any list element.  On the other hand, the fact that unquoted
+macros are expanded exactly once means that macros without side effects
+can be used to generate lists.  For example,
+
+<pre class="example">     m4_foreach([i], [[1], [2], [3]m4_errprintn([hi])], [i])
+     error--&gt;hi
+     &rArr;123
+     m4_define([list], [[1], [2], [3]])
+     &rArr;
+     m4_foreach([i], [list], [i])
+     &rArr;123
+</pre>
+   <div class="defun">
+&mdash; Macro: <b>m4_argn</b> (<var>n, </var><span class="roman">[</span><var>arg</var><span class="roman">]</span><var><small class="dots">...</small></var>)<var><a name="index-m4_005fargn-1391"></a></var><br>
+<blockquote><p><a name="index-m4_005fargn-1392"></a>
+Extracts argument <var>n</var> (larger than 0) from the remaining arguments. 
+If there are too few arguments, the empty string is used.  For any
+<var>n</var> besides 1, this is more efficient than the similar
+&lsquo;<samp><span class="samp">m4_car(m4_shiftn([</span><var>n</var><span class="samp">], [], [</span><var>arg</var><span class="samp">...]))</span></samp>&rsquo;. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_car</b> (<var>arg<small class="dots">...</small></var>)<var><a name="index-m4_005fcar-1393"></a></var><br>
+<blockquote><p><a name="index-m4_005fcar-1394"></a>
+Expands to the quoted first <var>arg</var>.  Can be used with <code>m4_cdr</code>
+to recursively iterate
+through a list.  Generally, when using quoted lists of quoted elements,
+<code>m4_car</code> should be called without any extra quotes. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_cdr</b> (<var>arg<small class="dots">...</small></var>)<var><a name="index-m4_005fcdr-1395"></a></var><br>
+<blockquote><p><a name="index-m4_005fcdr-1396"></a>
+Expands to a quoted list of all but the first <var>arg</var>, or the empty
+string if there was only one argument.  Generally, when using quoted
+lists of quoted elements, <code>m4_cdr</code> should be called without any
+extra quotes.
+
+        <p>For example, this is a simple implementation of <code>m4_map</code>; note how
+each iteration checks for the end of recursion, then merely applies the
+first argument to the first element of the list, then repeats with the
+rest of the list.  (The actual implementation in M4sugar is a bit more
+involved, to gain some speed and share code with <code>m4_map_sep</code>, and
+also to avoid expanding side effects in &lsquo;<samp><span class="samp">$2</span></samp>&rsquo; twice).
+     <pre class="example">          m4_define([m4_map], [m4_ifval([$2],
+            [m4_apply([$1], m4_car($2))[]$0([$1], m4_cdr($2))])])dnl
+          m4_map([ m4_eval], [[[1]], [[1+1]], [[10],[16]]])
+          &rArr; 1 2 a
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_for</b> (<var>var, first, last, </var><span class="roman">[</span><var>step</var><span class="roman">]</span><var>, expression</var>)<var><a name="index-m4_005ffor-1397"></a></var><br>
+<blockquote><p><a name="index-m4_005ffor-1398"></a>
+Loop over the numeric values between <var>first</var> and <var>last</var>
+including bounds by increments of <var>step</var>.  For each iteration,
+expand <var>expression</var> with the numeric value assigned to <var>var</var>. 
+If <var>step</var> is omitted, it defaults to &lsquo;<samp><span class="samp">1</span></samp>&rsquo; or &lsquo;<samp><span class="samp">-1</span></samp>&rsquo; depending
+on the order of the limits.  If given, <var>step</var> has to match this
+order.  The number of iterations is determined independently from
+definition of <var>var</var>; iteration cannot be short-circuited or
+lengthened by modifying <var>var</var> from within <var>expression</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_foreach</b> (<var>var, list, expression</var>)<var><a name="index-m4_005fforeach-1399"></a></var><br>
+<blockquote><p><a name="index-m4_005fforeach-1400"></a>
+Loop over the comma-separated M4 list <var>list</var>, assigning each value
+to <var>var</var>, and expand <var>expression</var>.  The following example
+outputs two lines:
+
+     <pre class="example">          m4_foreach([myvar], [[foo], [bar, baz]],
+                     [echo myvar
+          ])dnl
+          &rArr;echo foo
+          &rArr;echo bar, baz
+</pre>
+        <p>Note that for some forms of <var>expression</var>, it may be faster to use
+<code>m4_map_args</code>. 
+</p></blockquote></div>
+
+   <p><a name="m4_005fforeach_005fw"></a>
+
+<div class="defun">
+&mdash; Macro: <b>m4_foreach_w</b> (<var>var, list, expression</var>)<var><a name="index-m4_005fforeach_005fw-1401"></a></var><br>
+<blockquote><p><a name="index-m4_005fforeach_005fw-1402"></a>
+Loop over the white-space-separated list <var>list</var>, assigning each value
+to <var>var</var>, and expand <var>expression</var>.  If <var>var</var> is only
+referenced once in <var>expression</var>, it is more efficient to use
+<code>m4_map_args_w</code>.
+
+        <p>The deprecated macro <code>AC_FOREACH</code> is an alias of
+<code>m4_foreach_w</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_map</b> (<var>macro, list</var>)<var><a name="index-m4_005fmap-1403"></a></var><br>
+&mdash; Macro: <b>m4_mapall</b> (<var>macro, list</var>)<var><a name="index-m4_005fmapall-1404"></a></var><br>
+&mdash; Macro: <b>m4_map_sep</b> (<var>macro, separator, list</var>)<var><a name="index-m4_005fmap_005fsep-1405"></a></var><br>
+&mdash; Macro: <b>m4_mapall_sep</b> (<var>macro, separator, list</var>)<var><a name="index-m4_005fmapall_005fsep-1406"></a></var><br>
+<blockquote><p><a name="index-m4_005fmap-1407"></a>
+<a name="index-m4_005fmapall-1408"></a>
+<a name="index-m4_005fmap_005fsep-1409"></a>
+<a name="index-m4_005fmapall_005fsep-1410"></a>
+Loop over the comma separated quoted list of argument descriptions in
+<var>list</var>, and invoke <var>macro</var> with the arguments.  An argument
+description is in turn a comma-separated quoted list of quoted elements,
+suitable for <code>m4_apply</code>.  The macros <code>m4_map</code> and
+<code>m4_map_sep</code> ignore empty argument descriptions, while
+<code>m4_mapall</code> and <code>m4_mapall_sep</code> invoke <var>macro</var> with no
+arguments.  The macros <code>m4_map_sep</code> and <code>m4_mapall_sep</code>
+additionally expand <var>separator</var> between invocations of <var>macro</var>.
+
+        <p>Note that <var>separator</var> is expanded, unlike in <code>m4_join</code>.  When
+separating output with commas, this means that the map result can be
+used as a series of arguments, by using a single-quoted comma as
+<var>separator</var>, or as a single string, by using a double-quoted comma.
+
+     <pre class="example">          m4_map([m4_count], [])
+          &rArr;
+          m4_map([ m4_count], [[],
+                               [[1]],
+                               [[1], [2]]])
+          &rArr; 1 2
+          m4_mapall([ m4_count], [[],
+                                  [[1]],
+                                  [[1], [2]]])
+          &rArr; 0 1 2
+          m4_map_sep([m4_eval], [,], [[[1+2]],
+                                      [[10], [16]]])
+          &rArr;3,a
+          m4_map_sep([m4_echo], [,], [[[a]], [[b]]])
+          &rArr;a,b
+          m4_count(m4_map_sep([m4_echo], [,], [[[a]], [[b]]]))
+          &rArr;2
+          m4_map_sep([m4_echo], [[,]], [[[a]], [[b]]])
+          &rArr;a,b
+          m4_count(m4_map_sep([m4_echo], [[,]], [[[a]], [[b]]]))
+          &rArr;1
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_map_args</b> (<var>macro, arg<small class="dots">...</small></var>)<var><a name="index-m4_005fmap_005fargs-1411"></a></var><br>
+<blockquote><p><a name="index-m4_005fmap_005fargs-1412"></a>
+Repeatedly invoke <var>macro</var> with each successive <var>arg</var> as its only
+argument.  In the following example, three solutions are presented with
+the same expansion; the solution using <code>m4_map_args</code> is the most
+efficient.
+     <pre class="example">          m4_define([active], [ACTIVE])dnl
+          m4_foreach([var], [[plain], [active]], [ m4_echo(m4_defn([var]))])
+          &rArr; plain active
+          m4_map([ m4_echo], [[[plain]], [[active]]])
+          &rArr; plain active
+          m4_map_args([ m4_echo], [plain], [active])
+          &rArr; plain active
+</pre>
+        <p>In cases where it is useful to operate on additional parameters besides
+the list elements, the macro <code>m4_curry</code> can be used in <var>macro</var>
+to supply the argument currying necessary to generate the desired
+argument list.  In the following example, <code>list_add_n</code> is more
+efficient than <code>list_add_x</code>.  On the other hand, using
+<code>m4_map_args_sep</code> can be even more efficient.
+
+     <pre class="example">          m4_define([list], [[1], [2], [3]])dnl
+          m4_define([add], [m4_eval(([$1]) + ([$2]))])dnl
+          dnl list_add_n(N, ARG...)
+          dnl Output a list consisting of each ARG added to N
+          m4_define([list_add_n],
+          [m4_shift(m4_map_args([,m4_curry([add], [$1])], m4_shift($@)))])dnl
+          list_add_n([1], list)
+          &rArr;2,3,4
+          list_add_n([2], list)
+          &rArr;3,4,5
+          m4_define([list_add_x],
+          [m4_shift(m4_foreach([var], m4_dquote(m4_shift($@)),
+            [,add([$1],m4_defn([var]))]))])dnl
+          list_add_x([1], list)
+          &rArr;2,3,4
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_map_args_pair</b> (<var>macro, </var><span class="roman">[</span><var>macro-end = &lsquo;</var><samp><span class="samp">macro</span></samp><var>&rsquo;</var><span class="roman">]</span><var>, arg<small class="dots">...</small></var>)<var><a name="index-m4_005fmap_005fargs_005fpair-1413"></a></var><br>
+<blockquote><p><a name="index-m4_005fmap_005fargs_005fpair-1414"></a>
+For every pair of arguments <var>arg</var>, invoke <var>macro</var> with two
+arguments.  If there is an odd number of arguments, invoke
+<var>macro-end</var>, which defaults to <var>macro</var>, with the remaining
+argument.
+
+     <pre class="example">          m4_map_args_pair([, m4_reverse], [], [1], [2], [3])
+          &rArr;, 2, 1, 3
+          m4_map_args_pair([, m4_reverse], [, m4_dquote], [1], [2], [3])
+          &rArr;, 2, 1, [3]
+          m4_map_args_pair([, m4_reverse], [, m4_dquote], [1], [2], [3], [4])
+          &rArr;, 2, 1, 4, 3
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_map_args_sep</b> (<span class="roman">[</span><var>pre</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>post</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>sep</var><span class="roman">]</span><var>, arg<small class="dots">...</small></var>)<var><a name="index-m4_005fmap_005fargs_005fsep-1415"></a></var><br>
+<blockquote><p><a name="index-m4_005fmap_005fargs_005fsep-1416"></a>
+Expand the sequence <var>pre</var><code>[</code><var>arg</var><code>]</code><var>post</var> for each
+argument, additionally expanding <var>sep</var> between arguments.  One
+common use of this macro is constructing a macro call, where the opening
+and closing parentheses are split between <var>pre</var> and <var>post</var>; in
+particular, <code>m4_map_args([</code><var>macro</var><code>], [</code><var>arg</var><code>])</code> is equivalent
+to <code>m4_map_args_sep([</code><var>macro</var><code>(], [)], [], [</code><var>arg</var><code>])</code>.  This
+macro provides the most efficient means for iterating over an arbitrary
+list of arguments, particularly when repeatedly constructing a macro
+call with more arguments than <var>arg</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_map_args_w</b> (<var>string, </var><span class="roman">[</span><var>pre</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>post</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>sep</var><span class="roman">]</span>)<var><a name="index-m4_005fmap_005fargs_005fw-1417"></a></var><br>
+<blockquote><p><a name="index-m4_005fmap_005fargs_005fw-1418"></a>
+Expand the sequence <var>pre</var><code>[word]</code><var>post</var> for each word in
+the whitespace-separated <var>string</var>, additionally expanding <var>sep</var>
+between words.  This macro provides the most efficient means for
+iterating over a whitespace-separated string.  In particular,
+<code>m4_map_args_w([</code><var>string</var><code>], [</code><var>action</var><code>(], [)])</code> is more
+efficient than <code>m4_foreach_w([var], [</code><var>string</var><code>],
+[</code><var>action</var><code>(m4_defn([var]))])</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_shiftn</b> (<var>count, <small class="dots">...</small></var>)<var><a name="index-m4_005fshiftn-1419"></a></var><br>
+&mdash; Macro: <b>m4_shift2</b> (<var><small class="dots">...</small></var>)<var><a name="index-m4_005fshift2-1420"></a></var><br>
+&mdash; Macro: <b>m4_shift3</b> (<var><small class="dots">...</small></var>)<var><a name="index-m4_005fshift3-1421"></a></var><br>
+<blockquote><p><a name="index-m4_005fshift2-1422"></a>
+<a name="index-m4_005fshift3-1423"></a>
+<a name="index-m4_005fshiftn-1424"></a>
+<code>m4_shiftn</code> performs <var>count</var> iterations of <code>m4_shift</code>,
+along with validation that enough arguments were passed in to match the
+shift count, and that the count is positive.  <code>m4_shift2</code> and
+<code>m4_shift3</code> are specializations
+of <code>m4_shiftn</code>, introduced in Autoconf 2.62, and are more efficient
+for two and three shifts, respectively. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_stack_foreach</b> (<var>macro, action</var>)<var><a name="index-m4_005fstack_005fforeach-1425"></a></var><br>
+&mdash; Macro: <b>m4_stack_foreach_lifo</b> (<var>macro, action</var>)<var><a name="index-m4_005fstack_005fforeach_005flifo-1426"></a></var><br>
+<blockquote><p><a name="index-m4_005fstack_005fforeach-1427"></a>
+<a name="index-m4_005fstack_005fforeach_005flifo-1428"></a>
+For each of the <code>m4_pushdef</code> definitions of <var>macro</var>, expand
+<var>action</var> with the single argument of a definition of <var>macro</var>. 
+<code>m4_stack_foreach</code> starts with the oldest definition, while
+<code>m4_stack_foreach_lifo</code> starts with the current definition. 
+<var>action</var> should not push or pop definitions of <var>macro</var>, nor is
+there any guarantee that the current definition of <var>macro</var> matches
+the argument that was passed to <var>action</var>.  The macro <code>m4_curry</code>
+can be used if <var>action</var> needs more than one argument, although in
+that case it is more efficient to use <var>m4_stack_foreach_sep</var>.
+
+        <p>Due to technical limitations, there are a few low-level m4sugar
+functions, such as <code>m4_pushdef</code>, that cannot be used as the
+<var>macro</var> argument.
+
+     <pre class="example">          m4_pushdef([a], [1])m4_pushdef([a], [2])dnl
+          m4_stack_foreach([a], [ m4_incr])
+          &rArr; 2 3
+          m4_stack_foreach_lifo([a], [ m4_curry([m4_substr], [abcd])])
+          &rArr; cd bcd
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_stack_foreach_sep</b> (<var>macro, </var><span class="roman">[</span><var>pre</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>post</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>sep</var><span class="roman">]</span>)<var><a name="index-m4_005fstack_005fforeach_005fsep-1429"></a></var><br>
+&mdash; Macro: <b>m4_stack_foreach_sep_lifo</b> (<var>macro, </var><span class="roman">[</span><var>pre</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>post</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>sep</var><span class="roman">]</span>)<var><a name="index-m4_005fstack_005fforeach_005fsep_005flifo-1430"></a></var><br>
+<blockquote><p><a name="index-m4_005fstack_005fforeach_005fsep-1431"></a>
+<a name="index-m4_005fstack_005fforeach_005fsep_005flifo-1432"></a>
+Expand the sequence <var>pre</var><code>[definition]</code><var>post</var> for each
+<code>m4_pushdef</code> definition of <var>macro</var>, additionally expanding
+<var>sep</var> between definitions.  <code>m4_stack_foreach_sep</code> visits the
+oldest definition first, while <code>m4_stack_foreach_sep_lifo</code> visits
+the current definition first.  This macro provides the most efficient
+means for iterating over a pushdef stack.  In particular,
+<code>m4_stack_foreach([</code><var>macro</var><code>], [</code><var>action</var><code>])</code> is short for
+<code>m4_stack_foreach_sep([</code><var>macro</var><code>], [</code><var>action</var><code>(], [)])</code>. 
+</p></blockquote></div>
+
+   </body></html>
+

@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Limits of Conditionals</title>
+
+<meta name="description" content="automake: Limits of Conditionals">
+<meta name="keywords" content="automake: Limits of Conditionals">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Conditionals.html#Conditionals" rel="up" title="Conditionals">
+<link href="Silencing-Make.html#Silencing-Make" rel="next" title="Silencing Make">
+<link href="Usage-of-Conditionals.html#Usage-of-Conditionals" rel="prev" title="Usage of Conditionals">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Limits-of-Conditionals"></a>
+<div class="header">
+<p>
+Previous: <a href="Usage-of-Conditionals.html#Usage-of-Conditionals" accesskey="p" rel="prev">Usage of Conditionals</a>, Up: <a href="Conditionals.html#Conditionals" accesskey="u" rel="up">Conditionals</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Limits-of-Conditionals-1"></a>
+<h3 class="section">20.2 Limits of Conditionals</h3>
+
+<p>Conditionals should enclose complete statements like variables or
+rules definitions.  Automake cannot deal with conditionals used inside
+a variable definition, for instance, and is not even able to diagnose
+this situation.  The following example would not work:
+</p>
+<div class="example">
+<pre class="example"># This syntax is not understood by Automake
+AM_CPPFLAGS = \
+  -DFEATURE_A \
+if WANT_DEBUG
+  -DDEBUG \
+endif
+  -DFEATURE_B
+</pre></div>
+
+<p>However the intended definition of <code>AM_CPPFLAGS</code> can be achieved
+with
+</p>
+<div class="example">
+<pre class="example">if WANT_DEBUG
+  DEBUGFLAGS = -DDEBUG
+endif
+AM_CPPFLAGS = -DFEATURE_A $(DEBUGFLAGS) -DFEATURE_B
+</pre></div>
+
+<p>or
+</p>
+<div class="example">
+<pre class="example">AM_CPPFLAGS = -DFEATURE_A
+if WANT_DEBUG
+AM_CPPFLAGS += -DDEBUG
+endif
+AM_CPPFLAGS += -DFEATURE_B
+</pre></div>
+
+<p>More details and examples of conditionals are described alongside
+various Automake features in this manual (see <a href="Conditional-Subdirectories.html#Conditional-Subdirectories">Conditional Subdirectories</a>, see <a href="Conditional-Sources.html#Conditional-Sources">Conditional Sources</a>, see <a href="Conditional-Programs.html#Conditional-Programs">Conditional Programs</a>, see <a href="Conditional-Libtool-Libraries.html#Conditional-Libtool-Libraries">Conditional Libtool Libraries</a>, see <a href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources">Conditional Libtool Sources</a>).
+</p>
+
+
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+<html lang="en">
+<head>
+<title>Autotest Logs - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite" title="Using an Autotest Test Suite">
+<link rel="prev" href="testsuite-Scripts.html#testsuite-Scripts" title="testsuite Scripts">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Autotest-Logs"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="testsuite-Scripts.html#testsuite-Scripts">testsuite Scripts</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite">Using an Autotest Test Suite</a>
+<hr>
+</div>
+
+<h4 class="subsection">19.1.2 Autotest Logs</h4>
+
+<p>When run, the test suite creates a log file named after itself, e.g., a
+test suite named <samp><span class="command">testsuite</span></samp> creates <samp><span class="file">testsuite.log</span></samp>.  It
+contains a lot of information, usually more than maintainers actually
+need, but therefore most of the time it contains all that is needed:
+
+     <dl>
+<dt>command line arguments<dd>A bad but unfortunately widespread habit consists of
+setting environment variables before the command, such as in
+&lsquo;<samp><span class="samp">CC=my-home-grown-cc ./testsuite</span></samp>&rsquo;.  The test suite does not
+know this change, hence (i) it cannot report it to you, and (ii)
+it cannot preserve the value of <code>CC</code> for subsequent runs. 
+Autoconf faced exactly the same problem, and solved it by asking
+users to pass the variable definitions as command line arguments. 
+Autotest requires this rule, too, but has no means to enforce it; the log
+then contains a trace of the variables that were changed by the user.
+
+     <br><dt><samp><span class="file">ChangeLog</span></samp> excerpts<dd>The topmost lines of all the <samp><span class="file">ChangeLog</span></samp> files found in the source
+hierarchy.  This is especially useful when bugs are reported against
+development versions of the package, since the version string does not
+provide sufficient information to know the exact state of the sources
+the user compiled.  Of course, this relies on the use of a
+<samp><span class="file">ChangeLog</span></samp>.
+
+     <br><dt>build machine<dd>Running a test suite in a cross-compile environment is not an easy task,
+since it would mean having the test suite run on a machine <var>build</var>,
+while running programs on a machine <var>host</var>.  It is much simpler to
+run both the test suite and the programs on <var>host</var>, but then, from
+the point of view of the test suite, there remains a single environment,
+<var>host</var> = <var>build</var>.  The log contains relevant information on the
+state of the <var>build</var> machine, including some important environment
+variables. 
+<!-- FIXME: How about having an M4sh macro to say `hey, log the value -->
+<!-- of `@dots{}'?  This would help both Autoconf and Autotest. -->
+
+     <br><dt>tested programs<dd>The absolute file name and answers to <samp><span class="option">--version</span></samp> of the tested
+programs (see <a href="Writing-Testsuites.html#Writing-Testsuites">Writing Testsuites</a>, <code>AT_TESTED</code>).
+
+     <br><dt>configuration log<dd>The contents of <samp><span class="file">config.log</span></samp>, as created by <samp><span class="command">configure</span></samp>,
+are appended.  It contains the configuration flags and a detailed report
+on the configuration itself. 
+</dl>
+
+   </body></html>
+

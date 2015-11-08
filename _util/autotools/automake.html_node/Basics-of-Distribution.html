@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Basics of Distribution</title>
+
+<meta name="description" content="automake: Basics of Distribution">
+<meta name="keywords" content="automake: Basics of Distribution">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Dist.html#Dist" rel="up" title="Dist">
+<link href="Fine_002dgrained-Distribution-Control.html#Fine_002dgrained-Distribution-Control" rel="next" title="Fine-grained Distribution Control">
+<link href="Dist.html#Dist" rel="prev" title="Dist">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Basics-of-Distribution"></a>
+<div class="header">
+<p>
+Next: <a href="Fine_002dgrained-Distribution-Control.html#Fine_002dgrained-Distribution-Control" accesskey="n" rel="next">Fine-grained Distribution Control</a>, Up: <a href="Dist.html#Dist" accesskey="u" rel="up">Dist</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Basics-of-Distribution-1"></a>
+<h3 class="section">14.1 Basics of Distribution</h3>
+
+<a name="index-make-dist"></a>
+
+<a name="index-PACKAGE"></a>
+<a name="index-VERSION"></a>
+<a name="index-dist-1"></a>
+<p>The <code>dist</code> rule in the generated <samp>Makefile.in</samp> can be used
+to generate a gzipped <code>tar</code> file and other flavors of archive for
+distribution.  The file is named based on the <code>PACKAGE</code> and
+<code>VERSION</code> variables automatically defined by either the
+<code>AC_INIT</code> invocation or by a <em>deprecated</em> two-arguments
+invocation of the <code>AM_INIT_AUTOMAKE</code> macro (see <a href="Public-Macros.html#Public-Macros">Public Macros</a>
+for how these variables get their values, from either defaults or explicit
+values &ndash; it&rsquo;s slightly trickier than one would expect).
+More precisely the gzipped <code>tar</code> file is named
+&lsquo;<samp>${PACKAGE}-${VERSION}.tar.gz</samp>&rsquo;.
+<a name="index-GZIP_005fENV"></a>
+You can use the <code>make</code> variable <code>GZIP_ENV</code> to control how gzip
+is run.  The default setting is <samp>--best</samp>.
+</p>
+<a name="index-m4_005finclude_002c-distribution"></a>
+<a name="index-include_002c-distribution"></a>
+<a name="index-m4_005finclude"></a>
+<a name="index-include"></a>
+<p>For the most part, the files to distribute are automatically found by
+Automake: all source files are automatically included in a distribution,
+as are all <samp>Makefile.am</samp> and <samp>Makefile.in</samp> files.  Automake also
+has a built-in list of commonly used files that are automatically
+included if they are found in the current directory (either physically,
+or as the target of a <samp>Makefile.am</samp> rule); this list is printed by
+&lsquo;<samp>automake --help</samp>&rsquo;.  Note that some files in this list are actually
+distributed only if other certain conditions hold (for example,
+the <samp>config.h.top</samp> and <samp>config.h.bot</samp> files are automatically
+distributed only if, e.g., &lsquo;<samp>AC_CONFIG_HEADERS([config.h])</samp>&rsquo; is used
+in <samp>configure.ac</samp>).  Also, files that are read by <code>configure</code>
+(i.e. the source files corresponding to the files specified in various
+Autoconf macros such as <code>AC_CONFIG_FILES</code> and siblings) are
+automatically distributed.  Files included in a <samp>Makefile.am</samp> (using
+<code>include</code>) or in <samp>configure.ac</samp> (using <code>m4_include</code>), and
+helper scripts installed with &lsquo;<samp>automake --add-missing</samp>&rsquo; are also
+distributed.
+</p>
+<a name="index-EXTRA_005fDIST"></a>
+<p>Still, sometimes there are files that must be distributed, but which
+are not covered in the automatic rules.  These files should be listed in
+the <code>EXTRA_DIST</code> variable.  You can mention files from
+subdirectories in <code>EXTRA_DIST</code>.
+</p>
+<p>You can also mention a directory in <code>EXTRA_DIST</code>; in this case the
+entire directory will be recursively copied into the distribution.
+Please note that this will also copy <em>everything</em> in the directory,
+including, e.g., Subversion&rsquo;s <samp>.svn</samp> private directories or CVS/RCS
+version control files; thus we recommend against using this feature
+as-is.  However, you can use the <code>dist-hook</code> feature to
+ameliorate the problem; see <a href="The-dist-Hook.html#The-dist-Hook">The dist Hook</a>.
+</p>
+<a name="index-SUBDIRS-1"></a>
+<a name="index-DIST_005fSUBDIRS-1"></a>
+<p>If you define <code>SUBDIRS</code>, Automake will recursively include the
+subdirectories in the distribution.  If <code>SUBDIRS</code> is defined
+conditionally (see <a href="Conditionals.html#Conditionals">Conditionals</a>), Automake will normally include
+all directories that could possibly appear in <code>SUBDIRS</code> in the
+distribution.  If you need to specify the set of directories
+conditionally, you can set the variable <code>DIST_SUBDIRS</code> to the
+exact list of subdirectories to include in the distribution
+(see <a href="Conditional-Subdirectories.html#Conditional-Subdirectories">Conditional Subdirectories</a>).
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Fine_002dgrained-Distribution-Control.html#Fine_002dgrained-Distribution-Control" accesskey="n" rel="next">Fine-grained Distribution Control</a>, Up: <a href="Dist.html#Dist" accesskey="u" rel="up">Dist</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

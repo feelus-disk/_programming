@@ -1,0 +1,114 @@
+<html lang="en">
+<head>
+<title>Output - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Setup.html#Setup" title="Setup">
+<link rel="prev" href="Input.html#Input" title="Input">
+<link rel="next" href="Configuration-Actions.html#Configuration-Actions" title="Configuration Actions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Output"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Configuration-Actions.html#Configuration-Actions">Configuration Actions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Input.html#Input">Input</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Setup.html#Setup">Setup</a>
+<hr>
+</div>
+
+<h3 class="section">4.5 Outputting Files</h3>
+
+<p><a name="index-Outputting-files-63"></a>
+Every Autoconf script, e.g., <samp><span class="file">configure.ac</span></samp>, should finish by
+calling <code>AC_OUTPUT</code>.  That is the macro that generates and runs
+<samp><span class="file">config.status</span></samp>, which in turn creates the makefiles and any
+other files resulting from configuration.  This is the only required
+macro besides <code>AC_INIT</code> (see <a href="Input.html#Input">Input</a>).
+
+   <p><a name="AC_005fOUTPUT"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_OUTPUT</b><var><a name="index-AC_005fOUTPUT-64"></a></var><br>
+<blockquote><p><a name="index-AC_005fOUTPUT-65"></a>
+<a name="index-Instantiation-66"></a>Generate <samp><span class="file">config.status</span></samp> and launch it.  Call this macro once, at
+the end of <samp><span class="file">configure.ac</span></samp>.
+
+        <p><samp><span class="file">config.status</span></samp> performs all the configuration actions: all the
+output files (see <a href="Configuration-Files.html#Configuration-Files">Configuration Files</a>, macro
+<code>AC_CONFIG_FILES</code>), header files (see <a href="Configuration-Headers.html#Configuration-Headers">Configuration Headers</a>,
+macro <code>AC_CONFIG_HEADERS</code>), commands (see <a href="Configuration-Commands.html#Configuration-Commands">Configuration Commands</a>, macro <code>AC_CONFIG_COMMANDS</code>), links (see
+<a href="Configuration-Links.html#Configuration-Links">Configuration Links</a>, macro <code>AC_CONFIG_LINKS</code>), subdirectories
+to configure (see <a href="Subdirectories.html#Subdirectories">Subdirectories</a>, macro <code>AC_CONFIG_SUBDIRS</code>)
+are honored.
+
+        <p>The location of your <code>AC_OUTPUT</code> invocation is the exact point
+where configuration actions are taken: any code afterwards is
+executed by <samp><span class="command">configure</span></samp> once <samp><span class="command">config.status</span></samp> was run.  If
+you want to bind actions to <samp><span class="command">config.status</span></samp> itself
+(independently of whether <samp><span class="command">configure</span></samp> is being run), see
+<a href="Configuration-Commands.html#Configuration-Commands">Running Arbitrary Configuration Commands</a>. 
+</p></blockquote></div>
+
+   <p>Historically, the usage of <code>AC_OUTPUT</code> was somewhat different. 
+See <a href="Obsolete-Macros.html#Obsolete-Macros">Obsolete Macros</a>, for a description of the arguments that
+<code>AC_OUTPUT</code> used to support.
+
+   <p>If you run <samp><span class="command">make</span></samp> in subdirectories, you should run it using the
+<samp><span class="command">make</span></samp> variable <code>MAKE</code>.  Most versions of <samp><span class="command">make</span></samp> set
+<code>MAKE</code> to the name of the <samp><span class="command">make</span></samp> program plus any options it
+was given.  (But many do not include in it the values of any variables
+set on the command line, so those are not passed on automatically.) 
+Some old versions of <samp><span class="command">make</span></samp> do not set this variable.  The
+following macro allows you to use it even with those versions.
+
+   <p><a name="AC_005fPROG_005fMAKE_005fSET"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_MAKE_SET</b><var><a name="index-AC_005fPROG_005fMAKE_005fSET-67"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fMAKE_005fSET-68"></a>
+<a name="index-SET_005fMAKE-69"></a>If the Make command, <code>$MAKE</code> if set or else &lsquo;<samp><span class="samp">make</span></samp>&rsquo;, predefines
+<code>$(MAKE)</code>, define output variable <code>SET_MAKE</code> to be empty. 
+Otherwise, define <code>SET_MAKE</code> to a macro definition that sets
+<code>$(MAKE)</code>, such as &lsquo;<samp><span class="samp">MAKE=make</span></samp>&rsquo;.  Calls <code>AC_SUBST</code> for
+<code>SET_MAKE</code>. 
+</p></blockquote></div>
+
+   <p>If you use this macro, place a line like this in each <samp><span class="file">Makefile.in</span></samp>
+that runs <samp><span class="command">MAKE</span></samp> on other directories:
+
+<pre class="example">     @SET_MAKE@
+</pre>
+   </body></html>
+

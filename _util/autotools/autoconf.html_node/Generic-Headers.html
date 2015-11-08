@@ -1,0 +1,155 @@
+<html lang="en">
+<head>
+<title>Generic Headers - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Header-Files.html#Header-Files" title="Header Files">
+<link rel="prev" href="Particular-Headers.html#Particular-Headers" title="Particular Headers">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Generic-Headers"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Particular-Headers.html#Particular-Headers">Particular Headers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Header-Files.html#Header-Files">Header Files</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.6.3 Generic Header Checks</h4>
+
+<p>These macros are used to find system header files not covered by the
+&ldquo;particular&rdquo; test macros.  If you need to check the contents of a header
+as well as find out whether it is present, you have to write your own
+test for it (see <a href="Writing-Tests.html#Writing-Tests">Writing Tests</a>).
+
+   <p><a name="AC_005fCHECK_005fHEADER"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_HEADER</b> (<var>header-file, </var><span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>includes</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fHEADER-665"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fHEADER-666"></a>
+<a name="index-ac_005fcv_005fheader_005f_0040var_007bheader_002dfile_007d-667"></a>
+If the system header file <var>header-file</var> is compilable, execute shell
+commands <var>action-if-found</var>, otherwise execute
+<var>action-if-not-found</var>.  If you just want to define a symbol if the
+header file is available, consider using <code>AC_CHECK_HEADERS</code>
+instead.
+
+        <p><var>includes</var> is decoded to determine the appropriate include
+directives.  If omitted or empty, <samp><span class="file">configure</span></samp> will check for both header
+existence (with the preprocessor) and usability (with the compiler),
+using <code>AC_INCLUDES_DEFAULT</code> for the compile test.  If
+there is a discrepancy between the results, a warning is issued to the
+user, and the compiler results are favored (see <a href="Present-But-Cannot-Be-Compiled.html#Present-But-Cannot-Be-Compiled">Present But Cannot Be Compiled</a>).  In general, favoring the compiler results means
+that a header will be treated as not found even though the file exists,
+because you did not provide enough prerequisites.
+
+        <p>Providing a non-empty <var>includes</var> argument allows the code to provide
+any prerequisites prior to including the header under test; it is common
+to use the argument <code>AC_INCLUDES_DEFAULT</code> (see <a href="Default-Includes.html#Default-Includes">Default Includes</a>).  With an explicit fourth argument, no preprocessor test is
+needed.  As a special case, an <var>includes</var> of exactly &lsquo;<samp><span class="samp">-</span></samp>&rsquo;
+triggers the older preprocessor check, which merely determines existence
+of the file in the preprocessor search path; this should only be used as
+a last resort (it is safer to determine the actual prerequisites and
+perform a compiler check, or else use <code>AC_PREPROC_IFELSE</code> to make
+it obvious that only a preprocessor check is desired).
+
+        <p>This macro caches its result in the <code>ac_cv_header_</code><var>header-file</var>
+variable, with characters not suitable for a variable name mapped to
+underscores. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fCHECK_005fHEADERS"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_HEADERS</b> (<var>header-file<small class="dots">...</small>, </var><span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>includes</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fHEADERS-668"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fHEADERS-669"></a>
+<a name="index-HAVE_005f_0040var_007bheader_007d-670"></a><a name="index-ac_005fcv_005fheader_005f_0040var_007bheader_002dfile_007d-671"></a>
+For each given system header file <var>header-file</var> in the
+blank-separated argument list that exists, define
+<code>HAVE_</code><var>header-file</var> (in all capitals).  If <var>action-if-found</var>
+is given, it is additional shell code to execute when one of the header
+files is found.  You can give it a value of &lsquo;<samp><span class="samp">break</span></samp>&rsquo; to break out of
+the loop on the first match.  If <var>action-if-not-found</var> is given, it
+is executed when one of the header files is not found.
+
+        <p><var>includes</var> is interpreted as in <code>AC_CHECK_HEADER</code>, in order to
+choose the set of preprocessor directives supplied before the header
+under test.
+
+        <p>This macro caches its result in the <code>ac_cv_header_</code><var>header-file</var>
+variable, with characters not suitable for a variable name mapped to
+underscores. 
+</p></blockquote></div>
+
+   <p>Previous versions of Autoconf merely checked whether the header was
+accepted by the preprocessor.  This was changed because the old test was
+inappropriate for typical uses.  Headers are typically used to compile,
+not merely to preprocess, and the old behavior sometimes accepted
+headers that clashed at compile-time (see <a href="Present-But-Cannot-Be-Compiled.html#Present-But-Cannot-Be-Compiled">Present But Cannot Be Compiled</a>).  If you need to check whether a header is preprocessable,
+you can use <code>AC_PREPROC_IFELSE</code> (see <a href="Running-the-Preprocessor.html#Running-the-Preprocessor">Running the Preprocessor</a>).
+
+   <p>Actually requiring a header to compile improves the robustness of the
+test, but it also requires
+that you make sure that headers that must be included before the
+<var>header-file</var> be part of the <var>includes</var>, (see <a href="Default-Includes.html#Default-Includes">Default Includes</a>).  If looking for <samp><span class="file">bar.h</span></samp>, which requires that
+<samp><span class="file">foo.h</span></samp> be included before if it exists, we suggest the following
+scheme:
+
+<pre class="verbatim">AC_CHECK_HEADERS([foo.h])
+AC_CHECK_HEADERS([bar.h], [], [],
+[#ifdef HAVE_FOO_H
+# include &lt;foo.h>
+#endif
+])
+</pre>
+
+   <p>The following variant generates smaller, faster <samp><span class="command">configure</span></samp>
+files if you do not need the full power of <code>AC_CHECK_HEADERS</code>.
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_HEADERS_ONCE</b> (<var>header-file<small class="dots">...</small></var>)<var><a name="index-AC_005fCHECK_005fHEADERS_005fONCE-672"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fHEADERS_005fONCE-673"></a>
+<a name="index-HAVE_005f_0040var_007bheader_007d-674"></a>For each given system header file <var>header-file</var> in the
+blank-separated argument list that exists, define
+<code>HAVE_</code><var>header-file</var> (in all capitals). 
+This is a once-only variant of <code>AC_CHECK_HEADERS</code>.  It generates the
+checking code at most once, so that <samp><span class="command">configure</span></samp> is smaller and
+faster; but the checks cannot be conditionalized and are always done once,
+early during the <samp><span class="command">configure</span></samp> run.  Thus, this macro is only safe
+for checking headers that do not have prerequisites beyond what
+<code>AC_INCLUDES_DEFAULT</code> provides. 
+</p></blockquote></div>
+
+   </body></html>
+

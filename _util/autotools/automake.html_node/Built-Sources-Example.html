@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Built Sources Example</title>
+
+<meta name="description" content="automake: Built Sources Example">
+<meta name="keywords" content="automake: Built Sources Example">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Sources.html#Sources" rel="up" title="Sources">
+<link href="Other-GNU-Tools.html#Other-GNU-Tools" rel="next" title="Other GNU Tools">
+<link href="Sources.html#Sources" rel="prev" title="Sources">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Built-Sources-Example"></a>
+<div class="header">
+<p>
+Up: <a href="Sources.html#Sources" accesskey="u" rel="up">Sources</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Built-Sources-Example-1"></a>
+<h4 class="subsection">9.4.1 Built Sources Example</h4>
+
+<p>Suppose that <samp>foo.c</samp> includes <samp>bindir.h</samp>, which is
+installation-dependent and not distributed: it needs to be built.  Here
+<samp>bindir.h</samp> defines the preprocessor macro <code>bindir</code> to the
+value of the <code>make</code> variable <code>bindir</code> (inherited from
+<samp>configure</samp>).
+</p>
+<p>We suggest several implementations below.  It&rsquo;s not meant to be an
+exhaustive listing of all ways to handle built sources, but it will give
+you a few ideas if you encounter this issue.
+</p>
+<a name="First-Try"></a>
+<h4 class="subsubheading">First Try</h4>
+
+<p>This first implementation will illustrate the bootstrap issue mentioned
+in the previous section (see <a href="Sources.html#Sources">Sources</a>).
+</p>
+<p>Here is a tentative <samp>Makefile.am</samp>.
+</p>
+<div class="example">
+<pre class="example"># This won't work.
+bin_PROGRAMS = foo
+foo_SOURCES = foo.c
+nodist_foo_SOURCES = bindir.h
+CLEANFILES = bindir.h
+bindir.h: Makefile
+        echo '#define bindir &quot;$(bindir)&quot;' &gt;$@
+</pre></div>
+
+<p>This setup doesn&rsquo;t work, because Automake doesn&rsquo;t know that <samp>foo.c</samp>
+includes <samp>bindir.h</samp>.  Remember, automatic dependency tracking works
+as a side-effect of compilation, so the dependencies of <samp>foo.o</samp> will
+be known only after <samp>foo.o</samp> has been compiled (see <a href="Dependencies.html#Dependencies">Dependencies</a>).
+The symptom is as follows.
+</p>
+<div class="example">
+<pre class="example">% make
+source='foo.c' object='foo.o' libtool=no \
+depfile='.deps/foo.Po' tmpdepfile='.deps/foo.TPo' \
+depmode=gcc /bin/sh ./depcomp \
+gcc -I. -I. -g -O2 -c `test -f 'foo.c' || echo './'`foo.c
+foo.c:2: bindir.h: No such file or directory
+make: *** [foo.o] Error 1
+</pre></div>
+
+<p>In this example <samp>bindir.h</samp> is not distributed nor installed, and
+it is not even being built on-time.  One may wonder if the
+&lsquo;<samp>nodist_foo_SOURCES = bindir.h</samp>&rsquo; line has any use at all.  This
+line simply states that <samp>bindir.h</samp> is a source of <code>foo</code>, so
+for instance, it should be inspected while generating tags
+(see <a href="Tags.html#Tags">Tags</a>).  In other words, it does not help our present problem,
+and the build would fail identically without it.
+</p>
+<a name="Using-BUILT_005fSOURCES"></a>
+<h4 class="subsubheading">Using <code>BUILT_SOURCES</code></h4>
+
+<p>A solution is to require <samp>bindir.h</samp> to be built before anything
+else.  This is what <code>BUILT_SOURCES</code> is meant for (see <a href="Sources.html#Sources">Sources</a>).
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = foo
+foo_SOURCES = foo.c
+nodist_foo_SOURCES = bindir.h
+BUILT_SOURCES = bindir.h
+CLEANFILES = bindir.h
+bindir.h: Makefile
+        echo '#define bindir &quot;$(bindir)&quot;' &gt;$@
+</pre></div>
+
+<p>See how <samp>bindir.h</samp> gets built first:
+</p>
+<div class="example">
+<pre class="example">% make
+echo '#define bindir &quot;/usr/local/bin&quot;' &gt;bindir.h
+make  all-am
+make[1]: Entering directory `/home/adl/tmp'
+source='foo.c' object='foo.o' libtool=no \
+depfile='.deps/foo.Po' tmpdepfile='.deps/foo.TPo' \
+depmode=gcc /bin/sh ./depcomp \
+gcc -I. -I. -g -O2 -c `test -f 'foo.c' || echo './'`foo.c
+gcc  -g -O2   -o foo  foo.o
+make[1]: Leaving directory `/home/adl/tmp'
+</pre></div>
+
+<p>However, as said earlier, <code>BUILT_SOURCES</code> applies only to the
+<code>all</code>, <code>check</code>, and <code>install</code> targets.  It still fails
+if you try to run &lsquo;<samp>make foo</samp>&rsquo; explicitly:
+</p>
+<div class="example">
+<pre class="example">% make clean
+test -z &quot;bindir.h&quot; || rm -f bindir.h
+test -z &quot;foo&quot; || rm -f foo
+rm -f *.o
+% : &gt; .deps/foo.Po # Suppress previously recorded dependencies
+% make foo
+source='foo.c' object='foo.o' libtool=no \
+depfile='.deps/foo.Po' tmpdepfile='.deps/foo.TPo' \
+depmode=gcc /bin/sh ./depcomp \
+gcc -I. -I. -g -O2 -c `test -f 'foo.c' || echo './'`foo.c
+foo.c:2: bindir.h: No such file or directory
+make: *** [foo.o] Error 1
+</pre></div>
+
+<a name="Recording-Dependencies-manually"></a>
+<h4 class="subsubheading">Recording Dependencies manually</h4>
+
+<p>Usually people are happy enough with <code>BUILT_SOURCES</code> because they
+never build targets such as &lsquo;<samp>make foo</samp>&rsquo; before &lsquo;<samp>make all</samp>&rsquo;, as
+in the previous example.  However if this matters to you, you can
+avoid <code>BUILT_SOURCES</code> and record such dependencies explicitly in
+the <samp>Makefile.am</samp>.
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = foo
+foo_SOURCES = foo.c
+nodist_foo_SOURCES = bindir.h
+foo.$(OBJEXT): bindir.h
+CLEANFILES = bindir.h
+bindir.h: Makefile
+        echo '#define bindir &quot;$(bindir)&quot;' &gt;$@
+</pre></div>
+
+<p>You don&rsquo;t have to list <em>all</em> the dependencies of <samp>foo.o</samp>
+explicitly, only those that might need to be built.  If a dependency
+already exists, it will not hinder the first compilation and will be
+recorded by the normal dependency tracking code.  (Note that after
+this first compilation the dependency tracking code will also have
+recorded the dependency between <samp>foo.o</samp> and
+<samp>bindir.h</samp>; so our explicit dependency is really useful to
+the first build only.)
+</p>
+<p>Adding explicit dependencies like this can be a bit dangerous if you are
+not careful enough.  This is due to the way Automake tries not to
+overwrite your rules (it assumes you know better than it).
+&lsquo;<samp>foo.$(OBJEXT): bindir.h</samp>&rsquo; supersedes any rule Automake may want to
+output to build &lsquo;<samp>foo.$(OBJEXT)</samp>&rsquo;.  It happens to work in this case
+because Automake doesn&rsquo;t have to output any &lsquo;<samp>foo.$(OBJEXT):</samp>&rsquo;
+target: it relies on a suffix rule instead (i.e., &lsquo;<samp>.c.$(OBJEXT):</samp>&rsquo;).
+Always check the generated <samp>Makefile.in</samp> if you do this.
+</p>
+<a name="Build-bindir_002eh-from-configure"></a>
+<h4 class="subsubheading">Build <samp>bindir.h</samp> from <samp>configure</samp></h4>
+
+<p>It&rsquo;s possible to define this preprocessor macro from <samp>configure</samp>,
+either in <samp>config.h</samp> (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Defining-Directories.html#Defining-Directories">Defining
+Directories</a> in <cite>The Autoconf Manual</cite>), or by processing a
+<samp>bindir.h.in</samp> file using <code>AC_CONFIG_FILES</code>
+(see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Configuration-Actions.html#Configuration-Actions">Configuration Actions</a> in <cite>The
+Autoconf Manual</cite>).
+</p>
+<p>At this point it should be clear that building <samp>bindir.h</samp> from
+<samp>configure</samp> works well for this example.  <samp>bindir.h</samp> will exist
+before you build any target, hence will not cause any dependency issue.
+</p>
+<p>The Makefile can be shrunk as follows.  We do not even have to mention
+<samp>bindir.h</samp>.
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = foo
+foo_SOURCES = foo.c
+</pre></div>
+
+<p>However, it&rsquo;s not always possible to build sources from
+<samp>configure</samp>, especially when these sources are generated by a tool
+that needs to be built first.
+</p>
+<a name="Build-bindir_002ec_002c-not-bindir_002eh_002e"></a>
+<h4 class="subsubheading">Build <samp>bindir.c</samp>, not <samp>bindir.h</samp>.</h4>
+
+<p>Another attractive idea is to define <code>bindir</code> as a variable or
+function exported from <samp>bindir.o</samp>, and build <samp>bindir.c</samp>
+instead of <samp>bindir.h</samp>.
+</p>
+<div class="example">
+<pre class="example">noinst_PROGRAMS = foo
+foo_SOURCES = foo.c bindir.h
+nodist_foo_SOURCES = bindir.c
+CLEANFILES = bindir.c
+bindir.c: Makefile
+        echo 'const char bindir[] = &quot;$(bindir)&quot;;' &gt;$@
+</pre></div>
+
+<p><samp>bindir.h</samp> contains just the variable&rsquo;s declaration and doesn&rsquo;t
+need to be built, so it won&rsquo;t cause any trouble.  <samp>bindir.o</samp> is
+always dependent on <samp>bindir.c</samp>, so <samp>bindir.c</samp> will get built
+first.
+</p>
+<a name="Which-is-best_003f"></a>
+<h4 class="subsubheading">Which is best?</h4>
+
+<p>There is no panacea, of course.  Each solution has its merits and
+drawbacks.
+</p>
+<p>You cannot use <code>BUILT_SOURCES</code> if the ability to run &lsquo;<samp>make
+foo</samp>&rsquo; on a clean tree is important to you.
+</p>
+<p>You won&rsquo;t add explicit dependencies if you are leery of overriding
+an Automake rule by mistake.
+</p>
+<p>Building files from <samp>./configure</samp> is not always possible, neither
+is converting <samp>.h</samp> files into <samp>.c</samp> files.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Up: <a href="Sources.html#Sources" accesskey="u" rel="up">Sources</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

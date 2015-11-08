@@ -1,0 +1,537 @@
+<html lang="en">
+<head>
+<title>Shell Substitutions - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="Shell-Pattern-Matching.html#Shell-Pattern-Matching" title="Shell Pattern Matching">
+<link rel="next" href="Assignments.html#Assignments" title="Assignments">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Shell-Substitutions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Assignments.html#Assignments">Assignments</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Shell-Pattern-Matching.html#Shell-Pattern-Matching">Shell Pattern Matching</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.8 Shell Substitutions</h3>
+
+<p><a name="index-Shell-substitutions-1705"></a>
+Contrary to a persistent urban legend, the Bourne shell does not
+systematically split variables and back-quoted expressions, in particular
+on the right-hand side of assignments and in the argument of <code>case</code>. 
+For instance, the following code:
+
+<pre class="example">     case "$given_srcdir" in
+     .)  top_srcdir="`echo "$dots" | sed 's|/$||'`" ;;
+     *)  top_srcdir="$dots$given_srcdir" ;;
+     esac
+</pre>
+   <p class="noindent">is more readable when written as:
+
+<pre class="example">     case $given_srcdir in
+     .)  top_srcdir=`echo "$dots" | sed 's|/$||'` ;;
+     *)  top_srcdir=$dots$given_srcdir ;;
+     esac
+</pre>
+   <p class="noindent">and in fact it is even <em>more</em> portable: in the first case of the
+first attempt, the computation of <code>top_srcdir</code> is not portable,
+since not all shells properly understand <code>"`..."..."...`"</code>,
+for example Solaris 10 ksh:
+
+<pre class="example">     $ <kbd>foo="`echo " bar" | sed 's, ,,'`"</kbd>
+     ksh: : cannot execute
+     ksh: bar | sed 's, ,,': cannot execute
+</pre>
+   <p class="noindent">Posix does not specify behavior for this sequence.  On the other hand,
+behavior for <code>"`...\"...\"...`"</code> is specified by Posix,
+but in practice, not all shells understand it the same way: pdksh 5.2.14
+prints spurious quotes when in Posix mode:
+
+<pre class="example">     $ <kbd>echo "`echo \"hello\"`"</kbd>
+     hello
+     $ <kbd>set -o posix</kbd>
+     $ <kbd>echo "`echo \"hello\"`"</kbd>
+     "hello"
+</pre>
+   <p class="noindent">There is just no portable way to use double-quoted strings inside
+double-quoted back-quoted expressions (pfew!).
+
+   <p>Bash 4.1 has a bug where quoted empty strings adjacent to unquoted
+parameter expansions are elided during word splitting.  Meanwhile, zsh
+does not perform word splitting except when in Bourne compatibility
+mode.  In the example below, the correct behavior is to have five
+arguments to the function, and exactly two spaces on either side of the
+middle &lsquo;<samp><span class="samp">-</span></samp>&rsquo;, since word splitting collapses multiple spaces in
+&lsquo;<samp><span class="samp">$f</span></samp>&rsquo; but leaves empty arguments intact.
+
+<pre class="example">     $ <kbd>bash -c 'n() { echo "$#$@"; }; f="  -  "; n - ""$f"" -'</kbd>
+     3- - -
+     $ <kbd>ksh -c 'n() { echo "$#$@"; }; f="  -  "; n - ""$f"" -'</kbd>
+     5-  -  -
+     $ <kbd>zsh -c 'n() { echo "$#$@"; }; f="  -  "; n - ""$f"" -'</kbd>
+     3-   -   -
+     $ <kbd>zsh -c 'emulate sh;</kbd>
+     &gt; <kbd>n() { echo "$#$@"; }; f="  -  "; n - ""$f"" -'</kbd>
+     5-  -  -
+</pre>
+   <p class="noindent">You can work around this by doing manual word splitting, such as using
+&lsquo;<samp><span class="samp">"$str" $list</span></samp>&rsquo; rather than &lsquo;<samp><span class="samp">"$str"$list</span></samp>&rsquo;.
+
+   <p>There are also portability pitfalls with particular expansions:
+
+     <dl>
+<dt><code>$@</code><dd><a name="index-g_t_0040code_007b_0022_0024_0040_0040_0022_007d-1706"></a>One of the most famous shell-portability issues is related to
+&lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo;.  When there are no positional arguments, Posix says
+that &lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo; is supposed to be equivalent to nothing, but the
+original Unix version 7 Bourne shell treated it as equivalent to
+&lsquo;<samp><span class="samp">""</span></samp>&rsquo; instead, and this behavior survives in later implementations
+like Digital Unix 5.0.
+
+     <p>The traditional way to work around this portability problem is to use
+&lsquo;<samp><span class="samp">${1+"$@"}</span></samp>&rsquo;.  Unfortunately this method does not work with
+Zsh (3.x and 4.x), which is used on Mac OS X.  When emulating
+the Bourne shell, Zsh performs word splitting on &lsquo;<samp><span class="samp">${1+"$@"}</span></samp>&rsquo;:
+
+     <pre class="example">          zsh $ <kbd>emulate sh</kbd>
+          zsh $ <kbd>for i in "$@"; do echo $i; done</kbd>
+          Hello World
+          !
+          zsh $ <kbd>for i in ${1+"$@"}; do echo $i; done</kbd>
+          Hello
+          World
+          !
+</pre>
+     <p class="noindent">Zsh handles plain &lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo; properly, but we can't use plain
+&lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo; because of the portability problems mentioned above. 
+One workaround relies on Zsh's &ldquo;global aliases&rdquo; to convert
+&lsquo;<samp><span class="samp">${1+"$@"}</span></samp>&rsquo; into &lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo; by itself:
+
+     <pre class="example">          test "${ZSH_VERSION+set}" = set &amp;&amp; alias -g '${1+"$@"}'='"$@"'
+</pre>
+     <p>Zsh only recognizes this alias when a shell word matches it exactly;
+&lsquo;<samp><span class="samp">"foo"${1+"$@"}</span></samp>&rsquo; remains subject to word splitting.  Since this
+case always yields at least one shell word, use plain &lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo;.
+
+     <p>A more conservative workaround is to avoid &lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo; if it is
+possible that there may be no positional arguments.  For example,
+instead of:
+
+     <pre class="example">          cat conftest.c "$@"
+</pre>
+     <p>you can use this instead:
+
+     <pre class="example">          case $# in
+          0) cat conftest.c;;
+          *) cat conftest.c "$@";;
+          esac
+</pre>
+     <p>Autoconf macros often use the <samp><span class="command">set</span></samp> command to update
+&lsquo;<samp><span class="samp">$@</span></samp>&rsquo;, so if you are writing shell code intended for
+<samp><span class="command">configure</span></samp> you should not assume that the value of &lsquo;<samp><span class="samp">$@</span></samp>&rsquo;
+persists for any length of time.
+
+     <br><dt><code>${10}</code><dd><a name="index-positional-parameters-1707"></a>The 10th, 11th, <small class="dots">...</small> positional parameters can be accessed only after
+a <code>shift</code>.  The 7th Edition shell reported an error if given
+<code>${10}</code>, and
+Solaris 10 <samp><span class="command">/bin/sh</span></samp> still acts that way:
+
+     <pre class="example">          $ <kbd>set 1 2 3 4 5 6 7 8 9 10</kbd>
+          $ <kbd>echo ${10}</kbd>
+          bad substitution
+</pre>
+     <p>Conversely, not all shells obey the Posix rule that when braces are
+omitted, multiple digits beyond a &lsquo;<samp><span class="samp">$</span></samp>&rsquo; imply the single-digit
+positional parameter expansion concatenated with the remaining literal
+digits.  To work around the issue, you must use braces.
+
+     <pre class="example">          $ <kbd>bash -c 'set a b c d e f g h i j; echo $10 ${1}0'</kbd>
+          a0 a0
+          $ <kbd>dash -c 'set a b c d e f g h i j; echo $10 ${1}0'</kbd>
+          j a0
+</pre>
+     <br><dt><code>${</code><var>var</var><code>:-</code><var>value</var><code>}</code><dd><!-- Info cannot handle `:' in index entries. -->
+<a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_003a_002d_0040var_007bvalue_007d_0040_007d_007d-1708"></a><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_002d_0040var_007bvalue_007d_0040_007d_007d-1709"></a>Old BSD shells, including the Ultrix <code>sh</code>, don't accept the
+colon for any shell substitution, and complain and die. 
+Similarly for ${<var>var</var>:=<var>value</var>}, ${<var>var</var>:?<var>value</var>}, etc. 
+However, all shells that support functions allow the use of colon in
+shell substitution, and since m4sh requires functions, you can portably
+use null variable substitution patterns in configure scripts.
+
+     <br><dt><code>${</code><var>var</var><code>+</code><var>value</var><code>}</code><dd><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_002b_0040var_007bvalue_007d_0040_007d_007d-1710"></a>When using &lsquo;<samp><span class="samp">${</span><var>var</var><span class="samp">-</span><var>value</var><span class="samp">}</span></samp>&rsquo; or
+&lsquo;<samp><span class="samp">${</span><var>var</var><span class="samp">-</span><var>value</var><span class="samp">}</span></samp>&rsquo; for providing alternate substitutions,
+<var>value</var> must either be a single shell word, quoted, or in the
+context of an unquoted here-document.  Solaris
+<samp><span class="command">/bin/sh</span></samp> complains otherwise.
+
+     <pre class="example">          $ <kbd>/bin/sh -c 'echo ${a-b c}'</kbd>
+          /bin/sh: bad substitution
+          $ <kbd>/bin/sh -c 'echo ${a-'\''b c'\''}'</kbd>
+          b c
+          $ <kbd>/bin/sh -c 'echo "${a-b c}"'</kbd>
+          b c
+          $ <kbd>/bin/sh -c 'cat &lt;&lt;EOF
+          ${a-b c}
+          EOF</kbd>
+          b c
+</pre>
+     <p>According to Posix, if an expansion occurs inside double quotes, then
+the use of unquoted double quotes within <var>value</var> is unspecified, and
+any single quotes become literal characters; in that case, escaping must
+be done with backslash.  Likewise, the use of unquoted here-documents is
+a case where double quotes have unspecified results:
+
+     <pre class="example">          $ <kbd>/bin/sh -c 'echo "${a-"b  c"}"'</kbd>
+          /bin/sh: bad substitution
+          $ <kbd>ksh -c 'echo "${a-"b  c"}"'</kbd>
+          b c
+          $ <kbd>bash -c 'echo "${a-"b  c"}"'</kbd>
+          b  c
+          $ <kbd>/bin/sh -c 'a=; echo ${a+'\''b  c'\''}'</kbd>
+          b  c
+          $ <kbd>/bin/sh -c 'a=; echo "${a+'\''b  c'\''}"'</kbd>
+          'b  c'
+          $ <kbd>/bin/sh -c 'a=; echo "${a+\"b  c\"}"'</kbd>
+          "b  c"
+          $ <kbd>/bin/sh -c 'a=; echo "${a+b  c}"'</kbd>
+          b  c
+          $ <kbd>/bin/sh -c 'cat &lt;&lt;EOF
+          ${a-"b  c"}
+          EOF'</kbd>
+          "b  c"
+          $ <kbd>/bin/sh -c 'cat &lt;&lt;EOF
+          ${a-'b  c'}
+          EOF'</kbd>
+          'b  c'
+          $ <kbd>bash -c 'cat &lt;&lt;EOF
+          ${a-"b  c"}
+          EOF'</kbd>
+          b  c
+          $ <kbd>bash -c 'cat &lt;&lt;EOF
+          ${a-'b  c'}
+          EOF'</kbd>
+          'b  c'
+</pre>
+     <p>Perhaps the easiest way to work around quoting issues in a manner
+portable to all shells is to place the results in a temporary variable,
+then use &lsquo;<samp><span class="samp">$t</span></samp>&rsquo; as the <var>value</var>, rather than trying to inline
+the expression needing quoting.
+
+     <pre class="example">          $ <kbd>/bin/sh -c 't="b  c\"'\''}\\"; echo "${a-$t}"'</kbd>
+          b  c"'}\
+          $ <kbd>ksh -c 't="b  c\"'\''}\\"; echo "${a-$t}"'</kbd>
+          b  c"'}\
+          $ <kbd>bash -c 't="b  c\"'\''}\\"; echo "${a-$t}"'</kbd>
+          b  c"'}\
+</pre>
+     <br><dt><code>${</code><var>var</var><code>=</code><var>value</var><code>}</code><dd><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_003d_0040var_007bvalue_007d_0040_007d_007d-1711"></a>When using &lsquo;<samp><span class="samp">${</span><var>var</var><span class="samp">=</span><var>value</var><span class="samp">}</span></samp>&rsquo; to assign a default value
+to <var>var</var>, remember that even though the assignment to <var>var</var> does
+not undergo file name expansion, the result of the variable expansion
+does unless the expansion occurred within double quotes.  In particular,
+when using <samp><span class="command">:</span></samp> followed by unquoted variable expansion for the
+side effect of setting a default value, if the final value of
+&lsquo;<samp><span class="samp">$var</span></samp>&rsquo; contains any globbing characters (either from <var>value</var> or
+from prior contents), the shell has to spend time performing file name
+expansion and field splitting even though those results will not be
+used.  Therefore, it is a good idea to consider double quotes when performing
+default initialization; while remembering how this impacts any quoting
+characters appearing in <var>value</var>.
+
+     <pre class="example">          $ <kbd>time bash -c ': "${a=/usr/bin/*}"; echo "$a"'</kbd>
+          /usr/bin/*
+          
+          real	0m0.005s
+          user	0m0.002s
+          sys	0m0.003s
+          $ <kbd>time bash -c ': ${a=/usr/bin/*}; echo "$a"'</kbd>
+          /usr/bin/*
+          
+          real	0m0.039s
+          user	0m0.026s
+          sys	0m0.009s
+          $ <kbd>time bash -c 'a=/usr/bin/*; : ${a=noglob}; echo "$a"'</kbd>
+          /usr/bin/*
+          
+          real	0m0.031s
+          user	0m0.020s
+          sys	0m0.010s
+          
+          $ <kbd>time bash -c 'a=/usr/bin/*; : "${a=noglob}"; echo "$a"'</kbd>
+          /usr/bin/*
+          
+          real	0m0.006s
+          user	0m0.002s
+          sys	0m0.003s
+</pre>
+     <p>As with &lsquo;<samp><span class="samp">+</span></samp>&rsquo; and &lsquo;<samp><span class="samp">-</span></samp>&rsquo;, you must use quotes when using &lsquo;<samp><span class="samp">=</span></samp>&rsquo;
+if the <var>value</var> contains more than one shell word; either single
+quotes for just the <var>value</var>, or double quotes around the entire
+expansion:
+
+     <pre class="example">          $ <kbd>: ${var1='Some words'}</kbd>
+          $ <kbd>: "${var2=like this}"</kbd>
+          $ <kbd>echo $var1 $var2</kbd>
+          Some words like this
+</pre>
+     <p class="noindent">otherwise some shells, such as Solaris <samp><span class="command">/bin/sh</span></samp> or on Digital
+Unix V 5.0, die because of a &ldquo;bad substitution&rdquo;.  Meanwhile, Posix
+requires that with &lsquo;<samp><span class="samp">=</span></samp>&rsquo;, quote removal happens prior to the
+assignment, and the expansion be the final contents of <var>var</var> without
+quoting (and thus subject to field splitting), in contrast to the
+behavior with &lsquo;<samp><span class="samp">-</span></samp>&rsquo; passing the quoting through to the final
+expansion.  However, <samp><span class="command">bash</span></samp> 4.1 does not obey this rule.
+
+     <pre class="example">          $ <kbd>ksh -c 'echo ${var-a\ \ b}'</kbd>
+          a  b
+          $ <kbd>ksh -c 'echo ${var=a\ \ b}'</kbd>
+          a b
+          $ <kbd>bash -c 'echo ${var=a\ \ b}'</kbd>
+          a  b
+</pre>
+     <p>Finally, Posix states that when mixing &lsquo;<samp><span class="samp">${a=b}</span></samp>&rsquo; with regular
+commands, it is unspecified whether the assignments affect the parent
+shell environment.  It is best to perform assignments independently from
+commands, to avoid the problems demonstrated in this example:
+
+     <pre class="example">          $ <kbd>bash -c 'x= y=${x:=b} sh -c "echo +\$x+\$y+";echo -$x-'</kbd>
+          +b+b+
+          -b-
+          $ <kbd>/bin/sh -c 'x= y=${x:=b} sh -c "echo +\$x+\$y+";echo -$x-'</kbd>
+          ++b+
+          --
+          $ <kbd>ksh -c 'x= y=${x:=b} sh -c "echo +\$x+\$y+";echo -$x-'</kbd>
+          +b+b+
+          --
+</pre>
+     <br><dt><code>${</code><var>var</var><code>=</code><var>value</var><code>}</code><dd><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_003d_0040var_007bliteral_007d_0040_007d_007d-1712"></a>Solaris <samp><span class="command">/bin/sh</span></samp> has a frightening bug in its handling of
+literal assignments.  Imagine you need set a variable to a string containing
+&lsquo;<samp><span class="samp">}</span></samp>&rsquo;.  This &lsquo;<samp><span class="samp">}</span></samp>&rsquo; character confuses Solaris <samp><span class="command">/bin/sh</span></samp>
+when the affected variable was already set.  This bug can be exercised
+by running:
+
+     <pre class="example">          $ <kbd>unset foo</kbd>
+          $ <kbd>foo=${foo='}'}</kbd>
+          $ <kbd>echo $foo</kbd>
+          }
+          $ <kbd>foo=${foo='}'   # no error; this hints to what the bug is</kbd>
+          $ <kbd>echo $foo</kbd>
+          }
+          $ <kbd>foo=${foo='}'}</kbd>
+          $ <kbd>echo $foo</kbd>
+          }}
+           ^ ugh!
+</pre>
+     <p>It seems that &lsquo;<samp><span class="samp">}</span></samp>&rsquo; is interpreted as matching &lsquo;<samp><span class="samp">${</span></samp>&rsquo;, even
+though it is enclosed in single quotes.  The problem doesn't happen
+using double quotes, or when using a temporary variable holding the
+problematic string.
+
+     <br><dt><code>${</code><var>var</var><code>=</code><var>expanded-value</var><code>}</code><dd><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_003d_0040var_007bexpanded_002dvalue_007d_0040_007d_007d-1713"></a>On Ultrix,
+running
+
+     <pre class="example">          default="yu,yaa"
+          : ${var="$default"}
+</pre>
+     <p class="noindent">sets <var>var</var> to &lsquo;<samp><span class="samp">M-yM-uM-,M-yM-aM-a</span></samp>&rsquo;, i.e., the 8th bit of
+each char is set.  You don't observe the phenomenon using a simple
+&lsquo;<samp><span class="samp">echo $var</span></samp>&rsquo; since apparently the shell resets the 8th bit when it
+expands $var.  Here are two means to make this shell confess its sins:
+
+     <pre class="example">          $ <kbd>cat -v &lt;&lt;EOF
+          $var
+          EOF</kbd>
+</pre>
+     <p class="noindent">and
+
+     <pre class="example">          $ <kbd>set | grep '^var=' | cat -v</kbd>
+</pre>
+     <p>One classic incarnation of this bug is:
+
+     <pre class="example">          default="a b c"
+          : ${list="$default"}
+          for c in $list; do
+            echo $c
+          done
+</pre>
+     <p class="noindent">You'll get &lsquo;<samp><span class="samp">a b c</span></samp>&rsquo; on a single line.  Why?  Because there are no
+spaces in &lsquo;<samp><span class="samp">$list</span></samp>&rsquo;: there are &lsquo;<samp><span class="samp">M- </span></samp>&rsquo;, i.e., spaces with the 8th
+bit set, hence no IFS splitting is performed!!!
+
+     <p>One piece of good news is that Ultrix works fine with &lsquo;<samp><span class="samp">:
+${list=$default}</span></samp>&rsquo;; i.e., if you <em>don't</em> quote.  The bad news is
+then that QNX 4.25 then sets <var>list</var> to the <em>last</em> item of
+<var>default</var>!
+
+     <p>The portable way out consists in using a double assignment, to switch
+the 8th bit twice on Ultrix:
+
+     <pre class="example">          list=${list="$default"}
+</pre>
+     <p class="noindent"><small class="dots">...</small>but beware of the &lsquo;<samp><span class="samp">}</span></samp>&rsquo; bug from Solaris (see above).  For safety,
+use:
+
+     <pre class="example">          test "${var+set}" = set || var=<var>{value}</var>
+</pre>
+     <br><dt><code>${#</code><var>var</var><code>}</code><dt><code>${</code><var>var</var><code>%</code><var>word</var><code>}</code><dt><code>${</code><var>var</var><code>%%</code><var>word</var><code>}</code><dt><code>${</code><var>var</var><code>#</code><var>word</var><code>}</code><dt><code>${</code><var>var</var><code>##</code><var>word</var><code>}</code><dd><a name="index-g_t_0040code_007b_0024_0040_007b_0023_0040var_007bvar_007d_0040_007d_007d-1714"></a><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_0025_0040var_007bword_007d_0040_007d_007d-1715"></a><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_0025_0025_0040var_007bword_007d_0040_007d_007d-1716"></a><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_0023_0040var_007bword_007d_0040_007d_007d-1717"></a><a name="index-g_t_0040code_007b_0024_0040_007b_0040var_007bvar_007d_0023_0023_0040var_007bword_007d_0040_007d_007d-1718"></a>Posix requires support for these usages, but they do not work with many
+traditional shells, e.g., Solaris 10 <samp><span class="command">/bin/sh</span></samp>.
+
+     <p>Also, <samp><span class="command">pdksh</span></samp> 5.2.14 mishandles some <var>word</var> forms.  For
+example if &lsquo;<samp><span class="samp">$1</span></samp>&rsquo; is &lsquo;<samp><span class="samp">a/b</span></samp>&rsquo; and &lsquo;<samp><span class="samp">$2</span></samp>&rsquo; is &lsquo;<samp><span class="samp">a</span></samp>&rsquo;, then
+&lsquo;<samp><span class="samp">${1#$2}</span></samp>&rsquo; should yield &lsquo;<samp><span class="samp">/b</span></samp>&rsquo;, but with <samp><span class="command">pdksh</span></samp> it
+yields the empty string.
+
+     <br><dt><code>`</code><var>commands</var><code>`</code><dd><a name="index-g_t_0040code_007b_0060_0040var_007bcommands_007d_0060_007d-1719"></a><a name="index-Command-Substitution-1720"></a>Posix requires shells to trim all trailing newlines from command
+output before substituting it, so assignments like
+&lsquo;<samp><span class="samp">dir=`echo "$file" | tr a A`</span></samp>&rsquo; do not work as expected if
+&lsquo;<samp><span class="samp">$file</span></samp>&rsquo; ends in a newline.
+
+     <p>While in general it makes no sense, do not substitute a single builtin
+with side effects, because Ash 0.2, trying to optimize, does not fork a
+subshell to perform the command.
+
+     <p>For instance, if you wanted to check that <samp><span class="command">cd</span></samp> is silent, do not
+use &lsquo;<samp><span class="samp">test -z "`cd /`"</span></samp>&rsquo; because the following can happen:
+
+     <pre class="example">          $ <kbd>pwd</kbd>
+          /tmp
+          $ <kbd>test -z "`cd /`" &amp;&amp; pwd</kbd>
+          /
+</pre>
+     <p class="noindent">The result of &lsquo;<samp><span class="samp">foo=`exit 1`</span></samp>&rsquo; is left as an exercise to the reader.
+
+     <p>The MSYS shell leaves a stray byte in the expansion of a double-quoted
+command substitution of a native program, if the end of the substitution
+is not aligned with the end of the double quote.  This may be worked
+around by inserting another pair of quotes:
+
+     <pre class="example">          $ <kbd>echo "`printf 'foo\r\n'` bar" &gt; broken</kbd>
+          $ <kbd>echo "`printf 'foo\r\n'`"" bar" | cmp - broken</kbd>
+          - broken differ: char 4, line 1
+</pre>
+     <p>Upon interrupt or SIGTERM, some shells may abort a command substitution,
+replace it with a null string, and wrongly evaluate the enclosing
+command before entering the trap or ending the script.  This can lead to
+spurious errors:
+
+     <pre class="example">          $ <kbd>sh -c 'if test `sleep 5; echo hi` = hi; then echo yes; fi'</kbd>
+          $ <kbd>^C</kbd>
+          sh: test: hi: unexpected operator/operand
+</pre>
+     <p class="noindent">You can avoid this by assigning the command substitution to a temporary
+variable:
+
+     <pre class="example">          $ <kbd>sh -c 'res=`sleep 5; echo hi`
+                   if test "x$res" = xhi; then echo yes; fi'</kbd>
+          $ <kbd>^C</kbd>
+</pre>
+     <br><dt><code>$(</code><var>commands</var><code>)</code><dd><a name="index-g_t_0040code_007b_0024_0028_0040var_007bcommands_007d_0029_007d-1721"></a>This construct is meant to replace &lsquo;<samp><span class="samp">`</span><var>commands</var><span class="samp">`</span></samp>&rsquo;,
+and it has most of the problems listed under <code>`</code><var>commands</var><code>`</code>.
+
+     <p>This construct can be
+nested while this is impossible to do portably with back quotes. 
+Unfortunately it is not yet universally supported.  Most notably, even recent
+releases of Solaris don't support it:
+
+     <pre class="example">          $ <kbd>showrev -c /bin/sh | grep version</kbd>
+          Command version: SunOS 5.10 Generic 121005-03 Oct 2006
+          $ <kbd>echo $(echo blah)</kbd>
+          syntax error: `(' unexpected
+</pre>
+     <p class="noindent">nor does IRIX 6.5's Bourne shell:
+     <pre class="example">          $ <kbd>uname -a</kbd>
+          IRIX firebird-image 6.5 07151432 IP22
+          $ <kbd>echo $(echo blah)</kbd>
+          $(echo blah)
+</pre>
+     <p>If you do use &lsquo;<samp><span class="samp">$(</span><var>commands</var><span class="samp">)</span></samp>&rsquo;, make sure that the commands
+do not start with a parenthesis, as that would cause confusion with
+a different notation &lsquo;<samp><span class="samp">$((</span><var>expression</var><span class="samp">))</span></samp>&rsquo; that in modern
+shells is an arithmetic expression not a command.  To avoid the
+confusion, insert a space between the two opening parentheses.
+
+     <p>Avoid <var>commands</var> that contain unbalanced parentheses in
+here-documents, comments, or case statement patterns, as many shells
+mishandle them.  For example, Bash 3.1, &lsquo;<samp><span class="samp">ksh88</span></samp>&rsquo;, <samp><span class="command">pdksh</span></samp>
+5.2.14, and Zsh 4.2.6 all mishandle the following valid command:
+
+     <pre class="example">          echo $(case x in x) echo hello;; esac)
+</pre>
+     <br><dt><code>$((</code><var>expression</var><code>))</code><dd><a name="index-g_t_0040code_007b_0024_0028_0028_0040var_007bexpression_007d_0029_0029_007d-1722"></a>Arithmetic expansion is not portable as some shells (most
+notably Solaris 10 <samp><span class="command">/bin/sh</span></samp>) don't support it.
+
+     <p>Among shells that do support &lsquo;<samp><span class="samp">$(( ))</span></samp>&rsquo;, not all of them obey the
+Posix rule that octal and hexadecimal constants must be recognized:
+
+     <pre class="example">          $ <kbd>bash -c 'echo $(( 010 + 0x10 ))'</kbd>
+          24
+          $ <kbd>zsh -c 'echo $(( 010 + 0x10 ))'</kbd>
+          26
+          $ <kbd>zsh -c 'emulate sh; echo $(( 010 + 0x10 ))'</kbd>
+          24
+          $ <kbd>pdksh -c 'echo $(( 010 + 0x10 ))'</kbd>
+          pdksh:  010 + 0x10 : bad number `0x10'
+          $ <kbd>pdksh -c 'echo $(( 010 ))'</kbd>
+          10
+</pre>
+     <p>When it is available, using arithmetic expansion provides a noticeable
+speedup in script execution; but testing for support requires
+<samp><span class="command">eval</span></samp> to avoid syntax errors.  The following construct is used
+by <code>AS_VAR_ARITH</code> to provide arithmetic computation when all
+arguments are provided in decimal and without a leading zero, and all
+operators are properly quoted and appear as distinct arguments:
+
+     <pre class="example">          if ( eval 'test $(( 1 + 1 )) = 2' ) 2&gt;/dev/null; then
+            eval 'func_arith ()
+            {
+              func_arith_result=$(( $* ))
+            }'
+          else
+            func_arith ()
+            {
+              func_arith_result=`expr "$@"`
+            }
+          fi
+          func_arith 1 + 1
+          foo=$func_arith_result
+</pre>
+     <br><dt><code>^</code><dd><a name="index-g_t_0040code_007b_005e_007d-quoting-1723"></a>Always quote &lsquo;<samp><span class="samp">^</span></samp>&rsquo;, otherwise traditional shells such as
+<samp><span class="command">/bin/sh</span></samp> on Solaris 10 treat this like &lsquo;<samp><span class="samp">|</span></samp>&rsquo;.
+
+   </dl>
+
+   </body></html>
+

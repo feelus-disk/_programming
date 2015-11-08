@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: General Operation</title>
+
+<meta name="description" content="automake: General Operation">
+<meta name="keywords" content="automake: General Operation">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Generalities.html#Generalities" rel="up" title="Generalities">
+<link href="Strictness.html#Strictness" rel="next" title="Strictness">
+<link href="Generalities.html#Generalities" rel="prev" title="Generalities">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="General-Operation"></a>
+<div class="header">
+<p>
+Next: <a href="Strictness.html#Strictness" accesskey="n" rel="next">Strictness</a>, Up: <a href="Generalities.html#Generalities" accesskey="u" rel="up">Generalities</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="General-Operation-1"></a>
+<h3 class="section">3.1 General Operation</h3>
+
+<p>Automake works by reading a <samp>Makefile.am</samp> and generating a
+<samp>Makefile.in</samp>.  Certain variables and rules defined in the
+<samp>Makefile.am</samp> instruct Automake to generate more specialized code;
+for instance, a <code>bin_PROGRAMS</code> variable definition will cause rules
+for compiling and linking programs to be generated.
+</p>
+<a name="index-Non_002dstandard-targets"></a>
+<a name="index-git_002ddist_002c-non_002dstandard-example"></a>
+<a name="index-git_002ddist"></a>
+
+<p>The variable definitions and rules in the <samp>Makefile.am</samp> are
+copied mostly verbatim into the generated file, with all variable
+definitions preceding all rules.  This allows you to add almost
+arbitrary code into the generated <samp>Makefile.in</samp>.  For instance,
+the Automake distribution includes a non-standard rule for the
+<code>git-dist</code> target, which the Automake maintainer uses to make
+distributions from the source control system.
+</p>
+<a name="index-GNU-make-extensions"></a>
+
+<p>Note that most GNU make extensions are not recognized by Automake.  Using
+such extensions in a <samp>Makefile.am</samp> will lead to errors or confusing
+behavior.
+</p>
+<a name="index-Append-operator"></a>
+<a name="index-_002b_003d"></a>
+<p>A special exception is that the GNU make append operator, &lsquo;<samp>+=</samp>&rsquo;, is
+supported.  This operator appends its right hand argument to the variable
+specified on the left.  Automake will translate the operator into
+an ordinary &lsquo;<samp>=</samp>&rsquo; operator; &lsquo;<samp>+=</samp>&rsquo; will thus work with any make program.
+</p>
+<p>Automake tries to keep comments grouped with any adjoining rules or
+variable definitions.
+</p>
+<a name="index-Limitations-of-automake-parser"></a>
+<a name="index-Automake-parser_002c-limitations-of"></a>
+<a name="index-indentation-in-Makefile_002eam"></a>
+<p>Generally, Automake is not particularly smart in the parsing of unusual
+Makefile constructs, so you&rsquo;re advised to avoid fancy constructs or
+&ldquo;creative&rdquo; use of whitespace.
+For example, <tt class="key">TAB</tt> characters cannot be used between a target name
+and the following &ldquo;<code>:</code>&rdquo; character, and variable assignments
+shouldn&rsquo;t be indented with <tt class="key">TAB</tt> characters.
+Also, using more complex macro in target names can cause trouble:
+</p>
+<div class="example">
+<pre class="example">% <kbd>cat Makefile.am</kbd>
+$(FOO:=x): bar
+% <kbd>automake</kbd>
+Makefile.am:1: bad characters in variable name '$(FOO'
+Makefile.am:1: ':='-style assignments are not portable
+</pre></div>
+
+<a name="index-Make-targets_002c-overriding"></a>
+<a name="index-Make-rules_002c-overriding"></a>
+<a name="index-Overriding-make-rules"></a>
+<a name="index-Overriding-make-targets"></a>
+
+<p>A rule defined in <samp>Makefile.am</samp> generally overrides any such
+rule of a similar name that would be automatically generated by
+<code>automake</code>.  Although this is a supported feature, it is generally
+best to avoid making use of it, as sometimes the generated rules are
+very particular.
+</p>
+<a name="index-Variables_002c-overriding"></a>
+<a name="index-Overriding-make-variables"></a>
+
+<p>Similarly, a variable defined in <samp>Makefile.am</samp> or
+<code>AC_SUBST</code>ed from <samp>configure.ac</samp> will override any
+definition of the variable that <code>automake</code> would ordinarily
+create.  This feature is more often useful than the ability to
+override a rule.  Be warned that many of the variables generated by
+<code>automake</code> are considered to be for internal use only, and their
+names might change in future releases.
+</p>
+<a name="index-Recursive-operation-of-Automake"></a>
+<a name="index-Automake_002c-recursive-operation"></a>
+<a name="index-Example-of-recursive-operation"></a>
+
+<p>When examining a variable definition, Automake will recursively examine
+variables referenced in the definition.  For example, if Automake is
+looking at the content of <code>foo_SOURCES</code> in this snippet
+</p>
+<div class="example">
+<pre class="example">xs = a.c b.c
+foo_SOURCES = c.c $(xs)
+</pre></div>
+
+<p>it would use the files <samp>a.c</samp>, <samp>b.c</samp>, and <samp>c.c</samp> as the
+contents of <code>foo_SOURCES</code>.
+</p>
+<a name="index-_0023_0023-_0028special-Automake-comment_0029"></a>
+<a name="index-Special-Automake-comment"></a>
+<a name="index-Comment_002c-special-to-Automake"></a>
+
+<p>Automake also allows a form of comment that is <em>not</em> copied into
+the output; all lines beginning with &lsquo;<samp>##</samp>&rsquo; (leading spaces allowed)
+are completely ignored by Automake.
+</p>
+<p>It is customary to make the first line of <samp>Makefile.am</samp> read:
+</p>
+<a name="index-Makefile_002eam_002c-first-line"></a>
+<a name="index-First-line-of-Makefile_002eam"></a>
+
+<div class="example">
+<pre class="example">## Process this file with automake to produce Makefile.in
+</pre></div>
+
+
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Strictness.html#Strictness" accesskey="n" rel="next">Strictness</a>, Up: <a href="Generalities.html#Generalities" accesskey="u" rel="up">Generalities</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

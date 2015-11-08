@@ -1,0 +1,2551 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   
+      <title>Chapter&nbsp;5.&nbsp;Loading, Linking, and Initializing</title>
+      <link rel="stylesheet" type="text/css" href="../../../javaspec.css">
+      <meta name="generator" content="DocBook XSL-NS Stylesheets V1.76.1">
+      <link rel="home" href="index.html" title="The Java&reg; Virtual Machine Specification">
+      <link rel="up" href="index.html" title="The Java&reg; Virtual Machine Specification">
+      <link rel="prev" href="jvms-4.html" title="Chapter&nbsp;4.&nbsp;The class File Format">
+      <link rel="next" href="jvms-6.html" title="Chapter&nbsp;6.&nbsp;The Java Virtual Machine Instruction Set">
+      <link rel="copyright" href="jvms-0-front.html" title="Legal Notice">
+   </head>
+   <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+      <div xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:rx="http://www.renderx.com/XSL/Extensions" id="logo"><img src="../../../../webdesign/other/im/oralogo_small.gif" alt="Oracle Logo"><br><p><a href="http://docs.oracle.com/javase/8/docs/">Java SE</a> &gt; <a href="http://docs.oracle.com/javase/specs/index.html">Java SE Specifications</a> &gt; <a href="index.html">Java Virtual Machine Specification</a></p>
+      </div>
+      <div class="navheader">
+         <table width="100%" summary="Navigation header">
+            <tr>
+               <th colspan="3" align="center">Chapter&nbsp;5.&nbsp;Loading, Linking, and Initializing</th>
+            </tr>
+            <tr>
+               <td width="20%" align="left"><a accesskey="p" href="jvms-4.html">Prev</a>&nbsp;
+               </td>
+               <th width="60%" align="center">&nbsp;</th>
+               <td width="20%" align="right">&nbsp;<a accesskey="n" href="jvms-6.html">Next</a></td>
+            </tr>
+         </table>
+         <hr>
+      </div>
+      <div lang="en" class="chapter" title="Chapter&nbsp;5.&nbsp;Loading, Linking, and Initializing">
+         <div class="titlepage">
+            <div>
+               <div>
+                  <h2 class="title"><a name="jvms-5"></a>Chapter&nbsp;5.&nbsp;Loading, Linking, and Initializing
+                  </h2>
+               </div>
+            </div>
+         </div>
+         <div class="toc">
+            <p><b>Table of Contents</b></p>
+            <dl>
+               <dt><span class="section"><a href="jvms-5.html#jvms-5.1">5.1. The Run-Time Constant Pool</a></span></dt>
+               <dt><span class="section"><a href="jvms-5.html#jvms-5.2">5.2. Java Virtual Machine Startup</a></span></dt>
+               <dt><span class="section"><a href="jvms-5.html#jvms-5.3">5.3. Creation and Loading</a></span></dt>
+               <dd>
+                  <dl>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.3.1">5.3.1. Loading Using the Bootstrap Class Loader</a></span></dt>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.3.2">5.3.2. Loading Using a User-defined Class Loader</a></span></dt>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.3.3">5.3.3. Creating Array Classes</a></span></dt>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.3.4">5.3.4. Loading Constraints</a></span></dt>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.3.5">5.3.5. Deriving a Class from a <code class="literal">class</code> File Representation</a></span></dt>
+                  </dl>
+               </dd>
+               <dt><span class="section"><a href="jvms-5.html#jvms-5.4">5.4. Linking</a></span></dt>
+               <dd>
+                  <dl>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.4.1">5.4.1. Verification</a></span></dt>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.4.2">5.4.2. Preparation</a></span></dt>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.4.3">5.4.3. Resolution</a></span></dt>
+                     <dd>
+                        <dl>
+                           <dt><span class="section"><a href="jvms-5.html#jvms-5.4.3.1">5.4.3.1. Class and Interface Resolution</a></span></dt>
+                           <dt><span class="section"><a href="jvms-5.html#jvms-5.4.3.2">5.4.3.2. Field Resolution</a></span></dt>
+                           <dt><span class="section"><a href="jvms-5.html#jvms-5.4.3.3">5.4.3.3. Method Resolution</a></span></dt>
+                           <dt><span class="section"><a href="jvms-5.html#jvms-5.4.3.4">5.4.3.4. Interface Method Resolution</a></span></dt>
+                           <dt><span class="section"><a href="jvms-5.html#jvms-5.4.3.5">5.4.3.5. Method Type and Method Handle Resolution</a></span></dt>
+                           <dt><span class="section"><a href="jvms-5.html#jvms-5.4.3.6">5.4.3.6. Call Site Specifier Resolution</a></span></dt>
+                        </dl>
+                     </dd>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.4.4">5.4.4. Access Control</a></span></dt>
+                     <dt><span class="section"><a href="jvms-5.html#jvms-5.4.5">5.4.5. Overriding</a></span></dt>
+                  </dl>
+               </dd>
+               <dt><span class="section"><a href="jvms-5.html#jvms-5.5">5.5. Initialization</a></span></dt>
+               <dt><span class="section"><a href="jvms-5.html#jvms-5.6">5.6. Binding Native Method Implementations</a></span></dt>
+               <dt><span class="section"><a href="jvms-5.html#jvms-5.7">5.7. Java Virtual Machine Exit</a></span></dt>
+            </dl>
+         </div>
+         <p class="norm"><a name="jvms-5-100"></a>The Java Virtual Machine dynamically loads,
+            links and initializes classes and interfaces. Loading is the process
+            of finding the binary representation of a class or interface type with
+            a particular name and <span class="emphasis"><em>creating</em></span> a class or
+            interface from that binary representation. Linking is the process of
+            taking a class or interface and combining it into the run-time state
+            of the Java Virtual Machine so that it can be executed. Initialization of a class or
+            interface consists of executing the class or interface initialization
+            method <code class="literal">&lt;clinit&gt;</code> (<a class="xref" href="jvms-2.html#jvms-2.9" title="2.9.&nbsp;Special Methods">&sect;2.9</a>).
+         </p>
+         <p class="norm"><a name="jvms-5-110"></a>In this chapter,
+            <a class="xref" href="jvms-5.html#jvms-5.1" title="5.1.&nbsp;The Run-Time Constant Pool">&sect;5.1</a> describes how the Java Virtual Machine derives symbolic
+            references from the binary representation of a class or
+            interface. <a class="xref" href="jvms-5.html#jvms-5.2" title="5.2.&nbsp;Java Virtual Machine Startup">&sect;5.2</a> explains how the processes of
+            loading, linking, and initialization are first initiated by the
+            Java Virtual Machine. <a class="xref" href="jvms-5.html#jvms-5.3" title="5.3.&nbsp;Creation and Loading">&sect;5.3</a> specifies how binary representations
+            of classes and interfaces are loaded by class loaders and how classes
+            and interfaces are created. Linking is described in
+            <a class="xref" href="jvms-5.html#jvms-5.4" title="5.4.&nbsp;Linking">&sect;5.4</a>. <a class="xref" href="jvms-5.html#jvms-5.5" title="5.5.&nbsp;Initialization">&sect;5.5</a> details how
+            classes and interfaces are initialized. <a class="xref" href="jvms-5.html#jvms-5.6" title="5.6.&nbsp;Binding Native Method Implementations">&sect;5.6</a>
+            introduces the notion of binding native methods. Finally,
+            <a class="xref" href="jvms-5.html#jvms-5.7" title="5.7.&nbsp;Java Virtual Machine Exit">&sect;5.7</a> describes when a Java Virtual Machine exits.
+         </p>
+         <div class="section" title="5.1.&nbsp;The Run-Time Constant Pool">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-5.1"></a>5.1.&nbsp;The Run-Time Constant Pool
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-5.1-100"></a>The Java Virtual Machine maintains a per-type
+               constant pool (<a class="xref" href="jvms-2.html#jvms-2.5.5" title="2.5.5.&nbsp;Run-Time Constant Pool">&sect;2.5.5</a>), a run-time data
+               structure that serves many of the purposes of the symbol table of a
+               conventional programming language implementation.
+            </p>
+            <p class="norm"><a name="jvms-5.1-110"></a>The <code class="literal">constant_pool</code> table
+               (<a class="xref" href="jvms-4.html#jvms-4.4" title="4.4.&nbsp;The Constant Pool">&sect;4.4</a>) in the binary representation of a class
+               or interface is used to construct the run-time constant pool upon
+               class or interface creation (<a class="xref" href="jvms-5.html#jvms-5.3" title="5.3.&nbsp;Creation and Loading">&sect;5.3</a>). All
+               references in the run-time constant pool are initially symbolic. The
+               symbolic references in the run-time constant pool are derived from
+               structures in the binary representation of the class or interface as
+               follows:
+            </p>
+            <div class="norm">
+               <ul class="norm" type="disc">
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-110-A"></a>A symbolic reference to
+                            a class or interface is derived from a <code class="literal">CONSTANT_Class_info</code>
+                            structure (<a class="xref" href="jvms-4.html#jvms-4.4.1" title="4.4.1.&nbsp;The CONSTANT_Class_info Structure">&sect;4.4.1</a>) in the binary
+                            representation of a class or interface. Such a reference gives the
+                            name of the class or interface in the form returned by the
+                            <code class="literal">Class.getName</code> method, that is:
+                     </p>
+                     <div class="norm">
+                        <ul class="norm" type="circle">
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.1-110-A-A"></a>For a nonarray
+                                 	class or an interface, the name is the binary name
+                                 	(<a class="xref" href="jvms-4.html#jvms-4.2.1" title="4.2.1.&nbsp;Binary Class and Interface Names">&sect;4.2.1</a>) of the class or
+                                 	interface.
+                              </p>
+                           </li>
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.1-110-A-B"></a>For an array class
+                                 	of <span class="emphasis"><em>n</em></span> dimensions, the name begins with <span class="emphasis"><em>n</em></span> occurrences
+                                 	of the ASCII "["  character followed by a
+                                 	representation of the element type:
+                              </p>
+                              <div class="norm">
+                                 <ul class="norm" type="square">
+                                    <li class="listitem">
+                                       <p class="norm"><a name="jvms-5.1-110-A-B-A"></a>If the
+                                          	    element type is a primitive type, it is represented by the
+                                          	    corresponding field descriptor
+                                          	    (<a class="xref" href="jvms-4.html#jvms-4.3.2" title="4.3.2.&nbsp;Field Descriptors">&sect;4.3.2</a>).
+                                       </p>
+                                    </li>
+                                    <li class="listitem">
+                                       <p class="norm"><a name="jvms-5.1-110-A-B-B"></a>Otherwise,
+                                          	    if the element type is a reference type, it is represented
+                                          	    by the ASCII "L" character followed by the binary name
+                                          	    (<a class="xref" href="jvms-4.html#jvms-4.2.1" title="4.2.1.&nbsp;Binary Class and Interface Names">&sect;4.2.1</a>) of the element type
+                                          	    followed by the ASCII ";" character.
+                                       </p>
+                                    </li>
+                                 </ul>
+                              </div>
+                           </li>
+                        </ul>
+                     </div>
+                     <p class="norm"><a name="jvms-5.1-110-A.1"></a>Whenever this chapter
+                            refers to the name of a class or interface, it should be
+                            understood to be in the form returned by
+                            the <code class="literal">Class.getName</code> method.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-110-B"></a>A symbolic reference to
+                            a field of a class or an interface is derived from a
+                            <code class="literal">CONSTANT_Fieldref_info</code> structure (<a class="xref" href="jvms-4.html#jvms-4.4.2" title="4.4.2.&nbsp;The CONSTANT_Fieldref_info, CONSTANT_Methodref_info, and CONSTANT_InterfaceMethodref_info Structures">&sect;4.4.2</a>)
+                            in the binary representation of a class or interface. Such a
+                            reference gives the name and descriptor of the field, as well as a
+                            symbolic reference to the class or interface in which the field is
+                            to be found.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-110-C"></a>A symbolic reference to
+                            a method of a class is derived from a <code class="literal">CONSTANT_Methodref_info</code>
+                            structure (<a class="xref" href="jvms-4.html#jvms-4.4.2" title="4.4.2.&nbsp;The CONSTANT_Fieldref_info, CONSTANT_Methodref_info, and CONSTANT_InterfaceMethodref_info Structures">&sect;4.4.2</a>) in the binary
+                            representation of a class or interface. Such a reference gives the
+                            name and descriptor of the method, as well as a symbolic reference
+                            to the class in which the method is to be found.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-110-D"></a>A symbolic reference to
+                            a method of an interface is derived from a
+                            <code class="literal">CONSTANT_InterfaceMethodref_info</code> structure
+                            (<a class="xref" href="jvms-4.html#jvms-4.4.2" title="4.4.2.&nbsp;The CONSTANT_Fieldref_info, CONSTANT_Methodref_info, and CONSTANT_InterfaceMethodref_info Structures">&sect;4.4.2</a>) in the binary representation of a
+                            class or interface. Such a reference gives the name and descriptor
+                            of the interface method, as well as a symbolic reference to the
+                            interface in which the method is to be found.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-110-E"></a>A symbolic reference to
+                            a method handle is derived from a <code class="literal">CONSTANT_MethodHandle_info</code>
+                            structure (<a class="xref" href="jvms-4.html#jvms-4.4.8" title="4.4.8.&nbsp;The CONSTANT_MethodHandle_info Structure">&sect;4.4.8</a>) in the binary
+                            representation of a class or interface. Such a reference gives a
+                            symbolic reference to a field of a class or interface, or a method
+                            of a class, or a method of an interface, depending on the kind of
+                            the method handle.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-110-F"></a>A symbolic reference to
+                            a method type is derived from a <code class="literal">CONSTANT_MethodType_info</code>
+                            structure (<a class="xref" href="jvms-4.html#jvms-4.4.9" title="4.4.9.&nbsp;The CONSTANT_MethodType_info Structure">&sect;4.4.9</a>) in the binary
+                            representation of a class or interface. Such a reference gives a
+                            method descriptor (<a class="xref" href="jvms-4.html#jvms-4.3.3" title="4.3.3.&nbsp;Method Descriptors">&sect;4.3.3</a>).
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-110-G"></a>A symbolic reference to
+                            a <span class="emphasis"><em>call site specifier</em></span> is derived from a
+                            <code class="literal">CONSTANT_InvokeDynamic_info</code> structure
+                            (<a class="xref" href="jvms-4.html#jvms-4.4.10" title="4.4.10.&nbsp;The CONSTANT_InvokeDynamic_info Structure">&sect;4.4.10</a>) in the binary representation of a
+                            class or interface. Such a reference gives:
+                     </p>
+                     <div class="norm">
+                        <ul class="norm" type="circle">
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.1-110-G-A"></a>a symbolic
+                                 	reference to a method handle, which will serve as a bootstrap
+                                 	method for an <span class="emphasis"><em>invokedynamic</em></span> instruction
+                                 	(<a class="xref" href="jvms-6.html#jvms-6.5.invokedynamic" title="invokedynamic">&sect;<span class="emphasis"><em>invokedynamic</em></span></a>);
+                              </p>
+                           </li>
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.1-110-G-B"></a>a sequence of
+                                 	symbolic references (to classes, method types, and method
+                                 	handles), string literals, and run-time constant values which
+                                 	will serve as <span class="emphasis"><em>static arguments</em></span> to a
+                                 	bootstrap method;
+                              </p>
+                           </li>
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.1-110-G-C"></a>a method name and
+                                 	method descriptor.
+                              </p>
+                           </li>
+                        </ul>
+                     </div>
+                  </li>
+               </ul>
+            </div>
+            <p class="norm"><a name="jvms-5.1-200"></a>In addition, certain run-time
+               values which are not symbolic references are derived from items found
+               in the <code class="literal">constant_pool</code> table:
+            </p>
+            <div class="norm">
+               <ul class="norm" type="disc">
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-200-A"></a>A string literal is a
+                            <code class="literal">reference</code> to an instance of class <code class="literal">String</code>, and is derived from a
+                            <code class="literal">CONSTANT_String_info</code> structure (<a class="xref" href="jvms-4.html#jvms-4.4.3" title="4.4.3.&nbsp;The CONSTANT_String_info Structure">&sect;4.4.3</a>) in
+                            the binary representation of a class or interface. The
+                            <code class="literal">CONSTANT_String_info</code> structure gives the sequence of Unicode
+                            code points constituting the string literal.
+                     </p>
+                     <p class="norm"><a name="jvms-5.1-200-A.1"></a>The Java programming language
+                            requires that identical string literals (that is, literals that
+                            contain the same sequence of code points) must refer to the same
+                            instance of class <code class="literal">String</code> (JLS &sect;3.10.5). In addition, if the
+                            method <code class="literal">String.intern</code> is called on any string,
+                            the result is a <code class="literal">reference</code> to the same class instance that would be
+                            returned if that string appeared as a literal. Thus, the following
+                            expression must have the value <code class="literal">true</code>:
+                     </p><pre class="screen">
+("a" + "b" + "c").intern() == "abc"
+    </pre><p class="norm"><a name="jvms-5.1-200-A.2"></a>To derive a string
+                            literal, the Java Virtual Machine examines the sequence of code points given by
+                            the <code class="literal">CONSTANT_String_info</code> structure.
+                     </p>
+                     <div class="norm">
+                        <ul class="norm" type="circle">
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.1-200-A.2-A"></a>If the
+                                 	method <code class="literal">String.intern</code> has previously been
+                                 	called on an instance of class <code class="literal">String</code> containing a sequence
+                                 	of Unicode code points identical to that given by the
+                                 	<code class="literal">CONSTANT_String_info</code> structure, then the result of string
+                                 	literal derivation is a <code class="literal">reference</code> to that same instance of class
+                                 	<code class="literal">String</code>.
+                              </p>
+                           </li>
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.1-200-A.2-B"></a>Otherwise, a new
+                                 	instance of class <code class="literal">String</code> is created containing the sequence
+                                 	of Unicode code points given by the <code class="literal">CONSTANT_String_info</code>
+                                 	structure; a <code class="literal">reference</code> to that class instance is the result of
+                                 	string literal derivation. Finally,
+                                 	the <code class="literal">intern</code> method of the new <code class="literal">String</code>
+                                 	instance is invoked.
+                              </p>
+                           </li>
+                        </ul>
+                     </div>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.1-200-B"></a>Run-time constant values
+                            are derived from <code class="literal">CONSTANT_Integer_info</code>, <code class="literal">CONSTANT_Float_info</code>,
+                            <code class="literal">CONSTANT_Long_info</code>, or <code class="literal">CONSTANT_Double_info</code> structures
+                            (<a class="xref" href="jvms-4.html#jvms-4.4.4" title="4.4.4.&nbsp;The CONSTANT_Integer_info and CONSTANT_Float_info Structures">&sect;4.4.4</a>, <a class="xref" href="jvms-4.html#jvms-4.4.5" title="4.4.5.&nbsp;The CONSTANT_Long_info and CONSTANT_Double_info Structures">&sect;4.4.5</a>) in
+                            the binary representation of a class or interface.
+                     </p>
+                     <p class="norm"><a name="jvms-5.1-200-B.1"></a>Note that
+                            <code class="literal">CONSTANT_Float_info</code> structures represent values in IEEE 754
+                            single format and <code class="literal">CONSTANT_Double_info</code> structures represent
+                            values in IEEE 754 double format (<a class="xref" href="jvms-4.html#jvms-4.4.4" title="4.4.4.&nbsp;The CONSTANT_Integer_info and CONSTANT_Float_info Structures">&sect;4.4.4</a>,
+                            <a class="xref" href="jvms-4.html#jvms-4.4.5" title="4.4.5.&nbsp;The CONSTANT_Long_info and CONSTANT_Double_info Structures">&sect;4.4.5</a>). The run-time constant values derived
+                            from these structures must thus be values that can be represented
+                            using IEEE 754 single and double formats, respectively.
+                     </p>
+                  </li>
+               </ul>
+            </div>
+            <p class="norm"><a name="jvms-5.1-300"></a>The remaining structures in
+               the <code class="literal">constant_pool</code> table of the binary representation of a class or
+               interface - the <code class="literal">CONSTANT_NameAndType_info</code> and <code class="literal">CONSTANT_Utf8_info</code>
+               structures (<a class="xref" href="jvms-4.html#jvms-4.4.6" title="4.4.6.&nbsp;The CONSTANT_NameAndType_info Structure">&sect;4.4.6</a>,
+               <a class="xref" href="jvms-4.html#jvms-4.4.7" title="4.4.7.&nbsp;The CONSTANT_Utf8_info Structure">&sect;4.4.7</a>) - are only used indirectly when deriving
+               symbolic references to classes, interfaces, methods, fields, method
+               types, and method handles, and when deriving string literals and call
+               site specifiers.
+            </p>
+         </div>
+         <div class="section" title="5.2.&nbsp;Java Virtual Machine Startup">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-5.2"></a>5.2.&nbsp;Java Virtual Machine Startup
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-5.2-100"></a>The Java Virtual Machine starts up by
+               creating an initial class, which is specified in an
+               implementation-dependent manner, using the bootstrap class loader
+               (<a class="xref" href="jvms-5.html#jvms-5.3.1" title="5.3.1.&nbsp;Loading Using the Bootstrap Class Loader">&sect;5.3.1</a>). The Java Virtual Machine then links the initial
+               class, initializes it, and invokes the <code class="literal">public</code> class
+               method <code class="literal">void main(String[])</code>. The invocation of this
+               method drives all further execution. Execution of the Java Virtual Machine
+               instructions constituting the <code class="literal">main</code> method may cause
+               linking (and consequently creation) of additional classes and
+               interfaces, as well as invocation of additional methods.
+            </p>
+            <p class="norm"><a name="jvms-5.2-110"></a>In an implementation of the
+               Java Virtual Machine, the initial class could be provided as a command line
+               argument. Alternatively, the implementation could provide an initial
+               class that sets up a class loader which in turn loads an
+               application. Other choices of the initial class are possible so long
+               as they are consistent with the specification given in the previous
+               paragraph.
+            </p>
+         </div>
+         <div class="section" title="5.3.&nbsp;Creation and Loading">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-5.3"></a>5.3.&nbsp;Creation and Loading
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-5.3-100"></a>Creation of a class or
+               interface <span class="type">C</span> denoted by the name <code class="varname">N</code> consists of the construction in
+               the method area of the Java Virtual Machine (<a class="xref" href="jvms-2.html#jvms-2.5.4" title="2.5.4.&nbsp;Method Area">&sect;2.5.4</a>) of an
+               implementation-specific internal representation of <span class="type">C</span>. Class or
+               interface creation is triggered by another class or interface <span class="type">D</span>,
+               which references <span class="type">C</span> through its run-time constant pool. Class or
+               interface creation may also be triggered by <span class="type">D</span> invoking methods in
+               certain Java SE platform class libraries (<a class="xref" href="jvms-2.html#jvms-2.12" title="2.12.&nbsp;Class Libraries">&sect;2.12</a>) such
+               as reflection.
+            </p>
+            <p class="norm"><a name="jvms-5.3-110"></a>If <span class="type">C</span> is not an array class,
+               it is created by loading a binary representation of <span class="type">C</span>
+               (<a class="xref" href="jvms-4.html" title="Chapter&nbsp;4.&nbsp;The class File Format">&sect;4 (<i>The <code class="literal">class</code> File Format</i>)</a>) using a class loader. Array classes do not
+               have an external binary representation; they are created by the Java Virtual Machine
+               rather than by a class loader.
+            </p>
+            <p class="norm"><a name="jvms-5.3-200"></a>There are two kinds of class
+               loaders: the bootstrap class loader supplied by the Java Virtual Machine, and
+               user-defined class loaders. Every user-defined class loader is an
+               instance of a subclass of the abstract class
+               <code class="literal">ClassLoader</code>. Applications employ user-defined class loaders in order
+               to extend the manner in which the Java Virtual Machine dynamically loads and thereby
+               creates classes. User-defined class loaders can be used to create
+               classes that originate from user-defined sources. For example, a class
+               could be downloaded across a network, generated on the fly, or
+               extracted from an encrypted file.
+            </p>
+            <p class="norm"><a name="jvms-5.3-210"></a>A class loader <code class="varname">L</code> may create
+               <span class="type">C</span> by defining it directly or by delegating to another class
+               loader. If <code class="varname">L</code> creates <span class="type">C</span> directly, we say that
+               <code class="varname">L</code> <span class="emphasis"><em>defines</em></span> <span class="type">C</span> or, equivalently, that <code class="varname">L</code> is the
+               <span class="emphasis"><em>defining loader</em></span> of <span class="type">C</span>.
+            </p>
+            <p class="norm"><a name="jvms-5.3-220"></a>When one class loader
+               delegates to another class loader, the loader that initiates the
+               loading is not necessarily the same loader that completes the loading
+               and defines the class. If <code class="varname">L</code> creates <span class="type">C</span>, either by defining it
+               directly or by delegation, we say that <code class="varname">L</code> initiates loading of <span class="type">C</span>
+               or, equivalently, that <code class="varname">L</code> is an <span class="emphasis"><em>initiating
+                     loader</em></span> of <span class="type">C</span>.
+            </p>
+            <p class="norm"><a name="jvms-5.3-300"></a>At run time, a class or
+               interface is determined not by its name alone, but by a pair: its
+               binary name (<a class="xref" href="jvms-4.html#jvms-4.2.1" title="4.2.1.&nbsp;Binary Class and Interface Names">&sect;4.2.1</a>) and its defining class
+               loader. Each such class or interface belongs to a
+               single <span class="emphasis"><em>run-time package</em></span>. The run-time package of
+               a class or interface is determined by the package name and defining
+               class loader of the class or interface.
+            </p>
+            <p class="norm"><a name="jvms-5.3-400"></a>The Java Virtual Machine uses one of three
+               procedures to create class or interface <span class="type">C</span> denoted by <code class="varname">N</code>:
+            </p>
+            <div class="norm">
+               <ul class="norm" type="disc">
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.3-400-A"></a>If <code class="varname">N</code> denotes a
+                            nonarray class or an interface, one of the two following methods
+                            is used to load and thereby create <span class="type">C</span>:
+                     </p>
+                     <div class="norm">
+                        <ul class="norm" type="circle">
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.3-400-A-A"></a>If <span class="type">D</span> was defined
+                                 	by the bootstrap class loader, then the bootstrap class loader
+                                 	initiates loading of <span class="type">C</span>
+                                 	(<a class="xref" href="jvms-5.html#jvms-5.3.1" title="5.3.1.&nbsp;Loading Using the Bootstrap Class Loader">&sect;5.3.1</a>).
+                              </p>
+                           </li>
+                           <li class="listitem">
+                              <p class="norm"><a name="jvms-5.3-400-A-B"></a>If <span class="type">D</span> was defined
+                                 	by a user-defined class loader, then that same user-defined
+                                 	class loader initiates loading of <span class="type">C</span>
+                                 	(<a class="xref" href="jvms-5.html#jvms-5.3.2" title="5.3.2.&nbsp;Loading Using a User-defined Class Loader">&sect;5.3.2</a>).
+                              </p>
+                           </li>
+                        </ul>
+                     </div>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.3-400-B"></a>Otherwise <code class="varname">N</code> denotes an
+                            array class. An array class is created directly by the Java Virtual Machine
+                            (<a class="xref" href="jvms-5.html#jvms-5.3.3" title="5.3.3.&nbsp;Creating Array Classes">&sect;5.3.3</a>), not by a class loader. However,
+                            the defining class loader of <span class="type">D</span> is used in the process of
+                            creating array class <span class="type">C</span>.
+                     </p>
+                  </li>
+               </ul>
+            </div>
+            <p class="norm-error"><a name="jvms-5.3-500"></a>If an error
+               occurs during class loading, then an instance of a subclass of <code class="literal">LinkageError</code>
+               must be thrown at a point in the program that (directly or indirectly)
+               uses the class or interface being loaded.
+            </p>
+            <p class="norm-error"><a name="jvms-5.3-510"></a>If the Java Virtual Machine
+               ever attempts to load a class <span class="type">C</span> during verification
+               (<a class="xref" href="jvms-5.html#jvms-5.4.1" title="5.4.1.&nbsp;Verification">&sect;5.4.1</a>) or resolution
+               (<a class="xref" href="jvms-5.html#jvms-5.4.3" title="5.4.3.&nbsp;Resolution">&sect;5.4.3</a>) (but not initialization
+               (<a class="xref" href="jvms-5.html#jvms-5.5" title="5.5.&nbsp;Initialization">&sect;5.5</a>)), and the class loader that is used to
+               initiate loading of <span class="type">C</span> throws an instance of <code class="literal">ClassNotFoundException</code>, then the Java Virtual Machine
+               must throw an instance of <code class="literal">NoClassDefFoundError</code> whose cause is the instance of
+               <code class="literal">ClassNotFoundException</code>.
+            </p>
+            <p class="norm-error"><a name="jvms-5.3-520"></a>(A subtlety
+               here is that recursive class loading to load superclasses is performed
+               as part of resolution (<a class="xref" href="jvms-5.html#jvms-5.3.5" title="5.3.5.&nbsp;Deriving a Class from a class File Representation">&sect;5.3.5</a>, step
+               3). Therefore, a <code class="literal">ClassNotFoundException</code> that results from a class loader failing to
+               load a superclass must be wrapped in a <code class="literal">NoClassDefFoundError</code>.)
+            </p>
+            <p class="note">A well-behaved class loader should maintain three
+               properties:
+            </p>
+            <div class="note">
+               <ul class="note" type="disc">
+                  <li class="listitem">
+                     <p class="note">Given the same name, a good class loader should
+                            always return the same <code class="literal">Class</code> object.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="note">If a class loader <code class="varname">L<sub>1</sub></code> delegates loading of a
+                            class <span class="type">C</span> to another loader <code class="varname">L<sub>2</sub></code>, then for any type <span class="type">T</span> that
+                            occurs as the direct superclass or a direct superinterface of <span class="type">C</span>,
+                            or as the type of a field in <span class="type">C</span>, or as the type of a formal
+                            parameter of a method or constructor in <span class="type">C</span>, or as a return type
+                            of a method in <span class="type">C</span>, <code class="varname">L<sub>1</sub></code> and <code class="varname">L<sub>2</sub></code> should return the same <code class="literal">Class</code>
+                            object.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="note">If a user-defined classloader prefetches binary
+                            representations of classes and interfaces, or loads a group of
+                            related classes together, then it must reflect loading errors only
+                            at points in the program where they could have arisen without
+                            prefetching or group loading.
+                     </p>
+                  </li>
+               </ul>
+            </div>
+            <p class="norm"><a name="jvms-5.3-600"></a>We will sometimes represent a
+               class or interface using the notation <code class="literal">&lt;</code><code class="varname">N</code>, <code class="varname">L<sub>d</sub></code><code class="literal">&gt;</code>, where
+               <code class="varname">N</code> denotes the name of the class or interface and <code class="varname">L<sub>d</sub></code> denotes the
+               defining loader of the class or interface.
+            </p>
+            <p class="norm"><a name="jvms-5.3-610"></a>We will also represent a class
+               or interface using the notation <code class="varname">N</code><sup><code class="varname">L<sub>i</sub></code></sup>,
+               where <code class="varname">N</code> denotes the name of the class or interface and <code class="varname">L<sub>i</sub></code> denotes
+               an initiating loader of the class or interface.
+            </p>
+            <div class="section" title="5.3.1.&nbsp;Loading Using the Bootstrap Class Loader">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.3.1"></a>5.3.1.&nbsp;Loading Using the Bootstrap Class Loader
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.3.1-100"></a>The following steps are used
+                  to load and thereby create the nonarray class or interface <span class="type">C</span> denoted
+                  by <code class="varname">N</code> using the bootstrap class loader.
+               </p>
+               <p class="norm"><a name="jvms-5.3.1-110"></a>First, the Java Virtual Machine determines
+                  whether the bootstrap class loader has already been recorded as an
+                  initiating loader of a class or interface denoted by <code class="varname">N</code>. If so, this
+                  class or interface is <span class="type">C</span>, and no class creation is necessary. 
+               </p>
+               <p class="norm"><a name="jvms-5.3.1-120"></a>Otherwise, the Java Virtual Machine passes
+                  the argument <code class="varname">N</code> to an invocation of a method on the bootstrap class
+                  loader to search for a purported representation of <span class="type">C</span> in a
+                  platform-dependent manner. Typically, a class or interface will be
+                  represented using a file in a hierarchical file system, and the name
+                  of the class or interface will be encoded in the pathname of the
+                  file.
+               </p>
+               <p class="norm"><a name="jvms-5.3.1-200"></a>Note that there is no
+                  guarantee that a purported representation found is valid or is a
+                  representation of <span class="type">C</span>. This phase of loading must detect the following
+                  error:
+               </p>
+               <div class="norm">
+                  <ul class="norm" type="disc">
+                     <li class="listitem">
+                        <p class="norm-error"><a name="jvms-5.3.1-200-A"></a>If
+                               no purported representation of <span class="type">C</span> is found, loading throws an
+                               instance of <code class="literal">ClassNotFoundException</code>.
+                        </p>
+                     </li>
+                  </ul>
+               </div>
+               <p class="norm"><a name="jvms-5.3.1-300"></a>Then the Java Virtual Machine attempts to
+                  derive a class denoted by <code class="varname">N</code> using the bootstrap class loader from
+                  the purported representation using the algorithm found in
+                  <a class="xref" href="jvms-5.html#jvms-5.3.5" title="5.3.5.&nbsp;Deriving a Class from a class File Representation">&sect;5.3.5</a>. That class is <span class="type">C</span>.
+               </p>
+            </div>
+            <div class="section" title="5.3.2.&nbsp;Loading Using a User-defined Class Loader">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.3.2"></a>5.3.2.&nbsp;Loading Using a User-defined Class Loader
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.3.2-100"></a>The following steps are used
+                  to load and thereby create the nonarray class or interface <span class="type">C</span> denoted
+                  by <code class="varname">N</code> using a user-defined class loader <code class="varname">L</code>.
+               </p>
+               <p class="norm"><a name="jvms-5.3.2-110"></a>First, the Java Virtual Machine determines
+                  whether <code class="varname">L</code> has already been recorded as an initiating loader of a
+                  class or interface denoted by <code class="varname">N</code>. If so, this class or interface is
+                  <span class="type">C</span>, and no class creation is necessary.
+               </p>
+               <p class="norm"><a name="jvms-5.3.2-120"></a>Otherwise, the Java Virtual Machine
+                  invokes <code class="literal">loadClass(<code class="varname">N</code>)</code> on <code class="varname">L</code>. The value returned
+                  by the invocation is the created class or interface <span class="type">C</span>. The Java Virtual Machine
+                  then records that <code class="varname">L</code> is an initiating loader of <span class="type">C</span>
+                  (<a class="xref" href="jvms-5.html#jvms-5.3.4" title="5.3.4.&nbsp;Loading Constraints">&sect;5.3.4</a>). The remainder of this section
+                  describes this process in more detail.
+               </p>
+               <p class="norm"><a name="jvms-5.3.2-130"></a>When
+                  the <code class="literal">loadClass</code> method of the class loader <code class="varname">L</code> is
+                  invoked with the name <code class="varname">N</code> of a class or interface <span class="type">C</span> to be loaded,
+                  <code class="varname">L</code> must perform one of the following two operations in order to load
+                  <span class="type">C</span>:
+               </p>
+               <div class="orderedlist">
+                  <ol class="orderedlist" type="1">
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.2-130-A"></a>The class loader <code class="varname">L</code>
+                               can create an array of bytes representing <span class="type">C</span> as the bytes of a
+                               <code class="literal">ClassFile</code> structure (<a class="xref" href="jvms-4.html#jvms-4.1" title="4.1.&nbsp;The ClassFile Structure">&sect;4.1</a>); it then must
+                               invoke the method <code class="literal">defineClass</code> of class
+                               <code class="literal">ClassLoader</code>. Invoking <code class="literal">defineClass</code> causes the
+                               Java Virtual Machine to derive a class or interface denoted by <code class="varname">N</code> using <code class="varname">L</code> from
+                               the array of bytes using the algorithm found in
+                               <a class="xref" href="jvms-5.html#jvms-5.3.5" title="5.3.5.&nbsp;Deriving a Class from a class File Representation">&sect;5.3.5</a>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.2-130-B"></a>The class loader <code class="varname">L</code>
+                               can delegate the loading of <span class="type">C</span> to some other class loader
+                               <code class="varname">L</code>'. This is accomplished by passing the argument <code class="varname">N</code> directly or
+                               indirectly to an invocation of a method on <code class="varname">L</code>' (typically the
+                               <code class="literal">loadClass</code> method). The result of the invocation
+                               is <span class="type">C</span>.
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+               <p class="norm-error"><a name="jvms-5.3.2-200"></a>In either
+                  (1) or (2), if the class loader <code class="varname">L</code> is unable to load a class or
+                  interface denoted by <code class="varname">N</code> for any reason, it must throw an instance of
+                  <code class="literal">ClassNotFoundException</code>.
+               </p>
+               <p class="note">Since JDK release 1.1, Oracle&#8217;s Java Virtual Machine implementation
+                  has invoked the <code class="literal">loadClass</code> method of a class loader
+                  in order to cause it to load a class or interface. The argument to
+                  <code class="literal">loadClass</code> is the name of the class or interface to
+                  be loaded. There is also a two-argument version of
+                  the <code class="literal">loadClass</code> method, where the second argument is
+                  a <code class="literal">boolean</code> that indicates whether the class or interface is to be
+                  linked or not. Only the two-argument version was supplied in JDK
+                  release 1.0.2, and Oracle&#8217;s Java Virtual Machine implementation relied on it to link
+                  the loaded class or interface. From JDK release 1.1 onward, Oracle&#8217;s
+                  Java Virtual Machine implementation links the class or interface directly, without
+                  relying on the class loader.
+               </p>
+            </div>
+            <div class="section" title="5.3.3.&nbsp;Creating Array Classes">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.3.3"></a>5.3.3.&nbsp;Creating Array Classes
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.3.3-100"></a>The following steps are used
+                  to create the array class <span class="type">C</span> denoted by <code class="varname">N</code> using class loader
+                  <code class="varname">L</code>. Class loader <code class="varname">L</code> may be either the bootstrap class loader or a
+                  user-defined class loader.
+               </p>
+               <p class="norm"><a name="jvms-5.3.3-110"></a>If <code class="varname">L</code> has already been
+                  recorded as an initiating loader of an array class with the same
+                  component type as <code class="varname">N</code>, that class is <span class="type">C</span>, and no array class creation
+                  is necessary.
+               </p>
+               <p class="norm"><a name="jvms-5.3.3-120"></a>Otherwise, the following
+                  steps are performed to create <span class="type">C</span>:
+               </p>
+               <div class="orderedlist">
+                  <ol class="orderedlist" type="1">
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.3-120-A"></a>If the component type
+                               is a <code class="literal">reference</code> type, the algorithm of this section
+                               (<a class="xref" href="jvms-5.html#jvms-5.3" title="5.3.&nbsp;Creation and Loading">&sect;5.3</a>) is applied recursively using class
+                               loader <code class="varname">L</code> in order to load and thereby create the component type
+                               of <span class="type">C</span>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.3-120-B"></a>The Java Virtual Machine creates a
+                               new array class with the indicated component type and number of
+                               dimensions.
+                        </p>
+                        <p class="norm"><a name="jvms-5.3.3-120-B.1"></a>If the component
+                               type is a <code class="literal">reference</code> type, <span class="type">C</span> is marked as having been defined by the
+                               defining class loader of the component type. Otherwise, <span class="type">C</span> is
+                               marked as having been defined by the bootstrap class loader.
+                        </p>
+                        <p class="norm"><a name="jvms-5.3.3-120-B.2"></a>In any case, the
+                               Java Virtual Machine then records that <code class="varname">L</code> is an initiating loader for <span class="type">C</span>
+                               (<a class="xref" href="jvms-5.html#jvms-5.3.4" title="5.3.4.&nbsp;Loading Constraints">&sect;5.3.4</a>).
+                        </p>
+                        <p class="norm"><a name="jvms-5.3.3-120-B.3"></a>If the component
+                               type is a <code class="literal">reference</code> type, the accessibility of the array class is
+                               determined by the accessibility of its component type. Otherwise,
+                               the accessibility of the array class is <code class="literal">public</code>.
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+            </div>
+            <div class="section" title="5.3.4.&nbsp;Loading Constraints">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.3.4"></a>5.3.4.&nbsp;Loading Constraints
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.3.4-100"></a>Ensuring type safe linkage
+                  in the presence of class loaders requires special care. It is possible
+                  that when two different class loaders initiate loading of a class or
+                  interface denoted by <code class="varname">N</code>, the name <code class="varname">N</code> may denote a different class or
+                  interface in each loader.
+               </p>
+               <p class="norm"><a name="jvms-5.3.4-110"></a>When a class or interface
+                  <span class="type">C</span> = <code class="literal">&lt;</code><code class="varname">N<sub>1</sub></code>, <code class="varname">L<sub>1</sub></code><code class="literal">&gt;</code> makes a symbolic reference to a field
+                  or method of another class or interface <span class="type">D</span> = <code class="literal">&lt;</code><code class="varname">N<sub>2</sub></code>,
+                  <code class="varname">L<sub>2</sub></code><code class="literal">&gt;</code>, the symbolic reference includes a descriptor specifying
+                  the type of the field, or the return and argument types of the
+                  method. It is essential that any type name <code class="varname">N</code> mentioned in the field
+                  or method descriptor denote the same class or interface when loaded by
+                  <code class="varname">L<sub>1</sub></code> and when loaded by <code class="varname">L<sub>2</sub></code>.
+               </p>
+               <p class="norm-error"><a name="jvms-5.3.4-120"></a>To ensure
+                  this, the Java Virtual Machine imposes <span class="emphasis"><em>loading constraints</em></span> of
+                  the form <code class="varname">N</code><sup><code class="varname">L<sub>1</sub></code></sup> =
+                  <code class="varname">N</code><sup><code class="varname">L<sub>2</sub></code></sup> during preparation
+                  (<a class="xref" href="jvms-5.html#jvms-5.4.2" title="5.4.2.&nbsp;Preparation">&sect;5.4.2</a>) and resolution
+                  (<a class="xref" href="jvms-5.html#jvms-5.4.3" title="5.4.3.&nbsp;Resolution">&sect;5.4.3</a>). To enforce these constraints, the
+                  Java Virtual Machine will, at certain prescribed times (see
+                  <a class="xref" href="jvms-5.html#jvms-5.3.1" title="5.3.1.&nbsp;Loading Using the Bootstrap Class Loader">&sect;5.3.1</a>, <a class="xref" href="jvms-5.html#jvms-5.3.2" title="5.3.2.&nbsp;Loading Using a User-defined Class Loader">&sect;5.3.2</a>,
+                  <a class="xref" href="jvms-5.html#jvms-5.3.3" title="5.3.3.&nbsp;Creating Array Classes">&sect;5.3.3</a>, and <a class="xref" href="jvms-5.html#jvms-5.3.5" title="5.3.5.&nbsp;Deriving a Class from a class File Representation">&sect;5.3.5</a>),
+                  record that a particular loader is an initiating loader of a
+                  particular class. After recording that a loader is an initiating
+                  loader of a class, the Java Virtual Machine must immediately check to see if any
+                  loading constraints are violated. If so, the record is retracted, the
+                  Java Virtual Machine throws a <code class="literal">LinkageError</code>, and the loading operation that caused the
+                  recording to take place fails.
+               </p>
+               <p class="norm-error"><a name="jvms-5.3.4-130"></a>Similarly,
+                  after imposing a loading constraint (see <a class="xref" href="jvms-5.html#jvms-5.4.2" title="5.4.2.&nbsp;Preparation">&sect;5.4.2</a>,
+                  <a class="xref" href="jvms-5.html#jvms-5.4.3.2" title="5.4.3.2.&nbsp;Field Resolution">&sect;5.4.3.2</a>, <a class="xref" href="jvms-5.html#jvms-5.4.3.3" title="5.4.3.3.&nbsp;Method Resolution">&sect;5.4.3.3</a>, and
+                  <a class="xref" href="jvms-5.html#jvms-5.4.3.4" title="5.4.3.4.&nbsp;Interface Method Resolution">&sect;5.4.3.4</a>), the Java Virtual Machine must immediately check to
+                  see if any loading constraints are violated. If so, the newly imposed
+                  loading constraint is retracted, the Java Virtual Machine throws a <code class="literal">LinkageError</code>, and the
+                  operation that caused the constraint to be imposed (either resolution
+                  or preparation, as the case may be) fails.
+               </p>
+               <p class="norm"><a name="jvms-5.3.4-200"></a>The situations described
+                  here are the only times at which the Java Virtual Machine checks whether any loading
+                  constraints have been violated. A loading constraint is violated if,
+                  and only if, all the following four conditions hold:
+               </p>
+               <div class="norm">
+                  <ul class="norm" type="disc">
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.4-200-A"></a>There exists a loader
+                               <code class="varname">L</code> such that <code class="varname">L</code> has been recorded by the Java Virtual Machine as an initiating
+                               loader of a class <span class="type">C</span> named <code class="varname">N</code>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.4-200-B"></a>There exists a loader
+                               <code class="varname">L</code>' such that <code class="varname">L</code>' has been recorded by the Java Virtual Machine as an
+                               initiating loader of a class <span class="type">C</span> ' named <code class="varname">N</code>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.4-200-C"></a>The equivalence
+                               relation defined by the (transitive closure of the) set of imposed
+                               constraints implies <code class="varname">N</code><sup><code class="varname">L</code></sup> =
+                               <code class="varname">N</code><sup><code class="varname">L</code>'</sup>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.4-200-D"></a><span class="type">C</span> <span class="symbol">&#8800;</span> <span class="type">C</span> '.
+                        </p>
+                     </li>
+                  </ul>
+               </div>
+               <p class="note">A full discussion of class loaders and type safety
+                  is beyond the scope of this specification. For a more comprehensive
+                  discussion, readers are referred to <em class="citetitle">Dynamic Class Loading
+                     in the Java Virtual Machine</em> by Sheng Liang and Gilad
+                  Bracha (<em class="citetitle">Proceedings of the 1998 ACM SIGPLAN Conference on
+                     Object-Oriented Programming Systems, Languages and
+                     Applications</em>).
+               </p>
+            </div>
+            <div class="section" title="5.3.5.&nbsp;Deriving a Class from a class File Representation">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.3.5"></a>5.3.5.&nbsp;Deriving a Class from a <code class="literal">class</code> File Representation
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.3.5-100"></a>The following steps are used
+                  to derive a <code class="literal">Class</code> object for the nonarray class or interface <span class="type">C</span>
+                  denoted by <code class="varname">N</code> using loader <code class="varname">L</code> from a purported representation in
+                  <code class="literal">class</code> file format.
+               </p>
+               <div class="orderedlist">
+                  <ol class="orderedlist" type="1">
+                     <li class="listitem">
+                        <p class="norm-error"><a name="jvms-5.3.5-100-A"></a>First, the Java Virtual Machine determines whether it
+                               has already recorded that <code class="varname">L</code> is an initiating loader of a class
+                               or interface denoted by <code class="varname">N</code>. If so, this creation attempt is
+                               invalid and loading throws a <code class="literal">LinkageError</code>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.5-100-B"></a>Otherwise, the Java Virtual Machine
+                               attempts to parse the purported representation. However, the
+                               purported representation may not in fact be a valid representation
+                               of <span class="type">C</span>.
+                        </p>
+                        <p class="norm"><a name="jvms-5.3.5-100-B.1"></a>This phase of
+                               loading must detect the following errors:
+                        </p>
+                        <div class="norm">
+                           <ul class="norm" type="disc">
+                              <li class="listitem">
+                                 <p class="norm-error"><a name="jvms-5.3.5-100-B.1-A"></a>If the purported representation
+                                    	is not a <code class="literal">ClassFile</code> structure (<a class="xref" href="jvms-4.html#jvms-4.1" title="4.1.&nbsp;The ClassFile Structure">&sect;4.1</a>,
+                                    	<a class="xref" href="jvms-4.html#jvms-4.8" title="4.8.&nbsp;Format Checking">&sect;4.8</a>), loading throws an instance of
+                                    	<code class="literal">ClassFormatError</code>.
+                                 </p>
+                              </li>
+                              <li class="listitem">
+                                 <p class="norm-error"><a name="jvms-5.3.5-100-B.1-B"></a>Otherwise, if the purported
+                                    	representation is not of a supported major or minor version
+                                    	(<a class="xref" href="jvms-4.html#jvms-4.1" title="4.1.&nbsp;The ClassFile Structure">&sect;4.1</a>), loading throws an instance of
+                                    	<code class="literal">UnsupportedClassVersionError</code>.
+                                 </p>
+                                 <p class="note"><code class="literal">UnsupportedClassVersionError</code>, a subclass
+                                    	of <code class="literal">ClassFormatError</code>, was introduced to enable easy identification of a
+                                    	<code class="literal">ClassFormatError</code> caused by an attempt to load a class whose
+                                    	representation uses an unsupported version of the <code class="literal">class</code> file
+                                    	format. In JDK release 1.1 and earlier, an instance of <code class="literal">NoClassDefFoundError</code>
+                                    	or <code class="literal">ClassFormatError</code> was thrown in case of an unsupported version,
+                                    	depending on whether the class was being loaded by the system
+                                    	class loader or a user-defined class loader.
+                                 </p>
+                              </li>
+                              <li class="listitem">
+                                 <p class="norm-error"><a name="jvms-5.3.5-100-B.1-C"></a>Otherwise, if the purported
+                                    	representation does not actually represent a class named <code class="varname">N</code>,
+                                    	loading throws an instance of <code class="literal">NoClassDefFoundError</code> or an instance of one of
+                                    	its subclasses.
+                                 </p>
+                              </li>
+                           </ul>
+                        </div>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.5-100-C"></a>If <span class="type">C</span> has a direct
+                               superclass, the symbolic reference from <span class="type">C</span> to its direct
+                               superclass is resolved using the algorithm of
+                               <a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a>. Note that if <span class="type">C</span> is an interface
+                               it must have <code class="literal">Object</code> as its direct superclass, which must already
+                               have been loaded. Only <code class="literal">Object</code> has no direct superclass.
+                        </p>
+                        <p class="norm-error"><a name="jvms-5.3.5-100-C.1"></a>Any exceptions that can be thrown due
+                               to class or interface resolution can be thrown as a result of this
+                               phase of loading. In addition, this phase of loading must detect
+                               the following errors:
+                        </p>
+                        <div class="norm">
+                           <ul class="norm" type="disc">
+                              <li class="listitem">
+                                 <p class="norm-error"><a name="jvms-5.3.5-100-C.1-A"></a>If the class or interface named
+                                    	as the direct superclass of <span class="type">C</span> is in fact an interface,
+                                    	loading throws an <code class="literal">IncompatibleClassChangeError</code>.
+                                 </p>
+                              </li>
+                              <li class="listitem">
+                                 <p class="norm-error"><a name="jvms-5.3.5-100-C.1-B"></a>Otherwise, if any of the
+                                    	superclasses of <span class="type">C</span> is <span class="type">C</span> itself, loading throws a
+                                    	<code class="literal">ClassCircularityError</code>.
+                                 </p>
+                              </li>
+                           </ul>
+                        </div>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.5-100-D"></a>If <span class="type">C</span> has any direct
+                               superinterfaces, the symbolic references from <span class="type">C</span> to its direct
+                               superinterfaces are resolved using the algorithm of
+                               <a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a>.
+                        </p>
+                        <p class="norm-error"><a name="jvms-5.3.5-100-D.1"></a>Any exceptions that can be thrown due
+                               to class or interface resolution can be thrown as a result of this
+                               phase of loading. In addition, this phase of loading must detect
+                               the following errors:
+                        </p>
+                        <div class="norm">
+                           <ul class="norm" type="disc">
+                              <li class="listitem">
+                                 <p class="norm-error"><a name="jvms-5.3.5-100-D.1-A"></a>If any of the classes or
+                                    	interfaces named as direct superinterfaces of <span class="type">C</span> is not in
+                                    	fact an interface, loading throws an <code class="literal">IncompatibleClassChangeError</code>.
+                                 </p>
+                              </li>
+                              <li class="listitem">
+                                 <p class="norm-error"><a name="jvms-5.3.5-100-D.1-B"></a>Otherwise, if any of the
+                                    	superinterfaces of <span class="type">C</span> is <span class="type">C</span> itself, loading throws a
+                                    	<code class="literal">ClassCircularityError</code>.
+                                 </p>
+                              </li>
+                           </ul>
+                        </div>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.3.5-100-E"></a>The Java Virtual Machine marks <span class="type">C</span> as
+                               having <code class="varname">L</code> as its defining class loader and records that <code class="varname">L</code> is an
+                               initiating loader of <span class="type">C</span> (<a class="xref" href="jvms-5.html#jvms-5.3.4" title="5.3.4.&nbsp;Loading Constraints">&sect;5.3.4</a>).
+                        </p>
+                     </li>
+                  </ol>
+               </div>
+            </div>
+         </div>
+         <div class="section" title="5.4.&nbsp;Linking">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-5.4"></a>5.4.&nbsp;Linking
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-5.4-100"></a>Linking a class or interface
+               involves verifying and preparing that class or interface, its direct
+               superclass, its direct superinterfaces, and its element type (if it is
+               an array type), if necessary. Resolution of symbolic references in the
+               class or interface is an optional part of linking.
+            </p>
+            <p class="norm"><a name="jvms-5.4-110"></a>This specification allows an
+               implementation flexibility as to when linking activities (and, because
+               of recursion, loading) take place, provided that all of the following
+               properties are maintained:
+            </p>
+            <div class="norm">
+               <ul class="norm" type="disc">
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.4-110-A"></a>A class or interface is
+                            completely loaded before it is linked.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.4-110-B"></a>A class or interface is
+                            completely verified and prepared before it is initialized.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-5.4-110-C"></a>Errors detected during
+                            linkage are thrown at a point in the program where some action is
+                            taken by the program that might, directly or indirectly, require
+                            linkage to the class or interface involved in the error.
+                     </p>
+                  </li>
+               </ul>
+            </div>
+            <p class="norm"><a name="jvms-5.4-120"></a>For example, a Java Virtual Machine
+               implementation may choose to resolve each symbolic reference in a
+               class or interface individually when it is used ("lazy" or "late"
+               resolution), or to resolve them all at once when the class is being
+               verified ("eager" or "static" resolution). This means that the
+               resolution process may continue, in some implementations, after a
+               class or interface has been initialized. Whichever strategy is
+               followed, any error detected during resolution must be thrown at a
+               point in the program that (directly or indirectly) uses a symbolic
+               reference to the class or interface.
+            </p>
+            <p class="norm-error"><a name="jvms-5.4-200"></a>Because
+               linking involves the allocation of new data structures, it may fail
+               with an <code class="literal">OutOfMemoryError</code>.
+            </p>
+            <div class="section" title="5.4.1.&nbsp;Verification">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.4.1"></a>5.4.1.&nbsp;Verification
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.4.1-100"></a>
+                  <span class="emphasis"><em>Verification</em></span> (<a class="xref" href="jvms-4.html#jvms-4.10" title="4.10.&nbsp;Verification of class Files">&sect;4.10</a>)
+                  ensures that the binary representation of a class or interface is
+                  structurally correct (<a class="xref" href="jvms-4.html#jvms-4.9" title="4.9.&nbsp;Constraints on Java Virtual Machine Code">&sect;4.9</a>). Verification may
+                  cause additional classes and interfaces to be loaded
+                  (<a class="xref" href="jvms-5.html#jvms-5.3" title="5.3.&nbsp;Creation and Loading">&sect;5.3</a>) but need not cause them to be verified or
+                  prepared.
+               </p>
+               <p class="norm-error"><a name="jvms-5.4.1-110"></a>If the
+                  binary representation of a class or interface does not satisfy the
+                  static or structural constraints listed in <a class="xref" href="jvms-4.html#jvms-4.9" title="4.9.&nbsp;Constraints on Java Virtual Machine Code">&sect;4.9</a>,
+                  then a <code class="literal">VerifyError</code> must be thrown at the point in the program that caused the
+                  class or interface to be verified.
+               </p>
+               <p class="norm-error"><a name="jvms-5.4.1-120"></a>If an
+                  attempt by the Java Virtual Machine to verify a class or interface fails because an
+                  error is thrown that is an instance of <code class="literal">LinkageError</code> (or a subclass), then
+                  subsequent attempts to verify the class or interface always fail with
+                  the same error that was thrown as a result of the initial verification
+                  attempt.
+               </p>
+            </div>
+            <div class="section" title="5.4.2.&nbsp;Preparation">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.4.2"></a>5.4.2.&nbsp;Preparation
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.4.2-100"></a><span class="emphasis"><em>Preparation</em></span> involves
+                  creating the static fields for a class or interface and initializing
+                  such fields to their default values (<a class="xref" href="jvms-2.html#jvms-2.3" title="2.3.&nbsp;Primitive Types and Values">&sect;2.3</a>,
+                  <a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>). This does not require the execution of
+                  any Java Virtual Machine code; explicit initializers for static fields are executed
+                  as part of initialization (<a class="xref" href="jvms-5.html#jvms-5.5" title="5.5.&nbsp;Initialization">&sect;5.5</a>), not
+                  preparation.
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-110"></a>During preparation of a
+                  class or interface <span class="type">C</span>, the Java Virtual Machine also imposes loading constraints
+                  (<a class="xref" href="jvms-5.html#jvms-5.3.4" title="5.3.4.&nbsp;Loading Constraints">&sect;5.3.4</a>). Let <code class="varname">L<sub>1</sub></code> be the defining loader of
+                  <span class="type">C</span>. For each method <code class="varname">m</code> declared in <span class="type">C</span> that overrides
+                  (<a class="xref" href="jvms-5.html#jvms-5.4.5" title="5.4.5.&nbsp;Overriding">&sect;5.4.5</a>) a method declared in a superclass or
+                  superinterface <code class="literal">&lt;</code><span class="type">D</span>, <code class="varname">L<sub>2</sub></code><code class="literal">&gt;</code>, the Java Virtual Machine imposes the
+                  following loading constraints:
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-120"></a>Given that the return type
+                  of <code class="varname">m</code> is <span class="type">T<sub>r</sub></span>, and that the formal parameter types of <code class="varname">m</code> are <span class="type">T<sub>f1</sub></span>,
+                  ..., <span class="type">T<sub>fn</sub></span>, then:
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-130"></a>If <span class="type">T<sub>r</sub></span> not an array type,
+                  let <span class="type">T<sub>0</sub></span> be <span class="type">T<sub>r</sub></span>; otherwise, let <span class="type">T<sub>0</sub></span> be the element type
+                  (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of <span class="type">T<sub>r</sub></span>.
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-140"></a>For <span class="emphasis"><em>i</em></span> = 1 to <span class="emphasis"><em>n</em></span>: If
+                  <span class="type">T<sub>fi</sub></span> is not an array type, let <span class="type">T<sub>i</sub></span> be <span class="type">T<sub>fi</sub></span>; otherwise, let <span class="type">T<sub>i</sub></span> be
+                  the element type (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of <span class="type">T<sub>fi</sub></span>.
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-150"></a>Then
+                  <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>1</sub></code></sup> =
+                  <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>2</sub></code></sup> for <span class="emphasis"><em>i</em></span> = 0 to <span class="emphasis"><em>n</em></span>.
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-200"></a>Furthermore, if <span class="type">C</span>
+                  implements a method <code class="varname">m</code> declared in a superinterface <code class="literal">&lt;</code><span class="type">I</span>,
+                  <code class="varname">L<sub>3</sub></code><code class="literal">&gt;</code> of <span class="type">C</span>, but <span class="type">C</span> does not itself declare the method <code class="varname">m</code>,
+                  then let <code class="literal">&lt;</code><span class="type">D</span>, <code class="varname">L<sub>2</sub></code><code class="literal">&gt;</code> be the superclass of <span class="type">C</span> that
+                  declares the implementation of method <code class="varname">m</code> inherited by <span class="type">C</span>. The Java Virtual Machine
+                  imposes the following constraints:
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-210"></a>Given that the return type
+                  of <code class="varname">m</code> is <span class="type">T<sub>r</sub></span>, and that the formal parameter types of <code class="varname">m</code> are <span class="type">T<sub>f1</sub></span>,
+                  ..., <span class="type">T<sub>fn</sub></span>, then:
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-220"></a>If <span class="type">T<sub>r</sub></span> not an array type,
+                  let <span class="type">T<sub>0</sub></span> be <span class="type">T<sub>r</sub></span>; otherwise, let <span class="type">T<sub>0</sub></span> be the element type
+                  (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of <span class="type">T<sub>r</sub></span>.
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-230"></a>For <span class="emphasis"><em>i</em></span> = 1 to <span class="emphasis"><em>n</em></span>: If
+                  <span class="type">T<sub>fi</sub></span> is not an array type, let <span class="type">T<sub>i</sub></span> be <span class="type">T<sub>fi</sub></span>; otherwise, let <span class="type">T<sub>i</sub></span> be
+                  the element type (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of <span class="type">T<sub>fi</sub></span>.
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-240"></a>Then
+                  <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>2</sub></code></sup> =
+                  <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>3</sub></code></sup> for <span class="emphasis"><em>i</em></span> = 0 to <span class="emphasis"><em>n</em></span>.
+               </p>
+               <p class="norm"><a name="jvms-5.4.2-300"></a>Preparation may occur at any
+                  time following creation but must be completed prior to
+                  initialization.
+               </p>
+            </div>
+            <div class="section" title="5.4.3.&nbsp;Resolution">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.4.3"></a>5.4.3.&nbsp;Resolution
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.4.3-100"></a>The Java Virtual Machine instructions
+                  <span class="emphasis"><em>anewarray</em></span>, <span class="emphasis"><em>checkcast</em></span>, <span class="emphasis"><em>getfield</em></span>, <span class="emphasis"><em>getstatic</em></span>, <span class="emphasis"><em>instanceof</em></span>,
+                  <span class="emphasis"><em>invokedynamic</em></span>, <span class="emphasis"><em>invokeinterface</em></span>, <span class="emphasis"><em>invokespecial</em></span>, <span class="emphasis"><em>invokestatic</em></span>,
+                  <span class="emphasis"><em>invokevirtual</em></span>, <span class="emphasis"><em>ldc</em></span>, <span class="emphasis"><em>ldc_w</em></span>, <span class="emphasis"><em>multianewarray</em></span>, <span class="emphasis"><em>new</em></span>, <span class="emphasis"><em>putfield</em></span>,
+                  and <span class="emphasis"><em>putstatic</em></span> make symbolic references to the run-time constant
+                  pool. Execution of any of these instructions requires resolution of
+                  its symbolic reference.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-110"></a><span class="emphasis"><em>Resolution</em></span> is the process
+                  of dynamically determining concrete values from symbolic references in
+                  the run-time constant pool.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-200"></a>Resolution of the symbolic
+                  reference of one occurrence of an <span class="emphasis"><em>invokedynamic</em></span>
+                  instruction <span class="emphasis"><em>does not</em></span> imply that the same symbolic
+                  reference is considered resolved for any other <span class="emphasis"><em>invokedynamic</em></span>
+                  instruction.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-210"></a>For all other instructions
+                  above, resolution of the symbolic reference of one occurrence of an
+                  instruction <span class="emphasis"><em>does</em></span> imply that the same symbolic
+                  reference is considered resolved for any other non-<span class="emphasis"><em>invokedynamic</em></span>
+                  instruction.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-220"></a>(The above text implies that
+                  the concrete value determined by resolution for a specific
+                  <span class="emphasis"><em>invokedynamic</em></span> instruction is a call site object bound to that
+                  specific <span class="emphasis"><em>invokedynamic</em></span> instruction.)
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-300"></a>Resolution can be attempted
+                  on a symbolic reference that has already been resolved. An attempt to
+                  resolve a symbolic reference that has already successfully been
+                  resolved always succeeds trivially and always results in the same
+                  entity produced by the initial resolution of that reference.
+               </p>
+               <p class="norm-error"><a name="jvms-5.4.3-400"></a>If an
+                  error occurs during resolution of a symbolic reference, then an
+                  instance of <code class="literal">IncompatibleClassChangeError</code> (or a subclass) must be thrown at a point in the
+                  program that (directly or indirectly) uses the symbolic
+                  reference.
+               </p>
+               <p class="norm-error"><a name="jvms-5.4.3-410"></a>If an
+                  attempt by the Java Virtual Machine to resolve a symbolic reference fails because an
+                  error is thrown that is an instance of <code class="literal">LinkageError</code> (or a subclass), then
+                  subsequent attempts to resolve the reference always fail with the same
+                  error that was thrown as a result of the initial resolution
+                  attempt.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-420"></a>A symbolic reference to a
+                  call site specifier by a specific <span class="emphasis"><em>invokedynamic</em></span> instruction must not
+                  be resolved prior to execution of that instruction.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-430"></a>In the case of failed
+                  resolution of an <span class="emphasis"><em>invokedynamic</em></span> instruction, the bootstrap method is
+                  not re-executed on subsequent resolution attempts.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-500"></a>Certain of the instructions
+                  above require additional linking checks when resolving symbolic
+                  references. For instance, in order for a <span class="emphasis"><em>getfield</em></span> instruction to
+                  successfully resolve the symbolic reference to the field on which it
+                  operates, it must not only complete the field resolution steps given
+                  in <a class="xref" href="jvms-5.html#jvms-5.4.3.2" title="5.4.3.2.&nbsp;Field Resolution">&sect;5.4.3.2</a> but also check that the field is not
+                  <code class="literal">static</code>. If it is a <code class="literal">static</code> field, a linking exception must be
+                  thrown.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-510"></a>Notably, in order for an
+                  <span class="emphasis"><em>invokedynamic</em></span> instruction to successfully resolve the symbolic
+                  reference to a call site specifier, the bootstrap method specified
+                  therein must complete normally and return a suitable call site
+                  object. If the bootstrap method completes abruptly or returns an
+                  unsuitable call site object, a linking exception must be
+                  thrown.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-520"></a>Linking exceptions generated
+                  by checks that are specific to the execution of a particular Java Virtual Machine
+                  instruction are given in the description of that instruction and are
+                  not covered in this general discussion of resolution. Note that such
+                  exceptions, although described as part of the execution of Java Virtual Machine
+                  instructions rather than resolution, are still properly considered
+                  failures of resolution.
+               </p>
+               <p class="norm"><a name="jvms-5.4.3-600"></a>The following sections
+                  describe the process of resolving a symbolic reference in the run-time
+                  constant pool (<a class="xref" href="jvms-5.html#jvms-5.1" title="5.1.&nbsp;The Run-Time Constant Pool">&sect;5.1</a>) of a class or interface
+                  <span class="type">D</span>. Details of resolution differ with the kind of symbolic reference
+                  to be resolved.
+               </p>
+               <div class="section" title="5.4.3.1.&nbsp;Class and Interface Resolution">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h4 class="title"><a name="jvms-5.4.3.1"></a>5.4.3.1.&nbsp;Class and Interface Resolution
+                           </h4>
+                        </div>
+                     </div>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.1-100"></a>To resolve an unresolved
+                     symbolic reference from <span class="type">D</span> to a class or interface <span class="type">C</span> denoted by
+                     <code class="varname">N</code>, the following steps are performed:
+                  </p>
+                  <div class="orderedlist">
+                     <ol class="orderedlist" type="1">
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.1-100-A"></a>The defining class
+                                  loader of <span class="type">D</span> is used to create a class or interface denoted by
+                                  <code class="varname">N</code>. This class or interface is <span class="type">C</span>. The details of the process
+                                  are given in <a class="xref" href="jvms-5.html#jvms-5.3" title="5.3.&nbsp;Creation and Loading">&sect;5.3</a>.
+                           </p>
+                           <p class="norm-error"><a name="jvms-5.4.3.1-100-A.1"></a>Any exception that can be thrown as
+                                  a result of failure of class or interface creation can thus be
+                                  thrown as a result of failure of class and interface
+                                  resolution.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.1-100-B"></a>If <span class="type">C</span>
+                                    is an array class and its element type is a <code class="literal">reference</code> type,
+                                    then a symbolic reference to the class or interface
+                                    representing the element type is resolved by invoking the
+                                    algorithm in <a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a> recursively.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.1-100-C"></a>Finally, access
+                                  permissions to <span class="type">C</span> are checked.
+                           </p>
+                           <div class="norm">
+                              <ul class="norm" type="disc">
+                                 <li class="listitem">
+                                    <p class="norm-error"><a name="jvms-5.4.3.1-100-C-A"></a>If <span class="type">C</span> is not accessible
+                                       	(<a class="xref" href="jvms-5.html#jvms-5.4.4" title="5.4.4.&nbsp;Access Control">&sect;5.4.4</a>) to <span class="type">D</span>, class or interface
+                                       	resolution throws an <code class="literal">IllegalAccessError</code>.
+                                    </p>
+                                    <p class="note">This condition can occur, for example, if
+                                               <span class="type">C</span> is a class that was originally declared to be <code class="literal">public</code> but
+                                               was changed to be non-<code class="literal">public</code> after <span class="type">D</span> was compiled.
+                                    </p>
+                                 </li>
+                              </ul>
+                           </div>
+                        </li>
+                     </ol>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.1-110"></a>If steps 1 and 2 succeed
+                     but step 3 fails, <span class="type">C</span> is still valid and usable. Nevertheless,
+                     resolution fails, and <span class="type">D</span> is prohibited from accessing <span class="type">C</span>.
+                  </p>
+               </div>
+               <div class="section" title="5.4.3.2.&nbsp;Field Resolution">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h4 class="title"><a name="jvms-5.4.3.2"></a>5.4.3.2.&nbsp;Field Resolution
+                           </h4>
+                        </div>
+                     </div>
+                  </div>
+                  <p class="norm-error"><a name="jvms-5.4.3.2-100"></a>To
+                     resolve an unresolved symbolic reference from <span class="type">D</span> to a field in a
+                     class or interface <span class="type">C</span>, the symbolic reference to <span class="type">C</span> given by the
+                     field reference must first be resolved
+                     (<a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a>). Therefore, any exception that can be
+                     thrown as a result of failure of resolution of a class or interface
+                     reference can be thrown as a result of failure of field resolution. If
+                     the reference to <span class="type">C</span> can be successfully resolved, an exception
+                     relating to the failure of resolution of the field reference itself
+                     can be thrown.
+                  </p>
+                  <p class="norm"><a name="jvms-5.4.3.2-200"></a>When resolving a field
+                     reference, field resolution first attempts to look up the referenced
+                     field in <span class="type">C</span> and its superclasses:
+                  </p>
+                  <div class="orderedlist">
+                     <ol class="orderedlist" type="1">
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.2-200-A"></a>If <span class="type">C</span> declares a
+                                  field with the name and descriptor specified by the field
+                                  reference, field lookup succeeds. The declared field is the result
+                                  of the field lookup.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.2-200-B"></a>Otherwise, field
+                                  lookup is applied recursively to the direct superinterfaces of the
+                                  specified class or interface <span class="type">C</span>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.2-200-C"></a>Otherwise, if <span class="type">C</span>
+                                  has a superclass <span class="type">S</span>, field lookup is applied recursively to
+                                  <span class="type">S</span>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.2-200-D"></a>Otherwise, field
+                                  lookup fails.
+                           </p>
+                        </li>
+                     </ol>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.2-210"></a>Then:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm-error"><a name="jvms-5.4.3.2-210-A"></a>If
+                                  field lookup fails, field resolution throws a <code class="literal">NoSuchFieldError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-error"><a name="jvms-5.4.3.2-210-B"></a>Otherwise, if field lookup succeeds
+                                  but the referenced field is not accessible
+                                  (<a class="xref" href="jvms-5.html#jvms-5.4.4" title="5.4.4.&nbsp;Access Control">&sect;5.4.4</a>) to <span class="type">D</span>, field resolution throws an
+                                  <code class="literal">IllegalAccessError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.2-210-C"></a>Otherwise, let
+                                  <code class="literal">&lt;</code><span class="type">E</span>, <code class="varname">L<sub>1</sub></code><code class="literal">&gt;</code> be the class or interface in which the
+                                  referenced field is actually declared and let <code class="varname">L<sub>2</sub></code> be the defining
+                                  loader of <span class="type">D</span>.
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.2-210-C.1"></a>Given that the
+                                  type of the referenced field is <span class="type">T<sub>f</sub></span>, let <span class="type">T</span> be <span class="type">T<sub>f</sub></span> if <span class="type">T<sub>f</sub></span> is
+                                  not an array type, and let <span class="type">T</span> be the element type
+                                  (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of <span class="type">T<sub>f</sub></span> otherwise.
+                           </p>
+                           <p class="norm-error"><a name="jvms-5.4.3.2-210-C.2"></a>The Java Virtual Machine must impose the loading
+                                  constraint that <span class="type">T</span><sup><code class="varname">L<sub>1</sub></code></sup> =
+                                  <span class="type">T</span><sup><code class="varname">L<sub>2</sub></code></sup>
+                                  (<a class="xref" href="jvms-5.html#jvms-5.3.4" title="5.3.4.&nbsp;Loading Constraints">&sect;5.3.4</a>).
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+               </div>
+               <div class="section" title="5.4.3.3.&nbsp;Method Resolution">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h4 class="title"><a name="jvms-5.4.3.3"></a>5.4.3.3.&nbsp;Method Resolution
+                           </h4>
+                        </div>
+                     </div>
+                  </div>
+                  <p class="norm-error"><a name="jvms-5.4.3.3-100"></a>To
+                     resolve an unresolved symbolic reference from <span class="type">D</span> to a method in a
+                     class <span class="type">C</span>, the symbolic reference to <span class="type">C</span> given by the method reference
+                     is first resolved (<a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a>). Therefore, any
+                     exception that can be thrown as a result of failure of resolution of a
+                     class reference can be thrown as a result of failure of method
+                     resolution. If the reference to <span class="type">C</span> can be successfully resolved,
+                     exceptions relating to the resolution of the method reference itself
+                     can be thrown.
+                  </p>
+                  <p class="norm"><a name="jvms-5.4.3.3-200"></a>When resolving a method
+                     reference:
+                  </p>
+                  <div class="orderedlist">
+                     <ol class="orderedlist" type="1">
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.3-200-A"></a>
+                                    If <span class="type">C</span> is an interface, method resolution throws an
+                                    <code class="literal">IncompatibleClassChangeError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.3-200-B"></a>
+                                    Otherwise, method resolution attempts to locate the referenced
+                                    method in <span class="type">C</span> and its superclasses:
+                           </p>
+                           <div class="norm">
+                              <ul class="norm" type="disc">
+                                 <li class="listitem">
+                                    <p class="norm"><a name="jvms-5.4.3.3-200-B-A"></a>
+                                       	  If <span class="type">C</span> declares exactly one method with the name specified
+                                       	  by the method reference, and the declaration is a signature
+                                       	  polymorphic method (<a class="xref" href="jvms-2.html#jvms-2.9" title="2.9.&nbsp;Special Methods">&sect;2.9</a>), then method
+                                       	  lookup succeeds. All the class names mentioned in the
+                                       	  descriptor are resolved (<a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a>).
+                                    </p>
+                                    <p class="norm"><a name="jvms-5.4.3.3-200-B-A.1"></a>
+                                       	  <span class="emphasis"><em>The resolved method is the signature polymorphic
+                                             	  method declaration.</em></span> It is not necessary for <span class="type">C</span>
+                                       	  to declare a method with the descriptor specified by the
+                                       	  method reference.
+                                    </p>
+                                 </li>
+                                 <li class="listitem">
+                                    <p class="norm"><a name="jvms-5.4.3.3-200-B-B"></a>
+                                       	  Otherwise, if <span class="type">C</span> declares a method with the name and
+                                       	  descriptor specified by the method reference, method lookup
+                                       	  succeeds.
+                                    </p>
+                                 </li>
+                                 <li class="listitem">
+                                    <p class="norm"><a name="jvms-5.4.3.3-200-B-C"></a>
+                                       	  Otherwise, if <span class="type">C</span> has a superclass, step 2 of method
+                                       	  resolution is recursively invoked on the direct superclass
+                                       	  of <span class="type">C</span>.
+                                    </p>
+                                 </li>
+                              </ul>
+                           </div>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.3-200-C"></a>
+                                    Otherwise, method resolution attempts to locate the referenced
+                                    method in the superinterfaces of the specified class <span class="type">C</span>:
+                           </p>
+                           <div class="norm">
+                              <ul class="norm" type="disc">
+                                 <li class="listitem">
+                                    <p class="norm"><a name="jvms-5.4.3.3-200-C-A"></a>
+                                       	  If the <span class="emphasis"><em>maximally-specific superinterface
+                                             	  methods</em></span> of <span class="type">C</span> for the name and descriptor
+                                       	  specified by the method reference include exactly one method
+                                       	  that does not have its <code class="literal">ACC_ABSTRACT</code> flag set, then this
+                                       	  method is chosen and method lookup succeeds.
+                                    </p>
+                                 </li>
+                                 <li class="listitem">
+                                    <p class="norm"><a name="jvms-5.4.3.3-200-C-B"></a>
+                                       	  Otherwise, if any superinterface of <span class="type">C</span> declares a method
+                                       	  with the name and descriptor specified by the method
+                                       	  reference that has neither its <code class="literal">ACC_PRIVATE</code> flag nor its
+                                       	  <code class="literal">ACC_STATIC</code> flag set, one of these is arbitrarily chosen
+                                       	  and method lookup succeeds.
+                                    </p>
+                                 </li>
+                                 <li class="listitem">
+                                    <p class="norm"><a name="jvms-5.4.3.3-200-C-C"></a>
+                                       	  Otherwise, method lookup fails.
+                                    </p>
+                                 </li>
+                              </ul>
+                           </div>
+                        </li>
+                     </ol>
+                  </div>
+                  <p class="norm-static"><a name="jvms-5.4.3.3-210"></a>
+                     A <span class="emphasis"><em>maximally-specific superinterface method</em></span> of a
+                     class or interface <span class="type">C</span> for a particular method name and descriptor is
+                     any method for which all of the following are true:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm-static"><a name="jvms-5.4.3.3-210-A"></a>
+                                    The method is declared in a superinterface (direct or indirect)
+                                    of <span class="type">C</span>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-static"><a name="jvms-5.4.3.3-210-B"></a>
+                                    The method is declared with the specified name and
+                                    descriptor.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-static"><a name="jvms-5.4.3.3-210-C"></a>
+                                    The method has neither its <code class="literal">ACC_PRIVATE</code> flag nor its
+                                    <code class="literal">ACC_STATIC</code> flag set.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-static"><a name="jvms-5.4.3.3-210-D"></a>
+                                    Where the method is declared in interface <span class="type">I</span>, there exists no
+                                    other maximally-specific superinterface method of <span class="type">C</span> with the
+                                    specified name and descriptor that is declared in a subinterface
+                                    of <span class="type">I</span>.
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.3-300"></a>The result of method
+                     resolution is determined by whether method lookup succeeds or
+                     fails:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm-error"><a name="jvms-5.4.3.3-300-A"></a>
+                                    If method lookup fails, method resolution throws a
+                                    <code class="literal">NoSuchMethodError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-error"><a name="jvms-5.4.3.3-300-B"></a>
+                                    Otherwise, if method lookup succeeds and the referenced method
+                                    is not accessible (<a class="xref" href="jvms-5.html#jvms-5.4.4" title="5.4.4.&nbsp;Access Control">&sect;5.4.4</a>) to <span class="type">D</span>, method
+                                    resolution throws an <code class="literal">IllegalAccessError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.3-300-C"></a>
+                                    Otherwise, let <code class="literal">&lt;</code><span class="type">E</span>, <code class="varname">L<sub>1</sub></code><code class="literal">&gt;</code> be the class or
+                                    interface in which the referenced method <code class="varname">m</code> is actually
+                                    declared, and let <code class="varname">L<sub>2</sub></code> be the defining loader of <span class="type">D</span>.
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.3-300-C.1"></a>
+                                    Given that the return type of <code class="varname">m</code> is <span class="type">T<sub>r</sub></span>, and that the formal
+                                    parameter types of <code class="varname">m</code> are <span class="type">T<sub>f1</sub></span>, ..., <span class="type">T<sub>fn</sub></span>, then:
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.3-300-C.2"></a>
+                                    If <span class="type">T<sub>r</sub></span> is not an array type, let <span class="type">T<sub>0</sub></span> be <span class="type">T<sub>r</sub></span>; otherwise, let
+                                    <span class="type">T<sub>0</sub></span> be the element type (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of
+                                    <span class="type">T<sub>r</sub></span>.
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.3-300-C.3"></a>
+                                    For <span class="emphasis"><em>i</em></span> = 1 to <span class="emphasis"><em>n</em></span>: If <span class="type">T<sub>fi</sub></span> is not an array type, let
+                                    <span class="type">T<sub>i</sub></span> be <span class="type">T<sub>fi</sub></span>; otherwise, let <span class="type">T<sub>i</sub></span> be the element type
+                                    (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of <span class="type">T<sub>fi</sub></span>.
+                           </p>
+                           <p class="norm-error"><a name="jvms-5.4.3.3-300-C.4"></a>
+                                    The Java Virtual Machine must impose the loading constraints
+                                    <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>1</sub></code></sup> =
+                                    <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>2</sub></code></sup> for <span class="emphasis"><em>i</em></span> = 0 to <span class="emphasis"><em>n</em></span>
+                                    (<a class="xref" href="jvms-5.html#jvms-5.3.4" title="5.3.4.&nbsp;Loading Constraints">&sect;5.3.4</a>).
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="note">When resolution searches for a method in the class's
+                     superinterfaces, the best outcome is to identify a maximally-specific
+                     non-<code class="literal">abstract</code> method. It is possible that this method will be chosen
+                     by method selection, so it is desirable to add class loader
+                     constraints for it.
+                  </p>
+                  <p class="note">Otherwise, the result is nondeterministic. This is
+                     not new: <em class="citetitle">The <span class="trademark">Java</span>&reg; Virtual Machine Specification</em> has never identified exactly which method is
+                     chosen, and how "ties" should be broken. Prior to Java SE 8, this was
+                     mostly an unobservable distinction. However, beginning with Java SE 8,
+                     the set of interface methods is more heterogenous, so care must be
+                     taken to avoid problems with nondeterministic behavior. Thus:
+                  </p>
+                  <div class="note">
+                     <ul class="note" type="disc">
+                        <li class="listitem">
+                           <p class="note">Superinterface methods that are <code class="literal">private</code> and
+                                    <code class="literal">static</code> are ignored by resolution. This is consistent with the
+                                    Java programming language, where such interface methods are not
+                                    inherited.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="note">Any behavior controlled by the resolved method
+                                    should not depend on whether the method is <code class="literal">abstract</code> or
+                                    not.
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="note">Note that if the result of resolution is an
+                     <code class="literal">abstract</code> method, the referenced class <span class="type">C</span> may be
+                     non-<code class="literal">abstract</code>. Requiring <span class="type">C</span> to be <code class="literal">abstract</code> would conflict with the
+                     nondeterministic choice of superinterface methods. Instead, resolution
+                     assumes that the run time class of the invoked object has a concrete
+                     implementation of the method.
+                  </p>
+               </div>
+               <div class="section" title="5.4.3.4.&nbsp;Interface Method Resolution">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h4 class="title"><a name="jvms-5.4.3.4"></a>5.4.3.4.&nbsp;Interface Method Resolution
+                           </h4>
+                        </div>
+                     </div>
+                  </div>
+                  <p class="norm-error"><a name="jvms-5.4.3.4-100"></a>To
+                     resolve an unresolved symbolic reference from <span class="type">D</span> to an interface
+                     method in an interface <span class="type">C</span>, the symbolic reference to <span class="type">C</span> given by the
+                     interface method reference is first resolved
+                     (<a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a>). Therefore, any exception that can be
+                     thrown as a result of failure of resolution of an interface reference
+                     can be thrown as a result of failure of interface method
+                     resolution. If the reference to <span class="type">C</span> can be successfully resolved,
+                     exceptions relating to the resolution of the interface method
+                     reference itself can be thrown.
+                  </p>
+                  <p class="norm"><a name="jvms-5.4.3.4-200"></a>When resolving an
+                     interface method reference:
+                  </p>
+                  <div class="orderedlist">
+                     <ol class="orderedlist" type="1">
+                        <li class="listitem">
+                           <p class="norm-error"><a name="jvms-5.4.3.4-200-A"></a>
+                                    If <span class="type">C</span> is not an interface, interface method resolution throws
+                                    an <code class="literal">IncompatibleClassChangeError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-dynamic"><a name="jvms-5.4.3.4-200-B"></a>
+                                    Otherwise, if <span class="type">C</span> declares a method with the name and descriptor
+                                    specified by the interface method reference, method lookup
+                                    succeeds.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-dynamic"><a name="jvms-5.4.3.4-200-C"></a>
+                                    Otherwise, if the class <code class="literal">Object</code> declares a method with the name
+                                    and descriptor specified by the interface method reference,
+                                    which has its <code class="literal">ACC_PUBLIC</code> flag set and does not have its
+                                    <code class="literal">ACC_STATIC</code> flag set, method lookup succeeds.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-dynamic"><a name="jvms-5.4.3.4-200-D"></a>
+                                    Otherwise, if the maximally-specific superinterface methods
+                                    (<a class="xref" href="jvms-5.html#jvms-5.4.3.3" title="5.4.3.3.&nbsp;Method Resolution">&sect;5.4.3.3</a>) of <span class="type">C</span> for the name and
+                                    descriptor specified by the method reference include exactly one
+                                    method that does not have its <code class="literal">ACC_ABSTRACT</code> flag set, then this
+                                    method is chosen and method lookup succeeds.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-dynamic"><a name="jvms-5.4.3.4-200-E"></a>
+                                    Otherwise, if any superinterface of <span class="type">C</span> declares a method with
+                                    the name and descriptor specified by the method reference that
+                                    has neither its <code class="literal">ACC_PRIVATE</code> flag nor its <code class="literal">ACC_STATIC</code> flag
+                                    set, one of these is arbitrarily chosen and method lookup
+                                    succeeds.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-dynamic"><a name="jvms-5.4.3.4-200-F"></a>
+                                    Otherwise, method lookup fails.
+                           </p>
+                        </li>
+                     </ol>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.4-300"></a>The result of interface
+                     method resolution is determined by whether method lookup succeeds or
+                     fails:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm-error"><a name="jvms-5.4.3.4-300-A"></a>
+                                    If method lookup fails, interface method resolution throws a
+                                    <code class="literal">NoSuchMethodError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm-error"><a name="jvms-5.4.3.4-300-B"></a>
+                                    If method lookup succeeds and the referenced method is not
+                                    accessible (<a class="xref" href="jvms-5.html#jvms-5.4.4" title="5.4.4.&nbsp;Access Control">&sect;5.4.4</a>) to <span class="type">D</span>, interface
+                                    method resolution throws an <code class="literal">IllegalAccessError</code>.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.4-300-C"></a>
+                                    Otherwise, let <code class="literal">&lt;</code><span class="type">E</span>, <code class="varname">L<sub>1</sub></code><code class="literal">&gt;</code> be the class or
+                                    interface in which the referenced interface method <code class="varname">m</code> is
+                                    actually declared, and let <code class="varname">L<sub>2</sub></code> be the defining loader of
+                                    <span class="type">D</span>.
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.4-300-C.1"></a>
+                                    Given that the return type of <code class="varname">m</code> is <span class="type">T<sub>r</sub></span>, and that the formal
+                                    parameter types of <code class="varname">m</code> are <span class="type">T<sub>f1</sub></span>, ..., <span class="type">T<sub>fn</sub></span>, then:
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.4-300-C.2"></a>
+                                    If <span class="type">T<sub>r</sub></span> is not an array type, let <span class="type">T<sub>0</sub></span> be <span class="type">T<sub>r</sub></span>; otherwise, let
+                                    <span class="type">T<sub>0</sub></span> be the element type (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of
+                                    <span class="type">T<sub>r</sub></span>.
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.4-300-C.3"></a>
+                                    For <span class="emphasis"><em>i</em></span> = 1 to <span class="emphasis"><em>n</em></span>: If <span class="type">T<sub>fi</sub></span> is not an array type, let
+                                    <span class="type">T<sub>i</sub></span> be <span class="type">T<sub>fi</sub></span>; otherwise, let <span class="type">T<sub>i</sub></span> be the element type
+                                    (<a class="xref" href="jvms-2.html#jvms-2.4" title="2.4.&nbsp;Reference Types and Values">&sect;2.4</a>) of <span class="type">T<sub>fi</sub></span>.
+                           </p>
+                           <p class="norm-error"><a name="jvms-5.4.3.4-300-C.4"></a>
+                                    The Java Virtual Machine must impose the loading constraints
+                                    <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>1</sub></code></sup> =
+                                    <span class="type">T<sub>i</sub></span><sup><code class="varname">L<sub>2</sub></code></sup> for <span class="emphasis"><em>i</em></span> = 0 to <span class="emphasis"><em>n</em></span>
+                                    (<a class="xref" href="jvms-5.html#jvms-5.3.4" title="5.3.4.&nbsp;Loading Constraints">&sect;5.3.4</a>).
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="note">The clause about accessibility is necessary because
+                     interface method resolution may pick a <code class="literal">private</code> method of interface
+                     <span class="type">C</span>. (Prior to Java SE 8, the result of interface method resolution
+                     could be a non-<code class="literal">public</code> method of class <code class="literal">Object</code> or a <code class="literal">static</code> method
+                     of class <code class="literal">Object</code>; such results were not consistent with the
+                     inheritance model of the Java programming language, and are disallowed in Java SE 8
+                     and above.)
+                  </p>
+               </div>
+               <div class="section" title="5.4.3.5.&nbsp;Method Type and Method Handle Resolution">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h4 class="title"><a name="jvms-5.4.3.5"></a>5.4.3.5.&nbsp;Method Type and Method Handle Resolution
+                           </h4>
+                        </div>
+                     </div>
+                  </div>
+                  <p class="norm-dynamic"><a name="jvms-5.4.3.5-100"></a>To resolve
+                     an unresolved symbolic reference to a method type, 
+                     it is as if resolution occurs of unresolved symbolic references to
+                     classes and interfaces (<a class="xref" href="jvms-5.html#jvms-5.4.3.1" title="5.4.3.1.&nbsp;Class and Interface Resolution">&sect;5.4.3.1</a>) whose names
+                     correspond to the types given in the method descriptor
+                     (<a class="xref" href="jvms-4.html#jvms-4.3.3" title="4.3.3.&nbsp;Method Descriptors">&sect;4.3.3</a>).
+                  </p>
+                  <p class="norm-error"><a name="jvms-5.4.3.5-110"></a>Any
+                     exception that can be thrown as a result of failure of resolution of a
+                     class reference can thus be thrown as a result of failure of method
+                     type resolution.
+                  </p>
+                  <p class="norm-dynamic"><a name="jvms-5.4.3.5-120"></a>The
+                     result of successful method type resolution is a <code class="literal">reference</code> to an instance
+                     of <code class="literal">java.lang.invoke.MethodType</code> which represents the method descriptor.
+                  </p>
+                  <p class="note">Method type resolution occurs regardless of
+                     whether the run time constant pool actually contains symbolic
+                     references to classes and interfaces indicated in the method
+                     descriptor. Also, the resolution is deemed to occur
+                     on <span class="emphasis"><em>unresolved</em></span> symbolic references, so a failure
+                     to resolve one method type will not necessarily lead to a later
+                     failure to resolve another method type with the same textual method
+                     descriptor, if suitable classes and interfaces can be loaded by the
+                     later time.
+                  </p>
+                  <p class="norm"><a name="jvms-5.4.3.5-200"></a>Resolution of an
+                     unresolved symbolic reference to a method handle is more
+                     complicated. Each method handle resolved by the Java Virtual Machine has an
+                     equivalent instruction sequence called its <span class="emphasis"><em>bytecode
+                           behavior</em></span>, indicated by the method
+                     handle's <span class="emphasis"><em>kind</em></span>. The integer values and
+                     descriptions of the nine kinds of method handle are given in
+                     <a class="xref" href="jvms-5.html#jvms-5.4.3.5-220" title="Table&nbsp;5.4.3.5-A.&nbsp;Bytecode Behaviors for Method Handles">Table&nbsp;5.4.3.5-A</a>.
+                  </p>
+                  <p class="norm"><a name="jvms-5.4.3.5-210"></a>Symbolic references by an
+                     instruction sequence to fields or methods are indicated
+                     by <code class="literal">C.x:T</code>, where <code class="literal">x</code>
+                     and <code class="literal">T</code> are the name and descriptor
+                     (<a class="xref" href="jvms-4.html#jvms-4.3.2" title="4.3.2.&nbsp;Field Descriptors">&sect;4.3.2</a>, <a class="xref" href="jvms-4.html#jvms-4.3.3" title="4.3.3.&nbsp;Method Descriptors">&sect;4.3.3</a>) of the
+                     field or method, and <code class="literal">C</code> is the class or interface in
+                     which the field or method is to be found.
+                  </p>
+                  <div class="table"><a name="jvms-5.4.3.5-220"></a><p class="title"><b>Table&nbsp;5.4.3.5-A.&nbsp;Bytecode Behaviors for Method Handles</b></p>
+                     <div class="table-contents">
+                        <table summary="Bytecode Behaviors for Method Handles" border="1">
+                           <colgroup>
+                              <col>
+                              <col>
+                              <col>
+                           </colgroup>
+                           <thead>
+                              <tr>
+                                 <th>Kind</th>
+                                 <th>Description</th>
+                                 <th>Interpretation</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td>1</td>
+                                 <td><code class="literal">REF_getField</code></td>
+                                 <td><code class="literal">getfield C.f:T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>2</td>
+                                 <td><code class="literal">REF_getStatic</code></td>
+                                 <td><code class="literal">getstatic C.f:T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>3</td>
+                                 <td><code class="literal">REF_putField</code></td>
+                                 <td><code class="literal">putfield C.f:T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>4</td>
+                                 <td><code class="literal">REF_putStatic</code></td>
+                                 <td><code class="literal">putstatic C.f:T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>5</td>
+                                 <td><code class="literal">REF_invokeVirtual</code></td>
+                                 <td><code class="literal">invokevirtual C.m:(A*)T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>6</td>
+                                 <td><code class="literal">REF_invokeStatic</code></td>
+                                 <td><code class="literal">invokestatic C.m:(A*)T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>7</td>
+                                 <td><code class="literal">REF_invokeSpecial</code></td>
+                                 <td><code class="literal">invokespecial C.m:(A*)T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>8</td>
+                                 <td><code class="literal">REF_newInvokeSpecial</code></td>
+                                 <td><code class="literal">new C; dup; invokespecial
+                                       	C.<code class="literal">&lt;init&gt;</code>:(A*)V</code></td>
+                              </tr>
+                              <tr>
+                                 <td>9</td>
+                                 <td><code class="literal">REF_invokeInterface</code></td>
+                                 <td><code class="literal">invokeinterface C.m:(A*)T</code></td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                  </div><br class="table-break"><p class="norm"><a name="jvms-5.4.3.5-230"></a>Let <code class="varname">MH</code> be the symbolic
+                     reference to a method handle (<a class="xref" href="jvms-5.html#jvms-5.1" title="5.1.&nbsp;The Run-Time Constant Pool">&sect;5.1</a>) being
+                     resolved. Then:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.5-230-A"></a>
+                                    Let <span class="type">R</span> be the symbolic reference to the field or method
+                                    contained within <code class="varname">MH</code>.
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.5-230-A.1"></a>
+                                    (<span class="type">R</span> is derived from the <code class="literal">CONSTANT_Fieldref</code>,
+                                    <code class="literal">CONSTANT_Methodref</code>, or <code class="literal">CONSTANT_InterfaceMethodref</code> structure
+                                    referred to by the <code class="literal">reference_index</code> item of
+                                    the <code class="literal">CONSTANT_MethodHandle</code> from which <code class="varname">MH</code> is derived.)
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.5-230-B"></a>
+                                    Let <span class="type">T</span> be the type of the field referenced by <span class="type">R</span>, or the
+                                    return type of the method referenced by <span class="type">R</span>. Let <span class="type">A</span>* be the
+                                    sequence (perhaps empty) of parameter types of the method
+                                    referenced by <span class="type">R</span>.
+                           </p>
+                           <p class="norm"><a name="jvms-5.4.3.5-230-B.1"></a>
+                                    (<span class="type">T</span> and <span class="type">A</span>* are derived from the <code class="literal">CONSTANT_NameAndType</code>
+                                    structure referred to by the 
+                                    <code class="literal">name_and_type_index</code> item in the
+                                    <code class="literal">CONSTANT_Fieldref</code>, <code class="literal">CONSTANT_Methodref</code>, or
+                                    <code class="literal">CONSTANT_InterfaceMethodref</code> structure from which <span class="type">R</span> is
+                                    derived.)
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="norm-error"><a name="jvms-5.4.3.5-240"></a>To resolve
+                     <code class="varname">MH</code>, all symbolic references to classes, interfaces, fields, and
+                     methods in <code class="varname">MH</code>'s bytecode behavior are resolved, using the following
+                     three steps:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.5-240-A"></a>
+                                    First, <span class="type">R</span> is resolved.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.5-240-B"></a>
+                                    Second, resolution occurs as if of unresolved symbolic
+                                    references to classes and interfaces whose names correspond to
+                                    each type in <span class="type">A</span>*, and to the type <span class="type">T</span>, in that order.
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.5-240-C"></a>
+                                    Third, a reference to an instance of <code class="literal">java.lang.invoke.MethodType</code> is obtained as
+                                    if by resolution of an unresolved symbolic reference to a method
+                                    type that contains the method descriptor specified in
+                                    <a class="xref" href="jvms-5.html#jvms-5.4.3.5-260" title="Table&nbsp;5.4.3.5-B.&nbsp;Method Descriptors for Method Handles">Table&nbsp;5.4.3.5-B</a> for the kind of <code class="varname">MH</code>.
+                           </p>
+                           <p class="note">It is as if the symbolic reference to a method
+                                    handle contains a symbolic reference to the method type that the
+                                    resolved method handle will eventually have. The detailed
+                                    structure of the method type is obtained by inspecting
+                                    <a class="xref" href="jvms-5.html#jvms-5.4.3.5-260" title="Table&nbsp;5.4.3.5-B.&nbsp;Method Descriptors for Method Handles">Table&nbsp;5.4.3.5-B</a>.
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.5-250"></a>In each step, any exception that
+                     can be thrown as a result of failure of resolution of a class or
+                     interface or field or method reference can be thrown as a result of
+                     failure of method handle resolution.
+                  </p>
+                  <p class="note">The intent is that resolving a method handle can be
+                     done in exactly the same circumstances that the Java Virtual Machine would
+                     successfully resolve the symbolic references in the bytecode
+                     behavior. In particular, method handles to <code class="literal">private</code> and <code class="literal">protected</code>
+                     members can be created in exactly those classes for which the
+                     corresponding normal accesses are legal.
+                  </p>
+                  <div class="table"><a name="jvms-5.4.3.5-260"></a><p class="title"><b>Table&nbsp;5.4.3.5-B.&nbsp;Method Descriptors for Method Handles</b></p>
+                     <div class="table-contents">
+                        <table summary="Method Descriptors for Method Handles" border="1">
+                           <colgroup>
+                              <col>
+                              <col>
+                              <col>
+                           </colgroup>
+                           <thead>
+                              <tr>
+                                 <th>Kind</th>
+                                 <th>Description</th>
+                                 <th>Method descriptor</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td>1</td>
+                                 <td><code class="literal">REF_getField</code></td>
+                                 <td><code class="literal">(C)T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>2</td>
+                                 <td><code class="literal">REF_getStatic</code></td>
+                                 <td><code class="literal">()T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>3</td>
+                                 <td><code class="literal">REF_putField</code></td>
+                                 <td><code class="literal">(C,T)V</code></td>
+                              </tr>
+                              <tr>
+                                 <td>4</td>
+                                 <td><code class="literal">REF_putStatic</code></td>
+                                 <td><code class="literal">(T)V</code></td>
+                              </tr>
+                              <tr>
+                                 <td>5</td>
+                                 <td><code class="literal">REF_invokeVirtual</code></td>
+                                 <td><code class="literal">(C,A*)T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>6</td>
+                                 <td><code class="literal">REF_invokeStatic</code></td>
+                                 <td><code class="literal">(A*)T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>7</td>
+                                 <td><code class="literal">REF_invokeSpecial</code></td>
+                                 <td><code class="literal">(C,A*)T</code></td>
+                              </tr>
+                              <tr>
+                                 <td>8</td>
+                                 <td><code class="literal">REF_newInvokeSpecial</code></td>
+                                 <td><code class="literal">(A*)C</code></td>
+                              </tr>
+                              <tr>
+                                 <td>9</td>
+                                 <td><code class="literal">REF_invokeInterface</code></td>
+                                 <td><code class="literal">(C,A*)T</code></td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                  </div><br class="table-break"><p class="norm-dynamic"><a name="jvms-5.4.3.5-300"></a>The
+                     result of successful method handle resolution is a <code class="literal">reference</code> to an
+                     instance of <code class="literal">java.lang.invoke.MethodHandle</code> which represents the method handle
+                     <code class="varname">MH</code>.
+                  </p>
+                  <p class="norm-dynamic"><a name="jvms-5.4.3.5-310"></a>The
+                     type descriptor of this <code class="literal">java.lang.invoke.MethodHandle</code> instance is the <code class="literal">java.lang.invoke.MethodType</code>
+                     instance produced in the third step of method handle resolution
+                     above.
+                  </p>
+                  <p class="note">The type descriptor of a method handle is such that
+                     a valid call to <code class="literal">invokeExact</code> in <code class="literal">java.lang.invoke.MethodHandle</code> on the method handle
+                     has exactly the same stack effects as the bytecode behavior. Calling
+                     this method handle on a valid set of arguments has exactly the same
+                     effect and returns the same result (if any) as the corresponding
+                     bytecode behavior.
+                  </p>
+                  <p class="norm-dynamic"><a name="jvms-5.4.3.5-320"></a>If the
+                     method referenced by <span class="type">R</span> has the <code class="literal">ACC_VARARGS</code> flag set
+                     (<a class="xref" href="jvms-4.html#jvms-4.6" title="4.6.&nbsp;Methods">&sect;4.6</a>), then the <code class="literal">java.lang.invoke.MethodHandle</code> instance is a
+                     variable arity method handle; otherwise, it is a fixed arity method
+                     handle.
+                  </p>
+                  <p class="norm-dynamic"><a name="jvms-5.4.3.5-330"></a>A
+                     variable arity method handle performs argument list boxing (JLS
+                     &sect;15.12.4.2) when invoked via <code class="literal">invoke</code>, while its behavior with respect
+                     to <code class="literal">invokeExact</code> is as if the <code class="literal">ACC_VARARGS</code> flag were not set.
+                  </p>
+                  <p class="norm-error"><a name="jvms-5.4.3.5-340"></a>Method
+                     handle resolution throws an <code class="literal">IncompatibleClassChangeError</code> if the method referenced
+                     by <span class="type">R</span> has the <code class="literal">ACC_VARARGS</code> flag set and either <span class="type">A</span>* is an empty sequence or the last
+                     parameter type in <span class="type">A</span>* is not an
+                     array type. That is, creation of a variable arity method handle
+                     fails.
+                  </p>
+                  <p class="norm"><a name="jvms-5.4.3.5-400"></a>An implementation of the
+                     Java Virtual Machine is not required to intern method types or method handles. That
+                     is, two distinct symbolic references to method types or method handles
+                     which are structurally identical might not resolve to the same
+                     instance of <code class="literal">java.lang.invoke.MethodType</code> or <code class="literal">java.lang.invoke.MethodHandle</code> respectively.
+                  </p>
+                  <p class="note">The <code class="literal">java.lang.invoke.MethodHandles</code>
+                     class in the Java SE platform API allows creation of method handles with no
+                     bytecode behavior. Their behavior is defined by the method of
+                     <code class="literal">java.lang.invoke.MethodHandles</code> that creates
+                     them. For example, a method handle may, when invoked, first apply
+                     transformations to its argument values, then supply the transformed
+                     values to the invocation of another method handle, then apply a
+                     transformation to the value returned from that invocation, then return
+                     the transformed value as its own result.
+                  </p>
+               </div>
+               <div class="section" title="5.4.3.6.&nbsp;Call Site Specifier Resolution">
+                  <div class="titlepage">
+                     <div>
+                        <div>
+                           <h4 class="title"><a name="jvms-5.4.3.6"></a>5.4.3.6.&nbsp;Call Site Specifier Resolution
+                           </h4>
+                        </div>
+                     </div>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.6-100"></a>To resolve an unresolved
+                     symbolic reference to a call site specifier involves three
+                     steps:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.6-100-A"></a>
+                                    A call site specifier gives a symbolic reference to a method
+                                    handle which is to serve as the <span class="emphasis"><em>bootstrap
+                                          method</em></span> for a dynamic call site
+                                    (<a class="xref" href="jvms-4.html#jvms-4.7.23" title="4.7.23.&nbsp;The BootstrapMethods Attribute">&sect;4.7.23</a>). The method handle is resolved
+                                    to obtain a <code class="literal">reference</code> to an instance of <code class="literal">java.lang.invoke.MethodHandle</code>
+                                    (<a class="xref" href="jvms-5.html#jvms-5.4.3.5" title="5.4.3.5.&nbsp;Method Type and Method Handle Resolution">&sect;5.4.3.5</a>).
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.6-100-B"></a>
+                                    A call site specifier gives a method
+                                    descriptor, <span class="emphasis"><em>TD</em></span>. A <code class="literal">reference</code> to an instance of
+                                    <code class="literal">java.lang.invoke.MethodType</code> is obtained as if by resolution of a symbolic
+                                    reference to a method type with the same parameter and return
+                                    types as <span class="emphasis"><em>TD</em></span>
+                                    (<a class="xref" href="jvms-5.html#jvms-5.4.3.5" title="5.4.3.5.&nbsp;Method Type and Method Handle Resolution">&sect;5.4.3.5</a>).
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.6-100-C"></a>
+                                    A call site specifier gives zero or more <span class="emphasis"><em>static
+                                          arguments</em></span>, which communicate application-specific
+                                    metadata to the bootstrap method. Any static arguments which are
+                                    symbolic references to classes, method handles, or method types
+                                    are resolved, as if by invocation of the <span class="emphasis"><em>ldc</em></span> instruction
+                                    (<a class="xref" href="jvms-6.html#jvms-6.5.ldc" title="ldc">&sect;<span class="emphasis"><em>ldc</em></span></a>), to obtain <code class="literal">reference</code>s to <code class="literal">Class</code>
+                                    objects, <code class="literal">java.lang.invoke.MethodHandle</code> objects, and <code class="literal">java.lang.invoke.MethodType</code> objects
+                                    respectively. Any static arguments that are string literals are
+                                    used to obtain <code class="literal">reference</code>s to <code class="literal">String</code> objects.
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="norm"><a name="jvms-5.4.3.6-110"></a>The result of call site
+                     specifier resolution is a tuple consisting of:
+                  </p>
+                  <div class="norm">
+                     <ul class="norm" type="disc">
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.6-110-A"></a>
+                                    the <code class="literal">reference</code> to an instance of <code class="literal">java.lang.invoke.MethodHandle</code>,
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.6-110-B"></a>
+                                    the <code class="literal">reference</code> to an instance of <code class="literal">java.lang.invoke.MethodType</code>,
+                           </p>
+                        </li>
+                        <li class="listitem">
+                           <p class="norm"><a name="jvms-5.4.3.6-110-C"></a>
+                                    the <code class="literal">reference</code>s to instances of <code class="literal">Class</code>, <code class="literal">java.lang.invoke.MethodHandle</code>,
+                                    <code class="literal">java.lang.invoke.MethodType</code>, and <code class="literal">String</code>.
+                           </p>
+                        </li>
+                     </ul>
+                  </div>
+                  <p class="norm-error"><a name="jvms-5.4.3.6-200"></a>During
+                     resolution of the symbolic reference to the method handle in the call
+                     site specifier, or resolution of the symbolic reference to the method
+                     type for the method descriptor in the call site specifier, or
+                     resolution of a symbolic reference to any static argument, any of the
+                     exceptions pertaining to method type or method handle resolution may
+                     be thrown (<a class="xref" href="jvms-5.html#jvms-5.4.3.5" title="5.4.3.5.&nbsp;Method Type and Method Handle Resolution">&sect;5.4.3.5</a>).
+                  </p>
+               </div>
+            </div>
+            <div class="section" title="5.4.4.&nbsp;Access Control">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.4.4"></a>5.4.4.&nbsp;Access Control
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.4.4-100"></a>A class or interface <span class="type">C</span> is
+                  <span class="emphasis"><em>accessible</em></span> to a class or interface <span class="type">D</span> if and
+                  only if either of the following is true:
+               </p>
+               <div class="norm">
+                  <ul class="norm" type="disc">
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.4-100-A"></a>
+                                 <span class="type">C</span> is <code class="literal">public</code>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.4-100-B"></a>
+                                 <span class="type">C</span> and <span class="type">D</span> are members of the same run-time package
+                                 (<a class="xref" href="jvms-5.html#jvms-5.3" title="5.3.&nbsp;Creation and Loading">&sect;5.3</a>).
+                        </p>
+                     </li>
+                  </ul>
+               </div>
+               <p class="norm"><a name="jvms-5.4.4-200"></a>A field or method <span class="type">R</span> is
+                  accessible to a class or interface <span class="type">D</span> if and only if any of the
+                  following is true:
+               </p>
+               <div class="norm">
+                  <ul class="norm" type="disc">
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.4-200-A"></a>
+                                 <span class="type">R</span> is <code class="literal">public</code>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.4-200-B"></a>
+                                 <span class="type">R</span> is <code class="literal">protected</code> and is declared in a class <span class="type">C</span>, and <span class="type">D</span> is
+                                 either a subclass of <span class="type">C</span> or <span class="type">C</span> itself. Furthermore, if <span class="type">R</span> is
+                                 not <code class="literal">static</code>, then the symbolic reference to <span class="type">R</span> must contain a
+                                 symbolic reference to a class <span class="type">T</span>, such that <span class="type">T</span> is either a
+                                 subclass of <span class="type">D</span>, a superclass of <span class="type">D</span>, or <span class="type">D</span> itself.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.4-200-C"></a>
+                                 <span class="type">R</span> is either <code class="literal">protected</code> or has default access (that is,
+                                 neither <code class="literal">public</code> nor <code class="literal">protected</code> nor <code class="literal">private</code>), and is declared
+                                 by a class in the same run-time package as <span class="type">D</span>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.4-200-D"></a>
+                                 <span class="type">R</span> is <code class="literal">private</code> and is declared in <span class="type">D</span>.
+                        </p>
+                     </li>
+                  </ul>
+               </div>
+               <p class="norm"><a name="jvms-5.4.4-210"></a>This discussion of access
+                  control omits a related restriction on the target of a <code class="literal">protected</code>
+                  field access or method invocation (the target must be of class <span class="type">D</span> or
+                  a subtype of <span class="type">D</span>). That requirement is checked as part of the
+                  verification process (<a class="xref" href="jvms-4.html#jvms-4.10.1.8" title="4.10.1.8.&nbsp;Type Checking for protected Members">&sect;4.10.1.8</a>); it is not part of
+                  link-time access control.
+               </p>
+            </div>
+            <div class="section" title="5.4.5.&nbsp;Overriding">
+               <div class="titlepage">
+                  <div>
+                     <div>
+                        <h3 class="title"><a name="jvms-5.4.5"></a>5.4.5.&nbsp;Overriding
+                        </h3>
+                     </div>
+                  </div>
+               </div>
+               <p class="norm"><a name="jvms-5.4.5-100"></a>An instance method <code class="varname">m<sub>C</sub></code>
+                  declared in class <span class="type">C</span> overrides another instance method <code class="varname">m<sub>A</sub></code> declared
+                  in class <span class="type">A</span> iff either <code class="varname">m<sub>C</sub></code> is the same as <code class="varname">m<sub>A</sub></code>, or all of the
+                  following are true:
+               </p>
+               <div class="norm">
+                  <ul class="norm" type="disc">
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.5-100-A"></a>
+                                 <span class="type">C</span> is a subclass of <span class="type">A</span>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.5-100-B"></a>
+                                 <code class="varname">m<sub>C</sub></code> has the same name and descriptor as <code class="varname">m<sub>A</sub></code>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm-static"><a name="jvms-5.4.5-100-C"></a>
+                                 <code class="varname">m<sub>C</sub></code> is not marked <code class="literal">ACC_PRIVATE</code>.
+                        </p>
+                     </li>
+                     <li class="listitem">
+                        <p class="norm"><a name="jvms-5.4.5-100-D"></a>
+                                 One of the following is true:
+                        </p>
+                        <div class="norm">
+                           <ul class="norm" type="circle">
+                              <li class="listitem">
+                                 <p class="norm"><a name="jvms-5.4.5-100-D-A"></a>
+                                    	  <code class="varname">m<sub>A</sub></code> is marked <code class="literal">ACC_PUBLIC</code>; or is marked <code class="literal">ACC_PROTECTED</code>;
+                                    	  or is marked neither <code class="literal">ACC_PUBLIC</code> nor <code class="literal">ACC_PROTECTED</code> nor
+                                    	  <code class="literal">ACC_PRIVATE</code> and <span class="type">A</span> belongs to the same run-time package
+                                    	  as <span class="type">C</span>.
+                                 </p>
+                              </li>
+                              <li class="listitem">
+                                 <p class="norm"><a name="jvms-5.4.5-100-D-B"></a>
+                                    	  <code class="varname">m<sub>C</sub></code> overrides a method <code class="varname">m'</code> (<code class="varname">m'</code> distinct from
+                                    	  <code class="varname">m<sub>C</sub></code> and <code class="varname">m<sub>A</sub></code>) such that <code class="varname">m'</code> overrides <code class="varname">m<sub>A</sub></code>.
+                                 </p>
+                              </li>
+                           </ul>
+                        </div>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+         <div class="section" title="5.5.&nbsp;Initialization">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-5.5"></a>5.5.&nbsp;Initialization
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm-dynamic"><a name="jvms-5.5-100"></a>
+               <span class="emphasis"><em>Initialization</em></span> of a class or interface consists
+               of executing its class or interface initialization method
+               (<a class="xref" href="jvms-2.html#jvms-2.9" title="2.9.&nbsp;Special Methods">&sect;2.9</a>).
+            </p>
+            <p class="norm-dynamic"><a name="jvms-5.5-110"></a>
+               A class or interface <span class="type">C</span> may be initialized only as a result of:
+            </p>
+            <div class="norm">
+               <ul class="norm" type="disc">
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-A"></a>
+                              The execution of any one of the Java Virtual Machine instructions <span class="emphasis"><em>new</em></span>,
+                              <span class="emphasis"><em>getstatic</em></span>, <span class="emphasis"><em>putstatic</em></span>, or <span class="emphasis"><em>invokestatic</em></span> that references <span class="type">C</span>
+                              (<a class="xref" href="jvms-6.html#jvms-6.5.new" title="new">&sect;<span class="emphasis"><em>new</em></span></a>,
+                              <a class="xref" href="jvms-6.html#jvms-6.5.getstatic" title="getstatic">&sect;<span class="emphasis"><em>getstatic</em></span></a>,
+                              <a class="xref" href="jvms-6.html#jvms-6.5.putstatic" title="putstatic">&sect;<span class="emphasis"><em>putstatic</em></span></a>,
+                              <a class="xref" href="jvms-6.html#jvms-6.5.invokestatic" title="invokestatic">&sect;<span class="emphasis"><em>invokestatic</em></span></a>). These instructions
+                              reference a class or interface directly or indirectly through
+                              either a field reference or a method reference.
+                     </p>
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-A.1"></a>
+                              Upon execution of a <span class="emphasis"><em>new</em></span> instruction, the referenced class is
+                              initialized if it has not been initialized already.
+                     </p>
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-A.2"></a>
+                              Upon execution of a <span class="emphasis"><em>getstatic</em></span>, <span class="emphasis"><em>putstatic</em></span>, or <span class="emphasis"><em>invokestatic</em></span>
+                              instruction, the class or interface that declared the resolved
+                              field or method is initialized if it has not been initialized
+                              already.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-B"></a>
+                              The first invocation of a <code class="literal">java.lang.invoke.MethodHandle</code> instance which was the
+                              result of method handle resolution
+                              (<a class="xref" href="jvms-5.html#jvms-5.4.3.5" title="5.4.3.5.&nbsp;Method Type and Method Handle Resolution">&sect;5.4.3.5</a>) for a method handle of kind 2
+                              (<code class="literal">REF_getStatic</code>), 4 (<code class="literal">REF_putStatic</code>), 6 (<code class="literal">REF_invokeStatic</code>),
+                              or 8 (<code class="literal">REF_newInvokeSpecial</code>).
+                     </p>
+                     <p class="note">
+                              This implies that the class of a bootstrap method is initialized
+                              when the bootstrap method is invoked for an <span class="emphasis"><em>invokedynamic</em></span>
+                              instruction (<a class="xref" href="jvms-6.html#jvms-6.5.invokedynamic" title="invokedynamic">&sect;<span class="emphasis"><em>invokedynamic</em></span></a>), as part
+                              of the continuing resolution of the call site specifier.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-C"></a>
+                              Invocation of certain reflective methods in the class library
+                              (<a class="xref" href="jvms-2.html#jvms-2.12" title="2.12.&nbsp;Class Libraries">&sect;2.12</a>), for example, in class <code class="literal">Class</code> or
+                              in package <code class="literal">java.lang.reflect</code>.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-D"></a>
+                              If <span class="type">C</span> is a class, the initialization of one of its subclasses.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-E"></a>
+                              If <span class="type">C</span> is an interface that declares a non-<code class="literal">abstract</code>, non-<code class="literal">static</code> method, 
+                              the initialization of a class that implements <span class="type">C</span> directly or indirectly.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-110-F"></a>
+                              If <span class="type">C</span> is a class, its designation as the initial class at Java Virtual Machine startup
+                              (<a class="xref" href="jvms-5.html#jvms-5.2" title="5.2.&nbsp;Java Virtual Machine Startup">&sect;5.2</a>).
+                     </p>
+                  </li>
+               </ul>
+            </div>
+            <p class="norm-dynamic"><a name="jvms-5.5-120"></a>
+               Prior to initialization, a class or interface must be linked, that is,
+               verified, prepared, and optionally resolved.
+            </p>
+            <p class="norm-dynamic"><a name="jvms-5.5-200"></a>Because
+               the Java Virtual Machine is multithreaded, initialization of a class or interface
+               requires careful synchronization, since some other thread may be
+               trying to initialize the same class or interface at the same
+               time. There is also the possibility that initialization of a class or
+               interface may be requested recursively as part of the initialization
+               of that class or interface. The implementation of the Java Virtual Machine is
+               responsible for taking care of synchronization and recursive
+               initialization by using the following procedure. It assumes that the
+               <code class="literal">Class</code> object has already been verified and prepared, and that the
+               <code class="literal">Class</code> object contains state that indicates one of four
+               situations:
+            </p>
+            <div class="norm">
+               <ul class="norm" type="disc">
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-200-A"></a>
+                              This <code class="literal">Class</code> object is verified and prepared but not
+                              initialized.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-200-B"></a>
+                              This <code class="literal">Class</code> object is being initialized by some particular
+                              thread.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-200-C"></a>
+                              This <code class="literal">Class</code> object is fully initialized and ready for
+                              use.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-200-D"></a>
+                              This <code class="literal">Class</code> object is in an erroneous state, perhaps because
+                              initialization was attempted and failed.
+                     </p>
+                  </li>
+               </ul>
+            </div>
+            <p class="norm-dynamic"><a name="jvms-5.5-210"></a>
+               For each class or interface <span class="type">C</span>, there is a unique initialization lock
+               <code class="varname">LC</code>. The mapping from <span class="type">C</span> to <code class="varname">LC</code> is left to the discretion of the
+               Java Virtual Machine implementation. For example, <code class="varname">LC</code> could be the <code class="literal">Class</code> object
+               for <span class="type">C</span>, or the monitor associated with that <code class="literal">Class</code> object. The
+               procedure for initializing <span class="type">C</span> is then as follows:
+            </p>
+            <div class="orderedlist">
+               <ol class="orderedlist" type="1">
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-A"></a>
+                              Synchronize on the initialization lock, <code class="varname">LC</code>, for <span class="type">C</span>. This
+                              involves waiting until the current thread can acquire
+                              <code class="varname">LC</code>.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-B"></a>
+                              If the <code class="literal">Class</code> object for <span class="type">C</span> indicates that initialization is
+                              in progress for <span class="type">C</span> by some other thread, then release <code class="varname">LC</code> and
+                              block the current thread until informed that the in-progress
+                              initialization has completed, at which time repeat this
+                              procedure.
+                     </p>
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-B.1"></a>
+                              Thread interrupt status is unaffected by execution of the
+                              initialization procedure.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-C"></a>
+                              If the <code class="literal">Class</code> object for <span class="type">C</span> indicates that initialization is
+                              in progress for <span class="type">C</span> by the current thread, then this must be a
+                              recursive request for initialization. Release <code class="varname">LC</code> and complete
+                              normally.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-D"></a>
+                              If the <code class="literal">Class</code> object for <span class="type">C</span> indicates that <span class="type">C</span> has already
+                              been initialized, then no further action is required. Release
+                              <code class="varname">LC</code> and complete normally.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-error"><a name="jvms-5.5-210-E"></a>
+                              If the <code class="literal">Class</code> object for <span class="type">C</span> is in an erroneous state, then
+                              initialization is not possible. Release <code class="varname">LC</code> and throw a
+                              <code class="literal">NoClassDefFoundError</code>.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-F"></a>
+                              Otherwise, record the fact that initialization of the <code class="literal">Class</code>
+                              object for <span class="type">C</span> is in progress by the current thread, and release
+                              <code class="varname">LC</code>.
+                     </p>
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-F.1"></a>
+                              Then, initialize each <code class="literal">final</code> <code class="literal">static</code> field of <span class="type">C</span> with the
+                              constant value in its <code class="literal">ConstantValue</code> attribute
+                              (<a class="xref" href="jvms-4.html#jvms-4.7.2" title="4.7.2.&nbsp;The ConstantValue Attribute">&sect;4.7.2</a>), in the order the fields appear
+                              in the <code class="literal">ClassFile</code> structure.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-G"></a>
+                              Next, if <span class="type">C</span> is a class rather than an interface, and its
+                              superclass has not yet been initialized, then let <span class="type">SC</span> be its
+                              superclass and let <span class="type">SI<sub>1</sub></span>,
+                              ..., <span class="type">SI<sub>n</sub></span> be all
+                              superinterfaces of <span class="type">C</span> (whether direct or indirect) that declare
+                              at least one non-<code class="literal">abstract</code>, non-<code class="literal">static</code> method. The order of
+                              superinterfaces is given by a recursive enumeration over the
+                              superinterface hierarchy of each interface directly implemented
+                              by <span class="type">C</span>.  For each interface <span class="type">I</span>
+                              directly implemented by <span class="type">C</span> (in the order of
+                              the <code class="literal">interfaces</code> array of <span class="type">C</span>), the enumeration
+                              recurs on <span class="type">I</span>'s superinterfaces (in the order of
+                              the <code class="literal">interfaces</code> array of <span class="type">I</span>) before returning
+                              <span class="type">I</span>.
+                     </p>
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-G.1"></a>
+                              For each <span class="type">S</span> in the list [ <span class="type">SC</span>, <span class="type">SI<sub>1</sub></span>,
+                              ..., <span class="type">SI<sub>n</sub></span> ], recursively
+                              perform this entire procedure for <span class="type">S</span>. If necessary, verify and
+                              prepare <span class="type">S</span> first.
+                     </p>
+                     <p class="norm-error"><a name="jvms-5.5-210-G.2"></a>
+                              If the initialization of <span class="type">S</span> completes abruptly because of a
+                              thrown exception, then acquire <code class="varname">LC</code>, label the <code class="literal">Class</code> object
+                              for <span class="type">C</span> as erroneous, notify all waiting threads, release <code class="varname">LC</code>,
+                              and complete abruptly, throwing the same exception that resulted
+                              from initializing <span class="type">SC</span>.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-H"></a>
+                              Next, determine whether assertions are enabled for <span class="type">C</span> by
+                              querying its defining class loader.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-I"></a>
+                              Next, execute the class or interface initialization method of
+                              <span class="type">C</span>.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-dynamic"><a name="jvms-5.5-210-J"></a>
+                              If the execution of the class or interface initialization method
+                              completes normally, then acquire <code class="varname">LC</code>, label the <code class="literal">Class</code> object
+                              for <span class="type">C</span> as fully initialized, notify all waiting threads,
+                              release <code class="varname">LC</code>, and complete this procedure normally.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-error"><a name="jvms-5.5-210-K"></a>
+                              Otherwise, the class or interface initialization method must
+                              have completed abruptly by throwing some exception <span class="type">E</span>. If the
+                              class of <span class="type">E</span> is not <code class="literal">Error</code> or one of its subclasses, then
+                              create a new instance of the class <code class="literal">ExceptionInInitializerError</code>
+                              with <span class="type">E</span> as the argument, and use this object in place of <span class="type">E</span> in
+                              the following step. If a new instance of
+                              <code class="literal">ExceptionInInitializerError</code> cannot be created because an
+                              <code class="literal">OutOfMemoryError</code> occurs, then use an <code class="literal">OutOfMemoryError</code> object in place of <span class="type">E</span> in the
+                              following step.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm-error"><a name="jvms-5.5-210-L"></a>
+                              Acquire <code class="varname">LC</code>, label the <code class="literal">Class</code> object for <span class="type">C</span> as erroneous,
+                              notify all waiting threads, release <code class="varname">LC</code>, and complete this
+                              procedure abruptly with reason <span class="type">E</span> or its replacement as
+                              determined in the previous step.
+                     </p>
+                  </li>
+               </ol>
+            </div>
+            <p class="norm"><a name="jvms-5.5-300"></a>A Java Virtual Machine implementation may
+               optimize this procedure by eliding the lock acquisition in step 1 (and
+               release in step 4/5) when it can determine that the initialization of
+               the class has already completed, provided that, in terms of the Java
+               memory model, all <span class="emphasis"><em>happens-before</em></span> orderings (JLS
+               &sect;17.4.5) that would exist if the lock were acquired, still exist when
+               the optimization is performed.
+            </p>
+         </div>
+         <div class="section" title="5.6.&nbsp;Binding Native Method Implementations">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-5.6"></a>5.6.&nbsp;Binding Native Method Implementations
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-5.6-100"></a><span class="emphasis"><em>Binding</em></span>
+               is the process by which a function written in a language other than
+               the Java programming language and implementing a <code class="literal">native</code> method is integrated into
+               the Java Virtual Machine so that it can be executed. Although this process is
+               traditionally referred to as linking, the term binding is used in the
+               specification to avoid confusion with linking of classes or interfaces
+               by the Java Virtual Machine.
+            </p>
+         </div>
+         <div class="section" title="5.7.&nbsp;Java Virtual Machine Exit">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-5.7"></a>5.7.&nbsp;Java Virtual Machine Exit
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-5.7-100"></a>The Java Virtual Machine exits when some
+               thread invokes the <code class="literal">exit</code> method of
+               class <code class="literal">Runtime</code> or class <code class="literal">System</code>,
+               or the <code class="literal">halt</code> method of
+               class <code class="literal">Runtime</code>, and the <code class="literal">exit</code>
+               or <code class="literal">halt</code> operation is permitted by the security
+               manager.
+            </p>
+            <p class="norm"><a name="jvms-5.7-110"></a>In addition, the JNI (Java
+               Native Interface) Specification describes termination of the Java Virtual Machine
+               when the JNI Invocation API is used to load and unload the
+               Java Virtual Machine.
+            </p>
+         </div>
+      </div>
+      <div class="navfooter">
+         <hr>
+         <table width="100%" summary="Navigation footer">
+            <tr>
+               <td width="40%" align="left"><a accesskey="p" href="jvms-4.html">Prev</a>&nbsp;
+               </td>
+               <td width="20%" align="center">&nbsp;</td>
+               <td width="40%" align="right">&nbsp;<a accesskey="n" href="jvms-6.html">Next</a></td>
+            </tr>
+            <tr>
+               <td width="40%" align="left" valign="top">Chapter&nbsp;4.&nbsp;The <code class="literal">class</code> File Format&nbsp;
+               </td>
+               <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+               <td width="40%" align="right" valign="top">&nbsp;Chapter&nbsp;6.&nbsp;The Java Virtual Machine Instruction Set</td>
+            </tr>
+         </table>
+      </div>
+      <div xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:rx="http://www.renderx.com/XSL/Extensions" class="navfooter">
+         <hr><a href="jvms-0-front.html">
+                Legal Notice
+              </a></div>
+   </body>
+</html>

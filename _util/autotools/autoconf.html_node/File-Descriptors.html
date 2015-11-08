@@ -1,0 +1,231 @@
+<html lang="en">
+<head>
+<title>File Descriptors - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="Here_002dDocuments.html#Here_002dDocuments" title="Here-Documents">
+<link rel="next" href="Signal-Handling.html#Signal-Handling" title="Signal Handling">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="File-Descriptors"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Signal-Handling.html#Signal-Handling">Signal Handling</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Here_002dDocuments.html#Here_002dDocuments">Here-Documents</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.4 File Descriptors</h3>
+
+<p><a name="index-Descriptors-1697"></a><a name="index-File-descriptors-1698"></a><a name="index-Shell-file-descriptors-1699"></a>
+Most shells, if not all (including Bash, Zsh, Ash), output traces on
+stderr, even for subshells.  This might result in undesirable content
+if you meant to capture the standard-error output of the inner command:
+
+<pre class="example">     $ <kbd>ash -x -c '(eval "echo foo &gt;&amp;2") 2&gt;stderr'</kbd>
+     $ <kbd>cat stderr</kbd>
+     + eval echo foo &gt;&amp;2
+     + echo foo
+     foo
+     $ <kbd>bash -x -c '(eval "echo foo &gt;&amp;2") 2&gt;stderr'</kbd>
+     $ <kbd>cat stderr</kbd>
+     + eval 'echo foo &gt;&amp;2'
+     ++ echo foo
+     foo
+     $ <kbd>zsh -x -c '(eval "echo foo &gt;&amp;2") 2&gt;stderr'</kbd>
+     <i># Traces on startup files deleted here.</i>
+     $ <kbd>cat stderr</kbd>
+     +zsh:1&gt; eval echo foo &gt;&amp;2
+     +zsh:1&gt; echo foo
+     foo
+</pre>
+   <p class="noindent">One workaround is to grep out uninteresting lines, hoping not to remove
+good ones.
+
+   <p>If you intend to redirect both standard error and standard output,
+redirect standard output first.  This works better with HP-UX,
+since its shell mishandles tracing if standard error is redirected
+first:
+
+<pre class="example">     $ <kbd>sh -x -c ': 2&gt;err &gt;out'</kbd>
+     + :
+     + 2&gt; err $ <kbd>cat err</kbd>
+     1&gt; out
+</pre>
+   <p>Don't try to redirect the standard error of a command substitution.  It
+must be done <em>inside</em> the command substitution.  When running
+&lsquo;<samp><span class="samp">: `cd /zorglub` 2&gt;/dev/null</span></samp>&rsquo; expect the error message to
+escape, while &lsquo;<samp><span class="samp">: `cd /zorglub 2&gt;/dev/null`</span></samp>&rsquo; works properly.
+
+   <p>On the other hand, some shells, such as Solaris or FreeBSD
+<samp><span class="command">/bin/sh</span></samp>, warn about missing programs before performing
+redirections.  Therefore, to silently check whether a program exists, it
+is necessary to perform redirections on a subshell or brace group:
+<pre class="example">     $ <kbd>/bin/sh -c 'nosuch 2&gt;/dev/null'</kbd>
+     nosuch: not found
+     $ <kbd>/bin/sh -c '(nosuch) 2&gt;/dev/null'</kbd>
+     $ <kbd>/bin/sh -c '{ nosuch; } 2&gt;/dev/null'</kbd>
+     $ <kbd>bash -c 'nosuch 2&gt;/dev/null'</kbd>
+</pre>
+   <p>FreeBSD 6.2 sh may mix the trace output lines from the statements in a
+shell pipeline.
+
+   <p>It is worth noting that Zsh (but not Ash nor Bash) makes it possible
+in assignments though: &lsquo;<samp><span class="samp">foo=`cd /zorglub` 2&gt;/dev/null</span></samp>&rsquo;.
+
+   <p>Some shells, like <samp><span class="command">ash</span></samp>, don't recognize bi-directional
+redirection (&lsquo;<samp><span class="samp">&lt;&gt;</span></samp>&rsquo;).  And even on shells that recognize it, it is
+not portable to use on fifos: Posix does not require read-write support
+for named pipes, and Cygwin does not support it:
+
+<pre class="example">     $ <kbd>mkfifo fifo</kbd>
+     $ <kbd>exec 5&lt;&gt;fifo</kbd>
+     $ <kbd>echo hi &gt;&amp;5</kbd>
+     bash: echo: write error: Communication error on send
+</pre>
+   <p class="noindent">Furthermore, versions of <samp><span class="command">dash</span></samp> before 0.5.6 mistakenly truncate
+regular files when using &lsquo;<samp><span class="samp">&lt;&gt;</span></samp>&rsquo;:
+
+<pre class="example">     $ <kbd>echo a &gt; file</kbd>
+     $ <kbd>bash -c ': 1&lt;&gt;file'; cat file</kbd>
+     a
+     $ <kbd>dash -c ': 1&lt;&gt;file'; cat file</kbd>
+     $ rm a
+</pre>
+   <p>When catering to old systems, don't redirect the same file descriptor
+several times, as you are doomed to failure under Ultrix.
+
+<pre class="example">     ULTRIX V4.4 (Rev. 69) System #31: Thu Aug 10 19:42:23 GMT 1995
+     UWS V4.4 (Rev. 11)
+     $ <kbd>eval 'echo matter &gt;fullness' &gt;void</kbd>
+     illegal io
+     $ <kbd>eval '(echo matter &gt;fullness)' &gt;void</kbd>
+     illegal io
+     $ <kbd>(eval '(echo matter &gt;fullness)') &gt;void</kbd>
+     Ambiguous output redirect.
+</pre>
+   <p class="noindent">In each case the expected result is of course <samp><span class="file">fullness</span></samp> containing
+&lsquo;<samp><span class="samp">matter</span></samp>&rsquo; and <samp><span class="file">void</span></samp> being empty.  However, this bug is
+probably not of practical concern to modern platforms.
+
+   <p>Solaris 10 <samp><span class="command">sh</span></samp> will try to optimize away a <samp><span class="command">:</span></samp> command
+(even if it is redirected) in a loop after the first iteration, or in a
+shell function after the first call:
+
+<pre class="example">     $ <kbd>for i in 1 2 3 ; do : &gt;x$i; done</kbd>
+     $ <kbd>ls x*</kbd>
+     x1
+     $ <kbd>f () { : &gt;$1; }; f y1; f y2; f y3;</kbd>
+     $ <kbd>ls y*</kbd>
+     y1
+</pre>
+   <p class="noindent">As a workaround, <samp><span class="command">echo</span></samp> or <samp><span class="command">eval</span></samp> can be used.
+
+   <p>Don't rely on file descriptors 0, 1, and 2 remaining closed in a
+subsidiary program.  If any of these descriptors is closed, the
+operating system may open an unspecified file for the descriptor in the
+new process image.  Posix 2008 says this may be done only if the
+subsidiary program is set-user-ID or set-group-ID, but HP-UX 11.23 does
+it even for ordinary programs, and the next version of Posix will allow
+HP-UX behavior.
+
+   <p>If you want a file descriptor above 2 to be inherited into a child
+process, then you must use redirections specific to that command or a
+containing subshell or command group, rather than relying on
+<samp><span class="command">exec</span></samp> in the shell. In <samp><span class="command">ksh</span></samp> as well as HP-UX
+<samp><span class="command">sh</span></samp>, file descriptors above 2 which are opened using
+&lsquo;<samp><span class="samp">exec </span><var>n</var><span class="samp">&gt;file</span></samp>&rsquo; are closed by a subsequent &lsquo;<samp><span class="samp">exec</span></samp>&rsquo; (such as
+that involved in the fork-and-exec which runs a program or script):
+
+<pre class="example">     $ <kbd>echo 'echo hello &gt;&amp;5' &gt;k</kbd>
+     $ <kbd>/bin/sh -c 'exec 5&gt;t; ksh ./k; exec 5&gt;&amp;-; cat t</kbd>
+     hello
+     $ <kbd>bash -c 'exec 5&gt;t; ksh ./k; exec 5&gt;&amp;-; cat t</kbd>
+     hello
+     $ <kbd>ksh -c 'exec 5&gt;t; ksh ./k; exec 5&gt;&amp;-; cat t</kbd>
+     ./k[1]: 5: cannot open [Bad file number]
+     $ <kbd>ksh -c '(ksh ./k) 5&gt;t; cat t'</kbd>
+     hello
+     $ <kbd>ksh -c '{ ksh ./k; } 5&gt;t; cat t'</kbd>
+     hello
+     $ <kbd>ksh -c '5&gt;t ksh ./k; cat t</kbd>
+     hello
+</pre>
+   <p>Don't rely on duplicating a closed file descriptor to cause an
+error.  With Solaris <samp><span class="command">/bin/sh</span></samp>, failed duplication is silently
+ignored, which can cause unintended leaks to the original file
+descriptor.  In this example, observe the leak to standard output:
+
+<pre class="example">     $ <kbd>bash -c 'echo hi &gt;&amp;3' 3&gt;&amp;-; echo $?</kbd>
+     bash: 3: Bad file descriptor
+     1
+     $ <kbd>/bin/sh -c 'echo hi &gt;&amp;3' 3&gt;&amp;-; echo $?</kbd>
+     hi
+     0
+</pre>
+   <p>Fortunately, an attempt to close an already closed file descriptor will
+portably succeed.  Likewise, it is safe to use either style of
+&lsquo;<samp><var>n</var><span class="samp">&lt;&amp;-</span></samp>&rsquo; or &lsquo;<samp><var>n</var><span class="samp">&gt;&amp;-</span></samp>&rsquo; for closing a file descriptor,
+even if it doesn't match the read/write mode that the file descriptor
+was opened with.
+
+   <p>DOS variants cannot rename or remove open files, such as in
+&lsquo;<samp><span class="samp">mv foo bar &gt;foo</span></samp>&rsquo; or &lsquo;<samp><span class="samp">rm foo &gt;foo</span></samp>&rsquo;, even though this is
+perfectly portable among Posix hosts.
+
+   <p>A few ancient systems reserved some file descriptors.  By convention,
+file descriptor 3 was opened to <samp><span class="file">/dev/tty</span></samp> when you logged into
+Eighth Edition (1985) through Tenth Edition Unix (1989).  File
+descriptor 4 had a special use on the Stardent/Kubota Titan (circa
+1990), though we don't now remember what it was.  Both these systems are
+obsolete, so it's now safe to treat file descriptors 3 and 4 like any
+other file descriptors.
+
+   <p>On the other hand, you can't portably use multi-digit file descriptors. 
+Solaris <samp><span class="command">ksh</span></samp> doesn't understand any file descriptor larger than
+&lsquo;<samp><span class="samp">9</span></samp>&rsquo;:
+
+<pre class="example">     $ <kbd>bash -c 'exec 10&gt;&amp;-'; echo $?</kbd>
+     0
+     $ <kbd>ksh -c 'exec 9&gt;&amp;-'; echo $?</kbd>
+     0
+     $ <kbd>ksh -c 'exec 10&gt;&amp;-'; echo $?</kbd>
+     ksh[1]: exec: 10: not found
+     127
+</pre>
+   <!-- <http://lists.gnu.org/archive/html/bug-autoconf/2011-09/msg00004.html> -->
+   </body></html>
+

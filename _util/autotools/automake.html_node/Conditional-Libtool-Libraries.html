@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Conditional Libtool Libraries</title>
+
+<meta name="description" content="automake: Conditional Libtool Libraries">
+<meta name="keywords" content="automake: Conditional Libtool Libraries">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="A-Shared-Library.html#A-Shared-Library" rel="up" title="A Shared Library">
+<link href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources" rel="next" title="Conditional Libtool Sources">
+<link href="Libtool-Libraries.html#Libtool-Libraries" rel="prev" title="Libtool Libraries">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Conditional-Libtool-Libraries"></a>
+<div class="header">
+<p>
+Next: <a href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources" accesskey="n" rel="next">Conditional Libtool Sources</a>, Previous: <a href="Libtool-Libraries.html#Libtool-Libraries" accesskey="p" rel="prev">Libtool Libraries</a>, Up: <a href="A-Shared-Library.html#A-Shared-Library" accesskey="u" rel="up">A Shared Library</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Building-Libtool-Libraries-Conditionally"></a>
+<h4 class="subsection">8.3.3 Building Libtool Libraries Conditionally</h4>
+<a name="index-libtool-libraries_002c-conditional"></a>
+<a name="index-conditional-libtool-libraries"></a>
+
+<p>Like conditional programs (see <a href="Conditional-Programs.html#Conditional-Programs">Conditional Programs</a>), there are
+two main ways to build conditional libraries: using Automake
+conditionals or using Autoconf <code>AC_SUBST</code>itutions.
+</p>
+<p>The important implementation detail you have to be aware of is that
+the place where a library will be installed matters to libtool: it
+needs to be indicated <em>at link-time</em> using the <samp>-rpath</samp>
+option.
+</p>
+<p>For libraries whose destination directory is known when Automake runs,
+Automake will automatically supply the appropriate <samp>-rpath</samp>
+option to libtool.  This is the case for libraries listed explicitly in
+some installable <code>_LTLIBRARIES</code> variables such as
+<code>lib_LTLIBRARIES</code>.
+</p>
+<p>However, for libraries determined at configure time (and thus
+mentioned in <code>EXTRA_LTLIBRARIES</code>), Automake does not know the
+final installation directory.  For such libraries you must add the
+<samp>-rpath</samp> option to the appropriate <code>_LDFLAGS</code> variable by
+hand.
+</p>
+<p>The examples below illustrate the differences between these two methods.
+</p>
+<p>Here is an example where <code>WANTEDLIBS</code> is an <code>AC_SUBST</code>ed
+variable set at <samp>./configure</samp>-time to either <samp>libfoo.la</samp>,
+<samp>libbar.la</samp>, both, or none.  Although &lsquo;<samp>$(WANTEDLIBS)</samp>&rsquo;
+appears in the <code>lib_LTLIBRARIES</code>, Automake cannot guess it
+relates to <samp>libfoo.la</samp> or <samp>libbar.la</samp> at the time it creates
+the link rule for these two libraries.  Therefore the <samp>-rpath</samp>
+argument must be explicitly supplied.
+</p>
+<div class="example">
+<pre class="example">EXTRA_LTLIBRARIES = libfoo.la libbar.la
+lib_LTLIBRARIES = $(WANTEDLIBS)
+libfoo_la_SOURCES = foo.c &hellip;
+libfoo_la_LDFLAGS = -rpath '$(libdir)'
+libbar_la_SOURCES = bar.c &hellip;
+libbar_la_LDFLAGS = -rpath '$(libdir)'
+</pre></div>
+
+<p>Here is how the same <samp>Makefile.am</samp> would look using Automake
+conditionals named <code>WANT_LIBFOO</code> and <code>WANT_LIBBAR</code>.  Now
+Automake is able to compute the <samp>-rpath</samp> setting itself, because
+it&rsquo;s clear that both libraries will end up in &lsquo;<samp>$(libdir)</samp>&rsquo; if they
+are installed.
+</p>
+<div class="example">
+<pre class="example">lib_LTLIBRARIES =
+if WANT_LIBFOO
+lib_LTLIBRARIES += libfoo.la
+endif
+if WANT_LIBBAR
+lib_LTLIBRARIES += libbar.la
+endif
+libfoo_la_SOURCES = foo.c &hellip;
+libbar_la_SOURCES = bar.c &hellip;
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources" accesskey="n" rel="next">Conditional Libtool Sources</a>, Previous: <a href="Libtool-Libraries.html#Libtool-Libraries" accesskey="p" rel="prev">Libtool Libraries</a>, Up: <a href="A-Shared-Library.html#A-Shared-Library" accesskey="u" rel="up">A Shared Library</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

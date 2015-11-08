@@ -1,0 +1,312 @@
+<html lang="en">
+<head>
+<title>Evaluation Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Looping-constructs.html#Looping-constructs" title="Looping constructs">
+<link rel="next" href="Text-processing-Macros.html#Text-processing-Macros" title="Text processing Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Evaluation-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Text-processing-Macros.html#Text-processing-Macros">Text processing Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Looping-constructs.html#Looping-constructs">Looping constructs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.6 Evaluation Macros</h4>
+
+<p>The following macros give some control over the order of the evaluation
+by adding or removing levels of quotes.
+
+<div class="defun">
+&mdash; Macro: <b>m4_apply</b> (<var>macro, list</var>)<var><a name="index-m4_005fapply-1433"></a></var><br>
+<blockquote><p><a name="index-m4_005fapply-1434"></a>
+Apply the elements of the quoted, comma-separated <var>list</var> as the
+arguments to <var>macro</var>.  If <var>list</var> is empty, invoke <var>macro</var>
+without arguments.  Note the difference between <code>m4_indir</code>, which
+expects its first argument to be a macro name but can use names that are
+otherwise invalid, and <code>m4_apply</code>, where <var>macro</var> can contain
+other text, but must end in a valid macro name.
+     <pre class="example">          m4_apply([m4_count], [])
+          &rArr;0
+          m4_apply([m4_count], [[]])
+          &rArr;1
+          m4_apply([m4_count], [[1], [2]])
+          &rArr;2
+          m4_apply([m4_join], [[|], [1], [2]])
+          &rArr;1|2
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_count</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fcount-1435"></a></var><br>
+<blockquote><p><a name="index-m4_005fcount-1436"></a>
+This macro returns the decimal count of the number of arguments it was
+passed. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_curry</b> (<var>macro, arg<small class="dots">...</small></var>)<var><a name="index-m4_005fcurry-1437"></a></var><br>
+<blockquote><p><a name="index-m4_005fcurry-1438"></a>
+This macro performs argument currying.  The expansion of this macro is
+another macro name that expects exactly one argument; that argument is
+then appended to the <var>arg</var> list, and then <var>macro</var> is expanded
+with the resulting argument list.
+
+     <pre class="example">          m4_curry([m4_curry], [m4_reverse], [1])([2])([3])
+          &rArr;3, 2, 1
+</pre>
+        <p>Unfortunately, due to a limitation in M4 1.4.x, it is not possible to
+pass the definition of a builtin macro as the argument to the output of
+<code>m4_curry</code>; the empty string is used instead of the builtin token. 
+This behavior is rectified by using M4 1.6 or newer. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_do</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fdo-1439"></a></var><br>
+<blockquote><p><a name="index-m4_005fdo-1440"></a>
+This macro loops over its arguments and expands each <var>arg</var> in
+sequence.  Its main use is for readability; it allows the use of
+indentation and fewer <code>dnl</code> to result in the same expansion.  This
+macro guarantees that no expansion will be concatenated with subsequent
+text; to achieve full concatenation, use <code>m4_unquote(m4_join([],
+</code><var>arg<small class="dots">...</small></var><code>))</code>.
+
+     <pre class="example">          m4_define([ab],[1])m4_define([bc],[2])m4_define([abc],[3])dnl
+          m4_do([a],[b])c
+          &rArr;abc
+          m4_unquote(m4_join([],[a],[b]))c
+          &rArr;3
+          m4_define([a],[A])m4_define([b],[B])m4_define([c],[C])dnl
+          m4_define([AB],[4])m4_define([BC],[5])m4_define([ABC],[6])dnl
+          m4_do([a],[b])c
+          &rArr;ABC
+          m4_unquote(m4_join([],[a],[b]))c
+          &rArr;3
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_dquote</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fdquote-1441"></a></var><br>
+<blockquote><p><a name="index-m4_005fdquote-1442"></a>
+Return the arguments as a quoted list of quoted arguments. 
+Conveniently, if there is just one <var>arg</var>, this effectively adds a
+level of quoting. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_dquote_elt</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fdquote_005felt-1443"></a></var><br>
+<blockquote><p><a name="index-m4_005fdquote_005felt-1444"></a>
+Return the arguments as a series of double-quoted arguments.  Whereas
+<code>m4_dquote</code> returns a single argument, <code>m4_dquote_elt</code> returns
+as many arguments as it was passed. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_echo</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fecho-1445"></a></var><br>
+<blockquote><p><a name="index-m4_005fecho-1446"></a>
+Return the arguments, with the same level of quoting.  Other than
+discarding whitespace after unquoted commas, this macro is a no-op. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_expand</b> (<var>arg</var>)<var><a name="index-m4_005fexpand-1447"></a></var><br>
+<blockquote><p><a name="index-m4_005fexpand-1448"></a>
+Return the expansion of <var>arg</var> as a quoted string.  Whereas
+<code>m4_quote</code> is designed to collect expanded text into a single
+argument, <code>m4_expand</code> is designed to perform one level of expansion
+on quoted text.  One distinction is in the treatment of whitespace
+following a comma in the original <var>arg</var>.  Any time multiple
+arguments are collected into one with <code>m4_quote</code>, the M4 argument
+collection rules discard the whitespace.  However, with <code>m4_expand</code>,
+whitespace is preserved, even after the expansion of macros contained in
+<var>arg</var>.  Additionally, <code>m4_expand</code> is able to expand text that
+would involve an unterminated comment, whereas expanding that same text
+as the argument to <code>m4_quote</code> runs into difficulty in finding the
+end of the argument.  Since manipulating diversions during argument
+collection is inherently unsafe, <code>m4_expand</code> issues an error if
+<var>arg</var> attempts to change the current diversion (see <a href="Diversion-support.html#Diversion-support">Diversion support</a>).
+
+     <pre class="example">          m4_define([active], [ACT, IVE])dnl
+          m4_define([active2], [[ACT, IVE]])dnl
+          m4_quote(active, active)
+          &rArr;ACT,IVE,ACT,IVE
+          m4_expand([active, active])
+          &rArr;ACT, IVE, ACT, IVE
+          m4_quote(active2, active2)
+          &rArr;ACT, IVE,ACT, IVE
+          m4_expand([active2, active2])
+          &rArr;ACT, IVE, ACT, IVE
+          m4_expand([# m4_echo])
+          &rArr;# m4_echo
+          m4_quote(# m4_echo)
+          )
+          &rArr;# m4_echo)
+          &rArr;
+</pre>
+        <p>Note that <code>m4_expand</code> cannot handle an <var>arg</var> that expands to
+literal unbalanced quotes, but that quadrigraphs can be used when
+unbalanced output is necessary.  Likewise, unbalanced parentheses should
+be supplied with double quoting or a quadrigraph.
+
+     <pre class="example">          m4_define([pattern], [[!@&lt;:@]])dnl
+          m4_define([bar], [BAR])dnl
+          m4_expand([case $foo in
+            m4_defn([pattern])@:}@ bar ;;
+            *[)] blah ;;
+          esac])
+          &rArr;case $foo in
+          &rArr;  [![]) BAR ;;
+          &rArr;  *) blah ;;
+          &rArr;esac
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_ignore</b> (<var><small class="dots">...</small></var>)<var><a name="index-m4_005fignore-1449"></a></var><br>
+<blockquote><p><a name="index-m4_005fignore-1450"></a>
+This macro was introduced in Autoconf 2.62.  Expands to nothing,
+ignoring all of its arguments.  By itself, this isn't very useful. 
+However, it can be used to conditionally ignore an arbitrary number of
+arguments, by deciding which macro name to apply to a list of arguments.
+     <pre class="example">          dnl foo outputs a message only if [debug] is defined.
+          m4_define([foo],
+          [m4_ifdef([debug],[AC_MSG_NOTICE],[m4_ignore])([debug message])])
+</pre>
+        <p>Note that for earlier versions of Autoconf, the macro <code>__gnu__</code> can
+serve the same purpose, although it is less readable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_make_list</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fmake_005flist-1451"></a></var><br>
+<blockquote><p><a name="index-m4_005fmake_005flist-1452"></a>
+This macro exists to aid debugging of M4sugar algorithms.  Its net
+effect is similar to <code>m4_dquote</code>&mdash;it produces a quoted list of
+quoted arguments, for each <var>arg</var>.  The difference is that this
+version uses a comma-newline separator instead of just comma, to improve
+readability of the list; with the result that it is less efficient than
+<code>m4_dquote</code>.
+     <pre class="example">          m4_define([zero],[0])m4_define([one],[1])m4_define([two],[2])dnl
+          m4_dquote(zero, [one], [[two]])
+          &rArr;[0],[one],[[two]]
+          m4_make_list(zero, [one], [[two]])
+          &rArr;[0],
+          &rArr;[one],
+          &rArr;[[two]]
+          m4_foreach([number], m4_dquote(zero, [one], [[two]]), [ number])
+          &rArr; 0 1 two
+          m4_foreach([number], m4_make_list(zero, [one], [[two]]), [ number])
+          &rArr; 0 1 two
+</pre>
+        </blockquote></div>
+
+<!-- m4_noquote is too dangerous to document - it invokes macros that -->
+<!-- probably rely on @samp{[]} nested quoting for proper operation.  The -->
+<!-- user should generally prefer m4_unquote instead. -->
+<div class="defun">
+&mdash; Macro: <b>m4_quote</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fquote-1453"></a></var><br>
+<blockquote><p><a name="index-m4_005fquote-1454"></a>
+Return the arguments as a single entity, i.e., wrap them into a pair of
+quotes.  This effectively collapses multiple arguments into one,
+although it loses whitespace after unquoted commas in the process. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_reverse</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005freverse-1455"></a></var><br>
+<blockquote><p><a name="index-m4_005freverse-1456"></a>
+Outputs each argument with the same level of quoting, but in reverse
+order, and with space following each comma for readability.
+
+     <pre class="example">          m4_define([active], [ACT,IVE])
+          &rArr;
+          m4_reverse(active, [active])
+          &rArr;active, IVE, ACT
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_unquote</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005funquote-1457"></a></var><br>
+<blockquote><p><a name="index-m4_005funquote-1458"></a>
+This macro was introduced in Autoconf 2.62.  Expand each argument,
+separated by commas.  For a single <var>arg</var>, this effectively removes a
+layer of quoting, and <code>m4_unquote([</code><var>arg</var><code>])</code> is more efficient
+than the equivalent <code>m4_do([</code><var>arg</var><code>])</code>.  For multiple arguments,
+this results in an unquoted list of expansions.  This is commonly used
+with <code>m4_split</code>, in order to convert a single quoted list into a
+series of quoted elements. 
+</p></blockquote></div>
+
+   <p>The following example aims at emphasizing the difference between several
+scenarios: not using these macros, using <code>m4_defn</code>, using
+<code>m4_quote</code>, using <code>m4_dquote</code>, and using <code>m4_expand</code>.
+
+<pre class="example">     $ <kbd>cat example.m4</kbd>
+     dnl Overquote, so that quotes are visible.
+     m4_define([show], [$[]1 = [$1], $[]@ = [$@]])
+     m4_define([a], [A])
+     m4_define([mkargs], [1, 2[,] 3])
+     m4_define([arg1], [[$1]])
+     m4_divert([0])dnl
+     show(a, b)
+     show([a, b])
+     show(m4_quote(a, b))
+     show(m4_dquote(a, b))
+     show(m4_expand([a, b]))
+     
+     arg1(mkargs)
+     arg1([mkargs])
+     arg1(m4_defn([mkargs]))
+     arg1(m4_quote(mkargs))
+     arg1(m4_dquote(mkargs))
+     arg1(m4_expand([mkargs]))
+     $ <kbd>autom4te -l m4sugar example.m4</kbd>
+     $1 = A, $@ = [A],[b]
+     $1 = a, b, $@ = [a, b]
+     $1 = A,b, $@ = [A,b]
+     $1 = [A],[b], $@ = [[A],[b]]
+     $1 = A, b, $@ = [A, b]
+     
+     1
+     mkargs
+     1, 2[,] 3
+     1,2, 3
+     [1],[2, 3]
+     1, 2, 3
+</pre>
+   </body></html>
+

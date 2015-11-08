@@ -1,0 +1,267 @@
+<html lang="en">
+<head>
+<title>Function Portability - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Library-Functions.html#Library-Functions" title="Library Functions">
+<link rel="next" href="Particular-Functions.html#Particular-Functions" title="Particular Functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Function-Portability"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Particular-Functions.html#Particular-Functions">Particular Functions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Library-Functions.html#Library-Functions">Library Functions</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.5.1 Portability of C Functions</h4>
+
+<p><a name="index-Portability-of-C-functions-346"></a><a name="index-C-function-portability-347"></a>
+Most usual functions can either be missing, or be buggy, or be limited
+on some architectures.  This section tries to make an inventory of these
+portability issues.  By definition, this list always requires
+additions.  A much more complete list is maintained by the Gnulib
+project (see <a href="Gnulib.html#Gnulib">Gnulib</a>), covering <a href="../gnulib/Function-Substitutes.html#Function-Substitutes">Current Posix Functions</a>, <a href="../gnulib/Legacy-Function-Substitutes.html#Legacy-Function-Substitutes">Legacy Functions</a>, and <a href="../gnulib/Glibc-Function-Substitutes.html#Glibc-Function-Substitutes">Glibc Functions</a>.  Please
+help us keep the gnulib list as complete as possible.
+
+     <dl>
+<dt><code>exit</code><dd><!-- @fuindex exit -->
+<a name="index-g_t_0040code_007bexit_007d-348"></a>On ancient hosts, <code>exit</code> returned <code>int</code>. 
+This is because <code>exit</code> predates <code>void</code>, and there was a long
+tradition of it returning <code>int</code>.
+
+     <p>On current hosts, the problem more likely is that <code>exit</code> is not
+declared, due to C++ problems of some sort or another.  For this reason
+we suggest that test programs not invoke <code>exit</code>, but return from
+<code>main</code> instead.
+
+     <br><dt><code>free</code><dd><!-- @fuindex free -->
+<a name="index-g_t_0040code_007bfree_007d-349"></a>The C standard says a call <code>free (NULL)</code> does nothing, but
+some old systems don't support this (e.g., NextStep).
+
+     <br><dt><code>isinf</code><dt><code>isnan</code><dd><!-- @fuindex isinf -->
+<!-- @fuindex isnan -->
+<a name="index-g_t_0040code_007bisinf_007d-350"></a><a name="index-g_t_0040code_007bisnan_007d-351"></a>The C99 standard says that <code>isinf</code> and <code>isnan</code> are
+macros.  On some systems just macros are available
+(e.g., HP-UX and Solaris 10), on
+some systems both macros and functions (e.g., glibc 2.3.2), and on some
+systems only functions (e.g., IRIX 6 and Solaris 9).  In some cases
+these functions are declared in nonstandard headers like
+<code>&lt;sunmath.h&gt;</code> and defined in non-default libraries like
+<samp><span class="option">-lm</span></samp> or <samp><span class="option">-lsunmath</span></samp>.
+
+     <p>The C99 <code>isinf</code> and <code>isnan</code> macros work correctly with
+<code>long double</code> arguments, but pre-C99 systems that use functions
+typically assume <code>double</code> arguments.  On such a system,
+<code>isinf</code> incorrectly returns true for a finite <code>long double</code>
+argument that is outside the range of <code>double</code>.
+
+     <p>The best workaround for these issues is to use gnulib modules
+<code>isinf</code> and <code>isnan</code> (see <a href="Gnulib.html#Gnulib">Gnulib</a>).  But a lighter weight
+solution involves code like the following.
+
+     <pre class="smallexample">          #include &lt;math.h&gt;
+          
+          #ifndef isnan
+          # define isnan(x) \
+              (sizeof (x) == sizeof (long double) ? isnan_ld (x) \
+               : sizeof (x) == sizeof (double) ? isnan_d (x) \
+               : isnan_f (x))
+          static inline int isnan_f  (float       x) { return x != x; }
+          static inline int isnan_d  (double      x) { return x != x; }
+          static inline int isnan_ld (long double x) { return x != x; }
+          #endif
+          
+          #ifndef isinf
+          # define isinf(x) \
+              (sizeof (x) == sizeof (long double) ? isinf_ld (x) \
+               : sizeof (x) == sizeof (double) ? isinf_d (x) \
+               : isinf_f (x))
+          static inline int isinf_f  (float       x)
+          { return !isnan (x) &amp;&amp; isnan (x - x); }
+          static inline int isinf_d  (double      x)
+          { return !isnan (x) &amp;&amp; isnan (x - x); }
+          static inline int isinf_ld (long double x)
+          { return !isnan (x) &amp;&amp; isnan (x - x); }
+          #endif
+</pre>
+     <p>Use <code>AC_C_INLINE</code> (see <a href="C-Compiler.html#C-Compiler">C Compiler</a>) so that this code works on
+compilers that lack the <code>inline</code> keyword.  Some optimizing
+compilers mishandle these definitions, but systems with that bug
+typically have many other floating point corner-case compliance problems
+anyway, so it's probably not worth worrying about.
+
+     <br><dt><code>malloc</code><dd><!-- @fuindex malloc -->
+<a name="index-g_t_0040code_007bmalloc_007d-352"></a>The C standard says a call <code>malloc (0)</code> is implementation
+dependent.  It can return either <code>NULL</code> or a new non-null pointer. 
+The latter is more common (e.g., the GNU C Library) but is by
+no means universal.  <code>AC_FUNC_MALLOC</code>
+can be used to insist on non-<code>NULL</code> (see <a href="Particular-Functions.html#Particular-Functions">Particular Functions</a>).
+
+     <br><dt><code>putenv</code><dd><!-- @fuindex putenv -->
+<a name="index-g_t_0040code_007bputenv_007d-353"></a>Posix prefers <code>setenv</code> to <code>putenv</code>; among other things,
+<code>putenv</code> is not required of all Posix implementations, but
+<code>setenv</code> is.
+
+     <p>Posix specifies that <code>putenv</code> puts the given string directly in
+<code>environ</code>, but some systems make a copy of it instead (e.g.,
+glibc 2.0, or BSD).  And when a copy is made, <code>unsetenv</code> might
+not free it, causing a memory leak (e.g., FreeBSD 4).
+
+     <p>On some systems <code>putenv ("FOO")</code> removes &lsquo;<samp><span class="samp">FOO</span></samp>&rsquo; from the
+environment, but this is not standard usage and it dumps core
+on some systems (e.g., AIX).
+
+     <p>On MinGW, a call <code>putenv ("FOO=")</code> removes &lsquo;<samp><span class="samp">FOO</span></samp>&rsquo; from the
+environment, rather than inserting it with an empty value.
+
+     <br><dt><code>realloc</code><dd><!-- @fuindex realloc -->
+<a name="index-g_t_0040code_007brealloc_007d-354"></a>The C standard says a call <code>realloc (NULL, size)</code> is equivalent
+to <code>malloc (size)</code>, but some old systems don't support this (e.g.,
+NextStep).
+
+     <br><dt><code>signal</code> handler<dd><!-- @fuindex signal -->
+<a name="index-g_t_0040code_007bsignal_007d-355"></a><a name="index-g_t_0040code_007bsigaction_007d-356"></a>Normally <code>signal</code> takes a handler function with a return type of
+<code>void</code>, but some old systems required <code>int</code> instead.  Any
+actual <code>int</code> value returned is not used; this is only a
+difference in the function prototype demanded.
+
+     <p>All systems we know of in current use return <code>void</code>.  The
+<code>int</code> was to support K&amp;R C, where of course <code>void</code> is not
+available.  The obsolete macro <code>AC_TYPE_SIGNAL</code>
+(see <a href="AC_005fTYPE_005fSIGNAL.html#AC_005fTYPE_005fSIGNAL">AC_TYPE_SIGNAL</a>) can be used to establish the correct type in
+all cases.
+
+     <p>In most cases, it is more robust to use <code>sigaction</code> when it is
+available, rather than <code>signal</code>.
+
+     <br><dt><code>snprintf</code><dd><!-- @fuindex snprintf -->
+<a name="index-g_t_0040code_007bsnprintf_007d-357"></a><!-- @fuindex vsnprintf -->
+<a name="index-g_t_0040code_007bvsnprintf_007d-358"></a>The C99 standard says that if the output array isn't big enough
+and if no other errors occur, <code>snprintf</code> and <code>vsnprintf</code>
+truncate the output and return the number of bytes that ought to have
+been produced.  Some older systems return the truncated length (e.g.,
+GNU C Library 2.0.x or IRIX 6.5), some a negative value
+(e.g., earlier GNU C Library versions), and some the buffer
+length without truncation (e.g., 32-bit Solaris 7).  Also, some buggy
+older systems ignore the length and overrun the buffer (e.g., 64-bit
+Solaris 7).
+
+     <br><dt><code>sprintf</code><dd><!-- @fuindex sprintf -->
+<a name="index-g_t_0040code_007bsprintf_007d-359"></a><!-- @fuindex vsprintf -->
+<a name="index-g_t_0040code_007bvsprintf_007d-360"></a>The C standard says <code>sprintf</code> and <code>vsprintf</code> return the
+number of bytes written.  On some ancient systems (SunOS 4 for
+instance) they return the buffer pointer instead, but these no
+longer need to be worried about.
+
+     <br><dt><code>sscanf</code><dd><!-- @fuindex sscanf -->
+<a name="index-g_t_0040code_007bsscanf_007d-361"></a>On various old systems, e.g., HP-UX 9, <code>sscanf</code> requires
+that its
+input string be writable (though it doesn't actually change it).  This
+can be a problem when using <samp><span class="command">gcc</span></samp> since it normally puts
+constant strings in read-only memory (see <a href="../gcc/Incompatibilities.html#Incompatibilities">Incompatibilities of GCC</a>).  Apparently in some cases even
+having format strings read-only can be a problem.
+
+     <br><dt><code>strerror_r</code><dd><!-- @fuindex strerror_r -->
+<a name="index-g_t_0040code_007bstrerror_005fr_007d-362"></a>Posix specifies that <code>strerror_r</code> returns an <code>int</code>, but many
+systems (e.g., GNU C Library version 2.2.4) provide a
+different version returning a <code>char *</code>.  <code>AC_FUNC_STRERROR_R</code>
+can detect which is in use (see <a href="Particular-Functions.html#Particular-Functions">Particular Functions</a>).
+
+     <br><dt><code>strnlen</code><dd><!-- @fuindex strnlen -->
+<a name="index-g_t_0040code_007bstrnlen_007d-363"></a>AIX 4.3 provides a broken version which produces the
+following results:
+
+     <pre class="example">          strnlen ("foobar", 0) = 0
+          strnlen ("foobar", 1) = 3
+          strnlen ("foobar", 2) = 2
+          strnlen ("foobar", 3) = 1
+          strnlen ("foobar", 4) = 0
+          strnlen ("foobar", 5) = 6
+          strnlen ("foobar", 6) = 6
+          strnlen ("foobar", 7) = 6
+          strnlen ("foobar", 8) = 6
+          strnlen ("foobar", 9) = 6
+</pre>
+     <br><dt><code>sysconf</code><dd><!-- @fuindex sysconf -->
+<a name="index-g_t_0040code_007bsysconf_007d-364"></a><code>_SC_PAGESIZE</code> is standard, but some older systems (e.g., HP-UX
+9) have <code>_SC_PAGE_SIZE</code> instead.  This can be tested with
+<code>#ifdef</code>.
+
+     <br><dt><code>unlink</code><dd><!-- @fuindex unlink -->
+<a name="index-g_t_0040code_007bunlink_007d-365"></a>The Posix spec says that <code>unlink</code> causes the given file to be
+removed only after there are no more open file handles for it.  Some
+non-Posix hosts have trouble with this requirement, though,
+and some DOS variants even corrupt the file system.
+
+     <br><dt><code>unsetenv</code><dd><!-- @fuindex unsetenv -->
+<a name="index-g_t_0040code_007bunsetenv_007d-366"></a>On MinGW, <code>unsetenv</code> is not available, but a variable &lsquo;<samp><span class="samp">FOO</span></samp>&rsquo;
+can be removed with a call <code>putenv ("FOO=")</code>, as described under
+<code>putenv</code> above.
+
+     <br><dt><code>va_copy</code><dd><!-- @fuindex va_copy -->
+<a name="index-g_t_0040code_007bva_005fcopy_007d-367"></a>The C99 standard provides <code>va_copy</code> for copying
+<code>va_list</code> variables.  It may be available in older environments
+too, though possibly as <code>__va_copy</code> (e.g., <samp><span class="command">gcc</span></samp> in strict
+pre-C99 mode).  These can be tested with <code>#ifdef</code>.  A fallback to
+<code>memcpy (&amp;dst, &amp;src, sizeof (va_list))</code> gives maximum
+portability.
+
+     <br><dt><code>va_list</code><dd><!-- @fuindex va_list -->
+<a name="index-g_t_0040code_007bva_005flist_007d-368"></a><code>va_list</code> is not necessarily just a pointer.  It can be a
+<code>struct</code> (e.g., <samp><span class="command">gcc</span></samp> on Alpha), which means <code>NULL</code> is
+not portable.  Or it can be an array (e.g., <samp><span class="command">gcc</span></samp> in some
+PowerPC configurations), which means as a function parameter it can be
+effectively call-by-reference and library routines might modify the
+value back in the caller (e.g., <code>vsnprintf</code> in the GNU C Library
+2.1).
+
+     <br><dt>Signed <code>&gt;&gt;</code><dd>Normally the C <code>&gt;&gt;</code> right shift of a signed type replicates the
+high bit, giving a so-called &ldquo;arithmetic&rdquo; shift.  But care should be
+taken since Standard C doesn't require that behavior.  On those
+few processors without a native arithmetic shift (for instance Cray
+vector systems) zero bits may be shifted in, the same as a shift of an
+unsigned type.
+
+     <br><dt>Integer <code>/</code><dd>C divides signed integers by truncating their quotient toward zero,
+yielding the same result as Fortran.  However, before C99 the standard
+allowed C implementations to take the floor or ceiling of the quotient
+in some cases.  Hardly any implementations took advantage of this
+freedom, though, and it's probably not worth worrying about this issue
+nowadays. 
+</dl>
+
+   </body></html>
+

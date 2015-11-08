@@ -1,0 +1,234 @@
+<html lang="en">
+<head>
+<title>Generating Sources - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Test-Programs.html#Writing-Test-Programs" title="Writing Test Programs">
+<link rel="prev" href="Test-Functions.html#Test-Functions" title="Test Functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Generating-Sources"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Test-Functions.html#Test-Functions">Test Functions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Test-Programs.html#Writing-Test-Programs">Writing Test Programs</a>
+<hr>
+</div>
+
+<h4 class="subsection">6.2.3 Generating Sources</h4>
+
+<p>Autoconf provides a set of macros that can be used to generate test
+source files.  They are written to be language generic, i.e., they
+actually depend on the current language (see <a href="Language-Choice.html#Language-Choice">Language Choice</a>) to
+&ldquo;format&rdquo; the output properly.
+
+<div class="defun">
+&mdash; Macro: <b>AC_LANG_CONFTEST</b> (<var>source</var>)<var><a name="index-AC_005fLANG_005fCONFTEST-1161"></a></var><br>
+<blockquote><p><a name="index-AC_005fLANG_005fCONFTEST-1162"></a>
+Save the <var>source</var> text in the current test source file:
+<samp><span class="file">conftest.</span><var>extension</var></samp> where the <var>extension</var> depends on the
+current language.  As of Autoconf 2.63b, the source file also contains
+the results of all of the <code>AC_DEFINE</code> performed so far.
+
+        <p>Note that the <var>source</var> is evaluated exactly once, like regular
+Autoconf macro arguments, and therefore (i) you may pass a macro
+invocation, (ii) if not, be sure to double quote if needed.
+
+        <p>This macro issues a warning during <samp><span class="command">autoconf</span></samp> processing if
+<var>source</var> does not include an expansion of the macro
+<code>AC_LANG_DEFINES_PROVIDED</code> (note that both <code>AC_LANG_SOURCE</code> and
+<code>AC_LANG_PROGRAM</code> call this macro, and thus avoid the warning).
+
+        <p>This macro is seldom called directly, but is used under the hood by more
+common macros such as <code>AC_COMPILE_IFELSE</code> and <code>AC_RUN_IFELSE</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_LANG_DEFINES_PROVIDED</b><var><a name="index-AC_005fLANG_005fDEFINES_005fPROVIDED-1163"></a></var><br>
+<blockquote><p><a name="index-AC_005fLANG_005fDEFINES_005fPROVIDED-1164"></a>
+This macro is called as a witness that the file
+<samp><span class="file">conftest.</span><var>extension</var></samp> appropriate for the current language is
+complete, including all previously determined results from
+<code>AC_DEFINE</code>.  This macro is seldom called directly, but exists if
+you have a compelling reason to write a conftest file without using
+<code>AC_LANG_SOURCE</code>, yet still want to avoid a syntax warning from
+<code>AC_LANG_CONFTEST</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_LANG_SOURCE</b> (<var>source</var>)<var><a name="index-AC_005fLANG_005fSOURCE-1165"></a></var><br>
+<blockquote><p><a name="index-AC_005fLANG_005fSOURCE-1166"></a>
+Expands into the <var>source</var>, with the definition of
+all the <code>AC_DEFINE</code> performed so far.  This macro includes an
+expansion of <code>AC_LANG_DEFINES_PROVIDED</code>.
+
+        <p>In many cases, you may find it more convenient to use the wrapper
+<code>AC_LANG_PROGRAM</code>. 
+</p></blockquote></div>
+
+   <p>For instance, executing (observe the double quotation!):
+
+<pre class="example">     <!-- If you change this example, adjust tests/compile.at:AC_LANG_SOURCE example. -->
+     AC_INIT([Hello], [1.0], [bug-hello@example.org], [],
+             [http://www.example.org/])
+     AC_DEFINE([HELLO_WORLD], ["Hello, World\n"],
+       [Greetings string.])
+     AC_LANG([C])
+     AC_LANG_CONFTEST(
+        [AC_LANG_SOURCE([[const char hw[] = "Hello, World\n";]])])
+     gcc -E -dD conftest.c
+</pre>
+   <p class="noindent">on a system with <samp><span class="command">gcc</span></samp> installed, results in:
+
+<pre class="example">     <!-- If you change this example, adjust tests/compile.at:AC_LANG_SOURCE example. -->
+     ...
+     # 1 "conftest.c"
+     
+     #define PACKAGE_NAME "Hello"
+     #define PACKAGE_TARNAME "hello"
+     #define PACKAGE_VERSION "1.0"
+     #define PACKAGE_STRING "Hello 1.0"
+     #define PACKAGE_BUGREPORT "bug-hello@example.org"
+     #define PACKAGE_URL "http://www.example.org/"
+     #define HELLO_WORLD "Hello, World\n"
+     
+     const char hw[] = "Hello, World\n";
+</pre>
+   <p>When the test language is Fortran, Erlang, or Go, the <code>AC_DEFINE</code>
+definitions are not automatically translated into constants in the
+source code by this macro.
+
+<div class="defun">
+&mdash; Macro: <b>AC_LANG_PROGRAM</b> (<var>prologue, body</var>)<var><a name="index-AC_005fLANG_005fPROGRAM-1167"></a></var><br>
+<blockquote><p><a name="index-AC_005fLANG_005fPROGRAM-1168"></a>
+Expands into a source file which consists of the <var>prologue</var>, and
+then <var>body</var> as body of the main function (e.g., <code>main</code> in
+C).  Since it uses <code>AC_LANG_SOURCE</code>, the features of the latter are
+available. 
+</p></blockquote></div>
+
+   <p>For instance:
+
+<pre class="example">     <!-- If you change this example, adjust tests/compile.at:AC_LANG_PROGRAM example. -->
+     AC_INIT([Hello], [1.0], [bug-hello@example.org], [],
+             [http://www.example.org/])
+     AC_DEFINE([HELLO_WORLD], ["Hello, World\n"],
+       [Greetings string.])
+     AC_LANG_CONFTEST(
+     [AC_LANG_PROGRAM([[const char hw[] = "Hello, World\n";]],
+                      [[fputs (hw, stdout);]])])
+     gcc -E -dD conftest.c
+</pre>
+   <p class="noindent">on a system with <samp><span class="command">gcc</span></samp> installed, results in:
+
+<pre class="example">     <!-- If you change this example, adjust tests/compile.at:AC_LANG_PROGRAM example. -->
+     ...
+     # 1 "conftest.c"
+     
+     #define PACKAGE_NAME "Hello"
+     #define PACKAGE_TARNAME "hello"
+     #define PACKAGE_VERSION "1.0"
+     #define PACKAGE_STRING "Hello 1.0"
+     #define PACKAGE_BUGREPORT "bug-hello@example.org"
+     #define PACKAGE_URL "http://www.example.org/"
+     #define HELLO_WORLD "Hello, World\n"
+     
+     const char hw[] = "Hello, World\n";
+     int
+     main ()
+     {
+     fputs (hw, stdout);
+       ;
+       return 0;
+     }
+</pre>
+   <p>In Erlang tests, the created source file is that of an Erlang module called
+<code>conftest</code> (<samp><span class="file">conftest.erl</span></samp>).  This module defines and exports
+at least
+one <code>start/0</code> function, which is called to perform the test.  The
+<var>prologue</var> is optional code that is inserted between the module header and
+the <code>start/0</code> function definition.  <var>body</var> is the body of the
+<code>start/0</code> function without the final period (see <a href="Runtime.html#Runtime">Runtime</a>, about
+constraints on this function's behavior).
+
+   <p>For instance:
+
+<pre class="example">     AC_INIT([Hello], [1.0], [bug-hello@example.org])
+     AC_LANG(Erlang)
+     AC_LANG_CONFTEST(
+     [AC_LANG_PROGRAM([[-define(HELLO_WORLD, "Hello, world!").]],
+                      [[io:format("~s~n", [?HELLO_WORLD])]])])
+     cat conftest.erl
+</pre>
+   <p class="noindent">results in:
+
+<pre class="example">     -module(conftest).
+     -export([start/0]).
+     -define(HELLO_WORLD, "Hello, world!").
+     start() -&gt;
+     io:format("~s~n", [?HELLO_WORLD])
+     .
+</pre>
+   <div class="defun">
+&mdash; Macro: <b>AC_LANG_CALL</b> (<var>prologue, function</var>)<var><a name="index-AC_005fLANG_005fCALL-1169"></a></var><br>
+<blockquote><p><a name="index-AC_005fLANG_005fCALL-1170"></a>
+Expands into a source file which consists of the <var>prologue</var>, and
+then a call to the <var>function</var> as body of the main function (e.g.,
+<code>main</code> in C).  Since it uses <code>AC_LANG_PROGRAM</code>, the feature
+of the latter are available.
+
+        <p>This function will probably be replaced in the future by a version
+which would enable specifying the arguments.  The use of this macro is
+not encouraged, as it violates strongly the typing system.
+
+        <p>This macro cannot be used for Erlang tests. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_LANG_FUNC_LINK_TRY</b> (<var>function</var>)<var><a name="index-AC_005fLANG_005fFUNC_005fLINK_005fTRY-1171"></a></var><br>
+<blockquote><p><a name="index-AC_005fLANG_005fFUNC_005fLINK_005fTRY-1172"></a>
+Expands into a source file which uses the <var>function</var> in the body of
+the main function (e.g., <code>main</code> in C).  Since it uses
+<code>AC_LANG_PROGRAM</code>, the features of the latter are available.
+
+        <p>As <code>AC_LANG_CALL</code>, this macro is documented only for completeness. 
+It is considered to be severely broken, and in the future will be
+removed in favor of actual function calls (with properly typed
+arguments).
+
+        <p>This macro cannot be used for Erlang tests. 
+</p></blockquote></div>
+
+   </body></html>
+

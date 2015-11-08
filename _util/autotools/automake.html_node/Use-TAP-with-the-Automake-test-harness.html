@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Use TAP with the Automake test harness</title>
+
+<meta name="description" content="automake: Use TAP with the Automake test harness">
+<meta name="keywords" content="automake: Use TAP with the Automake test harness">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Using-the-TAP-test-protocol.html#Using-the-TAP-test-protocol" rel="up" title="Using the TAP test protocol">
+<link href="Incompatibilities-with-other-TAP-parsers-and-drivers.html#Incompatibilities-with-other-TAP-parsers-and-drivers" rel="next" title="Incompatibilities with other TAP parsers and drivers">
+<link href="Introduction-to-TAP.html#Introduction-to-TAP" rel="prev" title="Introduction to TAP">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Use-TAP-with-the-Automake-test-harness"></a>
+<div class="header">
+<p>
+Next: <a href="Incompatibilities-with-other-TAP-parsers-and-drivers.html#Incompatibilities-with-other-TAP-parsers-and-drivers" accesskey="n" rel="next">Incompatibilities with other TAP parsers and drivers</a>, Previous: <a href="Introduction-to-TAP.html#Introduction-to-TAP" accesskey="p" rel="prev">Introduction to TAP</a>, Up: <a href="Using-the-TAP-test-protocol.html#Using-the-TAP-test-protocol" accesskey="u" rel="up">Using the TAP test protocol</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Use-TAP-with-the-Automake-test-harness-1"></a>
+<h4 class="subsection">15.4.2 Use TAP with the Automake test harness</h4>
+
+<p>Currently, the TAP driver that comes with Automake requires some by-hand
+steps on the developer&rsquo;s part (this situation should hopefully be improved
+in future Automake versions).  You&rsquo;ll have to grab the <samp>tap-driver.sh</samp>
+script from the Automake distribution by hand, copy it in your source tree,
+and use the Automake support for third-party test drivers to instruct the
+harness to use the <samp>tap-driver.sh</samp> script and the awk program found
+by <code>AM_INIT_AUTOMAKE</code> to run your TAP-producing tests.  See the example
+below for clarification.
+</p>
+<p>Apart from the options common to all the Automake test drivers
+(see <a href="Command_002dline-arguments-for-test-drivers.html#Command_002dline-arguments-for-test-drivers">Command-line arguments for test drivers</a>), the <samp>tap-driver.sh</samp>
+supports the following options, whose names are chosen for enhanced
+compatibility with the <code>prove</code> utility.
+</p>
+<dl compact="compact">
+<dt><samp>--ignore-exit</samp></dt>
+<dd><p>Causes the test driver to ignore the exit status of the test scripts;
+by default, the driver will report an error if the script exits with a
+non-zero status.  This option has effect also on non-zero exit statuses
+due to termination by a signal.
+</p></dd>
+<dt><samp>--comments</samp></dt>
+<dd><p>Instruct the test driver to display TAP diagnostic (i.e., lines beginning
+with the &lsquo;<samp>#</samp>&rsquo; character) in the testsuite progress output too; by
+default, TAP diagnostic is only copied to the <samp>.log</samp> file.
+</p></dd>
+<dt><samp>--no-comments</samp></dt>
+<dd><p>Revert the effects of <samp>--comments</samp>.
+</p></dd>
+<dt><samp>--merge</samp></dt>
+<dd><p>Instruct the test driver to merge the test scripts&rsquo; standard error into
+their standard output.  This is necessary if you want to ensure that
+diagnostics from the test scripts are displayed in the correct order
+relative to test results; this can be of great help in debugging
+(especially if your test scripts are shell scripts run with shell
+tracing active).  As a downside, this option might cause the test
+harness to get confused if anything that appears on standard error
+looks like a test result.
+</p></dd>
+<dt><samp>--no-merge</samp></dt>
+<dd><p>Revert the effects of <samp>--merge</samp>.
+</p></dd>
+<dt><samp>--diagnostic-string=<var>STRING</var></samp></dt>
+<dd><p>Change the string that introduces TAP diagnostic from the default value
+of &ldquo;<code>#</code>&rdquo; to <code><var>STRING</var></code>.  This can be useful if your
+TAP-based test scripts produce verbose output on which they have limited
+control (because, say, the output comes from other tools invoked in the
+scripts), and it might contain text that gets spuriously interpreted as
+TAP diagnostic: such an issue can be solved by redefining the string that
+activates TAP diagnostic to a value you know won&rsquo;t appear by chance in
+the tests&rsquo; output.  Note however that this feature is non-standard, as
+the &ldquo;official&rdquo; TAP protocol does not allow for such a customization; so
+don&rsquo;t use it if you can avoid it.
+</p></dd>
+</dl>
+
+<p>Here is an example of how the TAP driver can be set up and used.
+</p>
+<div class="example">
+<pre class="example">% <kbd>cat configure.ac</kbd>
+AC_INIT([GNU Try Tap], [1.0], [bug-automake@gnu.org])
+AC_CONFIG_AUX_DIR([build-aux])
+AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+AC_CONFIG_FILES([Makefile])
+AC_REQUIRE_AUX_FILE([tap-driver.sh])
+AC_OUTPUT
+
+% <kbd>cat Makefile.am</kbd>
+TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
+                  $(top_srcdir)/build-aux/tap-driver.sh
+TESTS = foo.test bar.test baz.test
+EXTRA_DIST = $(TESTS)
+
+% <kbd>cat foo.test</kbd>
+#!/bin/sh
+echo 1..4 # Number of tests to be executed.
+echo 'ok 1 - Swallows fly'
+echo 'not ok 2 - Caterpillars fly # TODO metamorphosis in progress'
+echo 'ok 3 - Pigs fly # SKIP not enough acid'
+echo '# I just love word plays ...'
+echo 'ok 4 - Flies fly too :-)'
+
+% <kbd>cat bar.test</kbd>
+#!/bin/sh
+echo 1..3
+echo 'not ok 1 - Bummer, this test has failed.'
+echo 'ok 2 - This passed though.'
+echo 'Bail out! Ennui kicking in, sorry...'
+echo 'ok 3 - This will not be seen.'
+
+% <kbd>cat baz.test</kbd>
+#!/bin/sh
+echo 1..1
+echo ok 1
+# Exit with error, even if all the tests have been successful.
+exit 7
+
+% <kbd>cp <var>PREFIX</var>/share/automake-<var>APIVERSION</var>/tap-driver.sh .</kbd>
+% <kbd>autoreconf -vi &amp;&amp; ./configure &amp;&amp; make check</kbd>
+...
+PASS: foo.test 1 - Swallows fly
+XFAIL: foo.test 2 - Caterpillars fly # TODO metamorphosis in progress
+SKIP: foo.test 3 - Pigs fly # SKIP not enough acid
+PASS: foo.test 4 - Flies fly too :-)
+FAIL: bar.test 1 - Bummer, this test has failed.
+PASS: bar.test 2 - This passed though.
+ERROR: bar.test - Bail out! Ennui kicking in, sorry...
+PASS: baz.test 1
+ERROR: baz.test - exited with status 7
+...
+Please report to bug-automake@gnu.org
+...
+% <kbd>echo exit status: $?</kbd>
+exit status: 1
+
+% <kbd>env TEST_LOG_DRIVER_FLAGS='--comments --ignore-exit' \
+      TESTS='foo.test baz.test' make -e check</kbd>
+...
+PASS: foo.test 1 - Swallows fly
+XFAIL: foo.test 2 - Caterpillars fly # TODO metamorphosis in progress
+SKIP: foo.test 3 - Pigs fly # SKIP not enough acid
+# foo.test: I just love word plays...
+PASS: foo.test 4 - Flies fly too :-)
+PASS: baz.test 1
+...
+% <kbd>echo exit status: $?</kbd>
+exit status: 0
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Incompatibilities-with-other-TAP-parsers-and-drivers.html#Incompatibilities-with-other-TAP-parsers-and-drivers" accesskey="n" rel="next">Incompatibilities with other TAP parsers and drivers</a>, Previous: <a href="Introduction-to-TAP.html#Introduction-to-TAP" accesskey="p" rel="prev">Introduction to TAP</a>, Up: <a href="Using-the-TAP-test-protocol.html#Using-the-TAP-test-protocol" accesskey="u" rel="up">Using the TAP test protocol</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

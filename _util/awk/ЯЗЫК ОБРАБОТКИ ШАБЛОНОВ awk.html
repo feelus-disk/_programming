@@ -1,0 +1,2150 @@
+<!-- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ОСТАВЬ НАДЕЖДУ, ВСЯК СЮДА ВХОДЯЩИЙ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-->
+<html><head>	
+<title>ЯЗЫК ОБРАБОТКИ ШАБЛОНОВ awk</title>
+	<link rel="alternate" type="application/rss+xml" title="Новости сайта www.lissyara.su" href="http://www.lissyara.su/scripts/rss.php">
+	<meta name="keywords" content="FreeBSD, настройка exim,  b color=darkblue awk /color /b - команда контекстного поиска и преобразования текста. Она - фильтр. Ее можно рассматривать как оболочку b color=darkblue awk /color /b в оболочке b color=darkblue shell /color /b .
+
+		 b 1. СТРУКТУРА color=darkblue awk /color -ПРОГРАММЫ /b 
+
+ Программа состоит из операторов (правил) имеющих вид:
+ code шаблон {действие}
+шаблон {действие}
+. . . /code 
+
+ Частные случаи:
+
+ color=red {действие} /color - когда действие выполняется для всех строк.
+ color=red шаблон /color - когда выводятся строки с данным шаблоном.
+ Действие может состоять из последовательности операторов разделяемой   или переводом строки или закрывающей скобкой.
+ Возможны комментарии (как в shell  color=red #......... /color  ).
+ color=brown Пример: /color 
+ Для дальнейших примеров возьмем входной файл  color=olive f-awk /color  ( фамилия инициалы год-приема-на-работу возраст ):
+ code Иванов И.И. 1980 50
+Петров А.В. 1979 40
+Сидоров С.К. 1979 40
+Хведоров И.Х. 1970 60">
+	<meta name="description" content="ЯЗЫК ОБРАБОТКИ ШАБЛОНОВ awk">
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+	<meta name="author" content="© не указан">
+	<meta name="copyright" content="не указан">
+	<meta http-equiv="imagetoolbar" content="NO">
+	<!-- base href="http://www.lissyara.su/" -->
+	<!-- скрипт для кнопочек в комментах -->
+	<script language="JavaScript" src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/bbcode_script.js"></script>
+
+	<!-- начало таблиц стилей для страницы -->
+	<link rel="stylesheet" type="text/css" href="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/style.css">
+	<!-- скрипт подсветки главного меню -->
+	<script language="JavaScript">
+	function mhHover(tbl, idx, cls)
+	{
+		var t, d;
+		if (document.getElementById)
+			t = document.getElementById(tbl);
+		else
+			t = document.all(tbl);
+		if (t == null) return;
+		if (t.getElementsByTagName)
+			d = t.getElementsByTagName("TD");
+		else
+			d = t.all.tags("TD");
+		if (d == null) return;
+		if (d.length <= idx) return;
+		d[idx].className = cls;
+	}
+	</script>
+
+</head>
+<body style="margin: 0 0 0 0; padding: 0 0 0 0; BACKGROUND-COLOR: #f1f1f1; BORDER-RIGHT: #707680 1px solid; MARGIN: 0px; BORDER-LEFT: #707680 1px solid; ">
+<a name="top"></a>
+<!-- old width = 100%, position - left -->
+<center>
+<table border="0" cellpadding="0" cellspacing="0" width="950">
+<tbody>
+	<tr>
+		<td colspan="5" style="background-repeat: no-repeat; background-position: left center; font: Lucida Console; font-size: 12px; border-left: 1px solid #707680; border-right: 1px solid #707680; " align="center" background="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/gradient1.jpg" height="26" valign="center">
+		<!-- шапка сайта началась -->
+			<code>Мы — долго запрягаем, быстро ездим, и сильно тормозим.</code>
+		<!-- шапка сайта закончилась -->
+		</td>
+	</tr>
+	<tr>
+		<td colspan="5" style="background-repeat: no-repeat; background-position: right center; font-size: 12px;" align="left" background="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/gradient2.jpg" valign="top">
+<!-- меню сайта началось -->
+			<table border="0" cellpadding="2" cellspacing="0" height="19" width="100%">
+  			<tbody>
+				<tr>
+					<td style="border: 1px solid #707680;">
+						<div id="viLocalToolbar">
+							<table border="0" cellpadding="0" cellspacing="0" height="19" width="100%">
+							<tbody>
+								<tr>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 0, 'lt1')" onmouseout="mhHover('viLocalToolbar', 0, 'lt0')" nowrap="nowrap">
+										<a href="http://www.lissyara.su/">Главная</a>
+									</td>
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 2, 'lt1')" onmouseout="mhHover('viLocalToolbar', 2, 'lt0')" nowrap="nowrap">
+										<a href="http://forum.lissyara.su/">Форум</a>
+									</td>
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 4, 'lt1')" onmouseout="mhHover('viLocalToolbar', 4, 'lt0')" nowrap="nowrap">
+										<a href="http://www.lissyara.su/articles/">Статьи</a>
+									</td>
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 6, 'lt1')" onmouseout="mhHover('viLocalToolbar', 6, 'lt0')" nowrap="nowrap">
+										<a href="http://www.lissyara.su/doc/">Документация</a>
+									</td>
+				<!--					<TD>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</TD>
+									<TD class="lt0" onmouseover="mhHover('viLocalToolbar', 8, 'lt1')" onmouseout="mhHover('viLocalToolbar', 8, 'lt0')" noWrap>
+										<A href="/?id=1020">Downloads</A>
+									</TD> -->
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 8, 'lt1')" onmouseout="mhHover('viLocalToolbar', 8, 'lt0')" nowrap="nowrap">
+										<a href="http://www.lissyara.su/search/">search</a>
+									</td>
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 10, 'lt1')" onmouseout="mhHover('viLocalToolbar', 10, 'lt0')" nowrap="nowrap">
+										<a href="http://www.lissyara.su/rss/">RSS</a>
+									</td>
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 12, 'lt1')" onmouseout="mhHover('viLocalToolbar', 12, 'lt0')" nowrap="nowrap">
+										<a href="http://wiki.lissyara.su/">WIKI</a>
+									</td>
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 14, 'lt1')" onmouseout="mhHover('viLocalToolbar', 14, 'lt0')" nowrap="nowrap">
+										<a href="http://www.host-food.ru/" onclick="window.location.href='http://www.host-food.ru/p/2248/'; return false;">hosting</a>
+									</td>
+									<td>
+										<p style="PADDING-RIGHT: 1px; PADDING-LEFT: 5px; PADDING-BOTTOM: 0px; FONT: 70% Verdana; COLOR: #707680; PADDING-TOP: 0px">|</p>
+									</td>
+									<td class="lt0" onmouseover="mhHover('viLocalToolbar', 16, 'lt1')" onmouseout="mhHover('viLocalToolbar', 16, 'lt0')" nowrap="nowrap">
+										<a href="http://www.lissyara.su/doc/programming/awk/?commented=1&amp;print=1">Версия для печати</a>
+									</td>
+									<td width="100%">
+									</td>
+								</tr>
+							</tbody>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+<!-- меню сайта закончилось -->
+		</td>
+	</tr>
+	<tr>
+		<td style="PADDING-LEFT: 3px; BACKGROUND: #f1f1f1; BORDER-RIGHT: #707680 1px solid; border-left: 1px solid #707680; font-size: 12px;" align="left" valign="top" width="170">
+			<!-- Меню раздела началось -->
+			<br>
+			
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td class="hilightoff" onmouseover="className='hilighton'; this.style.cursor='hand';" onmouseout="className='hilightoff';" onclick="window.location.href('/?id=1052')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="В этом разделе размещены те RFC которые мне попались, и показались интересными. Собраны исключительно RFC на русском языке - к сожалению, таких немного. Однако - продолжаю искать :)" href="http://www.lissyara.su/?id=1052">RFC</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.curr.level3.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td class="current" onmouseover="this.style.cursor='hand';" onclick="window.location.href('/?id=1067')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="Страничка прораммирования. То, что показалось интересным о языках программирования, да и просто то, что пригодилось из этой области." href="http://www.lissyara.su/?id=1067">Программирование</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.curr.level3.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level4.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td style="font-size: 12px" width="20">&nbsp;</td>
+		<td class="hilightoff" onmouseover="className='hilighton'; this.style.cursor='hand';" onmouseout="className='hilightoff';" onclick="window.location.href('/?id=1075')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="Программирование на языке командного интерпретатора - shell. Работа в среде командного интерпретатора. ЧТО такое командный интерпретатор, и почему для программирования лучше использовать именно sh." href="http://www.lissyara.su/?id=1075">shell</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level4.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level4.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td style="font-size: 12px" width="20">&nbsp;</td>
+		<td class="hilightoff" onmouseover="className='hilighton'; this.style.cursor='hand';" onmouseout="className='hilightoff';" onclick="window.location.href('/?id=1076')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="Использование sed - потокового редактора. Он предоставляет огромные возможности по редактирования файлов, за исключением отсутствия интерактивного режима. Широко используется в скриптах." href="http://www.lissyara.su/?id=1076">sed</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level4.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.curr.level4.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td style="font-size: 12px" width="20">&nbsp;</td>
+		<td class="current" onmouseover="this.style.cursor='hand';" onclick="window.location.href('/?id=1077')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="ЯЗЫК ОБРАБОТКИ ШАБЛОНОВ awk" href="http://www.lissyara.su/?id=1077">awk</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.curr.level4.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td class="hilightoff" onmouseover="className='hilighton'; this.style.cursor='hand';" onmouseout="className='hilightoff';" onclick="window.location.href('/?id=1357')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="Документация касающаяся FreeBSD" href="http://www.lissyara.su/?id=1357">FreeBSD</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td class="hilightoff" onmouseover="className='hilighton'; this.style.cursor='hand';" onmouseout="className='hilightoff';" onclick="window.location.href('/?id=1358')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="Русские man`ы" href="http://www.lissyara.su/?id=1358">man</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+<table id="left_menu" border="0" cellpadding="0" cellspacing="1" width="100%">
+<tbody>
+	<tr>
+		<td class="hilightoff" onmouseover="className='hilighton'; this.style.cursor='hand';" onmouseout="className='hilightoff';" onclick="window.location.href('/?id=1998')" align="left" height="20"><code style="font-size: 9pt;"><a class="left-menu-link" title="Specification of the Exim Mail Transfer Agent" href="http://www.lissyara.su/?id=1998">EXIM</a></code></td>
+	</tr>
+</tbody>
+</table>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/left.menu.inactive.level3.tpl' -->
+
+			<!-- Меню раздела закончилось -->
+<br><!-- Нет оплаченной рекламы в данный период --><br>
+			<!-- рисунок по ширине колонки - чтоб не сжималась браузерами -->
+			<img src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/blank.gif" height="1" width="170">
+		</td>
+		<td width="10">
+			<!-- рисунок по ширине колонки - чтоб не сжималась браузерами -->
+			<img src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/blank.gif" height="1" width="10">
+		</td>
+		<td style="font-size: 12px" valign="top" width="610">
+			<!-- Меню навигации началось -->
+			<code style="font-size: 8pt;"> <a class="text_link" href="http://www.lissyara.su/?id=1000" title="Титульная страница сайта www.lissyara.su">www.lissyara.su</a></code>
+<code style="font-size: 8pt;">—&gt; <a class="text_link" href="http://www.lissyara.su/?id=1004" title="страница где курят маны :)">документация</a></code>
+<code style="font-size: 8pt;"><code style="font-size: 8pt;">—&gt; <a class="text_link" href="http://www.lissyara.su/?id=1067" title="Страничка прораммирования. То, что показалось интересным о языках программирования, да и просто то, что пригодилось из этой области.">Программирование</a></code>
+—&gt; <a class="link_drkbl" href="http://www.lissyara.su/?id=1077" title="ЯЗЫК ОБРАБОТКИ ШАБЛОНОВ awk">awk</a></code>
+
+
+			<!-- for site parsing
+			www.lissyara.su --- документация --- Программирование --- awk
+			-->
+			<br>
+			<!-- Меню навигации закончилось -->
+<!-- линк на редактирование для автора -->
+			<br><h4 align="center"><code>ЯЗЫК ОБРАБОТКИ ШАБЛОНОВ awk</code></h4>
+			<!-- google search -->
+
+			<!-- end google search -->
+			<!-- автор страницы под заголовком -->
+			
+			<!-- Текст страницы начался -->
+			<p align="justify"><br><code>  &nbsp; &nbsp; &nbsp;<b><font color="darkblue">awk</font></b>
+ &nbsp;- &nbsp;команда контекстного поиска и преобразования текста. Она 
+&nbsp;- &nbsp;фильтр. &nbsp;Ее &nbsp;можно &nbsp;рассматривать &nbsp;как
+ &nbsp;оболочку &nbsp;<b><font color="darkblue">awk</font></b> в оболочке <b><font color="darkblue">shell</font></b>.<br>
+<br>
+</code></p><h4 align="center"><code>1. СТРУКТУРА <font color="darkblue">awk</font>-ПРОГРАММЫ</code></h4><p align="justify"><code> &nbsp; &nbsp; Программа состоит из операторов (правил), имеющих вид:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>шаблон {действие}
+шаблон {действие}
+. . .
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Частные случаи:<br>
+<br>
+<font color="red">{действие}</font> &nbsp; - когда действие выполняется для всех строк.<br>
+<font color="red">шаблон </font> &nbsp; &nbsp; &nbsp;- когда выводятся строки с данным шаблоном.<br>
+ &nbsp; &nbsp; Действие может состоять из последовательности операторов,
+ разделяемой ";" или переводом строки или закрывающей скобкой.<br>
+ &nbsp; &nbsp; Возможны комментарии (как в shell "<font color="red">#.........</font>").<br>
+<font color="brown">Пример:</font><br>
+ &nbsp; &nbsp; Для &nbsp;дальнейших &nbsp;примеров &nbsp;возьмем входной &nbsp;файл &nbsp;"<font color="olive">f-awk</font>" ( фамилия инициалы год-приема-на-работу возраст ):<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Петров А.В.   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{print}' f-awk       <font color="red"># выдает весь текст;</font>
+<font color="magenta">echo</font>
+<font color="magenta">awk</font> '/до/ {print}' f-awk  <font color="red"># выдает строки, где есть "до".</font>
+<font color="magenta">echo</font>
+<font color="magenta">awk</font> '/до/ {}' f-awk       <font color="red"># выдает строки, где есть "до"</font>
+<font color="magenta">echo</font>
+<font color="magenta">awk</font> '/до/ {print("Привет!")}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Петров А.В.   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+
+Привет!
+Привет!
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Существует &nbsp; два &nbsp; оператора &nbsp; специального &nbsp;вида &nbsp;("<font color="green">BEGIN</font>"-начальные установки и "<font color="green">END</font>" - "последействия"):<br>
+<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>BEGIN {действие}
+     шаблон {действие}
+     шаблон {действие}
+     . . .
+<font color="teal">END</font>   {действие}
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code></p><h4 align="center"><code>2. ВЫЗОВ <font color="darkblue">awk</font></code></h4><p align="justify"><code> &nbsp; &nbsp; Возможны два основных варианта:<br>
+<br>
+1)</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> [-Fc] 'prog.awk' [files]
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Это &nbsp; простейший &nbsp;случай, &nbsp;когда &nbsp;программа &nbsp;(заключенная &nbsp;в кавычки " <font color="red">'</font> ") находится в теле команды,<br>
+<font color="red">-Fc</font> - флаг, меняющий стандартный разделитель полей на "<font color="green">c</font>"<br>
+<font color="red">file</font> &nbsp;- имя файла исходных данных, при его отсутствии - со стандартного входа. (Этот формат использован в начальных примерах).<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">cat</font> f-awk | <font color="magenta">awk</font> '/до/ {print}'
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>и<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '/до/ {print}' &lt; f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>дают результат, аналогичный<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '/до/ {print}'  f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Для демонстрации действия флага "<font color="red">-Fc</font>" рассмотрим вызовы:</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>
+<font color="magenta">awk</font>  '/до/ {print(<font color="green">$2</font>)}'  f-awk
+<font color="magenta">awk</font> -F0 '/до/ {print(<font color="green">$2</font>)}'  f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; На экран будет выведено:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>С.К.
+И.Х.
+
+  <b><font color="darkblue">6</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Первая &nbsp; команда &nbsp; <b><font color="darkblue">awk</font></b> &nbsp; выведет &nbsp;вторые &nbsp;поля &nbsp;(благодаря позиционной &nbsp;переменной &nbsp;"<font color="red">$2</font>") &nbsp;строк, &nbsp;содержащие "до". (Кстати, позиционная переменная "<font color="red">$0</font>" соответсвует всей строке).<br>
+ &nbsp; &nbsp; Во &nbsp; втором &nbsp; случае, &nbsp; благодаря &nbsp; флагу &nbsp;"<font color="red">-F</font>" &nbsp;стандартные разделители заменены на символ "<font color="red">0</font>", т.е. теперь выбранные строки воспринимаются, &nbsp;как разбитые на следующие поля:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+---------------------^--------------------
+<b><font color="darkblue">1</font></b>-е поле               <b><font color="darkblue">2</font></b>-е поле (пусто)
+
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+-----------------^---^--------------------
+<b><font color="darkblue">1</font></b>-е поле          <b><font color="darkblue">2</font></b>-е  <b><font color="darkblue">3</font></b>-е поле (пусто)
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>2)<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> [-Fc] -f prog.<font color="magenta">awk</font>  [files]
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Флаг &nbsp;"<font color="red">-f</font>" &nbsp;говорит &nbsp;о &nbsp;том, что <b><font color="darkblue">awk</font></b>-программу надо брать из файла, имя которого указано следом (имя может быть произвольным и расширение &nbsp; "<font color="green">.awk</font>" &nbsp; добавлено &nbsp; здесь &nbsp;просто &nbsp;из &nbsp;эстетических соображений).<br>
+<br>
+</code></p><h4 align="center"><code>3. awk-ПЕРЕМЕННЫЕ И ВЫРАЖЕНИЯ</code></h4><p align="justify"><code> &nbsp; &nbsp; В &nbsp; &nbsp;языке &nbsp; &nbsp;<b><font color="darkblue">awk</font></b> &nbsp; &nbsp;выделяются &nbsp; две &nbsp; группы &nbsp; переменных:<br>
+предопределенные и декларированные в программе. Исходные значения предопределенных переменных устанавливаются интерпретатором <b><font color="darkblue">awk</font></b> в процессе запуска и выполнения <b><font color="darkblue">awk</font></b>-программы.<br>
+К предопределенным относятся: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Умолчания:<br>
+<font color="red">NR</font> &nbsp; &nbsp; &nbsp; &nbsp;номер текущей строки;<br>
+<font color="red">NF</font> &nbsp; &nbsp; &nbsp; &nbsp;число полей в текущей строке;<br>
+<font color="red">RS</font> &nbsp; &nbsp; &nbsp; &nbsp;разделитель строк на вводе; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;"<font color="red">\0</font>"<br>
+<font color="red">FS</font> &nbsp; &nbsp; &nbsp; &nbsp;разделитель полей на вводе; &nbsp; &nbsp; &nbsp;пробел и/или табуляция<br>
+<font color="red">ORS</font> &nbsp; &nbsp; &nbsp; разделитель строк на выводе; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<font color="red">RS</font><br>
+<font color="red">OFS</font> &nbsp; &nbsp; &nbsp; разделитель полей на выводе; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<font color="red">FS</font><br>
+<font color="red">OFMT</font> &nbsp; &nbsp; &nbsp;формат вывода чиcл; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; "<font color="red">%.6g</font>"<br>
+<font color="red">FILENAME</font> &nbsp;имя входного файла.<br>
+<br>
+ &nbsp; &nbsp; Прочим &nbsp;переменным &nbsp;пользователь может 
+присваивать начальные значения. &nbsp; По &nbsp; умолчанию &nbsp;"<font color="red">0</font>" &nbsp;или &nbsp;пустая &nbsp;строка &nbsp;(что &nbsp;здесь равнозначно!).<br>
+ &nbsp; &nbsp; Типы переменных:<br>
+— позиционные,<br>
+— числа с плавающей точкой,<br>
+— строка символов,<br>
+— массив.<br>
+<br>
+ &nbsp; &nbsp; Интерпретатор &nbsp;<b><font color="darkblue">awk</font></b> &nbsp;рассматривает &nbsp;переменную как строковую, пока не возникает необходимость выполнить операции:<br>
+— если пробел (конкатенация), то строки;<br>
+— если "<font color="red">+</font>", то числа с плавающей точкой.<br>
+<br>
+<font color="brown">Примеры:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{a = <font color="green">$3</font> <font color="green">$4</font>; <font color="blue">print</font> a}' f-awk
+<font color="magenta">awk</font> '{a = <font color="green">$3</font>+<font color="green">$4</font>; <font color="blue">print</font> a}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><b><font color="darkblue">198050</font></b>
+<b><font color="darkblue">197940</font></b>
+<b><font color="darkblue">197940</font></b>
+<b><font color="darkblue">197060</font></b>
+<b><font color="darkblue">2030</font></b>
+<b><font color="darkblue">2019</font></b>
+<b><font color="darkblue">2019</font></b>
+<b><font color="darkblue">2030</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{}
+<font color="teal">END</font> {a = <b><font color="darkblue">2</font></b> + <b><font color="darkblue">2</font></b>        ; <font color="blue">print</font> a}' &lt; f-awk
+<font color="magenta">awk</font> '{}
+<font color="teal">END</font> {a = <b><font color="darkblue">2</font></b> + "<b><font color="darkblue">2</font></b>"      ; <font color="blue">print</font> a}' &lt; f-awk
+<font color="magenta">awk</font> '{}
+<font color="teal">END</font> {a = <b><font color="darkblue">2</font></b> + "два"    ; <font color="blue">print</font> a}' &lt; f-awk
+<font color="magenta">awk</font> '{}
+<font color="teal">END</font> {a = "два"+"два"  ; <font color="blue">print</font> a}' &lt; f-awk
+<font color="magenta">awk</font> '{}
+<font color="teal">END</font> {a = <b><font color="darkblue">2</font></b>.<b><font color="darkblue">2</font></b> + <b><font color="darkblue">2</font></b>.<b><font color="darkblue">000</font></b>  ; <font color="blue">print</font> a}' &lt; f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><b><font color="darkblue">4</font></b>
+<b><font color="darkblue">4</font></b>
+<b><font color="darkblue">2</font></b>
+<b><font color="darkblue">0</font></b>
+<b><font color="darkblue">4</font></b>.<b><font color="darkblue">2</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> 
+&nbsp; &nbsp; Массив &nbsp;не &nbsp;объявляется, &nbsp;а &nbsp;начинает 
+&nbsp;существовать &nbsp;в момент первого &nbsp;использования. Индекс 
+массива - любое ненулевое значение или &nbsp;строка. &nbsp;Массивы 
+&nbsp;ассоциативные, &nbsp;т.е. &nbsp;не &nbsp;по &nbsp;вычисляемому 
+индексу, а по совпадению содержания, например:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>     <font color="teal">day</font> [Jan][<b><font color="darkblue">31</font></b>] = Mon
+     <font color="teal">day</font> [Feb][<b><font color="darkblue">01</font></b>] = Tue
+     <font color="teal">day</font> [Feb][<b><font color="darkblue">02</font></b>] = Wed
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> 
+&nbsp; &nbsp; Массивы &nbsp;удобно &nbsp;использовать &nbsp;при 
+&nbsp;суммированиях, &nbsp;например записи выплат имеют вид (файл "<font color="green">p-1</font>"):<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>John  <b><font color="darkblue">100</font></b>
+Mary  <b><font color="darkblue">200</font></b>
+Mary  <b><font color="darkblue">200</font></b>
+John  <b><font color="darkblue">100</font></b>
+John  <b><font color="darkblue">300</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{sum[<font color="green">$1</font>] += <font color="green">$2</font>; <font color="blue">print</font> <font color="green">$1</font> sum[<font color="green">$1</font>]} ' &lt; p-<b><font color="darkblue">1</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Результат (поименный нарастающий итог):<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>John100
+Mary200
+Mary400
+John200
+John500
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Операции как в Си:<br>
+<font color="red">=</font>, <font color="red">+=</font>, <font color="red">-=</font>, <font color="red">*=</font>, <font color="red">/=</font>, <font color="red">%=</font>, <font color="red">+</font>, <font color="red">/</font>, <font color="red">%</font>, <font color="red">++</font>, <font color="red">--</font>.<br>
+<br>
+ &nbsp; &nbsp; Сравнения чисел, если оба числа, иначе - строк:<br>
+<font color="red">&lt;</font>, <font color="red">&lt;=</font>, <font color="red">==</font>, <font color="red">!=</font>, <font color="red">&gt;=</font>, <font color="red">&gt;</font><br>
+<br>
+ &nbsp; &nbsp; Логические операции:<br>
+<font color="red">!</font>, <font color="red">||</font>, <font color="red">&amp;&amp;</font><br>
+<br>
+Операция "пробел" - конкатенация.<br>
+<br>
+</code></p><h4 align="center"><code>4. ПРИМЕРЫ <font color="darkblue">awk</font>-ПРОГРАММ</code></h4><p align="justify"><code>1)</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{print (<font color="green">$2</font>, <font color="green">$3</font>)}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>И.И. <b><font color="darkblue">1980</font></b>
+А.В. <b><font color="darkblue">1979</font></b>
+С.К. <b><font color="darkblue">1979</font></b>
+И.Х. <b><font color="darkblue">1970</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>2) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '/е/ {print (<font color="green">$2</font>, <font color="green">$3</font>)}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>А.В. <b><font color="darkblue">1979</font></b>
+И.Х. <b><font color="darkblue">1970</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>3) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '/е/ {print (<font color="green">$1</font>, <b><font color="darkblue">2000</font></b> - <font color="green">$3</font>)}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Петров <b><font color="darkblue">21</font></b>
+Хведоров <b><font color="darkblue">30</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>4) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{ s = s + <font color="green">$4}</font>
+   <font color="teal">END</font> {print ("Суммарный возраст:" s)
+	<font color="blue">print</font> ("Средний   возраст:" s/NR)}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Суммарный возраст:<b><font color="darkblue">190</font></b>
+Средний   возраст:<b><font color="darkblue">47</font></b>.<b><font color="darkblue">5</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>5) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{ s += <font color="green">$4</font> }
+	{print("NR="NR, "NF="NF)}
+   <font color="teal">END</font> {print ("FILENAME=" FILENAME)
+	<font color="blue">print</font> ("Значение позиционной переменной" <font color="green">$4</font> "\"пусто\" \
+после окончания просмотра)")
+	<font color="blue">print</font> ("Суммарный возраст:" s)
+	<font color="blue">print</font> ("Средний   возраст:" s/NR)}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>NR=<b><font color="darkblue">1</font></b> NF=<b><font color="darkblue">4</font></b>
+NR=<b><font color="darkblue">2</font></b> NF=<b><font color="darkblue">4</font></b>
+NR=<b><font color="darkblue">3</font></b> NF=<b><font color="darkblue">4</font></b>
+NR=<b><font color="darkblue">4</font></b> NF=<b><font color="darkblue">4</font></b>
+FILENAME=f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>Значение позиционной переменной "пусто" после окончания просмотра)<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Суммарный возраст:<b><font color="darkblue">190</font></b>
+Средний   возраст:<b><font color="darkblue">47</font></b>.<b><font color="darkblue">5</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code></p><h4 align="center"><code>5. СЕЛЕКТОРЫ</code></h4><p align="justify"><code>
+ &nbsp; &nbsp; Здесь &nbsp;"селектор" &nbsp;следует &nbsp;понимать, как 
+расширение понятия "шаблон", &nbsp;поскольку там где в структуре команды
+ указан шаблон, в общем случае может стоять любой селектор.<br>
+ &nbsp; &nbsp; ЗАМЕЧАНИЕ. &nbsp;Открывающая &nbsp;скобка &nbsp;действия &nbsp;"<font color="red">{</font>" должна быть в строке селектора.<br>
+ &nbsp; &nbsp; В качестве селектора может быть:<br>
+ &nbsp; &nbsp; 1) выражение;<br>
+ &nbsp; &nbsp; 2) шаблон;<br>
+ &nbsp; &nbsp; 3) их комбинация.<br>
+<br>
+ &nbsp; &nbsp; Соответсвующие примеры:<br>
+1)</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="green">$3</font> != <font color="green">$4</font> &amp;&amp; <font color="green">$3</font> &gt; <b><font color="darkblue">1970</font></b>
+<font color="green">$3</font> % <b><font color="darkblue">2</font></b> == <b><font color="darkblue">1</font></b>
+<font color="green">$1</font>=="Иванов" - кавычки, чтобы воспринималось, как строка.
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>2)</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>/ab/ отлично от /a b/, / ab/ и /ab /
+Nполя ^шаблон   - по совпадению
+Nполя !^шаблон  - по несовпадению
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Пример:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '<font color="green">$3</font>~0 {print} ' &lt; f-awk
+<font color="magenta">echo</font>
+<font color="magenta">awk</font> '<font color="green">$3</font>!~0 {print} ' &lt; f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+
+Петров А.В.   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>3) Шаблон &nbsp; может &nbsp; формировать &nbsp; множество &nbsp;образцов &nbsp;или указывать, в каком месте поля искать:<br>
+<font color="red">/^a/</font> &nbsp;- поле начинается с "<font color="green">a</font>"<br>
+<font color="red">/a$/</font> &nbsp;- поле кончается "<font color="green">a</font>"<br>
+<font color="red">\+</font> &nbsp; &nbsp;- экранирует оператор<br>
+<font color="red">[abc]</font> &nbsp;- любой из символов "<font color="green">a</font>", "<font color="green">b</font>" и "<font color="green">c</font>"<br>
+<font color="red">[a-р]</font> &nbsp;- любой символ диапазона<br>
+<font color="red">*</font> &nbsp; &nbsp; - <font color="green">0</font> или больше вхождений регулярного выражения<br>
+<font color="red">+</font> &nbsp; &nbsp; - <font color="green">1</font> или больше вхождений регулярного выражения<br>
+<font color="red">?</font> &nbsp; &nbsp; - <font color="green">0</font> или <font color="green">1</font> вхождение регулярного выражения<br>
+<font color="red">ab|cd</font> &nbsp;- &nbsp;"<font color="green">ab</font>" или "<font color="green">cd</font>"<br>
+<br>
+Примеры сочетаний:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> ' <font color="green">$3</font>~/(<b><font color="darkblue">7</font></b>[<b><font color="darkblue">0</font></b>-<b><font color="darkblue">9</font></b>])$/ {print} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Петров А.В.   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; То &nbsp;есть &nbsp;в &nbsp;третьем &nbsp;поле &nbsp;выделить 70-е годы (7 и еще одна цифра от конца поля).<br>
+<br>
+</code></p><h4 align="center"><code>6. ЕЩЕ ПРИМЕРЫ</code></h4><p align="justify"><code>1) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '<font color="green">$1</font>=="Иванов" {print} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>2) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '<font color="green">$4</font>/<b><font color="darkblue">2</font></b>==<b><font color="darkblue">30</font></b>  {print} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>3) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '<font color="green">$3</font> != <font color="green">$4</font> &amp;&amp; <font color="green">$3</font> &gt; <b><font color="darkblue">1970</font></b>  {print} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Петров А.В.   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>4) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '<font color="green">$1</font>~/нов$/ {print} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>5) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '/^Ив|дор/  {print} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>6) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '/<b><font color="darkblue">1980</font></b>/,/<b><font color="darkblue">1979</font></b>/ {print} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Петров А.В.   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code></p><h4 align="center"><code>7. ДЕЙСТВИЯ</code></h4><p align="justify"><code> &nbsp; &nbsp; В <b><font color="darkblue">awk</font></b> возможны следующие действия:<br>
+1) присваивания выражений;<br>
+2) операторы управления<br>
+3) операторы вывода;<br>
+4) встроенные функции.<br>
+<br>
+</code></p><h4 align="center"><code>ОПЕРАТОРЫ УПРАВЛЕНИЯ</code></h4><p align="justify"><code> &nbsp; &nbsp; Простейшие операторы<br>
+<br>
+<font color="red">exit</font> &nbsp;- &nbsp; &nbsp; завершить выполнение программы;<br>
+<font color="red">next</font> &nbsp;- &nbsp; &nbsp; перейти к следующей строке, управление на начало awk-программы;<br>
+<font color="red">break</font> - &nbsp; &nbsp; выход из цикла;<br>
+<font color="red">continue</font> - &nbsp;переход к следующей итерации;<br>
+<br>
+ &nbsp; &nbsp; Структурные операторы<br>
+<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="orange">if</font> (условие) {операторы} [else {операторы}]
+<font color="orange">while</font> (условие) {операторы}
+<font color="orange">for</font> (выражение; условие; выражение) {операторы}
+<font color="orange">for</font> (индекс  <font color="orange">in</font>  имя_массива) {операторы}
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> 
+&nbsp; &nbsp; Структурные &nbsp;операторы &nbsp;в &nbsp;значительной 
+&nbsp;степени &nbsp;аналогичны соответсвующим операторам Си.<br>
+ &nbsp; &nbsp; В &nbsp;последнем &nbsp;случае &nbsp;для &nbsp;каждого 
+индекса выполняется блок. Текстовые индексы рассматирваются в 
+лексикографическом порядке.<br>
+<br>
+ &nbsp; &nbsp; Примеры<br>
+<br>
+1) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> ' <font color="green">$4</font>~/<b><font color="darkblue">40</font></b>/ {if(<font color="green">$3</font>&lt;=<b><font color="darkblue">1980</font></b>) {print("Фамилия: " <font color="green">$1</font> ) M["<b><font color="darkblue">40</font></b>"]++}} <font color="green">$4</font>~/<b><font color="darkblue">50</font></b>/ {M["<b><font color="darkblue">50</font></b>"]++}
+ <font color="teal">END</font> {for(i <font color="orange">in</font> M) {print(" i =" i "  M[" i "]=" M[i])}} ' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Фамилия: Петров
+Фамилия: Сидоров
+ i =<b><font color="darkblue">40</font></b>  M[<b><font color="darkblue">40</font></b>]=<b><font color="darkblue">2</font></b>
+ i =<b><font color="darkblue">50</font></b>  M[<b><font color="darkblue">50</font></b>]=<b><font color="darkblue">1</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>2) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> ' BEGIN {ORS = " "}
+   { <font color="orange">for</font>(k=NF; k&gt;<b><font color="darkblue">0</font></b>; --k) {print <font color="green">$k}</font>
+     {print RS}
+   } ' f-awk |
+   <font color="magenta">sed</font> 's/^ //'
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><b><font color="darkblue">50</font></b> <b><font color="darkblue">1980</font></b> И.И. Иванов 
+<b><font color="darkblue">40</font></b> <b><font color="darkblue">1979</font></b> А.В. Петров 
+<b><font color="darkblue">40</font></b> <b><font color="darkblue">1979</font></b> С.К. Сидоров 
+<b><font color="darkblue">60</font></b> <b><font color="darkblue">1970</font></b> И.Х. Хведоров 
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> 
+&nbsp; &nbsp; Здесь, &nbsp; кроме &nbsp;изменения &nbsp;очередности 
+&nbsp;полей &nbsp;в &nbsp;строке &nbsp;на противоположное (что делает 
+цикл "<font color="red">for</font>"), предварительно устанавливается 
+выходной &nbsp;разделитель - пробел и весь результат предварительно 
+выдается в одну строку, поэтому после обработки каждой строки выдается 
+команда "<font color="red">print RS</font>" для перевода выходной строки. Редактор <b><font color="darkblue">sed</font></b> подключен через конвейер, чтобы убрать возможные пробелы в начале строки.<br>
+ &nbsp; &nbsp; Существенная деталь. Если запустить лишь базовую структуру<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{ <font color="orange">for</font>(k=NF; k&gt;<b><font color="darkblue">0</font></b>; --k) {print <font color="green">$k}}</font>' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> 
+&nbsp; &nbsp; то &nbsp;все &nbsp;поля &nbsp;исходной таблицы с 
+изменениями порядка внутри прежних строк получим вытянутыми в один 
+столбец переводом строки:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><b><font color="darkblue">50</font></b>
+<b><font color="darkblue">1980</font></b>
+И.И.
+Иванов
+<b><font color="darkblue">40</font></b>
+<b><font color="darkblue">1979</font></b>
+А.В.
+Петров
+<b><font color="darkblue">40</font></b>
+<b><font color="darkblue">1979</font></b>
+С.К.
+Сидоров
+<b><font color="darkblue">60</font></b>
+<b><font color="darkblue">1970</font></b>
+И.Х.
+Хведоров
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Однако, &nbsp;если поставим "<font color="red">;</font>" сразу после условия, т.е. сделаем пустое тело цикла, за пределы которого вынесен "<font color="red">print $k</font>"<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{ <font color="orange">for</font>(k=NF; k&gt;<b><font color="darkblue">0</font></b>; --k); {print <font color="green">$k}}</font>' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; то получим исходную таблицу<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Иванов И.И.   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Петров А.В.   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; поскольку &nbsp;"<font color="red">$k</font>" &nbsp;после &nbsp;выхода из цикла будет иметь значение "<font color="red">0</font>", а "<font color="red">$0</font>" - соответсвует всей строке в качестве значения(<font color="red">!</font>), то "<font color="red">print $k</font>" будет после каждого цикла печатать полные строки.<br>
+<br>
+</code></p><h4 align="center"><code>8. ВВОД И ВЫВОД ДАННЫХ</code></h4><p align="justify"><code> &nbsp; &nbsp; В &nbsp;общем &nbsp;случае &nbsp;в команде <b><font color="darkblue">awk</font></b> может быть указано несколько файлов.<br>
+ &nbsp; &nbsp; Напомним форматы вызова команды:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> [-Fc] 'prog.awk' [file ...]
+<font color="magenta">awk</font> [-Fc] -f prog.<font color="magenta">awk</font>  [file ...]
+			      ^
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Файлы обрабатываются последовательно в указанном порядке.<br>
+ &nbsp; &nbsp; Это &nbsp;можно &nbsp;использовать &nbsp;для &nbsp;"настройки" &nbsp;<b><font color="darkblue">awk</font></b> &nbsp;команды при обработке последующих файлов.<br>
+<br>
+ &nbsp; &nbsp; Пусть файл "<font color="red">f0</font>" имеет вид:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><b><font color="darkblue">60</font></b> Сидоров
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; А файл <b><font color="darkblue">awk</font></b>-программы "<font color="olive">prim.awk</font>" имеет вид:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>FILENAME == "f0" {            <font color="red"># если просматривается файл "f0"</font>
+		  w1 = <font color="green">$2</font>     <font color="red"># присваиваются значения переменным</font>
+		  w2 = <font color="green">$1</font>     <font color="red"># w1 - Сидоров, w2 - 60</font>
+		 }
+<font color="green">$1</font> == w1         { <font color="blue">print</font> ("фамилия: "<font color="green">$1</font>)} <font color="red"># означенные переменные</font>
+<font color="green">$4</font> == w2         { <font color="blue">print</font> ("годы: " <font color="green">$4</font>)}   <font color="red"># используются в</font>
+					  <font color="red"># селекторах</font>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Тогда при вызове команды<br>
+<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> -f prim.<font color="magenta">awk</font>  f0  f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>фамилия: Сидоров
+годы: <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; То &nbsp;есть &nbsp;второе &nbsp;поле &nbsp;файла &nbsp;"<font color="red">f0</font>" дает значение переменной "<font color="red">w1</font>", &nbsp;а &nbsp;первое - "<font color="red">w2</font>". Эти переменные используются в селекторах при обработке файла "<font color="red">f-awk</font>".<br>
+<br>
+ &nbsp; &nbsp; Изменим программу в файле "<font color="olive">f-awk</font>":<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>FILENAME == "f0" {
+		    w1 = <font color="green">$2</font>
+		    w2 = <font color="green">$1</font>
+		    next
+		 }
+		 { <font color="blue">print</font> ("фамилия: "<font color="green">$1</font>); next}
+<font color="green">$4</font> == w2         { <font color="blue">print</font> ("годы: " <font color="green">$4</font>)}
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>фамилия: Иванов
+фамилия: Петров
+фамилия: Сидоров
+фамилия: Хведоров
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Если &nbsp;исключить &nbsp;первый оператор "<font color="red">next</font>", то в выходном файле появится дополнительно первая строка:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>фамилия: <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; поскольку выбирается снова первое поле в певом файле ("<font color="red">f0</font>").<br>
+ &nbsp; &nbsp; Если исключить и второй "<font color="red">next</font>", то в выходном файле появится дополнительно последняя строка:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>годы: <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; которая &nbsp;ранее &nbsp;не &nbsp;выводилась, &nbsp;так &nbsp;как &nbsp;в &nbsp;предшествующий оператор &nbsp;"<font color="red">{ &nbsp;print ("фамилия: &nbsp;"$1)}</font>" &nbsp;заканчивал &nbsp;работу &nbsp;на <u>последней</u> &nbsp; строке &nbsp; файла &nbsp; "<font color="olive">f-awk</font>", &nbsp;поэтому &nbsp;"<font color="red">next</font>" &nbsp;пропускал последующую командную строку<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="green">$4</font> == w2         { <font color="blue">print</font> ("годы: " <font color="green">$4</font>)}
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; И еще одна модификация в связи с вводом данных с терминала. Вызов команды будет:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> -f prim.<font color="magenta">awk</font>  f0  f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>А файл "<font color="red">prim.awk</font>" примет вид:<br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>BEGIN { <font color="blue">print</font> ("Введите годы и фамилию: ")}
+FILENAME == "-" {
+		  w1 = <font color="green">$2</font>
+		  w2 = <font color="green">$1</font>
+		next
+		}
+<font color="green">$1</font> == w1        { <font color="blue">print</font> ("фамилия: "<font color="green">$1</font>); next}
+<font color="green">$4</font> == w2        { <font color="blue">print</font> ("годы: " <font color="green">$4</font>)}
+</code></pre></td></tr></tbody></table></p><p align="justify"><code></code></p><h4 align="center"><code>9. ВСТРОЕННЫЕ ФУНКЦИИ</code></h4><p align="justify"><code> &nbsp; &nbsp; Встроенные функции:<br>
+<font color="red">sin (expr)</font> &nbsp; &nbsp; &nbsp; &nbsp; синус &nbsp;<font color="green">expr</font><br>
+<font color="red">cos (expr)</font> &nbsp; &nbsp; &nbsp; &nbsp; косинус <font color="green">expr</font><br>
+<font color="red">exp (expr)</font> &nbsp; &nbsp; &nbsp; &nbsp; возведение в степень <font color="green">expr</font><br>
+<font color="red">log (expr)</font> &nbsp; &nbsp; &nbsp; &nbsp; натуральный логорифм <font color="green">expr</font><br>
+<font color="red">sqrt (expr)</font> &nbsp; &nbsp; &nbsp; &nbsp;извлечение корня <font color="green">expr</font><br>
+<font color="red">int (expr)</font> &nbsp; &nbsp; &nbsp; &nbsp; целая часть числа<br>
+<font color="red">length (s)</font> &nbsp; &nbsp; &nbsp; &nbsp; длина строки <font color="red">s</font><br>
+<font color="red">printf (fmt, ...)</font> &nbsp;форматирование (аналогично Си) по спецификации <font color="green">fmt</font>.<br>
+<font color="red">substr (s, m, n)</font> &nbsp; подстрока в <font color="green">n</font> символов строки <font color="green">s</font>, начинающаяся с <font color="green">m</font>.<br>
+<font color="red">getline ()</font> &nbsp; &nbsp; &nbsp; &nbsp; чтение следующей строки. <font color="green">0</font> - конец файла, иначе <font color="green">1</font>.<br>
+<font color="red">index (s1, s2)</font> &nbsp; &nbsp; номер позиции, с которой <font color="green">s1</font> совпадает с <font color="green">s2</font>, иначе <font color="green">0</font>.<br>
+<font color="red">split (s, M, c)</font> &nbsp;строка <font color="green">s</font> разбивается элементы массива <font color="green">M</font> по разделителю <font color="green">c</font> (по умолчанию <font color="red">FS=" "</font>); функция возвращает число полей.<br>
+<br>
+ &nbsp; &nbsp; Примеры.<br>
+<br>
+1) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '     BEGIN {FS = "."; a=0}
+   length (<font color="green">$1</font>) &gt; <b><font color="darkblue">8</font></b> {print (length (<font color="green">$1</font>), <font color="green">$0</font>);
+		    a++
+		   }
+	       <font color="teal">END</font> {print ("Найдено строк: " a) }' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><b><font color="darkblue">9</font></b> Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+<b><font color="darkblue">10</font></b> Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+Найдено строк: <b><font color="darkblue">2</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> &nbsp; &nbsp; Здест &nbsp;поля &nbsp;разделяются по "<font color="red">.</font>", выбираются строки у которых длина &nbsp;первого &nbsp;поля &nbsp;больше &nbsp;8-ми, &nbsp;и &nbsp;их &nbsp;длина &nbsp;"<font color="red">length &nbsp;($1)</font>" печатается перед строкой "<font color="red">$0</font>".<br>
+<br>
+2) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{i=split(<font color="green">$0</font>, <font color="blue">Name</font>, ".");
+	 <font color="orange">for</font> (j=<b><font color="darkblue">1</font></b>; j&lt;=i; j++)
+	     <font color="blue">print</font> ("Name[" j "]=" Name[j])
+	}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>Name[<b><font color="darkblue">1</font></b>]=Иванов И
+Name[<b><font color="darkblue">2</font></b>]=И
+Name[<b><font color="darkblue">3</font></b>]=   <b><font color="darkblue">1980</font></b>  <b><font color="darkblue">50</font></b>
+Name[<b><font color="darkblue">1</font></b>]=Петров А
+Name[<b><font color="darkblue">2</font></b>]=В
+Name[<b><font color="darkblue">3</font></b>]=   <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Name[<b><font color="darkblue">1</font></b>]=Сидоров С
+Name[<b><font color="darkblue">2</font></b>]=К
+Name[<b><font color="darkblue">3</font></b>]=  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+Name[<b><font color="darkblue">1</font></b>]=Хведоров И
+Name[<b><font color="darkblue">2</font></b>]=Х
+Name[<b><font color="darkblue">3</font></b>]= <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>3) </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{print (length)}' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><b><font color="darkblue">22</font></b>
+<b><font color="darkblue">22</font></b>
+<b><font color="darkblue">22</font></b>
+<b><font color="darkblue">22</font></b>
+</code></pre></td></tr></tbody></table></p><p align="justify"><code> 
+&nbsp; &nbsp; Поскольку &nbsp;все &nbsp;строки &nbsp;были 
+&nbsp;выровнены пробелами, а в длине строки учитываются все символы до 
+конца строки.<br>
+<br>
+4) &nbsp; </code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code><font color="magenta">awk</font> '{printf "%7.2f %s\n", NR, <font color="green">$0}</font>' f-awk
+     <font color="magenta">echo</font>
+     <font color="magenta">awk</font> '{printf "\t%s %s \n", NR, <font color="green">$0}</font>' f-awk
+</code></pre></td></tr></tbody></table></p><p align="justify"><code><font color="brown">Результат:</font><br>
+</code><table style="border-top:1px solid #000000; border-bottom:1px solid #000000; border-right:1px 
+		solid #000000; border-left:1px solid #000000; margin-top:5px; font: 12px Tahoma;" bgcolor="#FFFAED" border="0" cellpadding="5" cellspacing="0" width="100%">
+
+		<tbody><tr>
+<td>
+<pre style="font: Arial; margin:1px"><code>   <b><font color="darkblue">1</font></b>.<b><font color="darkblue">00</font></b> Иванов И.И. <b><font color="darkblue">1980</font></b> <b><font color="darkblue">50</font></b>
+   <b><font color="darkblue">2</font></b>.<b><font color="darkblue">00</font></b> Петров А.В. <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+   <b><font color="darkblue">3</font></b>.<b><font color="darkblue">00</font></b> Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b>
+   <b><font color="darkblue">4</font></b>.<b><font color="darkblue">00</font></b> Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b>
+
+	<b><font color="darkblue">1</font></b> Иванов И.И. <b><font color="darkblue">1980</font></b> <b><font color="darkblue">50</font></b> 
+	<b><font color="darkblue">2</font></b> Петров А.В. <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b> 
+	<b><font color="darkblue">3</font></b> Сидоров С.К.  <b><font color="darkblue">1979</font></b>  <b><font color="darkblue">40</font></b> 
+	<b><font color="darkblue">4</font></b> Хведоров И.Х. <b><font color="darkblue">1970</font></b>  <b><font color="darkblue">60</font></b> 
+</code></pre></td></tr></tbody></table></p><p align="justify"><code>(Aho, Weinberg, Kernigan)</code></p><br><br>
+			
+<a name="forum_link"></a><strong>Ссылка на обсуждение: <a class="text_link" href="http://forum.lissyara.su/viewforum.php?f=32">http://forum.lissyara.su/viewforum.php?f=32</a></strong>.<br><br>
+
+
+			<!-- Текст страницы закончился -->
+<!-- линк на редактирование для автора -->
+			<!-- автор текста начался -->
+			<a name="voting"></a>
+			<table border="0" cellpadding="0" cellspacing="0" width="100%">
+				<tbody><tr>
+					<td valign="top">
+						
+					</td>
+					<td align="right" valign="top">
+						
+					</td>
+				</tr>
+			</tbody></table>
+
+			<!-- автор кончился :) -->
+<center>
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.punkt.2.tpl' -->
+
+<center>
+<script type="text/javascript"><!--
+	google_ad_client = "pub-5744561116771842";
+	/* 468x60, создано 08.07.08 */
+	google_ad_slot = "0142234703";
+	google_ad_width = 468;
+	google_ad_height = 60;
+	//-->
+</script>
+<script type="text/javascript" src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/show_ads.js">
+</script>
+</center>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.punkt.2.tpl' -->
+</center>
+			
+			<!-- Комментарии пользователей начались -->
+					<br><br>
+			<!-- Комментарии пользователей закончились -->
+
+			<!-- рисунок по ширине колонки - чтоб не сжималась браузерами -->
+			<img src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/blank.gif" height="1" width="610">
+		</td>
+		<td width="10">
+			<!-- рисунок по ширине колонки - чтоб не сжималась браузерами -->
+			<img src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/blank.gif" height="1" width="10">
+		</td>
+		<td style="PADDING: 5px; BACKGROUND: #f1f1f1; BORDER-LEFT: #707680 1px solid; BORDER-RIGHT: #707680 1px solid; font-size: 12px; " valign="top" width="170">
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.host-food.tpl' -->
+
+<center><a href="http://www.host-food.ru/" onclick="window.location.href='http://www.host-food.ru/p/2248/'; return false;" target="_blank"><img src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/host-food.gif" alt="Хостинг HOST-FOOD" border="0" height="31" width="88"></a></center>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.host-food.tpl' -->
+<br>
+			<!-- новости начались -->
+			
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2014-07-27, <a class="text_link" href="http://www.lissyara.su/authors/2005/lissyara/" title="Лужу, паяю, Э-Вэ-эМы починяю...">lissyara</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/file_system/gmirror_gpart_glabel/" title="Создание зеракала gmirror с разбивкой gpart и использованием меток glabel ">gmirror </a></b></code><br>
+
+<code style="font-size: 8pt;">Удалённое создание софтверного зеркала 
+средствами gmirror, на диске разбитом с использованием gpart. 
+Использование меток дисков для монтирования разделов.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2013-08-20, <a class="text_link" href="http://www.lissyara.su/?id=2172" title="">zentarim</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/scan_print/" title="Scan+Print server FreeBSD 9 для Canon PIXMA MP540">Scan+Print server FreeBSD 9</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка сервера печати и сервера сканирования под управлением операционной системы FreebSD 9 для МФУ Canon PIXMA MP540</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-11-20, <a class="text_link" href="http://www.lissyara.su/authors/2007/blackcat/" title="">BlackCat</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/mad_hands/computers/pluggable_rp_sma_antenna/" title="Установка разъёма на WiFi-карту">Разъём на WiFi-карту</a></b></code><br>
+
+<code style="font-size: 8pt;">Делаем съёмной несъёмную антену на WiFi-карте путём установки ВЧ-разъёма</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-09-14, <a class="text_link" href="http://www.lissyara.su/authors/2008/manefesto/" title="">manefesto</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/git_gitosis_ssh/" title="Настройка системы контроля версия исходного кода в связке git+gitosis+ssh ">Настройка git+gitosis</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка системы контроля версия исходного кода в связке git+gitosis+ssh </code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-08-14, <a class="text_link" href="http://www.lissyara.su/?id=2172" title="">zentarim</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/tuning/wifi_router/" title="Wi-Fi роутер Freebsd 8 + DNS сервер + DHCP сервер">Wi-FI роутер + DHCP + DNS</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка Wi-Fi роутера на Freebsd 8 + DNS
+ сервер + DHCP сервер: чтобы Wi-Fi клиенты были в одной подсети с 
+проводными, проводные и беспроводные клиенты получали адреса 
+автоматически по DHCP, кэширующ</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-06-15, <a class="text_link" href="http://www.lissyara.su/authors/2011/-zg-/" title="">-ZG-</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/hardware/lptmon/" title="Охранная система на FreeBSD + LPT c видеорегистрацией">Охранная система на FreeBSD+LPT</a></b></code><br>
+
+<code style="font-size: 8pt;">В этой статье описана попытка реализации 
+простой охранной системы на базе FreeBSD с подключением к ней охранных 
+устройтсв на LPT порт и видеорегистрацией.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-03-13, <a class="text_link" href="http://www.lissyara.su/authors/2008/terminus/" title="">terminus</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/tuning/ng_nat/" title="Описание работы с ng_nat">ng_nat</a></b></code><br>
+
+<code style="font-size: 8pt;">Описание работы ng_nat, практическое использование, достоинства и недостатки в сравнении с ipfw nat</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-02-20, <a class="text_link" href="http://www.lissyara.su/authors/2011/captain/" title="">Капитан</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/nagios+digitemp/" title="Система оповещения о превышении допустимой температуры в серверной на основе связки Nagios + Digitemp.">Nagios+Digitemp</a></b></code><br>
+
+<code style="font-size: 8pt;">Статья описывает создание системы 
+оповещения о превышении температуры в специальных помещениях на основе 
+Nagios с использованием программы Digitemp.
+</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-02-17, <a class="text_link" href="http://www.lissyara.su/authors/2008/le1/" title="">Le1</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/coding/zyxel_configuration/" title="Скрипт для массового изменения конфига свичей Zyxel">Zyxel Configuration</a></b></code><br>
+
+<code style="font-size: 8pt;">Скрипт для массового изменения конфига 
+свичей Zyxel. Берет из файла iplist список ip-шек, заходит 
+последовательно на каждый и выполняет комманды из файла commands, 
+записывая происходящее в лог файл.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-02-16, <a class="text_link" href="http://www.lissyara.su/authors/2009/fox/" title="FreeBSD for ever, Windows must die!!!">fox</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/tuning/hast_cluster/" title="hast cluster">hast carp zfs ucarp cluster</a></b></code><br>
+
+<code style="font-size: 8pt;">HAST (Highly Available Storage), CARP, UCARP, ZFS, Cluster настройка и одаптация плюс личные размышления…</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-02-04, <a class="text_link" href="http://www.lissyara.su/authors/2007/blackcat/" title="">BlackCat</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/file_system/zfs_recovery/" title="Восстановление ZFS-пула с помощью подручных средств">Восстановление ZFS</a></b></code><br>
+
+<code style="font-size: 8pt;">История о том, как был восстановлен 
+развалившийся RAIDZ ZFS-пул (перешедший в FAULTED) с помощью скотча и 
+подручных средств. Или о том, какие приключения ожидают тех, кто не 
+делает резервных копий.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-02-03, <a class="text_link" href="http://www.lissyara.su/authors/2011/captain/" title="">Капитан</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/mad_hands/computers/ds9097+ds1820/" title="Изготовление простейшего контроллера шины 1-Wire для создания системы мониторинга температуры.">1-Wire</a></b></code><br>
+
+<code style="font-size: 8pt;">Статья описывает самостоятельное 
+изготовление контроллера DS9097 для съёма показаний с датчиков 
+температуры DS1820 с помощью программы Digitemp.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-01-28, <a class="text_link" href="http://www.lissyara.su/authors/2011/captain/" title="">Капитан</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/mrtg+digitemp/" title="Мониторинг температуры MRTG+Digitemp">Температура в серверной</a></b></code><br>
+
+<code style="font-size: 8pt;">Статья описывает построение системы 
+наблюдения за температурой в помещении серверной с использованием 
+программы Digitemp и выводом графиков в MRTG</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-01-21, <a class="text_link" href="http://www.lissyara.su/authors/2008/m4rkell/" title="">m4rkell</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/rsyslog+loganalyzer+mysql/" title="Сервер логов на rsyslog+loganalyzer+mysql">Syslog server</a></b></code><br>
+
+<code style="font-size: 8pt;">Как то буквально на днях, у нас 
+завалилось, что то в еве) или не в еве не суть. Суть в том, что когда 
+захотели снять логи с хостов esx обнаружили, что хранят эти негодяи 
+логии только за последнии сутк</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-01-11, <a class="text_link" href="http://www.lissyara.su/authors/2010/fomalhaut/" title="">Fomalhaut</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/tuning/cvs_svn_portsnap_update/" title="Обновление исходных текстов: cvsup, csup, svn, portsnap">cvs, svn, portsnap</a></b></code><br>
+
+<code style="font-size: 8pt;">Обновление сорцов системы через CVS и SVN, портов - CVS и portsnap. Обновление через Proxy-сервер.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2011-01-07, <a class="text_link" href="http://www.lissyara.su/authors/2005/lissyara/" title="Лужу, паяю, Э-Вэ-эМы починяю...">lissyara</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/hardware/mount_canon_powershot_using_gphotofs/" title="Монтирование фотоаппарата Canon через gphotofs">Canon/gphotofs</a></b></code><br>
+
+<code style="font-size: 8pt;">Монтирование цифровых фотоаппаратов Canon 
+(PTP) как файловой системы, автоматизация этого процесса через события 
+devd и внешние скрипты.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-12-13, <a class="text_link" href="http://www.lissyara.su/authors/2007/al/" title="">Al</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/security/ipsec2/" title="IPSec. Теория и практика.">IPSec</a></b></code><br>
+
+<code style="font-size: 8pt;">Описание принципов работы IPSEC и способов аутентификации.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-12-07, <a class="text_link" href="http://www.lissyara.su/authors/2008/manefesto/" title="">manefesto</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/file_system/install_freebsd_on_usb_flash/" title="Опыт миграции на usb">FreeBSD on flash</a></b></code><br>
+
+<code style="font-size: 8pt;">Было принято решении переехать на USB Flash и установить минимальный джентельменский набор для работы своего роутера. Делаем  =)</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-12-05, <a class="text_link" href="http://www.lissyara.su/authors/2010/fomalhaut/" title="">Fomalhaut</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/file_system/root_zfs_gpt/" title="Установка FreeBSD с использованием ZFS в качестве основной">root ZFS, GPT</a></b></code><br>
+
+<code style="font-size: 8pt;">Инструкция по установке FreeBSD с использованием в качестве таблицы разделов GPT и в качестве основной файловой системы - ZFS</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-09-05, <a class="text_link" href="http://www.lissyara.su/authors/2008/cancer/" title="">Cancer</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/trivia/install_ximp3_music_player/" title="Настройка аудиоплеера с помощью ximp3">Настройка аудиоплеера на ximp3</a></b></code><br>
+
+<code style="font-size: 8pt;">Цели: Простенький аудиоплеер, для того что
+ бы тетя продавец в магазине утром пришла нажала на кнопку Power и 
+заиграла в зале музыка, так же был доступ по сети, общая шара куда можно
+ заливать музыку, к</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-08-31, <a class="text_link" href="http://www.lissyara.su/authors/2008/cancer/" title="">Cancer</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/security/openvpn+pkcs-12/" title="Установка и настройка OpenVPN с ключом pkcs12">Установка и настройка OpenVPN</a></b></code><br>
+
+<code style="font-size: 8pt;">На днях появилась задача - объединить 
+головной офис и 3 филиала в одну сеть через интернет посредством 
+OpenVPN, чтобы люди могли подключаться через RDP к базам 1С на серверах.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-08-25, <a class="text_link" href="http://www.lissyara.su/authors/2008/manefesto/" title="">manefesto</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/file_system/geom_linux_lvm/" title="Монтирование разделов lvm во freebsd">freebsd lvm</a></b></code><br>
+
+<code style="font-size: 8pt;">Использование linux_lvm для работы с LVM разделами из-под FreeBSD. Проблемы которые возники при монтирование lvm раздела</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-04-30, <a class="text_link" href="http://www.lissyara.su/authors/2010/gonzo111/" title="">gonzo111</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/proftpd_quota_and_auth_from_file/" title="Proftpd - квоты и авторизация из файлов. Мониторинг.">proftpd file auth&amp;quota</a></b></code><br>
+
+<code style="font-size: 8pt;">Proftpd - квоты и авторизация из файлов, без использования базы данных и/или системных пользователей</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-04-22, <a class="text_link" href="http://www.lissyara.su/authors/2005/lissyara/" title="Лужу, паяю, Э-Вэ-эМы починяю...">lissyara</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/hardware/tw_cli/" title="Исправление ошибок RAID на контроллерах 3ware">tw_cli</a></b></code><br>
+
+<code style="font-size: 8pt;">Пошаговая инструкция по восстановлению 
+RAID на контроллере 3ware, из которого выпал один диск. Настройка 
+мониторинга состояния рейда и отчётов о его состоянии на email.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-04-14, <a class="text_link" href="http://www.lissyara.su/authors/2009/fox/" title="FreeBSD for ever, Windows must die!!!">fox</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/mysql_master_mater/" title="MySQL Master+Master">MySQL Master+Master</a></b></code><br>
+
+<code style="font-size: 8pt;">MySQL (Master Master) and (Master Slave) Как настроить репликацию…</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-03-22, <a class="text_link" href="http://www.lissyara.su/authors/2010/mufanu/" title="">Mufanu</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/named_9.7.0/" title="Теория и настройка named 9.7.0.">named 9.7.0</a></b></code><br>
+
+<code style="font-size: 8pt;">Система доменных имен (Domain Name 
+Service, DNS) - одна из тех незаметных, закулисных программ, которым не 
+уделяется и половины того внимания, которого они заслуживают.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-03-09, <a class="text_link" href="http://www.lissyara.su/authors/2008/terminus/" title="">terminus</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/dns/" title="Заметки про работу с DNS зонами">DNS zones</a></b></code><br>
+
+<code style="font-size: 8pt;">Краткий ликбез про управление DNS зонами. Примеры проведения делегирования прямых и обратных DNS зон.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-03-09, <a class="text_link" href="http://www.lissyara.su/?id=2074" title="">aspera</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/squid+ad+group_access/" title="Squid и авторизация пользователей в AD по группам">Squid+AD (group access)</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка прокси сервера SQUID с автроризацией пользователей в AD. Разделение пользователей на группы</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-03-02, <a class="text_link" href="http://www.lissyara.su/authors/2007/blackcat/" title="">BlackCat</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/openbsd/syntony/router_part4_misc/" title="Часть 4 - Установка мелких сервисов"> Шлюз: Часть 4</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка дополнительных сервисов: синхронизация времени (OpenNTPD), клиент DynDNS.org.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-03-01, <a class="text_link" href="http://www.lissyara.su/authors/2007/blackcat/" title="">BlackCat</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/openbsd/syntony/router_part3_dns_dhcp_dyndns/" title="Часть 3 - Тонкая настройка: DNS, DHCP, Dynamic DNS"> Шлюз: Часть 3</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка DHCP и DNS серверов для работы 
+внутри частной сети, c поддержкой внутренних (частных зон) DNS, а так же
+ интеграция DHCP и DNS сервисов.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-03-01, <a class="text_link" href="http://www.lissyara.su/authors/2007/blackcat/" title="">BlackCat</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/openbsd/syntony/router_part2_pf_advanced/" title="Часть 2 - Более функциональная настройка pf(4)"> Шлюз: Часть 2</a></b></code><br>
+
+<code style="font-size: 8pt;">Конфигурация МСЭ pf для проброса портов с 
+изменением порта назначения и без, а так же поддержки активного режима 
+FTP и ограничения максимального размера сегмента</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-03-01, <a class="text_link" href="http://www.lissyara.su/authors/2007/blackcat/" title="">BlackCat</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/openbsd/syntony/router_part1_simple/" title="Часть 1 - Простейший маршрутизатор"> Шлюз: Часть 1</a></b></code><br>
+
+<code style="font-size: 8pt;">Быстрая настройка шлюза/маршрутизатора с установлением PPPoE-соединения, поддержкой NAT и DNS-forwarding.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-02-23, <a class="text_link" href="http://www.lissyara.su/authors/2008/morty/" title="">Morty</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/traffic_count/darkstat/" title="darkstat - самый простой мониторинг трафика, самый легковесный.">darkstat</a></b></code><br>
+
+<code style="font-size: 8pt;">Простая считалка траффика, со встроенным 
+веб-сервером. Очень маленькая, может делать отчеты трафика по хостам, 
+портам, протоколам, а также строить графики</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2010-01-23, <a class="text_link" href="http://www.lissyara.su/authors/2010/gonzo111/" title="">gonzo111</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/squid_sams/" title="Пилим squid и sams в примерах и задачках. Установка SqStat.">squid+sams+sqstat</a></b></code><br>
+
+<code style="font-size: 8pt;">Пилим squid и sams - примеры конфигов с объяснениями. Установка SqStat.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-12-19, <a class="text_link" href="http://www.lissyara.su/authors/2007/schizoid/" title="">schizoid</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/traffic_count/mpd5_pppoe+radius+ng_car+abills/" title="mpd5(pppoe)+radius+ng_car+Abills">mpd5 + radius + ng_car + Abills</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка pppoe-сервера с биллинговой системой Abills и шейпером ng_car</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-11-16, <a class="text_link" href="http://www.lissyara.su/authors/2005/lissyara/" title="Лужу, паяю, Э-Вэ-эМы починяю...">lissyara</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/file_system/remote_migration_from_ufs_to_zfs/" title="Удалённая миграция с UFS на ZFS">UFS-&gt;ZFS</a></b></code><br>
+
+<code style="font-size: 8pt;">Удалённая миграция с UFS на ZFS. Загрузка с раздела zfs. Настройка для работы с малым количеством памяти под архитектурой i386.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-11-13, <a class="text_link" href="http://www.lissyara.su/authors/2009/gx_ua/" title="">gx_ua</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/file_system/fusefs-ntfs/" title="fusefs-ntfs">fusefs-ntfs </a></b></code><br>
+
+<code style="font-size: 8pt;">Установка, настройка и использование fusefs-ntfs, драйвер NTFS, предназанченного для монтирования NTFS разделов под FreeBSD</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-11-12, <a class="text_link" href="http://www.lissyara.su/authors/2008/morty/" title="">Morty</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/trivia/livecd/" title="LiveCD">LiveCD </a></b></code><br>
+
+<code style="font-size: 8pt;">Создание собственного LiveCD с 
+необходимыми вам изменениями, автоматизирование данного процесса, а так 
+же вариант скоростной сборки СД.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-09-27, <a class="text_link" href="http://www.lissyara.su/authors/2005/lissyara/" title="Лужу, паяю, Э-Вэ-эМы починяю...">lissyara</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/samba_as_pdc_without_ldap/" title="Самба как контроллер домена без использования LDAP">Samba как PDC</a></b></code><br>
+
+<code style="font-size: 8pt;">Контроллер домена - аналог M$ NT4 домена под самбой, без использования LDAP и прочей хиромантии. Просто и быстро =)</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-08-30, <a class="text_link" href="http://www.lissyara.su/authors/2008/terminus/" title="">terminus</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/tuning/ipfw_nat/" title="Подробное руководство по ipfw nat">ipfw nat</a></b></code><br>
+
+<code style="font-size: 8pt;">Подробное руководство по ipfw nat, сложные случаи конфигурации.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-08-24, <a class="text_link" href="http://www.lissyara.su/authors/2009/levantuev/" title="">levantuev</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/hotspot/" title="HotSpot">HotSpot</a></b></code><br>
+
+<code style="font-size: 8pt;">Установка Hotspot системы в общественное заведение.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-08-18, <a class="text_link" href="http://www.lissyara.su/authors/2005/lissyara/" title="Лужу, паяю, Э-Вэ-эМы починяю...">lissyara</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/tuning/diskless/" title="Тонкие клиенты под FreeBSD">diskless</a></b></code><br>
+
+<code style="font-size: 8pt;">Создание бездисковых терминалов под 
+управлением FreeBSD - с загрузкой по сети. Используются для старта 
+rdesktop и подключения к виндовому серверу терминалов.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-07-29, <a class="text_link" href="http://www.lissyara.su/authors/2006/bav_lug/" title="">BAV_Lug</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/trivia/dlink_dcs-900/" title="Бюджетный вариант видеонаблюдения на удаленном объекте">Видеонаблюдение</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка бюджетного варианта видеонаблюдения на удаленном объекте</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-07-22, <a class="text_link" href="http://www.lissyara.su/authors/2008/cancer/" title="">Cancer</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/mail/openldap_addressbook/" title="Создание адресной книги на OpenLDAP">OpenLDAP адресная книга</a></b></code><br>
+
+<code style="font-size: 8pt;">Настройка и создание адресной книги на базе OpenLDAP + phpLDAPadmin</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-06-30, <a class="text_link" href="http://www.lissyara.su/authors/2009/sergeysl/" title="">SergeySL</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/aimsniff/" title="Мониторинг ICQ-переписки с помощью AimSniff">AimSniff</a></b></code><br>
+
+<code style="font-size: 8pt;">Руководство по созданию системы 
+мониторинга ICQ-переписки на базе AimSniff, использующей базу данных 
+MySQL для хранения и Web-интерфейс WAS (Web Aim Sniff) для просмотра 
+перехваченных сообщений</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-06-25, <a class="text_link" href="http://www.lissyara.su/authors/2008/atrium/" title="">atrium</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/system/chmod+chown/" title="Управление правами доступа">Управление правами доступа</a></b></code><br>
+
+<code style="font-size: 8pt;">Полномочия пользователей и файлов, принадлежащих им, формирует концепцию ОС UNIX. </code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-06-16, <a class="text_link" href="http://www.lissyara.su/authors/2008/dnk/" title="">DNK</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/mail/exim+pgsql+courier+clamav+spamassasin/" title="EXIM+PgSQL+COURIER+CLAMAV+SPAMASSASIN on FreeBSD 7.1">Exim+PgSQL</a></b></code><br>
+
+<code style="font-size: 8pt;">Установка почтовой системы exim+pgsql на FreeBSD 7.1</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-05-30, <a class="text_link" href="http://www.lissyara.su/authors/2009/mvalery/" title="">mvalery</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/trivia/gpt/" title="FreeBSD: Перенос системы на диск размером более 2TB">HDD(mbr) -&gt; HDD(gpt)</a></b></code><br>
+
+<code style="font-size: 8pt;">Как разбить диск размером более 2TB на 
+разделы, сделать загрузочным, а  затем перенести на него информацию с 
+рабочей системы — донора.</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-05-22, <a class="text_link" href="http://www.lissyara.su/authors/2008/cancer/" title="">Cancer</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/trivia/sendxmpp/" title="SendXMPP">SendXMPP</a></b></code><br>
+
+<code style="font-size: 8pt;">Отправка сообщений на Джаббер сервер по средствам SendXMPP</code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+
+<code style="font-size: 8pt;">2009-05-11, <a class="text_link" href="http://www.lissyara.su/authors/2007/raven2000/" title="">Raven2000</a><br>
+
+<b><a class="text_link" href="http://www.lissyara.su/articles/freebsd/programms/network_ups_tools/" title="Network UPS Tools">Network UPS Tools</a></b></code><br>
+
+<code style="font-size: 8pt;">Network UPS Tools представляет собой набор программ, которые обеспечивают общий
+интерфейс для мониторинга и администрирование UPS оборудования. </code>
+
+<hr size="1">
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.block.tpl' -->
+<!-- Нет оплаченной рекламы в данный период -->
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.subscribe.form.tpl' -->
+
+<!-- подписка началась -->
+<a name="subscribe"></a>
+<form action="/?id=1064" method="POST">
+<center>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+	<tr>
+		<td bgcolor="#707680" width="100%">
+			<table border="0" cellpadding="2" cellspacing="1" width="100%">
+			<tbody>
+				<tr bgcolor="#B9CCDF">
+					<td colspan="2" title="подписаться на новости сайта" align="center">
+
+						<code><b>подписка</b></code>
+					</td>
+				</tr>
+				<tr bgcolor="#f1f1f1">
+					<td colspan="2" title="подписаться на новости сайта" align="center">
+						<code><input name="news_subscribe" style="width: 100%; border: 1px solid #707680; color: #000000;" onmouseover="if (this.value=='ваш@e-mail') {this.value='';}" value="ваш@e-mail" type="text"></code>
+					</td>
+				</tr>
+
+				<tr bgcolor="#DAE0E7">
+					<td colspan="2" title="подписаться на новости сайта" align="center">
+						<code><input value="Отправить" name="Submit" style="width: 100%; background-color: #B9CCDF; color: #000000; border: 1px solid #707680; cursor : hand;" type="submit"></code>
+					</td>
+				</tr>
+			</tbody></table>
+		</td>
+	</tr>
+</tbody>
+
+</table>
+
+<!-- подписка закончилась -->
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/news.subscribe.form.tpl' -->
+<center>
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.punkt.7.tpl' -->
+<hr size="1">
+<center>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+<tbody><tr>
+<td bgcolor="#707680" width="100%">
+<table border="0" cellpadding="2" cellspacing="1" width="100%">
+
+<tbody><tr bgcolor="#B9CCDF">
+
+<td align="center">
+<code style="font-size: 10pt;"><b>Genesyx</b></code>
+</td>
+
+</tr>
+<tr bgcolor="#f1f1f1">
+
+<td align="center">
+<code style="font-size: 10pt;"><br>Браузерная РПГ с элементами стратегии<br><br><a href="http://www.genesyx.ru/" target="_blank">www.genesyx.ru</a></code>
+
+</td>
+</tr>
+</tbody></table>
+</td>
+</tr>
+</tbody></table>
+</center>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.punkt.7.tpl' -->
+</center>
+			<!-- новости закончились -->
+			<br>
+		</center></form></td>
+	</tr>
+<!-- нижняя часть страницы началась -->
+	<tr>
+		<td style="PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid;" align="left" valign="top">
+			&nbsp;
+		</td>
+		<td style="PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid;" align="left" valign="top">&nbsp;
+		</td>
+		<td style="PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid;" align="center" valign="top">
+			<code><a name="down"></a><a href="http://www.lissyara.su/doc/programming/awk/#top" class="link_drkbl" title="наверх страницы">вверх</a></code>
+		</td>
+		<td style="PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid;" align="left" valign="top">&nbsp;
+		</td>
+		<td style="PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid;" align="left" valign="top">&nbsp;
+			&nbsp;
+		</td>
+<!-- нижняя часть страницы закончилось -->
+	</tr>
+
+
+	<tr>
+		<td style="PADDING-LEFT: 3px; BACKGROUND: #f1f1f1; BORDER-RIGHT: #707680 1px solid; font-size: 12px" align="left" valign="top" width="170">
+		
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/counter.people_now_on_site.tpl' -->
+
+<!-- скока  народу на сайте, началось -->
+<table border="0" cellpadding="0" cellspacing="0" width="160">
+<tbody>
+	<tr>
+		<td bgcolor="#707680" width="100%">
+			<table border="0" cellpadding="2" cellspacing="1" width="100%">
+			<tbody>
+				<tr bgcolor="#B9CCDF">
+					<td colspan="2" align="center">
+						<code style="font-size: 10pt;"><b>Статистика сайта</b></code>
+					</td>
+				</tr>
+				<tr bgcolor="#f1f1f1">
+					<td colspan="2" align="left">
+						<code style="font-size: 10pt;">Сейчас на сайте находится: <b>24</b> чел.</code>
+					</td>
+				</tr>
+				<tr bgcolor="#f1f1f1">
+					<td colspan="2" align="left">
+						<code style="font-size: 10pt;">За последние 30 мин было: <b>138</b> человек</code>
+					</td>
+				</tr>
+				<tr bgcolor="#f1f1f1">
+					<td colspan="2" align="left">
+						<code style="font-size: 10pt;">За сегодня было<br><b>7533</b> показов,<br><b>1459</b> уникальных IP</code>
+					</td>
+				</tr>
+			</tbody></table>
+		</td>
+	</tr>
+</tbody>
+</table>
+<!-- скока  народу на сайте, закончилось :) -->
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/counter.people_now_on_site.tpl' -->
+	
+		</td>
+		<td style="PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid; BORDER-BOTTOM: #707680 1px solid;" align="left" valign="top">&nbsp;
+		</td>
+		<td style="font-size: 12px; PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid; BORDER-BOTTOM: #707680 1px solid;" align="left" valign="top" width="610">
+			<p align="justify"><code>&nbsp; Этот информационный блок появился по той простой причине,
+			что многие считают нормальным, брать чужую информацию не уведомляя автора
+			(что не так страшно), и не оставляя линк на оригинал и автора — что более существенно.
+			Я не против распространения информации — только за. Только условие простое — извольте
+			подписывать автора, и оставлять линк на оригинальную страницу в виде прямой, активной, нескриптовой,
+			незакрытой от индексирования, и не запрещенной для следования роботов ссылки.
+			<br>
+			&nbsp; Если соизволите поставить автора в известность — то вообще почёт вам и уважение.</code></p>
+			<p align="right"><code>© lissyara 2006-10-24 08:47 MSK
+			</code></p>
+		</td>
+		<td style="PADDING-TOP: 5px; BACKGROUND: #f1f1f1; BORDER-TOP: #707680 1px solid; BORDER-RIGHT: #707680 1px solid; BORDER-BOTTOM: #707680 1px solid;" align="left" valign="top" width="10">
+			<img src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/blank.gif" height="1" width="10">
+		</td>
+		<td style="PADDING-TOP: 5px; PADDING-LEFT: 10px; BACKGROUND: #f1f1f1;" align="left" valign="top">
+		<code><!-- &nbsp; -->
+		
+		</code>
+		</td>
+<!-- нижняя часть страницы закончилось -->
+	</tr>
+</tbody>
+</table>
+</center>
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript"><!--
+document.write("<img src='http://counter.yadro.ru/hit?t45.6;r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";h"+escape(document.title.substring(0,80))+";"+Math.random()+
+"' alt='' title='LiveInternet' "+
+"border=0 width=1 height=1>")//--></script><img src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/hit.gif" alt="" title="LiveInternet" border="0" height="1" width="1"><!--/LiveInternet-->
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.liveinternet.tpl' -->
+
+
+
+<!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.google.analystics.tpl' -->
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="%D0%AF%D0%97%D0%AB%D0%9A%20%D0%9E%D0%91%D0%A0%D0%90%D0%91%D0%9E%D0%A2%D0%9A%D0%98%20%D0%A8%D0%90%D0%91%D0%9B%D0%9E%D0%9D%D0%9E%D0%92%20awk_files/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-3513918-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+
+<!-- end of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.google.analystics.tpl' -->
+
+
+<!-- дебаг MySQL отключен -->
+
+
+				<p style="font-size: 11px" align="center"><code>Время генерации страницы 0.2214 секунд
+				<br>Из них PHP: 88%; SQL: 12%; Число SQL-запросов: 46 шт.
+<br>Исходный размер: 124940;
+ Сжатая: 21416</code></p><br>																											</body><!--
+data for contact:
+email:	admin@lissyara.su
+mobila:	+7-926-593-39-19
+P.S. Красть - нехорошо!
+--><!-- cron run start --><!-- cron not run --><!-- cron run stop --><!-- begin of '/home/h38874/data/www/www.lissyara.su/includes/tpl/reklama.liveinternet.tpl' --><!--LiveInternet counter--></html>

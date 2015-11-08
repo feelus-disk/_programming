@@ -1,0 +1,1387 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head>
+   <meta http-equiv="Content-Type" content="text/html; charset=KOI8-R">
+
+	<title>Изучаем команды Linux: sed</title>
+	<meta name="description" content="Добро пожаловать во вторую часть нашей серии, которая посвящена sed, версии GNU. Многие из вас слышали о sed, или уже использовали его, скорее всего в качестве инструмента замены. Но это только одно из предназначений sed, и мы постараемся показать вам все аспекты использования этой утилиты.">
+	<meta name="Keywords" content="sed">
+	
+<style>
+tt {color: brown; font-size: 12; font-family: Monospace}
+pre {color: brown; font-size: 12; font-family: Monospace} 
+textarea {color: brown; font-size: 12; font-family: Monospace} 
+p {text-align: justify; FONT-SIZE: 12px; COLOR: #000000; FONT-FAMILY: Verdana; font-weight: normal}
+a {color: blue; text-decoration: none }
+red {color: red } 
+</style>
+
+ <meta name="robots" content="index, follow">
+ <meta name="REVISIT-AFTER" content="1 days">
+ <link href="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/style.css" type="text/css" rel="stylesheet">
+ <link rel="shortcut icon" href="http://rus-linux.net/images/favicon.gif">
+ <link rel="stylesheet" type="text/css" href="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/document.css">
+
+<script src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/watch.js" async="" type="text/javascript"></script><script>
+        function winop(url, name, w, h){
+            windop = window.open(url, name,
+"height="+h+",width="+w+",left="+(screen.width/2-w/2)+",top="+(screen.height/2-h/2));
+        }
+</script>
+
+<script language="JavaScript">
+<!--
+var isInternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+// Handle all the FSCommand messages in a Flash movie.
+function 768x90_trainers_2_DoFSCommand(command, args) {
+	var 768x90_trainers_2Obj = isInternetExplorer ? document.all.768x90_trainers_2 : document.768x90_trainers_2;
+	//
+	// Place your code here.
+	//
+}
+// Hook for Internet Explorer.
+if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 && navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
+	document.write('<script language=\"VBScript\"\>\n');
+	document.write('On Error Resume Next\n');
+	document.write('Sub 768x90_trainers_2_FSCommand(ByVal command, ByVal args)\n');
+	document.write('	Call 768x90_trainers_2_DoFSCommand(command, args)\n');
+	document.write('End Sub\n');
+	document.write('</script\>\n');
+}
+//-->
+</script>
+
+<script src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/rotaban.js" async="" type="text/javascript"></script><style id="ya_share_style" type="text/css">.b-share-popup-wrap{z-index:1073741823;position:absolute;width:500px}.b-share-popup{position:absolute;z-index:1073741823;border:1px solid #888;background:#FFF;color:#000}.b-share-popup-wrap .b-share-popup_down{top:0}.b-share-popup-wrap .b-share-popup_up{bottom:0}.b-share-popup-wrap_state_hidden{position:absolute!important;top:-9999px!important;right:auto!important;bottom:auto!important;left:-9999px!important;visibility:hidden!important}.b-share-popup,x:nth-child(1){border:0;padding:1px!important}@media all and (resolution=0){.b-share-popup,x:nth-child(1),x:-o-prefocus{padding:0!important;border:1px solid #888}}.b-share-popup__i{display:-moz-inline-box;display:inline-block;padding:5px 0!important;overflow:hidden;vertical-align:top;white-space:nowrap;visibility:visible;background:#FFF;-webkit-box-shadow:0 2px 9px rgba(0,0,0,.6);-moz-box-shadow:0 2px 9px rgba(0,0,0,.6);box-shadow:0 2px 9px rgba(0,0,0,.6)}.b-share-popup__item{font:1em/1.25em Arial,sans-serif;display:block;padding:5px 15px!important;white-space:nowrap;background:#FFF}.b-share-popup__item,a.b-share-popup__item:link,a.b-share-popup__item:visited{text-decoration:none!important;border:0!important}a.b-share-popup__item{cursor:pointer}a.b-share-popup__item .b-share-popup__item__text{display:inline;text-decoration:underline;color:#1A3DC1}a.b-share-popup__item:hover{word-spacing:0}a.b-share-popup__item:hover .b-share-popup__item__text{color:red;cursor:pointer}.b-share-popup__icon{display:-moz-inline-box;display:inline-block;margin:-3px 0 0;padding:0 5px 0 0!important;vertical-align:middle}.b-share-popup__icon_input{width:21px;height:16px;margin-top:-6px;padding:0!important}.b-share-popup__icon__input{margin-right:0;margin-left:2px;vertical-align:top}.b-share-popup__spacer{display:block;padding-top:10px!important}.b-share-popup__header{font:86%/1em Verdana,sans-serif;display:block;padding:10px 15px 5px!important;color:#999}.b-share-popup__header_first{padding-top:5px!important}.b-share-popup__input{font:86%/1em Verdana,sans-serif;display:block;padding:5px 15px!important;color:#999;text-align:left}.b-share-popup__input__input{font:1em/1em Verdana,sans-serif;display:block;width:10px;margin:5px 0 0;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;resize:none;text-align:left;direction:ltr}.b-share-popup_down .b-share-popup_with-link .b-share-popup__input_link{position:absolute;top:5px;right:0;left:0}.b-share-popup_up .b-share-popup_with-link .b-share-popup__input_link{position:absolute;right:0;bottom:5px;left:0}.b-share-popup_down .b-share-popup_with-link{padding-top:55px!important}.b-share-popup_up .b-share-popup_with-link{padding-bottom:55px!important}.b-share-popup_down .b-share-popup_expandable .b-share-popup__main{padding-bottom:25px!important}.b-share-popup_up .b-share-popup_expandable .b-share-popup__main{padding-top:25px!important}.b-share-popup_down .b-share-popup_yandexed{padding-bottom:10px!important}.b-share-popup_up .b-share-popup_yandexed{padding-top:10px!important}.b-share-popup__yandex{position:absolute;right:4px;bottom:2px;font:78.125%/1em Verdana,sans-serif;padding:3px!important;background:0 0}a.b-share-popup__yandex:link,a.b-share-popup__yandex:visited{color:#C6C5C5;text-decoration:none}a.b-share-popup__yandex:link:hover,a.b-share-popup__yandex:visited:hover{color:red;text-decoration:underline}.b-share-popup_up .b-share-popup__yandex{top:2px;bottom:auto}.b-share-popup_expandable .b-share-popup__yandex{right:auto;left:4px}.b-share-popup_to-right .b-share-popup_expandable .b-share-popup__yandex{right:4px;left:auto}.b-share-popup__expander .b-share-popup__item{position:absolute;bottom:5px;font:86%/1em Verdana,sans-serif;margin:10px 0 0;padding:5px 10px!important;cursor:pointer;color:#999;background:0 0}.b-share-popup_to-right,.b-share-popup_to-right .b-share-popup__expander{direction:rtl}.b-share-popup_to-right .b-share-popup__expander .b-share-popup__icon{padding:0 0 0 5px!important}.b-share-popup_up .b-share-popup__expander .b-share-popup__item{top:-5px;bottom:auto}.b-share-popup__expander .b-share-popup__item:hover .b-share-popup__item__text{text-decoration:underline}.b-share-popup__expander .b-ico_action_rarr,.b-share-popup_to-right .b-share-popup__expander .b-ico_action_larr,.b-share-popup_full .b-share-popup__expander .b-ico_action_larr,.b-share-popup_to-right .b-share-popup_full .b-share-popup__expander .b-ico_action_rarr,.b-share-popup__expander .b-share-popup__item__text_collapse,.b-share-popup_full .b-share-popup__item__text_expand{display:none}.b-share-popup_to-right .b-share-popup__expander .b-ico_action_rarr,.b-share-popup_full .b-share-popup__item__text_collapse,.b-share-popup_full .b-share-popup__expander .b-ico_action_rarr,.b-share-popup_to-right .b-share-popup_full .b-share-popup__expander .b-ico_action_larr{display:inline}.b-ico_action_rarr,.b-ico_action_larr{width:8px;height:7px;border:0}.b-share-popup__main,.b-share-popup__extra{direction:ltr;vertical-align:bottom;text-align:left}.b-share-popup_down .b-share-popup__main,.b-share-popup_down .b-share-popup__extra{vertical-align:top}.b-share-popup__main{display:-moz-inline-stack;display:inline-block}.b-share-popup__extra{display:none;margin:0 -10px 0 0}.b-share-popup_full .b-share-popup__extra{display:-moz-inline-stack;display:inline-block}.b-share-popup_to-right .b-share-popup__extra{margin:0 0 0 -10px}.b-share-popup__tail{position:absolute;width:21px;height:10px;margin:0 0 0 -11px}.b-share-popup_down .b-share-popup__tail{top:-10px;background:url("//yastatic.net/share/static/b-share-popup_down__tail.gif") 0 0 no-repeat}.b-share-popup_up .b-share-popup__tail{bottom:-10px;background:url("//yastatic.net/share/static/b-share-popup_up__tail.gif") 0 0 no-repeat}.b-share-popup_down .b-share-popup__tail,x:nth-child(1){top:-9px;background-image:url("//yastatic.net/share/static/b-share-popup_down__tail.png")}.b-share-popup_up .b-share-popup__tail,x:nth-child(1){bottom:-9px;background-image:url("//yastatic.net/share/static/b-share-popup_up__tail.png")}@media all and (resolution=0){.b-share-popup_down .b-share-popup__tail,x:nth-child(1),x:-o-prefocus{top:-10px;background-image:url("//yastatic.net/share/static/b-share-popup_down__tail.gif")}.b-share-popup_up .b-share-popup__tail,x:nth-child(1),x:-o-prefocus{bottom:-10px;background-image:url("//yastatic.net/share/static/b-share-popup_up__tail.gif")}}.b-share-popup .b-share-popup_show_form_mail,.b-share-popup .b-share-popup_show_form_html{padding:0!important}.b-share-popup .b-share-popup_show_form_mail .b-share-popup__main,.b-share-popup .b-share-popup_show_form_html .b-share-popup__main,.b-share-popup .b-share-popup_show_form .b-share-popup__main,.b-share-popup .b-share-popup_show_form_mail .b-share-popup__extra,.b-share-popup .b-share-popup_show_form_html .b-share-popup__extra,.b-share-popup .b-share-popup_show_form .b-share-popup__extra{height:15px;padding:0!important;overflow:hidden;visibility:hidden}.b-share-popup_show_form_mail .b-share-popup__expander,.b-share-popup_show_form_html .b-share-popup__expander,.b-share-popup_show_form .b-share-popup__expander,.b-share-popup_show_form_mail .b-share-popup__input_link,.b-share-popup_show_form_html .b-share-popup__input_link,.b-share-popup_show_form .b-share-popup__input_link{display:none}.b-share-popup__form{position:relative;display:none;overflow:hidden;padding:5px 0 0!important;margin:0 0 -15px;white-space:normal}.b-share-popup_show_form_mail .b-share-popup__form_mail,.b-share-popup_show_form_html .b-share-popup__form_html,.b-share-popup_show_form .b-share-popup__form{display:block}.b-share-popup__form__link{padding:5px!important;margin:0 0 5px 10px;text-decoration:underline;cursor:pointer;color:#1A3DC1}.b-share-popup__form__link,.b-share-popup__form__button{font:86%/1.4545em Verdana,sans-serif;float:left;display:inline}.b-share-popup__form__button{margin:5px 0 0 15px}.b-share-popup__form__close{font:86%/1.4545em Verdana,sans-serif;float:right;display:inline;padding:5px!important;margin:0 10px 5px 0;cursor:pointer;color:#999}a.b-share-popup__form__link:hover,a.b-share-popup__form__close:hover{text-decoration:underline;color:red}.b-share-popup_font_fixed .b-share-popup__item{font-size:12.8px}.b-share-popup_font_fixed .b-share-popup__header,.b-share-popup_font_fixed .b-share-popup__input,.b-share-popup_font_fixed .b-share-popup__expander .b-share-popup__item,.b-share-popup_font_fixed .b-share-popup__form__link,.b-share-popup_font_fixed .b-share-popup__form__button,.b-share-popup_font_fixed .b-share-popup__form__close{font-size:11px}.b-share-popup_font_fixed .b-share-popup__yandex{font-size:10px}.b-share-form-button{font:86%/17px Verdana,Arial,sans-serif;display:-moz-inline-box;display:inline-block;position:relative;height:19px;margin:0 3px;padding:0 4px;cursor:default;white-space:nowrap;text-decoration:none!important;color:#000!important;border:none;outline:none;background:url("//yastatic.net/share/static/b-share-form-button.png") 0 -20px repeat-x}.b-share-form-button:link:hover,.b-share-form-button:visited:hover{color:#000!important}.b-share-form-button__before,.b-share-form-button__after{position:absolute;width:3px;height:19px;background:url("//yastatic.net/share/static/b-share-form-button.png")}.b-share-form-button__before{margin-left:-7px}.b-share-form-button__after{margin-left:4px;background-position:-3px 0}.b-share-form-button::-moz-focus-inner{border:none}button.b-share-form-button .b-share-form-button__before,button.b-share-form-button .b-share-form-button__after{margin-top:-1px}@-moz-document url-prefix(){button.b-share-form-button .b-share-form-button__after{margin-top:-2px;margin-left:6px}button.b-share-form-button .b-share-form-button__before{margin-top:-2px;margin-left:-9px}}SPAN.b-share-form-button:hover,.b-share-form-button_state_hover{background-position:0 -60px}SPAN.b-share-form-button:hover .b-share-form-button__before,.b-share-form-button_state_hover .b-share-form-button__before{background-position:0 -40px}SPAN.b-share-form-button:hover .b-share-form-button__after,.b-share-form-button_state_hover .b-share-form-button__after{background-position:-3px -40px}.b-share-form-button_state_pressed,.b-share-form-button_state_pressed .b-share-form-button_share{background-position:0 -100px!important}.b-share-form-button_state_pressed .b-share-form-button__before{background-position:0 -80px!important}.b-share-form-button_state_pressed .b-share-form-button__after{background-position:-3px -80px!important}button.b-share-form-button_state_pressed{overflow:visible}.b-share-form-button_icons{position:relative;padding:0;background-position:0 -20px!important}.b-share-form-button_icons .b-share-form-button__before{left:0;margin-left:-3px;background-position:0 0!important}.b-share-form-button_icons .b-share-form-button__after{z-index:-1;margin-left:0;background-position:-3px 0!important}.b-share-form-button_icons .b-share__handle{padding:2px!important}.b-share-form-button_icons .b-share__handle_more{position:relative;padding-right:6px!important;margin-right:-4px}.b-share-form-button_icons .b-share-icon{opacity:.5;background-image:url("//yastatic.net/share/static/b-share-icon_size_14.png")}.b-share-form-button_icons A.b-share__handle:hover .b-share-icon{opacity:1}.b-share{font:86%/1.4545em Arial,sans-serif;display:-moz-inline-box;display:inline-block;padding:1px 3px 1px 4px!important;vertical-align:middle}.b-share .b-share-form-button{font-size:1em}.b-share__text .b-share-icon{margin:0 5px 0 0;border:none}.b-share__text{margin-right:5px}.b-share__handle{float:left;height:16px;padding:5px 3px 5px 2px!important;cursor:pointer;text-align:left;text-decoration:none!important}.b-share__handle_cursor_default{cursor:default}.b-share__handle .b-share-form-button{margin-top:-2px}.b-share__hr{display:none;float:left;width:1px;height:26px;margin:0 3px 0 2px}a.b-share__handle:hover .b-share__text{text-decoration:underline;color:red}.b-share_bordered{padding:0 2px 0 3px!important;border:1px solid #E4E4E4;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px}.b-share_bordered .b-share__hr{display:inline;background:#E4E4E4}.b-share_link{margin:-8px 0}a.b-share_link{margin:0}.b-share_link .b-share__text{text-decoration:underline;color:#1A3DC1}.b-share-form-button_share{padding-left:26px!important;vertical-align:top}.b-share-form-button_share .b-share-form-button__before{margin-left:-29px}.b-share-form-button_share .b-share-form-button__icon{position:absolute;width:20px;height:17px;margin:1px 0 0 -23px;background:url("//yastatic.net/share/static/b-share-form-button_share__icon.png") 0 0 no-repeat}.b-share-pseudo-link{border-bottom:1px dotted;cursor:pointer;text-decoration:none!important}.b-share_font_fixed{font-size:11px}.b-share__handle_more{font-size:9px;margin-top:-1px;color:#7B7B7B}A.b-share__handle_more:hover{color:#000}.b-share__group{float:left}.b-share-icon{float:left;display:inline;overflow:hidden;width:16px;height:16px;padding:0!important;vertical-align:top;border:0;background:url("//yastatic.net/share/static/b-share-icon.png") 0 99px no-repeat}.b-share-icon_vkontakte,.b-share-icon_custom{background-position:0 0}.b-share-icon_yaru,.b-share-icon_yaru_photo,.b-share-icon_yaru_wishlist{background-position:0 -17px}.b-share-icon_lj{background-position:0 -34px}.b-share-icon_twitter{background-position:0 -51px}.b-share-icon_facebook{background-position:0 -68px}.b-share-icon_moimir{background-position:0 -85px}.b-share-icon_friendfeed{background-position:0 -102px}.b-share-icon_mail{background-position:0 -119px}.b-share-icon_html{background-position:0 -136px}.b-share-icon_postcard{background-position:0 -153px}.b-share-icon_odnoklassniki{background-position:0 -170px}.b-share-icon_blogger{background-position:0 -187px}.b-share-icon_delicious{background-position:0 -221px}.b-share-icon_gbuzz{background-position:0 -238px}.b-share-icon_linkedin{background-position:0 -255px}.b-share-icon_myspace{background-position:0 -272px}.b-share-icon_evernote{background-position:0 -289px}.b-share-icon_digg{background-position:0 -306px}.b-share-icon_juick{background-position:0 -324px}.b-share-icon_moikrug{background-position:0 -341px}.b-share-icon_yazakladki{background-position:0 -358px}.b-share-icon_liveinternet{background-position:0 -375px}.b-share-icon_tutby{background-position:0 -392px}.b-share-icon_diary{background-position:0 -409px}.b-share-icon_gplus{background-position:0 -426px}.b-share-icon_pocket{background-position:0 -443px}.b-share-icon_surfingbird{background-position:0 -460px}.b-share-icon_pinterest{background-position:0 -477px}.b-share-icon_renren{background-position:0 0}.b-share-icon_renren,.b-share-icon_sina_weibo{background:url("//yastatic.net/share/static/b-share-icon__china.png") no-repeat}.b-share-icon_sina_weibo{background-position:-18px 0}.b-share-icon_qzone{background-position:-36px 0}.b-share-icon_qzone,.b-share-icon_tencent_weibo{background:url("//yastatic.net/share/static/b-share-icon__china.png") no-repeat}.b-share-icon_tencent_weibo{background-position:-54px 0}.b-share_theme_dark .b-share-icon{background:url("//yastatic.net/share/static/b-share-icons__theme_dark.png") 99px 0 no-repeat}.b-share_theme_dark .b-share-icon_odnoklassniki{background-position:-4px -3px}.b-share_theme_dark .b-share-icon_vkontakte{background-position:-24px -3px}.b-share_theme_dark .b-share-icon_twitter{background-position:-44px -3px}.b-share_theme_dark .b-share-icon_facebook{background-position:-64px -3px}.b-share_theme_dark .b-share-icon_lj{background-position:-85px -3px}.b-share_theme_dark .b-share-icon_yaru{background-position:-105px -3px}.b-share_theme_dark .b-share-popup .b-share-icon_odnoklassniki,.b-share_theme_dark .b-share-icon_odnoklassniki:hover{background-position:-4px -28px}.b-share_theme_dark .b-share-popup .b-share-icon_vkontakte,.b-share_theme_dark .b-share-icon_vkontakte:hover{background-position:-24px -28px}.b-share_theme_dark .b-share-popup .b-share-icon_twitter,.b-share_theme_dark .b-share-icon_twitter:hover{background-position:-44px -28px}.b-share_theme_dark .b-share-popup .b-share-icon_facebook,.b-share_theme_dark .b-share-icon_facebook:hover{background-position:-64px -28px}.b-share_theme_dark .b-share-popup .b-share-icon_lj,.b-share_theme_dark .b-share-icon_lj:hover{background-position:-85px -28px}.b-share_theme_dark .b-share-popup .b-share-icon_yaru,.b-share_theme_dark .b-share-icon_yaru:hover{background-position:-105px -28px}.b-share_theme_dark .b-share-form-button_share .b-share-form-button__icon{background-image:url("//yastatic.net/share/static/b-share-form-button_share__icon_dark.png")}.b-share_theme_dark .b-share-form-button{color:#fff!important;opacity:.8}.b-share_theme_dark .b-share__handle:hover .b-share-form-button,.b-share_theme_dark .b-share-form-button:hover{opacity:1;cursor:pointer}.b-share_theme_dark .b-share-form-button,.b-share_theme_dark .b-share-form-button__before,.b-share_theme_dark .b-share-form-button__after{background:0 0}.b-share_theme_dark .b-share-popup__i{background-color:#333;border-radius:10px;-webkit-box-shadow:0 2px 9px rgba(255,255,255,.6);-moz-box-shadow:0 2px 9px rgba(255,255,255,.6);box-shadow:0 2px 9px rgba(255,255,255,.6)}.b-share_theme_dark .b-share__text{color:#AAA}.b-share_theme_dark .b-share-popup{color:#AAA;border-radius:10px;background-color:#333;background-color:rgba(50,50,50,.3)}.b-share_theme_dark .b-share-popup__item{background:0 0;color:#ccc}.b-share_theme_dark .b-share-popup .b-share-popup__item__text{color:#ccc}.b-share_theme_counter .b-share{display:inline-block;vertical-align:middle;white-space:nowrap}.b-share-counter{font:14px Arial,sans-serif;line-height:18px;display:none;float:left;margin:3px 6px 3px 3px;color:#fff}.b-share_theme_counter .b-share_type_small .b-share-counter{font-size:11px;line-height:14px;margin:2px 6px 2px 1px}.b-share_theme_counter .b-share-btn__counter .b-share-counter{display:block}.b-share-btn__counter{text-decoration:none}.b-share_theme_counter .b-share-btn__wrap{position:relative;float:left;margin-left:5px}.b-share_theme_counter .b-share_type_small .b-share-btn__wrap{margin-left:4px}.b-share_theme_counter .b-share-btn__wrap:first-child{margin-left:0}.b-share_theme_counter .b-share__link{display:inline-block;cursor:pointer;-webkit-border-radius:3px;border-radius:3px}.b-share_theme_counter .b-share_type_small .b-share__link{-webkit-border-radius:2px;border-radius:2px}.b-share_theme_counter .b-share-icon{display:block;float:left;width:24px;height:24px;background-image:url("//yastatic.net/share/static/b-share_counter_large.png");background-position:-20px 0}.b-share_theme_counter .b-share_type_small .b-share-icon{width:18px;height:18px;background-image:url("//yastatic.net/share/static/b-share_counter_small.png")}.b-share_theme_counter .b-share-icon_facebook{background-position:0 0}.b-share_theme_counter .b-share-btn__facebook{background-color:#3c5a98}.b-share_theme_counter .b-share-btn__facebook:hover{background-color:#30487a}.b-share_theme_counter .b-share-btn__facebook:active{border-top:2px solid #24365a;background-color:#334d81}.b-share_theme_counter .b-share-icon_moimir{background-position:0 -29px}.b-share_theme_counter .b-share-btn__moimir{background-color:#226eb7}.b-share_theme_counter .b-share-btn__moimir:hover{background-color:#1b5892}.b-share_theme_counter .b-share-btn__moimir:active{border-top:2px solid #14426d;background-color:#1d5e9c}.b-share_theme_counter .b-share-icon_vkontakte{background-position:0 -58px}.b-share_theme_counter .b-share-btn__vkontakte{background-color:#48729e}.b-share_theme_counter .b-share-btn__vkontakte:hover{background-color:#3a5b7e}.b-share_theme_counter .b-share-btn__vkontakte:active{border-top:2px solid #2b445e;background-color:#3d6186}.b-share_theme_counter .b-share-icon_twitter{background-position:0 -87px}.b-share_theme_counter .b-share-btn__twitter{background-color:#00aced}.b-share_theme_counter .b-share-btn__twitter:hover{background-color:#008abe}.b-share_theme_counter .b-share-btn__twitter:active{border-top:2px solid #00668d;background-color:#0092ca}.b-share_theme_counter .b-share-icon_odnoklassniki{background-position:0 -116px}.b-share_theme_counter .b-share-btn__odnoklassniki{background-color:#ff9f4d}.b-share_theme_counter .b-share-btn__odnoklassniki:hover{background-color:#cc7f3e}.b-share_theme_counter .b-share-btn__odnoklassniki:active{border-top:2px solid #975e2e;background-color:#d98742}.b-share_theme_counter .b-share-icon_gplus{background-position:0 -145px}.b-share_theme_counter .b-share-btn__gplus{background-color:#c25234}.b-share_theme_counter .b-share-btn__gplus:hover{background-color:#9b422a}.b-share_theme_counter .b-share-btn__gplus:active{border-top:2px solid #73311f;background-color:#a5462c}.b-share_theme_counter .b-share-icon_yaru{background-position:0 -174px}.b-share_theme_counter .b-share-btn__yaru{background-color:#d83933}.b-share_theme_counter .b-share-btn__yaru:hover{background-color:#ad2e29}.b-share_theme_counter .b-share-btn__yaru:active{border-top:2px solid #80221e;background-color:#b8312b}.b-share_theme_counter .b-share-icon_pinterest{background-position:0 -203px}.b-share_theme_counter .b-share-btn__pinterest{background-color:#cd1e27}.b-share_theme_counter .b-share-btn__pinterest:hover{background-color:#a4181f}.b-share_theme_counter .b-share-btn__pinterest:active{border-top:2px solid #7b1217;background-color:#ae1921}.b-share_theme_counter .b-share__link:active{height:22px}.b-share_theme_counter .b-share_type_small .b-share__link:active{height:16px}.b-share_theme_counter .b-share__link:active .b-share-icon,.b-share_theme_counter .b-share__link:active .b-share-counter{position:relative;top:-1px}.b-share_theme_counter .b-share__link::after{position:absolute;top:0;right:0;bottom:0;left:0;content:"";background-image:url(data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==)}.b-share_theme_counter .b-share__handle{height:auto;padding:0!important}</style></head>
+
+<body leftmargin="0" rightmargin="0" topmargin="0" bottommargin="0" alink="#F26D00" bgcolor="#ffffff" link="#0857A6" marginheight="0" marginwidth="0" vlink="#0857A6">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody><tr>
+    <td style="background: white url('/images/zal1-1.gif'); background-repeat: repeat-x; background-position: top;" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+          <td align="left" valign="top">
+		<img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/logo.jpg" alt="Виртуальная энциклопедия Linux по-русски" border="0" height="88" width="458">
+	  </td>
+          <td width="5">
+          </td>
+          <td align="right">
+		<img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/null.gif" alt="&nbsp;" border="0" height="2" width="468">
+
+<noindex>
+<!--Rating@Mail.ru counter-->
+<img style="display: none ! important;" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/counter_002.gif" alt="Рейтинг@Mail.ru" border="0" height="1" width="1">
+<!--// Rating@Mail.ru counter-->
+
+<!--LiveInternet counter--><script language="JavaScript"><!--
+document.write('<img src="http://counter.yadro.ru/hit?r'+
+escape(document.referrer)+((typeof(screen)=='undefined')?'':
+';s'+screen.width+'*'+screen.height+'*'+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+';'+Math.random()+
+'" width=1 height=1 alt="">')//--></script><img style="display: none ! important;" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/hit.gif" alt="" height="1" width="1">
+<!--/LiveInternet-->
+
+<!-- RotaBan.ru Ad Code -->
+<script type="text/javascript">
+(function(){
+    var rb = document.createElement('script');
+        d = new Date();
+    d.setHours(0);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
+    rb.type = 'text/javascript';
+    rb.async = true;
+    rb.src = '//s1.rotaban.ru/rotaban.js?v=' + d.getTime();
+    (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(rb);
+})();
+</script>
+<!-- END RotaBan.ru Ad Code -->
+
+
+</noindex>
+
+<!-- RotaBan.ru Zone Code  
+<div id="rotaban_191116" class="rbrocks rotaban_d93b9b532bea4b0f8d7c5f30dafb2ba3"></div>
+ END RotaBan.ru Zone Code -->
+<!--
+<a href="https://www.cloudavt.com/contentVPS.php?lang=ru"><img src="/rekl/img/cloudavt.gif"></a>
+-->
+<a href="http://itsoft.ru/data-center/" title="Дата-центр itsoft"><img class="tabdlmjbjplqxlhnyrtn" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/itsoft-46860.jpg"></a>
+
+
+          </td>
+	</tr>
+      </tbody></table>
+    </td>
+  </tr>
+</tbody></table>
+		<img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/null.gif" border="0" height="1" width="5">
+      <table bgcolor="#005291" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+          <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_l.gif" border="0"></td>
+          <td alt="Главная" align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/" class="menu" title="Титульная страница сайта">Новости</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/lib.php?name=/MyLDP/index" class="menu" title="Книги и статьи, выложенные на нашем сайте">Библиотека</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/lib.php?name=/MyLDP/BOOKS/books" class="menu" title="Е-книги по Линукс для чтения он-лайн">Е-книги</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/main.php?name=kat-full.html" class="menu" title="Каталог ссылок на публикации в Сети по ОС GNU/Linux">Каталог ссылок</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/forum" class="menu" title="Форум сайта">Форум</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/kos.php?name=kos.html" class="menu" title="Статьи и книги В.А.Костромина">Авторское</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/po.php?name=/po/linapp.koi" class="menu" title="Каталог программного обеспечения для ОС GNU/Linux">Каталог ПО</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/kos.php?name=site.html" class="menu" title="О сайте">О сайте</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/sitemap.php" class="menu" title="Карта сайта">Карта сайта</a></td>
+          <td align="right" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_r.gif" border="0"></td>
+        </tr>
+      </tbody></table>
+
+      <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
+        <tbody><tr>
+          <td valign="top" width="170">
+
+            <table border="0" cellpadding="0" cellspacing="0" width="176">
+             <tbody><tr>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_l.gif" alt="&nbsp;" border="0"></td>
+               <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_zal.gif" width="100%">
+		<b>Вход для пользователей</b>
+	       </td>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_r.gif" alt="&nbsp;"></td>
+             </tr>
+             <tr>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_lzal.gif"></td>
+               <td>
+
+<center>
+		  <form method="post" action="/login.php" name="login">
+	             <label>e-mail:</label>
+	             <input name="mail" type="text">
+	             <label>Пароль</label>
+	             <input name="password" value="" type="password">
+	             <input name="send" value="Войти" type="submit">
+	         </form>
+		<center><a href="http://rus-linux.net/reg.php">Регистрация</a></center>
+		<center><a href="http://rus-linux.net/recovery.php">Забыли пароль?</a></center>
+</center>
+               </td>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_rzal.gif"></td>
+             </tr>
+             <tr>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_l_1.gif" border="0"></td>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_zal.gif"></td>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_r_1.gif" border="0"></td>
+             </tr>
+            </tbody></table>
+            <table border="0" cellpadding="0" cellspacing="0">
+             <tbody><tr>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_l.gif" border="0"></td>
+               <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_zal.gif" width="100%">
+		<b>Ссылки партнеров и друзей сайта</b>
+	       </td>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_r.gif"></td>
+             </tr>
+             <tr>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_lzal.gif">&nbsp;</td>
+               <td>
+
+<center>
+<br>
+<center>
+<noindex>
+<a href="http://unixforum.org/" rel="nofollow"><b>UnixForum</b></a>
+</noindex>
+</center>
+<p>
+</p><center>
+<a href="http://rus-linux.net/oz.php?name=/dtb/books-01.koi"><b>Книги по Linux</b></a>
+<br>(с отзывами читателей)
+</center>
+<hr>
+
+
+<!-- RotaBan.ru Zone Code -->
+<div id="rotaban_187414" class="rbrocks rotaban_d93b9b532bea4b0f8d7c5f30dafb2ba3"></div>
+<!-- END RotaBan.ru Zone Code -->
+
+<hr>
+<hr>
+<script async="" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/adsbygoogle.js"></script>
+<!-- rus-linux-sidebar -->
+<ins class="adsbygoogle" style="display:inline-block;width:160px;height:600px" data-ad-client="ca-pub-0144063130920108" data-ad-slot="9272590886"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+<hr>
+
+<!-- Яндекс.Директ -->
+<script type="text/javascript"><!--
+yandex_partner_id = 49531;
+yandex_site_bg_color = 'FFFFFF';
+yandex_site_charset = 'koi8-r';
+yandex_ad_format = 'direct';
+yandex_font_size = 0.8;
+yandex_font_family = 'arial';
+yandex_direct_type = 'vertical';
+yandex_direct_limit = 3;
+yandex_direct_title_color = '0000CC';
+yandex_direct_url_color = '006600';
+yandex_direct_all_color = '0000CC';
+yandex_direct_text_color = '000000';
+yandex_direct_hover_color = '0066FF';
+document.write('<sc'+'ript type="text/javascript" src="http://an.yandex.ru/system/context.js"></sc'+'ript>');
+//--></script><script type="text/javascript" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/context.js"></script>
+
+<hr>
+<!-- Trustlink -->
+<!--03f0e8f0--><style>
+table.c0916e {
+padding: 0 !important;
+margin: 0 !important;
+font-size: 12px !important;
+border: 1px solid #e0e0e0e !important;
+background-color: #ffffff !important;
+}
+table.c0916e td {
+padding: 5px !important;
+text-align: left !important;
+}
+.c0916e a {
+color: #0000cc !important;
+font-weight: normal;
+font-size: 12px !important;
+}
+.c0916e .text {
+color: #000000 !important;
+font-size: 12px !important;
+padding: 3px 0 !important;
+line-height: normal !important;
+}
+.c0916e .host {
+color: #006600;
+font-weight: normal;
+font-size: 12px !important;
+padding: 3px 0 !important;
+line-height: normal !important;
+}
+.c0916e ul {
+padding: 0 !important;
+margin: 0 !important;
+}
+.c0916e ul li {
+padding: 0 !important;
+margin: 0 !important;
+background: none !important;
+}
+</style>
+<table class="c0916e">
+  <tbody>
+  
+    <tr>
+      <td>
+        <ul>
+<li><a href="http://luxpool.ru/servisnoe_obsluzhivanie_">Обслуживание бассейнов</a></li>
+<li class="text">Примеры работ. Строительство и обслуживание бассейнов.</li>
+<li class="host">luxpool.ru</li>
+</ul>
+
+      </td>
+    </tr>
+  
+  </tbody>
+</table>
+<!--03f0e8f0-->
+
+
+</center>
+
+               </td>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_rzal.gif">&nbsp;</td>
+             </tr>
+             <tr>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_l_1.gif"></td>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/null.gif" width="1"></td>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_r_1.gif"></td>
+             </tr>
+            </tbody></table>
+          </td>
+          <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/null.gif" border="0" height="1" width="8"></td>
+          <td valign="top" width="100%">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+             <tbody><tr valign="top">
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_l.gif" border="0" height="39" width="10"></td>
+               <td style="background: white url('/images/tab1_zal.gif'); background-repeat: repeat-x; background-position: top;" align="center" nowrap="nowrap" width="100%"><h2>
+Библиотека сайта или "Мой Linux Documentation Project"
+</h2>
+</td>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab1_r.gif" border="0" height="39" width="10"></td>
+             </tr>
+             <tr>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_lzal.gif">&nbsp;</td>
+               <td valign="top">
+
+<p style="text-align: center;">
+<a href="https://www.cloudavt.com/?lang=ru"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/cloudavt_72890.JPG"></a>
+</p>
+
+
+
+<h1>Изучаем команды Linux: sed</h1>
+
+Оригинал: <a href="http://how-to.linuxcareer.com/learning-linux-commands-sed" rel="nofollow">Learning Linux Commands: sed</a>
+<br>Автор: Rares Aioanei
+<br>Дата публикации: 19 ноября 2011 года
+<br>Перевод: А. Кривошей
+<br>Дата перевода: июль 2012 г.
+<h2>1. Введение</h2>
+<p>Добро пожаловать во вторую часть нашей серии, которая посвящена sed, 
+версии GNU. Существует несколько версий sed, которые доступны на разных 
+платформах, но мы сфокусируемся на GNU sed версии 4.x. Многие из вас 
+слышали о sed, или уже использовали его, скорее всего в качестве 
+инструмента замены. Но это только одно из предназначений sed, и мы 
+постараемся показать вам все аспекты использования этой утилиты. Его 
+название расшифровывается как "Stream EDitor" и слово "stream" (поток) в
+ данном случае может означать файл, канал, или просто stdin. Мы 
+надеемся, что у вас уже есть базовые знания о Linux, а если вы уже 
+работали с регулярными выражениями, или по крайней мере знаете, что это 
+такое, то все для вас будет намного проще. Объем статьи не позволяет 
+включить в нее полное руководство по регулярным выражениям, вместо этого
+ мы озвучим базовые концепции и дадим большое количество примеров 
+использования sed.</p>
+<h2>2. Установка</h2>
+<p>Здесь не нужно много рассказывать. Скорее все sed у вас уже 
+установлен, так как он используется различными системными скриптами, а 
+также пользователями Linux, которые хотят повысить эффективность своей 
+работы. Вы можете узнать, какая версия sed у вас установлена, с помощью 
+команды:</p>
+<p>
+</p><pre>$ sed --version
+</pre>
+<p></p>
+<p>В моей системе эта команда показывает, что у меня установлен GNU sed 
+4.2.1 плюс дает ссылку на домашнюю страницу программы и другие полезные 
+сведения. Пакет называется "sed" независимо от дистрибутива, кроме 
+Gentoo, где он присутствует неявно.</p>
+<h2>3. Концепции</h2>
+<p>Перед тем, как идти дальше, мы считаем важным акцентировать внимание 
+на том, что делает "sed", так как словосочетание "потоковый редактор" 
+мало что говорит о его назначении. sed принимает на входе текст, 
+выполняет заданные операции над каждой строкой (если не задано другое) и
+ выводит модифицированный текст. Указанными операциями могут быть 
+добавление, вставка, удаление или замена. Это не так просто, как 
+выглядит: предупреждаю, что имеется большое количество опций и их 
+комбинаций, которые могут сделать команду sed очень трудной для 
+понимания. Поэтому мы рекомендуем вам изучить основы регулярных 
+выражений, чтобы понимать, как это работает. Перед тем, как приступить к
+ руководству, мы хотели бы поблагодарить Eric Pement и других за 
+вдохновление и за то, что он сделал для всех, кто хочет изучать и 
+использовать sed.</p>
+<h2>4. Регулярные выражения</h2>
+<p>Так как команды (скрипты) sed для многих остаются загадкой, мы 
+чувствуем, что наши читатели должны понимать базовые концепции, а не 
+слепо копировать и вставлять команды, значения которых они не понимают. 
+Когда человек хочет понять, что представляют собой регулярные выражения,
+ ключевым словом является "соответствие", или, точнее, "шаблон 
+соответствия". Например, в отчете для своего департамента вы написали 
+имя Nick, обращаясь к сетевому архитектору. Но Nick ушел, а на его место
+ пришел John, поэтому теперь вы должны заменить слово Nick на John. Если
+ файл с отчетом называется report.txt, вы должны выполнить следующую 
+команду:</p>
+<p>
+</p><pre>$ cat report.txt | sed 's/Nick/John/g' &gt; report_new.txt
+</pre>
+<p></p>
+<p>По умолчанию sed использует stdout, вы можете использовать оператор 
+перенаправления вывода, как показано в примере выше. Это очень простой 
+пример, но мы проиллюстрировали несколько моментов: мы ищем все 
+соответствия шаблону "Nick" и заменяем во всех случаях на "John". 
+Отметим, что sed призводит поиск с учетом регистра, поэтому будьте 
+внимательны и проверьте выходной файл, чтобы убедиться, что все замены 
+были выполнены. Приведенный выше пример можно было записать и так:</p>
+<p>
+</p><pre>$ sed 's/Nick/John/g' report.txt &gt; report_new.txt
+</pre>
+<p></p>
+<p>Хорошо, скажете вы, но где же здесь регулярные выражения? Да, мы 
+хотели сначала показать пример, а теперь начинается самая интересная 
+часть.<br>
+Если вы не уверены, написали ли вы "nick" или "Nick", и хотите 
+предусмотреть оба случая, необходимо 
+использовать команду sed 's/Nick|nick/John/g'. Вертикальная черта имеет 
+значение, которое вы должны 
+знать, если изучали C, то есть ваше выражение будет соответствовать 
+"nick" или "Nick". Как вы увидите 
+ниже, канал может использоваться и другими способами, но смысл остается 
+тот же самый. Другие операторы, 
+широко использующиеся в регулярных выражениях - это "?", который 
+соответствует повторению 
+предшествующего символа ноль или один раз (то есть flavou?r будет 
+соответствовать flavor и flavour), 
+"*" - ноль или более раз, "+" - один или более раз. "^" соответствует 
+началу строки, а "$" - наоборот. Если вы - пользователь vi или vim, 
+многие вещи покажутся вам знакомыми. В конце концов, эти утилиты, вместе
+ с awk и С уходят корнями в ранние дни UNIX. Мы не будем больше говорить
+ на эту тему, так как проще понять значение этих символов на примерах, 
+но вы должны знать, что существуют различные реализации регулярных 
+выражений: POSIX, POSIX Extended, Perl, а также различные реализации 
+нечетких регулярных выражений, гарантирующие вам головную боль. </p>
+<h2>5. Примеры использования sed</h2>
+<table align="left" border="1" cellpadding="2" cellspacing="0">
+<tbody><tr>
+<td align="center" width="50%">Синтаксис команды</td>
+<td align="center" width="50%">Описание</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/Nick/John/g' report.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет каждое вхождение Nick на John в файле report.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/Nick|nick/John/g' report.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет каждое вхождение Nick или nick на John.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/^/ /' file.txt &gt;file_new.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Добавляет 8 пробелов слева от текста для улучшения качества печати.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '/Of course/,/attention you \<br>pay/p' myfile
+</pre>
+<p></p>
+</td>
+<td width="50%">Выводит один абзац, начинающийся с "Of course" и заканчивающийся на "attention you pay"</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n 12,18p file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Выводит только строки 12-18 файла file.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 12,18d file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Выводит весь файл file.txt за исключением строк с 12 по 18</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed G file.txt 
+</pre>
+<p></p>
+</td>
+<td width="50%">Удваивает пробелы в file.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -f script.sed file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Записывает все команды в script.sed и выполняет их.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '5!s/ham/cheese/' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет ham на cheese в file.txt за исключением 5-й строки</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '$d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет последнюю строку</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/[0-9]\{3\}/p' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает только строки с тремя последовательными цифрами</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/boom/!s/aaa/bb/' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Если найден "boom", заменить aaa на bb</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '17,/disk/d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет все строки, начиная с 17-й, до "disk"</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>echo ONE TWO | sed "s/one/unos/I"
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет one на unos независимо от регистра, поэтому будет напечатано "unos TWO"</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 'G;G' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Утраивает пробелы в файле</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/.$//' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Способ замены dos2unix :)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/^[ ^t]*//' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет все пробелы перед каждой строкой в file.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/[ ^t]*$//' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет все пробелы в конце каждой строки в file.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/^[ ^t]*//;s/[ ^]*$//' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет все пробелы в начале и в конце каждой строки в file.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/foo/bar/' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет foo на bar только в первом вхождении в строке.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/foo/bar/4' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет foo на bar только в четвертом вхождении в строке.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/foo/bar/g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет foo на bar для всех вхождений в строке.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/baz/s/foo/bar/g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменить foo на bar только если строка содержит baz.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/./,/^$/!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удалить все последовательные пустые строки за исключением EOF</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/^$/N;/\n$/D' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удалить все последовательные пустые строки, но оставить верхнюю пустую строку.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/./,$!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удалить все начальные пустые строки</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba' \ <br> file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удалить все замыкающие пустые строки</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e :a -e '/\\$/N; s/\\\n//; ta' \ <br> file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Если файл заканчивается обратным сплешем, соединить его со следующим (полезно для скриптов оболочки)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/regex/,+5/expr/'
+</pre>
+<p></p>
+</td>
+<td width="50%">Соответствует regex плюс 5 следующих строк</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '1~3d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удалить каждую третью строку, начиная с первой.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '2~5p' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатать каждую пятую строку, начиная со второй.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/[Nn]ick/John/g' report.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Другой способ записи некоторых приведенных выше примеров. Вы можете предложить свой?</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '/RE/{p;q;}' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает только первое соответствие RE (регулярного выражения)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '0,/RE/{//d;}' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет только первое соответствие</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '0,/RE/s//to_that/' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Изменяет только первое соответствие</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/^[^,]*,/9999,/' file.csv
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет первое поле на 9999 в CSV-файле</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>s/^ *\(.*[^ ]\) *$/|\1|/;
+s/" *, */"|/g;
+: loop
+s/| *\([^",|][^,|]*\) *, */|\1|/g;
+s/| *, */|\1|/g;
+t loop
+s/ *|/|/g;
+s/| */|/g;
+s/^|\(.*\)|$/\1/;
+</pre>
+<p></p>
+</td>
+<td width="50%">Скрипт sed для конвертирования CSV-файла в файл с 
+вертикальной чертой в качестве разделителя (работает только с некоторыми
+ типами CSV, со встроенными кавычками и запятыми). </td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed ':a;s/\(^\|[^0-9.]\)\([0-9]\+\)\\
+([0-9]\{3\}\)/\1\2,\3/g;ta' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Меняет формат чисел в file.txt с 1234.56 на 1.234.56</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -r "s/\&lt;(reg|exp)[a-z]+/\U&amp;/g"
+</pre>
+<p></p>
+</td>
+<td width="50%">Переводит любое слово, начинающееся с reg или exp в верхний регистр.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '1,20 s/Johnson/White/g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Производит замену Johnson на White только в строках 1 - 20.</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '1,20 !s/Johnson/White/g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Предыдущий пример наоборот (заменяет везде, кроме строк 1-20)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/from/,/until/ { s/\<red\>/magenta/g; \ 
+s/\<blue\>/cyan/g; }' file.txt
+</blue\></red\></pre>
+<p></p>
+</td>
+<td width="50%">Заменяет только между "from" и "until"</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/ENDNOTES:/,$ { s/Schaff/Herzog/g; \ 
+s/Kraft/Ebbing/g; }' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет только со слова "ENDNOTES:" и до EOF</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/./{H;$!d;};x;/regex/!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает абзац только если он содержит regex</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e '/./{H;$!d;}' -e 'x;/RE1/!d;\
+/RE2/!d;/RE3/!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает абзацы только если они содержат RE1, RE2 и RE3</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/14"/fourteen inches/g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Так вы сможете использовать двойные кавычки</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/\/some\/UNIX\/path/\/a\/new\\
+/path/g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Работа с путями Unix</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/[a-g]//g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет все символы, начиная с a и заканчивая g из файла file.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/\(.*\)foo/\1bar/' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет только последнее соответствие foo на bar</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '1!G;h;$!d' 
+</pre>
+<p></p>
+</td>
+<td width="50%">Замена команды tac</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/\n/!G;s/\(.\)\(.*\n\)/&amp;\2\1\
+/;//D;s/.//'
+</pre>
+<p></p>
+</td>
+<td width="50%">Замена команды rev</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 10q file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Замена команды head</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e :a -e '$q;N;11,$D;ba' \ 
+file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Замена команды tail</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '$!N; /^\(.*\)\n\1$/!P; D' \ 
+file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Замена команды uniq</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '$!N; s/^\(.*\)\n\1$/\1/;\ 
+t; D' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Обратная команда (что эквивалентно uniq -d)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '$!N;$!D' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Эквивалент tail -n 2</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '$p' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">... tail -n 1 (или tail -1)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/regexp/!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Эквивалент grep</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '/regexp/{g;1!p;};h' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает строку, находящуюся перед первым соответствием регулярному выражению, но не включающую само соответствие</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '/regexp/{n;p;}' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает строку, находящуюся после первого соответствия регулярному выражению, но не включающую само соответствие</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/pattern/d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет строки, соответствующие шаблону pattern</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/./!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет все пустые строки из файла</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/^$/N;/\n$/N;//D' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет все следующие друг за другом пустые строки, за исключением первых двух</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '/^$/{p;h;};/./{x;/./p;}'\ 
+file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Удаляет последнюю строку каждого абзаца</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/^$/q'
+</pre>
+<p></p>
+</td>
+<td width="50%">Получает заголовок письма</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '1,/^$/d'
+</pre>
+<p></p>
+</td>
+<td width="50%">Получает тело письма</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/^Subject: */!d; s///;q'
+</pre>
+<p></p>
+</td>
+<td width="50%">Получает тему письма</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/^/&gt; /'
+</pre>
+<p></p>
+</td>
+<td width="50%">Цитирует сообщение, вставляя "&gt; " перед каждой строкой</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/^&gt; //'
+</pre>
+<p></p>
+</td>
+<td width="50%">Обратная команда (убирает цитирование из сообщения)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e :a -e 's/&lt;[^&gt;]*&gt;//g;/
+<p></p>
+</pre></td>
+<td width="50%">Удаляет HTML-теги</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/./{H;d;};x;s/\n/={NL}=/g'\
+ file.txt | sort \ 
+| sed '1s/={NL}=//;s/={NL}=/\n/g'
+</pre>
+<p></p>
+</td>
+<td width="50%">Сортирует абзацы в file.txt в алфавитном порядке</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's@/usr/bin@&amp;/local@g' path.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет /usr/bin на /usr/bin/local в path.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's@^.*$@&lt;&lt;&lt;&amp;&gt;&gt;&gt;@g' path.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Попробуйте и увидите :)</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/\(\/[^:]*\).*/\1/g' path.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">При условии, что path.txt содержит $PATH, выводит только первый путь в каждой строке</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed 's/\([^:]*\).*/\1/' /etc/passwd
+</pre>
+<p></p>
+</td>
+<td width="50%">Замена awk - показывает только пользователей из файла passwd </td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>echo "Welcome To The Geek Stuff" | sed \ 
+'s/\(\b[A-Z]\)/\(\1\)/g'
+(W)elcome (T)o (T)he (G)eek (S)tuff
+</pre>
+<p></p>
+</td>
+<td width="50%"> Понятно без объяснений</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e '/^$/,/^END/s/hills/\ 
+mountains/g' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Заменяет "hills" на "mountains", но только в блоках 
+текста, начинающихся с пустой строки и заканчивающихся строкой с тремя 
+символами "END", включительно. </td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e '/^#/d' /etc/services | more
+</pre>
+<p></p>
+</td>
+<td width="50%">Показывает файл services без закомментированных строк</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '$s@\([^:]*\):\([^:]*\):\([^:]*\
+\)@\3:\2:\1@g' path.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Меняет порядок элементов в последней строке файла path.txt на обратный</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/regex/{x;p;x;}' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Вставляет новую строку выше каждой строки, соответствующей регулярному выражению</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/AAA/!d; /BBB/!d; /CCC/!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Ищет соответствие AAA, BBB и CCC в любом порядке</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/AAA.*BBB.*CCC/!d' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Ищет соответствие AAA, BBB и CCC в заданном порядке</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '/^.\{65\}/p' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает строки длиной 65 символов и более</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -n '/^.\{65\}/!p' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Печатает строки длиной 65 символов и менее</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/regex/G' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Вставляет пустую строку под каждой строкой</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed '/regex/{x;p;x;G;}' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Вставляет пустую строку над и под каждой строкой</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed = file.txt | sed 'N;s/\n/\t/'
+</pre>
+<p></p>
+</td>
+<td width="50%">Нумерует строки в file.txt</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e :a -e 's/^.\{1,78\}$/\
+ &amp;/;ta' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Выровнять текст по правому краю</td>
+</tr>
+<tr>
+<td width="50%">
+<p>
+</p><pre>sed -e :a -e 's/^.\{1,77\}$/ &amp;/;ta' -e \
+'s/\( *\)\1/\1/' file.txt
+</pre>
+<p></p>
+</td>
+<td width="50%">Выровнять текст по центру</td>
+</tr>
+</tbody></table>
+<p></p>
+<br><br>
+<h2>6. Заключение</h2>
+<p>Это только часть того, что можно бы было рассказать о sed, но данная 
+серия статей представляет собой скорее практическое руководство, 
+которое, как мы надеемся, поможет вам оценить всю мощь утилит Unix и 
+сделает вашу работу более эффективной.</p>
+<hr><div style="text-align:center; padding: 5px 0; color: #1179C1;">Эта статья еще не оценивалась</div><div style="clear:both"></div>Вы сможете оценить статью и оставить комментарий, если 
+		<a href="http://rus-linux.net/login.php">войдете</a> или <a href="http://rus-linux.net/reg.php">зарегистрируетесь</a>.<br>
+              Только зарегистрированные пользователи могут оценивать и комментировать статьи.
+
+
+</td>
+<td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_rzal.gif">&nbsp;</td>
+        </tr>
+             <tr>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_lzal.htm">&nbsp;</td>
+               <td valign="top"><hr>
+<!--
+<p><strong>Поделиться ссылкой:</strong> &nbsp;
+                <a href="http://twitter.com/share" class="twitter-share-button" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Frus-linux.net&amp;send=false&amp;layout=button_count&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:21px;" allowTransparency="true"></iframe>
+</p>
+-->
+<center>
+<script type="text/javascript" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/share.js" charset="utf-8"></script>
+<div class="yashare-auto-init" data-yasharel10n="ru" data-yasharetype="button" data-yasharequickservices="yaru,vkontakte,facebook,twitter,odnoklassniki,moimir"><span class="b-share"><a class="b-share__handle" id="ya-share-0.9736640754644215-1433501112660" data-hdirection="" data-vdirection=""><span class="b-share-form-button b-share-form-button_share"><i class="b-share-form-button__before"></i><i class="b-share-form-button__icon"></i>Поделиться&#8230;<i class="b-share-form-button__after"></i></span></a><a rel="nofollow" target="_blank" title="ВКонтакте" class="b-share__handle b-share__link b-share-btn__vkontakte" href="https://share.yandex.net/go.xml?service=vkontakte&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" data-service="vkontakte"><span class="b-share-icon b-share-icon_vkontakte"></span></a><a rel="nofollow" target="_blank" title="Facebook" class="b-share__handle b-share__link b-share-btn__facebook" href="https://share.yandex.net/go.xml?service=facebook&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" data-service="facebook"><span class="b-share-icon b-share-icon_facebook"></span></a><a rel="nofollow" target="_blank" title="Twitter" class="b-share__handle b-share__link b-share-btn__twitter" href="https://share.yandex.net/go.xml?service=twitter&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" data-service="twitter"><span class="b-share-icon b-share-icon_twitter"></span></a><a rel="nofollow" target="_blank" title="Одноклассники" class="b-share__handle b-share__link b-share-btn__odnoklassniki" href="https://share.yandex.net/go.xml?service=odnoklassniki&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" data-service="odnoklassniki"><span class="b-share-icon b-share-icon_odnoklassniki"></span></a><a rel="nofollow" target="_blank" title="Мой Мир" class="b-share__handle b-share__link b-share-btn__moimir" href="https://share.yandex.net/go.xml?service=moimir&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" data-service="moimir"><span class="b-share-icon b-share-icon_moimir"></span></a></span></div> 
+</center>
+
+       </td><td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab2_rzal.htm">&nbsp;</td>
+             </tr>
+        <tr>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_l_1.gif"></td>
+               <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/null.gif" width="1"></td>
+               <td><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/tab3_r_1.gif"></td>
+         </tr>
+        </tbody></table>
+
+<!-- Яндекс.Директ -->
+<script type="text/javascript"><!--
+yandex_partner_id = 49531;
+yandex_site_bg_color = 'FFFFFF';
+yandex_site_charset = 'koi8-r';
+yandex_ad_format = 'direct';
+yandex_font_size = 0.8;
+yandex_font_family = 'arial';
+yandex_direct_type = 'horizontal';
+yandex_direct_limit = 3;
+yandex_direct_title_color = '0000CC';
+yandex_direct_url_color = '006600';
+yandex_direct_all_color = '0000CC';
+yandex_direct_text_color = '000000';
+yandex_direct_hover_color = '0066FF';
+document.write('<sc'+'ript type="text/javascript" src="http://an.yandex.ru/system/context.js"></sc'+'ript>');
+//--></script><script type="text/javascript" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/context.js"></script>
+
+</td></tr></tbody></table>
+
+      <table bgcolor="#005291" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+          <td background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_l.gif" border="0"></td>
+          <td alt="Главная" align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/" class="menu" title="Титульная страница сайта">Новости</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/lib.php?name=/MyLDP/index" class="menu" title="Книги и статьи, выложенные на нашем сайте">Библиотека</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/lib.php?name=/MyLDP/BOOKS/books" class="menu" title="Е-книги по Линукс для чтения он-лайн">Е-книги</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/main.php?name=kat-full.html" class="menu" title="Каталог ссылок на публикации в Сети по ОС GNU/Linux">Каталог ссылок</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/forum" class="menu" title="Форум сайта">Форум</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/kos.php?name=kos.html" class="menu" title="Статьи и книги В.А.Костромина">Авторское</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/po.php?name=/po/linapp.koi" class="menu" title="Каталог программного обеспечения для ОС GNU/Linux">Каталог ПО</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/kos.php?name=site.html" class="menu" title="О сайте">О сайте</a></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_s.gif" alt="|" border="0"></td>
+          <td align="center" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><a href="http://rus-linux.net/sitemap.php" class="menu" title="Карта сайта">Карта сайта</a></td>
+          <td align="right" background="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_zal.gif"><img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/but_r.gif" border="0"></td>
+        </tr>
+      </tbody></table>
+<noindex>
+<table border="0" width="100%">
+<tbody><tr>
+
+<td align="center" width="90">
+<!--begin of Top100-->
+<a href="http://counter.rambler.ru/top100/"><img style="display: none ! important;" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/top100.gif" alt="Rambler's Top100
+Service" border="0" height="63" width="81"></a>
+<!--end of Top100 code-->
+</td>
+
+<td align="center" width="30%">
+(C) В.А.Костромин, 1999 - 2015 г. 
+<br>Пишите на <img src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/kos-mail.png" alt="kos at rus-linux dot net" border="0">.
+</td>
+
+<td align="center" width="50%">
+<!-- RotaBan.ru Zone Code -->
+<div id="rotaban_200118" class="rbrocks rotaban_d93b9b532bea4b0f8d7c5f30dafb2ba3"></div>
+<!-- END RotaBan.ru Zone Code -->
+</td>
+
+<td align="center" width="90">
+<!--LiveInternet logo--><a href="http://www.liveinternet.ru/click" target="liveinternet"><img style="display: none ! important;" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/logo.gif" alt="liveinternet.ru: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня" border="0" height="31" width="88"></a><!--/LiveInternet-->
+<!--Rating@Mail.ru logo-->
+<a target="_top" href="http://top.mail.ru/jump?from=55285">
+<img style="display: none ! important;" src="%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%20%20sed_files/counter.gif" alt="Рейтинг@Mail.ru" border="0" height="31" width="88"></a>
+<!--// Rating@Mail.ru logo-->
+</td>
+
+</tr>
+</tbody></table>
+</noindex>
+
+
+
+<div class="b-share-popup-wrap b-share-popup-wrap_state_hidden" id="ya-share-0.9736640754644215-1433501112660-popup"><div class="b-share-popup b-share-popup_down b-share-popup_to-right"><div class="b-share-popup__i"><div class="b-share-popup__main  b-share-popup_yandexed"><div class="b-share-popup__header b-share-popup__header_first">Поделитесь с друзьями</div><a rel="nofollow" target="_blank" href="https://share.yandex.net/go.xml?service=vkontakte&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" class="b-share-popup__item" data-service="vkontakte"><span class="b-share-popup__icon"><span class="b-share-icon b-share-icon_vkontakte"></span></span><span class="b-share-popup__item__text">ВКонтакте</span></a><a rel="nofollow" target="_blank" href="https://share.yandex.net/go.xml?service=odnoklassniki&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" class="b-share-popup__item" data-service="odnoklassniki"><span class="b-share-popup__icon"><span class="b-share-icon b-share-icon_odnoklassniki"></span></span><span class="b-share-popup__item__text">Одноклассники</span></a><a rel="nofollow" target="_blank" href="https://share.yandex.net/go.xml?service=twitter&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" class="b-share-popup__item" data-service="twitter"><span class="b-share-popup__icon"><span class="b-share-icon b-share-icon_twitter"></span></span><span class="b-share-popup__item__text">Twitter</span></a><a rel="nofollow" target="_blank" href="https://share.yandex.net/go.xml?service=facebook&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" class="b-share-popup__item" data-service="facebook"><span class="b-share-popup__icon"><span class="b-share-icon b-share-icon_facebook"></span></span><span class="b-share-popup__item__text">Facebook</span></a><a rel="nofollow" target="_blank" href="https://share.yandex.net/go.xml?service=moimir&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" class="b-share-popup__item" data-service="moimir"><span class="b-share-popup__icon"><span class="b-share-icon b-share-icon_moimir"></span></span><span class="b-share-popup__item__text">Мой Мир</span></a><a rel="nofollow" target="_blank" href="https://share.yandex.net/go.xml?service=lj&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" class="b-share-popup__item" data-service="lj"><span class="b-share-popup__icon"><span class="b-share-icon b-share-icon_lj"></span></span><span class="b-share-popup__item__text">LiveJournal</span></a><a rel="nofollow" target="_blank" href="https://share.yandex.net/go.xml?service=gplus&amp;url=http%3A%2F%2Frus-linux.net%2FMyLDP%2Fconsol%2Fsed.html&amp;title=%D0%98%D0%B7%D1%83%D1%87%D0%B0%D0%B5%D0%BC%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%20Linux%3A%20sed" class="b-share-popup__item" data-service="gplus"><span class="b-share-popup__icon"><span class="b-share-icon b-share-icon_gplus"></span></span><span class="b-share-popup__item__text">Google Plus</span></a><a href="http://api.yandex.ru/share/" class="b-share-popup__yandex">Яндекс</a></div></div><div class="b-share-popup__tail"></div></div></div><style>.adsbygoogle
+{display:none !important;}</style></body></html>

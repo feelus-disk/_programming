@@ -1,0 +1,1824 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   
+      <title>Chapter&nbsp;3.&nbsp;Compiling for the Java Virtual Machine</title>
+      <link rel="stylesheet" type="text/css" href="../../../javaspec.css">
+      <meta name="generator" content="DocBook XSL-NS Stylesheets V1.76.1">
+      <link rel="home" href="index.html" title="The Java&reg; Virtual Machine Specification">
+      <link rel="up" href="index.html" title="The Java&reg; Virtual Machine Specification">
+      <link rel="prev" href="jvms-2.html" title="Chapter&nbsp;2.&nbsp;The Structure of the Java Virtual Machine">
+      <link rel="next" href="jvms-4.html" title="Chapter&nbsp;4.&nbsp;The class File Format">
+      <link rel="copyright" href="jvms-0-front.html" title="Legal Notice">
+   </head>
+   <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+      <div xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:rx="http://www.renderx.com/XSL/Extensions" id="logo"><img src="../../../../webdesign/other/im/oralogo_small.gif" alt="Oracle Logo"><br><p><a href="http://docs.oracle.com/javase/8/docs/">Java SE</a> &gt; <a href="http://docs.oracle.com/javase/specs/index.html">Java SE Specifications</a> &gt; <a href="index.html">Java Virtual Machine Specification</a></p>
+      </div>
+      <div class="navheader">
+         <table width="100%" summary="Navigation header">
+            <tr>
+               <th colspan="3" align="center">Chapter&nbsp;3.&nbsp;Compiling for the Java Virtual Machine</th>
+            </tr>
+            <tr>
+               <td width="20%" align="left"><a accesskey="p" href="jvms-2.html">Prev</a>&nbsp;
+               </td>
+               <th width="60%" align="center">&nbsp;</th>
+               <td width="20%" align="right">&nbsp;<a accesskey="n" href="jvms-4.html">Next</a></td>
+            </tr>
+         </table>
+         <hr>
+      </div>
+      <div lang="en" class="chapter" title="Chapter&nbsp;3.&nbsp;Compiling for the Java Virtual Machine">
+         <div class="titlepage">
+            <div>
+               <div>
+                  <h2 class="title"><a name="jvms-3"></a>Chapter&nbsp;3.&nbsp;Compiling for the Java Virtual Machine
+                  </h2>
+               </div>
+            </div>
+         </div>
+         <div class="toc">
+            <p><b>Table of Contents</b></p>
+            <dl>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.1">3.1. Format of Examples</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.2">3.2. Use of Constants, Local Variables, and Control Constructs</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.3">3.3. Arithmetic</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.4">3.4. Accessing the Run-Time Constant Pool</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.5">3.5. More Control Examples</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.6">3.6. Receiving Arguments</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.7">3.7. Invoking Methods</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.8">3.8. Working with Class Instances</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.9">3.9. Arrays</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.10">3.10. Compiling Switches</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.11">3.11. Operations on the Operand Stack</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.12">3.12. Throwing and Handling Exceptions</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.13">3.13. Compiling <code class="literal">finally</code></a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.14">3.14. Synchronization</a></span></dt>
+               <dt><span class="section"><a href="jvms-3.html#jvms-3.15">3.15. Annotations</a></span></dt>
+            </dl>
+         </div>
+         <p class="norm"><a name="jvms-3-100"></a>The Java Virtual Machine machine is designed to
+            support the Java programming language. Oracle's JDK software contains a compiler from
+            source code written in the Java programming language to the instruction set of the
+            Java Virtual Machine, and a run-time system that implements the Java Virtual Machine
+            itself. Understanding how one compiler utilizes the Java Virtual Machine is useful to
+            the prospective compiler writer, as well as to one trying to
+            understand the Java Virtual Machine itself. The numbered sections in this chapter are
+            not normative.
+         </p>
+         <p class="norm"><a name="jvms-3-110"></a>Note that the term "compiler" is
+            sometimes used when referring to a translator from the instruction set
+            of a Java Virtual Machine to the instruction set of a specific CPU. One example of
+            such a translator is a just-in-time (JIT) code generator, which
+            generates platform-specific instructions only after Java Virtual Machine code has
+            been loaded. This chapter does not address issues associated with code
+            generation, only those associated with compiling source code written
+            in the Java programming language to Java Virtual Machine instructions.
+         </p>
+         <div class="section" title="3.1.&nbsp;Format of Examples">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.1"></a>3.1.&nbsp;Format of Examples
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.1-100"></a>This chapter consists mainly
+               of examples of source code together with annotated listings of the
+               Java Virtual Machine code that the <code class="literal">javac</code> compiler in Oracle&#8217;s JDK
+               release 1.0.2 generates for the examples. The Java Virtual Machine code is written in
+               the informal &#8220;virtual machine assembly language&#8221; output by
+               Oracle's <code class="literal">javap</code> utility, distributed with the JDK
+               release. You can use <code class="literal">javap</code> to generate additional
+               examples of compiled methods.
+            </p>
+            <p class="norm"><a name="jvms-3.1-110"></a>The format of the examples
+               should be familiar to anyone who has read assembly code. Each
+               instruction takes the form:
+            </p><a name="jvms-3.1-120"></a><pre class="screen">
+&lt;index&gt; &lt;opcode&gt; [ &lt;operand1&gt; [ &lt;operand2&gt;... ]] [&lt;comment&gt;]
+</pre><p class="norm"><a name="jvms-3.1-130"></a>The 
+               <code class="literal">&lt;index&gt;</code> is the index of the opcode of the
+               instruction in the array that contains the bytes of Java Virtual Machine code for
+               this method. Alternatively, the <code class="literal">&lt;index&gt;</code> may
+               be thought of as a byte offset from the beginning of the
+               method. The <code class="literal">&lt;opcode&gt;</code> is the mnemonic for the
+               instruction's opcode, and the zero or
+               more <code class="literal">&lt;operandN&gt;</code> are the operands of the
+               instruction. The optional <code class="literal">&lt;comment&gt;</code> is given
+               in end-of-line comment syntax:
+            </p><pre class="programlisting">
+8   <span class="emphasis"><em>bipush 100</em></span>     // Push int constant <code class="literal">100</code>
+</pre><p class="norm"><a name="jvms-3.1-140"></a>Some of the material in the
+               comments is emitted by <code class="literal">javap</code>; the rest is supplied
+               by the authors. The <code class="literal">&lt;index&gt;</code> prefacing each
+               instruction may be used as the target of a control transfer
+               instruction. For instance, a <code class="literal"><span class="emphasis"><em>goto
+                        8</em></span></code> instruction transfers control to the
+               instruction at index 8. Note that the actual operands of Java Virtual Machine control
+               transfer instructions are offsets from the addresses of the opcodes of
+               those instructions; these operands are displayed
+               by <code class="literal">javap</code> (and are shown in this chapter) as more
+               easily read offsets into their methods.
+            </p>
+            <p class="norm"><a name="jvms-3.1-200"></a>We preface an operand
+               representing a run-time constant pool index with a hash sign and
+               follow the instruction by a comment identifying the run-time constant
+               pool item referenced, as in:
+            </p><pre class="programlisting">
+10  <span class="emphasis"><em>ldc #1</em></span>         // Push <code class="literal">float</code> constant <code class="literal">100.0</code>
+</pre><p class="norm"><a name="jvms-3.1-210"></a>or:
+            </p><pre class="programlisting">
+9   <span class="emphasis"><em>invokevirtual #4</em></span>    // Method <code class="literal">Example.addTwo(II)I</code>
+</pre><p class="norm"><a name="jvms-3.1-300"></a>For the purposes of this
+               chapter, we do not worry about specifying details such as operand
+               sizes.
+            </p>
+         </div>
+         <div class="section" title="3.2.&nbsp;Use of Constants, Local Variables, and Control Constructs">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.2"></a>3.2.&nbsp;Use of Constants, Local Variables, and Control Constructs
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.2-100"></a>Java Virtual Machine code exhibits a set of
+               general characteristics imposed by the Java Virtual Machine's design and use of
+               types. In the first example we encounter many of these, and we
+               consider them in some detail.
+            </p>
+            <p class="norm"><a name="jvms-3.2-110"></a>The <code class="literal">spin</code>
+               method simply spins around an empty for loop 100 times:
+            </p><pre class="programlisting">
+
+void spin() {
+    int i;
+    for (i = 0; i &lt; 100; i++) {
+        ;    // Loop body is empty
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.2-120"></a>A compiler might
+               compile <code class="literal">spin</code> to:
+            </p><pre class="programlisting">
+0   <span class="emphasis"><em>iconst_0</em></span>       // Push int constant 0
+1   <span class="emphasis"><em>istore_1</em></span>       // Store into local variable 1 (i=0)
+2   <span class="emphasis"><em>goto 8</em></span>         // First time through don't increment
+5   <span class="emphasis"><em>iinc 1 1</em></span>       // Increment local variable 1 by 1 (i++)
+8   <span class="emphasis"><em>iload_1</em></span>        // Push local variable 1 (i)
+9   <span class="emphasis"><em>bipush 100</em></span>     // Push int constant 100
+11  <span class="emphasis"><em>if_icmplt 5</em></span>    // Compare and loop if less than (i &lt; 100)
+14  <span class="emphasis"><em>return</em></span>         // Return void when done
+</pre><p class="norm"><a name="jvms-3.2-200"></a>The Java Virtual Machine is stack-oriented,
+               with most operations taking one or more operands from the operand
+               stack of the Java Virtual Machine's current frame or pushing results back onto the
+               operand stack. A new frame is created each time a method is invoked,
+               and with it is created a new operand stack and set of local variables
+               for use by that method (<a class="xref" href="jvms-2.html#jvms-2.6" title="2.6.&nbsp;Frames">&sect;2.6</a>). At any one point
+               of the computation, there are thus likely to be many frames and
+               equally many operand stacks per thread of control, corresponding to
+               many nested method invocations. Only the operand stack in the current
+               frame is active.
+            </p>
+            <p class="norm"><a name="jvms-3.2-210"></a>The instruction set of the
+               Java Virtual Machine distinguishes operand types by using distinct bytecodes for
+               operations on its various data types. The
+               method <code class="literal">spin</code> operates only on values of type
+               <code class="literal">int</code>. The instructions in its compiled code chosen to operate on
+               typed data (<span class="emphasis"><em>iconst_0</em></span>, <span class="emphasis"><em>istore_1</em></span>, <span class="emphasis"><em>iinc</em></span>, <span class="emphasis"><em>iload_1</em></span>, <span class="emphasis"><em>if_icmplt</em></span>)
+               are all specialized for type <code class="literal">int</code>.
+            </p>
+            <p class="norm"><a name="jvms-3.2-220"></a>The two constants
+               in <code class="literal">spin</code>, <code class="literal">0</code>
+               and <code class="literal">100</code>, are pushed onto the operand stack using
+               two different instructions. The <code class="literal">0</code> is pushed using
+               an <span class="emphasis"><em>iconst_0</em></span> instruction, one of the family of <span class="emphasis"><em>iconst_&lt;i&gt;</em></span>
+               instructions. The <code class="literal">100</code> is pushed using a <span class="emphasis"><em>bipush</em></span>
+               instruction, which fetches the value it pushes as an immediate
+               operand.
+            </p>
+            <p class="norm"><a name="jvms-3.2-230"></a>The Java Virtual Machine frequently takes
+               advantage of the likelihood of certain operands (<code class="literal">int</code>
+               constants <span class="emphasis"><em>-1</em></span>, <span class="emphasis"><em>0</em></span>, 
+               <span class="emphasis"><em>1</em></span>, <span class="emphasis"><em>2</em></span>, <span class="emphasis"><em>3</em></span>, 
+               <span class="emphasis"><em>4</em></span> and <span class="emphasis"><em>5</em></span> in the case of the
+               <span class="emphasis"><em>iconst_&lt;i&gt;</em></span> instructions) by making those operands implicit in the
+               opcode. Because the <span class="emphasis"><em>iconst_0</em></span> instruction knows it is going to push
+               an <code class="literal">int</code> <code class="literal">0</code>, <span class="emphasis"><em>iconst_0</em></span> does not need to store an operand to tell
+               it what value to push, nor does it need to fetch or decode an
+               operand. Compiling the push of <code class="literal">0</code> as
+               <span class="emphasis"><em>bipush</em></span> <span class="emphasis"><em>0</em></span> would have been correct, but would
+               have made the compiled code for <code class="literal">spin</code> one byte
+               longer. A simple virtual machine would have also spent additional time
+               fetching and decoding the explicit operand each time around the
+               loop. Use of implicit operands makes compiled code more compact and
+               efficient.
+            </p>
+            <p class="norm"><a name="jvms-3.2-240"></a>The <code class="literal">int</code> <code class="literal">i</code>
+               in <code class="literal">spin</code> is stored as Java Virtual Machine local variable
+               <span class="emphasis"><em>1</em></span>. Because most Java Virtual Machine instructions operate on
+               values popped from the operand stack rather than directly on local
+               variables, instructions that transfer values between local variables
+               and the operand stack are common in code compiled for the Java Virtual Machine. These
+               operations also have special support in the instruction
+               set. In <code class="literal">spin</code>, values are transferred to and from
+               local variables using the <span class="emphasis"><em>istore_1</em></span> and <span class="emphasis"><em>iload_1</em></span> instructions, each
+               of which implicitly operates on local
+               variable <span class="emphasis"><em>1</em></span>. The <span class="emphasis"><em>istore_1</em></span> instruction pops an
+               <code class="literal">int</code> from the operand stack and stores it in local
+               variable <span class="emphasis"><em>1</em></span>. The <span class="emphasis"><em>iload_1</em></span> instruction pushes the
+               value in local variable <span class="emphasis"><em>1</em></span> on to the operand
+               stack.
+            </p>
+            <p class="norm"><a name="jvms-3.2-250"></a>The use (and reuse) of local
+               variables is the responsibility of the compiler writer. The
+               specialized load and store instructions should encourage the compiler
+               writer to reuse local variables as much as is feasible. The resulting
+               code is faster, more compact, and uses less space in the frame.
+            </p>
+            <p class="norm"><a name="jvms-3.2-260"></a>Certain very frequent
+               operations on local variables are catered to specially by the
+               Java Virtual Machine. The <span class="emphasis"><em>iinc</em></span> instruction increments the contents of a local
+               variable by a one-byte signed value. The <span class="emphasis"><em>iinc</em></span> instruction
+               in <code class="literal">spin</code> increments the first local variable (its
+               first operand) by <span class="emphasis"><em>1</em></span> (its second operand). The
+               <span class="emphasis"><em>iinc</em></span> instruction is very handy when implementing looping
+               constructs.
+            </p>
+            <p class="norm"><a name="jvms-3.2-300"></a>The <code class="literal">for</code>
+               loop of <code class="literal">spin</code> is accomplished mainly by these
+               instructions:
+            </p><pre class="programlisting">
+5   <span class="emphasis"><em>iinc 1 1</em></span>       // Increment local variable 1 by 1 (i++)
+8   <span class="emphasis"><em>iload_1</em></span>        // Push local variable 1 (i)
+9   <span class="emphasis"><em>bipush 100</em></span>     // Push int constant 100
+11  <span class="emphasis"><em>if_icmplt 5</em></span>    // Compare and loop if less than (i &lt; 100)
+</pre><p class="norm"><a name="jvms-3.2-310"></a>The <span class="emphasis"><em>bipush</em></span> instruction
+               pushes the value <span class="emphasis"><em>100</em></span> onto the operand stack as an
+               <code class="literal">int</code>, then the <span class="emphasis"><em>if_icmplt</em></span> instruction pops that value off the
+               operand stack and compares it against <span class="emphasis"><em>i</em></span>. If the
+               comparison succeeds (the variable <code class="literal">i</code> is less
+               than <code class="literal">100</code>), control is transferred to
+               index <span class="emphasis"><em>5</em></span> and the next iteration of the <code class="literal">for</code> loop
+               begins. Otherwise, control passes to the instruction following the
+               <span class="emphasis"><em>if_icmplt</em></span>.
+            </p>
+            <p class="norm"><a name="jvms-3.2-400"></a>If the <code class="literal">spin</code>
+               example had used a data type other than <code class="literal">int</code> for the loop counter,
+               the compiled code would necessarily change to reflect the different
+               data type. For instance, if instead of an <code class="literal">int</code>
+               the <code class="literal">spin</code> example uses a <code class="literal">double</code>, as shown:
+            </p><pre class="programlisting">
+
+void dspin() {
+    double i;
+    for (i = 0.0; i &lt; 100.0; i++) {
+        ;    // Loop body is empty
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.2-410"></a>the compiled code is:
+            </p><pre class="programlisting">
+Method void dspin()
+0   <span class="emphasis"><em>dconst_0</em></span>       // Push double constant 0.0
+1   <span class="emphasis"><em>dstore_1</em></span>       // Store into local variables 1 and 2
+2   <span class="emphasis"><em>goto 9</em></span>         // First time through don't increment
+5   <span class="emphasis"><em>dload_1</em></span>        // Push local variables 1 and 2 
+6   <span class="emphasis"><em>dconst_1</em></span>       // Push double constant 1.0 
+7   <span class="emphasis"><em>dadd</em></span>           // Add; there is no dinc instruction
+8   <span class="emphasis"><em>dstore_1</em></span>       // Store result in local variables 1 and 2
+9   <span class="emphasis"><em>dload_1</em></span>        // Push local variables 1 and 2 
+10  <span class="emphasis"><em>ldc2_w #4</em></span>      // Push double constant 100.0 
+13  <span class="emphasis"><em>dcmpg</em></span>          // There is no if_dcmplt instruction
+14  <span class="emphasis"><em>iflt 5</em></span>         // Compare and loop if less than (i &lt; 100.0)
+17  <span class="emphasis"><em>return</em></span>         // Return void when done
+</pre><p class="norm"><a name="jvms-3.2-420"></a>The instructions that operate
+               on typed data are now specialized for type <code class="literal">double</code>. (The <span class="emphasis"><em>ldc2_w</em></span>
+               instruction will be discussed later in this chapter.)
+            </p>
+            <p class="norm"><a name="jvms-3.2-430"></a>Recall that <code class="literal">double</code> values
+               occupy two local variables, although they are only accessed using the
+               lesser index of the two local variables. This is also the case for
+               values of type <code class="literal">long</code>. Again for example,
+            </p><pre class="programlisting">
+
+double doubleLocals(double d1, double d2) {
+    return d1 + d2;
+}
+
+</pre><p class="norm"><a name="jvms-3.2-440"></a>becomes
+            </p><pre class="programlisting">
+Method double doubleLocals(double,double)
+0   <span class="emphasis"><em>dload_1</em></span>       // First argument in local variables 1 and 2
+1   <span class="emphasis"><em>dload_3</em></span>       // Second argument in local variables 3 and 4
+2   <span class="emphasis"><em>dadd</em></span>
+3   <span class="emphasis"><em>dreturn</em></span>
+</pre><p class="norm"><a name="jvms-3.2-450"></a>Note that local variables of
+               the local variable pairs used to store <code class="literal">double</code> values
+               in <code class="literal">doubleLocals</code> must never be manipulated
+               individually.
+            </p>
+            <p class="norm"><a name="jvms-3.2-500"></a>The Java Virtual Machine's opcode size of 1
+               byte results in its compiled code being very compact. However, 1-byte
+               opcodes also mean that the Java Virtual Machine instruction set must stay small. As a
+               compromise, the Java Virtual Machine does not provide equal support for all data
+               types: it is not completely orthogonal
+               (<a class="xref" href="jvms-2.html#jvms-2.11.1-220" title="Table&nbsp;2.11.1-A.&nbsp;Type support in the Java Virtual Machine instruction set">Table&nbsp;2.11.1-A</a>).
+            </p>
+            <p class="norm"><a name="jvms-3.2-510"></a>For example, the comparison of
+               values of type <code class="literal">int</code> in the <code class="literal">for</code> statement of
+               example <code class="literal">spin</code> can be implemented using a single
+               <span class="emphasis"><em>if_icmplt</em></span> instruction; however, there is no single instruction in
+               the Java Virtual Machine instruction set that performs a conditional branch on values
+               of type <code class="literal">double</code>. Thus, <code class="literal">dspin</code> must implement its
+               comparison of values of type <code class="literal">double</code> using a <span class="emphasis"><em>dcmpg</em></span> instruction
+               followed by an <span class="emphasis"><em>iflt</em></span> instruction.
+            </p>
+            <p class="norm"><a name="jvms-3.2-520"></a>The Java Virtual Machine provides the most
+               direct support for data of type <code class="literal">int</code>. This is partly in anticipation
+               of efficient implementations of the Java Virtual Machine's operand stacks and local
+               variable arrays. It is also motivated by the frequency of <code class="literal">int</code> data
+               in typical programs. Other integral types have less direct
+               support. There are no <code class="literal">byte</code>, <code class="literal">char</code>, or <code class="literal">short</code> versions of the
+               store, load, or add instructions, for instance. Here is
+               the <code class="literal">spin</code> example written using a <code class="literal">short</code>:
+            </p><pre class="programlisting">
+
+void sspin() {
+    short i;
+    for (i = 0; i &lt; 100; i++) {
+        ;    // Loop body is empty
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.2-530"></a>It must be compiled for the
+               Java Virtual Machine, as follows, using instructions operating on another type, most
+               likely <code class="literal">int</code>, converting between <code class="literal">short</code> and <code class="literal">int</code> values as necessary
+               to ensure that the results of operations on <code class="literal">short</code> data stay within
+               the appropriate range:
+            </p><pre class="programlisting">
+Method void sspin()
+0   <span class="emphasis"><em>iconst_0</em></span>
+1   <span class="emphasis"><em>istore_1</em></span>
+2   <span class="emphasis"><em>goto 10</em></span>
+5   <span class="emphasis"><em>iload_1</em></span>        // The short is treated as though an int
+6   <span class="emphasis"><em>iconst_1</em></span>
+7   <span class="emphasis"><em>iadd</em></span>
+8   <span class="emphasis"><em>i2s</em></span>            // Truncate int to short
+9   <span class="emphasis"><em>istore_1</em></span>
+10  <span class="emphasis"><em>iload_1</em></span>
+11  <span class="emphasis"><em>bipush 100</em></span>
+13  <span class="emphasis"><em>if_icmplt 5</em></span>
+16  <span class="emphasis"><em>return</em></span>
+</pre><p class="norm"><a name="jvms-3.2-540"></a>The lack of direct support for
+               <code class="literal">byte</code>, <code class="literal">char</code>, and <code class="literal">short</code> types in the Java Virtual Machine is not particularly
+               painful, because values of those types are internally promoted to
+               <code class="literal">int</code> (<code class="literal">byte</code> and <code class="literal">short</code> are sign-extended to <code class="literal">int</code>, <code class="literal">char</code> is
+               zero-extended). Operations on <code class="literal">byte</code>, <code class="literal">char</code>, and <code class="literal">short</code> data can
+               thus be done using <code class="literal">int</code> instructions. The only additional cost is
+               that of truncating the values of <code class="literal">int</code> operations to valid
+               ranges. 
+            </p>
+            <p class="norm"><a name="jvms-3.2-550"></a>The <code class="literal">long</code> and floating-point
+               types have an intermediate level of support in the Java Virtual Machine, lacking only
+               the full complement of conditional control transfer
+               instructions.
+            </p>
+         </div>
+         <div class="section" title="3.3.&nbsp;Arithmetic">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.3"></a>3.3.&nbsp;Arithmetic
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.3-100"></a>The Java Virtual Machine generally does
+               arithmetic on its operand stack. (The exception is the <span class="emphasis"><em>iinc</em></span>
+               instruction, which directly increments the value of a local variable.)
+               For instance, the <code class="literal">align2grain</code> method aligns an
+               <code class="literal">int</code> value to a given power of 2:
+            </p><pre class="programlisting">
+
+int align2grain(int i, int grain) {
+    return ((i + grain-1) &amp; ~(grain-1));
+}
+
+</pre><p class="norm"><a name="jvms-3.3-110"></a>Operands for arithmetic
+               operations are popped from the operand stack, and the results of
+               operations are pushed back onto the operand stack. Results of
+               arithmetic subcomputations can thus be made available as operands of
+               their nesting computation. For instance, the calculation
+               of <code class="literal">~(grain-1)</code> is handled by these
+               instructions:
+            </p><pre class="programlisting">
+5   <span class="emphasis"><em>iload_2</em></span>        // Push grain
+6   <span class="emphasis"><em>iconst_1</em></span>       // Push int constant 1
+7   <span class="emphasis"><em>isub</em></span>           // Subtract; push result
+8   <span class="emphasis"><em>iconst_m1</em></span>      // Push int constant -1
+9   <span class="emphasis"><em>ixor</em></span>           // Do XOR; push result
+</pre><p class="norm"><a name="jvms-3.3-120"></a>First <code class="literal">grain-1</code> is calculated
+               using the contents of local variable <span class="emphasis"><em>2</em></span> and an
+               immediate <code class="literal">int</code> value <code class="literal">1</code>. These operands are popped from the
+               operand stack and their difference pushed back onto the operand
+               stack. The difference is thus immediately available for use as one
+               operand of the <span class="emphasis"><em>ixor</em></span> instruction. (Recall that <code class="literal">~x ==
+                  -1^x</code>.) Similarly, the result of the <span class="emphasis"><em>ixor</em></span> instruction
+               becomes an operand for the subsequent <span class="emphasis"><em>iand</em></span> instruction.
+            </p>
+            <p class="norm"><a name="jvms-3.3-130"></a>The code for the entire method
+               follows:
+            </p><pre class="programlisting">
+Method int align2grain(int,int)
+0   <span class="emphasis"><em>iload_1</em></span>
+1   <span class="emphasis"><em>iload_2</em></span>
+2   <span class="emphasis"><em>iadd</em></span>
+3   <span class="emphasis"><em>iconst_1</em></span>
+4   <span class="emphasis"><em>isub</em></span>
+5   <span class="emphasis"><em>iload_2</em></span>
+6   <span class="emphasis"><em>iconst_1</em></span>
+7   <span class="emphasis"><em>isub</em></span>
+8   <span class="emphasis"><em>iconst_m1</em></span>
+9   <span class="emphasis"><em>ixor</em></span>
+10  <span class="emphasis"><em>iand</em></span>
+11  <span class="emphasis"><em>ireturn</em></span>
+</pre></div>
+         <div class="section" title="3.4.&nbsp;Accessing the Run-Time Constant Pool">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.4"></a>3.4.&nbsp;Accessing the Run-Time Constant Pool
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.4-100"></a>Many numeric constants, as
+               well as objects, fields, and methods, are accessed via the run-time
+               constant pool of the current class. Object access is considered later
+               (<a class="xref" href="jvms-3.html#jvms-3.8" title="3.8.&nbsp;Working with Class Instances">&sect;3.8</a>). Data of types <code class="literal">int</code>, <code class="literal">long</code>, <code class="literal">float</code>,
+               and <code class="literal">double</code>, as well as references to instances of class <code class="literal">String</code>,
+               are managed using the <span class="emphasis"><em>ldc</em></span>, <span class="emphasis"><em>ldc_w</em></span>, and <span class="emphasis"><em>ldc2_w</em></span>
+               instructions.
+            </p>
+            <p class="norm"><a name="jvms-3.4-110"></a>The <span class="emphasis"><em>ldc</em></span> and <span class="emphasis"><em>ldc_w</em></span>
+               instructions are used to access values in the run-time constant pool
+               (including instances of class <code class="literal">String</code>) of types other than <code class="literal">double</code>
+               and <code class="literal">long</code>. The <span class="emphasis"><em>ldc_w</em></span> instruction is used in place of <span class="emphasis"><em>ldc</em></span> only
+               when there is a large number of run-time constant pool items and a
+               larger index is needed to access an item. The <span class="emphasis"><em>ldc2_w</em></span> instruction is
+               used to access all values of types <code class="literal">double</code> and <code class="literal">long</code>; there is no
+               non-wide variant.
+            </p>
+            <p class="norm"><a name="jvms-3.4-120"></a>Integral constants of types
+               <code class="literal">byte</code>, <code class="literal">char</code>, or <code class="literal">short</code>, as well as small <code class="literal">int</code> values, may be
+               compiled using the <span class="emphasis"><em>bipush</em></span>, <span class="emphasis"><em>sipush</em></span>, or <span class="emphasis"><em>iconst_&lt;i&gt;</em></span> instructions
+               (<a class="xref" href="jvms-3.html#jvms-3.2" title="3.2.&nbsp;Use of Constants, Local Variables, and Control Constructs">&sect;3.2</a>). Certain small floating-point constants
+               may be compiled using the <span class="emphasis"><em>fconst_&lt;f&gt;</em></span> and <span class="emphasis"><em>dconst_&lt;d&gt;</em></span>
+               instructions.
+            </p>
+            <p class="norm"><a name="jvms-3.4-130"></a>In all of these cases,
+               compilation is straightforward. For instance, the constants
+               for:
+            </p><pre class="programlisting">
+
+void useManyNumeric() {
+    int i = 100;
+    int j = 1000000;
+    long l1 = 1;
+    long l2 = 0xffffffff;
+    double d = 2.2;
+    ...do some calculations...
+}
+
+</pre><p class="norm"><a name="jvms-3.4-140"></a>are set up as follows:
+            </p><pre class="programlisting">
+Method void useManyNumeric()
+0   <span class="emphasis"><em>bipush 100</em></span>   // Push small int constant with bipush
+2   <span class="emphasis"><em>istore_1</em></span>
+3   <span class="emphasis"><em>ldc #1</em></span>       // Push large int constant (1000000) with ldc
+5   <span class="emphasis"><em>istore_2</em></span>
+6   <span class="emphasis"><em>lconst_1</em></span>     // A tiny long value uses small fast lconst_1
+7   <span class="emphasis"><em>lstore_3</em></span>
+8   <span class="emphasis"><em>ldc2_w #6</em></span>    // Push long 0xffffffff (that is, an int -1)
+        // Any long constant value can be pushed with ldc2_w
+11  <span class="emphasis"><em>lstore 5</em></span>
+13  <span class="emphasis"><em>ldc2_w #8</em></span>    // Push double constant 2.200000
+        // Uncommon double values are also pushed with ldc2_w
+16  <span class="emphasis"><em>dstore 7</em></span>
+...do those calculations...
+</pre></div>
+         <div class="section" title="3.5.&nbsp;More Control Examples">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.5"></a>3.5.&nbsp;More Control Examples
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.5-100"></a>Compilation of <code class="literal">for</code>
+               statements was shown in an earlier section
+               (<a class="xref" href="jvms-3.html#jvms-3.2" title="3.2.&nbsp;Use of Constants, Local Variables, and Control Constructs">&sect;3.2</a>). Most of the Java programming language's other control
+               constructs (<code class="literal">if-then-else</code>, <code class="literal">do</code>, <code class="literal">while</code>, <code class="literal">break</code>,
+               and <code class="literal">continue</code>) are also compiled in the obvious ways. The compilation
+               of <code class="literal">switch</code> statements is handled in a separate section
+               (<a class="xref" href="jvms-3.html#jvms-3.10" title="3.10.&nbsp;Compiling Switches">&sect;3.10</a>), as are the compilation of exceptions
+               (<a class="xref" href="jvms-3.html#jvms-3.12" title="3.12.&nbsp;Throwing and Handling Exceptions">&sect;3.12</a>) and the compilation of <code class="literal">finally</code> clauses
+               (<a class="xref" href="jvms-3.html#jvms-3.13" title="3.13.&nbsp;Compiling finally">&sect;3.13</a>).
+            </p>
+            <p class="norm"><a name="jvms-3.5-110"></a>As a further example, a
+               <code class="literal">while</code> loop is compiled in an obvious way, although the specific
+               control transfer instructions made available by the Java Virtual Machine vary by data
+               type. As usual, there is more support for data of type <code class="literal">int</code>, for
+               example:
+            </p><pre class="programlisting">
+
+void whileInt() {
+    int i = 0;
+    while (i &lt; 100) {
+        i++;
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.5-120"></a>is compiled to:
+            </p><pre class="programlisting">
+Method void whileInt()
+0   <span class="emphasis"><em>iconst_0</em></span>
+1   <span class="emphasis"><em>istore_1</em></span>
+2   <span class="emphasis"><em>goto 8</em></span>
+5   <span class="emphasis"><em>iinc 1 1</em></span>
+8   <span class="emphasis"><em>iload_1</em></span>
+9   <span class="emphasis"><em>bipush 100</em></span>
+11  <span class="emphasis"><em>if_icmplt 5</em></span>
+14  <span class="emphasis"><em>return</em></span>
+</pre><p class="norm"><a name="jvms-3.5-130"></a>Note that the test of the
+               <code class="literal">while</code> statement (implemented using the <span class="emphasis"><em>if_icmplt</em></span> instruction) is
+               at the bottom of the Java Virtual Machine code for the loop. (This was also the case
+               in the <code class="literal">spin</code> examples earlier.) The test being at
+               the bottom of the loop forces the use of a <span class="emphasis"><em>goto</em></span> instruction to get
+               to the test prior to the first iteration of the loop. If that test
+               fails, and the loop body is never entered, this extra instruction is
+               wasted. However, <code class="literal">while</code> loops are typically used when their body is
+               expected to be run, often for many iterations. For subsequent
+               iterations, putting the test at the bottom of the loop saves a Java Virtual Machine
+               instruction each time around the loop: if the test were at the top of
+               the loop, the loop body would need a trailing <span class="emphasis"><em>goto</em></span> instruction to
+               get back to the top.
+            </p>
+            <p class="norm"><a name="jvms-3.5-200"></a>Control constructs involving
+               other data types are compiled in similar ways, but must use the
+               instructions available for those data types. This leads to somewhat
+               less efficient code because more Java Virtual Machine instructions are needed, for
+               example:
+            </p><pre class="programlisting">
+
+void whileDouble() {
+    double i = 0.0;
+    while (i &lt; 100.1) {
+        i++;
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.5-210"></a>is compiled to:
+            </p><pre class="programlisting">
+Method void whileDouble()
+0   <span class="emphasis"><em>dconst_0</em></span>
+1   <span class="emphasis"><em>dstore_1</em></span>
+2   <span class="emphasis"><em>goto 9</em></span>
+5   <span class="emphasis"><em>dload_1</em></span>
+6   <span class="emphasis"><em>dconst_1</em></span>
+7   <span class="emphasis"><em>dadd</em></span>
+8   <span class="emphasis"><em>dstore_1</em></span>
+9   <span class="emphasis"><em>dload_1</em></span>
+10  <span class="emphasis"><em>ldc2_w #4</em></span>      // Push double constant 100.1
+13  <span class="emphasis"><em>dcmpg</em></span>          // To compare and branch we have to use...
+14  <span class="emphasis"><em>iflt 5</em></span>         // ...two instructions
+17  <span class="emphasis"><em>return</em></span>
+</pre><p class="norm"><a name="jvms-3.5-300"></a>Each floating-point type has
+               two comparison instructions: <span class="emphasis"><em>fcmpl</em></span> and <span class="emphasis"><em>fcmpg</em></span> for type <code class="literal">float</code>, and
+               <span class="emphasis"><em>dcmpl</em></span> and <span class="emphasis"><em>dcmpg</em></span> for type <code class="literal">double</code>. The variants differ only in
+               their treatment of NaN. NaN is unordered
+               (<a class="xref" href="jvms-2.html#jvms-2.3.2" title="2.3.2.&nbsp;Floating-Point Types, Value Sets, and Values">&sect;2.3.2</a>), so all floating-point comparisons fail
+               if either of their operands is NaN. The compiler chooses the variant
+               of the comparison instruction for the appropriate type that produces
+               the same result whether the comparison fails on non-NaN values or
+               encounters a NaN. For instance:
+            </p><pre class="programlisting">
+
+int lessThan100(double d) {
+    if (d &lt; 100.0) {
+        return 1;				
+    } else {
+        return -1;				
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.5-310"></a>compiles to:
+            </p><pre class="programlisting">
+Method int lessThan100(double)
+0   <span class="emphasis"><em>dload_1</em></span>
+1   <span class="emphasis"><em>ldc2_w #4</em></span>      // Push double constant 100.0
+4   <span class="emphasis"><em>dcmpg</em></span>          // Push 1 if d is NaN or d &gt; 100.0;
+                   // push 0 if d == 100.0
+5   <span class="emphasis"><em>ifge 10</em></span>        // Branch on 0 or 1
+8   <span class="emphasis"><em>iconst_1</em></span>
+9   <span class="emphasis"><em>ireturn</em></span>
+10  <span class="emphasis"><em>iconst_m1</em></span>
+11  <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.5-320"></a>If <code class="literal">d</code> is not
+               NaN and is less than <code class="literal">100.0</code>, the <span class="emphasis"><em>dcmpg</em></span> instruction
+               pushes an <code class="literal">int</code> <span class="emphasis"><em>-1</em></span> onto the operand stack, and
+               the <span class="emphasis"><em>ifge</em></span> instruction does not branch. Whether <code class="literal">d</code>
+               is greater than <code class="literal">100.0</code> or is NaN, the <span class="emphasis"><em>dcmpg</em></span>
+               instruction pushes an <code class="literal">int</code> <span class="emphasis"><em>1</em></span> onto the operand
+               stack, and the <span class="emphasis"><em>ifge</em></span> branches. If <code class="literal">d</code> is equal to
+               <code class="literal">100.0</code>, the <span class="emphasis"><em>dcmpg</em></span> instruction pushes an
+               <code class="literal">int</code> <span class="emphasis"><em>0</em></span> onto the operand stack, and the <span class="emphasis"><em>ifge</em></span>
+               branches.
+            </p>
+            <p class="norm"><a name="jvms-3.5-330"></a>The <span class="emphasis"><em>dcmpl</em></span> instruction
+               achieves the same effect if the comparison is reversed:
+            </p><pre class="programlisting">
+
+int greaterThan100(double d) {
+    if (d &gt; 100.0) {
+        return 1;			
+    } else {
+        return -1;			
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.5-340"></a>becomes:
+            </p><pre class="programlisting">
+Method int greaterThan100(double)
+0   <span class="emphasis"><em>dload_1</em></span>
+1   <span class="emphasis"><em>ldc2_w #4</em></span>      // Push double constant 100.0
+4   <span class="emphasis"><em>dcmpl</em></span>          // Push -1 if d is NaN or d &lt; 100.0;
+                   // push 0 if d == 100.0
+5   <span class="emphasis"><em>ifle 10</em></span>        // Branch on 0 or -1
+8   <span class="emphasis"><em>iconst_1</em></span>
+9   <span class="emphasis"><em>ireturn</em></span>
+10  <span class="emphasis"><em>iconst_m1</em></span>
+11  <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.5-350"></a>Once again, whether the
+               comparison fails on a non-NaN value or because it is passed a NaN, the
+               <span class="emphasis"><em>dcmpl</em></span> instruction pushes an <code class="literal">int</code> value onto the operand stack that
+               causes the <span class="emphasis"><em>ifle</em></span> to branch. If both of the <span class="emphasis"><em>dcmp</em></span>
+               instructions did not exist, one of the example methods would have had
+               to do more work to detect NaN.
+            </p>
+         </div>
+         <div class="section" title="3.6.&nbsp;Receiving Arguments">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.6"></a>3.6.&nbsp;Receiving Arguments
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.6-100"></a>If <span class="emphasis"><em>n</em></span> arguments are passed
+               to an instance method, they are received, by convention, in the local
+               variables numbered <span class="emphasis"><em>1</em></span> through <span class="emphasis"><em>n</em></span> of the frame
+               created for the new method invocation. The arguments are received in
+               the order they were passed. For example:
+            </p><pre class="programlisting">
+
+int addTwo(int i, int j) {
+    return i + j;
+}
+
+</pre><p class="norm"><a name="jvms-3.6-110"></a>compiles to:
+            </p><pre class="programlisting">
+Method int addTwo(int,int)
+0   <span class="emphasis"><em>iload_1</em></span>        // Push value of local variable 1 (i)
+1   <span class="emphasis"><em>iload_2</em></span>        // Push value of local variable 2 (j)
+2   <span class="emphasis"><em>iadd</em></span>           // Add; leave int result on operand stack
+3   <span class="emphasis"><em>ireturn</em></span>        // Return int result
+</pre><p class="norm"><a name="jvms-3.6-120"></a>By convention, an instance
+               method is passed a <code class="literal">reference</code> to its instance in local
+               variable <span class="emphasis"><em>0</em></span>. In the Java programming language the instance is
+               accessible via the <code class="literal">this</code> keyword.
+            </p>
+            <p class="norm"><a name="jvms-3.6-200"></a>Class (<code class="literal">static</code>) methods do
+               not have an instance, so for them this use of local
+               variable <span class="emphasis"><em>0</em></span> is unnecessary. A class method starts
+               using local variables at index <span class="emphasis"><em>0</em></span>. If
+               the <code class="literal">addTwo</code> method were a class method, its
+               arguments would be passed in a similar way to the first
+               version:
+            </p><pre class="programlisting">
+
+static int addTwoStatic(int i, int j) {
+    return i + j;
+}
+
+</pre><p class="norm"><a name="jvms-3.6-210"></a>compiles to:
+            </p><pre class="programlisting">
+Method int addTwoStatic(int,int)
+0   <span class="emphasis"><em>iload_0</em></span>
+1   <span class="emphasis"><em>iload_1</em></span>
+2   <span class="emphasis"><em>iadd</em></span>
+3   <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.6-220"></a>The only difference is that
+               the method arguments appear starting in local
+               variable <span class="emphasis"><em>0</em></span> rather
+               than <span class="emphasis"><em>1</em></span>.
+            </p>
+         </div>
+         <div class="section" title="3.7.&nbsp;Invoking Methods">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.7"></a>3.7.&nbsp;Invoking Methods
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.7-100"></a>The normal method invocation
+               for a instance method dispatches on the run-time type of the
+               object. (They are virtual, in C++ terms.) Such an invocation is
+               implemented using the <span class="emphasis"><em>invokevirtual</em></span> instruction, which takes as its
+               argument an index to a run-time constant pool entry giving the
+               internal form of the binary name of the class type of the object, the
+               name of the method to invoke, and that method's descriptor
+               (<a class="xref" href="jvms-4.html#jvms-4.3.3" title="4.3.3.&nbsp;Method Descriptors">&sect;4.3.3</a>). To invoke
+               the <code class="literal">addTwo</code> method, defined earlier as an instance
+               method, we might write:
+            </p><pre class="programlisting">
+
+int add12and13() {
+    return addTwo(12, 13);
+}
+
+</pre><p class="norm"><a name="jvms-3.7-110"></a>This compiles to:
+            </p><pre class="programlisting">
+Method int add12and13()
+0   <span class="emphasis"><em>aload_0</em></span>             // Push local variable 0 (this)
+1   <span class="emphasis"><em>bipush 12</em></span>           // Push int constant 12
+3   <span class="emphasis"><em>bipush 13</em></span>           // Push int constant 13
+5   <span class="emphasis"><em>invokevirtual #4</em></span>    // Method Example.addtwo(II)I
+8   <span class="emphasis"><em>ireturn</em></span>             // Return int on top of operand stack;
+                        // it is the int result of addTwo()
+</pre><p class="norm"><a name="jvms-3.7-120"></a>The invocation is set up by
+               first pushing a <code class="literal">reference</code> to the current instance, <code class="literal">this</code>, on to the
+               operand stack. The method invocation's arguments, <code class="literal">int</code> values <code class="literal">12</code> and
+               <code class="literal">13</code>, are then pushed. When the frame for
+               the <code class="literal">addTwo</code> method is created, the arguments passed
+               to the method become the initial values of the new frame's local
+               variables. That is, the <code class="literal">reference</code> for <code class="literal">this</code> and the two arguments, pushed
+               onto the operand stack by the invoker, will become the initial values
+               of local variables <span class="emphasis"><em>0</em></span>, <span class="emphasis"><em>1</em></span>,
+               and <span class="emphasis"><em>2</em></span> of the invoked method. 
+            </p>
+            <p class="norm"><a name="jvms-3.7-130"></a>Finally, <code class="literal">addTwo</code> is
+               invoked. When it returns, its <code class="literal">int</code> return value is pushed onto the
+               operand stack of the frame of the invoker,
+               the <code class="literal">add12and13</code> method. The return value is thus put
+               in place to be immediately returned to the invoker of
+               <code class="literal">add12and13</code>.
+            </p>
+            <p class="norm"><a name="jvms-3.7-140"></a>The return
+               from <code class="literal">add12and13</code> is handled by the <span class="emphasis"><em>ireturn</em></span>
+               instruction of <code class="literal">add12and13</code>. The <span class="emphasis"><em>ireturn</em></span>
+               instruction takes the <code class="literal">int</code> value returned
+               by <code class="literal">addTwo</code>, on the operand stack of the current
+               frame, and pushes it onto the operand stack of the frame of the
+               invoker. It then returns control to the invoker, making the invoker's
+               frame current. The Java Virtual Machine provides distinct return instructions for
+               many of its numeric and <code class="literal">reference</code> data types, as well as a <span class="emphasis"><em>return</em></span>
+               instruction for methods with no return value. The same set of return
+               instructions is used for all varieties of method invocations.
+            </p>
+            <p class="norm"><a name="jvms-3.7-150"></a>The operand of the
+               <span class="emphasis"><em>invokevirtual</em></span> instruction (in the example, the run-time constant
+               pool index <span class="emphasis"><em>#4</em></span>) is not the offset of the method in
+               the class instance. The compiler does not know the internal layout of
+               a class instance. Instead, it generates symbolic references to the
+               methods of an instance, which are stored in the run-time constant
+               pool. Those run-time constant pool items are resolved at run-time to
+               determine the actual method location. The same is true for all other
+               Java Virtual Machine instructions that access class instances.
+            </p>
+            <p class="norm"><a name="jvms-3.7-200"></a>Invoking 
+               <code class="literal">addTwoStatic</code>, a class (<code class="literal">static</code>) variant
+               of <code class="literal">addTwo</code>, is similar, as shown:
+            </p><pre class="programlisting">
+
+int add12and13() {
+    return addTwoStatic(12, 13);
+}
+
+</pre><p class="norm"><a name="jvms-3.7-210"></a>although a different Java Virtual Machine
+               method invocation instruction is used:
+            </p><pre class="programlisting">
+Method int add12and13()
+0   <span class="emphasis"><em>bipush 12</em></span>
+2   <span class="emphasis"><em>bipush 13</em></span>
+4   <span class="emphasis"><em>invokestatic #3</em></span>     // Method Example.addTwoStatic(II)I
+7   <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.7-220"></a>Compiling an invocation of a
+               class (<code class="literal">static</code>) method is very much like compiling an invocation of
+               an instance method, except this is not passed by the invoker. The
+               method arguments will thus be received beginning with local
+               variable <span class="emphasis"><em>0</em></span> (<a class="xref" href="jvms-3.html#jvms-3.6" title="3.6.&nbsp;Receiving Arguments">&sect;3.6</a>). The
+               <span class="emphasis"><em>invokestatic</em></span> instruction is always used to invoke class
+               methods.
+            </p>
+            <p class="norm"><a name="jvms-3.7-300"></a>The <span class="emphasis"><em>invokespecial</em></span>
+               instruction must be used to invoke instance initialization methods
+               (<a class="xref" href="jvms-3.html#jvms-3.8" title="3.8.&nbsp;Working with Class Instances">&sect;3.8</a>). It is also used when invoking methods in
+               the superclass (<code class="literal">super</code>) and when invoking <code class="literal">private</code> methods. For
+               instance, given classes <code class="literal">Near</code>
+               and <code class="literal">Far</code> declared as:
+            </p><pre class="programlisting">
+
+class Near {
+    int it;
+    public int getItNear() {
+        return getIt();
+    }
+    private int getIt() {
+        return it;
+    }
+}
+
+class Far extends Near {
+    int getItFar() {
+        return super.getItNear();
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.7-310"></a>the
+               method <code class="literal">Near.getItNear</code> (which invokes a <code class="literal">private</code>
+               method) becomes:
+            </p><pre class="programlisting">
+Method int getItNear()
+0   <span class="emphasis"><em>aload_0</em></span>
+1   <span class="emphasis"><em>invokespecial #5</em></span>    // Method Near.getIt()I
+4   <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.7-320"></a>The
+               method <code class="literal">Far.getItFar</code> (which invokes a superclass
+               method) becomes:
+            </p><pre class="programlisting">
+Method int getItFar()
+0   <span class="emphasis"><em>aload_0</em></span>
+1   <span class="emphasis"><em>invokespecial #4</em></span>    // Method Near.getItNear()I
+4   <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.7-330"></a>Note that methods called using
+               the <span class="emphasis"><em>invokespecial</em></span> instruction always pass <code class="literal">this</code> to the invoked
+               method as its first argument. As usual, it is received in local
+               variable <span class="emphasis"><em>0</em></span>.
+            </p>
+            <p class="norm"><a name="jvms-3.7-400"></a>To invoke the target of a
+               method handle, a compiler must form a method descriptor that records
+               the actual argument and return types. A compiler may not perform
+               method invocation conversions on the arguments; instead, it must push
+               them on the stack according to their own unconverted types. The
+               compiler arranges for a <code class="literal">reference</code> to the method handle object to be pushed
+               on the stack before the arguments, as usual. The compiler emits an
+               <span class="emphasis"><em>invokevirtual</em></span> instruction that references a descriptor which
+               describes the argument and return types. By special arrangement with
+               method resolution (<a class="xref" href="jvms-5.html#jvms-5.4.3.3" title="5.4.3.3.&nbsp;Method Resolution">&sect;5.4.3.3</a>), an <span class="emphasis"><em>invokevirtual</em></span>
+               instruction which invokes the <code class="literal">invokeExact</code> or <code class="literal">invoke</code> methods of
+               <code class="literal">java.lang.invoke.MethodHandle</code> will always link, provided the method descriptor is
+               syntactically well-formed and the types named in the descriptor can be
+               resolved.
+            </p>
+         </div>
+         <div class="section" title="3.8.&nbsp;Working with Class Instances">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.8"></a>3.8.&nbsp;Working with Class Instances
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.8-100"></a>Java Virtual Machine class instances are
+               created using the Java Virtual Machine's <span class="emphasis"><em>new</em></span> instruction. Recall that at the level
+               of the Java Virtual Machine, a constructor appears as a method with the
+               compiler-supplied name <code class="literal">&lt;init&gt;</code>. This specially named method is known as
+               the instance initialization method
+               (<a class="xref" href="jvms-2.html#jvms-2.9" title="2.9.&nbsp;Special Methods">&sect;2.9</a>). Multiple instance initialization
+               methods, corresponding to multiple constructors, may exist for a given
+               class. Once the class instance has been created and its instance
+               variables, including those of the class and all of its superclasses,
+               have been initialized to their default values, an instance
+               initialization method of the new class instance is invoked. For
+               example:
+            </p><pre class="programlisting">
+
+Object create() {
+    return new Object();
+}
+
+</pre><p class="norm"><a name="jvms-3.8-110"></a>compiles to:
+            </p><pre class="programlisting">
+Method java.lang.Object create()
+0   <span class="emphasis"><em>new #1</em></span>              // Class java.lang.Object
+3   <span class="emphasis"><em>dup</em></span>
+4   <span class="emphasis"><em>invokespecial #4</em></span>    // Method java.lang.Object.<code class="literal">&lt;init&gt;</code>()V
+7   <span class="emphasis"><em>areturn</em></span>
+</pre><p class="norm"><a name="jvms-3.8-200"></a>Class instances are passed and
+               returned (as <code class="literal">reference</code> types) very much like numeric values, although type
+               <code class="literal">reference</code> has its own complement of instructions, for example:
+            </p><pre class="programlisting">
+
+int i;                                  // An instance variable
+MyObj example() {
+    MyObj o = new MyObj();
+    return silly(o);
+}
+MyObj silly(MyObj o) {
+    if (o != null) {
+        return o;
+    } else {
+        return o;
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.8-210"></a>becomes:
+            </p><pre class="programlisting">
+Method MyObj example()
+0   <span class="emphasis"><em>new #2</em></span>              // Class MyObj
+3   <span class="emphasis"><em>dup</em></span>
+4   <span class="emphasis"><em>invokespecial #5</em></span>    // Method MyObj.<code class="literal">&lt;init&gt;</code>()V
+7   <span class="emphasis"><em>astore_1</em></span>
+8   <span class="emphasis"><em>aload_0</em></span>
+9   <span class="emphasis"><em>aload_1</em></span>
+10  <span class="emphasis"><em>invokevirtual #4</em></span>    // Method Example.silly(LMyObj;)LMyObj;
+13  <span class="emphasis"><em>areturn</em></span>
+
+Method MyObj silly(MyObj)
+0   <span class="emphasis"><em>aload_1</em></span>
+1   <span class="emphasis"><em>ifnull 6</em></span>
+4   <span class="emphasis"><em>aload_1</em></span>
+5   <span class="emphasis"><em>areturn</em></span>
+6   <span class="emphasis"><em>aload_1</em></span>
+7   <span class="emphasis"><em>areturn</em></span>
+</pre><p class="norm"><a name="jvms-3.8-300"></a>The fields of a class instance
+               (instance variables) are accessed using the <span class="emphasis"><em>getfield</em></span> and <span class="emphasis"><em>putfield</em></span>
+               instructions. If <code class="literal">i</code> is an instance variable of type
+               <code class="literal">int</code>, the methods <code class="literal">setIt</code>
+               and <code class="literal">getIt</code>, defined as:
+            </p><pre class="programlisting">
+
+void setIt(int value) {
+    i = value;
+}
+int getIt() {
+    return i;
+}
+
+</pre><p class="norm"><a name="jvms-3.8-310"></a>become:
+            </p><pre class="programlisting">
+Method void setIt(int)
+0   <span class="emphasis"><em>aload_0</em></span>
+1   <span class="emphasis"><em>iload_1</em></span>
+2   <span class="emphasis"><em>putfield #4</em></span>    // Field Example.i I
+5   <span class="emphasis"><em>return</em></span>
+
+Method int getIt()
+0   <span class="emphasis"><em>aload_0</em></span>
+1   <span class="emphasis"><em>getfield #4</em></span>    // Field Example.i I
+4   <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.8-320"></a>As with the operands of method
+               invocation instructions, the operands of the <span class="emphasis"><em>putfield</em></span> and <span class="emphasis"><em>getfield</em></span>
+               instructions (the run-time constant pool
+               index <span class="emphasis"><em>#4</em></span>) are not the offsets of the fields in
+               the class instance. The compiler generates symbolic references to the
+               fields of an instance, which are stored in the run-time constant
+               pool. Those run-time constant pool items are resolved at run-time to
+               determine the location of the field within the referenced
+               object.
+            </p>
+         </div>
+         <div class="section" title="3.9.&nbsp;Arrays">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.9"></a>3.9.&nbsp;Arrays
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.9-100"></a>Java Virtual Machine arrays are also
+               objects. Arrays are created and manipulated using a distinct set of
+               instructions. The <span class="emphasis"><em>newarray</em></span> instruction is used to create an array of
+               a numeric type. The code:
+            </p><pre class="programlisting">
+
+void createBuffer() {
+    int buffer[];
+    int bufsz = 100;
+    int value = 12;
+    buffer = new int[bufsz];
+    buffer[10] = value;
+    value = buffer[11];
+}
+
+</pre><p class="norm"><a name="jvms-3.9-110"></a>might be compiled to:
+            </p><pre class="programlisting">
+Method void createBuffer()
+0   <span class="emphasis"><em>bipush 100</em></span>     // Push int constant 100 (bufsz)
+2   <span class="emphasis"><em>istore_2</em></span>       // Store bufsz in local variable 2
+3   <span class="emphasis"><em>bipush 12</em></span>      // Push int constant 12 (value)
+5   <span class="emphasis"><em>istore_3</em></span>       // Store value in local variable 3
+6   <span class="emphasis"><em>iload_2</em></span>        // Push bufsz...
+7   <span class="emphasis"><em>newarray int</em></span>   // ...and create new int array of that length
+9   <span class="emphasis"><em>astore_1</em></span>       // Store new array in buffer
+10  <span class="emphasis"><em>aload_1</em></span>        // Push buffer
+11  <span class="emphasis"><em>bipush 10</em></span>      // Push int constant 10
+13  <span class="emphasis"><em>iload_3</em></span>        // Push value
+14  <span class="emphasis"><em>iastore</em></span>        // Store value at buffer[10]
+15  <span class="emphasis"><em>aload_1</em></span>        // Push buffer
+16  <span class="emphasis"><em>bipush 11</em></span>      // Push int constant 11
+18  <span class="emphasis"><em>iaload</em></span>         // Push value at buffer[11]...
+19  <span class="emphasis"><em>istore_3</em></span>       // ...and store it in value
+20  <span class="emphasis"><em>return</em></span>
+</pre><p class="norm"><a name="jvms-3.9-200"></a>The <span class="emphasis"><em>anewarray</em></span> instruction is
+               used to create a one-dimensional array of object references, for
+               example:
+            </p><pre class="programlisting">
+
+void createThreadArray() {
+    Thread threads[];
+    int count = 10;
+    threads = new Thread[count];
+    threads[0] = new Thread();
+}
+
+</pre><p class="norm"><a name="jvms-3.9-210"></a>becomes:
+            </p><pre class="programlisting">
+Method void createThreadArray()
+0   <span class="emphasis"><em>bipush 10</em></span>           // Push int constant 10
+2   <span class="emphasis"><em>istore_2</em></span>            // Initialize count to that
+3   <span class="emphasis"><em>iload_2</em></span>             // Push count, used by anewarray
+4   <span class="emphasis"><em>anewarray class #1</em></span>  // Create new array of class Thread
+7   <span class="emphasis"><em>astore_1</em></span>            // Store new array in threads
+8   <span class="emphasis"><em>aload_1</em></span>             // Push value of threads
+9   <span class="emphasis"><em>iconst_0</em></span>            // Push int constant 0
+10  <span class="emphasis"><em>new #1</em></span>              // Create instance of class Thread
+13  <span class="emphasis"><em>dup</em></span>                 // Make duplicate reference...
+14  <span class="emphasis"><em>invokespecial #5</em></span>    // ...for Thread's constructor
+                        // Method java.lang.Thread.<code class="literal">&lt;init&gt;</code>()V
+17  <span class="emphasis"><em>aastore</em></span>             // Store new Thread in array at 0
+18  <span class="emphasis"><em>return</em></span>
+</pre><p class="norm"><a name="jvms-3.9-300"></a>The <span class="emphasis"><em>anewarray</em></span> instruction
+               can also be used to create the first dimension of a multidimensional
+               array. Alternatively, the <span class="emphasis"><em>multianewarray</em></span> instruction can be used to
+               create several dimensions at once. For example, the three-dimensional
+               array:
+            </p><pre class="programlisting">
+
+int[][][] create3DArray() {
+    int grid[][][];
+    grid = new int[10][5][];
+    return grid;
+}
+
+</pre><p class="norm"><a name="jvms-3.9-310"></a>is created by:
+            </p><pre class="programlisting">
+Method int create3DArray()[][][]
+0   <span class="emphasis"><em>bipush 10</em></span>                // Push int 10 (dimension one)
+2   <span class="emphasis"><em>iconst_5</em></span>                 // Push int 5 (dimension two)
+3   <span class="emphasis"><em>multianewarray #1 dim #2</em></span> // Class [[[I, a three-dimensional
+                             // int array; only create the
+                             // first two dimensions
+7   <span class="emphasis"><em>astore_1</em></span>                 // Store new array...
+8   <span class="emphasis"><em>aload_1</em></span>                  // ...then prepare to return it
+9   <span class="emphasis"><em>areturn</em></span>
+</pre><p class="norm"><a name="jvms-3.9-320"></a>The first operand of the
+               <span class="emphasis"><em>multianewarray</em></span> instruction is the run-time constant pool index to
+               the array class type to be created. The second is the number of
+               dimensions of that array type to actually create. The <span class="emphasis"><em>multianewarray</em></span>
+               instruction can be used to create all the dimensions of the type, as
+               the code for <code class="literal">create3DArray</code> shows. Note that the
+               multidimensional array is just an object and so is loaded and returned
+               by an <span class="emphasis"><em>aload_1</em></span> and <span class="emphasis"><em>areturn</em></span> instruction, respectively. For
+               information about array class names, see
+               <a class="xref" href="jvms-4.html#jvms-4.4.1" title="4.4.1.&nbsp;The CONSTANT_Class_info Structure">&sect;4.4.1</a>.
+            </p>
+            <p class="norm"><a name="jvms-3.9-330"></a>All arrays have associated
+               lengths, which are accessed via the <span class="emphasis"><em>arraylength</em></span> instruction.
+            </p>
+         </div>
+         <div class="section" title="3.10.&nbsp;Compiling Switches">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.10"></a>3.10.&nbsp;Compiling Switches
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.10-100"></a>Compilation of <code class="literal">switch</code>
+               statements uses the <span class="emphasis"><em>tableswitch</em></span> and <span class="emphasis"><em>lookupswitch</em></span> instructions. The
+               <span class="emphasis"><em>tableswitch</em></span> instruction is used when the cases of the <code class="literal">switch</code> can
+               be efficiently represented as indices into a table of target
+               offsets. The <code class="literal">default</code> target of the <code class="literal">switch</code> is used if the value of
+               the expression of the <code class="literal">switch</code> falls outside the range of valid
+               indices. For instance:
+            </p><pre class="programlisting">
+
+int chooseNear(int i) {
+    switch (i) {
+        case 0:  return  0;
+        case 1:  return  1;
+        case 2:  return  2;
+        default: return -1;
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.10-110"></a>compiles to:
+            </p><pre class="programlisting">
+Method int chooseNear(int)
+0   <span class="emphasis"><em>iload_1</em></span>             // Push local variable 1 (argument i)
+1   <span class="emphasis"><em>tableswitch 0 to 2:</em></span> // Valid indices are 0 through 2
+      <span class="emphasis"><em>0: 28</em></span>             // If i is 0, continue at 28
+      <span class="emphasis"><em>1: 30</em></span>             // If i is 1, continue at 30
+      <span class="emphasis"><em>2: 32</em></span>             // If i is 2, continue at 32
+      <span class="emphasis"><em>default:34</em></span>        // Otherwise, continue at 34
+28  <span class="emphasis"><em>iconst_0</em></span>            // i was 0; push int constant 0...
+29  <span class="emphasis"><em>ireturn</em></span>             // ...and return it
+30  <span class="emphasis"><em>iconst_1</em></span>            // i was 1; push int constant 1...
+31  <span class="emphasis"><em>ireturn</em></span>             // ...and return it
+32  <span class="emphasis"><em>iconst_2</em></span>            // i was 2; push int constant 2...
+33  <span class="emphasis"><em>ireturn</em></span>             // ...and return it
+34  <span class="emphasis"><em>iconst_m1</em></span>           // otherwise push int constant -1...
+35  <span class="emphasis"><em>ireturn</em></span>             // ...and return it
+</pre><p class="norm"><a name="jvms-3.10-200"></a>The Java Virtual Machine's <span class="emphasis"><em>tableswitch</em></span> and
+               <span class="emphasis"><em>lookupswitch</em></span> instructions operate only on <code class="literal">int</code> data. Because
+               operations on <code class="literal">byte</code>, <code class="literal">char</code>, or <code class="literal">short</code> values are internally
+               promoted to <code class="literal">int</code>, a <code class="literal">switch</code> whose expression evaluates to one of those
+               types is compiled as though it evaluated to type <code class="literal">int</code>. If the
+               <code class="literal">chooseNear</code> method had been written using type
+               <code class="literal">short</code>, the same Java Virtual Machine instructions would have been generated as when
+               using type <code class="literal">int</code>. Other numeric types must be narrowed to type <code class="literal">int</code>
+               for use in a <code class="literal">switch</code>.
+            </p>
+            <p class="norm"><a name="jvms-3.10-300"></a>Where the cases of the
+               <code class="literal">switch</code> are sparse, the table representation of the <span class="emphasis"><em>tableswitch</em></span>
+               instruction becomes inefficient in terms of space. The <span class="emphasis"><em>lookupswitch</em></span>
+               instruction may be used instead. The <span class="emphasis"><em>lookupswitch</em></span> instruction pairs
+               <code class="literal">int</code> keys (the values of the <code class="literal">case</code> labels) with target offsets in a
+               table. When a <span class="emphasis"><em>lookupswitch</em></span> instruction is executed, the value of the
+               expression of the <code class="literal">switch</code> is compared against the keys in the
+               table. If one of the keys matches the value of the expression,
+               execution continues at the associated target offset. If no key
+               matches, execution continues at the <code class="literal">default</code> target. For instance,
+               the compiled code for:
+            </p><pre class="programlisting">
+
+int chooseFar(int i) {
+    switch (i) {
+        case -100: return -1;
+        case 0:    return  0;
+        case 100:  return  1;
+        default:   return -1;
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.10-310"></a>looks just like the code for
+               <code class="literal">chooseNear</code>, except for the <span class="emphasis"><em>lookupswitch</em></span>
+               instruction:
+            </p><pre class="programlisting">
+Method int chooseFar(int)
+0   <span class="emphasis"><em>iload_1</em></span>
+1   <span class="emphasis"><em>lookupswitch 3:</em></span>
+         <span class="emphasis"><em>-100: 36</em></span>
+            <span class="emphasis"><em>0: 38</em></span>
+          <span class="emphasis"><em>100: 40</em></span>
+      <span class="emphasis"><em>default: 42</em></span>
+36  <span class="emphasis"><em>iconst_m1</em></span>
+37  <span class="emphasis"><em>ireturn</em></span>
+38  <span class="emphasis"><em>iconst_0</em></span>
+39  <span class="emphasis"><em>ireturn</em></span>
+40  <span class="emphasis"><em>iconst_1</em></span>
+41  <span class="emphasis"><em>ireturn</em></span>
+42  <span class="emphasis"><em>iconst_m1</em></span>
+43  <span class="emphasis"><em>ireturn</em></span>
+</pre><p class="norm"><a name="jvms-3.10-320"></a>The Java Virtual Machine specifies that the
+               table of the <span class="emphasis"><em>lookupswitch</em></span> instruction must be sorted by key so that
+               implementations may use searches more efficient than a linear
+               scan. Even so, the <span class="emphasis"><em>lookupswitch</em></span> instruction must search its keys for
+               a match rather than simply perform a bounds check and index into a
+               table like <span class="emphasis"><em>tableswitch</em></span>. Thus, a <span class="emphasis"><em>tableswitch</em></span> instruction is
+               probably more efficient than a <span class="emphasis"><em>lookupswitch</em></span> where space
+               considerations permit a choice.
+            </p>
+         </div>
+         <div class="section" title="3.11.&nbsp;Operations on the Operand Stack">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.11"></a>3.11.&nbsp;Operations on the Operand Stack
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.11-100"></a>The Java Virtual Machine has a large
+               complement of instructions that manipulate the contents of the operand
+               stack as untyped values. These are useful because of the Java Virtual Machine's
+               reliance on deft manipulation of its operand stack. For
+               instance:
+            </p><pre class="programlisting">
+
+public long nextIndex() { 
+    return index++;
+}
+
+private long index = 0;
+
+</pre><p class="norm"><a name="jvms-3.11-110"></a>is compiled to:
+            </p><pre class="programlisting">
+Method long nextIndex()
+0   <span class="emphasis"><em>aload_0</em></span>        // Push this
+1   <span class="emphasis"><em>dup</em></span>            // Make a copy of it
+2   <span class="emphasis"><em>getfield #4</em></span>    // One of the copies of this is consumed
+                   // pushing long field index,
+                   // above the original this
+5   <span class="emphasis"><em>dup2_x1</em></span>        // The long on top of the operand stack is 
+                   // inserted into the operand stack below the 
+                   // original this
+6   <span class="emphasis"><em>lconst_1</em></span>       // Push long constant 1 
+7   <span class="emphasis"><em>ladd</em></span>           // The index value is incremented...
+8   <span class="emphasis"><em>putfield #4</em></span>    // ...and the result stored in the field
+11  <span class="emphasis"><em>lreturn</em></span>        // The original value of index is on top of
+                   // the operand stack, ready to be returned
+</pre><p class="norm"><a name="jvms-3.11-120"></a>Note that the Java Virtual Machine never
+               allows its operand stack manipulation instructions to modify or break
+               up individual values on the operand stack.
+            </p>
+         </div>
+         <div class="section" title="3.12.&nbsp;Throwing and Handling Exceptions">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.12"></a>3.12.&nbsp;Throwing and Handling Exceptions
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.12-100"></a>Exceptions are thrown from
+               programs using the <code class="literal">throw</code> keyword. Its compilation is simple:
+            </p><pre class="programlisting">
+
+void cantBeZero(int i) throws TestExc {
+    if (i == 0) {
+        throw new TestExc();
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.12-110"></a>becomes:
+            </p><pre class="programlisting">
+Method void cantBeZero(int)
+0   <span class="emphasis"><em>iload_1</em></span>             // Push argument 1 (i)
+1   <span class="emphasis"><em>ifne 12</em></span>             // If i==0, allocate instance and throw
+4   <span class="emphasis"><em>new #1</em></span>              // Create instance of TestExc
+7   <span class="emphasis"><em>dup</em></span>                 // One reference goes to its constructor
+8   <span class="emphasis"><em>invokespecial #7</em></span>    // Method TestExc.<code class="literal">&lt;init&gt;</code>()V
+11  <span class="emphasis"><em>athrow</em></span>              // Second reference is thrown
+12  <span class="emphasis"><em>return</em></span>              // Never get here if we threw TestExc
+</pre><p class="norm"><a name="jvms-3.12-200"></a>Compilation of <code class="literal">try</code>-<code class="literal">catch</code>
+               constructs is straightforward. For example:
+            </p><pre class="programlisting">
+
+void catchOne() {
+    try {
+        tryItOut();
+    } catch (TestExc e) {
+        handleExc(e);
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.12-210"></a>is compiled as:
+            </p><pre class="programlisting">
+Method void catchOne()
+0   <span class="emphasis"><em>aload_0</em></span>             // Beginning of try block
+1   <span class="emphasis"><em>invokevirtual #6</em></span>    // Method Example.tryItOut()V
+4   <span class="emphasis"><em>return</em></span>              // End of try block; normal return
+5   <span class="emphasis"><em>astore_1</em></span>            // Store thrown value in local var 1
+6   <span class="emphasis"><em>aload_0</em></span>             // Push this
+7   <span class="emphasis"><em>aload_1</em></span>             // Push thrown value
+8   <span class="emphasis"><em>invokevirtual #5</em></span>    // Invoke handler method: 
+                        // Example.handleExc(LTestExc;)V
+11  <span class="emphasis"><em>return</em></span>              // Return after handling TestExc
+Exception table:
+From    To      Target      Type
+0       4       5           Class TestExc
+</pre><p class="norm"><a name="jvms-3.12-220"></a>Looking more closely, the
+               <code class="literal">try</code> block is compiled just as it would be if the <code class="literal">try</code> were not
+               present:
+            </p><pre class="programlisting">
+Method void catchOne()
+0   <span class="emphasis"><em>aload_0</em></span>             // Beginning of try block
+1   <span class="emphasis"><em>invokevirtual #6</em></span>    // Method Example.tryItOut()V
+4   <span class="emphasis"><em>return</em></span>              // End of try block; normal return
+</pre><p class="norm"><a name="jvms-3.12-230"></a>If no exception is thrown
+               during the execution of the <code class="literal">try</code> block, it behaves as though the
+               <code class="literal">try</code> were not there: <code class="literal">tryItOut</code> is invoked
+               and <code class="literal">catchOne</code> returns.
+            </p>
+            <p class="norm"><a name="jvms-3.12-240"></a>Following the <code class="literal">try</code> block is
+               the Java Virtual Machine code that implements the single <code class="literal">catch</code> clause:
+            </p><pre class="programlisting">
+5   <span class="emphasis"><em>astore_1</em></span>            // Store thrown value in local var 1
+6   <span class="emphasis"><em>aload_0</em></span>             // Push this
+7   <span class="emphasis"><em>aload_1</em></span>             // Push thrown value
+8   <span class="emphasis"><em>invokevirtual #5</em></span>    // Invoke handler method: 
+                        // Example.handleExc(LTestExc;)V
+11  <span class="emphasis"><em>return</em></span>              // Return after handling TestExc
+Exception table:
+From    To      Target      Type
+0       4       5           Class TestExc
+</pre><p class="norm"><a name="jvms-3.12-250"></a>The invocation
+               of <code class="literal">handleExc</code>, the contents of the <code class="literal">catch</code> clause,
+               is also compiled like a normal method invocation. However, the
+               presence of a <code class="literal">catch</code> clause causes the compiler to generate an
+               exception table entry (<a class="xref" href="jvms-2.html#jvms-2.10" title="2.10.&nbsp;Exceptions">&sect;2.10</a>,
+               <a class="xref" href="jvms-4.html#jvms-4.7.3" title="4.7.3.&nbsp;The Code Attribute">&sect;4.7.3</a>). The exception table for
+               the <code class="literal">catchOne</code> method has one entry corresponding to
+               the one argument (an instance of class <code class="literal">TestExc</code>)
+               that the <code class="literal">catch</code> clause of <code class="literal">catchOne</code> can handle. If
+               some value that is an instance of <code class="literal">TestExc</code> is thrown
+               during execution of the instructions between
+               indices <span class="emphasis"><em>0</em></span> and <span class="emphasis"><em>4</em></span>
+               in <code class="literal">catchOne</code>, control is transferred to the Java Virtual Machine
+               code at index <span class="emphasis"><em>5</em></span>, which implements the block of
+               the <code class="literal">catch</code> clause. If the value that is thrown is not an instance of
+               <code class="literal">TestExc</code>, the <code class="literal">catch</code> clause
+               of <code class="literal">catchOne</code> cannot handle it. Instead, the value is
+               rethrown to the invoker of <code class="literal">catchOne</code>.
+            </p>
+            <p class="norm"><a name="jvms-3.12-300"></a>A <code class="literal">try</code> may have multiple
+               <code class="literal">catch</code> clauses:
+            </p><pre class="programlisting">
+
+void catchTwo() {
+    try {
+        tryItOut();
+    } catch (TestExc1 e) {
+        handleExc(e);
+    } catch (TestExc2 e) {
+        handleExc(e);
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.12-310"></a>Multiple <code class="literal">catch</code> clauses of a
+               given <code class="literal">try</code> statement are compiled by simply appending the Java Virtual Machine code
+               for each <code class="literal">catch</code> clause one after the other and adding entries to the
+               exception table, as shown:
+            </p><pre class="programlisting">
+Method void catchTwo()
+0   <span class="emphasis"><em>aload_0</em></span>             // Begin try block
+1   <span class="emphasis"><em>invokevirtual #5</em></span>    // Method Example.tryItOut()V
+4   <span class="emphasis"><em>return</em></span>              // End of try block; normal return
+5   <span class="emphasis"><em>astore_1</em></span>            // Beginning of handler for TestExc1;
+                        // Store thrown value in local var 1
+6   <span class="emphasis"><em>aload_0</em></span>             // Push this
+7   <span class="emphasis"><em>aload_1</em></span>             // Push thrown value
+8   <span class="emphasis"><em>invokevirtual #7</em></span>    // Invoke handler method:
+                        // Example.handleExc(LTestExc1;)V
+11  <span class="emphasis"><em>return</em></span>              // Return after handling TestExc1
+12  <span class="emphasis"><em>astore_1</em></span>            // Beginning of handler for TestExc2;
+                        // Store thrown value in local var 1
+13  <span class="emphasis"><em>aload_0</em></span>             // Push this
+14  <span class="emphasis"><em>aload_1</em></span>             // Push thrown value
+15  <span class="emphasis"><em>invokevirtual #7</em></span>    // Invoke handler method:
+                        // Example.handleExc(LTestExc2;)V
+18  <span class="emphasis"><em>return</em></span>              // Return after handling TestExc2
+Exception table:
+From    To      Target      Type
+0       4       5           Class TestExc1
+0       4       12          Class TestExc2
+</pre><p class="norm"><a name="jvms-3.12-320"></a>If during the execution of
+               the <code class="literal">try</code> clause (between indices <span class="emphasis"><em>0</em></span>
+               and <span class="emphasis"><em>4</em></span>) a value is thrown that matches the
+               parameter of one or more of the <code class="literal">catch</code> clauses (the value is an
+               instance of one or more of the parameters), the first (innermost) such
+               <code class="literal">catch</code> clause is selected. Control is transferred to the Java Virtual Machine code
+               for the block of that <code class="literal">catch</code> clause. If the value thrown does not
+               match the parameter of any of the <code class="literal">catch</code> clauses
+               of <code class="literal">catchTwo</code>, the Java Virtual Machine rethrows the value without
+               invoking code in any <code class="literal">catch</code> clause
+               of <code class="literal">catchTwo</code>.
+            </p>
+            <p class="norm"><a name="jvms-3.12-400"></a>Nested <code class="literal">try</code>-<code class="literal">catch</code>
+               statements are compiled very much like a <code class="literal">try</code> statement with multiple
+               <code class="literal">catch</code> clauses:
+            </p><pre class="programlisting">
+
+void nestedCatch() {
+    try {
+        try {
+            tryItOut();
+        } catch (TestExc1 e) {
+            handleExc1(e);
+        }
+    } catch (TestExc2 e) {
+        handleExc2(e);
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.12-410"></a>becomes:
+            </p><pre class="programlisting">
+Method void nestedCatch()
+0   <span class="emphasis"><em>aload_0</em></span>             // Begin try block
+1   <span class="emphasis"><em>invokevirtual #8</em></span>    // Method Example.tryItOut()V
+4   <span class="emphasis"><em>return</em></span>              // End of try block; normal return
+5   <span class="emphasis"><em>astore_1</em></span>            // Beginning of handler for TestExc1;
+                        // Store thrown value in local var 1
+6   <span class="emphasis"><em>aload_0</em></span>             // Push this
+7   <span class="emphasis"><em>aload_1</em></span>             // Push thrown value
+8   <span class="emphasis"><em>invokevirtual #7</em></span>    // Invoke handler method: 
+                        // Example.handleExc1(LTestExc1;)V
+11  <span class="emphasis"><em>return</em></span>              // Return after handling TestExc1
+12  <span class="emphasis"><em>astore_1</em></span>            // Beginning of handler for TestExc2;
+                        // Store thrown value in local var 1
+13  <span class="emphasis"><em>aload_0</em></span>             // Push this
+14  <span class="emphasis"><em>aload_1</em></span>             // Push thrown value
+15  <span class="emphasis"><em>invokevirtual #6</em></span>    // Invoke handler method:
+                        // Example.handleExc2(LTestExc2;)V
+18  <span class="emphasis"><em>return</em></span>              // Return after handling TestExc2
+Exception table:
+From    To      Target      Type
+0       4       5           Class TestExc1
+0       12      12          Class TestExc2
+</pre><p class="norm"><a name="jvms-3.12-420"></a>The nesting of <code class="literal">catch</code>
+               clauses is represented only in the exception table. The Java Virtual Machine does not
+               enforce nesting of or any ordering of the exception table entries
+               (<a class="xref" href="jvms-2.html#jvms-2.10" title="2.10.&nbsp;Exceptions">&sect;2.10</a>). However, because <code class="literal">try</code>-<code class="literal">catch</code>
+               constructs are structured, a compiler can always order the entries of
+               the exception handler table such that, for any thrown exception and
+               any program counter value in that method, the first exception handler
+               that matches the thrown exception corresponds to the innermost
+               matching <code class="literal">catch</code> clause.
+            </p>
+            <p class="norm"><a name="jvms-3.12-430"></a>For instance, if the
+               invocation of <code class="literal">tryItOut</code> (at
+               index <span class="emphasis"><em>1</em></span>) threw an instance
+               of <code class="literal">TestExc1</code>, it would be handled by the <code class="literal">catch</code>
+               clause that invokes <code class="literal">handleExc1</code>. This is so even
+               though the exception occurs within the bounds of the outer <code class="literal">catch</code>
+               clause (catching <code class="literal">TestExc2</code>) and even though that
+               outer <code class="literal">catch</code> clause might otherwise have been able to handle the
+               thrown value.
+            </p>
+            <p class="norm"><a name="jvms-3.12-440"></a>As a subtle point, note that
+               the range of a <code class="literal">catch</code> clause is inclusive on the "from" end and
+               exclusive on the "to" end (<a class="xref" href="jvms-4.html#jvms-4.7.3" title="4.7.3.&nbsp;The Code Attribute">&sect;4.7.3</a>). Thus, the
+               exception table entry for the <code class="literal">catch</code> clause
+               catching <code class="literal">TestExc1</code> does not cover the <span class="emphasis"><em>return</em></span>
+               instruction at offset <span class="emphasis"><em>4</em></span>. However, the exception
+               table entry for the <code class="literal">catch</code> clause
+               catching <code class="literal">TestExc2</code> does cover the <span class="emphasis"><em>return</em></span>
+               instruction at offset <span class="emphasis"><em>11</em></span>. Return instructions
+               within nested <code class="literal">catch</code> clauses are included in the range of
+               instructions covered by nesting <code class="literal">catch</code> clauses.
+            </p>
+         </div>
+         <div class="section" title="3.13.&nbsp;Compiling finally">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.13"></a>3.13.&nbsp;Compiling <code class="literal">finally</code></h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.13-100"></a>(This section assumes a
+               compiler generates <code class="literal">class</code> files with version number 50.0 or below, so
+               that the <span class="emphasis"><em>jsr</em></span> instruction may be used. See also
+               <a class="xref" href="jvms-4.html#jvms-4.10.2.5" title="4.10.2.5.&nbsp;Exceptions and finally">&sect;4.10.2.5</a>.)
+            </p>
+            <p class="norm"><a name="jvms-3.13-200"></a>Compilation of a
+               <code class="literal">try</code>-<code class="literal">finally</code> statement is similar to that of <code class="literal">try</code>-<code class="literal">catch</code>. Prior
+               to transferring control outside the <code class="literal">try</code> statement, whether that
+               transfer is normal or abrupt, because an exception has been thrown,
+               the <code class="literal">finally</code> clause must first be executed. For this simple
+               example:
+            </p><pre class="programlisting">
+
+void tryFinally() {
+    try {
+        tryItOut();
+    } finally {
+        wrapItUp();
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.13-210"></a>the compiled code is:
+            </p><pre class="programlisting">
+Method void tryFinally()
+0   <span class="emphasis"><em>aload_0</em></span>             // Beginning of try block
+1   <span class="emphasis"><em>invokevirtual #6</em></span>    // Method Example.tryItOut()V
+4   <span class="emphasis"><em>jsr 14</em></span>              // Call finally block
+7   <span class="emphasis"><em>return</em></span>              // End of try block
+8   <span class="emphasis"><em>astore_1</em></span>            // Beginning of handler for any throw
+9   <span class="emphasis"><em>jsr 14</em></span>              // Call finally block
+12  <span class="emphasis"><em>aload_1</em></span>             // Push thrown value
+13  <span class="emphasis"><em>athrow</em></span>              // ...and rethrow value to the invoker
+14  <span class="emphasis"><em>astore_2</em></span>            // Beginning of finally block
+15  <span class="emphasis"><em>aload_0</em></span>             // Push this
+16  <span class="emphasis"><em>invokevirtual #5</em></span>    // Method Example.wrapItUp()V
+19  <span class="emphasis"><em>ret 2</em></span>               // Return from finally block
+Exception table:
+From    To      Target      Type
+0       4       8           any
+</pre><p class="norm"><a name="jvms-3.13-220"></a>There are four ways for
+               control to pass outside of the <code class="literal">try</code> statement: by falling through the
+               bottom of that block, by returning, by executing a <code class="literal">break</code> or
+               <code class="literal">continue</code> statement, or by raising an
+               exception. If <code class="literal">tryItOut</code> returns without raising an
+               exception, control is transferred to the <code class="literal">finally</code> block using a <span class="emphasis"><em>jsr</em></span>
+               instruction. The <span class="emphasis"><em>jsr</em></span> <span class="emphasis"><em>14</em></span> instruction at
+               index <span class="emphasis"><em>4</em></span> makes a "subroutine call" to the code for
+               the <code class="literal">finally</code> block at index <span class="emphasis"><em>14</em></span> (the <code class="literal">finally</code>
+               block is compiled as an embedded subroutine). When the <code class="literal">finally</code> block
+               completes, the <span class="emphasis"><em>ret</em></span> <span class="emphasis"><em>2</em></span> instruction returns
+               control to the instruction following the <span class="emphasis"><em>jsr</em></span> instruction at
+               index <span class="emphasis"><em>4</em></span>.
+            </p>
+            <p class="norm"><a name="jvms-3.13-230"></a>In more detail, the
+               subroutine call works as follows: The <span class="emphasis"><em>jsr</em></span> instruction pushes the
+               address of the following instruction (<span class="emphasis"><em>return</em></span> at
+               index <span class="emphasis"><em>7</em></span>) onto the operand stack before
+               jumping. The <span class="emphasis"><em>astore_2</em></span> instruction that is the jump target stores the
+               address on the operand stack into local
+               variable <span class="emphasis"><em>2</em></span>. The code for the <code class="literal">finally</code> block (in
+               this case the <span class="emphasis"><em>aload_0</em></span> and <span class="emphasis"><em>invokevirtual</em></span> instructions) is
+               run. Assuming execution of that code completes normally, the <span class="emphasis"><em>ret</em></span>
+               instruction retrieves the address from local
+               variable <span class="emphasis"><em>2</em></span> and resumes execution at that
+               address. The <span class="emphasis"><em>return</em></span> instruction is executed,
+               and <code class="literal">tryFinally</code> returns normally.
+            </p>
+            <p class="norm"><a name="jvms-3.13-240"></a>A <code class="literal">try</code> statement with a
+               <code class="literal">finally</code> clause is compiled to have a special exception handler, one
+               that can handle any exception thrown within the <code class="literal">try</code> statement. If
+               <code class="literal">tryItOut</code> throws an exception, the exception table
+               for <code class="literal">tryFinally</code> is searched for an appropriate
+               exception handler. The special handler is found, causing execution to
+               continue at index <span class="emphasis"><em>8</em></span>. The <span class="emphasis"><em>astore_1</em></span> instruction
+               at index <span class="emphasis"><em>8</em></span> stores the thrown value into local
+               variable <span class="emphasis"><em>1</em></span>. The following <span class="emphasis"><em>jsr</em></span> instruction does
+               a subroutine call to the code for the <code class="literal">finally</code> block. Assuming that
+               code returns normally, the <span class="emphasis"><em>aload_1</em></span> instruction at
+               index <span class="emphasis"><em>12</em></span> pushes the thrown value back onto the
+               operand stack, and the following <span class="emphasis"><em>athrow</em></span> instruction rethrows the
+               value.
+            </p>
+            <p class="norm"><a name="jvms-3.13-300"></a>Compiling a <code class="literal">try</code> statement
+               with both a <code class="literal">catch</code> clause and a <code class="literal">finally</code> clause is more
+               complex:
+            </p><pre class="programlisting">
+
+void tryCatchFinally() {
+    try {
+        tryItOut();
+    } catch (TestExc e) {
+        handleExc(e);
+    } finally {
+        wrapItUp();
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.13-310"></a>becomes:
+            </p><pre class="programlisting">
+Method void tryCatchFinally()
+0   <span class="emphasis"><em>aload_0</em></span>             // Beginning of try block
+1   <span class="emphasis"><em>invokevirtual #4</em></span>    // Method Example.tryItOut()V
+4   <span class="emphasis"><em>goto 16</em></span>             // Jump to finally block
+7   <span class="emphasis"><em>astore_3</em></span>            // Beginning of handler for TestExc;
+                        // Store thrown value in local var 3
+8   <span class="emphasis"><em>aload_0</em></span>             // Push this
+9   <span class="emphasis"><em>aload_3</em></span>             // Push thrown value
+10  <span class="emphasis"><em>invokevirtual #6</em></span>    // Invoke handler method:
+                        // Example.handleExc(LTestExc;)V
+13  <span class="emphasis"><em>goto 16</em></span>             // This goto is unnecessary, but was
+                        // generated by javac in JDK 1.0.2
+16  <span class="emphasis"><em>jsr 26</em></span>              // Call finally block
+19  <span class="emphasis"><em>return</em></span>              // Return after handling TestExc
+20  <span class="emphasis"><em>astore_1</em></span>            // Beginning of handler for exceptions
+                        // other than TestExc, or exceptions
+                        // thrown while handling TestExc
+21  <span class="emphasis"><em>jsr 26</em></span>              // Call finally block
+24  <span class="emphasis"><em>aload_1</em></span>             // Push thrown value...
+25  <span class="emphasis"><em>athrow</em></span>              // ...and rethrow value to the invoker
+26  <span class="emphasis"><em>astore_2</em></span>            // Beginning of finally block
+27  <span class="emphasis"><em>aload_0</em></span>             // Push this
+28  <span class="emphasis"><em>invokevirtual #5</em></span>    // Method Example.wrapItUp()V
+31  <span class="emphasis"><em>ret 2</em></span>               // Return from finally block
+Exception table:
+From    To      Target      Type
+0       4       7           Class TestExc
+0       16      20          any
+</pre><p class="norm"><a name="jvms-3.13-320"></a>If the <code class="literal">try</code> statement
+               completes normally, the <span class="emphasis"><em>goto</em></span> instruction at
+               index <span class="emphasis"><em>4</em></span> jumps to the subroutine call for the
+               <code class="literal">finally</code> block at index <span class="emphasis"><em>16</em></span>. The <code class="literal">finally</code> block
+               at index <span class="emphasis"><em>26</em></span> is executed, control returns to the
+               <span class="emphasis"><em>return</em></span> instruction at index <span class="emphasis"><em>19</em></span>,
+               and <code class="literal">tryCatchFinally</code> returns normally.
+            </p>
+            <p class="norm"><a name="jvms-3.13-330"></a>If <code class="literal">tryItOut</code> throws an
+               instance of <code class="literal">TestExc</code>, the first (innermost)
+               applicable exception handler in the exception table is chosen to
+               handle the exception. The code for that exception handler, beginning
+               at index <span class="emphasis"><em>7</em></span>, passes the thrown value
+               to <code class="literal">handleExc</code> and on its return makes the same
+               subroutine call to the <code class="literal">finally</code> block at index
+               <span class="emphasis"><em>26</em></span> as in the normal case. If an exception is not
+               thrown by <code class="literal">handleExc</code>, 
+               <code class="literal">tryCatchFinally</code> returns normally.
+            </p>
+            <p class="norm"><a name="jvms-3.13-340"></a>If <code class="literal">tryItOut</code> throws a value
+               that is not an instance of <code class="literal">TestExc</code> or
+               if <code class="literal">handleExc</code> itself throws an exception, the
+               condition is handled by the second entry in the exception table, which
+               handles any value thrown between indices <span class="emphasis"><em>0</em></span> and
+               <span class="emphasis"><em>16</em></span>. That exception handler transfers control to
+               index <span class="emphasis"><em>20</em></span>, where the thrown value is first stored
+               in local variable <span class="emphasis"><em>1</em></span>. The code for the <code class="literal">finally</code>
+               block at index <span class="emphasis"><em>26</em></span> is called as a subroutine. If
+               it returns, the thrown value is retrieved from local
+               variable <span class="emphasis"><em>1</em></span> and rethrown using the <span class="emphasis"><em>athrow</em></span>
+               instruction. If a new value is thrown during execution of the
+               <code class="literal">finally</code> clause, the <code class="literal">finally</code> clause aborts,
+               and <code class="literal">tryCatchFinally</code> returns abruptly, throwing the
+               new value to its invoker.
+            </p>
+         </div>
+         <div class="section" title="3.14.&nbsp;Synchronization">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.14"></a>3.14.&nbsp;Synchronization
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.14-100"></a>Synchronization in the Java Virtual Machine
+               is implemented by monitor entry and exit, either explicitly (by use of
+               the <span class="emphasis"><em>monitorenter</em></span> and <span class="emphasis"><em>monitorexit</em></span> instructions) or implicitly (by
+               the method invocation and return instructions).
+            </p>
+            <p class="norm"><a name="jvms-3.14-200"></a>For code written in the
+               Java programming language, perhaps the most common form of synchronization is the
+               <code class="literal">synchronized</code> method. A <code class="literal">synchronized</code> method is not normally
+               implemented using <span class="emphasis"><em>monitorenter</em></span> and <span class="emphasis"><em>monitorexit</em></span>. Rather, it is
+               simply distinguished in the run-time constant pool by the
+               <code class="literal">ACC_SYNCHRONIZED</code> flag, which is checked by the method invocation
+               instructions (<a class="xref" href="jvms-2.html#jvms-2.11.10" title="2.11.10.&nbsp;Synchronization">&sect;2.11.10</a>).
+            </p>
+            <p class="norm"><a name="jvms-3.14-300"></a>The <span class="emphasis"><em>monitorenter</em></span> and
+               <span class="emphasis"><em>monitorexit</em></span> instructions enable the compilation of <code class="literal">synchronized</code>
+               statements. For example:
+            </p><pre class="programlisting">
+
+void onlyMe(Foo f) {
+    synchronized(f) {
+        doSomething();
+    }
+}
+
+</pre><p class="norm"><a name="jvms-3.14-310"></a>is compiled to:
+            </p><pre class="programlisting">
+Method void onlyMe(Foo)
+0   <span class="emphasis"><em>aload_1</em></span>             // Push f
+1   <span class="emphasis"><em>dup</em></span>                 // Duplicate it on the stack
+2   <span class="emphasis"><em>astore_2</em></span>            // Store duplicate in local variable 2
+3   <span class="emphasis"><em>monitorenter</em></span>        // Enter the monitor associated with f
+4   <span class="emphasis"><em>aload_0</em></span>             // Holding the monitor, pass this and...
+5   <span class="emphasis"><em>invokevirtual #5</em></span>    // ...call Example.doSomething()V
+8   <span class="emphasis"><em>aload_2</em></span>             // Push local variable 2 (f)
+9   <span class="emphasis"><em>monitorexit</em></span>         // Exit the monitor associated with f
+10  <span class="emphasis"><em>goto 18</em></span>             // Complete the method normally
+13  <span class="emphasis"><em>astore_3</em></span>            // In case of any throw, end up here
+14  <span class="emphasis"><em>aload_2</em></span>             // Push local variable 2 (f)
+15  <span class="emphasis"><em>monitorexit</em></span>         // Be sure to exit the monitor!
+16  <span class="emphasis"><em>aload_3</em></span>             // Push thrown value...
+17  <span class="emphasis"><em>athrow</em></span>              // ...and rethrow value to the invoker
+18  <span class="emphasis"><em>return</em></span>              // Return in the normal case
+Exception table:
+From    To      Target      Type
+4       10      13          any
+13      16      13          any
+</pre><p class="norm"><a name="jvms-3.14-320"></a>The compiler ensures that at
+               any method invocation completion, a <span class="emphasis"><em>monitorexit</em></span> instruction will
+               have been executed for each <span class="emphasis"><em>monitorenter</em></span> instruction executed since
+               the method invocation. This is the case whether the method invocation
+               completes normally (<a class="xref" href="jvms-2.html#jvms-2.6.4" title="2.6.4.&nbsp;Normal Method Invocation Completion">&sect;2.6.4</a>) or abruptly
+               (<a class="xref" href="jvms-2.html#jvms-2.6.5" title="2.6.5.&nbsp;Abrupt Method Invocation Completion">&sect;2.6.5</a>). To enforce proper pairing of
+               <span class="emphasis"><em>monitorenter</em></span> and <span class="emphasis"><em>monitorexit</em></span> instructions on abrupt method
+               invocation completion, the compiler generates exception handlers
+               (<a class="xref" href="jvms-2.html#jvms-2.10" title="2.10.&nbsp;Exceptions">&sect;2.10</a>) that will match any exception and whose
+               associated code executes the necessary <span class="emphasis"><em>monitorexit</em></span>
+               instructions.
+            </p>
+         </div>
+         <div class="section" title="3.15.&nbsp;Annotations">
+            <div class="titlepage">
+               <div>
+                  <div>
+                     <h2 class="title" style="clear: both"><a name="jvms-3.15"></a>3.15.&nbsp;Annotations
+                     </h2>
+                  </div>
+               </div>
+            </div>
+            <p class="norm"><a name="jvms-3.15-100"></a>The representation of
+               annotations in <code class="literal">class</code> files is described in
+               <a class="xref" href="jvms-4.html#jvms-4.7.16" title="4.7.16.&nbsp;The RuntimeVisibleAnnotations Attribute">&sect;4.7.16</a>-<a class="xref" href="jvms-4.html#jvms-4.7.22" title="4.7.22.&nbsp;The AnnotationDefault Attribute">&sect;4.7.22</a>. These
+               sections make it clear how to represent annotations on declarations of
+               classes, interfaces, fields, methods, method parameters, and type
+               parameters, as well as annotations on types used in those
+               declarations. Annotations on package declarations require additional
+               rules, given here.
+            </p>
+            <p class="norm"><a name="jvms-3.15-200"></a>When the compiler encounters
+               an annotated package declaration that must be made available at run
+               time, it emits a <code class="literal">class</code> file with the following properties:
+            </p>
+            <div class="norm">
+               <ul class="norm" type="disc">
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-3.15-200-A"></a>
+                              The <code class="literal">class</code> file represents an interface, that is, the
+                              <code class="literal">ACC_INTERFACE</code> and <code class="literal">ACC_ABSTRACT</code> flags of the <code class="literal">ClassFile</code>
+                              structure are set (<a class="xref" href="jvms-4.html#jvms-4.1" title="4.1.&nbsp;The ClassFile Structure">&sect;4.1</a>).
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-3.15-200-B"></a>
+                              If the <code class="literal">class</code> file version number is less than 50.0, then the
+                              <code class="literal">ACC_SYNTHETIC</code> flag is unset; if the <code class="literal">class</code> file version
+                              number is 50.0 or above, then the <code class="literal">ACC_SYNTHETIC</code> flag is
+                              set.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-3.15-200-C"></a>
+                              The interface has package access (JLS &sect;6.6.1).
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-3.15-200-D"></a>
+                              The interface's name is the internal form
+                              (<a class="xref" href="jvms-4.html#jvms-4.2.1" title="4.2.1.&nbsp;Binary Class and Interface Names">&sect;4.2.1</a>) of
+                              <code class="literal"><span class="emphasis"><em>package-name</em></span>.package-info</code>.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-3.15-200-E"></a>
+                              The interface has no superinterfaces.
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-3.15-200-F"></a>
+                              The interface's only members are those implied by <em class="citetitle">The Java Language Specification, Java SE 8 Edition</em> (JLS
+                              &sect;9.2).
+                     </p>
+                  </li>
+                  <li class="listitem">
+                     <p class="norm"><a name="jvms-3.15-200-G"></a>
+                              The annotations on the package declaration are stored as
+                              <code class="literal">RuntimeVisibleAnnotations</code> and <code class="literal">RuntimeInvisibleAnnotations</code>
+                              attributes in the <code class="literal">attributes</code> table of the <code class="literal">ClassFile</code>
+                              structure.
+                     </p>
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </div>
+      <div class="navfooter">
+         <hr>
+         <table width="100%" summary="Navigation footer">
+            <tr>
+               <td width="40%" align="left"><a accesskey="p" href="jvms-2.html">Prev</a>&nbsp;
+               </td>
+               <td width="20%" align="center">&nbsp;</td>
+               <td width="40%" align="right">&nbsp;<a accesskey="n" href="jvms-4.html">Next</a></td>
+            </tr>
+            <tr>
+               <td width="40%" align="left" valign="top">Chapter&nbsp;2.&nbsp;The Structure of the Java Virtual Machine&nbsp;</td>
+               <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+               <td width="40%" align="right" valign="top">&nbsp;Chapter&nbsp;4.&nbsp;The <code class="literal">class</code> File Format
+               </td>
+            </tr>
+         </table>
+      </div>
+      <div xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:rx="http://www.renderx.com/XSL/Extensions" class="navfooter">
+         <hr><a href="jvms-0-front.html">
+                Legal Notice
+              </a></div>
+   </body>
+</html>

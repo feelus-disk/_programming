@@ -1,0 +1,1178 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on February, 19  2004 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>Autoconf: Настройка</TITLE>
+
+<META NAME="description" CONTENT="Autoconf: Настройка">
+<META NAME="keywords" CONTENT="Autoconf: Настройка">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC8"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC7"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC9"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 3. Файлы инициализации и выходные файлы </H1>
+<!--docid::SEC8::-->
+<A NAME="Setup"></A>
+<P>
+
+Скриптам, созданным Autoconf, нужна некоторая инициализационная
+информация, как то: где найти исходные тексты пакета, какие выходные
+файлы создавать.  В следующей главе описана инициализация и создание 
+выходных файлов.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC9">3.1 Нахождение ввода <CODE>configure</CODE></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Где Autoconf должен искать файлы.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC10">3.2 Создание выходных файлов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC11">3.3 Подстановки в файлах Makefile</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Использование выходных переменных в файлах <TT>`Makefile'</TT>.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC15">3.4 Заголовочные файлы конфигурации</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC18">3.5 Настройка других пакетов, находящихся в подкаталогах</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC19">3.6 Префикс по умолчанию</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC20">3.7 Номера версий в <CODE>configure</CODE></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Ввод"></A>
+<HR SIZE="6">
+<A NAME="SEC9"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC10"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 3.1 Нахождение ввода <CODE>configure</CODE> </H2>
+<!--docid::SEC9::-->
+<A NAME="Input"></A>
+<P>
+
+Каждый скрипт <CODE>configure</CODE> должен первым делом вызвать макрос
+<CODE>AC_INIT</CODE>.  Единственный обязательный макрос -- <CODE>AC_OUTPUT</CODE>
+(see section <A HREF="autoconf-ru_3.html#SEC10">3.2 Создание выходных файлов</A>). 
+</P><P>
+
+<A NAME="IDX5"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_INIT</B> <I>(<VAR>unique-file-in-source-dir</VAR>)</I>
+<DD><A NAME="IDX6"></A>
+Обрабатывает аргументы командной строки и ищет каталог с исходными
+текстами. <VAR>unique-file-in-source-dir</VAR>--- это некоторый файл в
+каталоге с исходными текстами пакета; <CODE>configure</CODE> проверяет
+существование этого файла, чтобы убедиться, что это именно тот каталог с
+исходными текстами, какой нужен.  Иногда люди указывают неверный каталог
+с исходными текстами, используя ключ командной строки <SAMP>`--srcdir'</SAMP>;
+эта проверка позволяет не допускать таких инцидентов.  Для детальной
+информации See section <A HREF="autoconf-ru_10.html#SEC81">10. Запуск скриптов <CODE>configure</CODE></A>.
+</DL>
+</P><P>
+
+Пакетам, которые выполняют ручную настройку или используют программу 
+<CODE>install</CODE>, может понадобиться указать скрипту <CODE>configure</CODE>,
+где можно найти
+другие скрипты командного процессора. Это выполняется с помощью вызова 
+макроса <CODE>AC_CONFIG_AUX_DIR</CODE>, хотя используемые по умолчанию значения
+в большинстве случаев будут правильными.
+</P><P>
+
+<A NAME="IDX7"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_CONFIG_AUX_DIR(<VAR>dir</VAR>)</B>
+<DD><A NAME="IDX8"></A>
+Использует скрипты <TT>`install-sh'</TT>, <TT>`config.sub'</TT>,
+<TT>`config.guess'</TT> и Cygnus-версию <CODE>configure</CODE>, располагающиеся в
+каталоге <VAR>dir</VAR>.  Эти вспомогательные файлы используются при
+конфигурировании.  Значение <VAR>dir</VAR> может быть задано либо абсолютным
+путем, либо путем относительно <TT>`<VAR>srcdir</VAR>'</TT>.  Значением по
+умолчанию является первый из каталогов <TT>`<VAR>srcdir</VAR>'</TT>,
+<TT>`<VAR>srcdir</VAR>/..'</TT>  или <TT>`<VAR>srcdir</VAR>/../..'</TT>, в котором будет
+найден файл <TT>`install-sh'</TT>. Проверка наличия других файлов не
+производится, так что использование <CODE>AC_PROG_INSTALL</CODE> не требует
+включения в дистрибутив других вспомогательных файлов. Также проверяется
+наличие файла <TT>`install.sh'</TT>, но это имя является устаревшим,
+поскольку некоторые программы <CODE>make</CODE> имеют правило, которое создает
+файл <TT>`install'</TT> из этого файла в случае, если <TT>`Makefile'</TT>
+отсутствует.
+</DL>
+</P><P>
+
+<A NAME="Вывод"></A>
+<HR SIZE="6">
+<A NAME="SEC10"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC9"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 3.2 Создание выходных файлов </H2>
+<!--docid::SEC10::-->
+<A NAME="Output"></A>
+<P>
+
+Каждый скрипт <CODE>configure</CODE>, созданный Autoconf, должен заканчиваться
+вызовом макроса <CODE>AC_OUTPUT</CODE>. Этот макрос создает файлы <TT>`Makefile'</TT>
+и, может быть, дополнительные файлы, являющиеся результатом
+конфигурации.  Еще одним обязательным макросом является <CODE>AC_INIT</CODE>
+(see section <A HREF="autoconf-ru_3.html#SEC9">3.1 Нахождение ввода <CODE>configure</CODE></A>).
+</P><P>
+
+<A NAME="IDX9"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_OUTPUT</B> <I>([<VAR>file</VAR><small>...</small> [, <VAR>extra-cmds</VAR> [, <VAR>init-cmds</VAR>]]])</I>
+<DD><A NAME="IDX10"></A>
+Создает выходные файлы.  Вызовите этот макрос один раз в конце файла
+<TT>`configure.in'</TT>. Аргумент <VAR>file</VAR><small>...</small> является списком
+выходных файлов через пробел; этот список может быть пустым.  Этот
+макрос создает каждый из файлов <TT>`<VAR>file</VAR>'</TT>, копируя входной файл
+(по умолчанию называющийся <TT>`<VAR>file</VAR>.in'</TT>) и подставляя
+значения выходных переменных.  Для более детального описания
+использования выходных переменных See section <A HREF="autoconf-ru_3.html#SEC11">3.3 Подстановки в файлах Makefile</A>.
+timestamp.
+Для детального описания того, как создавать такие переменные
+See section <A HREF="autoconf-ru_6.html#SEC54">6.2 Установка выходных переменных</A>. Этот макрос создает каталог, в
+котором находится файл, если этот каталог не существует (но не создает
+родительские каталоги для этого каталога). Обычно таким образом
+создаются файлы <TT>`Makefile'</TT>, но можно указать также и другие файлы,
+такие как <TT>`.gdbinit'</TT>.
+</P><P>
+
+Если вызывались макросы <CODE>AC_CONFIG_HEADER</CODE>, <CODE>AC_LINK_FILES</CODE> или
+<CODE>AC_CONFIG_SUBDIRS</CODE>, то этот макрос также создает файлы, указанные в
+аргументах этих макросов.
+</P><P>
+
+Типичный вызов <CODE>AC_OUTPUT</CODE> выглядит примерно так:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_OUTPUT(Makefile src/Makefile man/Makefile X/Imakefile)
+</pre></td></tr></table></P><P>
+
+Вы можете переопределить имена входных файлов, добавив к <VAR>file</VAR> список
+входных файлов, который разделен двоеточием. Например:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_OUTPUT(Makefile:templates/top.mk lib/Makefile:templates/lib.mk)
+AC_OUTPUT(Makefile:templates/vars.mk:Makefile.in:templates/rules.mk)
+</pre></td></tr></table>Это позволит вам сохранить имена файлов в формате MS-DOS, 
+или для добавления стандартных кусков кода в начало или конец файла.
+</P><P>
+
+В параметре <VAR>extra-cmds</VAR> можно указать команды, вставленные в файл
+<TT>`config.status'</TT> позднее, и которые сработают после того, как
+будет сделано все остальное.  В параметре <VAR>init-cmds</VAR> можно указать
+команды, которые будут вставлены непосредственно перед <VAR>extra-cmds</VAR>,
+причем <CODE>configure</CODE> выполнит в них подстановку переменных, команды и
+обратных слэшей.  Аргумент <VAR>init-cmds</VAR> можно использовать для
+передачи переменных из <CODE>configure</CODE> в <VAR>extra-cmds</VAR>.  Если был
+вызван макрос <CODE>AC_OUTPUT_COMMANDS</CODE>, то команды, переданные ему в
+качестве аргумента, выполняются прямо перед командами, переданными
+макросу <CODE>AC_OUTPUT</CODE>.
+</DL>
+</P><P>
+
+<A NAME="IDX11"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_OUTPUT_COMMANDS</B> <I>(<VAR>extra-cmds</VAR> [, <VAR>init-cmds</VAR>])</I>
+<DD>Задает дополнительные команды командного процессора, которые выполняются 
+в конце <TT>`config.status'</TT>, а также команды для инициализации
+переменных в <CODE>configure</CODE>.  Этот макрос можно вызывать несколько
+раз.  Вот нереальный пример:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>fubar=27
+AC_OUTPUT_COMMANDS([echo this is extra $fubar, and so on.], fubar=$fubar)
+AC_OUTPUT_COMMANDS([echo this is another, extra, bit], [echo init bit])
+</pre></td></tr></table></DL>
+</P><P>
+
+Если вам нужно запустить <CODE>make</CODE> в подкаталогах, то это следует
+делать с помощью переменной <CODE>MAKE</CODE>.  Большинство версий программы
+<CODE>make</CODE> устанавливают значение переменной <CODE>MAKE</CODE> равным имени
+программы <CODE>make</CODE> с дополнительно заданными ключами. (Но многие
+версии не включают сюда значения переменных, заданных в командной
+строке, поэтому они не передаются автоматически).  Некоторые старые
+версии команды <CODE>make</CODE> не устанавливают эту переменную. Следующий
+макрос позволяет вам использовать переменную <CODE>MAKE</CODE> даже таких
+старых версий.
+</P><P>
+
+<A NAME="IDX12"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_PROG_MAKE_SET</B>
+<DD><A NAME="IDX13"></A>
+<A NAME="IDX14"></A>
+Если <CODE>make</CODE> определяет переменную <CODE>MAKE</CODE>, то переменная
+<CODE>SET_MAKE</CODE> получает пустое значение. Иначе говоря, определяется
+переменная <CODE>SET_MAKE</CODE> со значением <SAMP>`MAKE=make'</SAMP>. Для переменной
+<CODE>SET_MAKE</CODE> вызывается макрос <CODE>AC_SUBST</CODE>.
+</DL>
+</P><P>
+
+Для использования данного макроса поместите следующую строку в каждый из
+файлов <TT>`Makefile.in'</TT>, в котором производится запуск <CODE>MAKE</CODE> 
+для подкаталогов:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>@SET_MAKE@
+</pre></td></tr></table></P><P>
+
+<A NAME="Подстановки в Makefile"></A>
+<HR SIZE="6">
+<A NAME="SEC11"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC10"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC12"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 3.3 Подстановки в файлах Makefile </H2>
+<!--docid::SEC11::-->
+<A NAME="Makefile Substitutions"></A>
+<P>
+
+Каждый подкаталог дистрибутива, который содержит что-либо, что должно
+компилироваться или устанавливаться, должен поставляться с файлом
+<TT>`Makefile.in'</TT>, из которого <CODE>configure</CODE> создаст файл
+<TT>`Makefile'</TT> для данного каталога. Для создания <TT>`Makefile'</TT>,
+<CODE>configure</CODE> выполнит простую подстановку переменных, заменяя
+вхождения <SAMP>`@<VAR>variable</VAR>@'</SAMP> в файле <TT>`Makefile.in'</TT> на
+значения, которые определены <CODE>configure</CODE> для данной
+переменной. Переменные, подставленные в выходных файлах таким способом,
+называются <EM>выходными переменными (output variables)</EM>.  Они являются
+обычными переменными командного процессора, которые устанавливаются в
+<CODE>configure</CODE>. Для того, чтобы <CODE>configure</CODE> подставлял в выходных
+файлах определенную переменную, необходимо вызвать макрос
+<CODE>AC_SUBST</CODE> с именем переменной в качестве аргумента. Любое
+вхождение <SAMP>`@<VAR>variable</VAR>@'</SAMP> для других переменных остается
+неизмененным.  Для получения дополнительной информации о создании
+выходных переменных с помощью макроса <CODE>AC_SUBST</CODE> See section <A HREF="autoconf-ru_6.html#SEC54">6.2 Установка выходных переменных</A>.
+</P><P>
+
+Пакеты программного обеспечения, использующие скрипт <CODE>configure</CODE>,
+должны распространяться с файлами <TT>`Makefile.in'</TT>, но не с файлами
+<TT>`Makefile'</TT>; таким образом, пользователь должен перед компиляцией
+сконфигурировать программный пакет так, чтобы он соответствовал
+используемой системе.
+</P><P>
+
+See section `Makefile Conventions' in <CITE>The GNU Coding Standards</CITE>, для получения информации о том, что можно помещать в
+файлы <TT>`Makefile'</TT>.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC12">3.3.1 Предварительная установка выходных переменных</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC13">3.3.2 Каталоги сборки программ</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC14">3.3.3 Автоматическая пересборка</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Правила Makefile для настройки.</TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Предустановленные выходные переменные"></A>
+<HR SIZE="6">
+<A NAME="SEC12"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC13"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC10"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 3.3.1 Предварительная установка выходных переменных </H3>
+<!--docid::SEC12::-->
+<A NAME="Preset Output Variables"></A>
+<P>
+
+Некоторые выходные переменные заранее устанавливаются макросами
+Autoconf. Некоторые макросы Autoconf устанавливают дополнительные
+выходные переменные, упомянутые в описаниях этих макросов.  Полный
+список выходных переменных находится в <A HREF="autoconf-ru_17.html#SEC111">Индекс выходных переменных</A>.
+See section `Variables for Installation Directories' in <CITE>The GNU Coding Standards</CITE>, для дополнительной информации о
+переменных с именами, заканчивающимися на <SAMP>`dir'</SAMP>.
+</P><P>
+
+<A NAME="IDX15"></A>
+<DL>
+<DT><U>Variable:</U> <B>bindir</B>
+<DD><A NAME="IDX16"></A>
+Каталог в который устанавливаются исполняемые программы, 
+запускаемые пользователями. 
+</DL>
+</P><P>
+
+<A NAME="IDX17"></A>
+<DL>
+<DT><U>Variable:</U> <B>configure_input</B>
+<DD><A NAME="IDX18"></A>
+Комментарий, сообщающий, что файл был автоматически создан скриптом
+<CODE>configure</CODE> и выдает имя входного файла. <CODE>AC_OUTPUT</CODE> добавляет
+строку комментария, содержащую эту переменную, в начало каждого
+создаваемого файла <TT>`Makefile'</TT>.  Для других файлов вы должны
+сослаться на эту переменную в комментарии в заголовке каждого входного
+файла. Например, входной скрипт командного процессора должен начинаться
+примерно так:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>#! /bin/sh
+# @configure_input@
+</pre></td></tr></table></P><P>
+
+Наличие этой строки также напоминает людям, редактирующим этот файл, что
+перед использованием его необходимо обработать с помощью <CODE>configure</CODE>.
+</DL>
+</P><P>
+
+<A NAME="IDX19"></A>
+<DL>
+<DT><U>Variable:</U> <B>datadir</B>
+<DD><A NAME="IDX20"></A>
+Каталог, в который устанавливаются файлы данных, не зависящие от
+архитектуры.
+</DL>
+</P><P>
+
+<A NAME="IDX21"></A>
+<DL>
+<DT><U>Variable:</U> <B>exec_prefix</B>
+<DD><A NAME="IDX22"></A>
+Префикс указывающий, куда будут устанавливаться файлы, зависящие от
+архитектуры.
+</DL>
+</P><P>
+
+<A NAME="IDX23"></A>
+<DL>
+<DT><U>Variable:</U> <B>includedir</B>
+<DD><A NAME="IDX24"></A>
+Каталог, в который будут устанавливаться заголовочные файлы C.
+</DL>
+</P><P>
+
+<A NAME="IDX25"></A>
+<DL>
+<DT><U>Variable:</U> <B>infodir</B>
+<DD><A NAME="IDX26"></A>
+Каталог, в который будет устанавливаться документация в формате Info.
+</DL>
+</P><P>
+
+<A NAME="IDX27"></A>
+<DL>
+<DT><U>Variable:</U> <B>libdir</B>
+<DD><A NAME="IDX28"></A>
+Каталог, в который будут устанавливаться скомпилированные библиотеки.
+</DL>
+</P><P>
+
+<A NAME="IDX29"></A>
+<DL>
+<DT><U>Variable:</U> <B>libexecdir</B>
+<DD><A NAME="IDX30"></A>
+Каталог, в который устанавливаются исполняемые файлы, запускаемые
+другими программами.
+</DL>
+</P><P>
+
+<A NAME="IDX31"></A>
+<DL>
+<DT><U>Variable:</U> <B>localstatedir</B>
+<DD><A NAME="IDX32"></A>
+Каталог, в который будут устанавливаться изменяемые файлы данных для
+данной машины.
+</DL>
+</P><P>
+
+<A NAME="IDX33"></A>
+<DL>
+<DT><U>Variable:</U> <B>mandir</B>
+<DD><A NAME="IDX34"></A>
+Каталог верхнего уровня, в который будут устанавливаться страницы
+руководства. 
+</DL>
+</P><P>
+
+<A NAME="IDX35"></A>
+<DL>
+<DT><U>Variable:</U> <B>oldincludedir</B>
+<DD><A NAME="IDX36"></A>
+Каталог, в который будут устанавливаться заголовочные файлы для не-gcc
+компиляторов.
+</DL>
+</P><P>
+
+<A NAME="IDX37"></A>
+<DL>
+<DT><U>Variable:</U> <B>prefix</B>
+<DD><A NAME="IDX38"></A>
+Префикс для установки файлов, не зависящих от архитектуры.
+</DL>
+</P><P>
+
+<A NAME="IDX39"></A>
+<DL>
+<DT><U>Variable:</U> <B>sbindir</B>
+<DD><A NAME="IDX40"></A>
+Каталог для установки исполняемых файлов, запускаемых администратором.
+</DL>
+</P><P>
+
+<A NAME="IDX41"></A>
+<DL>
+<DT><U>Variable:</U> <B>sharedstatedir</B>
+<DD><A NAME="IDX42"></A>
+Каталог, в который устанавливаются изменяемые, независящие от архитектуры
+файлы данных.
+</DL>
+</P><P>
+
+<A NAME="IDX43"></A>
+<DL>
+<DT><U>Variable:</U> <B>srcdir</B>
+<DD><A NAME="IDX44"></A>
+Каталог, который содержит исходный код для данного <TT>`Makefile'</TT>.
+</DL>
+</P><P>
+
+<A NAME="IDX45"></A>
+<DL>
+<DT><U>Variable:</U> <B>sysconfdir</B>
+<DD><A NAME="IDX46"></A>
+Каталог, в который устанавливаются неизменяемые файлы данных для данной
+машины.
+</DL>
+</P><P>
+
+<A NAME="IDX47"></A>
+<DL>
+<DT><U>Variable:</U> <B>top_srcdir</B>
+<DD><A NAME="IDX48"></A>
+Каталог верхнего уровня, содержащий исходный код пакета. В каталоге
+верхнего уровня эта переменная совпадает с <CODE>srcdir</CODE>.
+</DL>
+</P><P>
+
+<A NAME="IDX49"></A>
+<DL>
+<DT><U>Variable:</U> <B>CFLAGS</B>
+<DD><A NAME="IDX50"></A>
+Ключи оптимизации и отладочной информации для компилятора C. Если эта
+переменная не установлена в среде при запуске <CODE>configure</CODE>, то
+значение по умолчанию устанавливается при вызове макроса
+<CODE>AC_PROG_CC</CODE> (или равно пустому значению, если вы не вызываете этот
+макрос). <CODE>configure</CODE> использует эту переменную при компиляции
+программ для тестирования возможностей компилятора C.
+</DL>
+</P><P>
+
+<A NAME="IDX51"></A>
+<DL>
+<DT><U>Variable:</U> <B>CPPFLAGS</B>
+<DD><A NAME="IDX52"></A>
+Каталоги поиска заголовочных файлов (<SAMP>`-I<VAR>dir</VAR>'</SAMP>) и любые другие
+ключи для препроцессора и компилятора C.  Если эта переменная не
+установлена в среде при запуске <CODE>configure</CODE>, то значение по
+умолчанию равно пустому значению. <CODE>configure</CODE> использует эту
+переменную при компиляции программ или обработке препроцессором для
+тестирования возможностей компилятора C.
+</DL>
+</P><P>
+
+<A NAME="IDX53"></A>
+<DL>
+<DT><U>Variable:</U> <B>CXXFLAGS</B>
+<DD><A NAME="IDX54"></A>
+Ключи оптимизации и отладочной информации для компилятора C++. Если эта
+переменная не установлена в среде при запуске <CODE>configure</CODE>, то
+значение по умолчанию устанавливается при вызове макроса
+<CODE>AC_PROG_CXX</CODE> (или равно пустому значению, если вы не вызываете
+этот макрос). <CODE>configure</CODE> использует эту переменную при компиляции
+программ для тестирования возможностей компилятора C++.
+</DL>
+</P><P>
+
+<A NAME="IDX55"></A>
+<DL>
+<DT><U>Variable:</U> <B>FFLAGS</B>
+<DD><A NAME="IDX56"></A>
+Ключи оптимизации и отладочной информации для компилятора Fortran
+77. Если эта переменная не установлена в среде при запуске
+<CODE>configure</CODE>, то значение по умолчанию устанавливается при вызове
+макроса <CODE>AC_PROG_F77</CODE> (или равно пустому значению, если вы не
+вызываете этот макрос). <CODE>configure</CODE> использует эту переменную при
+компиляции программ для тестирования возможностей компилятора Fortran
+77.
+</DL>
+</P><P>
+
+<A NAME="IDX57"></A>
+<DL>
+<DT><U>Variable:</U> <B>DEFS</B>
+<DD><A NAME="IDX58"></A>
+Ключи <SAMP>`-D'</SAMP>, передаваемые компилятору C.  Если вызывается макрос
+<CODE>AC_CONFIG_HEADER</CODE>, то <CODE>configure</CODE> заменяет вхождения
+<SAMP>`@DEFS@'</SAMP> на <SAMP>`-DHAVE_CONFIG_H'</SAMP> (see section <A HREF="autoconf-ru_3.html#SEC15">3.4 Заголовочные файлы конфигурации</A>).  Эта переменная не определена во время выполнения тестов
+<CODE>configure</CODE>, она определяется только при создании выходных
+файлов.  See section <A HREF="autoconf-ru_6.html#SEC54">6.2 Установка выходных переменных</A>, для описания того, как
+получить результаты предыдущих тестов.
+</DL>
+</P><P>
+
+<A NAME="IDX59"></A>
+<DL>
+<DT><U>Variable:</U> <B>LDFLAGS</B>
+<DD><A NAME="IDX60"></A>
+Ключ для удаления отладочной информации (<SAMP>`-s'</SAMP>), а также другие
+ключи для компоновщика. Если не установлена в среде при запуске
+<CODE>configure</CODE>, то по умолчанию имеет пустое
+значение. <CODE>configure</CODE> использует эту переменную при компоновке
+программ для тестирования возможностей С.
+</DL>
+</P><P>
+
+<A NAME="IDX61"></A>
+<DL>
+<DT><U>Variable:</U> <B>LIBS</B>
+<DD><A NAME="IDX62"></A>
+Ключи <SAMP>`-l'</SAMP> и <SAMP>`-L'</SAMP>, передаваемые компоновщику.
+</DL>
+</P><P>
+
+<A NAME="Каталоги сборки программ"></A>
+<HR SIZE="6">
+<A NAME="SEC13"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC12"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC14"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC10"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 3.3.2 Каталоги сборки программ </H3>
+<!--docid::SEC13::-->
+<A NAME="Build Directories"></A>
+<P>
+
+Вы можете поддерживать одновременную компиляцию пакета программного
+обеспечения для различных архитектур из одной и той же копии исходного
+кода. Объектные файлы для каждой из архитектур хранятся в отдельных
+каталогах. 
+</P><P>
+
+Для поддержки этого <CODE>make</CODE> использует переменную <CODE>VPATH</CODE> для
+поиска файлов, находящихся в каталоге с исходными текстами.  Такая 
+возможность
+поддерживается GNU <CODE>make</CODE> и большинством других программ
+<CODE>make</CODE> свежих версий. Старые версии программы <CODE>make</CODE> не
+поддерживают переменную <CODE>VPATH</CODE>; при их использовании
+исходные тексты должны находиться в том же каталоге, что и объектные
+файлы. 
+</P><P>
+
+Для поддержки <CODE>VPATH</CODE> каждый файл <TT>`Makefile.in'</TT> должен
+содержать две строки, которые могут выглядеть следующим образом:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>srcdir = @srcdir@
+VPATH = @srcdir@
+</pre></td></tr></table></P><P>
+
+Не надо устанавливать <CODE>VPATH</CODE> в значение другой переменной,
+например, <SAMP>`VPATH = $(srcdir)'</SAMP>, поскольку некоторые версии
+<CODE>make</CODE> не выполняют подстановку переменных для
+<CODE>VPATH</CODE>.
+</P><P>
+
+<CODE>configure</CODE> подставляет правильное значение <CODE>srcdir</CODE> при
+создании файла <TT>`Makefile'</TT>.
+</P><P>
+
+Не используйте переменную <CODE>$&#60;</CODE> программы <CODE>make</CODE>, которая
+разворачивается в имя файла с полным путем (найденным с помощью
+<CODE>VPATH</CODE>), причем только в явных правилах.  (Неявные правила,
+например, <SAMP>`.c.o'</SAMP> сообщают, как создать файл <TT>`.o'</TT> из файла
+<TT>`.c'</TT>.) Некоторые версии <CODE>make</CODE> не устанавливают <CODE>$&#60;</CODE> в
+явных правилах: они подставляют вместо него пустое значение.
+</P><P>
+
+Вместо этого командные строки<TT>`Makefile'</TT> всегда должны ссылаться на
+файлы с исходными текстами с добавлением к ним префикса
+<SAMP>`$(srcdir)/'</SAMP>. Например:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>time.info: time.texinfo
+        $(MAKEINFO) $(srcdir)/time.texinfo
+</pre></td></tr></table></P><P>
+
+<A NAME="Автоматическая пересборка"></A>
+<HR SIZE="6">
+<A NAME="SEC14"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC13"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC10"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 3.3.3 Автоматическая пересборка </H3>
+<!--docid::SEC14::-->
+<A NAME="Automatic Remaking"></A>
+<P>
+
+Вы можете поместить правила, упомянутые ниже, в файл <TT>`Makefile.in'</TT>
+верхнего уровня пакета для того, чтобы автоматически обновлять
+информацию о конфигурации при изменении файлов конфигурации.  Этот
+пример использует все дополнительные файлы, такие как <TT>`aclocal.m4'</TT>,
+а также то, что относятся к заголовочным файлам конфигурации.  Уберите
+из правила для <TT>`Makefile.in'</TT> файлы, не использующиеся в вашем
+пакете.
+</P><P>
+
+Префикс <SAMP>`${srcdir}/'</SAMP> добавлен из-за ограничений механизма
+использования <CODE>VPATH</CODE>.
+</P><P>
+
+Файлы <TT>`stamp-'</TT> являются необходимыми, поскольку время последнего
+изменения файлов <TT>`config.h.in'</TT> и <TT>`config.h'</TT> останется прежним, 
+если пересоздание этих файлов не изменит их содержимого.  Эта возможность
+позволяет избежать ненужной перекомпиляции.  Вы должны включить
+файл <TT>`stamp-h.in'</TT> в дистрибутив вашего пакета, так что <CODE>make</CODE>
+будет считать <TT>`config.h.in'</TT> обновленным. На некоторых старых
+системах BSD, команда <CODE>touch</CODE> или любая другая, создающая файл
+нулевой длины, не обновляет время изменения этого файла, так что
+используйте для правильной работы команду <CODE>echo</CODE>.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>${srcdir}/configure: configure.in aclocal.m4
+        cd ${srcdir} &#38;&#38; autoconf
+
+# autoheader мог не изменить config.h.in, так что обновить дату stamp-файла.
+${srcdir}/config.h.in: stamp-h.in
+${srcdir}/stamp-h.in: configure.in aclocal.m4 acconfig.h \
+    config.h.top config.h.bot
+        cd ${srcdir} &#38;&#38; autoheader
+        echo timestamp &#62; ${srcdir}/stamp-h.in
+
+config.h: stamp-h
+stamp-h: config.h.in config.status
+        ./config.status
+
+Makefile: Makefile.in config.status
+        ./config.status
+
+config.status: configure
+        ./config.status --recheck
+</pre></td></tr></table></P><P>
+
+Вдобавок вы должны передать <SAMP>`echo timestamp &#62; stamp-h'</SAMP> в аргументе
+<VAR>extra-cmds</VAR> макросу <CODE>AC_OUTPUT</CODE>, так что
+<TT>`config.status'</TT> будет гарантировать, что файл <TT>`config.h'</TT> будет
+рассматриваться как обновленный. See section <A HREF="autoconf-ru_3.html#SEC10">3.2 Создание выходных файлов</A>, для дополнительной
+информации о <CODE>AC_OUTPUT</CODE>.
+</P><P>
+
+See section <A HREF="autoconf-ru_11.html#SEC90">11. Воссоздание конфигурации</A>, где описаны дополнительные примеры
+обработки конфигурационных зависимостей.
+</P><P>
+
+<A NAME="Заголовочные файлы конфигурации"></A>
+<HR SIZE="6">
+<A NAME="SEC15"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC14"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC16"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC18"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 3.4 Заголовочные файлы конфигурации </H2>
+<!--docid::SEC15::-->
+<A NAME="Configuration Headers"></A>
+<P>
+
+Когда пакет производит тестирование большого количества символов
+препроцессора C, то командная строка ключей <SAMP>`-D'</SAMP>, передаваемых
+компилятору, может получиться достаточно длинной. Это вызывает две
+проблемы.  Первая заключается в том, что вывод результатов команды
+<CODE>make</CODE> будет тяжело читать в поисках ошибок. Вторая и более
+серьезная заключается в том, что длина командной строки может превысить
+предельную длину в некоторых операционных системах. В качестве
+альтернативы передачи компилятору ключей <SAMP>`-D'</SAMP>, скрипты
+<CODE>configure</CODE> могут создавать заголовочные файлы C, содержащие
+директивы <SAMP>`#define'</SAMP>. Макрос <CODE>AC_CONFIG_HEADER</CODE> выбирает этот
+способ выдачи результатов. Макрос должен быть вызван сразу после вызова
+<CODE>AC_INIT</CODE>.
+</P><P>
+
+Пакет должен подключить с помощью <CODE>#include</CODE> заголовочный файл
+настройки до подключения остальных заголовочных файлов, чтобы избежать
+несовместимости в объявлениях (например, если этот файл переопределяет
+<CODE>const</CODE>). Используйте директиву <SAMP>`#include &#60;config.h&#62;'</SAMP> вместо
+<SAMP>`#include "config.h"'</SAMP> и передайте компилятору C
+ключ <SAMP>`-I.'</SAMP>  (или <SAMP>`-I..'</SAMP>, смотря где находится
+файл <TT>`config.h'</TT>). Таким образом, даже если сам каталог с исходными
+текстами сконфигурирован (например, для создания дистрибутива), то
+другие сборочные каталоги можно будет сконфигурировать, не используя при 
+этом файл <TT>`config.h'</TT> и каталога с исходными текстами.
+</P><P>
+
+<A NAME="IDX63"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_CONFIG_HEADER</B> <I>(<VAR>header-to-create</VAR> <small>...</small>)</I>
+<DD><A NAME="IDX64"></A>
+<A NAME="IDX65"></A>
+Заставляет <CODE>AC_OUTPUT</CODE> создать файлы с именами из
+разделенного пробелами списка <VAR>header-to-create</VAR>, которые будут
+содержать директивы <CODE>#define</CODE> препроцессора C и заменять
+<SAMP>`@DEFS@'</SAMP> в созданных файлах на <SAMP>`-DHAVE_CONFIG_H'</SAMP> вместо
+значения <CODE>DEFS</CODE>. Обычным значением для <VAR>header-to-create</VAR>
+является <TT>`config.h'</TT>.
+</P><P>
+
+Если <VAR>header-to-create</VAR> уже существует, и его содержимое не
+отличается от того, что в него хотят поместить, то он остается
+неизмененным. Это позволяет вносить некоторые изменения в конфигурацию
+без ненужной перекомпиляции объектных файлов, зависящих от данных
+заголовочных файлов.
+</P><P>
+
+Обычно входной файл называется <TT>`<VAR>header-to-create</VAR>.in'</TT>; однако
+вы можете переопределить имя входного файла, добавив к
+<VAR>header-to-create</VAR> список входных файлов, разделенный двоеточием.
+Примеры:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_CONFIG_HEADER(defines.h:defines.hin)
+AC_CONFIG_HEADER(defines.h:defs.pre:defines.h.in:defs.post)
+</pre></td></tr></table>Это позволяет вам сохранить имена в виде, приемлемом для использования в
+MS-DOS, а также для добавления стандартных кусков кода к файлам.
+</DL>
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC16">3.4.1 Шаблоны заголовочных файлов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_3.html#SEC17">3.4.2 Использование <CODE>autoheader</CODE> для создания <TT>`config.h.in'</TT></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Как создать шаблон для заголовочного файла настройки.</TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Шаблоны заголовочных файлов"></A>
+<HR SIZE="6">
+<A NAME="SEC16"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC17"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC18"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 3.4.1 Шаблоны заголовочных файлов </H3>
+<!--docid::SEC16::-->
+<A NAME="Header Templates"></A>
+<P>
+
+Ваш дистрибутив должен содержать файл шаблона, который должен выглядеть
+так, как будет выглядеть окончательный заголовочный файл, включая
+комментарии, но при этом все значения директив <CODE>#define</CODE> в нем
+будут установлены по умолчанию.  Например,
+предположим, что ваш файл <TT>`configure.in'</TT> производит следующие
+вызовы:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_CONFIG_HEADER(conf.h)
+AC_CHECK_HEADERS(unistd.h)
+</pre></td></tr></table></P><P>
+
+Для этого примера необходимо вставить в <TT>`conf.h.in'</TT> нижеследующий
+код.  В системах, в которых есть <TT>`unistd.h'</TT>,
+<CODE>configure</CODE> заменит 0 на 1.  В других системах эта строка останется
+неизмененной.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>/* Определить со значением 1 если у вас есть unistd.h.  */
+#define HAVE_UNISTD_H 0
+</pre></td></tr></table></P><P>
+
+Если ваш код проверяет конфигурацию, используя директиву препроцессора
+<CODE>#ifdef</CODE> вместо <CODE>#if</CODE>, то значение по умолчанию может быть
+удалено директивой <CODE>#undef</CODE> вместо определения значения. В
+системах, имеющих файл <TT>`unistd.h'</TT>, <CODE>configure</CODE> изменит вторую
+строку на <SAMP>`#define HAVE_UNISTD_H 1'</SAMP>. В других системах эта строка
+будет закомментирована (в случае, если система предопределяет этот
+символ).
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>/* Определяется, если в системе есть unistd.h.  */
+#undef HAVE_UNISTD_H
+</pre></td></tr></table></P><P>
+
+<A NAME="Запуск autoheader"></A>
+<HR SIZE="6">
+<A NAME="SEC17"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC16"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC18"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC11"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC18"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 3.4.2 Использование <CODE>autoheader</CODE> для создания <TT>`config.h.in'</TT> </H3>
+<!--docid::SEC17::-->
+<A NAME="Invoking autoheader"></A>
+<P>
+
+Программа <CODE>autoheader</CODE> может создать шаблон файла, содержащего
+директивы <SAMP>`#define'</SAMP>, для использования с <CODE>configure</CODE>.  Если
+<TT>`configure.in'</TT> использует <CODE>AC_CONFIG_HEADER(<VAR>file</VAR>)</CODE>, то
+<CODE>autoheader</CODE> создает <TT>`<VAR>file</VAR>.in'</TT>; если в качестве
+аргумента задано несколько имен файлов, то используется только первое
+имя. В противном случае <CODE>autoheader</CODE> создаст файл <TT>`config.h.in'</TT>.
+</P><P>
+
+Если вы зададите аргумент программе <CODE>autoheader</CODE>, то она будет
+считывать данные из этого файла, а не из файла <TT>`configure.in'</TT> и
+будет выводить данные в поток стандартного вывода вместо
+<TT>`config.h.in'</TT>. Если вы зададите <CODE>autoheader</CODE> аргумент
+<SAMP>`-'</SAMP>, то программа будет считывать данные со стандартного ввода
+вместо <TT>`configure.in'</TT> и выдавать результаты на стандартный вывод.
+</P><P>
+
+<CODE>autoheader</CODE> сканирует файл <TT>`configure.in'</TT> и определяет, какие
+символы препроцессора C могут быть определены в нем.  Программа копирует
+комментарии и директивы <CODE>#define</CODE> и <CODE>#undef</CODE> из файла с именем
+<TT>`acconfig.h'</TT>, который поставляется вместе с Autoconf.  Программа
+также использует файл с именем <TT>`acconfig.h'</TT> из текущего каталога,
+если он присутствует. Если вы определите с помощью макроса
+<CODE>AC_DEFINE</CODE> дополнительные символы, то вы должны создать этот файл
+с записями для них.  Для символов, определенных макросами
+<CODE>AC_CHECK_HEADERS</CODE>, <CODE>AC_CHECK_FUNCS</CODE>, <CODE>AC_CHECK_SIZEOF</CODE>
+или <CODE>AC_CHECK_LIB</CODE>, программа <CODE>autoheader</CODE> сама создает
+комментарии и директивы <CODE>#undef</CODE>, а не копирует их из файла,
+поскольку количество возможных символов фактически бесконечно.
+</P><P>
+
+Файл, создающийся <CODE>autoheader</CODE>, содержит в основном директивы
+<CODE>#define</CODE> и <CODE>#undef</CODE> и комментарии к ним.  Если
+<TT>`./acconfig.h'</TT> содержит строку <SAMP>`@TOP@'</SAMP>, то <CODE>autoheader</CODE>
+копирует строки, которые находятся выше строки <SAMP>`@TOP@'</SAMP>, прямо в
+заголовок создаваемого файла. Аналогично, если <TT>`./acconfig.h'</TT>
+содержит строку <SAMP>`@BOTTOM@'</SAMP>, то <CODE>autoheader</CODE> скопирует
+строки, расположенные сразу после этой строки, в конец создаваемого
+файла.  Можно не использовать как <SAMP>`@TOP@'</SAMP>, так и
+<SAMP>`@BOTTOM@'</SAMP>.
+</P><P>
+
+Другой способ добиться точно такого же результата -- создать в текущем
+каталоге файлы <TT>`<VAR>file</VAR>.top'</TT> (обычно <TT>`config.h.top'</TT>) и/или
+<TT>`<VAR>file</VAR>.bot'</TT>. Если эти файлы существуют, то <CODE>autoheader</CODE>
+копирует их содержимое в начало и в конец выводимых данных. Их
+использование не рекомендуется, поскольку имена этих файлов содержат две
+точки и не могут применяться в MS-DOS; также это увеличивает содержимое
+каталога еще на два файла. Но если вы воспользуетесь ключом
+<SAMP>`--localdir=<VAR>dir</VAR>'</SAMP> для использования <TT>`acconfig.h'</TT>,
+находящегося в другом каталоге, то эти файлы позволят вам вставлять
+произвольные куски кода в каждый конкретный файл <TT>`config.h.in'</TT>.
+</P><P>
+
+<CODE>autoheader</CODE> распознает следующие ключи командной строки:
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>--help</CODE>
+<DD><DT><CODE>-h</CODE>
+<DD>Выдает список ключей командной строки и прекращает работу.
+<P>
+
+<DT><CODE>--localdir=<VAR>dir</VAR></CODE>
+<DD><DT><CODE>-l <VAR>dir</VAR></CODE>
+<DD>Искать файлы <TT>`aclocal.m4'</TT> и <TT>`acconfig.h'</TT> (но не 
+файлы <TT>`<VAR>file</VAR>.top'</TT> и <TT>`<VAR>file</VAR>.bot'</TT>) в каталоге <VAR>dir</VAR> 
+вместо текущего каталога.
+<P>
+
+<DT><CODE>--macrodir=<VAR>dir</VAR></CODE>
+<DD><DT><CODE>-m <VAR>dir</VAR></CODE>
+<DD><A NAME="IDX66"></A>
+Искать инсталлированные файлы макросов и <TT>`acconfig.h'</TT> в 
+каталоге <VAR>dir</VAR>. Вы можете также установить переменную среды 
+<CODE>AC_MACRODIR</CODE>, указывающую на этот каталог; этот ключ переопределяет
+значение переменной среды.
+<P>
+
+<DT><CODE>--version</CODE>
+<DD>Выдает номер версии Autoconf и прекращает работу.
+</DL>
+<P>
+
+<A NAME="Подкаталоги"></A>
+<HR SIZE="6">
+<A NAME="SEC18"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC17"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC19"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC15"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 3.5 Настройка других пакетов, находящихся в подкаталогах </H2>
+<!--docid::SEC18::-->
+<A NAME="Subdirectories"></A>
+<P>
+
+В большинстве ситуаций для создания файлов <TT>`Makefile'</TT> в
+подкаталогах достаточно вызова макроса <CODE>AC_OUTPUT</CODE>. Однако скрипты
+<CODE>configure</CODE>, контролирующие более чем один независимый
+пакет, могут использовать макрос <CODE>AC_CONFIG_SUBDIRS</CODE> для запуска
+скриптов <CODE>configure</CODE> для других пакетов, находящихся в
+подкаталогах.
+</P><P>
+
+<A NAME="IDX67"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_CONFIG_SUBDIRS</B> <I>(<VAR>dir</VAR> <small>...</small>)</I>
+<DD><A NAME="IDX68"></A>
+<A NAME="IDX69"></A>
+Заставляет <CODE>AC_OUTPUT</CODE> запустить <CODE>configure</CODE> в каждом
+подкаталоге <VAR>dir</VAR>,заданном в списке через пробел.  Если заданный
+каталог <VAR>dir</VAR> не найден, то сообщение об ошибке не выдается, поэтому
+скрипт <CODE>configure</CODE> может производить конфигурацию, даже если часть
+подкаталогов отсутствует.  Если заданный каталог <VAR>dir</VAR> содержит файл
+<TT>`configure.in'</TT>, но не содержит <CODE>configure</CODE>, то будет
+использоваться Cygnus-версия скрипта <CODE>configure</CODE>, местонахождение
+которой определяется макросом <CODE>AC_CONFIG_AUXDIR</CODE>.
+</P><P>
+
+Скриптам <CODE>configure</CODE>, находящимся в подкаталогах, передается та же
+командная строка, что задана текущему скрипту <CODE>configure</CODE>, только с
+некоторыми изменениями, когда это необходимо (например, исправление
+относительных путевых имен для кэш-файла или каталога с исходными
+текстами). Этот макрос также устанавливает выходную переменную
+<CODE>subdirs</CODE> равной списку каталогов <SAMP>`<VAR>dir</VAR> <small>...</small>'</SAMP>. Правила
+<TT>`Makefile'</TT> могут использовать эту переменную для определения того,
+в какие подкаталоги будет осуществляться рекурсивный переход. Этот
+макрос может вызываться много раз.
+</DL>
+</P><P>
+
+<A NAME="Префикс по умолчанию"></A>
+<HR SIZE="6">
+<A NAME="SEC19"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC18"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC20"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 3.6 Префикс по умолчанию </H2>
+<!--docid::SEC19::-->
+<A NAME="Default Prefix"></A>
+<P>
+
+По умолчанию <CODE>configure</CODE> задает префикс для устанавливаемых файлов
+равным <TT>`/usr/local'</TT>. Пользователь <CODE>configure</CODE> может выбрать
+другой префикс, используя ключи командной строки <SAMP>`--prefix'</SAMP> и
+<SAMP>`--exec-prefix'</SAMP>.  Есть два способа изменения значения по
+умолчанию: при создании <CODE>configure</CODE> и при его запуске.
+</P><P>
+
+Некоторые пакеты программного обеспечения могут требовать установки по
+умолчанию в каталог, отличный от <TT>`/usr/local'</TT>.  Чтобы изменить
+значение по умолчанию, используйте макрос <CODE>AC_PREFIX_DEFAULT</CODE>.
+</P><P>
+
+<A NAME="IDX70"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_PREFIX_DEFAULT</B> <I>(<VAR>prefix</VAR>)</I>
+<DD>Устанавливает значение префикса установки по умолчанию в значение
+<VAR>prefix</VAR> вместо <TT>`/usr/local'</TT>.
+</DL>
+</P><P>
+
+Для пользователей может быть удобным, чтобы <CODE>configure</CODE> попытался
+угадать префикс для установки на основе расположения некоторых программ, 
+которые уже установлены в системе.  Если вы хотите именно этого,
+используйте макрос <CODE>AC_PREFIX_PROGRAM</CODE>.
+</P><P>
+
+<A NAME="IDX71"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_PREFIX_PROGRAM</B> <I>(<VAR>program</VAR>)</I>
+<DD><A NAME="IDX72"></A>
+Если пользователь не указал префикс для установки (используя ключ
+<SAMP>`--prefix'</SAMP>), то попробовать определить значение префикса на основе
+поиска <VAR>program</VAR> в списке каталогов из <CODE>PATH</CODE>. Если
+<VAR>program</VAR> найдена, то установить префикс равным родительскому
+каталогу каталога, в котором находится <VAR>program</VAR>; иначе оставить
+неизмененным значение префикса, указанного <TT>`Makefile.in'</TT>. Например,
+если значением <VAR>program</VAR> является <CODE>gcc</CODE>, а в путях найдена
+программа <TT>`/usr/local/gnu/bin/gcc'</TT>, то значением префикса будет
+<TT>`/usr/local/gnu'</TT>.
+</DL>
+</P><P>
+
+<A NAME="Версии"></A>
+<HR SIZE="6">
+<A NAME="SEC20"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC19"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 3.7 Номера версий в <CODE>configure</CODE> </H2>
+<!--docid::SEC20::-->
+<A NAME="Versions"></A>
+<P>
+
+Следующие макросы используются для работы с номерами версий в скриптах 
+<CODE>configure</CODE>. Их использование не обязательно.
+</P><P>
+
+<A NAME="IDX73"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_PREREQ</B> <I>(<VAR>version</VAR>)</I>
+<DD><A NAME="IDX74"></A>
+Обеспечивает проверку того, что используется достаточно свежая версия
+Autoconf. Если версия Autoconf, используемая для создания
+<CODE>configure</CODE>, является более старой чем <VAR>version</VAR>, то в
+стандартный поток сообщений об ошибках выдается сообщение, и
+<CODE>configure</CODE> не создается. Например:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_PREREQ(1.8)
+</pre></td></tr></table></P><P>
+
+Этот макрос полезен в том случае, если ваш <TT>`configure.in'</TT>
+полагается на неочевидное поведение, которое изменилось между версиями
+Autoconf.  Если вам необходимы только недавно добавленные макросы, то
+<CODE>AC_PREREQ</CODE> чуть менее полезен, поскольку программа <CODE>autoconf</CODE>
+и так сообщит пользователю о том, какие макросы не найдены. То же самое
+случится, если файл <TT>`configure.in'</TT> будет
+обрабатываться версией Autoconf, более старой чем та, в которой был
+добавлен макрос <CODE>AC_PREREQ</CODE>.
+</DL>
+</P><P>
+
+<A NAME="IDX75"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_REVISION</B> <I>(<VAR>revision-info</VAR>)</I>
+<DD><A NAME="IDX76"></A>
+Копирует метки ревизий <VAR>revision-info</VAR> в скрипт <CODE>configure</CODE>,
+удаляя знаки доллара и двойные кавычки.  Этот макрос позволяет вам
+помещать метки версий из файла <TT>`configure.in'</TT> в <CODE>configure</CODE>,
+но при этом RCS или CVS не станут изменять их при помещении
+<CODE>configure</CODE> в репозиторий.  Таким образом, вы можете легко
+определить, какая версия <TT>`configure.in'</TT> соответствует конкретному
+<CODE>configure</CODE>.
+</P><P>
+
+Хорошей идеей является вызов этого макроса перед <CODE>AC_INIT</CODE>, чтобы
+номер ревизии располагался в начале и <TT>`configure.in'</TT>, и
+<CODE>configure</CODE>. Для поддержки этого выдача <CODE>AC_REVISION</CODE> 
+начинается с <SAMP>`#! /bin/sh'</SAMP>, подобно обычному началу скрипта
+<CODE>configure</CODE>.
+</P><P>
+
+Вот пример этой строки в <TT>`configure.in'</TT>:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_REVISION($Revision: 1.9 $)dnl
+</pre></td></tr></table></P><P>
+
+это создает в <CODE>configure</CODE> строки:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>#! /bin/sh
+# From configure.in Revision: 1.30
+</pre></td></tr></table></DL>
+</P><P>
+
+<A NAME="Существующие тесты"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+on <I>February, 19  2004</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct = "UA-78697-3"; urchinTracker(); </script></body>
+</HTML>

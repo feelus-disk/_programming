@@ -1,0 +1,125 @@
+<html lang="en">
+<head>
+<title>Macro Names - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros" title="Writing Autoconf Macros">
+<link rel="prev" href="Macro-Definitions.html#Macro-Definitions" title="Macro Definitions">
+<link rel="next" href="Reporting-Messages.html#Reporting-Messages" title="Reporting Messages">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Macro-Names"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Reporting-Messages.html#Reporting-Messages">Reporting Messages</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Macro-Definitions.html#Macro-Definitions">Macro Definitions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros">Writing Autoconf Macros</a>
+<hr>
+</div>
+
+<h3 class="section">10.2 Macro Names</h3>
+
+<p>All of the public Autoconf macros have all-uppercase names in the
+namespace &lsquo;<samp><span class="samp">^AC_</span></samp>&rsquo; to prevent them from accidentally conflicting with
+other text; Autoconf also reserves the namespace &lsquo;<samp><span class="samp">^_AC_</span></samp>&rsquo; for
+internal macros.  All shell variables that they use for internal
+purposes have mostly-lowercase names starting with &lsquo;<samp><span class="samp">ac_</span></samp>&rsquo;.  Autoconf
+also uses here-document delimiters in the namespace &lsquo;<samp><span class="samp">^_AC[A-Z]</span></samp>&rsquo;.  During
+<samp><span class="command">configure</span></samp>, files produced by Autoconf make heavy use of the
+file system namespace &lsquo;<samp><span class="samp">^conf</span></samp>&rsquo;.
+
+   <p>Since Autoconf is built on top of M4sugar (see <a href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>) and M4sh (see <a href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>), you must also be aware
+of those namespaces (&lsquo;<samp><span class="samp">^_?\(m4\|AS\)_</span></samp>&rsquo;).  And since
+<samp><span class="file">configure.ac</span></samp> is also designed to be scanned by Autoheader,
+Autoscan, Autoupdate, and Automake, you should be aware of the
+&lsquo;<samp><span class="samp">^_?A[HNUM]_</span></samp>&rsquo; namespaces.  In general, you <em>should not use</em>
+the namespace of a package that does not own the macro or shell code you
+are writing.
+
+   <p>To ensure that your macros don't conflict with present or future
+Autoconf macros, you should prefix your own macro names and any shell
+variables they use with some other sequence.  Possibilities include your
+initials, or an abbreviation for the name of your organization or
+software package.  Historically, people have not always followed the
+rule of using a namespace appropriate for their package, and this has
+made it difficult for determining the origin of a macro (and where to
+report bugs about that macro), as well as difficult for the true
+namespace owner to add new macros without interference from pre-existing
+uses of third-party macros.  Perhaps the best example of this confusion
+is the <code>AM_GNU_GETTEXT</code> macro, which belongs, not to Automake, but
+to Gettext.
+
+   <p>Most of the Autoconf macros' names follow a structured naming convention
+that indicates the kind of feature check by the name.  The macro names
+consist of several words, separated by underscores, going from most
+general to most specific.  The names of their cache variables use the
+same convention (see <a href="Cache-Variable-Names.html#Cache-Variable-Names">Cache Variable Names</a>, for more information on
+them).
+
+   <p>The first word of the name after the namespace initials (such as
+&lsquo;<samp><span class="samp">AC_</span></samp>&rsquo;) usually tells the category
+of the feature being tested.  Here are the categories used in Autoconf for
+specific test macros, the kind of macro that you are more likely to
+write.  They are also used for cache variables, in all-lowercase.  Use
+them where applicable; where they're not, invent your own categories.
+
+     <dl>
+<dt><code>C</code><dd>C language builtin features. 
+<br><dt><code>DECL</code><dd>Declarations of C variables in header files. 
+<br><dt><code>FUNC</code><dd>Functions in libraries. 
+<br><dt><code>GROUP</code><dd>Posix group owners of files. 
+<br><dt><code>HEADER</code><dd>Header files. 
+<br><dt><code>LIB</code><dd>C libraries. 
+<br><dt><code>PROG</code><dd>The base names of programs. 
+<br><dt><code>MEMBER</code><dd>Members of aggregates. 
+<br><dt><code>SYS</code><dd>Operating system features. 
+<br><dt><code>TYPE</code><dd>C builtin or declared types. 
+<br><dt><code>VAR</code><dd>C variables in libraries. 
+</dl>
+
+   <p>After the category comes the name of the particular feature being
+tested.  Any further words in the macro name indicate particular aspects
+of the feature.  For example, <code>AC_PROG_CC_STDC</code> checks whether the
+C compiler supports ISO Standard C.
+
+   <p>An internal macro should have a name that starts with an underscore;
+Autoconf internals should therefore start with &lsquo;<samp><span class="samp">_AC_</span></samp>&rsquo;. 
+Additionally, a macro that is an internal subroutine of another macro
+should have a name that starts with an underscore and the name of that
+other macro, followed by one or more words saying what the internal
+macro does.  For example, <code>AC_PATH_X</code> has internal macros
+<code>_AC_PATH_X_XMKMF</code> and <code>_AC_PATH_X_DIRECT</code>.
+
+   </body></html>
+

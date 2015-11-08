@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: CVS</title>
+
+<meta name="description" content="automake: CVS">
+<meta name="keywords" content="automake: CVS">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="FAQ.html#FAQ" rel="up" title="FAQ">
+<link href="maintainer_002dmode.html#maintainer_002dmode" rel="next" title="maintainer-mode">
+<link href="FAQ.html#FAQ" rel="prev" title="FAQ">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="CVS"></a>
+<div class="header">
+<p>
+Next: <a href="maintainer_002dmode.html#maintainer_002dmode" accesskey="n" rel="next">maintainer-mode</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="CVS-and-generated-files"></a>
+<h3 class="section">27.1 CVS and generated files</h3>
+
+<a name="Background_003a-distributed-generated-Files"></a>
+<h4 class="subheading">Background: distributed generated Files</h4>
+<a name="index-generated-files_002c-distributed"></a>
+<a name="index-rebuild-rules-1"></a>
+
+<p>Packages made with Autoconf and Automake ship with some generated
+files like <samp>configure</samp> or <samp>Makefile.in</samp>.  These files were
+generated on the developer&rsquo;s machine and are distributed so that
+end-users do not have to install the maintainer tools required to
+rebuild them.  Other generated files like Lex scanners, Yacc parsers,
+or Info documentation, are usually distributed on similar grounds.
+</p>
+<p>Automake output rules in <samp>Makefile</samp>s to rebuild these files.  For
+instance, <code>make</code> will run <code>autoconf</code> to rebuild
+<samp>configure</samp> whenever <samp>configure.ac</samp> is changed.  This makes
+development safer by ensuring a <samp>configure</samp> is never out-of-date
+with respect to <samp>configure.ac</samp>.
+</p>
+<p>As generated files shipped in packages are up-to-date, and because
+<code>tar</code> preserves times-tamps, these rebuild rules are not
+triggered when a user unpacks and builds a package.
+</p>
+<a name="Background_003a-CVS-and-Timestamps"></a>
+<h4 class="subheading">Background: CVS and Timestamps</h4>
+<a name="index-timestamps-and-CVS"></a>
+<a name="index-CVS-and-timestamps"></a>
+
+<p>Unless you use CVS keywords (in which case files must be updated at
+commit time), CVS preserves timestamp during &lsquo;<samp>cvs commit</samp>&rsquo; and
+&lsquo;<samp>cvs import -d</samp>&rsquo; operations.
+</p>
+<p>When you check out a file using &lsquo;<samp>cvs checkout</samp>&rsquo; its timestamp is
+set to that of the revision that is being checked out.
+</p>
+<p>However, during <code>cvs update</code>, files will have the date of the
+update, not the original timestamp of this revision.  This is meant to
+make sure that <code>make</code> notices sources files have been updated.
+</p>
+<p>This timestamp shift is troublesome when both sources and generated
+files are kept under CVS.  Because CVS processes files in lexical
+order, <samp>configure.ac</samp> will appear newer than <samp>configure</samp>
+after a <code>cvs update</code> that updates both files, even if
+<samp>configure</samp> was newer than <samp>configure.ac</samp> when it was
+checked in.  Calling <code>make</code> will then trigger a spurious rebuild
+of <samp>configure</samp>.
+</p>
+<a name="Living-with-CVS-in-Autoconfiscated-Projects"></a>
+<h4 class="subheading">Living with CVS in Autoconfiscated Projects</h4>
+<a name="index-CVS-and-generated-files"></a>
+<a name="index-generated-files-and-CVS"></a>
+
+<p>There are basically two clans amongst maintainers: those who keep all
+distributed files under CVS, including generated files, and those who
+keep generated files <em>out</em> of CVS.
+</p>
+<a name="All-Files-in-CVS"></a>
+<h4 class="subsubheading">All Files in CVS</h4>
+
+<ul>
+<li> The CVS repository contains all distributed files so you know exactly
+what is distributed, and you can checkout any prior version entirely.
+
+</li><li> Maintainers can see how generated files evolve (for instance, you can
+see what happens to your <samp>Makefile.in</samp>s when you upgrade Automake
+and make sure they look OK).
+
+</li><li> Users do not need the autotools to build a checkout of the project, it
+works just like a released tarball.
+
+</li><li> If users use <code>cvs update</code> to update their copy, instead of
+<code>cvs checkout</code> to fetch a fresh one, timestamps will be
+inaccurate.  Some rebuild rules will be triggered and attempt to
+run developer tools such as <code>autoconf</code> or <code>automake</code>.
+
+<p>Calls to such tools are all wrapped into a call to the <code>missing</code>
+script discussed later (see <a href="maintainer_002dmode.html#maintainer_002dmode">maintainer-mode</a>), so that the user will
+see more descriptive warnings about missing or out-of-date tools, and
+possible suggestions about how to obtain them, rather than just some
+&ldquo;command not found&rdquo; error, or (worse) some obscure message from some
+older version of the required tool they happen to have installed.
+</p>
+<p>Maintainers interested in keeping their package buildable from a CVS
+checkout even for those users that lack maintainer-specific tools might
+want to provide an helper script (or to enhance their existing bootstrap
+script) to fix the timestamps after a
+<code>cvs update</code> or a <code>git checkout</code>, to prevent spurious
+rebuilds.  In case of a project committing the Autotools-generated
+files, as well as the generated <samp>.info</samp> files, such script might
+look something like this:
+</p>
+<div class="smallexample">
+<pre class="smallexample">#!/bin/sh
+# fix-timestamp.sh: prevents useless rebuilds after &quot;cvs update&quot;
+sleep 1
+# aclocal-generated aclocal.m4 depends on locally-installed
+# '.m4' macro files, as well as on 'configure.ac'
+touch aclocal.m4
+sleep 1
+# autoconf-generated configure depends on aclocal.m4 and on
+# configure.ac
+touch configure
+# so does autoheader-generated config.h.in
+touch config.h.in
+# and all the automake-generated Makefile.in files
+touch `find . -name Makefile.in -print`
+# finally, the makeinfo-generated '.info' files depend on the
+# corresponding '.texi' files
+touch doc/*.info
+</pre></div>
+
+</li><li> In distributed development, developers are likely to have different
+version of the maintainer tools installed.  In this case rebuilds
+triggered by timestamp lossage will lead to spurious changes
+to generated files.  There are several solutions to this:
+
+<ul>
+<li> All developers should use the same versions, so that the rebuilt files
+are identical to files in CVS.  (This starts to be difficult when each
+project you work on uses different versions.)
+</li><li> Or people use a script to fix the timestamp after a checkout (the GCC
+folks have such a script).
+</li><li> Or <samp>configure.ac</samp> uses <code>AM_MAINTAINER_MODE</code>, which will
+disable all of these rebuild rules by default.  This is further discussed
+in <a href="maintainer_002dmode.html#maintainer_002dmode">maintainer-mode</a>.
+</li></ul>
+
+</li><li> Although we focused on spurious rebuilds, the converse can also
+happen.  CVS&rsquo;s timestamp handling can also let you think an
+out-of-date file is up-to-date.
+
+<p>For instance, suppose a developer has modified <samp>Makefile.am</samp> and
+has rebuilt <samp>Makefile.in</samp>, and then decides to do a last-minute
+change to <samp>Makefile.am</samp> right before checking in both files
+(without rebuilding <samp>Makefile.in</samp> to account for the change).
+</p>
+<p>This last change to <samp>Makefile.am</samp> makes the copy of
+<samp>Makefile.in</samp> out-of-date.  Since CVS processes files
+alphabetically, when another developer &lsquo;<samp>cvs update</samp>&rsquo;s his or her
+tree, <samp>Makefile.in</samp> will happen to be newer than
+<samp>Makefile.am</samp>.  This other developer will not see that
+<samp>Makefile.in</samp> is out-of-date.
+</p>
+</li></ul>
+
+<a name="Generated-Files-out-of-CVS"></a>
+<h4 class="subsubheading">Generated Files out of CVS</h4>
+
+<p>One way to get CVS and <code>make</code> working peacefully is to never
+store generated files in CVS, i.e., do not CVS-control files that
+are <samp>Makefile</samp> targets (also called <em>derived</em> files).
+</p>
+<p>This way developers are not annoyed by changes to generated files.  It
+does not matter if they all have different versions (assuming they are
+compatible, of course).  And finally, timestamps are not lost, changes
+to sources files can&rsquo;t be missed as in the
+<samp>Makefile.am</samp>/<samp>Makefile.in</samp> example discussed earlier.
+</p>
+<p>The drawback is that the CVS repository is not an exact copy of what
+is distributed and that users now need to install various development
+tools (maybe even specific versions) before they can build a checkout.
+But, after all, CVS&rsquo;s job is versioning, not distribution.
+</p>
+<p>Allowing developers to use different versions of their tools can also
+hide bugs during distributed development.  Indeed, developers will be
+using (hence testing) their own generated files, instead of the
+generated files that will be released actually.  The developer who
+prepares the tarball might be using a version of the tool that
+produces bogus output (for instance a non-portable C file), something
+other developers could have noticed if they weren&rsquo;t using their own
+versions of this tool.
+</p>
+<a name="Third_002dparty-Files"></a>
+<h4 class="subheading">Third-party Files</h4>
+<a name="index-CVS-and-third_002dparty-files"></a>
+<a name="index-third_002dparty-files-and-CVS"></a>
+
+<p>Another class of files not discussed here (because they do not cause
+timestamp issues) are files that are shipped with a package, but
+maintained elsewhere.  For instance, tools like <code>gettextize</code>
+and <code>autopoint</code> (from Gettext) or <code>libtoolize</code> (from
+Libtool), will install or update files in your package.
+</p>
+<p>These files, whether they are kept under CVS or not, raise similar
+concerns about version mismatch between developers&rsquo; tools.  The
+Gettext manual has a section about this, see <a href="http://www.gnu.org/software/gettext/manual/html_node/CVS-Issues.html#CVS-Issues">Integrating with CVS</a> in <cite>GNU gettext tools</cite>.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="maintainer_002dmode.html#maintainer_002dmode" accesskey="n" rel="next">maintainer-mode</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

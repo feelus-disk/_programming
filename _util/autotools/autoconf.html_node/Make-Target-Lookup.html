@@ -1,0 +1,188 @@
+<html lang="en">
+<head>
+<title>Make Target Lookup - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="VPATH-and-Make.html#VPATH-and-Make" title="VPATH and Make">
+<link rel="prev" href="Tru64-Directory-Magic.html#Tru64-Directory-Magic" title="Tru64 Directory Magic">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Make-Target-Lookup"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Tru64-Directory-Magic.html#Tru64-Directory-Magic">Tru64 Directory Magic</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="VPATH-and-Make.html#VPATH-and-Make">VPATH and Make</a>
+<hr>
+</div>
+
+<h4 class="subsection">12.18.6 Make Target Lookup</h4>
+
+<p><a name="index-g_t_0040code_007bVPATH_007d_002c-resolving-target-pathnames-1879"></a>
+GNU <samp><span class="command">make</span></samp> uses a complex algorithm to decide when it
+should use files found via a <code>VPATH</code> search.  See <a href="../make/Search-Algorithm.html#Search-Algorithm">How Directory Searches are Performed</a>.
+
+   <p>If a target needs to be rebuilt, GNU <samp><span class="command">make</span></samp> discards the
+file name found during the <code>VPATH</code> search for this target, and
+builds the file locally using the file name given in the makefile. 
+If a target does not need to be rebuilt, GNU <samp><span class="command">make</span></samp> uses the
+file name found during the <code>VPATH</code> search.
+
+   <p>Other <samp><span class="command">make</span></samp> implementations, like NetBSD <samp><span class="command">make</span></samp>, are
+easier to describe: the file name found during the <code>VPATH</code> search
+is used whether the target needs to be rebuilt or not.  Therefore
+new files are created locally, but existing files are updated at their
+<code>VPATH</code> location.
+
+   <p>OpenBSD and FreeBSD <samp><span class="command">make</span></samp>, however,
+never perform a
+<code>VPATH</code> search for a dependency that has an explicit rule. 
+This is extremely annoying.
+
+   <p>When attempting a <code>VPATH</code> build for an autoconfiscated package
+(e.g., <code>mkdir build &amp;&amp; cd build &amp;&amp; ../configure</code>), this means
+GNU
+<samp><span class="command">make</span></samp> builds everything locally in the <samp><span class="file">build</span></samp>
+directory, while BSD <samp><span class="command">make</span></samp> builds new files locally and
+updates existing files in the source directory.
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     VPATH = ..
+     all: foo.x bar.x
+     foo.x bar.x: newer.x
+             @echo Building $@
+     $ <kbd>touch ../bar.x</kbd>
+     $ <kbd>touch ../newer.x</kbd>
+     $ <kbd>make</kbd>        # GNU make
+     Building foo.x
+     Building bar.x
+     $ <kbd>pmake</kbd>       # NetBSD make
+     Building foo.x
+     Building ../bar.x
+     $ <kbd>fmake</kbd>       # FreeBSD make, OpenBSD make
+     Building foo.x
+     Building bar.x
+     $ <kbd>tmake</kbd>       # Tru64 make
+     Building foo.x
+     Building bar.x
+     $ <kbd>touch ../bar.x</kbd>
+     $ <kbd>make</kbd>        # GNU make
+     Building foo.x
+     $ <kbd>pmake</kbd>       # NetBSD make
+     Building foo.x
+     $ <kbd>fmake</kbd>       # FreeBSD make, OpenBSD make
+     Building foo.x
+     Building bar.x
+     $ <kbd>tmake</kbd>       # Tru64 make
+     Building foo.x
+     Building bar.x
+</pre>
+   <p>Note how NetBSD <samp><span class="command">make</span></samp> updates <samp><span class="file">../bar.x</span></samp> in its
+VPATH location, and how FreeBSD, OpenBSD, and Tru64
+<samp><span class="command">make</span></samp> always
+update <samp><span class="file">bar.x</span></samp>, even when <samp><span class="file">../bar.x</span></samp> is up to date.
+
+   <p>Another point worth mentioning is that once GNU <samp><span class="command">make</span></samp> has
+decided to ignore a <code>VPATH</code> file name (e.g., it ignored
+<samp><span class="file">../bar.x</span></samp> in the above example) it continues to ignore it when
+the target occurs as a prerequisite of another rule.
+
+   <p>The following example shows that GNU <samp><span class="command">make</span></samp> does not look up
+<samp><span class="file">bar.x</span></samp> in <code>VPATH</code> before performing the <code>.x.y</code> rule,
+because it ignored the <code>VPATH</code> result of <samp><span class="file">bar.x</span></samp> while running
+the <code>bar.x: newer.x</code> rule.
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     VPATH = ..
+     all: bar.y
+     bar.x: newer.x
+             @echo Building $@
+     .SUFFIXES: .x .y
+     .x.y:
+             cp $&lt; $@
+     $ <kbd>touch ../bar.x</kbd>
+     $ <kbd>touch ../newer.x</kbd>
+     $ <kbd>make</kbd>        # GNU make
+     Building bar.x
+     cp bar.x bar.y
+     cp: cannot stat `bar.x': No such file or directory
+     make: *** [bar.y] Error 1
+     $ <kbd>pmake</kbd>       # NetBSD make
+     Building ../bar.x
+     cp ../bar.x bar.y
+     $ <kbd>rm bar.y</kbd>
+     $ <kbd>fmake</kbd>       # FreeBSD make, OpenBSD make
+     echo Building bar.x
+     cp bar.x bar.y
+     cp: cannot stat `bar.x': No such file or directory
+     *** Error code 1
+     $ <kbd>tmake</kbd>       # Tru64 make
+     Building bar.x
+     cp: bar.x: No such file or directory
+     *** Exit 1
+</pre>
+   <p>Note that if you drop away the command from the <code>bar.x: newer.x</code>
+rule, GNU <samp><span class="command">make</span></samp> magically starts to work: it
+knows that <code>bar.x</code> hasn't been updated, therefore it doesn't
+discard the result from <code>VPATH</code> (<samp><span class="file">../bar.x</span></samp>) in succeeding
+uses.  Tru64 also works, but FreeBSD and OpenBSD
+still don't.
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     VPATH = ..
+     all: bar.y
+     bar.x: newer.x
+     .SUFFIXES: .x .y
+     .x.y:
+             cp $&lt; $@
+     $ <kbd>touch ../bar.x</kbd>
+     $ <kbd>touch ../newer.x</kbd>
+     $ <kbd>make</kbd>        # GNU make
+     cp ../bar.x bar.y
+     $ <kbd>rm bar.y</kbd>
+     $ <kbd>pmake</kbd>       # NetBSD make
+     cp ../bar.x bar.y
+     $ <kbd>rm bar.y</kbd>
+     $ <kbd>fmake</kbd>       # FreeBSD make, OpenBSD make
+     cp bar.x bar.y
+     cp: cannot stat `bar.x': No such file or directory
+     *** Error code 1
+     $ <kbd>tmake</kbd>       # Tru64 make
+     cp ../bar.x bar.y
+</pre>
+   <p>It seems the sole solution that would please every <samp><span class="command">make</span></samp>
+implementation is to never rely on <code>VPATH</code> searches for targets. 
+In other words, <code>VPATH</code> should be reserved to unbuilt sources.
+
+   </body></html>
+

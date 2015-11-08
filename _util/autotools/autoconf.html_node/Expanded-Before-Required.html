@@ -1,0 +1,172 @@
+<html lang="en">
+<head>
+<title>Expanded Before Required - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="FAQ.html#FAQ" title="FAQ">
+<link rel="prev" href="Present-But-Cannot-Be-Compiled.html#Present-But-Cannot-Be-Compiled" title="Present But Cannot Be Compiled">
+<link rel="next" href="Debugging.html#Debugging" title="Debugging">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Expanded-Before-Required"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Debugging.html#Debugging">Debugging</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Present-But-Cannot-Be-Compiled.html#Present-But-Cannot-Be-Compiled">Present But Cannot Be Compiled</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="FAQ.html#FAQ">FAQ</a>
+<hr>
+</div>
+
+<h3 class="section">20.8 Expanded Before Required</h3>
+
+<p><a name="index-expanded-before-required-2317"></a>Older versions of Autoconf silently built files with incorrect ordering
+between dependent macros if an outer macro first expanded, then later
+indirectly required, an inner macro.  Starting with Autoconf 2.64, this
+situation no longer generates out-of-order code, but results in
+duplicate output and a syntax warning:
+
+<pre class="example">     $ <kbd>cat configure.ac</kbd>
+     &rArr;AC_DEFUN([TESTA], [[echo in A
+     &rArr;if test -n "$SEEN_A" ; then echo duplicate ; fi
+     &rArr;SEEN_A=:]])
+     &rArr;AC_DEFUN([TESTB], [AC_REQUIRE([TESTA])[echo in B
+     &rArr;if test -z "$SEEN_A" ; then echo bug ; fi]])
+     &rArr;AC_DEFUN([TESTC], [AC_REQUIRE([TESTB])[echo in C]])
+     &rArr;AC_DEFUN([OUTER], [[echo in OUTER]
+     &rArr;TESTA
+     &rArr;TESTC])
+     &rArr;AC_INIT
+     &rArr;OUTER
+     &rArr;AC_OUTPUT
+     $ <kbd>autoconf</kbd>
+     &rArr;configure.ac:11: warning: AC_REQUIRE:
+     &rArr; `TESTA' was expanded before it was required
+     &rArr;configure.ac:4: TESTB is expanded from...
+     &rArr;configure.ac:6: TESTC is expanded from...
+     &rArr;configure.ac:7: OUTER is expanded from...
+     &rArr;configure.ac:11: the top level
+</pre>
+   <p class="noindent">To avoid this warning, decide what purpose the macro in question serves. 
+If it only needs to be expanded once (for example, if it provides
+initialization text used by later macros), then the simplest fix is to
+change the macro to be declared with <code>AC_DEFUN_ONCE</code>
+(see <a href="One_002dShot-Macros.html#One_002dShot-Macros">One-Shot Macros</a>), although this only works in Autoconf 2.64 and
+newer.  A more portable fix is to change all
+instances of direct calls to instead go through <code>AC_REQUIRE</code>
+(see <a href="Prerequisite-Macros.html#Prerequisite-Macros">Prerequisite Macros</a>).  If, instead, the macro is parameterized
+by arguments or by the current definition of other macros in the m4
+environment, then the macro should always be directly expanded instead
+of required.
+
+   <p>For another case study, consider this example trimmed down from an
+actual package.  Originally, the package contained shell code and
+multiple macro invocations at the top level of <samp><span class="file">configure.ac</span></samp>:
+
+<pre class="example">     AC_DEFUN([FOO], [AC_COMPILE_IFELSE([...])])
+     foobar=
+     AC_PROG_CC
+     FOO
+</pre>
+   <p class="noindent">but that was getting complex, so the author wanted to offload some of
+the text into a new macro in another file included via
+<samp><span class="file">aclocal.m4</span></samp>.  The na&iuml;ve approach merely wraps the text in a new
+macro:
+
+<pre class="example">     AC_DEFUN([FOO], [AC_COMPILE_IFELSE([...])])
+     AC_DEFUN([BAR], [
+     foobar=
+     AC_PROG_CC
+     FOO
+     ])
+     BAR
+</pre>
+   <p class="noindent">With older versions of Autoconf, the setting of &lsquo;<samp><span class="samp">foobar=</span></samp>&rsquo; occurs
+before the single compiler check, as the author intended.  But with
+Autoconf 2.64, this issues the &ldquo;expanded before it was required&rdquo;
+warning for <code>AC_PROG_CC</code>, and outputs two copies of the compiler
+check, one before &lsquo;<samp><span class="samp">foobar=</span></samp>&rsquo;, and one after.  To understand why this
+is happening, remember that the use of <code>AC_COMPILE_IFELSE</code> includes
+a call to <code>AC_REQUIRE([AC_PROG_CC])</code> under the hood.  According to
+the documented semantics of <code>AC_REQUIRE</code>, this means that
+<code>AC_PROG_CC</code> <em>must</em> occur before the body of the outermost
+<code>AC_DEFUN</code>, which in this case is <code>BAR</code>, thus preceding the
+use of &lsquo;<samp><span class="samp">foobar=</span></samp>&rsquo;.  The older versions of Autoconf were broken with
+regards to the rules of <code>AC_REQUIRE</code>, which explains why the code
+changed from one over to two copies of <code>AC_PROG_CC</code> when upgrading
+autoconf.  In other words, the author was unknowingly relying on a bug
+exploit to get the desired results, and that exploit broke once the bug
+was fixed.
+
+   <p>So, what recourse does the author have, to restore their intended
+semantics of setting &lsquo;<samp><span class="samp">foobar=</span></samp>&rsquo; prior to a single compiler check,
+regardless of whether Autoconf 2.63 or 2.64 is used?  One idea is to
+remember that only <code>AC_DEFUN</code> is impacted by <code>AC_REQUIRE</code>;
+there is always the possibility of using the lower-level
+<code>m4_define</code>:
+
+<pre class="example">     AC_DEFUN([FOO], [AC_COMPILE_IFELSE([...])])
+     m4_define([BAR], [
+     foobar=
+     AC_PROG_CC
+     FOO
+     ])
+     BAR
+</pre>
+   <p class="noindent">This works great if everything is in the same file.  However, it does
+not help in the case where the author wants to have <samp><span class="command">aclocal</span></samp>
+find the definition of <code>BAR</code> from its own file, since
+<samp><span class="command">aclocal</span></samp> requires the use of <code>AC_DEFUN</code>.  In this case, a
+better fix is to recognize that if <code>BAR</code> also uses
+<code>AC_REQUIRE</code>, then there will no longer be direct expansion prior
+to a subsequent require.  Then, by creating yet another helper macro,
+the author can once again guarantee a single invocation of
+<code>AC_PROG_CC</code>, which will still occur after <code>foobar=</code>.  The
+author can also use <code>AC_BEFORE</code> to make sure no other macro
+appearing before <code>BAR</code> has triggered an unwanted expansion of
+<code>AC_PROG_CC</code>.
+
+<pre class="example">     AC_DEFUN([FOO], [AC_COMPILE_IFELSE([...])])
+     AC_DEFUN([BEFORE_CC], [
+     foobar=
+     ])
+     AC_DEFUN([BAR], [
+     AC_BEFORE([$0], [AC_PROG_CC])dnl
+     AC_REQUIRE([BEFORE_CC])dnl
+     AC_REQUIRE([AC_PROG_CC])dnl
+     FOO
+     ])
+     BAR
+</pre>
+   </body></html>
+

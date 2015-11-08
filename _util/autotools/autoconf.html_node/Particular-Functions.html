@@ -1,0 +1,715 @@
+<html lang="en">
+<head>
+<title>Particular Functions - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Library-Functions.html#Library-Functions" title="Library Functions">
+<link rel="prev" href="Function-Portability.html#Function-Portability" title="Function Portability">
+<link rel="next" href="Generic-Functions.html#Generic-Functions" title="Generic Functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Particular-Functions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Generic-Functions.html#Generic-Functions">Generic Functions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Function-Portability.html#Function-Portability">Function Portability</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Library-Functions.html#Library-Functions">Library Functions</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.5.2 Particular Function Checks</h4>
+
+<p><a name="index-Function_002c-checking-369"></a>
+These macros check for particular C functions&mdash;whether they exist, and
+in some cases how they respond when given certain arguments.
+
+   <p><a name="AC_005fFUNC_005fALLOCA"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_ALLOCA</b><var><a name="index-AC_005fFUNC_005fALLOCA-370"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fALLOCA-371"></a>
+<a name="index-C_005fALLOCA-372"></a><a name="index-HAVE_005fALLOCA_005fH-373"></a><a name="index-ALLOCA-374"></a><!-- @fuindex alloca -->
+<a name="index-g_t_0040code_007balloca_007d-375"></a><a name="index-g_t_0040file_007balloca_002eh_007d-376"></a>
+<!-- @caindex working_alloca_h -->
+Check how to get <code>alloca</code>.  Tries to get a builtin version by
+checking for <samp><span class="file">alloca.h</span></samp> or the predefined C preprocessor macros
+<code>__GNUC__</code> and <code>_AIX</code>.  If this macro finds <samp><span class="file">alloca.h</span></samp>,
+it defines <code>HAVE_ALLOCA_H</code>.
+
+        <p>If those attempts fail, it looks for the function in the standard C
+library.  If any of those methods succeed, it defines
+<code>HAVE_ALLOCA</code>.  Otherwise, it sets the output variable
+<code>ALLOCA</code> to &lsquo;<samp><span class="samp">${LIBOBJDIR}alloca.o</span></samp>&rsquo; and defines
+<code>C_ALLOCA</code> (so programs can periodically call &lsquo;<samp><span class="samp">alloca (0)</span></samp>&rsquo; to
+garbage collect).  This variable is separate from <code>LIBOBJS</code> so
+multiple programs can share the value of <code>ALLOCA</code> without needing
+to create an actual library, in case only some of them use the code in
+<code>LIBOBJS</code>.  The &lsquo;<samp><span class="samp">${LIBOBJDIR}</span></samp>&rsquo; prefix serves the same
+purpose as in <code>LIBOBJS</code> (see <a href="AC_005fLIBOBJ-vs-LIBOBJS.html#AC_005fLIBOBJ-vs-LIBOBJS">AC_LIBOBJ vs LIBOBJS</a>).
+
+        <p>This macro does not try to get <code>alloca</code> from the System V R3
+<samp><span class="file">libPW</span></samp> or the System V R4 <samp><span class="file">libucb</span></samp> because those libraries
+contain some incompatible functions that cause trouble.  Some versions
+do not even contain <code>alloca</code> or contain a buggy version.  If you
+still want to use their <code>alloca</code>, use <code>ar</code> to extract
+<samp><span class="file">alloca.o</span></samp> from them instead of compiling <samp><span class="file">alloca.c</span></samp>.
+
+        <p>Source files that use <code>alloca</code> should start with a piece of code
+like the following, to declare it properly.
+
+     <pre class="example">          #ifdef STDC_HEADERS
+          # include &lt;stdlib.h&gt;
+          # include &lt;stddef.h&gt;
+          #else
+          # ifdef HAVE_STDLIB_H
+          #  include &lt;stdlib.h&gt;
+          # endif
+          #endif
+          #ifdef HAVE_ALLOCA_H
+          # include &lt;alloca.h&gt;
+          #elif !defined alloca
+          # ifdef __GNUC__
+          #  define alloca __builtin_alloca
+          # elif defined _AIX
+          #  define alloca __alloca
+          # elif defined _MSC_VER
+          #  include &lt;malloc.h&gt;
+          #  define alloca _alloca
+          # elif !defined HAVE_ALLOCA
+          #  ifdef  __cplusplus
+          extern "C"
+          #  endif
+          void *alloca (size_t);
+          # endif
+          #endif
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_CHOWN</b><var><a name="index-AC_005fFUNC_005fCHOWN-377"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fCHOWN-378"></a>
+<a name="index-HAVE_005fCHOWN-379"></a><!-- @fuindex chown -->
+<a name="index-g_t_0040code_007bchown_007d-380"></a><a name="index-ac_005fcv_005ffunc_005fchown_005fworks-381"></a>
+If the <code>chown</code> function is available and works (in particular, it
+should accept <samp><span class="option">-1</span></samp> for <code>uid</code> and <code>gid</code>), define
+<code>HAVE_CHOWN</code>.  The result of this macro is cached in the
+<code>ac_cv_func_chown_works</code> variable. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fCLOSEDIR_005fVOID"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_CLOSEDIR_VOID</b><var><a name="index-AC_005fFUNC_005fCLOSEDIR_005fVOID-382"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fCLOSEDIR_005fVOID-383"></a>
+<a name="index-CLOSEDIR_005fVOID-384"></a><!-- @fuindex closedir -->
+<a name="index-g_t_0040code_007bclosedir_007d-385"></a><a name="index-ac_005fcv_005ffunc_005fclosedir_005fvoid-386"></a>
+If the <code>closedir</code> function does not return a meaningful value,
+define <code>CLOSEDIR_VOID</code>.  Otherwise, callers ought to check its
+return value for an error indicator.
+
+        <p>Currently this test is implemented by running a test program.  When
+cross compiling the pessimistic assumption that <code>closedir</code> does not
+return a meaningful value is made.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_closedir_void</code>
+variable.
+
+        <p>This macro is obsolescent, as <code>closedir</code> returns a meaningful value
+on current systems.  New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_ERROR_AT_LINE</b><var><a name="index-AC_005fFUNC_005fERROR_005fAT_005fLINE-387"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fERROR_005fAT_005fLINE-388"></a>
+<!-- @fuindex error_at_line -->
+<a name="index-g_t_0040code_007berror_005fat_005fline_007d-389"></a><a name="index-ac_005fcv_005flib_005ferror_005fat_005fline-390"></a>
+If the <code>error_at_line</code> function is not found, require an
+<code>AC_LIBOBJ</code> replacement of &lsquo;<samp><span class="samp">error</span></samp>&rsquo;.
+
+        <p>The result of this macro is cached in the <code>ac_cv_lib_error_at_line</code>
+variable.
+
+        <p>The <code>AC_FUNC_ERROR_AT_LINE</code> macro is obsolescent.  New programs
+should use Gnulib's <code>error</code> module.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_FNMATCH</b><var><a name="index-AC_005fFUNC_005fFNMATCH-391"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fFNMATCH-392"></a>
+<!-- @fuindex fnmatch -->
+<a name="index-g_t_0040code_007bfnmatch_007d-393"></a><a name="index-ac_005fcv_005ffunc_005ffnmatch_005fworks-394"></a>
+If the <code>fnmatch</code> function conforms to Posix, define
+<code>HAVE_FNMATCH</code>.  Detect common implementation bugs, for example,
+the bugs in Solaris 2.4.
+
+        <p>Unlike the other specific
+<code>AC_FUNC</code> macros, <code>AC_FUNC_FNMATCH</code> does not replace a
+broken/missing <code>fnmatch</code>.  This is for historical reasons. 
+See <code>AC_REPLACE_FNMATCH</code> below.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_fnmatch_works</code>
+variable.
+
+        <p>This macro is obsolescent.  New programs should use Gnulib's
+<code>fnmatch-posix</code> module.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_FNMATCH_GNU</b><var><a name="index-AC_005fFUNC_005fFNMATCH_005fGNU-395"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fFNMATCH_005fGNU-396"></a>
+<!-- @fuindex fnmatch -->
+<a name="index-g_t_0040code_007bfnmatch_007d-397"></a><a name="index-ac_005fcv_005ffunc_005ffnmatch_005fgnu-398"></a>
+Behave like <code>AC_REPLACE_FNMATCH</code> (<em>replace</em>) but also test
+whether <code>fnmatch</code> supports GNU extensions.  Detect common
+implementation bugs, for example, the bugs in the GNU C
+Library 2.1.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_fnmatch_gnu</code>
+variable.
+
+        <p>This macro is obsolescent.  New programs should use Gnulib's
+<code>fnmatch-gnu</code> module.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fFORK"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_FORK</b><var><a name="index-AC_005fFUNC_005fFORK-399"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fFORK-400"></a>
+<a name="index-HAVE_005fVFORK_005fH-401"></a><a name="index-HAVE_005fWORKING_005fFORK-402"></a><a name="index-HAVE_005fWORKING_005fVFORK-403"></a><a name="index-vfork-404"></a><!-- @fuindex fork -->
+<a name="index-g_t_0040code_007bfork_007d-405"></a><!-- @fuindex vfork -->
+<a name="index-g_t_0040code_007bvfork_007d-406"></a><a name="index-g_t_0040file_007bvfork_002eh_007d-407"></a>
+<!-- @caindex func_fork -->
+<!-- @caindex func_fork_works -->
+This macro checks for the <code>fork</code> and <code>vfork</code> functions.  If a
+working <code>fork</code> is found, define <code>HAVE_WORKING_FORK</code>.  This macro
+checks whether <code>fork</code> is just a stub by trying to run it.
+
+        <p>If <samp><span class="file">vfork.h</span></samp> is found, define <code>HAVE_VFORK_H</code>.  If a working
+<code>vfork</code> is found, define <code>HAVE_WORKING_VFORK</code>.  Otherwise,
+define <code>vfork</code> to be <code>fork</code> for backward compatibility with
+previous versions of <samp><span class="command">autoconf</span></samp>.  This macro checks for several known
+errors in implementations of <code>vfork</code> and considers the system to not
+have a working <code>vfork</code> if it detects any of them.  It is not considered
+to be an implementation error if a child's invocation of <code>signal</code>
+modifies the parent's signal handler, since child processes rarely change
+their signal handlers.
+
+        <p>Since this macro defines <code>vfork</code> only for backward compatibility with
+previous versions of <samp><span class="command">autoconf</span></samp> you're encouraged to define it
+yourself in new code:
+     <pre class="example">          #ifndef HAVE_WORKING_VFORK
+          # define vfork fork
+          #endif
+</pre>
+        <p>The results of this macro are cached in the <code>ac_cv_func_fork_works</code>
+and <code>ac_cv_func_vfork_works</code> variables.  In order to override the
+test, you also need to set the <code>ac_cv_func_fork</code> and
+<code>ac_cv_func_vfork</code> variables. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_FSEEKO</b><var><a name="index-AC_005fFUNC_005fFSEEKO-408"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fFSEEKO-409"></a>
+<a name="index-g_t_005fLARGEFILE_005fSOURCE-410"></a><a name="index-HAVE_005fFSEEKO-411"></a><!-- @fuindex fseeko -->
+<a name="index-g_t_0040code_007bfseeko_007d-412"></a><!-- @fuindex ftello -->
+<a name="index-g_t_0040code_007bftello_007d-413"></a><!-- @caindex sys_largefile_source -->
+If the <code>fseeko</code> function is available, define <code>HAVE_FSEEKO</code>. 
+Define <code>_LARGEFILE_SOURCE</code> if necessary to make the prototype
+visible on some systems (e.g., glibc 2.2).  Otherwise linkage problems
+may occur when compiling with <code>AC_SYS_LARGEFILE</code> on
+largefile-sensitive systems where <code>off_t</code> does not default to a
+64bit entity.  All systems with <code>fseeko</code> also supply <code>ftello</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_GETGROUPS</b><var><a name="index-AC_005fFUNC_005fGETGROUPS-414"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fGETGROUPS-415"></a>
+<a name="index-HAVE_005fGETGROUPS-416"></a><a name="index-GETGROUPS_005fLIBS-417"></a><!-- @fuindex getgroups -->
+<a name="index-g_t_0040code_007bgetgroups_007d-418"></a><a name="index-ac_005fcv_005ffunc_005fgetgroups_005fworks-419"></a>
+If the <code>getgroups</code> function is available and works (unlike on
+Ultrix 4.3, where &lsquo;<samp><span class="samp">getgroups (0, 0)</span></samp>&rsquo; always fails), define
+<code>HAVE_GETGROUPS</code>.  Set <code>GETGROUPS_LIBS</code> to any libraries
+needed to get that function.  This macro runs <code>AC_TYPE_GETGROUPS</code>. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fGETLOADAVG"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_GETLOADAVG</b><var><a name="index-AC_005fFUNC_005fGETLOADAVG-420"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fGETLOADAVG-421"></a>
+<a name="index-SVR4-422"></a><a name="index-DGUX-423"></a><a name="index-UMAX-424"></a><a name="index-UMAX4_005f3-425"></a><a name="index-HAVE_005fNLIST_005fH-426"></a><a name="index-NLIST_005fNAME_005fUNION-427"></a><a name="index-GETLOADAVG_005fPRIVILEGED-428"></a><a name="index-NEED_005fSETGID-429"></a><a name="index-C_005fGETLOADAVG-430"></a><a name="index-LIBOBJS-431"></a><a name="index-NEED_005fSETGID-432"></a><a name="index-KMEM_005fGROUP-433"></a><a name="index-GETLOADAVG_005fLIBS-434"></a><!-- @fuindex getloadavg -->
+<a name="index-g_t_0040code_007bgetloadavg_007d-435"></a>Check how to get the system load averages.  To perform its tests
+properly, this macro needs the file <samp><span class="file">getloadavg.c</span></samp>; therefore, be
+sure to set the <code>AC_LIBOBJ</code> replacement directory properly (see
+<a href="Generic-Functions.html#Generic-Functions">Generic Functions</a>, <code>AC_CONFIG_LIBOBJ_DIR</code>).
+
+        <p>If the system has the <code>getloadavg</code> function, define
+<code>HAVE_GETLOADAVG</code>, and set <code>GETLOADAVG_LIBS</code> to any libraries
+necessary to get that function.  Also add <code>GETLOADAVG_LIBS</code> to
+<code>LIBS</code>.  Otherwise, require an <code>AC_LIBOBJ</code> replacement for
+&lsquo;<samp><span class="samp">getloadavg</span></samp>&rsquo; with source code in <samp><var>dir</var><span class="file">/getloadavg.c</span></samp>, and
+possibly define several other C preprocessor macros and output
+variables:
+
+          <ol type=1 start=1>
+<li>Define <code>C_GETLOADAVG</code>.
+
+          <li>Define <code>SVR4</code>, <code>DGUX</code>, <code>UMAX</code>, or <code>UMAX4_3</code> if on
+those systems.
+
+          <li><a name="index-g_t_0040file_007bnlist_002eh_007d-436"></a>
+If <samp><span class="file">nlist.h</span></samp> is found, define <code>HAVE_NLIST_H</code>.
+
+          <li>If &lsquo;<samp><span class="samp">struct nlist</span></samp>&rsquo; has an &lsquo;<samp><span class="samp">n_un.n_name</span></samp>&rsquo; member, define
+<code>HAVE_STRUCT_NLIST_N_UN_N_NAME</code>.  The obsolete symbol
+<code>NLIST_NAME_UNION</code> is still defined, but do not depend upon it.
+
+          <li>Programs may need to be installed set-group-ID (or set-user-ID) for
+<code>getloadavg</code> to work.  In this case, define
+<code>GETLOADAVG_PRIVILEGED</code>, set the output variable <code>NEED_SETGID</code>
+to &lsquo;<samp><span class="samp">true</span></samp>&rsquo; (and otherwise to &lsquo;<samp><span class="samp">false</span></samp>&rsquo;), and set
+<code>KMEM_GROUP</code> to the name of the group that should own the installed
+program.
+             </ol>
+
+        <p>The <code>AC_FUNC_GETLOADAVG</code> macro is obsolescent.  New programs should
+use Gnulib's <code>getloadavg</code> module.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fGETMNTENT"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_GETMNTENT</b><var><a name="index-AC_005fFUNC_005fGETMNTENT-437"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fGETMNTENT-438"></a>
+<a name="index-HAVE_005fGETMNTENT-439"></a><!-- @fuindex getmntent -->
+<a name="index-g_t_0040code_007bgetmntent_007d-440"></a><a name="index-ac_005fcv_005fsearch_005fgetmntent-441"></a>
+Check for <code>getmntent</code> in the standard C library, and then in the
+<samp><span class="file">sun</span></samp>, <samp><span class="file">seq</span></samp>, and <samp><span class="file">gen</span></samp> libraries, for UNICOS,
+IRIX 4, PTX, and UnixWare, respectively.  Then, if
+<code>getmntent</code> is available, define <code>HAVE_GETMNTENT</code> and set
+<code>ac_cv_func_getmntent</code> to <code>yes</code>.  Otherwise set
+<code>ac_cv_func_getmntent</code> to <code>no</code>.
+
+        <p>The result of this macro can be overridden by setting the cache variable
+<code>ac_cv_search_getmntent</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_GETPGRP</b><var><a name="index-AC_005fFUNC_005fGETPGRP-442"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fGETPGRP-443"></a>
+<a name="index-GETPGRP_005fVOID-444"></a><!-- @fuindex getpgid -->
+<!-- @fuindex getpgrp -->
+<a name="index-g_t_0040code_007bgetpgid_007d-445"></a><a name="index-g_t_0040code_007bgetpgrp_007d-446"></a><a name="index-ac_005fcv_005ffunc_005fgetpgrp_005fvoid-447"></a>
+Define <code>GETPGRP_VOID</code> if it is an error to pass 0 to
+<code>getpgrp</code>; this is the Posix behavior.  On older BSD
+systems, you must pass 0 to <code>getpgrp</code>, as it takes an argument and
+behaves like Posix's <code>getpgid</code>.
+
+     <pre class="example">          #ifdef GETPGRP_VOID
+            pid = getpgrp ();
+          #else
+            pid = getpgrp (0);
+          #endif
+</pre>
+        <p>This macro does not check whether
+<code>getpgrp</code> exists at all; if you need to work in that situation,
+first call <code>AC_CHECK_FUNC</code> for <code>getpgrp</code>.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_getpgrp_void</code>
+variable.
+
+        <p>This macro is obsolescent, as current systems have a <code>getpgrp</code>
+whose signature conforms to Posix.  New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK</b><var><a name="index-AC_005fFUNC_005fLSTAT_005fFOLLOWS_005fSLASHED_005fSYMLINK-448"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fLSTAT_005fFOLLOWS_005fSLASHED_005fSYMLINK-449"></a>
+<a name="index-LSTAT_005fFOLLOWS_005fSLASHED_005fSYMLINK-450"></a><!-- @fuindex lstat -->
+<a name="index-g_t_0040code_007blstat_007d-451"></a><a name="index-ac_005fcv_005ffunc_005flstat_005fdereferences_005fslashed_005fsymlink-452"></a>
+If <samp><span class="file">link</span></samp> is a symbolic link, then <code>lstat</code> should treat
+<samp><span class="file">link/</span></samp> the same as <samp><span class="file">link/.</span></samp>.  However, many older
+<code>lstat</code> implementations incorrectly ignore trailing slashes.
+
+        <p>It is safe to assume that if <code>lstat</code> incorrectly ignores
+trailing slashes, then other symbolic-link-aware functions like
+<code>unlink</code> also incorrectly ignore trailing slashes.
+
+        <p>If <code>lstat</code> behaves properly, define
+<code>LSTAT_FOLLOWS_SLASHED_SYMLINK</code>, otherwise require an
+<code>AC_LIBOBJ</code> replacement of <code>lstat</code>.
+
+        <p>The result of this macro is cached in the
+<code>ac_cv_func_lstat_dereferences_slashed_symlink</code> variable.
+
+        <p>The <code>AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK</code> macro is obsolescent. 
+New programs should use Gnulib's <code>lstat</code> module.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_MALLOC</b><var><a name="index-AC_005fFUNC_005fMALLOC-453"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fMALLOC-454"></a>
+<a name="index-HAVE_005fMALLOC-455"></a><a name="index-malloc-456"></a><!-- @fuindex malloc -->
+<a name="index-g_t_0040code_007bmalloc_007d-457"></a><a name="index-ac_005fcv_005ffunc_005fmalloc_005f0_005fnonnull-458"></a>
+If the <code>malloc</code> function is compatible with the GNU C
+library <code>malloc</code> (i.e., &lsquo;<samp><span class="samp">malloc (0)</span></samp>&rsquo; returns a valid
+pointer), define <code>HAVE_MALLOC</code> to 1.  Otherwise define
+<code>HAVE_MALLOC</code> to 0, ask for an <code>AC_LIBOBJ</code> replacement for
+&lsquo;<samp><span class="samp">malloc</span></samp>&rsquo;, and define <code>malloc</code> to <code>rpl_malloc</code> so that the
+native <code>malloc</code> is not used in the main project.
+
+        <p>Typically, the replacement file <samp><span class="file">malloc.c</span></samp> should look like (note
+the &lsquo;<samp><span class="samp">#undef malloc</span></samp>&rsquo;):
+
+     <pre class="verbatim">     #include &lt;config.h>
+     #undef malloc
+     
+     #include &lt;sys/types.h>
+     
+     void *malloc ();
+     
+     /* Allocate an N-byte block of memory from the heap.
+        If N is zero, allocate a 1-byte block.  */
+     
+     void *
+     rpl_malloc (size_t n)
+     {
+       if (n == 0)
+         n = 1;
+       return malloc (n);
+     }
+</pre>
+
+        <p>The result of this macro is cached in the
+<code>ac_cv_func_malloc_0_nonnull</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_MBRTOWC</b><var><a name="index-AC_005fFUNC_005fMBRTOWC-459"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fMBRTOWC-460"></a>
+<a name="index-HAVE_005fMBRTOWC-461"></a><!-- @fuindex mbrtowc -->
+<a name="index-g_t_0040code_007bmbrtowc_007d-462"></a><a name="index-ac_005fcv_005ffunc_005fmbrtowc-463"></a>
+Define <code>HAVE_MBRTOWC</code> to 1 if the function <code>mbrtowc</code> and the
+type <code>mbstate_t</code> are properly declared.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_mbrtowc</code>
+variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_MEMCMP</b><var><a name="index-AC_005fFUNC_005fMEMCMP-464"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fMEMCMP-465"></a>
+<a name="index-LIBOBJS-466"></a><!-- @fuindex memcmp -->
+<a name="index-g_t_0040code_007bmemcmp_007d-467"></a><a name="index-ac_005fcv_005ffunc_005fmemcmp_005fworking-468"></a>
+If the <code>memcmp</code> function is not available, or does not work on
+8-bit data (like the one on SunOS 4.1.3), or fails when comparing 16
+bytes or more and with at least one buffer not starting on a 4-byte
+boundary (such as the one on NeXT x86 OpenStep), require an
+<code>AC_LIBOBJ</code> replacement for &lsquo;<samp><span class="samp">memcmp</span></samp>&rsquo;.
+
+        <p>The result of this macro is cached in the
+<code>ac_cv_func_memcmp_working</code> variable.
+
+        <p>This macro is obsolescent, as current systems have a working
+<code>memcmp</code>.  New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_MKTIME</b><var><a name="index-AC_005fFUNC_005fMKTIME-469"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fMKTIME-470"></a>
+<a name="index-LIBOBJS-471"></a><!-- @fuindex mktime -->
+<a name="index-g_t_0040code_007bmktime_007d-472"></a><a name="index-ac_005fcv_005ffunc_005fworking_005fmktime-473"></a>
+If the <code>mktime</code> function is not available, or does not work
+correctly, require an <code>AC_LIBOBJ</code> replacement for &lsquo;<samp><span class="samp">mktime</span></samp>&rsquo;. 
+For the purposes of this test, <code>mktime</code> should conform to the
+Posix standard and should be the inverse of
+<code>localtime</code>.
+
+        <p>The result of this macro is cached in the
+<code>ac_cv_func_working_mktime</code> variable.
+
+        <p>The <code>AC_FUNC_MKTIME</code> macro is obsolescent.  New programs should
+use Gnulib's <code>mktime</code> module.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fMMAP"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_MMAP</b><var><a name="index-AC_005fFUNC_005fMMAP-474"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fMMAP-475"></a>
+<a name="index-HAVE_005fMMAP-476"></a><!-- @fuindex mmap -->
+<a name="index-g_t_0040code_007bmmap_007d-477"></a><a name="index-ac_005fcv_005ffunc_005fmmap_005ffixed_005fmapped-478"></a>
+If the <code>mmap</code> function exists and works correctly, define
+<code>HAVE_MMAP</code>.  This checks only private fixed mapping of already-mapped
+memory.
+
+        <p>The result of this macro is cached in the
+<code>ac_cv_func_mmap_fixed_mapped</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_OBSTACK</b><var><a name="index-AC_005fFUNC_005fOBSTACK-479"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fOBSTACK-480"></a>
+<a name="index-HAVE_005fOBSTACK-481"></a><a name="index-obstack-482"></a><a name="index-ac_005fcv_005ffunc_005fobstack-483"></a>
+If the obstacks are found, define <code>HAVE_OBSTACK</code>, else require an
+<code>AC_LIBOBJ</code> replacement for &lsquo;<samp><span class="samp">obstack</span></samp>&rsquo;.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_obstack</code>
+variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_REALLOC</b><var><a name="index-AC_005fFUNC_005fREALLOC-484"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fREALLOC-485"></a>
+<a name="index-HAVE_005fREALLOC-486"></a><a name="index-realloc-487"></a><!-- @fuindex realloc -->
+<a name="index-g_t_0040code_007brealloc_007d-488"></a><a name="index-ac_005fcv_005ffunc_005frealloc_005f0_005fnonnull-489"></a>
+If the <code>realloc</code> function is compatible with the GNU C
+library <code>realloc</code> (i.e., &lsquo;<samp><span class="samp">realloc (NULL, 0)</span></samp>&rsquo; returns a
+valid pointer), define <code>HAVE_REALLOC</code> to 1.  Otherwise define
+<code>HAVE_REALLOC</code> to 0, ask for an <code>AC_LIBOBJ</code> replacement for
+&lsquo;<samp><span class="samp">realloc</span></samp>&rsquo;, and define <code>realloc</code> to <code>rpl_realloc</code> so that
+the native <code>realloc</code> is not used in the main project.  See
+<code>AC_FUNC_MALLOC</code> for details.
+
+        <p>The result of this macro is cached in the
+<code>ac_cv_func_realloc_0_nonnull</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_SELECT_ARGTYPES</b><var><a name="index-AC_005fFUNC_005fSELECT_005fARGTYPES-490"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSELECT_005fARGTYPES-491"></a>
+<a name="index-SELECT_005fTYPE_005fARG1-492"></a><a name="index-SELECT_005fTYPE_005fARG234-493"></a><a name="index-SELECT_005fTYPE_005fARG5-494"></a><!-- @fuindex select -->
+<a name="index-g_t_0040code_007bselect_007d-495"></a><!-- @caindex func_select_args -->
+Determines the correct type to be passed for each of the
+<code>select</code> function's arguments, and defines those types
+in <code>SELECT_TYPE_ARG1</code>, <code>SELECT_TYPE_ARG234</code>, and
+<code>SELECT_TYPE_ARG5</code> respectively.  <code>SELECT_TYPE_ARG1</code> defaults
+to &lsquo;<samp><span class="samp">int</span></samp>&rsquo;, <code>SELECT_TYPE_ARG234</code> defaults to &lsquo;<samp><span class="samp">int *</span></samp>&rsquo;,
+and <code>SELECT_TYPE_ARG5</code> defaults to &lsquo;<samp><span class="samp">struct timeval *</span></samp>&rsquo;.
+
+        <p>This macro is obsolescent, as current systems have a <code>select</code> whose
+signature conforms to Posix.  New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_SETPGRP</b><var><a name="index-AC_005fFUNC_005fSETPGRP-496"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSETPGRP-497"></a>
+<a name="index-SETPGRP_005fVOID-498"></a><!-- @fuindex setpgrp -->
+<a name="index-g_t_0040code_007bsetpgrp_007d-499"></a><a name="index-ac_005fcv_005ffunc_005fsetpgrp_005fvoid-500"></a>
+If <code>setpgrp</code> takes no argument (the Posix version), define
+<code>SETPGRP_VOID</code>.  Otherwise, it is the BSD version, which takes
+two process IDs as arguments.  This macro does not check whether
+<code>setpgrp</code> exists at all; if you need to work in that situation,
+first call <code>AC_CHECK_FUNC</code> for <code>setpgrp</code>.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_setpgrp_void</code>
+variable.
+
+        <p>This macro is obsolescent, as current systems have a <code>setpgrp</code>
+whose signature conforms to Posix.  New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_STAT</b><var><a name="index-AC_005fFUNC_005fSTAT-501"></a></var><br>
+&mdash; Macro: <b>AC_FUNC_LSTAT</b><var><a name="index-AC_005fFUNC_005fLSTAT-502"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSTAT-503"></a>
+<a name="index-AC_005fFUNC_005fLSTAT-504"></a>
+<a name="index-HAVE_005fSTAT_005fEMPTY_005fSTRING_005fBUG-505"></a><a name="index-HAVE_005fLSTAT_005fEMPTY_005fSTRING_005fBUG-506"></a><!-- @fuindex stat -->
+<a name="index-g_t_0040code_007bstat_007d-507"></a><!-- @fuindex lstat -->
+<a name="index-g_t_0040code_007blstat_007d-508"></a><a name="index-ac_005fcv_005ffunc_005fstat_005fempty_005fstring_005fbug-509"></a>
+<a name="index-ac_005fcv_005ffunc_005flstat_005fempty_005fstring_005fbug-510"></a>
+Determine whether <code>stat</code> or <code>lstat</code> have the bug that it
+succeeds when given the zero-length file name as argument.  The <code>stat</code>
+and <code>lstat</code> from SunOS 4.1.4 and the Hurd (as of 1998-11-01) do
+this.
+
+        <p>If it does, then define <code>HAVE_STAT_EMPTY_STRING_BUG</code> (or
+<code>HAVE_LSTAT_EMPTY_STRING_BUG</code>) and ask for an <code>AC_LIBOBJ</code>
+replacement of it.
+
+        <p>The results of these macros are cached in the
+<code>ac_cv_func_stat_empty_string_bug</code> and the
+<code>ac_cv_func_lstat_empty_string_bug</code> variables, respectively.
+
+        <p>These macros are obsolescent, as no current systems have the bug. 
+New programs need not use these macros. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fSTRCOLL"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_STRCOLL</b><var><a name="index-AC_005fFUNC_005fSTRCOLL-511"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSTRCOLL-512"></a>
+<a name="index-HAVE_005fSTRCOLL-513"></a><!-- @fuindex strcoll -->
+<a name="index-g_t_0040code_007bstrcoll_007d-514"></a><a name="index-ac_005fcv_005ffunc_005fstrcoll_005fworks-515"></a>
+If the <code>strcoll</code> function exists and works correctly, define
+<code>HAVE_STRCOLL</code>.  This does a bit more than
+&lsquo;<samp><span class="samp">AC_CHECK_FUNCS(strcoll)</span></samp>&rsquo;, because some systems have incorrect
+definitions of <code>strcoll</code> that should not be used.
+
+        <p>The result of this macro is cached in the <code>ac_cv_func_strcoll_works</code>
+variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_STRERROR_R</b><var><a name="index-AC_005fFUNC_005fSTRERROR_005fR-516"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSTRERROR_005fR-517"></a>
+<a name="index-HAVE_005fSTRERROR_005fR-518"></a><a name="index-HAVE_005fDECL_005fSTRERROR_005fR-519"></a><a name="index-STRERROR_005fR_005fCHAR_005fP-520"></a><!-- @fuindex strerror_r -->
+<a name="index-ac_005fcv_005ffunc_005fstrerror_005fr_005fchar_005fp-521"></a>
+<a name="index-g_t_0040code_007bstrerror_005fr_007d-522"></a>If <code>strerror_r</code> is available, define <code>HAVE_STRERROR_R</code>, and if
+it is declared, define <code>HAVE_DECL_STRERROR_R</code>.  If it returns a
+<code>char *</code> message, define <code>STRERROR_R_CHAR_P</code>; otherwise it
+returns an <code>int</code> error number.  The Thread-Safe Functions option of
+Posix requires <code>strerror_r</code> to return <code>int</code>, but
+many systems (including, for example, version 2.2.4 of the GNU C
+Library) return a <code>char *</code> value that is not necessarily equal to
+the buffer argument.
+
+        <p>The result of this macro is cached in the
+<code>ac_cv_func_strerror_r_char_p</code> variable. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fSTRFTIME"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_STRFTIME</b><var><a name="index-AC_005fFUNC_005fSTRFTIME-523"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSTRFTIME-524"></a>
+<a name="index-HAVE_005fSTRFTIME-525"></a><!-- @fuindex strftime -->
+<a name="index-g_t_0040code_007bstrftime_007d-526"></a>Check for <code>strftime</code> in the <samp><span class="file">intl</span></samp> library, for SCO Unix. 
+Then, if <code>strftime</code> is available, define <code>HAVE_STRFTIME</code>.
+
+        <p>This macro is obsolescent, as no current systems require the <samp><span class="file">intl</span></samp>
+library for <code>strftime</code>.  New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_STRTOD</b><var><a name="index-AC_005fFUNC_005fSTRTOD-527"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSTRTOD-528"></a>
+<a name="index-POW_005fLIB-529"></a><!-- @fuindex strtod -->
+<a name="index-g_t_0040code_007bstrtod_007d-530"></a><a name="index-ac_005fcv_005ffunc_005fstrtod-531"></a>
+<a name="index-ac_005fcv_005ffunc_005fpow-532"></a>
+If the <code>strtod</code> function does not exist or doesn't work correctly,
+ask for an <code>AC_LIBOBJ</code> replacement of &lsquo;<samp><span class="samp">strtod</span></samp>&rsquo;.  In this case,
+because <samp><span class="file">strtod.c</span></samp> is likely to need &lsquo;<samp><span class="samp">pow</span></samp>&rsquo;, set the output
+variable <code>POW_LIB</code> to the extra library needed.
+
+        <p>This macro caches its result in the <code>ac_cv_func_strtod</code> variable
+and depends upon the result in the <code>ac_cv_func_pow</code> variable.
+
+        <p>The <code>AC_FUNC_STRTOD</code> macro is obsolescent.  New programs should
+use Gnulib's <code>strtod</code> module.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_STRTOLD</b><var><a name="index-AC_005fFUNC_005fSTRTOLD-533"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSTRTOLD-534"></a>
+<a name="index-HAVE_005fSTRTOLD-535"></a><a name="index-g_t_0040code_007bstrtold_007d-536"></a><a name="index-ac_005fcv_005ffunc_005fstrtold-537"></a>
+If the <code>strtold</code> function exists and conforms to C99, define
+<code>HAVE_STRTOLD</code>.
+
+        <p>This macro caches its result in the <code>ac_cv_func_strtold</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_STRNLEN</b><var><a name="index-AC_005fFUNC_005fSTRNLEN-538"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fSTRNLEN-539"></a>
+<a name="index-HAVE_005fSTRNLEN-540"></a><!-- @fuindex strnlen -->
+<a name="index-g_t_0040code_007bstrnlen_007d-541"></a><a name="index-ac_005fcv_005ffunc_005fstrnlen_005fworking-542"></a>
+If the <code>strnlen</code> function is not available, or is buggy (like the one
+from AIX 4.3), require an <code>AC_LIBOBJ</code> replacement for it.
+
+        <p>This macro caches its result in the <code>ac_cv_func_strnlen_working</code>
+variable. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fUTIME_005fNULL"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_UTIME_NULL</b><var><a name="index-AC_005fFUNC_005fUTIME_005fNULL-543"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fUTIME_005fNULL-544"></a>
+<a name="index-HAVE_005fUTIME_005fNULL-545"></a><!-- @fuindex utime -->
+<a name="index-g_t_0040code_007butime_007d-546"></a><a name="index-ac_005fcv_005ffunc_005futime_005fnull-547"></a>
+If &lsquo;<samp><span class="samp">utime (</span><var>file</var><span class="samp">, NULL)</span></samp>&rsquo; sets <var>file</var>'s timestamp to
+the present, define <code>HAVE_UTIME_NULL</code>.
+
+        <p>This macro caches its result in the <code>ac_cv_func_utime_null</code>
+variable.
+
+        <p>This macro is obsolescent, as all current systems have a <code>utime</code>
+that behaves this way.  New programs need not use this macro. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fFUNC_005fVPRINTF"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FUNC_VPRINTF</b><var><a name="index-AC_005fFUNC_005fVPRINTF-548"></a></var><br>
+<blockquote><p><a name="index-AC_005fFUNC_005fVPRINTF-549"></a>
+<a name="index-HAVE_005fVPRINTF-550"></a><a name="index-HAVE_005fDOPRNT-551"></a><!-- @fuindex vprintf -->
+<a name="index-g_t_0040code_007bvprintf_007d-552"></a><!-- @fuindex vsprintf -->
+<a name="index-g_t_0040code_007bvsprintf_007d-553"></a>If <code>vprintf</code> is found, define <code>HAVE_VPRINTF</code>.  Otherwise, if
+<code>_doprnt</code> is found, define <code>HAVE_DOPRNT</code>.  (If <code>vprintf</code>
+is available, you may assume that <code>vfprintf</code> and <code>vsprintf</code>
+are also available.)
+
+        <p>This macro is obsolescent, as all current systems have <code>vprintf</code>. 
+New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_REPLACE_FNMATCH</b><var><a name="index-AC_005fREPLACE_005fFNMATCH-554"></a></var><br>
+<blockquote><p><a name="index-AC_005fREPLACE_005fFNMATCH-555"></a>
+<!-- @fuindex fnmatch -->
+<a name="index-g_t_0040code_007bfnmatch_007d-556"></a><a name="index-g_t_0040file_007bfnmatch_002eh_007d-557"></a>
+<a name="index-ac_005fcv_005ffunc_005ffnmatch_005fworks-558"></a>
+If the <code>fnmatch</code> function does not conform to Posix (see
+<code>AC_FUNC_FNMATCH</code>), ask for its <code>AC_LIBOBJ</code> replacement.
+
+        <p>The files <samp><span class="file">fnmatch.c</span></samp>, <samp><span class="file">fnmatch_loop.c</span></samp>, and <samp><span class="file">fnmatch_.h</span></samp>
+in the <code>AC_LIBOBJ</code> replacement directory are assumed to contain a
+copy of the source code of GNU <code>fnmatch</code>.  If necessary,
+this source code is compiled as an <code>AC_LIBOBJ</code> replacement, and the
+<samp><span class="file">fnmatch_.h</span></samp> file is linked to <samp><span class="file">fnmatch.h</span></samp> so that it can be
+included in place of the system <code>&lt;fnmatch.h&gt;</code>.
+
+        <p>This macro caches its result in the <code>ac_cv_func_fnmatch_works</code>
+variable.
+
+        <p>This macro is obsolescent, as it assumes the use of particular source
+files.  New programs should use Gnulib's <code>fnmatch-posix</code> module,
+which provides this macro along with the source files.  See <a href="Gnulib.html#Gnulib">Gnulib</a>. 
+</p></blockquote></div>
+
+   </body></html>
+

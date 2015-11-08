@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Errors with distclean</title>
+
+<meta name="description" content="automake: Errors with distclean">
+<meta name="keywords" content="automake: Errors with distclean">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="FAQ.html#FAQ" rel="up" title="FAQ">
+<link href="Flag-Variables-Ordering.html#Flag-Variables-Ordering" rel="next" title="Flag Variables Ordering">
+<link href="Limitations-on-File-Names.html#Limitations-on-File-Names" rel="prev" title="Limitations on File Names">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Errors-with-distclean"></a>
+<div class="header">
+<p>
+Next: <a href="Flag-Variables-Ordering.html#Flag-Variables-Ordering" accesskey="n" rel="next">Flag Variables Ordering</a>, Previous: <a href="Limitations-on-File-Names.html#Limitations-on-File-Names" accesskey="p" rel="prev">Limitations on File Names</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Errors-with-distclean-1"></a>
+<h3 class="section">27.5 Errors with distclean</h3>
+<a name="index-distclean_002c-diagnostic"></a>
+<a name="index-make-distclean_002c-diagnostic"></a>
+<a name="index-dependencies-and-distributed-files"></a>
+<a name="index-distclean-2"></a>
+
+<p>This is a diagnostic you might encounter while running &lsquo;<samp>make
+distcheck</samp>&rsquo;.
+</p>
+<p>As explained in <a href="Checking-the-Distribution.html#Checking-the-Distribution">Checking the Distribution</a>, &lsquo;<samp>make distcheck</samp>&rsquo;
+attempts to build and check your package for errors like this one.
+</p>
+<p>&lsquo;<samp>make distcheck</samp>&rsquo; will perform a <code>VPATH</code> build of your
+package (see <a href="VPATH-Builds.html#VPATH-Builds">VPATH Builds</a>), and then call &lsquo;<samp>make distclean</samp>&rsquo;.
+Files left in the build directory after &lsquo;<samp>make distclean</samp>&rsquo; has run
+are listed after this error.
+</p>
+<p>This diagnostic really covers two kinds of errors:
+</p>
+<ul>
+<li> files that are forgotten by distclean;
+</li><li> distributed files that are erroneously rebuilt.
+</li></ul>
+
+<p>The former left-over files are not distributed, so the fix is to mark
+them for cleaning (see <a href="Clean.html#Clean">Clean</a>), this is obvious and doesn&rsquo;t deserve
+more explanations.
+</p>
+<p>The latter bug is not always easy to understand and fix, so let&rsquo;s
+proceed with an example.  Suppose our package contains a program for
+which we want to build a man page using <code>help2man</code>.  GNU
+<code>help2man</code> produces simple manual pages from the <samp>--help</samp>
+and <samp>--version</samp> output of other commands (see <a href="http://www.gnu.org/software/help2man/help2man.html#Top">Overview</a> in <cite>The Help2man Manual</cite>).  Because we don&rsquo;t want to force our
+users to install <code>help2man</code>, we decide to distribute the
+generated man page using the following setup.
+</p>
+<div class="example">
+<pre class="example"># This Makefile.am is bogus.
+bin_PROGRAMS = foo
+foo_SOURCES = foo.c
+dist_man_MANS = foo.1
+
+foo.1: foo$(EXEEXT)
+        help2man --output=foo.1 ./foo$(EXEEXT)
+</pre></div>
+
+<p>This will effectively distribute the man page.  However,
+&lsquo;<samp>make distcheck</samp>&rsquo; will fail with:
+</p>
+<div class="example">
+<pre class="example">ERROR: files left in build directory after distclean:
+./foo.1
+</pre></div>
+
+<p>Why was <samp>foo.1</samp> rebuilt?  Because although distributed,
+<samp>foo.1</samp> depends on a non-distributed built file:
+<samp>foo$(EXEEXT)</samp>.  <samp>foo$(EXEEXT)</samp> is built by the user, so it
+will always appear to be newer than the distributed <samp>foo.1</samp>.
+</p>
+<p>&lsquo;<samp>make distcheck</samp>&rsquo; caught an inconsistency in our package.  Our
+intent was to distribute <samp>foo.1</samp> so users do not need to install
+<code>help2man</code>, however since this rule causes this file to be
+always rebuilt, users <em>do</em> need <code>help2man</code>.  Either we
+should ensure that <samp>foo.1</samp> is not rebuilt by users, or there is
+no point in distributing <samp>foo.1</samp>.
+</p>
+<p>More generally, the rule is that distributed files should never depend
+on non-distributed built files.  If you distribute something
+generated, distribute its sources.
+</p>
+<p>One way to fix the above example, while still distributing
+<samp>foo.1</samp> is to not depend on <samp>foo$(EXEEXT)</samp>.  For instance,
+assuming <code>foo --version</code> and <code>foo --help</code> do not
+change unless <samp>foo.c</samp> or <samp>configure.ac</samp> change, we could
+write the following <samp>Makefile.am</samp>:
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = foo
+foo_SOURCES = foo.c
+dist_man_MANS = foo.1
+
+foo.1: foo.c $(top_srcdir)/configure.ac
+        $(MAKE) $(AM_MAKEFLAGS) foo$(EXEEXT)
+        help2man --output=foo.1 ./foo$(EXEEXT)
+</pre></div>
+
+<p>This way, <samp>foo.1</samp> will not get rebuilt every time
+<samp>foo$(EXEEXT)</samp> changes.  The <code>make</code> call makes sure
+<samp>foo$(EXEEXT)</samp> is up-to-date before <code>help2man</code>.  Another
+way to ensure this would be to use separate directories for binaries
+and man pages, and set <code>SUBDIRS</code> so that binaries are built
+before man pages.
+</p>
+<p>We could also decide not to distribute <samp>foo.1</samp>.  In
+this case it&rsquo;s fine to have <samp>foo.1</samp> dependent upon
+<samp>foo$(EXEEXT)</samp>, since both will have to be rebuilt.
+However it would be impossible to build the package in a
+cross-compilation, because building <samp>foo.1</samp> involves
+an <em>execution</em> of <samp>foo$(EXEEXT)</samp>.
+</p>
+<p>Another context where such errors are common is when distributed files
+are built by tools that are built by the package.  The pattern is
+similar:
+</p>
+<div class="example">
+<pre class="example">distributed-file: built-tools distributed-sources
+        build-command
+</pre></div>
+
+<p>should be changed to
+</p>
+<div class="example">
+<pre class="example">distributed-file: distributed-sources
+        $(MAKE) $(AM_MAKEFLAGS) built-tools
+        build-command
+</pre></div>
+
+<p>or you could choose not to distribute <samp>distributed-file</samp>, if
+cross-compilation does not matter.
+</p>
+<p>The points made through these examples are worth a summary:
+</p>
+<table class="cartouche" border="1"><tr><td>
+<ul>
+<li> Distributed files should never depend upon non-distributed built
+files.
+</li><li> Distributed files should be distributed with all their dependencies.
+</li><li> If a file is <em>intended</em> to be rebuilt by users, then there is no point
+in distributing it.
+</li></ul>
+</td></tr></table>
+
+<a name="index-distcleancheck_005flistfiles-1"></a>
+<p>For desperate cases, it&rsquo;s always possible to disable this check by
+setting <code>distcleancheck_listfiles</code> as documented in <a href="Checking-the-Distribution.html#Checking-the-Distribution">Checking the Distribution</a>.
+Make sure you do understand the reason why &lsquo;<samp>make distcheck</samp>&rsquo;
+complains before you do this.  <code>distcleancheck_listfiles</code> is a
+way to <em>hide</em> errors, not to fix them.  You can always do better.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Flag-Variables-Ordering.html#Flag-Variables-Ordering" accesskey="n" rel="next">Flag Variables Ordering</a>, Previous: <a href="Limitations-on-File-Names.html#Limitations-on-File-Names" accesskey="p" rel="prev">Limitations on File Names</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

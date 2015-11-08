@@ -1,0 +1,1134 @@
+<html lang="en">
+<head>
+<title>Limitations of Usual Tools - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="Limitations-of-Builtins.html#Limitations-of-Builtins" title="Limitations of Builtins">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Limitations-of-Usual-Tools"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Limitations-of-Builtins.html#Limitations-of-Builtins">Limitations of Builtins</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.15 Limitations of Usual Tools</h3>
+
+<p><a name="index-Limitations-of-usual-tools-1798"></a>
+The small set of tools you can expect to find on any machine can still
+include some limitations you should be aware of.
+
+<!-- Between this list and the list of builtins above, we should -->
+<!-- mention all the tools in GNU Coding Standards ``Utilities in -->
+<!-- Makefiles''. -->
+<!-- This table includes things like `@command{expr} (|)', so we can't -->
+<!-- use @table @command. -->
+     <dl>
+<a name="awk"></a><dt><samp><span class="command">awk</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bawk_007d-1799"></a>Don't leave white space before the opening parenthesis in a user function call. 
+Posix does not allow this and GNU Awk rejects it:
+
+     <pre class="example">          $ <kbd>gawk 'function die () { print "Aaaaarg!"  }
+                  BEGIN { die () }'</kbd>
+          gawk: cmd. line:2:         BEGIN { die () }
+          gawk: cmd. line:2:                      ^ parse error
+          $ <kbd>gawk 'function die () { print "Aaaaarg!"  }
+                  BEGIN { die() }'</kbd>
+          Aaaaarg!
+</pre>
+     <p>Posix says that if a program contains only &lsquo;<samp><span class="samp">BEGIN</span></samp>&rsquo; actions, and
+contains no instances of <code>getline</code>, then the program merely
+executes the actions without reading input.  However, traditional Awk
+implementations (such as Solaris 10 <samp><span class="command">awk</span></samp>) read and discard
+input in this case.  Portable scripts can redirect input from
+<samp><span class="file">/dev/null</span></samp> to work around the problem.  For example:
+
+     <pre class="example">          awk 'BEGIN {print "hello world"}' &lt;/dev/null
+</pre>
+     <p>Posix says that in an &lsquo;<samp><span class="samp">END</span></samp>&rsquo; action, &lsquo;<samp><span class="samp">$NF</span></samp>&rsquo; (and presumably,
+&lsquo;<samp><span class="samp">$1</span></samp>&rsquo;) retain their value from the last record read, if no
+intervening &lsquo;<samp><span class="samp">getline</span></samp>&rsquo; occurred.  However, some implementations
+(such as Solaris 10 &lsquo;<samp><span class="samp">/usr/bin/awk</span></samp>&rsquo;, &lsquo;<samp><span class="samp">nawk</span></samp>&rsquo;, or Darwin
+&lsquo;<samp><span class="samp">awk</span></samp>&rsquo;) reset these variables.  A workaround is to use an
+intermediate variable prior to the &lsquo;<samp><span class="samp">END</span></samp>&rsquo; block.  For example:
+
+     <pre class="example">          $ <kbd>cat end.awk</kbd>
+          { tmp = $1 }
+          END { print "a", $1, $NF, "b", tmp }
+          $ <kbd>echo 1 | awk -f end.awk</kbd>
+          a   b 1
+          $ <kbd>echo 1 | gawk -f end.awk</kbd>
+          a 1 1 b 1
+</pre>
+     <p>If you want your program to be deterministic, don't depend on <code>for</code>
+on arrays:
+
+     <pre class="example">          $ <kbd>cat for.awk</kbd>
+          END {
+            arr["foo"] = 1
+            arr["bar"] = 1
+            for (i in arr)
+              print i
+          }
+          $ <kbd>gawk -f for.awk &lt;/dev/null</kbd>
+          foo
+          bar
+          $ <kbd>nawk -f for.awk &lt;/dev/null</kbd>
+          bar
+          foo
+</pre>
+     <p>Some Awk implementations, such as HP-UX 11.0's native one,
+mishandle anchors:
+
+     <pre class="example">          $ <kbd>echo xfoo | $AWK '/foo|^bar/ { print }'</kbd>
+          $ <kbd>echo bar | $AWK '/foo|^bar/ { print }'</kbd>
+          bar
+          $ <kbd>echo xfoo | $AWK '/^bar|foo/ { print }'</kbd>
+          xfoo
+          $ <kbd>echo bar | $AWK '/^bar|foo/ { print }'</kbd>
+          bar
+</pre>
+     <p class="noindent">Either do not depend on such patterns (i.e., use &lsquo;<samp><span class="samp">/^(.*foo|bar)/</span></samp>&rsquo;,
+or use a simple test to reject such implementations.
+
+     <p>On &lsquo;<samp><span class="samp">ia64-hp-hpux11.23</span></samp>&rsquo;, Awk mishandles <code>printf</code> conversions
+after <code>%u</code>:
+
+     <pre class="example">          $ <kbd>awk 'BEGIN { printf "%u %d\n", 0, -1 }'</kbd>
+          0 0
+</pre>
+     <p>AIX version 5.2 has an arbitrary limit of 399 on the
+length of regular expressions and literal strings in an Awk program.
+
+     <p>Traditional Awk implementations derived from Unix version 7, such as
+Solaris <samp><span class="command">/bin/awk</span></samp>, have many limitations and do not
+conform to Posix.  Nowadays <code>AC_PROG_AWK</code> (see <a href="Particular-Programs.html#Particular-Programs">Particular Programs</a>) finds you an Awk that doesn't have these problems, but if
+for some reason you prefer not to use <code>AC_PROG_AWK</code> you may need to
+address them.  For more detailed descriptions, see <a href="../gawk/Language-History.html#Language-History"><samp><span class="command">awk</span></samp> language history</a>.
+
+     <p>Traditional Awk does not support multidimensional arrays or user-defined
+functions.
+
+     <p>Traditional Awk does not support the <samp><span class="option">-v</span></samp> option.  You can use
+assignments after the program instead, e.g., <code>$AWK '{print v
+$1}' v=x</code>; however, don't forget that such assignments are not
+evaluated until they are encountered (e.g., after any <code>BEGIN</code>
+action).
+
+     <p>Traditional Awk does not support the keywords <code>delete</code> or <code>do</code>.
+
+     <p>Traditional Awk does not support the expressions
+<var>a</var><code>?</code><var>b</var><code>:</code><var>c</var>, <code>!</code><var>a</var>, <var>a</var><code>^</code><var>b</var>,
+or <var>a</var><code>^=</code><var>b</var>.
+
+     <p>Traditional Awk does not support the predefined <code>CONVFMT</code> or
+<code>ENVIRON</code> variables.
+
+     <p>Traditional Awk supports only the predefined functions <code>exp</code>, <code>index</code>,
+<code>int</code>, <code>length</code>, <code>log</code>, <code>split</code>, <code>sprintf</code>,
+<code>sqrt</code>, and <code>substr</code>.
+
+     <p>Traditional Awk <code>getline</code> is not at all compatible with Posix;
+avoid it.
+
+     <p>Traditional Awk has <code>for (i in a) ...</code> but no other uses of the
+<code>in</code> keyword.  For example, it lacks <code>if (i in a) ...</code>.
+
+     <p>In code portable to both traditional and modern Awk, <code>FS</code> must be a
+string containing just one ordinary character, and similarly for the
+field-separator argument to <code>split</code>.
+
+     <p>Traditional Awk has a limit of 99 fields in a record.  Since some Awk
+implementations, like Tru64's, split the input even if you don't refer
+to any field in the script, to circumvent this problem, set &lsquo;<samp><span class="samp">FS</span></samp>&rsquo;
+to an unusual character and use <code>split</code>.
+
+     <p>Traditional Awk has a limit of at most 99 bytes in a number formatted by
+<code>OFMT</code>; for example, <code>OFMT="%.300e"; print 0.1;</code> typically
+dumps core.
+
+     <p>The original version of Awk had a limit of at most 99 bytes per
+<code>split</code> field, 99 bytes per <code>substr</code> substring, and 99 bytes
+per run of non-special characters in a <code>printf</code> format, but these
+bugs have been fixed on all practical hosts that we know of.
+
+     <p>HP-UX 11.00 and IRIX 6.5 Awk require that input files have a line length
+of at most 3070 bytes.
+
+     <br><dt><samp><span class="command">basename</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bbasename_007d-1800"></a>Not all hosts have a working <samp><span class="command">basename</span></samp>. 
+You can use <samp><span class="command">expr</span></samp> instead.
+
+     <!-- AS_BASENAME is to be replaced by a better API. -->
+     <br><dt><samp><span class="command">cat</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bcat_007d-1801"></a>Don't rely on any option.
+
+     <br><dt><samp><span class="command">cc</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bcc_007d-1802"></a>The command &lsquo;<samp><span class="samp">cc -c foo.c</span></samp>&rsquo; traditionally produces an object file
+named <samp><span class="file">foo.o</span></samp>.  Most compilers allow <samp><span class="option">-c</span></samp> to be combined
+with <samp><span class="option">-o</span></samp> to specify a different object file name, but
+Posix does not require this combination and a few compilers
+lack support for it.  See <a href="C-Compiler.html#C-Compiler">C Compiler</a>, for how GNU Make
+tests for this feature with <code>AC_PROG_CC_C_O</code>.
+
+     <p>When a compilation such as &lsquo;<samp><span class="samp">cc -o foo foo.c</span></samp>&rsquo; fails, some compilers
+(such as CDS on Reliant Unix) leave a <samp><span class="file">foo.o</span></samp>.
+
+     <p>HP-UX <samp><span class="command">cc</span></samp> doesn't accept <samp><span class="file">.S</span></samp> files to preprocess and
+assemble.  &lsquo;<samp><span class="samp">cc -c foo.S</span></samp>&rsquo; appears to succeed, but in fact does
+nothing.
+
+     <p>The default executable, produced by &lsquo;<samp><span class="samp">cc foo.c</span></samp>&rsquo;, can be
+
+          <ul>
+<li><samp><span class="file">a.out</span></samp> &mdash; usual Posix convention. 
+<li><samp><span class="file">b.out</span></samp> &mdash; i960 compilers (including <samp><span class="command">gcc</span></samp>). 
+<li><samp><span class="file">a.exe</span></samp> &mdash; DJGPP port of <samp><span class="command">gcc</span></samp>. 
+<li><samp><span class="file">a_out.exe</span></samp> &mdash; GNV <samp><span class="command">cc</span></samp> wrapper for DEC C on OpenVMS. 
+<li><samp><span class="file">foo.exe</span></samp> &mdash; various MS-DOS compilers. 
+</ul>
+
+     <p>The C compiler's traditional name is <samp><span class="command">cc</span></samp>, but other names like
+<samp><span class="command">gcc</span></samp> are common.  Posix 1003.1-2001 specifies the
+name <samp><span class="command">c99</span></samp>, but older Posix editions specified
+<samp><span class="command">c89</span></samp> and anyway these standard names are rarely used in
+practice.  Typically the C compiler is invoked from makefiles that use
+&lsquo;<samp><span class="samp">$(CC)</span></samp>&rsquo;, so the value of the &lsquo;<samp><span class="samp">CC</span></samp>&rsquo; make variable selects the
+compiler name.
+
+     <br><dt><samp><span class="command">chgrp</span></samp><dt><samp><span class="command">chown</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bchgrp_007d-1803"></a><a name="index-g_t_0040command_007bchown_007d-1804"></a>It is not portable to change a file's group to a group that the owner
+does not belong to.
+
+     <br><dt><samp><span class="command">chmod</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bchmod_007d-1805"></a>Avoid usages like &lsquo;<samp><span class="samp">chmod -w file</span></samp>&rsquo;; use &lsquo;<samp><span class="samp">chmod a-w file</span></samp>&rsquo;
+instead, for two reasons.  First, plain <samp><span class="option">-w</span></samp> does not necessarily
+make the file unwritable, since it does not affect mode bits that
+correspond to bits in the file mode creation mask.  Second,
+Posix says that the <samp><span class="option">-w</span></samp> might be interpreted as an
+implementation-specific option, not as a mode; Posix suggests
+using &lsquo;<samp><span class="samp">chmod -- -w file</span></samp>&rsquo; to avoid this confusion, but unfortunately
+&lsquo;<samp><span class="samp">--</span></samp>&rsquo; does not work on some older hosts.
+
+     <br><dt><samp><span class="command">cmp</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bcmp_007d-1806"></a><samp><span class="command">cmp</span></samp> performs a raw data comparison of two files, while
+<samp><span class="command">diff</span></samp> compares two text files.  Therefore, if you might compare
+DOS files, even if only checking whether two files are different, use
+<samp><span class="command">diff</span></samp> to avoid spurious differences due to differences of
+newline encoding.
+
+     <br><dt><samp><span class="command">cp</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bcp_007d-1807"></a>Avoid the <samp><span class="option">-r</span></samp> option, since Posix 1003.1-2004 marks it as
+obsolescent and its behavior on special files is implementation-defined. 
+Use <samp><span class="option">-R</span></samp> instead.  On GNU hosts the two options
+are equivalent, but on Solaris hosts (for example) <code>cp -r</code>
+reads from pipes instead of replicating them.  AIX 5.3 <code>cp -R</code> may
+corrupt its own memory with some directory hierarchies and error out or
+dump core:
+
+     <pre class="example">          <kbd>mkdir -p 12345678/12345678/12345678/12345678</kbd>
+          <kbd>touch 12345678/12345678/x</kbd>
+          <kbd>cp -R 12345678 t</kbd>
+          cp: 0653-440 12345678/12345678/: name too long.
+</pre>
+     <p>Some <samp><span class="command">cp</span></samp> implementations (e.g., BSD/OS 4.2) do not allow
+trailing slashes at the end of nonexistent destination directories.  To
+avoid this problem, omit the trailing slashes.  For example, use
+&lsquo;<samp><span class="samp">cp -R source /tmp/newdir</span></samp>&rsquo; rather than &lsquo;<samp><span class="samp">cp -R source
+/tmp/newdir/</span></samp>&rsquo; if <samp><span class="file">/tmp/newdir</span></samp> does not exist.
+
+     <!-- This is thanks to Ian. -->
+     <p>The ancient SunOS 4 <samp><span class="command">cp</span></samp> does not support <samp><span class="option">-f</span></samp>, although
+its <samp><span class="command">mv</span></samp> does.
+
+     <p><a name="index-timestamp-resolution-1808"></a>Traditionally, file timestamps had 1-second resolution, and &lsquo;<samp><span class="samp">cp
+-p</span></samp>&rsquo; copied the timestamps exactly.  However, many modern file systems
+have timestamps with 1-nanosecond resolution.  Unfortunately, some older
+&lsquo;<samp><span class="samp">cp -p</span></samp>&rsquo; implementations truncate timestamps when copying files,
+which can cause the destination file to appear to be older than the
+source.  The exact amount of truncation depends on the resolution of
+the system calls that <samp><span class="command">cp</span></samp> uses.  Traditionally this was
+<code>utime</code>, which has 1-second resolution.  Less-ancient <samp><span class="command">cp</span></samp>
+implementations such as GNU Core Utilities 5.0.91 (2003) use
+<code>utimes</code>, which has 1-microsecond resolution.  Modern
+implementations such as GNU Core Utilities 6.12 (2008) can set timestamps to
+the full nanosecond resolution, using the modern system calls
+<code>futimens</code> and <code>utimensat</code> when they are available.  As of
+2011, though, many platforms do not yet fully support these new system
+calls.
+
+     <p>Bob Proulx notes that &lsquo;<samp><span class="samp">cp -p</span></samp>&rsquo; always <em>tries</em> to copy
+ownerships.  But whether it actually does copy ownerships or not is a
+system dependent policy decision implemented by the kernel.  If the
+kernel allows it then it happens.  If the kernel does not allow it then
+it does not happen.  It is not something <samp><span class="command">cp</span></samp> itself has control
+over.
+
+     <p>In Unix System V any user can chown files to any other user, and System
+V also has a non-sticky <samp><span class="file">/tmp</span></samp>.  That probably derives from the
+heritage of System V in a business environment without hostile users. 
+BSD changed this
+to be a more secure model where only root can <samp><span class="command">chown</span></samp> files and
+a sticky <samp><span class="file">/tmp</span></samp> is used.  That undoubtedly derives from the heritage
+of BSD in a campus environment.
+
+     <p>GNU/Linux and Solaris by default follow BSD, but
+can be configured to allow a System V style <samp><span class="command">chown</span></samp>.  On the
+other hand, HP-UX follows System V, but can
+be configured to use the modern security model and disallow
+<samp><span class="command">chown</span></samp>.  Since it is an administrator-configurable parameter
+you can't use the name of the kernel as an indicator of the behavior.
+
+     <br><dt><samp><span class="command">date</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bdate_007d-1809"></a>Some versions of <samp><span class="command">date</span></samp> do not recognize special &lsquo;<samp><span class="samp">%</span></samp>&rsquo; directives,
+and unfortunately, instead of complaining, they just pass them through,
+and exit with success:
+
+     <pre class="example">          $ <kbd>uname -a</kbd>
+          OSF1 medusa.sis.pasteur.fr V5.1 732 alpha
+          $ <kbd>date "+%s"</kbd>
+          %s
+</pre>
+     <br><dt><samp><span class="command">diff</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bdiff_007d-1810"></a>Option <samp><span class="option">-u</span></samp> is nonportable.
+
+     <p>Some implementations, such as Tru64's, fail when comparing to
+<samp><span class="file">/dev/null</span></samp>.  Use an empty file instead.
+
+     <br><dt><samp><span class="command">dirname</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bdirname_007d-1811"></a>Not all hosts have a working <samp><span class="command">dirname</span></samp>, and you should instead
+use <code>AS_DIRNAME</code> (see <a href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>).  For example:
+
+     <pre class="example">          dir=`dirname "$file"`       # This is not portable.
+          dir=`AS_DIRNAME(["$file"])` # This is more portable.
+</pre>
+     <br><dt><samp><span class="command">egrep</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007begrep_007d-1812"></a>Posix 1003.1-2001 no longer requires <samp><span class="command">egrep</span></samp>,
+but many hosts do not yet support the Posix
+replacement <code>grep -E</code>.  Also, some traditional implementations do
+not work on long input lines.  To work around these problems, invoke
+<code>AC_PROG_EGREP</code> and then use <code>$EGREP</code>.
+
+     <p>Portable extended regular expressions should use &lsquo;<samp><span class="samp">\</span></samp>&rsquo; only to escape
+characters in the string &lsquo;<samp><span class="samp">$()*+.?[\^{|</span></samp>&rsquo;.  For example, &lsquo;<samp><span class="samp">\}</span></samp>&rsquo;
+is not portable, even though it typically matches &lsquo;<samp><span class="samp">}</span></samp>&rsquo;.
+
+     <p>The empty alternative is not portable.  Use &lsquo;<samp><span class="samp">?</span></samp>&rsquo; instead.  For
+instance with Digital Unix v5.0:
+
+     <pre class="example">          &gt; printf "foo\n|foo\n" | $EGREP '^(|foo|bar)$'
+          |foo
+          &gt; printf "bar\nbar|\n" | $EGREP '^(foo|bar|)$'
+          bar|
+          &gt; printf "foo\nfoo|\n|bar\nbar\n" | $EGREP '^(foo||bar)$'
+          foo
+          |bar
+</pre>
+     <p><samp><span class="command">$EGREP</span></samp> also suffers the limitations of <samp><span class="command">grep</span></samp>
+(see <a href="grep.html#grep">Limitations of Usual Tools</a>).
+
+     <br><dt><samp><span class="command">expr</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bexpr_007d-1813"></a>Not all implementations obey the Posix rule that &lsquo;<samp><span class="samp">--</span></samp>&rsquo; separates
+options from arguments; likewise, not all implementations provide the
+extension to Posix that the first argument can be treated as part of a
+valid expression rather than an invalid option if it begins with
+&lsquo;<samp><span class="samp">-</span></samp>&rsquo;.  When performing arithmetic, use &lsquo;<samp><span class="samp">expr 0 + $var</span></samp>&rsquo; if
+&lsquo;<samp><span class="samp">$var</span></samp>&rsquo; might be a negative number, to keep <samp><span class="command">expr</span></samp> from
+interpreting it as an option.
+
+     <p>No <samp><span class="command">expr</span></samp> keyword starts with &lsquo;<samp><span class="samp">X</span></samp>&rsquo;, so use &lsquo;<samp><span class="samp">expr
+X"</span><var>word</var><span class="samp">" : 'X</span><var>regex</var><span class="samp">'</span></samp>&rsquo; to keep <samp><span class="command">expr</span></samp> from
+misinterpreting <var>word</var>.
+
+     <p>Don't use <code>length</code>, <code>substr</code>, <code>match</code> and <code>index</code>.
+
+     <br><dt><samp><span class="command">expr</span></samp> (&lsquo;<samp><span class="samp">|</span></samp>&rsquo;)<dd><a name="index-g_t_0040command_007bexpr_007d-_0028_0040samp_007b_007c_007d_0029-1814"></a>You can use &lsquo;<samp><span class="samp">|</span></samp>&rsquo;.  Although Posix does require that &lsquo;<samp><span class="samp">expr
+''</span></samp>&rsquo; return the empty string, it does not specify the result when you
+&lsquo;<samp><span class="samp">|</span></samp>&rsquo; together the empty string (or zero) with the empty string.  For
+example:
+
+     <pre class="example">          expr '' \| ''
+</pre>
+     <p>Posix 1003.2-1992 returns the empty string
+for this case, but traditional Unix returns &lsquo;<samp><span class="samp">0</span></samp>&rsquo; (Solaris is
+one such example).  In Posix 1003.1-2001, the specification was
+changed to match traditional Unix's behavior (which is
+bizarre, but it's too late to fix this).  Please note that the same
+problem does arise when the empty string results from a computation,
+as in:
+
+     <pre class="example">          expr bar : foo \| foo : bar
+</pre>
+     <p class="noindent">Avoid this portability problem by avoiding the empty string.
+
+     <br><dt><samp><span class="command">expr</span></samp> (&lsquo;<samp><span class="samp">:</span></samp>&rsquo;)<dd><!--  -->
+<a name="index-g_t_0040command_007bexpr_007d-1815"></a>Portable <samp><span class="command">expr</span></samp> regular expressions should use &lsquo;<samp><span class="samp">\</span></samp>&rsquo; to
+escape only characters in the string &lsquo;<samp><span class="samp">$()*.0123456789[\^n{}</span></samp>&rsquo;. 
+For example, alternation, &lsquo;<samp><span class="samp">\|</span></samp>&rsquo;, is common but Posix does not
+require its support, so it should be avoided in portable scripts. 
+Similarly, &lsquo;<samp><span class="samp">\+</span></samp>&rsquo; and &lsquo;<samp><span class="samp">\?</span></samp>&rsquo; should be avoided.
+
+     <p>Portable <samp><span class="command">expr</span></samp> regular expressions should not begin with
+&lsquo;<samp><span class="samp">^</span></samp>&rsquo;.  Patterns are automatically anchored so leading &lsquo;<samp><span class="samp">^</span></samp>&rsquo; is
+not needed anyway.
+
+     <p>On the other hand, the behavior of the &lsquo;<samp><span class="samp">$</span></samp>&rsquo; anchor is not portable
+on multi-line strings.  Posix is ambiguous whether the anchor applies to
+each line, as was done in older versions of the GNU Core Utilities, or
+whether it applies only to the end of the overall string, as in
+Coreutils 6.0 and most other implementations.
+
+     <pre class="example">          $ <kbd>baz='foo</kbd>
+          &gt; <kbd>bar'</kbd>
+          $ <kbd>expr "X$baz" : 'X\(foo\)$'</kbd>
+          
+          $ <kbd>expr-5.97 "X$baz" : 'X\(foo\)$'</kbd>
+          foo
+</pre>
+     <p>The Posix standard is ambiguous as to whether
+&lsquo;<samp><span class="samp">expr 'a' : '\(b\)'</span></samp>&rsquo; outputs &lsquo;<samp><span class="samp">0</span></samp>&rsquo; or the empty string. 
+In practice, it outputs the empty string on most platforms, but portable
+scripts should not assume this.  For instance, the QNX 4.25 native
+<samp><span class="command">expr</span></samp> returns &lsquo;<samp><span class="samp">0</span></samp>&rsquo;.
+
+     <p>One might think that a way to get a uniform behavior would be to use
+the empty string as a default value:
+
+     <pre class="example">          expr a : '\(b\)' \| ''
+</pre>
+     <p class="noindent">Unfortunately this behaves exactly as the original expression; see the
+<samp><span class="command">expr</span></samp> (&lsquo;<samp><span class="samp">|</span></samp>&rsquo;) entry for more information.
+
+     <p>Some ancient <samp><span class="command">expr</span></samp> implementations (e.g., SunOS 4 <samp><span class="command">expr</span></samp> and
+Solaris 8 <samp><span class="command">/usr/ucb/expr</span></samp>) have a silly length limit that causes
+<samp><span class="command">expr</span></samp> to fail if the matched substring is longer than 120
+bytes.  In this case, you might want to fall back on &lsquo;<samp><span class="samp">echo|sed</span></samp>&rsquo; if
+<samp><span class="command">expr</span></samp> fails.  Nowadays this is of practical importance only for
+the rare installer who mistakenly puts <samp><span class="file">/usr/ucb</span></samp> before
+<samp><span class="file">/usr/bin</span></samp> in <samp><span class="env">PATH</span></samp>.
+
+     <p>On Mac OS X 10.4, <samp><span class="command">expr</span></samp> mishandles the pattern &lsquo;<samp><span class="samp">[^-]</span></samp>&rsquo; in
+some cases.  For example, the command
+     <pre class="example">          expr Xpowerpc-apple-darwin8.1.0 : 'X[^-]*-[^-]*-\(.*\)'
+</pre>
+     <p class="noindent">outputs &lsquo;<samp><span class="samp">apple-darwin8.1.0</span></samp>&rsquo; rather than the correct &lsquo;<samp><span class="samp">darwin8.1.0</span></samp>&rsquo;. 
+This particular case can be worked around by substituting &lsquo;<samp><span class="samp">[^--]</span></samp>&rsquo;
+for &lsquo;<samp><span class="samp">[^-]</span></samp>&rsquo;.
+
+     <p>Don't leave, there is some more!
+
+     <p>The QNX 4.25 <samp><span class="command">expr</span></samp>, in addition of preferring &lsquo;<samp><span class="samp">0</span></samp>&rsquo; to
+the empty string, has a funny behavior in its exit status: it's always 1
+when parentheses are used!
+
+     <pre class="example">          $ <kbd>val=`expr 'a' : 'a'`; echo "$?: $val"</kbd>
+          0: 1
+          $ <kbd>val=`expr 'a' : 'b'`; echo "$?: $val"</kbd>
+          1: 0
+          
+          $ <kbd>val=`expr 'a' : '\(a\)'`; echo "?: $val"</kbd>
+          1: a
+          $ <kbd>val=`expr 'a' : '\(b\)'`; echo "?: $val"</kbd>
+          1: 0
+</pre>
+     <p class="noindent">In practice this can be a big problem if you are ready to catch failures
+of <samp><span class="command">expr</span></samp> programs with some other method (such as using
+<samp><span class="command">sed</span></samp>), since you may get twice the result.  For instance
+
+     <pre class="example">          $ <kbd>expr 'a' : '\(a\)' || echo 'a' | sed 's/^\(a\)$/\1/'</kbd>
+</pre>
+     <p class="noindent">outputs &lsquo;<samp><span class="samp">a</span></samp>&rsquo; on most hosts, but &lsquo;<samp><span class="samp">aa</span></samp>&rsquo; on QNX 4.25.  A
+simple workaround consists of testing <samp><span class="command">expr</span></samp> and using a variable
+set to <samp><span class="command">expr</span></samp> or to <samp><span class="command">false</span></samp> according to the result.
+
+     <p>Tru64 <samp><span class="command">expr</span></samp> incorrectly treats the result as a number, if it
+can be interpreted that way:
+
+     <pre class="example">          $ <kbd>expr 00001 : '.*\(...\)'</kbd>
+          1
+</pre>
+     <p>On HP-UX 11, <samp><span class="command">expr</span></samp> only supports a single
+sub-expression.
+
+     <pre class="example">          $ <kbd>expr 'Xfoo' : 'X\(f\(oo\)*\)$'</kbd>
+          expr: More than one '\(' was used.
+</pre>
+     <br><dt><samp><span class="command">fgrep</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bfgrep_007d-1816"></a>Posix 1003.1-2001 no longer requires <samp><span class="command">fgrep</span></samp>,
+but many hosts do not yet support the Posix
+replacement <code>grep -F</code>.  Also, some traditional implementations do
+not work on long input lines.  To work around these problems, invoke
+<code>AC_PROG_FGREP</code> and then use <code>$FGREP</code>.
+
+     <p>Tru64/OSF 5.1 <samp><span class="command">fgrep</span></samp> does not match an empty pattern.
+
+     <br><dt><samp><span class="command">find</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bfind_007d-1817"></a>The option <samp><span class="option">-maxdepth</span></samp> seems to be GNU specific. 
+Tru64 v5.1, NetBSD 1.5 and Solaris <samp><span class="command">find</span></samp>
+commands do not understand it.
+
+     <p>The replacement of &lsquo;<samp><span class="samp">{}</span></samp>&rsquo; is guaranteed only if the argument is
+exactly <em>{}</em>, not if it's only a part of an argument.  For
+instance on DU, and HP-UX 10.20 and HP-UX 11:
+
+     <pre class="example">          $ <kbd>touch foo</kbd>
+          $ <kbd>find . -name foo -exec echo "{}-{}" \;</kbd>
+          {}-{}
+</pre>
+     <p class="noindent">while GNU <samp><span class="command">find</span></samp> reports &lsquo;<samp><span class="samp">./foo-./foo</span></samp>&rsquo;.
+
+     <p><a name="grep"></a><br><dt><samp><span class="command">grep</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bgrep_007d-1818"></a>Portable scripts can rely on the <samp><span class="command">grep</span></samp> options <samp><span class="option">-c</span></samp>,
+<samp><span class="option">-l</span></samp>, <samp><span class="option">-n</span></samp>, and <samp><span class="option">-v</span></samp>, but should avoid other
+options.  For example, don't use <samp><span class="option">-w</span></samp>, as Posix does not require
+it and Irix 6.5.16m's <samp><span class="command">grep</span></samp> does not support it.  Also,
+portable scripts should not combine <samp><span class="option">-c</span></samp> with <samp><span class="option">-l</span></samp>,
+as Posix does not allow this.
+
+     <p>Some of the options required by Posix are not portable in practice. 
+Don't use &lsquo;<samp><span class="samp">grep -q</span></samp>&rsquo; to suppress output, because many <samp><span class="command">grep</span></samp>
+implementations (e.g., Solaris) do not support <samp><span class="option">-q</span></samp>. 
+Don't use &lsquo;<samp><span class="samp">grep -s</span></samp>&rsquo; to suppress output either, because Posix
+says <samp><span class="option">-s</span></samp> does not suppress output, only some error messages;
+also, the <samp><span class="option">-s</span></samp> option of traditional <samp><span class="command">grep</span></samp> behaved
+like <samp><span class="option">-q</span></samp> does in most modern implementations.  Instead,
+redirect the standard output and standard error (in case the file
+doesn't exist) of <code>grep</code> to <samp><span class="file">/dev/null</span></samp>.  Check the exit
+status of <code>grep</code> to determine whether it found a match.
+
+     <p>The QNX4 implementation fails to count lines with <code>grep -c '$'</code>,
+but works with <code>grep -c '^'</code>.  Other alternatives for counting
+lines are to use <code>sed -n '$='</code> or <code>wc -l</code>.
+
+     <p>Some traditional <samp><span class="command">grep</span></samp> implementations do not work on long
+input lines.  On AIX the default <code>grep</code> silently truncates long
+lines on the input before matching.
+
+     <p>Also, many implementations do not support multiple regexps
+with <samp><span class="option">-e</span></samp>: they either reject <samp><span class="option">-e</span></samp> entirely (e.g., Solaris)
+or honor only the last pattern (e.g., IRIX 6.5 and NeXT).  To
+work around these problems, invoke <code>AC_PROG_GREP</code> and then use
+<code>$GREP</code>.
+
+     <p>Another possible workaround for the multiple <samp><span class="option">-e</span></samp> problem is to
+separate the patterns by newlines, for example:
+
+     <pre class="example">          grep 'foo
+          bar' in.txt
+</pre>
+     <p class="noindent">except that this fails with traditional <samp><span class="command">grep</span></samp>
+implementations and with OpenBSD 3.8 <samp><span class="command">grep</span></samp>.
+
+     <p>Traditional <samp><span class="command">grep</span></samp> implementations (e.g., Solaris) do not
+support the <samp><span class="option">-E</span></samp> or <samp><span class="option">-F</span></samp> options.  To work around these
+problems, invoke <code>AC_PROG_EGREP</code> and then use <code>$EGREP</code>, and
+similarly for <code>AC_PROG_FGREP</code> and <code>$FGREP</code>.  Even if you are
+willing to require support for Posix <samp><span class="command">grep</span></samp>, your script should
+not use both <samp><span class="option">-E</span></samp> and <samp><span class="option">-F</span></samp>, since Posix does not allow
+this combination.
+
+     <p>Portable <samp><span class="command">grep</span></samp> regular expressions should use &lsquo;<samp><span class="samp">\</span></samp>&rsquo; only to
+escape characters in the string &lsquo;<samp><span class="samp">$()*.0123456789[\^{}</span></samp>&rsquo;.  For example,
+alternation, &lsquo;<samp><span class="samp">\|</span></samp>&rsquo;, is common but Posix does not require its
+support in basic regular expressions, so it should be avoided in
+portable scripts.  Solaris and HP-UX <samp><span class="command">grep</span></samp> do not support it. 
+Similarly, the following escape sequences should also be avoided:
+&lsquo;<samp><span class="samp">\&lt;</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\&gt;</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\+</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\?</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\`</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\'</span></samp>&rsquo;,
+&lsquo;<samp><span class="samp">\B</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\b</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\S</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\s</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\W</span></samp>&rsquo;, and &lsquo;<samp><span class="samp">\w</span></samp>&rsquo;.
+
+     <p>Posix does not specify the behavior of <samp><span class="command">grep</span></samp> on binary files. 
+An example where this matters is using BSD <samp><span class="command">grep</span></samp> to
+search text that includes embedded ANSI escape sequences for
+colored output to terminals (&lsquo;<samp><span class="samp">\033[m</span></samp>&rsquo; is the sequence to restore
+normal output); the behavior depends on whether input is seekable:
+
+     <pre class="example">          $ <kbd>printf 'esc\033[mape\n' &gt; sample</kbd>
+          $ <kbd>grep . sample</kbd>
+          Binary file sample matches
+          $ <kbd>cat sample | grep .</kbd>
+          escape
+</pre>
+     <br><dt><samp><span class="command">join</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bjoin_007d-1819"></a>Solaris 8 <samp><span class="command">join</span></samp> has bugs when the second operand is standard
+input, and when standard input is a pipe.  For example, the following
+shell script causes Solaris 8 <samp><span class="command">join</span></samp> to loop forever:
+
+     <pre class="example">          cat &gt;file &lt;&lt;'EOF'
+          1 x
+          2 y
+          EOF
+          cat file | join file -
+</pre>
+     <p>Use &lsquo;<samp><span class="samp">join - file</span></samp>&rsquo; instead.
+
+     <p>On NetBSD, <samp><span class="command">join -a 1 file1 file2</span></samp> mistakenly behaves like
+<samp><span class="command">join -a 1 -a 2 1 file1 file2</span></samp>, resulting in a usage warning;
+the workaround is to use <samp><span class="command">join -a1 file1 file2</span></samp> instead.
+
+     <br><dt><samp><span class="command">ln</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bln_007d-1820"></a><a name="index-Symbolic-links-1821"></a>Don't rely on <samp><span class="command">ln</span></samp> having a <samp><span class="option">-f</span></samp> option.  Symbolic links
+are not available on old systems; use &lsquo;<samp><span class="samp">$(LN_S)</span></samp>&rsquo; as a portable substitute.
+
+     <p>For versions of the DJGPP before 2.04,
+<samp><span class="command">ln</span></samp> emulates symbolic links
+to executables by generating a stub that in turn calls the real
+program.  This feature also works with nonexistent files like in the
+Posix spec.  So &lsquo;<samp><span class="samp">ln -s file link</span></samp>&rsquo; generates <samp><span class="file">link.exe</span></samp>,
+which attempts to call <samp><span class="file">file.exe</span></samp> if run.  But this feature only
+works for executables, so &lsquo;<samp><span class="samp">cp -p</span></samp>&rsquo; is used instead for these
+systems.  DJGPP versions 2.04 and later have full support
+for symbolic links.
+
+     <br><dt><samp><span class="command">ls</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bls_007d-1822"></a><a name="index-Listing-directories-1823"></a>The portable options are <samp><span class="option">-acdilrtu</span></samp>.  Current practice is for
+<samp><span class="option">-l</span></samp> to output both owner and group, even though ancient versions
+of <samp><span class="command">ls</span></samp> omitted the group.
+
+     <p>On ancient hosts, &lsquo;<samp><span class="samp">ls foo</span></samp>&rsquo; sent the diagnostic &lsquo;<samp><span class="samp">foo not found</span></samp>&rsquo;
+to standard output if <samp><span class="file">foo</span></samp> did not exist.  Hence a shell command
+like &lsquo;<samp><span class="samp">sources=`ls *.c 2&gt;/dev/null`</span></samp>&rsquo; did not always work, since it
+was equivalent to &lsquo;<samp><span class="samp">sources='*.c not found'</span></samp>&rsquo; in the absence of
+&lsquo;<samp><span class="samp">.c</span></samp>&rsquo; files.  This is no longer a practical problem, since current
+<samp><span class="command">ls</span></samp> implementations send diagnostics to standard error.
+
+     <p>The behavior of <samp><span class="command">ls</span></samp> on a directory that is being concurrently
+modified is not always predictable, because of a data race where cached
+information returned by <code>readdir</code> does not match the current
+directory state.  In fact, MacOS 10.5 has an intermittent bug where
+<code>readdir</code>, and thus <samp><span class="command">ls</span></samp>, sometimes lists a file more than
+once if other files were added or removed from the directory immediately
+prior to the <samp><span class="command">ls</span></samp> call.  Since <samp><span class="command">ls</span></samp> already sorts its
+output, the duplicate entries can be avoided by piping the results
+through <code>uniq</code>.
+
+     <p><a name="mkdir"></a><br><dt><samp><span class="command">mkdir</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bmkdir_007d-1824"></a><a name="index-Making-directories-1825"></a>No <samp><span class="command">mkdir</span></samp> option is portable to older systems.  Instead of
+&lsquo;<samp><span class="samp">mkdir -p </span><var>file-name</var></samp>&rsquo;, you should use
+<code>AS_MKDIR_P(</code><var>file-name</var><code>)</code> (see <a href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>)
+or <code>AC_PROG_MKDIR_P</code> (see <a href="Particular-Programs.html#Particular-Programs">Particular Programs</a>).
+
+     <p>Combining the <samp><span class="option">-m</span></samp> and <samp><span class="option">-p</span></samp> options, as in &lsquo;<samp><span class="samp">mkdir -m
+go-w -p </span><var>dir</var></samp>&rsquo;, often leads to trouble.  FreeBSD
+<samp><span class="command">mkdir</span></samp> incorrectly attempts to change the permissions of
+<var>dir</var> even if it already exists.  HP-UX 11.23 and
+IRIX 6.5 <samp><span class="command">mkdir</span></samp> often assign the wrong permissions to
+any newly-created parents of <var>dir</var>.
+
+     <p>Posix does not clearly specify whether &lsquo;<samp><span class="samp">mkdir -p foo</span></samp>&rsquo;
+should succeed when <samp><span class="file">foo</span></samp> is a symbolic link to an already-existing
+directory.  The GNU Core Utilities 5.1.0 <samp><span class="command">mkdir</span></samp>
+succeeds, but Solaris <samp><span class="command">mkdir</span></samp> fails.
+
+     <p>Traditional <code>mkdir -p</code> implementations suffer from race conditions. 
+For example, if you invoke <code>mkdir -p a/b</code> and <code>mkdir -p a/c</code>
+at the same time, both processes might detect that <samp><span class="file">a</span></samp> is missing,
+one might create <samp><span class="file">a</span></samp>, then the other might try to create <samp><span class="file">a</span></samp>
+and fail with a <code>File exists</code> diagnostic.  The GNU Core
+Utilities (&lsquo;<samp><span class="samp">fileutils</span></samp>&rsquo; version 4.1), FreeBSD 5.0,
+NetBSD 2.0.2, and OpenBSD 2.4 are known to be
+race-free when two processes invoke <code>mkdir -p</code> simultaneously, but
+earlier versions are vulnerable.  Solaris <samp><span class="command">mkdir</span></samp> is still
+vulnerable as of Solaris 10, and other traditional Unix systems are
+probably vulnerable too.  This possible race is harmful in parallel
+builds when several Make rules call <code>mkdir -p</code> to
+construct directories.  You may use
+<code>install-sh -d</code> as a safe replacement, provided this script is
+recent enough; the copy shipped with Autoconf 2.60 and Automake 1.10 is
+OK, but copies from older versions are vulnerable.
+
+     <br><dt><samp><span class="command">mkfifo</span></samp><dt><samp><span class="command">mknod</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bmkfifo_007d-1826"></a><a name="index-g_t_0040command_007bmknod_007d-1827"></a>The GNU Coding Standards state that <samp><span class="command">mknod</span></samp> is safe to use on
+platforms where it has been tested to exist; but it is generally portable
+only for creating named FIFOs, since device numbers are
+platform-specific.  Autotest uses <samp><span class="command">mkfifo</span></samp> to implement parallel
+testsuites.  Posix states that behavior is unspecified when opening a
+named FIFO for both reading and writing; on at least Cygwin, this
+results in failure on any attempt to read or write to that file
+descriptor.
+
+     <br><dt><samp><span class="command">mktemp</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bmktemp_007d-1828"></a><a name="index-Creating-temporary-files-1829"></a>Shell scripts can use temporary files safely with <samp><span class="command">mktemp</span></samp>, but
+it does not exist on all systems.  A portable way to create a safe
+temporary file name is to create a temporary directory with mode 700 and
+use a file inside this directory.  Both methods prevent attackers from
+gaining control, though <samp><span class="command">mktemp</span></samp> is far less likely to fail
+gratuitously under attack.
+
+     <p>Here is sample code to create a new temporary directory &lsquo;<samp><span class="samp">$dir</span></samp>&rsquo; safely:
+
+     <pre class="example">          # Create a temporary directory $dir in $TMPDIR (default /tmp).
+          # Use mktemp if possible; otherwise fall back on mkdir,
+          # with $RANDOM to make collisions less likely.
+          : "${TMPDIR:=/tmp}"
+          {
+            dir=`
+              (umask 077 &amp;&amp; mktemp -d "$TMPDIR/fooXXXXXX") 2&gt;/dev/null
+            ` &amp;&amp;
+            test -d "$dir"
+          } || {
+            dir=$TMPDIR/foo$$-$RANDOM
+          <!-- $$ restore font-lock -->
+            (umask 077 &amp;&amp; mkdir "$dir")
+          } || exit $?
+</pre>
+     <br><dt><samp><span class="command">mv</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bmv_007d-1830"></a><a name="index-Moving-open-files-1831"></a>The only portable options are <samp><span class="option">-f</span></samp> and <samp><span class="option">-i</span></samp>.
+
+     <p>Moving individual files between file systems is portable (it was in Unix
+version 6),
+but it is not always atomic: when doing &lsquo;<samp><span class="samp">mv new existing</span></samp>&rsquo;, there's
+a critical section where neither the old nor the new version of
+<samp><span class="file">existing</span></samp> actually exists.
+
+     <p>On some systems moving files from <samp><span class="file">/tmp</span></samp> can sometimes cause
+undesirable (but perfectly valid) warnings, even if you created these
+files.  This is because <samp><span class="file">/tmp</span></samp> belongs to a group that ordinary
+users are not members of, and files created in <samp><span class="file">/tmp</span></samp> inherit
+the group of <samp><span class="file">/tmp</span></samp>.  When the file is copied, <samp><span class="command">mv</span></samp> issues
+a diagnostic without failing:
+
+     <pre class="smallexample">          $ <kbd>touch /tmp/foo</kbd>
+          $ <kbd>mv /tmp/foo .</kbd>
+          error--&gt;mv: ./foo: set owner/group (was: 100/0): Operation not permitted
+          $ <kbd>echo $?</kbd>
+          0
+          $ <kbd>ls foo</kbd>
+          foo
+</pre>
+     <p class="noindent">This annoying behavior conforms to Posix, unfortunately.
+
+     <p>Moving directories across mount points is not portable, use <samp><span class="command">cp</span></samp>
+and <samp><span class="command">rm</span></samp>.
+
+     <p>DOS variants cannot rename or remove open files, and do not
+support commands like &lsquo;<samp><span class="samp">mv foo bar &gt;foo</span></samp>&rsquo;, even though this is
+perfectly portable among Posix hosts.
+
+     <br><dt><samp><span class="command">od</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bod_007d-1832"></a>
+In Mac OS X 10.3, <samp><span class="command">od</span></samp> does not support the
+standard Posix options <samp><span class="option">-A</span></samp>, <samp><span class="option">-j</span></samp>, <samp><span class="option">-N</span></samp>, or
+<samp><span class="option">-t</span></samp>, or the XSI option <samp><span class="option">-s</span></samp>.  The only
+supported Posix option is <samp><span class="option">-v</span></samp>, and the only supported
+XSI options are those in <samp><span class="option">-bcdox</span></samp>.  The BSD
+<samp><span class="command">hexdump</span></samp> program can be used instead.
+
+     <p>This problem no longer exists in Mac OS X 10.4.3.
+
+     <br><dt><samp><span class="command">rm</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007brm_007d-1833"></a>The <samp><span class="option">-f</span></samp> and <samp><span class="option">-r</span></samp> options are portable.
+
+     <p>It is not portable to invoke <samp><span class="command">rm</span></samp> without options or operands. 
+On the other hand, Posix now requires <samp><span class="command">rm -f</span></samp> to silently
+succeed when there are no operands (useful for constructs like
+<samp><span class="command">rm -rf $filelist</span></samp> without first checking if &lsquo;<samp><span class="samp">$filelist</span></samp>&rsquo;
+was empty).  But this was not always portable; at least NetBSD
+<samp><span class="command">rm</span></samp> built before 2008 would fail with a diagnostic.
+
+     <p>A file might not be removed even if its parent directory is writable
+and searchable.  Many Posix hosts cannot remove a mount point, a named
+stream, a working directory, or a last link to a file that is being
+executed.
+
+     <p>DOS variants cannot rename or remove open files, and do not
+support commands like &lsquo;<samp><span class="samp">rm foo &gt;foo</span></samp>&rsquo;, even though this is
+perfectly portable among Posix hosts.
+
+     <br><dt><samp><span class="command">rmdir</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007brmdir_007d-1834"></a>Just as with <samp><span class="command">rm</span></samp>, some platforms refuse to remove a working
+directory.
+
+     <p><a name="sed"></a><br><dt><samp><span class="command">sed</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bsed_007d-1835"></a>Patterns should not include the separator (unless escaped), even as part
+of a character class.  In conformance with Posix, the Cray
+<samp><span class="command">sed</span></samp> rejects &lsquo;<samp><span class="samp">s/[^/]*$//</span></samp>&rsquo;: use &lsquo;<samp><span class="samp">s%[^/]*$%%</span></samp>&rsquo;. 
+Even when escaped, patterns should not include separators that are also
+used as <samp><span class="command">sed</span></samp> metacharacters.  For example, GNU sed 4.0.9 rejects
+&lsquo;<samp><span class="samp">s,x\{1\,\},,</span></samp>&rsquo;, while sed 4.1 strips the backslash before the comma
+before evaluating the basic regular expression.
+
+     <p>Avoid empty patterns within parentheses (i.e., &lsquo;<samp><span class="samp">\(\)</span></samp>&rsquo;).  Posix does
+not require support for empty patterns, and Unicos 9 <samp><span class="command">sed</span></samp> rejects
+them.
+
+     <p>Unicos 9 <samp><span class="command">sed</span></samp> loops endlessly on patterns like &lsquo;<samp><span class="samp">.*\n.*</span></samp>&rsquo;.
+
+     <p>Sed scripts should not use branch labels longer than 7 characters and
+should not contain comments; AIX 5.3 <samp><span class="command">sed</span></samp> rejects indented comments. 
+HP-UX sed has a limit of 99 commands (not counting &lsquo;<samp><span class="samp">:</span></samp>&rsquo; commands) and
+48 labels, which cannot be circumvented by using more than one script
+file.  It can execute up to 19 reads with the &lsquo;<samp><span class="samp">r</span></samp>&rsquo; command per cycle. 
+Solaris <samp><span class="command">/usr/ucb/sed</span></samp> rejects usages that exceed a limit of
+about 6000 bytes for the internal representation of commands.
+
+     <p>Avoid redundant &lsquo;<samp><span class="samp">;</span></samp>&rsquo;, as some <samp><span class="command">sed</span></samp> implementations, such as
+NetBSD 1.4.2's, incorrectly try to interpret the second
+&lsquo;<samp><span class="samp">;</span></samp>&rsquo; as a command:
+
+     <pre class="example">          $ <kbd>echo a | sed 's/x/x/;;s/x/x/'</kbd>
+          sed: 1: "s/x/x/;;s/x/x/": invalid command code ;
+</pre>
+     <p>Some <samp><span class="command">sed</span></samp> implementations have a buffer limited to 4000 bytes,
+and this limits the size of input lines, output lines, and internal
+buffers that can be processed portably.  Likewise,
+not all <samp><span class="command">sed</span></samp> implementations can handle embedded <code>NUL</code> or
+a missing trailing newline.
+
+     <p>Remember that ranges within a bracket expression of a regular expression
+are only well-defined in the &lsquo;<samp><span class="samp">C</span></samp>&rsquo; (or &lsquo;<samp><span class="samp">POSIX</span></samp>&rsquo;) locale. 
+Meanwhile, support for character classes like &lsquo;<samp><span class="samp">[[:upper:]]</span></samp>&rsquo; is not
+yet universal, so if you cannot guarantee the setting of <samp><span class="env">LC_ALL</span></samp>,
+it is better to spell out a range &lsquo;<samp><span class="samp">[ABCDEFGHIJKLMNOPQRSTUVWXYZ]</span></samp>&rsquo;
+than to rely on &lsquo;<samp><span class="samp">[A-Z]</span></samp>&rsquo;.
+
+     <p>Additionally, Posix states that regular expressions are only
+well-defined on characters.  Unfortunately, there exist platforms such
+as MacOS X 10.5 where not all 8-bit byte values are valid characters,
+even though that platform has a single-byte &lsquo;<samp><span class="samp">C</span></samp>&rsquo; locale.  And Posix
+allows the existence of a multi-byte &lsquo;<samp><span class="samp">C</span></samp>&rsquo; locale, although that does
+not yet appear to be a common implementation.  At any rate, it means
+that not all bytes will be matched by the regular expression &lsquo;<samp><span class="samp">.</span></samp>&rsquo;:
+
+     <pre class="example">          $ <kbd>printf '\200\n' | LC_ALL=C sed -n /./p | wc -l</kbd>
+          0
+          $ <kbd>printf '\200\n' | LC_ALL=en_US.ISO8859-1 sed -n /./p | wc -l</kbd>
+          1
+</pre>
+     <p>Portable <samp><span class="command">sed</span></samp> regular expressions should use &lsquo;<samp><span class="samp">\</span></samp>&rsquo; only to escape
+characters in the string &lsquo;<samp><span class="samp">$()*.0123456789[\^n{}</span></samp>&rsquo;.  For example,
+alternation, &lsquo;<samp><span class="samp">\|</span></samp>&rsquo;, is common but Posix does not require its
+support, so it should be avoided in portable scripts.  Solaris
+<samp><span class="command">sed</span></samp> does not support alternation; e.g., &lsquo;<samp><span class="samp">sed '/a\|b/d'</span></samp>&rsquo;
+deletes only lines that contain the literal string &lsquo;<samp><span class="samp">a|b</span></samp>&rsquo;. 
+Similarly, &lsquo;<samp><span class="samp">\+</span></samp>&rsquo; and &lsquo;<samp><span class="samp">\?</span></samp>&rsquo; should be avoided.
+
+     <p>Anchors (&lsquo;<samp><span class="samp">^</span></samp>&rsquo; and &lsquo;<samp><span class="samp">$</span></samp>&rsquo;) inside groups are not portable.
+
+     <p>Nested parentheses in patterns (e.g., &lsquo;<samp><span class="samp">\(\(a*\)b*)\)</span></samp>&rsquo;) are
+quite portable to current hosts, but was not supported by some ancient
+<samp><span class="command">sed</span></samp> implementations like SVR3.
+
+     <p>Some <samp><span class="command">sed</span></samp> implementations, e.g., Solaris, restrict the special
+role of the asterisk &lsquo;<samp><span class="samp">*</span></samp>&rsquo; to one-character regular expressions and
+back-references, and the special role of interval expressions
+&lsquo;<samp><span class="samp">\{</span><var>m</var><span class="samp">\}</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\{</span><var>m</var><span class="samp">,\}</span></samp>&rsquo;, or &lsquo;<samp><span class="samp">\{</span><var>m</var><span class="samp">,</span><var>n</var><span class="samp">\}</span></samp>&rsquo;
+to one-character regular expressions.  This may lead to unexpected behavior:
+
+     <pre class="example">          $ <kbd>echo '1*23*4' | /usr/bin/sed 's/\(.\)*/x/g'</kbd>
+          x2x4
+          $ <kbd>echo '1*23*4' | /usr/xpg4/bin/sed 's/\(.\)*/x/g'</kbd>
+          x
+</pre>
+     <p>The <samp><span class="option">-e</span></samp> option is mostly portable. 
+However, its argument
+cannot start with &lsquo;<samp><span class="samp">a</span></samp>&rsquo;, &lsquo;<samp><span class="samp">c</span></samp>&rsquo;, or &lsquo;<samp><span class="samp">i</span></samp>&rsquo;,
+as this runs afoul of a Tru64 5.1 bug. 
+Also, its argument cannot be empty, as this fails on AIX 5.3. 
+Some people prefer to use &lsquo;<samp><span class="samp">-e</span></samp>&rsquo;:
+
+     <pre class="example">          sed -e '<var>command-1</var>' \
+              -e '<var>command-2</var>'
+</pre>
+     <p class="noindent">as opposed to the equivalent:
+
+     <pre class="example">          sed '
+            <var>command-1</var>
+            <var>command-2</var>
+          '
+</pre>
+     <p class="noindent">The following usage is sometimes equivalent:
+
+     <pre class="example">          sed '<var>command-1</var>;<var>command-2</var>'
+</pre>
+     <p>but Posix says that this use of a semicolon has undefined effect if
+<var>command-1</var>'s verb is &lsquo;<samp><span class="samp">{</span></samp>&rsquo;, &lsquo;<samp><span class="samp">a</span></samp>&rsquo;, &lsquo;<samp><span class="samp">b</span></samp>&rsquo;, &lsquo;<samp><span class="samp">c</span></samp>&rsquo;,
+&lsquo;<samp><span class="samp">i</span></samp>&rsquo;, &lsquo;<samp><span class="samp">r</span></samp>&rsquo;, &lsquo;<samp><span class="samp">t</span></samp>&rsquo;, &lsquo;<samp><span class="samp">w</span></samp>&rsquo;, &lsquo;<samp><span class="samp">:</span></samp>&rsquo;, or &lsquo;<samp><span class="samp">#</span></samp>&rsquo;, so you
+should use semicolon only with simple scripts that do not use these
+verbs.
+
+     <p>Posix up to the 2008 revision requires the argument of the <samp><span class="option">-e</span></samp>
+option to be a syntactically complete script.  GNU <samp><span class="command">sed</span></samp> allows
+to pass multiple script fragments, each as argument of a separate
+<samp><span class="option">-e</span></samp> option, that are then combined, with newlines between the
+fragments, and a future Posix revision may allow this as well.  This
+approach is not portable with script fragments ending in backslash; for
+example, the <samp><span class="command">sed</span></samp> programs on Solaris 10, HP-UX 11, and AIX
+don't allow splitting in this case:
+
+     <pre class="example">          $ <kbd>echo a | sed -n -e 'i\</kbd>
+          <kbd>0'</kbd>
+          0
+          $ <kbd>echo a | sed -n -e 'i\' -e 0</kbd>
+          Unrecognized command: 0
+</pre>
+     <p class="noindent">In practice, however, this technique of joining fragments
+through <samp><span class="option">-e</span></samp> works for multiple <samp><span class="command">sed</span></samp> functions within
+&lsquo;<samp><span class="samp">{</span></samp>&rsquo; and &lsquo;<samp><span class="samp">}</span></samp>&rsquo;, even if that is not specified by Posix:
+
+     <pre class="example">          <!-- The quote around the closing brace silences interactive zsh. -->
+          $ <kbd>echo a | sed -n -e '/a/{' -e s/a/b/ -e p -e '}'</kbd>
+          b
+</pre>
+     <p>Commands inside { } brackets are further restricted.  Posix 2008 says that
+they cannot be preceded by addresses, &lsquo;<samp><span class="samp">!</span></samp>&rsquo;, or &lsquo;<samp><span class="samp">;</span></samp>&rsquo;, and that
+each command must be followed immediately by a newline, without any
+intervening blanks or semicolons.  The closing bracket must be alone on
+a line, other than white space preceding or following it.  However, a
+future version of Posix may standardize the use of addresses within brackets.
+
+     <p>Contrary to yet another urban legend, you may portably use &lsquo;<samp><span class="samp">&amp;</span></samp>&rsquo; in
+the replacement part of the <code>s</code> command to mean &ldquo;what was
+matched&rdquo;.  All descendants of Unix version 7 <samp><span class="command">sed</span></samp>
+(at least; we
+don't have first hand experience with older <samp><span class="command">sed</span></samp> implementations) have
+supported it.
+
+     <p>Posix requires that you must not have any white space between
+&lsquo;<samp><span class="samp">!</span></samp>&rsquo; and the following command.  It is OK to have blanks between
+the address and the &lsquo;<samp><span class="samp">!</span></samp>&rsquo;.  For instance, on Solaris:
+
+     <pre class="example">          $ <kbd>echo "foo" | sed -n '/bar/ ! p'</kbd>
+          error--&gt;Unrecognized command: /bar/ ! p
+          $ <kbd>echo "foo" | sed -n '/bar/! p'</kbd>
+          error--&gt;Unrecognized command: /bar/! p
+          $ <kbd>echo "foo" | sed -n '/bar/ !p'</kbd>
+          foo
+</pre>
+     <p>Posix also says that you should not combine &lsquo;<samp><span class="samp">!</span></samp>&rsquo; and &lsquo;<samp><span class="samp">;</span></samp>&rsquo;.  If
+you use &lsquo;<samp><span class="samp">!</span></samp>&rsquo;, it is best to put it on a command that is delimited by
+newlines rather than &lsquo;<samp><span class="samp">;</span></samp>&rsquo;.
+
+     <p>Also note that Posix requires that the &lsquo;<samp><span class="samp">b</span></samp>&rsquo;, &lsquo;<samp><span class="samp">t</span></samp>&rsquo;, &lsquo;<samp><span class="samp">r</span></samp>&rsquo;, and
+&lsquo;<samp><span class="samp">w</span></samp>&rsquo; commands be followed by exactly one space before their argument. 
+On the other hand, no white space is allowed between &lsquo;<samp><span class="samp">:</span></samp>&rsquo; and the
+subsequent label name.
+
+     <p>If a sed script is specified on the command line and ends in an
+&lsquo;<samp><span class="samp">a</span></samp>&rsquo;, &lsquo;<samp><span class="samp">c</span></samp>&rsquo;, or &lsquo;<samp><span class="samp">i</span></samp>&rsquo; command, the last line of inserted text
+should be followed by a newline.  Otherwise some <samp><span class="command">sed</span></samp>
+implementations (e.g., OpenBSD 3.9) do not append a newline to the
+inserted text.
+
+     <p>Many <samp><span class="command">sed</span></samp> implementations (e.g., MacOS X 10.4,
+OpenBSD 3.9, Solaris 10
+<samp><span class="command">/usr/ucb/sed</span></samp>) strip leading white space from the text of
+&lsquo;<samp><span class="samp">a</span></samp>&rsquo;, &lsquo;<samp><span class="samp">c</span></samp>&rsquo;, and &lsquo;<samp><span class="samp">i</span></samp>&rsquo; commands.  Prepend a backslash to
+work around this incompatibility with Posix:
+
+     <pre class="example">          $ <kbd>echo flushleft | sed 'a\</kbd>
+          &gt; <kbd>   indented</kbd>
+          &gt; <kbd>'</kbd>
+          flushleft
+          indented
+          $ <kbd>echo foo | sed 'a\</kbd>
+          &gt; <kbd>\   indented</kbd>
+          &gt; <kbd>'</kbd>
+          flushleft
+             indented
+</pre>
+     <p>Posix requires that with an empty regular expression, the last non-empty
+regular expression from either an address specification or substitution
+command is applied.  However, busybox 1.6.1 complains when using a
+substitution command with a replacement containing a back-reference to
+an empty regular expression; the workaround is repeating the regular
+expression.
+
+     <pre class="example">          $ <kbd>echo abc | busybox sed '/a\(b\)c/ s//\1/'</kbd>
+          sed: No previous regexp.
+          $ <kbd>echo abc | busybox sed '/a\(b\)c/ s/a\(b\)c/\1/'</kbd>
+          b
+</pre>
+     <br><dt><samp><span class="command">sed</span></samp> (&lsquo;<samp><span class="samp">t</span></samp>&rsquo;)<dd><!--  -->
+<a name="index-g_t_0040command_007bsed_007d-_0028_0040samp_007bt_007d_0029-1836"></a>Some old systems have <samp><span class="command">sed</span></samp> that &ldquo;forget&rdquo; to reset their
+&lsquo;<samp><span class="samp">t</span></samp>&rsquo; flag when starting a new cycle.  For instance on MIPS
+RISC/OS, and on IRIX 5.3, if you run the following <samp><span class="command">sed</span></samp>
+script (the line numbers are not actual part of the texts):
+
+     <pre class="example">          s/keep me/kept/g  # a
+          t end             # b
+          s/.*/deleted/g    # c
+          :end              # d
+</pre>
+     <p class="noindent">on
+
+     <pre class="example">          delete me         # 1
+          delete me         # 2
+          keep me           # 3
+          delete me         # 4
+</pre>
+     <p class="noindent">you get
+
+     <pre class="example">          deleted
+          delete me
+          kept
+          deleted
+</pre>
+     <p class="noindent">instead of
+
+     <pre class="example">          deleted
+          deleted
+          kept
+          deleted
+</pre>
+     <p>Why?  When processing line 1, (c) matches, therefore sets the &lsquo;<samp><span class="samp">t</span></samp>&rsquo;
+flag, and the output is produced.  When processing
+line 2, the &lsquo;<samp><span class="samp">t</span></samp>&rsquo; flag is still set (this is the bug).  Command (a)
+fails to match, but <samp><span class="command">sed</span></samp> is not supposed to clear the &lsquo;<samp><span class="samp">t</span></samp>&rsquo;
+flag when a substitution fails.  Command (b) sees that the flag is set,
+therefore it clears it, and jumps to (d), hence you get &lsquo;<samp><span class="samp">delete me</span></samp>&rsquo;
+instead of &lsquo;<samp><span class="samp">deleted</span></samp>&rsquo;.  When processing line (3), &lsquo;<samp><span class="samp">t</span></samp>&rsquo; is clear,
+(a) matches, so the flag is set, hence (b) clears the flags and jumps. 
+Finally, since the flag is clear, line 4 is processed properly.
+
+     <p>There are two things one should remember about &lsquo;<samp><span class="samp">t</span></samp>&rsquo; in <samp><span class="command">sed</span></samp>. 
+Firstly, always remember that &lsquo;<samp><span class="samp">t</span></samp>&rsquo; jumps if <em>some</em> substitution
+succeeded, not only the immediately preceding substitution.  Therefore,
+always use a fake &lsquo;<samp><span class="samp">t clear</span></samp>&rsquo; followed by a &lsquo;<samp><span class="samp">:clear</span></samp>&rsquo; on the next
+line, to reset the &lsquo;<samp><span class="samp">t</span></samp>&rsquo; flag where needed.
+
+     <p>Secondly, you cannot rely on <samp><span class="command">sed</span></samp> to clear the flag at each new
+cycle.
+
+     <p>One portable implementation of the script above is:
+
+     <pre class="example">          t clear
+          :clear
+          s/keep me/kept/g
+          t end
+          s/.*/deleted/g
+          :end
+</pre>
+     <br><dt><samp><span class="command">sleep</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bsleep_007d-1837"></a>Using <samp><span class="command">sleep</span></samp> is generally portable.  However, remember that
+adding a <samp><span class="command">sleep</span></samp> to work around timestamp issues, with a minimum
+granularity of one second, doesn't scale well for parallel builds on
+modern machines with sub-second process completion.
+
+     <br><dt><samp><span class="command">sort</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007bsort_007d-1838"></a>Remember that sort order is influenced by the current locale.  Inside
+<samp><span class="file">configure</span></samp>, the C locale is in effect, but in Makefile snippets,
+you may need to specify <code>LC_ALL=C sort</code>.
+
+     <br><dt><samp><span class="command">tar</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007btar_007d-1839"></a>There are multiple file formats for <samp><span class="command">tar</span></samp>; if you use Automake,
+the macro <code>AM_INIT_AUTOMAKE</code> has some options controlling which
+level of portability to use.
+
+     <p><a name="touch"></a><br><dt><samp><span class="command">touch</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007btouch_007d-1840"></a><a name="index-timestamp-resolution-1841"></a>If you specify the desired timestamp (e.g., with the <samp><span class="option">-r</span></samp>
+option), older <samp><span class="command">touch</span></samp> implementations use the <code>utime</code> or
+<code>utimes</code> system call, which can result in the same kind of
+timestamp truncation problems that &lsquo;<samp><span class="samp">cp -p</span></samp>&rsquo; has.
+
+     <p>On ancient BSD systems, <samp><span class="command">touch</span></samp> or any command that
+results in an empty file does not update the timestamps, so use a
+command like <samp><span class="command">echo</span></samp> as a workaround. 
+Also,
+GNU <samp><span class="command">touch</span></samp> 3.16r (and presumably all before that)
+fails to work on SunOS 4.1.3 when the empty file is on an
+NFS-mounted 4.2 volume. 
+However, these problems are no longer of practical concern.
+
+     <br><dt><samp><span class="command">tr</span></samp><dd><!--  -->
+<a name="index-g_t_0040command_007btr_007d-1842"></a><a name="index-carriage-return_002c-deleting-1843"></a><a name="index-newline_002c-deleting-1844"></a><a name="index-deleting-carriage-return-1845"></a>Not all versions of <samp><span class="command">tr</span></samp> handle all backslash character escapes. 
+For example, Solaris 10 <samp><span class="command">/usr/ucb/tr</span></samp> falls over, even though
+Solaris contains more modern <samp><span class="command">tr</span></samp> in other locations. 
+Using octal escapes is more portable for carriage returns, since
+&lsquo;<samp><span class="samp">\015</span></samp>&rsquo; is the same for both ASCII and EBCDIC, and since use of
+literal carriage returns in scripts causes a number of other problems. 
+But for other characters, like newline, using octal escapes ties the
+operation to ASCII, so it is better to use literal characters.
+
+     <pre class="example">          $ <kbd>{ echo moon; echo light; } | /usr/ucb/tr -d '\n' ; echo</kbd>
+          moo
+          light
+          $ <kbd>{ echo moon; echo light; } | /usr/bin/tr -d '\n' ; echo</kbd>
+          moonlight
+          $ <kbd>{ echo moon; echo light; } | /usr/ucb/tr -d '\012' ; echo</kbd>
+          moonlight
+          $ <kbd>nl='</kbd>
+          <kbd>'; { echo moon; echo light; } | /usr/ucb/tr -d "$nl" ; echo</kbd>
+          moonlight
+</pre>
+     <p>Not all versions of <samp><span class="command">tr</span></samp> recognize direct ranges of characters: at
+least Solaris <samp><span class="command">/usr/bin/tr</span></samp> still fails to do so.  But you can
+use <samp><span class="command">/usr/xpg4/bin/tr</span></samp> instead, or add brackets (which in Posix
+transliterate to themselves).
+
+     <pre class="example">          $ <kbd>echo "Hazy Fantazy" | LC_ALL=C /usr/bin/tr a-z A-Z</kbd>
+          HAZy FAntAZy
+          $ <kbd>echo "Hazy Fantazy" | LC_ALL=C /usr/bin/tr '[a-z]' '[A-Z]'</kbd>
+          HAZY FANTAZY
+          $ <kbd>echo "Hazy Fantazy" | LC_ALL=C /usr/xpg4/bin/tr a-z A-Z</kbd>
+          HAZY FANTAZY
+</pre>
+     <p>When providing two arguments, be sure the second string is at least as
+long as the first.
+
+     <pre class="example">          $ <kbd>echo abc | /usr/xpg4/bin/tr bc d</kbd>
+          adc
+          $ <kbd>echo abc | coreutils/tr bc d</kbd>
+          add
+</pre>
+     <p>Posix requires <samp><span class="command">tr</span></samp> to operate on binary files.  But at least
+Solaris <samp><span class="command">/usr/ucb/tr</span></samp> and <samp><span class="command">/usr/bin/tr</span></samp> silently discard
+<code>NUL</code> in the input prior to doing any translation.  When using
+<samp><span class="command">tr</span></samp> to process a binary file that may contain <code>NUL</code> bytes,
+it is necessary to use <samp><span class="command">/usr/xpg4/bin/tr</span></samp> instead, or
+<samp><span class="command">/usr/xpg6/bin/tr</span></samp> if that is available.
+
+     <pre class="example">          $ <kbd>printf 'a\0b' | /usr/ucb/tr x x | od -An -tx1</kbd>
+           61 62
+          $ <kbd>printf 'a\0b' | /usr/bin/tr x x | od -An -tx1</kbd>
+           61 62
+          $ <kbd>printf 'a\0b' | /usr/xpg4/bin/tr x x | od -An -tx1</kbd>
+           61 00 62
+</pre>
+     <p>Solaris <samp><span class="command">/usr/ucb/tr</span></samp> additionally fails to handle &lsquo;<samp><span class="samp">\0</span></samp>&rsquo; as the
+octal escape for <code>NUL</code>.
+
+     <pre class="example">          $ <kbd>printf 'abc' | /usr/ucb/tr 'bc' '\0d' | od -An -tx1</kbd>
+           61 62 63
+          $ <kbd>printf 'abc' | /usr/bin/tr 'bc' '\0d' | od -An -tx1</kbd>
+           61 00 64
+          $ <kbd>printf 'abc' | /usr/xpg4/bin/tr 'bc' '\0d' | od -An -tx1</kbd>
+           61 00 64
+</pre>
+     </dl>
+
+   </body></html>
+

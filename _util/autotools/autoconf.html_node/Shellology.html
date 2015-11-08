@@ -1,0 +1,141 @@
+<html lang="en">
+<head>
+<title>Shellology - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="next" href="Invoking-the-Shell.html#Invoking-the-Shell" title="Invoking the Shell">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Shellology"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Invoking-the-Shell.html#Invoking-the-Shell">Invoking the Shell</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.1 Shellology</h3>
+
+<p><a name="index-Shellology-1679"></a>
+There are several families of shells, most prominently the Bourne family
+and the C shell family which are deeply incompatible.  If you want to
+write portable shell scripts, avoid members of the C shell family.  The
+<a href="http://www.faqs.org/faqs/unix-faq/shell/shell-differences/">the Shell difference FAQ</a> includes a small history of Posix shells, and a
+comparison between several of them.
+
+   <p>Below we describe some of the members of the Bourne shell family.
+
+     <dl>
+<dt>Ash<dd><a name="index-Ash-1680"></a>Ash is often used on GNU/Linux and BSD
+systems as a light-weight Bourne-compatible shell.  Ash 0.2 has some
+bugs that are fixed in the 0.3.x series, but portable shell scripts
+should work around them, since version 0.2 is still shipped with many
+GNU/Linux distributions.
+
+     <p>To be compatible with Ash 0.2:
+
+          <ul>
+<li>don't use &lsquo;<samp><span class="samp">$?</span></samp>&rsquo; after expanding empty or unset variables,
+or at the start of an <samp><span class="command">eval</span></samp>:
+
+          <pre class="example">               foo=
+               false
+               $foo
+               echo "Do not use it: $?"
+               false
+               eval 'echo "Do not use it: $?"'
+</pre>
+          <li>don't use command substitution within variable expansion:
+
+          <pre class="example">               cat ${FOO=`bar`}
+</pre>
+          <li>beware that single builtin substitutions are not performed by a
+subshell, hence their effect applies to the current shell!  See <a href="Shell-Substitutions.html#Shell-Substitutions">Shell Substitutions</a>, item &ldquo;Command Substitution&rdquo;. 
+</ul>
+
+     <br><dt>Bash<dd><a name="index-Bash-1681"></a>To detect whether you are running Bash, test whether
+<code>BASH_VERSION</code> is set.  To require
+Posix compatibility, run &lsquo;<samp><span class="samp">set -o posix</span></samp>&rsquo;.  See <a href="../bash/Bash-POSIX-Mode.html#Bash-POSIX-Mode">Bash Posix Mode</a>, for details.
+
+     <br><dt>Bash 2.05 and later<dd><a name="index-Bash-2_002e05-and-later-1682"></a>Versions 2.05 and later of Bash use a different format for the
+output of the <samp><span class="command">set</span></samp> builtin, designed to make evaluating its
+output easier.  However, this output is not compatible with earlier
+versions of Bash (or with many other shells, probably).  So if
+you use Bash 2.05 or higher to execute <samp><span class="command">configure</span></samp>,
+you'll need to use Bash 2.05 for all other build tasks as well.
+
+     <br><dt>Ksh<dd><a name="index-Ksh-1683"></a><a name="index-Korn-shell-1684"></a><a name="index-g_t_0040samp_007bksh_007d-1685"></a><a name="index-g_t_0040samp_007bksh88_007d-1686"></a><a name="index-g_t_0040samp_007bksh93_007d-1687"></a>The Korn shell is compatible with the Bourne family and it mostly
+conforms to Posix.  It has two major variants commonly
+called &lsquo;<samp><span class="samp">ksh88</span></samp>&rsquo; and &lsquo;<samp><span class="samp">ksh93</span></samp>&rsquo;, named after the years of initial
+release.  It is usually called <samp><span class="command">ksh</span></samp>, but is called <samp><span class="command">sh</span></samp>
+on some hosts if you set your path appropriately.
+
+     <p>Solaris systems have three variants:
+<a name="index-g_t_0040command_007b_002fusr_002fbin_002fksh_007d-on-Solaris-1688"></a><samp><span class="command">/usr/bin/ksh</span></samp> is &lsquo;<samp><span class="samp">ksh88</span></samp>&rsquo;; it is
+standard on Solaris 2.0 and later. 
+<a name="index-g_t_0040command_007b_002fusr_002fxpg4_002fbin_002fsh_007d-on-Solaris-1689"></a><samp><span class="command">/usr/xpg4/bin/sh</span></samp> is a Posix-compliant variant of
+&lsquo;<samp><span class="samp">ksh88</span></samp>&rsquo;; it is standard on Solaris 9 and later. 
+<a name="index-g_t_0040command_007b_002fusr_002fdt_002fbin_002fdtksh_007d-on-Solaris-1690"></a><samp><span class="command">/usr/dt/bin/dtksh</span></samp> is &lsquo;<samp><span class="samp">ksh93</span></samp>&rsquo;. 
+Variants that are not standard may be parts of optional
+packages.  There is no extra charge for these packages, but they are
+not part of a minimal OS install and therefore some installations may
+not have it.
+
+     <p>Starting with Tru64 Version 4.0, the Korn shell <samp><span class="command">/usr/bin/ksh</span></samp>
+is also available as <samp><span class="command">/usr/bin/posix/sh</span></samp>.  If the environment
+variable <samp><span class="env">BIN_SH</span></samp> is set to <code>xpg4</code>, subsidiary invocations of
+the standard shell conform to Posix.
+
+     <br><dt>Pdksh<dd><a name="index-g_t_0040samp_007bpdksh_007d-1691"></a>A public-domain clone of the Korn shell called <samp><span class="command">pdksh</span></samp> is widely
+available: it has most of the &lsquo;<samp><span class="samp">ksh88</span></samp>&rsquo; features along with a few of
+its own.  It usually sets <code>KSH_VERSION</code>, except if invoked as
+<samp><span class="command">/bin/sh</span></samp> on OpenBSD, and similarly to Bash you can require
+Posix compatibility by running &lsquo;<samp><span class="samp">set -o posix</span></samp>&rsquo;.  Unfortunately, with
+<samp><span class="command">pdksh</span></samp> 5.2.14 (the latest stable version as of January 2007)
+Posix mode is buggy and causes <samp><span class="command">pdksh</span></samp> to depart from Posix in
+at least one respect, see <a href="Shell-Substitutions.html#Shell-Substitutions">Shell Substitutions</a>.
+
+     <br><dt>Zsh<dd><a name="index-Zsh-1692"></a>To detect whether you are running <samp><span class="command">zsh</span></samp>, test whether
+<code>ZSH_VERSION</code> is set.  By default <samp><span class="command">zsh</span></samp> is <em>not</em>
+compatible with the Bourne shell: you must execute &lsquo;<samp><span class="samp">emulate sh</span></samp>&rsquo;,
+and for <samp><span class="command">zsh</span></samp> versions before 3.1.6-dev-18 you must also
+set <code>NULLCMD</code> to &lsquo;<samp><span class="samp">:</span></samp>&rsquo;.  See <a href="../zsh/Compatibility.html#Compatibility">Compatibility</a>, for details.
+
+     <p>The default Mac OS X <samp><span class="command">sh</span></samp> was originally Zsh; it was changed to
+Bash in Mac OS X 10.2. 
+</dl>
+
+   </body></html>
+

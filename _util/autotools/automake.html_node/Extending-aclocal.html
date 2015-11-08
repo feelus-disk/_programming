@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Extending aclocal</title>
+
+<meta name="description" content="automake: Extending aclocal">
+<meta name="keywords" content="automake: Extending aclocal">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="aclocal-Invocation.html#aclocal-Invocation" rel="up" title="aclocal Invocation">
+<link href="Local-Macros.html#Local-Macros" rel="next" title="Local Macros">
+<link href="Macro-Search-Path.html#Macro-Search-Path" rel="prev" title="Macro Search Path">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Extending-aclocal"></a>
+<div class="header">
+<p>
+Next: <a href="Local-Macros.html#Local-Macros" accesskey="n" rel="next">Local Macros</a>, Previous: <a href="Macro-Search-Path.html#Macro-Search-Path" accesskey="p" rel="prev">Macro Search Path</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Writing-your-own-aclocal-macros"></a>
+<h4 class="subsection">6.3.3 Writing your own aclocal macros</h4>
+
+<a name="index-aclocal_002c-extending"></a>
+<a name="index-Extending-aclocal"></a>
+
+<p>The <code>aclocal</code> program doesn&rsquo;t have any built-in knowledge of any
+macros, so it is easy to extend it with your own macros.
+</p>
+<p>This can be used by libraries that want to supply their own Autoconf
+macros for use by other programs.  For instance, the <code>gettext</code>
+library supplies a macro <code>AM_GNU_GETTEXT</code> that should be used by
+any package using <code>gettext</code>.  When the library is installed, it
+installs this macro so that <code>aclocal</code> will find it.
+</p>
+<p>A macro file&rsquo;s name should end in <samp>.m4</samp>.  Such files should be
+installed in <samp>$(datadir)/aclocal</samp>.  This is as simple as writing:
+</p>
+<div class="example">
+<pre class="example">aclocaldir = $(datadir)/aclocal
+aclocal_DATA = mymacro.m4 myothermacro.m4
+</pre></div>
+
+<p>Please do use <samp>$(datadir)/aclocal</samp>, and not something based on
+the result of &lsquo;<samp>aclocal --print-ac-dir</samp>&rsquo; (see <a href="Hard_002dCoded-Install-Paths.html#Hard_002dCoded-Install-Paths">Hard-Coded Install Paths</a>, for arguments).  It might also be helpful to suggest to
+the user to add the <samp>$(datadir)/aclocal</samp> directory to his
+<code>ACLOCAL_PATH</code> variable (see <a href="Macro-Search-Path.html#ACLOCAL_005fPATH">ACLOCAL_PATH</a>) so that
+<code>aclocal</code> will find the <samp>.m4</samp> files installed by your
+package automatically.
+</p>
+<p>A file of macros should be a series of properly quoted
+<code>AC_DEFUN</code>&rsquo;s (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Macro-Definitions.html#Macro-Definitions">Macro Definitions</a> in <cite>The
+Autoconf Manual</cite>).  The <code>aclocal</code> programs also understands
+<code>AC_REQUIRE</code> (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Prerequisite-Macros.html#Prerequisite-Macros">Prerequisite Macros</a> in <cite>The
+Autoconf Manual</cite>), so it is safe to put each macro in a separate file.
+Each file should have no side effects but macro definitions.
+Especially, any call to <code>AC_PREREQ</code> should be done inside the
+defined macro, not at the beginning of the file.
+</p>
+<a name="index-underquoted-AC_005fDEFUN"></a>
+<a name="index-AC_005fDEFUN"></a>
+<a name="index-AC_005fPREREQ"></a>
+
+<p>Starting with Automake 1.8, <code>aclocal</code> will warn about all
+underquoted calls to <code>AC_DEFUN</code>.  We realize this will annoy a
+lot of people, because <code>aclocal</code> was not so strict in the past
+and many third party macros are underquoted; and we have to apologize
+for this temporary inconvenience.  The reason we have to be stricter
+is that a future implementation of <code>aclocal</code> (see <a href="Future-of-aclocal.html#Future-of-aclocal">Future of aclocal</a>) will have to temporarily include all of these third party
+<samp>.m4</samp> files, maybe several times, including even files that are
+not actually needed.  Doing so should alleviate many problems of the
+current implementation, however it requires a stricter style from the
+macro authors.  Hopefully it is easy to revise the existing macros.
+For instance,
+</p>
+<div class="example">
+<pre class="example"># bad style
+AC_PREREQ(2.68)
+AC_DEFUN(AX_FOOBAR,
+[AC_REQUIRE([AX_SOMETHING])dnl
+AX_FOO
+AX_BAR
+])
+</pre></div>
+
+<p>should be rewritten as
+</p>
+<div class="example">
+<pre class="example">AC_DEFUN([AX_FOOBAR],
+[AC_PREREQ([2.68])dnl
+AC_REQUIRE([AX_SOMETHING])dnl
+AX_FOO
+AX_BAR
+])
+</pre></div>
+
+<p>Wrapping the <code>AC_PREREQ</code> call inside the macro ensures that
+Autoconf 2.68 will not be required if <code>AX_FOOBAR</code> is not actually
+used.  Most importantly, quoting the first argument of <code>AC_DEFUN</code>
+allows the macro to be redefined or included twice (otherwise this
+first argument would be expanded during the second definition).  For
+consistency we like to quote even arguments such as <code>2.68</code> that
+do not require it.
+</p>
+<p>If you have been directed here by the <code>aclocal</code> diagnostic but
+are not the maintainer of the implicated macro, you will want to
+contact the maintainer of that macro.  Please make sure you have the
+latest version of the macro and that the problem hasn&rsquo;t already been
+reported before doing so: people tend to work faster when they aren&rsquo;t
+flooded by mails.
+</p>
+<p>Another situation where <code>aclocal</code> is commonly used is to
+manage macros that are used locally by the package, <a href="Local-Macros.html#Local-Macros">Local Macros</a>.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Local-Macros.html#Local-Macros" accesskey="n" rel="next">Local Macros</a>, Previous: <a href="Macro-Search-Path.html#Macro-Search-Path" accesskey="p" rel="prev">Macro Search Path</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

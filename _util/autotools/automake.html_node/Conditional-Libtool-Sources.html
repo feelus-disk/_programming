@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Conditional Libtool Sources</title>
+
+<meta name="description" content="automake: Conditional Libtool Sources">
+<meta name="keywords" content="automake: Conditional Libtool Sources">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="A-Shared-Library.html#A-Shared-Library" rel="up" title="A Shared Library">
+<link href="Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries" rel="next" title="Libtool Convenience Libraries">
+<link href="Conditional-Libtool-Libraries.html#Conditional-Libtool-Libraries" rel="prev" title="Conditional Libtool Libraries">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Conditional-Libtool-Sources"></a>
+<div class="header">
+<p>
+Next: <a href="Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries" accesskey="n" rel="next">Libtool Convenience Libraries</a>, Previous: <a href="Conditional-Libtool-Libraries.html#Conditional-Libtool-Libraries" accesskey="p" rel="prev">Conditional Libtool Libraries</a>, Up: <a href="A-Shared-Library.html#A-Shared-Library" accesskey="u" rel="up">A Shared Library</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Libtool-Libraries-with-Conditional-Sources"></a>
+<h4 class="subsection">8.3.4 Libtool Libraries with Conditional Sources</h4>
+
+<p>Conditional compilation of sources in a library can be achieved in the
+same way as conditional compilation of sources in a program
+(see <a href="Conditional-Sources.html#Conditional-Sources">Conditional Sources</a>).  The only difference is that
+<code>_LIBADD</code> should be used instead of <code>_LDADD</code> and that it
+should mention libtool objects (<samp>.lo</samp> files).
+</p>
+<p>So, to mimic the <samp>hello</samp> example from <a href="Conditional-Sources.html#Conditional-Sources">Conditional Sources</a>,
+we could build a <samp>libhello.la</samp> library using either
+<samp>hello-linux.c</samp> or <samp>hello-generic.c</samp> with the following
+<samp>Makefile.am</samp>.
+</p>
+<div class="example">
+<pre class="example">lib_LTLIBRARIES = libhello.la
+libhello_la_SOURCES = hello-common.c
+EXTRA_libhello_la_SOURCES = hello-linux.c hello-generic.c
+libhello_la_LIBADD = $(HELLO_SYSTEM)
+libhello_la_DEPENDENCIES = $(HELLO_SYSTEM)
+</pre></div>
+
+<p>And make sure <code>configure</code> defines <code>HELLO_SYSTEM</code> as
+either <samp>hello-linux.lo</samp> or <samp>hello-generic.lo</samp>.
+</p>
+<p>Or we could simply use an Automake conditional as follows.
+</p>
+<div class="example">
+<pre class="example">lib_LTLIBRARIES = libhello.la
+libhello_la_SOURCES = hello-common.c
+if LINUX
+libhello_la_SOURCES += hello-linux.c
+else
+libhello_la_SOURCES += hello-generic.c
+endif
+</pre></div>
+
+
+
+
+</body>
+</html>

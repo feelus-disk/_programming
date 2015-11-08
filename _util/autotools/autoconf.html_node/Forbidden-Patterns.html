@@ -1,0 +1,86 @@
+<html lang="en">
+<head>
+<title>Forbidden Patterns - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Set-manipulation-Macros.html#Set-manipulation-Macros" title="Set manipulation Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Forbidden-Patterns"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Set-manipulation-Macros.html#Set-manipulation-Macros">Set manipulation Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.10 Forbidden Patterns</h4>
+
+<p><a name="index-Forbidden-patterns-1548"></a><a name="index-Patterns_002c-forbidden-1549"></a>
+M4sugar provides a means to define suspicious patterns, patterns
+describing tokens which should not be found in the output.  For
+instance, if an Autoconf <samp><span class="file">configure</span></samp> script includes tokens such as
+&lsquo;<samp><span class="samp">AC_DEFINE</span></samp>&rsquo;, or &lsquo;<samp><span class="samp">dnl</span></samp>&rsquo;, then most probably something went
+wrong (typically a macro was not evaluated because of overquotation).
+
+   <p>M4sugar forbids all the tokens matching &lsquo;<samp><span class="samp">^_?m4_</span></samp>&rsquo; and &lsquo;<samp><span class="samp">^dnl$</span></samp>&rsquo;. 
+Additional layers, such as M4sh and Autoconf, add additional forbidden
+patterns to the list.
+
+<div class="defun">
+&mdash; Macro: <b>m4_pattern_forbid</b> (<var>pattern</var>)<var><a name="index-m4_005fpattern_005fforbid-1550"></a></var><br>
+<blockquote><p><a name="index-m4_005fpattern_005fforbid-1551"></a>
+Declare that no token matching <var>pattern</var> must be found in the output. 
+Comments are not checked; this can be a problem if, for instance, you
+have some macro left unexpanded after an &lsquo;<samp><span class="samp">#include</span></samp>&rsquo;.  No consensus
+is currently found in the Autoconf community, as some people consider it
+should be valid to name macros in comments (which doesn't make sense to
+the authors of this documentation: input, such as macros, should be
+documented by &lsquo;<samp><span class="samp">dnl</span></samp>&rsquo; comments; reserving &lsquo;<samp><span class="samp">#</span></samp>&rsquo;-comments to
+document the output). 
+</p></blockquote></div>
+
+   <p>Of course, you might encounter exceptions to these generic rules, for
+instance you might have to refer to &lsquo;<samp><span class="samp">$m4_flags</span></samp>&rsquo;.
+
+<div class="defun">
+&mdash; Macro: <b>m4_pattern_allow</b> (<var>pattern</var>)<var><a name="index-m4_005fpattern_005fallow-1552"></a></var><br>
+<blockquote><p><a name="index-m4_005fpattern_005fallow-1553"></a>
+Any token matching <var>pattern</var> is allowed, including if it matches an
+<code>m4_pattern_forbid</code> pattern. 
+</p></blockquote></div>
+
+   </body></html>
+

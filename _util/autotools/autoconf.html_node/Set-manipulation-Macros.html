@@ -1,0 +1,307 @@
+<html lang="en">
+<head>
+<title>Set manipulation Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Number-processing-Macros.html#Number-processing-Macros" title="Number processing Macros">
+<link rel="next" href="Forbidden-Patterns.html#Forbidden-Patterns" title="Forbidden Patterns">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Set-manipulation-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Forbidden-Patterns.html#Forbidden-Patterns">Forbidden Patterns</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Number-processing-Macros.html#Number-processing-Macros">Number processing Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.9 Set manipulation in M4</h4>
+
+<p><a name="index-Set-manipulation-1511"></a><a name="index-Data-structure_002c-set-1512"></a><a name="index-Unordered-set-manipulation-1513"></a>
+Sometimes, it is necessary to track a set of data, where the order does
+not matter and where there are no duplicates in the set.  The following
+macros facilitate set manipulations.  Each set is an opaque object,
+which can only be accessed via these basic operations.  The underlying
+implementation guarantees linear scaling for set creation, which is more
+efficient than using the quadratic <code>m4_append_uniq</code>.  Both set
+names and values can be arbitrary strings, except for unbalanced quotes. 
+This implementation ties up memory for removed elements until the next
+operation that must traverse all the elements of a set; and although
+that may slow down some operations until the memory for removed elements
+is pruned, it still guarantees linear performance.
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_add</b> (<var>set, value, </var><span class="roman">[</span><var>if-uniq</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-dup</var><span class="roman">]</span>)<var><a name="index-m4_005fset_005fadd-1514"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fadd-1515"></a>
+Adds the string <var>value</var> as a member of set <var>set</var>.  Expand
+<var>if-uniq</var> if the element was added, or <var>if-dup</var> if it was
+previously in the set.  Operates in amortized constant time, so that set
+creation scales linearly. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_add_all</b> (<var>set, value<small class="dots">...</small></var>)<var><a name="index-m4_005fset_005fadd_005fall-1516"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fadd_005fall-1517"></a>
+Adds each <var>value</var> to the set <var>set</var>.  This is slightly more
+efficient than repeatedly invoking <code>m4_set_add</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_contains</b> (<var>set, value, </var><span class="roman">[</span><var>if-present</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-absent</var><span class="roman">]</span>)<var><a name="index-m4_005fset_005fcontains-1518"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fcontains-1519"></a>
+Expands <var>if-present</var> if the string <var>value</var> is a member of
+<var>set</var>, otherwise <var>if-absent</var>.
+
+     <pre class="example">          m4_set_contains([a], [1], [yes], [no])
+          &rArr;no
+          m4_set_add([a], [1], [added], [dup])
+          &rArr;added
+          m4_set_add([a], [1], [added], [dup])
+          &rArr;dup
+          m4_set_contains([a], [1], [yes], [no])
+          &rArr;yes
+          m4_set_remove([a], [1], [removed], [missing])
+          &rArr;removed
+          m4_set_contains([a], [1], [yes], [no])
+          &rArr;no
+          m4_set_remove([a], [1], [removed], [missing])
+          &rArr;missing
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_contents</b> (<var>set, </var><span class="roman">[</span><var>sep</var><span class="roman">]</span>)<var><a name="index-m4_005fset_005fcontents-1520"></a></var><br>
+&mdash; Macro: <b>m4_set_dump</b> (<var>set, </var><span class="roman">[</span><var>sep</var><span class="roman">]</span>)<var><a name="index-m4_005fset_005fdump-1521"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fcontents-1522"></a>
+<a name="index-m4_005fset_005fdump-1523"></a>
+Expands to a single string consisting of all the members of the set
+<var>set</var>, each separated by <var>sep</var>, which is not expanded. 
+<code>m4_set_contents</code> leaves the elements in <var>set</var> but reclaims any
+memory occupied by removed elements, while <code>m4_set_dump</code> is a
+faster one-shot action that also deletes the set.  No provision is made
+for disambiguating members that contain a non-empty <var>sep</var> as a
+substring; use <code>m4_set_empty</code> to distinguish between an empty set
+and the set containing only the empty string.  The order of the output
+is unspecified; in the current implementation, part of the speed of
+<code>m4_set_dump</code> results from using a different output order than
+<code>m4_set_contents</code>.  These macros scale linearly in the size of the
+set before memory pruning, and <code>m4_set_contents([</code><var>set</var><code>],
+[</code><var>sep</var><code>])</code> is faster than
+<code>m4_joinall([</code><var>sep</var><code>]m4_set_listc([</code><var>set</var><code>]))</code>.
+
+     <pre class="example">          m4_set_add_all([a], [1], [2], [3])
+          &rArr;
+          m4_set_contents([a], [-])
+          &rArr;1-2-3
+          m4_joinall([-]m4_set_listc([a]))
+          &rArr;1-2-3
+          m4_set_dump([a], [-])
+          &rArr;3-2-1
+          m4_set_contents([a])
+          &rArr;
+          m4_set_add([a], [])
+          &rArr;
+          m4_set_contents([a], [-])
+          &rArr;
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_delete</b> (<var>set</var>)<var><a name="index-m4_005fset_005fdelete-1524"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fdelete-1525"></a>
+Delete all elements and memory associated with <var>set</var>.  This is
+linear in the set size, and faster than removing one element at a time. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_difference</b> (<var>seta, setb</var>)<var><a name="index-m4_005fset_005fdifference-1526"></a></var><br>
+&mdash; Macro: <b>m4_set_intersection</b> (<var>seta, setb</var>)<var><a name="index-m4_005fset_005fintersection-1527"></a></var><br>
+&mdash; Macro: <b>m4_set_union</b> (<var>seta, setb</var>)<var><a name="index-m4_005fset_005funion-1528"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fdifference-1529"></a>
+<a name="index-m4_005fset_005fintersection-1530"></a>
+<a name="index-m4_005fset_005funion-1531"></a>
+Compute the relation between <var>seta</var> and <var>setb</var>, and output the
+result as a list of quoted arguments without duplicates and with a
+leading comma.  Set difference selects the elements in <var>seta</var> but
+not <var>setb</var>, intersection selects only elements in both sets, and
+union selects elements in either set.  These actions are linear in the
+sum of the set sizes.  The leading comma is necessary to distinguish
+between no elements and the empty string as the only element.
+
+     <pre class="example">          m4_set_add_all([a], [1], [2], [3])
+          &rArr;
+          m4_set_add_all([b], [3], [], [4])
+          &rArr;
+          m4_set_difference([a], [b])
+          &rArr;,1,2
+          m4_set_difference([b], [a])
+          &rArr;,,4
+          m4_set_intersection([a], [b])
+          &rArr;,3
+          m4_set_union([a], [b])
+          &rArr;,1,2,3,,4
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_empty</b> (<var>set, </var><span class="roman">[</span><var>if-empty</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-elements</var><span class="roman">]</span>)<var><a name="index-m4_005fset_005fempty-1532"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fempty-1533"></a>
+Expand <var>if-empty</var> if the set <var>set</var> has no elements, otherwise
+expand <var>if-elements</var>.  This macro operates in constant time.  Using
+this macro can help disambiguate output from <code>m4_set_contents</code> or
+<code>m4_set_list</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_foreach</b> (<var>set, variable, action</var>)<var><a name="index-m4_005fset_005fforeach-1534"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fforeach-1535"></a>
+For each element in the set <var>set</var>, expand <var>action</var> with the
+macro <var>variable</var> defined as the set element.  Behavior is
+unspecified if <var>action</var> recursively lists the contents of <var>set</var>
+(although listing other sets is acceptable), or if it modifies the set
+in any way other than removing the element currently contained in
+<var>variable</var>.  This macro is faster than the corresponding
+<code>m4_foreach([</code><var>variable</var><code>],
+m4_indir([m4_dquote]m4_set_listc([</code><var>set</var><code>])), [</code><var>action</var><code>])</code>,
+although <code>m4_set_map</code> might be faster still.
+
+     <pre class="example">          m4_set_add_all([a]m4_for([i], [1], [5], [], [,i]))
+          &rArr;
+          m4_set_contents([a])
+          &rArr;12345
+          m4_set_foreach([a], [i],
+            [m4_if(m4_eval(i&amp;1), [0], [m4_set_remove([a], i, [i])])])
+          &rArr;24
+          m4_set_contents([a])
+          &rArr;135
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_list</b> (<var>set</var>)<var><a name="index-m4_005fset_005flist-1536"></a></var><br>
+&mdash; Macro: <b>m4_set_listc</b> (<var>set</var>)<var><a name="index-m4_005fset_005flistc-1537"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005flist-1538"></a>
+<a name="index-m4_005fset_005flistc-1539"></a>
+Produce a list of arguments, where each argument is a quoted element
+from the set <var>set</var>.  The variant <code>m4_set_listc</code> is unambiguous,
+by adding a leading comma if there are any set elements, whereas the
+variant <code>m4_set_list</code> cannot distinguish between an empty set and a
+set containing only the empty string.  These can be directly used in
+macros that take multiple arguments, such as <code>m4_join</code> or
+<code>m4_set_add_all</code>, or wrapped by <code>m4_dquote</code> for macros that
+take a quoted list, such as <code>m4_map</code> or <code>m4_foreach</code>.  Any
+memory occupied by removed elements is reclaimed during these macros.
+
+     <pre class="example">          m4_set_add_all([a], [1], [2], [3])
+          &rArr;
+          m4_set_list([a])
+          &rArr;1,2,3
+          m4_set_list([b])
+          &rArr;
+          m4_set_listc([b])
+          &rArr;
+          m4_count(m4_set_list([b]))
+          &rArr;1
+          m4_set_empty([b], [0], [m4_count(m4_set_list([b]))])
+          &rArr;0
+          m4_set_add([b], [])
+          &rArr;
+          m4_set_list([b])
+          &rArr;
+          m4_set_listc([b])
+          &rArr;,
+          m4_count(m4_set_list([b]))
+          &rArr;1
+          m4_set_empty([b], [0], [m4_count(m4_set_list([b]))])
+          &rArr;1
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_map</b> (<var>set, action</var>)<var><a name="index-m4_005fset_005fmap-1540"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fmap-1541"></a>
+For each element in the set <var>set</var>, expand <var>action</var> with a single
+argument of the set element.  Behavior is unspecified if <var>action</var>
+recursively lists the contents of <var>set</var> (although listing other sets
+is acceptable), or if it modifies the set in any way other than removing
+the element passed as an argument.  This macro is faster than either
+corresponding counterpart of
+<code>m4_map_args([</code><var>action</var><code>]m4_set_listc([</code><var>set</var><code>]))</code> or
+<code>m4_set_foreach([</code><var>set</var><code>], [var],
+[</code><var>action</var><code>(m4_defn([var]))])</code>.  It is possible to use <code>m4_curry</code>
+if more than one argument is needed for <var>action</var>, although it is
+more efficient to use <code>m4_set_map_sep</code> in that case. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_map_sep</b> (<var>set, </var><span class="roman">[</span><var>pre</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>post</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>sep</var><span class="roman">]</span>)<var><a name="index-m4_005fset_005fmap_005fsep-1542"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fmap_005fsep-1543"></a>
+For each element in the set <var>set</var>, expand
+<var>pre</var><code>[element]</code><var>post</var>, additionally expanding <var>sep</var>
+between elements.  Behavior is unspecified if the expansion recursively
+lists the contents of <var>set</var> (although listing other sets
+is acceptable), or if it modifies the set in any way other than removing
+the element visited by the expansion.  This macro provides the most
+efficient means for non-destructively visiting the elements of a set; in
+particular, <code>m4_set_map([</code><var>set</var><code>], [</code><var>action</var><code>])</code> is equivalent
+to <code>m4_set_map_sep([</code><var>set</var><code>], [</code><var>action</var><code>(], [)])</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_remove</b> (<var>set, value, </var><span class="roman">[</span><var>if-present</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-absent</var><span class="roman">]</span>)<var><a name="index-m4_005fset_005fremove-1544"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fremove-1545"></a>
+If <var>value</var> is an element in the set <var>set</var>, then remove it and
+expand <var>if-present</var>.  Otherwise expand <var>if-absent</var>.  This macro
+operates in constant time so that multiple removals will scale linearly
+rather than quadratically; but when used outside of
+<code>m4_set_foreach</code> or <code>m4_set_map</code>, it leaves memory occupied
+until the set is later
+compacted by <code>m4_set_contents</code> or <code>m4_set_list</code>.  Several
+other set operations are then less efficient between the time of element
+removal and subsequent memory compaction, but still maintain their
+guaranteed scaling performance. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_set_size</b> (<var>set</var>)<var><a name="index-m4_005fset_005fsize-1546"></a></var><br>
+<blockquote><p><a name="index-m4_005fset_005fsize-1547"></a>
+Expand to the size of the set <var>set</var>.  This implementation operates
+in constant time, and is thus more efficient than
+<code>m4_eval(m4_count(m4_set_listc([set])) - 1)</code>. 
+</p></blockquote></div>
+
+   </body></html>
+

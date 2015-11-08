@@ -1,0 +1,150 @@
+======== alloc.c ========
+=== конструкторы ===
+(make-string      LEN(int) INIT(int->char) )
+(make-bool-vector LEN(int) INIT(t/nil) )
+(bool-vector      &rest OBJECTS)
+(cons		  CAR CDR)
+(list		  &rest OBJECTS)
+(make-list	  LEN INIT)
+(make-vector	  LEN INIT)
+(vector		  &rest OBJECTS)
+
+(make-byte-code	  ARGLIST BYTE-CODE CONSTANTS DEPTH
+		  &optional DOCSTRING INTERACTIVE-SPEC &rest BODY)
+Создает объект байт-кода со своими аргументами как элементами(?).
+Аргументы должны быть ARGLIST, строка байт-кода BYTE-CODE, константный вектор CONSTANTS, максимальный размер стека DEPTH, (необ)DOCSTRING и (необ) INTERACTIVE-SPEC.
+Первые 4 аргумента обязательные, максимум 6 имеют какое-либо значение.
+ARGLIST может быть таким же как один из 'lambda', в этом случае аргументы будут динамически связываться перед выполнением байт-кода,
+или он может быть числом формата NNNNNNNRMMMMMMM,
+где 7 бит MMMMMMM задают минимальное число аргументов,
+где 7 бит NNNNNNN задают максимальное число аргументов (игнорируя &rest),
+и R задает, присутствует ли &rest чтобы поймать left-over аргументы.
+В этом случае используется "integer", аргументы не связываются динамически, а кладуться на стек перед выполнением байт-кода.
+//используется 2 раза только в emacs-lisp/bytecomp.el
+
+(make-symbol      NAME)	     //value и function - void, prop-list - nil
+(make-marker)		     //не указывает ни на какое место
+
+=== управление памятью ===
+X gc-status
+(purecopy	  OBJ)
+Делает копию объекта OBJ в чистом пространстве.
+Рекурсивно копирует значение векторов и cons-ячеек.
+Не копирует символы.
+Копирует строки без текстовых свойств.
+(garbage-collect)
+X memory-info
+(memory-limit)
+(memory-use-counts)
+X suspicious-object
+
+=== data.c ===
+(eq		OBJ1 OBJ2)
+(null		OBJECT)
+(type-of	OBJECT)
+  integer
+  symbol
+  string
+  cons
+	//misc
+	marker  
+	overlay
+	float
+   //vector
+   window-configuration
+   process
+   window
+   subr   //subroutine
+   compiled_function
+   buffer
+   char_table
+   bool_vector
+   frame
+   hash_table
+   font_spec
+   font_entity
+   font_object
+  vector
+  float
+=== проверка типов ===
+(consp		OBJECT)	  *o	is cons
+(atom		OBJECT)		!is cons
+(listp		OBJECT)		is cons or eq nil
+(nlistp		OBJECT)		!is cons and !eq nil
+(symbolp	OBJECT)	  *o	is symbol
+(keywordp	OBJECT)	  	символ с именем начинающемся с :
+				и еще что-то про obarray
+(vecorp		OBJECT)	  *o
+(stringp	OBJECT)	  *o
+(multibyte-string-p	OBJECT)
+(char-table-p	OBJECT)
+(vector-or-char-table-p	OBJECT)
+(bool-vector-p	OBJECT)   *o
+(array-p	OBJECT)		string or vector
+(sequencep	OBJECT)		list or array
+(bufferp	OBJECT)	  *o	
+(markerp	OBJECT)   *
+(subrp		OBJECT)          o
+(byte-code-function-p	OBJECT)  o
+(char-or-string-p	OBJECT)
+(integerp	OBJECT)   *
+(integer-or-marker-p	OBJECT)
+(natnump	OBJECT)		>=0
+(numberp	OBJECT)		float or int
+(number-or-marker-p	OBJECT)
+(floatp		OBJECT)   *
+//* - элементарная, o - описана в malloc
+
+
+
+
+....
+...
+...
+
+(global-set-key (kbd "C-<f9>") 'call-last-kbd-macro)
+=== eval.c ===
+(or 	   CONDITIONS...)
+(and	   CONDITIONS...)
+(if	   COND THEN ELSE...)
+(cond	   CLAUSES...) CLAUSE=(CONDITION BODY...)
+(progn	   BODY...)
+(prog1	   FIRST BODY...)   //вычислит FIRST, вычислит BODY, вернет FIRST
+(prog2	   FORM1 FORM2 BODY...)  //вычислит FORM1, вычислит FORM2, вычислит BODY, вернет FORM2
+(setq	   [SYM VAL]...)
+(quote	   ARG)
+function
+defvaralias
+default
+set-default-toplevel-value
+defvar
+defconst
+internal-make-var-non-special
+let*
+let
+while
+macroexpand
+catch
+throw
+unwind-protect
+condition-case
+signal
+commandp
+autoload
+autoload-do-load
+eval
+apply
+run-hooks
+run-hook-with-args
+run-hook-with-args-until-success
+run-hook-with-args-until-failure
+run-hook-wrapped
+functionp
+funcall
+fetch-bytecode
+special-variable-p
+backtrace-debug
+backtrace
+backtrace-frame
+backtrace-eval
+backtrace--locals

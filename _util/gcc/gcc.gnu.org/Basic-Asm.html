@@ -1,0 +1,145 @@
+<html lang="en">
+<head>
+<title>Basic Asm - Using the GNU Compiler Collection (GCC)</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Using the GNU Compiler Collection (GCC)">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C" title="Using Assembly Language with C">
+<link rel="next" href="Extended-Asm.html#Extended-Asm" title="Extended Asm">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1988-2015 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with the
+Invariant Sections being ``Funding Free Software'', the Front-Cover
+Texts being (a) (see below), and with the Back-Cover Texts being (b)
+(see below).  A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+
+(a) The FSF's Front-Cover Text is:
+
+     A GNU Manual
+
+(b) The FSF's Back-Cover Text is:
+
+     You have freedom to copy and modify this GNU Manual, like GNU
+     software.  Copies published by the Free Software Foundation raise
+     funds for GNU development.-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Basic-Asm"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Extended-Asm.html#Extended-Asm">Extended Asm</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C">Using Assembly Language with C</a>
+<hr>
+</div>
+
+<h4 class="subsection">6.43.1 Basic Asm &mdash; Assembler Instructions with No Operands</h4>
+
+<p><a name="index-basic-_0040code_007basm_007d-3255"></a>
+The <code>asm</code> keyword allows you to embed assembler instructions within
+C code.
+
+<pre class="example">     asm [ volatile ] ( AssemblerInstructions )
+</pre>
+ <p>To create headers compatible with ISO C, write <code>__asm__</code> instead of
+<code>asm</code> (see <a href="Alternate-Keywords.html#Alternate-Keywords">Alternate Keywords</a>).
+
+ <p>By definition, a Basic <code>asm</code> statement is one with no operands. 
+<code>asm</code> statements that contain one or more colons (used to delineate
+operands) are considered to be Extended (for example, <code>asm("int $3")</code>
+is Basic, and <code>asm("int $3" : )</code> is Extended). See <a href="Extended-Asm.html#Extended-Asm">Extended Asm</a>.
+
+<h5 class="subsubheading">Qualifiers</h5>
+
+<p><em>volatile</em>
+<br>
+This optional qualifier has no effect. All Basic <code>asm</code> blocks are
+implicitly volatile.
+
+<h5 class="subsubheading">Parameters</h5>
+
+<p><em>AssemblerInstructions</em>
+<br>
+This is a literal string that specifies the assembler code. The string can
+contain any instructions recognized by the assembler, including directives. 
+GCC does not parse the assembler instructions themselves and
+does not know what they mean or even whether they are valid assembler input. 
+The compiler copies it verbatim to the assembly language output file, without
+processing dialects or any of the "%" operators that are available with
+Extended <code>asm</code>. This results in minor differences between Basic
+<code>asm</code> strings and Extended <code>asm</code> templates. For example, to refer to
+registers you might use %%eax in Extended <code>asm</code> and %eax in Basic
+<code>asm</code>.
+
+ <p>You may place multiple assembler instructions together in a single <code>asm</code>
+string, separated by the characters normally used in assembly code for the
+system. A combination that works in most places is a newline to break the
+line, plus a tab character (written as "\n\t"). 
+Some assemblers allow semicolons as a line separator. However,
+note that some assembler dialects use semicolons to start a comment.
+
+ <p>Do not expect a sequence of <code>asm</code> statements to remain perfectly
+consecutive after compilation. If certain instructions need to remain
+consecutive in the output, put them in a single multi-instruction asm
+statement. Note that GCC's optimizers can move <code>asm</code> statements
+relative to other code, including across jumps.
+
+ <p><code>asm</code> statements may not perform jumps into other <code>asm</code> statements. 
+GCC does not know about these jumps, and therefore cannot take
+account of them when deciding how to optimize. Jumps from <code>asm</code> to C
+labels are only supported in Extended <code>asm</code>.
+
+<h5 class="subsubheading">Remarks</h5>
+
+<p>Using Extended <code>asm</code> will typically produce smaller, safer, and more
+efficient code, and in most cases it is a better solution. When writing
+inline assembly language outside of C functions, however, you must use Basic
+<code>asm</code>. Extended <code>asm</code> statements have to be inside a C function. 
+Functions declared with the <code>naked</code> attribute also require Basic
+<code>asm</code> (see <a href="Function-Attributes.html#Function-Attributes">Function Attributes</a>).
+
+ <p>Under certain circumstances, GCC may duplicate (or remove duplicates of) your
+assembly code when optimizing. This can lead to unexpected duplicate
+symbol errors during compilation if your assembly code defines symbols or
+labels.
+
+ <p>Safely accessing C data and calling functions from Basic <code>asm</code> is more
+complex than it may appear. To access C data, it is better to use Extended
+<code>asm</code>.
+
+ <p>Since GCC does not parse the AssemblerInstructions, it has no
+visibility of any symbols it references. This may result in GCC discarding
+those symbols as unreferenced.
+
+ <p>Unlike Extended <code>asm</code>, all Basic <code>asm</code> blocks are implicitly
+volatile. See <a href="Volatile.html#Volatile">Volatile</a>.  Similarly, Basic <code>asm</code> blocks are not treated
+as though they used a "memory" clobber (see <a href="Clobbers.html#Clobbers">Clobbers</a>).
+
+ <p>All Basic <code>asm</code> blocks use the assembler dialect specified by the
+<samp><span class="option">-masm</span></samp> command-line option. Basic <code>asm</code> provides no
+mechanism to provide different assembler strings for different dialects.
+
+ <p>Here is an example of Basic <code>asm</code> for i386:
+
+<pre class="example">     /* Note that this code will not compile with -masm=intel */
+     #define DebugBreak() asm("int $3")
+</pre>
+ </body></html>
+

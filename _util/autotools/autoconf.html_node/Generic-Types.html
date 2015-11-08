@@ -1,0 +1,98 @@
+<html lang="en">
+<head>
+<title>Generic Types - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Types.html#Types" title="Types">
+<link rel="prev" href="Particular-Types.html#Particular-Types" title="Particular Types">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Generic-Types"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Particular-Types.html#Particular-Types">Particular Types</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Types.html#Types">Types</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.9.2 Generic Type Checks</h4>
+
+<p>These macros are used to check for types not covered by the &ldquo;particular&rdquo;
+test macros.
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_TYPE</b> (<var>type, </var><span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>includes = &lsquo;</var><samp><span class="samp">AC_INCLUDES_DEFAULT</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fTYPE-828"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fTYPE-829"></a>
+<a name="index-ac_005fcv_005ftype_005f_0040var_007btype_007d-830"></a>
+Check whether <var>type</var> is defined.  It may be a compiler builtin type
+or defined by the <var>includes</var>.  <var>includes</var> is a series of include
+directives, defaulting to <code>AC_INCLUDES_DEFAULT</code> (see <a href="Default-Includes.html#Default-Includes">Default Includes</a>), which are used prior to the type under test.
+
+        <p>In C, <var>type</var> must be a type-name, so that the expression &lsquo;<samp><span class="samp">sizeof
+(</span><var>type</var><span class="samp">)</span></samp>&rsquo; is valid (but &lsquo;<samp><span class="samp">sizeof ((</span><var>type</var><span class="samp">))</span></samp>&rsquo; is not).  The
+same test is applied when compiling for C++, which means that in C++
+<var>type</var> should be a type-id and should not be an anonymous
+&lsquo;<samp><span class="samp">struct</span></samp>&rsquo; or &lsquo;<samp><span class="samp">union</span></samp>&rsquo;.
+
+        <p>This macro caches its result in the <code>ac_cv_type_</code><var>type</var>
+variable, with &lsquo;<samp><span class="samp">*</span></samp>&rsquo; mapped to &lsquo;<samp><span class="samp">p</span></samp>&rsquo; and other characters not
+suitable for a variable name mapped to underscores. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_TYPES</b> (<var>types, </var><span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>includes = &lsquo;</var><samp><span class="samp">AC_INCLUDES_DEFAULT</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fTYPES-831"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fTYPES-832"></a>
+<a name="index-HAVE_005f_0040var_007btype_007d-833"></a>For each <var>type</var> of the <var>types</var> that is defined, define
+<code>HAVE_</code><var>type</var> (in all capitals).  Each <var>type</var> must follow
+the rules of <code>AC_CHECK_TYPE</code>.  If no <var>includes</var> are
+specified, the default includes are used (see <a href="Default-Includes.html#Default-Includes">Default Includes</a>).  If
+<var>action-if-found</var> is given, it is additional shell code to execute
+when one of the types is found.  If <var>action-if-not-found</var> is given,
+it is executed when one of the types is not found.
+
+        <p>This macro uses M4 lists:
+     <pre class="example">          AC_CHECK_TYPES([ptrdiff_t])
+          AC_CHECK_TYPES([unsigned long long int, uintmax_t])
+          AC_CHECK_TYPES([float_t], [], [], [[#include &lt;math.h&gt;]])
+</pre>
+        </blockquote></div>
+
+   <p>Autoconf, up to 2.13, used to provide to another version of
+<code>AC_CHECK_TYPE</code>, broken by design.  In order to keep backward
+compatibility, a simple heuristic, quite safe but not totally, is
+implemented.  In case of doubt, read the documentation of the former
+<code>AC_CHECK_TYPE</code>, see <a href="Obsolete-Macros.html#Obsolete-Macros">Obsolete Macros</a>.
+
+   </body></html>
+

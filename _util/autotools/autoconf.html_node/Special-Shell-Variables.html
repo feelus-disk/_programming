@@ -1,0 +1,384 @@
+<html lang="en">
+<head>
+<title>Special Shell Variables - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="Slashes.html#Slashes" title="Slashes">
+<link rel="next" href="Shell-Functions.html#Shell-Functions" title="Shell Functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Special-Shell-Variables"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Shell-Functions.html#Shell-Functions">Shell Functions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Slashes.html#Slashes">Slashes</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.12 Special Shell Variables</h3>
+
+<p><a name="index-Shell-variables-1727"></a><a name="index-Special-shell-variables-1728"></a>
+Some shell variables should not be used, since they can have a deep
+influence on the behavior of the shell.  In order to recover a sane
+behavior from the shell, some variables should be unset; M4sh takes
+care of this and provides fallback values, whenever needed, to cater
+for a very old <samp><span class="file">/bin/sh</span></samp> that does not support <samp><span class="command">unset</span></samp>. 
+(see <a href="Portable-Shell.html#Portable-Shell">Portable Shell Programming</a>).
+
+   <p>As a general rule, shell variable names containing a lower-case letter
+are safe; you can define and use these variables without worrying about
+their effect on the underlying system, and without worrying about
+whether the shell changes them unexpectedly.  (The exception is the
+shell variable <code>status</code>, as described below.)
+
+   <p>Here is a list of names that are known to cause trouble.  This list is
+not exhaustive, but you should be safe if you avoid the name
+<code>status</code> and names containing only upper-case letters and
+underscores.
+
+<!-- Alphabetical order, case insensitive, `A' before `a'. -->
+     <dl>
+<dt><code>?</code><dd>Not all shells correctly reset &lsquo;<samp><span class="samp">$?</span></samp>&rsquo; after conditionals (see <a href="if.html#if">Limitations of Shell Builtins</a>).  Not all shells manage &lsquo;<samp><span class="samp">$?</span></samp>&rsquo;
+correctly in shell functions (see <a href="Shell-Functions.html#Shell-Functions">Shell Functions</a>) or in traps
+(see <a href="trap.html#trap">Limitations of Shell Builtins</a>).  Not all shells reset
+&lsquo;<samp><span class="samp">$?</span></samp>&rsquo; to zero after an empty command.
+
+     <pre class="example">          $ <kbd>bash -c 'false; $empty; echo $?'</kbd>
+          0
+          $ <kbd>zsh -c 'false; $empty; echo $?'</kbd>
+          1
+</pre>
+     <br><dt><code>_</code><dd><a name="index-g_t_005f-1729"></a>Many shells reserve &lsquo;<samp><span class="samp">$_</span></samp>&rsquo; for various purposes, e.g., the name of
+the last command executed.
+
+     <br><dt><code>BIN_SH</code><dd><a name="index-BIN_005fSH-1730"></a>In Tru64, if <samp><span class="env">BIN_SH</span></samp> is set to <code>xpg4</code>, subsidiary invocations of
+the standard shell conform to Posix.
+
+     <br><dt><code>CDPATH</code><dd><a name="index-CDPATH-1731"></a>When this variable is set it specifies a list of directories to search
+when invoking <code>cd</code> with a relative file name that did not start
+with &lsquo;<samp><span class="samp">./</span></samp>&rsquo; or &lsquo;<samp><span class="samp">../</span></samp>&rsquo;.  Posix
+1003.1-2001 says that if a nonempty directory name from <samp><span class="env">CDPATH</span></samp>
+is used successfully, <code>cd</code> prints the resulting absolute
+file name.  Unfortunately this output can break idioms like
+&lsquo;<samp><span class="samp">abs=`cd src &amp;&amp; pwd`</span></samp>&rsquo; because <code>abs</code> receives the name twice. 
+Also, many shells do not conform to this part of Posix; for
+example, <samp><span class="command">zsh</span></samp> prints the result only if a directory name
+other than <samp><span class="file">.</span></samp> was chosen from <samp><span class="env">CDPATH</span></samp>.
+
+     <p>In practice the shells that have this problem also support
+<samp><span class="command">unset</span></samp>, so you can work around the problem as follows:
+
+     <pre class="example">          (unset CDPATH) &gt;/dev/null 2&gt;&amp;1 &amp;&amp; unset CDPATH
+</pre>
+     <p>You can also avoid output by ensuring that your directory name is
+absolute or anchored at &lsquo;<samp><span class="samp">./</span></samp>&rsquo;, as in &lsquo;<samp><span class="samp">abs=`cd ./src &amp;&amp; pwd`</span></samp>&rsquo;.
+
+     <p>Configure scripts use M4sh, which automatically unsets <samp><span class="env">CDPATH</span></samp> if
+possible, so you need not worry about this problem in those scripts.
+
+     <br><dt><code>CLICOLOR_FORCE</code><dd><a name="index-CLICOLOR_005fFORCE-1732"></a>When this variable is set, some implementations of tools like
+<samp><span class="command">ls</span></samp> attempt to add color to their output via terminal escape
+sequences, even when the output is not directed to a terminal, and can
+thus cause spurious failures in scripts.  Configure scripts use M4sh,
+which automatically unsets this variable.
+
+     <br><dt><code>DUALCASE</code><dd><a name="index-DUALCASE-1733"></a>In the MKS shell, case statements and file name generation are
+case-insensitive unless <samp><span class="env">DUALCASE</span></samp> is nonzero. 
+Autoconf-generated scripts export this variable when they start up.
+
+     <br><dt><code>ENV</code><dt><code>MAIL</code><dt><code>MAILPATH</code><dt><code>PS1</code><dt><code>PS2</code><dt><code>PS4</code><dd><a name="index-ENV-1734"></a><a name="index-MAIL-1735"></a><a name="index-MAILPATH-1736"></a><a name="index-PS1-1737"></a><a name="index-PS2-1738"></a><a name="index-PS4-1739"></a>These variables should not matter for shell scripts, since they are
+supposed to affect only interactive shells.  However, at least one
+shell (the pre-3.0 UWIN Korn shell) gets confused about
+whether it is interactive, which means that (for example) a <samp><span class="env">PS1</span></samp>
+with a side effect can unexpectedly modify &lsquo;<samp><span class="samp">$?</span></samp>&rsquo;.  To work around
+this bug, M4sh scripts (including <samp><span class="file">configure</span></samp> scripts) do something
+like this:
+
+     <pre class="example">          (unset ENV) &gt;/dev/null 2&gt;&amp;1 &amp;&amp; unset ENV MAIL MAILPATH
+          PS1='$ '
+          PS2='&gt; '
+          PS4='+ '
+</pre>
+     <p class="noindent">(actually, there is some complication due to bugs in <samp><span class="command">unset</span></samp>;
+see <a href="unset.html#unset">Limitations of Shell Builtins</a>).
+
+     <br><dt><code>FPATH</code><dd><a name="index-FPATH-1740"></a>The Korn shell uses <samp><span class="env">FPATH</span></samp> to find shell functions, so avoid
+<samp><span class="env">FPATH</span></samp> in portable scripts.  <samp><span class="env">FPATH</span></samp> is consulted after
+<samp><span class="env">PATH</span></samp>, but you still need to be wary of tests that use <samp><span class="env">PATH</span></samp>
+to find whether a command exists, since they might report the wrong
+result if <samp><span class="env">FPATH</span></samp> is also set.
+
+     <br><dt><code>GREP_OPTIONS</code><dd><a name="index-GREP_005fOPTIONS-1741"></a>When this variable is set, some implementations of <samp><span class="command">grep</span></samp> honor
+these options, even if the options include direction to enable colored
+output via terminal escape sequences, and the result can cause spurious
+failures when the output is not directed to a terminal.  Configure
+scripts use M4sh, which automatically unsets this variable.
+
+     <br><dt><code>IFS</code><dd><a name="index-IFS-1742"></a>Long ago, shell scripts inherited <samp><span class="env">IFS</span></samp> from the environment,
+but this caused many problems so modern shells ignore any environment
+settings for <samp><span class="env">IFS</span></samp>.
+
+     <p>Don't set the first character of <samp><span class="env">IFS</span></samp> to backslash.  Indeed,
+Bourne shells use the first character (backslash) when joining the
+components in &lsquo;<samp><span class="samp">"$@"</span></samp>&rsquo; and some shells then reinterpret (!) the
+backslash escapes, so you can end up with backspace and other strange
+characters.
+
+     <p>The proper value for <samp><span class="env">IFS</span></samp> (in regular code, not when performing
+splits) is &lsquo;<samp><span class="samp">&lt;SPC&gt;&lt;TAB&gt;&lt;RET&gt;</span></samp>&rsquo;.  The first character is
+especially important, as it is used to join the arguments in &lsquo;<samp><span class="samp">$*</span></samp>&rsquo;;
+however, note that traditional shells, but also bash-2.04, fail to adhere
+to this and join with a space anyway.
+
+     <p>M4sh guarantees that <samp><span class="env">IFS</span></samp> will have the default value at the
+beginning of a script, and many macros within autoconf rely on this
+setting.  It is okay to use blocks of shell code that temporarily change
+the value of <samp><span class="env">IFS</span></samp> in order to split on another character, but
+remember to restore it before expanding further macros.
+
+     <p>Unsetting <code>IFS</code> instead of resetting it to the default sequence
+is not suggested, since code that tries to save and restore the
+variable's value will incorrectly reset it to an empty value, thus
+disabling field splitting:
+
+     <pre class="example">          unset IFS
+          # default separators used for field splitting
+          
+          save_IFS=$IFS
+          IFS=:
+          # ...
+          IFS=$save_IFS
+          # no field splitting performed
+</pre>
+     <br><dt><code>LANG</code><dt><code>LC_ALL</code><dt><code>LC_COLLATE</code><dt><code>LC_CTYPE</code><dt><code>LC_MESSAGES</code><dt><code>LC_MONETARY</code><dt><code>LC_NUMERIC</code><dt><code>LC_TIME</code><dd><a name="index-LANG-1743"></a><a name="index-LC_005fALL-1744"></a><a name="index-LC_005fCOLLATE-1745"></a><a name="index-LC_005fCTYPE-1746"></a><a name="index-LC_005fMESSAGES-1747"></a><a name="index-LC_005fMONETARY-1748"></a><a name="index-LC_005fNUMERIC-1749"></a><a name="index-LC_005fTIME-1750"></a>
+You should set all these variables to &lsquo;<samp><span class="samp">C</span></samp>&rsquo; because so much
+configuration code assumes the C locale and Posix requires that locale
+environment variables be set to &lsquo;<samp><span class="samp">C</span></samp>&rsquo; if the C locale is desired;
+<samp><span class="file">configure</span></samp> scripts and M4sh do that for you. 
+Export these variables after setting them.
+
+     <!-- However, some older, nonstandard -->
+     <!-- systems (notably SCO) break if locale environment variables -->
+     <!-- are set to @samp{C}, so when running on these systems -->
+     <!-- Autoconf-generated scripts unset the variables instead. -->
+     <br><dt><code>LANGUAGE</code><dd><a name="index-LANGUAGE-1751"></a>
+<samp><span class="env">LANGUAGE</span></samp> is not specified by Posix, but it is a GNU
+extension that overrides <samp><span class="env">LC_ALL</span></samp> in some cases, so you (or M4sh)
+should set it too.
+
+     <br><dt><code>LC_ADDRESS</code><dt><code>LC_IDENTIFICATION</code><dt><code>LC_MEASUREMENT</code><dt><code>LC_NAME</code><dt><code>LC_PAPER</code><dt><code>LC_TELEPHONE</code><dd><a name="index-LC_005fADDRESS-1752"></a><a name="index-LC_005fIDENTIFICATION-1753"></a><a name="index-LC_005fMEASUREMENT-1754"></a><a name="index-LC_005fNAME-1755"></a><a name="index-LC_005fPAPER-1756"></a><a name="index-LC_005fTELEPHONE-1757"></a>
+These locale environment variables are GNU extensions.  They
+are treated like their Posix brethren (<samp><span class="env">LC_COLLATE</span></samp>,
+etc.) as described above.
+
+     <br><dt><code>LINENO</code><dd><a name="index-LINENO-1758"></a>Most modern shells provide the current line number in <code>LINENO</code>. 
+Its value is the line number of the beginning of the current command. 
+M4sh, and hence Autoconf, attempts to execute <samp><span class="command">configure</span></samp> with
+a shell that supports <code>LINENO</code>.  If no such shell is available, it
+attempts to implement <code>LINENO</code> with a Sed prepass that replaces each
+instance of the string <code>$LINENO</code> (not followed by an alphanumeric
+character) with the line's number.  In M4sh scripts you should execute
+<code>AS_LINENO_PREPARE</code> so that these workarounds are included in
+your script; configure scripts do this automatically in <code>AC_INIT</code>.
+
+     <p>You should not rely on <code>LINENO</code> within <samp><span class="command">eval</span></samp> or shell
+functions, as the behavior differs in practice.  The presence of a
+quoted newline within simple commands can alter which line number is
+used as the starting point for <code>$LINENO</code> substitutions within that
+command.  Also, the possibility of the Sed prepass means that you should
+not rely on <code>$LINENO</code> when quoted, when in here-documents, or when
+line continuations are used.  Subshells should be OK, though.  In the
+following example, lines 1, 9, and 14 are portable, but the other
+instances of <code>$LINENO</code> do not have deterministic values:
+
+     <pre class="example">          $ <kbd>cat lineno</kbd>
+          echo 1. $LINENO
+          echo "2. $LINENO
+          3. $LINENO"
+          cat &lt;&lt;EOF
+          5. $LINENO
+          6. $LINENO
+          7. \$LINENO
+          EOF
+          ( echo 9. $LINENO )
+          eval 'echo 10. $LINENO'
+          eval 'echo 11. $LINENO
+          echo 12. $LINENO'
+          echo 13. '$LINENO'
+          echo 14. $LINENO '
+          15.' $LINENO
+          f () { echo $1 $LINENO;
+          echo $1 $LINENO }
+          f 18.
+          echo 19. \
+          $LINENO
+          $ <kbd>bash-3.2 ./lineno</kbd>
+          1. 1
+          2. 3
+          3. 3
+          5. 4
+          6. 4
+          7. $LINENO
+          9. 9
+          10. 10
+          11. 12
+          12. 13
+          13. $LINENO
+          14. 14
+          15. 14
+          18. 16
+          18. 17
+          19. 19
+          $ <kbd>zsh-4.3.4 ./lineno</kbd>
+          1. 1
+          2. 2
+          3. 2
+          5. 4
+          6. 4
+          7. $LINENO
+          9. 9
+          10. 1
+          11. 1
+          12. 2
+          13. $LINENO
+          14. 14
+          15. 14
+          18. 0
+          18. 1
+          19. 19
+          $ <kbd>pdksh-5.2.14 ./lineno</kbd>
+          1. 1
+          2. 2
+          3. 2
+          5. 4
+          6. 4
+          7. $LINENO
+          9. 9
+          10. 0
+          11. 0
+          12. 0
+          13. $LINENO
+          14. 14
+          15. 14
+          18. 16
+          18. 17
+          19. 19
+          $ <kbd>sed '=' &lt;lineno |</kbd>
+          &gt; <kbd>  sed '</kbd>
+          &gt; <kbd>    N</kbd>
+          &gt; <kbd>    s,$,-,</kbd>
+          &gt; <kbd>    t loop</kbd>
+          &gt; <kbd>    :loop</kbd>
+          &gt; <kbd>    s,^\([0-9]*\)\(.*\)[$]LINENO\([^a-zA-Z0-9_]\),\1\2\1\3,</kbd>
+          &gt; <kbd>    t loop</kbd>
+          &gt; <kbd>    s,-$,,</kbd>
+          &gt; <kbd>    s,^[0-9]*\n,,</kbd>
+          &gt; <kbd>  ' |</kbd>
+          &gt; <kbd>  sh</kbd>
+          1. 1
+          2. 2
+          3. 3
+          5. 5
+          6. 6
+          7. \7
+          9. 9
+          10. 10
+          11. 11
+          12. 12
+          13. 13
+          14. 14
+          15. 15
+          18. 16
+          18. 17
+          19. 20
+</pre>
+     <p>In particular, note that <samp><span class="file">config.status</span></samp> (and any other subsidiary
+script created by <code>AS_INIT_GENERATED</code>) might report line numbers
+relative to the parent script as a result of the potential Sed pass.
+
+     <br><dt><code>NULLCMD</code><dd><a name="index-NULLCMD-1759"></a>When executing the command &lsquo;<samp><span class="samp">&gt;foo</span></samp>&rsquo;, <samp><span class="command">zsh</span></samp> executes
+&lsquo;<samp><span class="samp">$NULLCMD &gt;foo</span></samp>&rsquo; unless it is operating in Bourne shell
+compatibility mode and the <samp><span class="command">zsh</span></samp> version is newer
+than 3.1.6-dev-18.  If you are using an older <samp><span class="command">zsh</span></samp>
+and forget to set <samp><span class="env">NULLCMD</span></samp>,
+your script might be suspended waiting for data on its standard input.
+
+     <br><dt><code>options</code><dd><a name="index-options-1760"></a>For <samp><span class="command">zsh</span></samp> 4.3.10, <samp><span class="env">options</span></samp> is treated as an associative
+array even after <code>emulate sh</code>, so it should not be used.
+
+     <br><dt><code>PATH_SEPARATOR</code><dd><a name="index-PATH_005fSEPARATOR-1761"></a>On DJGPP systems, the <samp><span class="env">PATH_SEPARATOR</span></samp> environment
+variable can be set to either &lsquo;<samp><span class="samp">:</span></samp>&rsquo; or &lsquo;<samp><span class="samp">;</span></samp>&rsquo; to control the path
+separator Bash uses to set up certain environment variables (such as
+<samp><span class="env">PATH</span></samp>).  You can set this variable to &lsquo;<samp><span class="samp">;</span></samp>&rsquo; if you want
+<samp><span class="command">configure</span></samp> to use &lsquo;<samp><span class="samp">;</span></samp>&rsquo; as a separator; this might be useful
+if you plan to use non-Posix shells to execute files.  See <a href="File-System-Conventions.html#File-System-Conventions">File System Conventions</a>, for more information about <code>PATH_SEPARATOR</code>.
+
+     <br><dt><code>POSIXLY_CORRECT</code><dd><a name="index-POSIXLY_005fCORRECT-1762"></a>In the GNU environment, exporting <samp><span class="env">POSIXLY_CORRECT</span></samp> with any value
+(even empty) causes programs to try harder to conform to Posix. 
+Autoconf does not directly manipulate this variable, but <samp><span class="command">bash</span></samp>
+ties the shell variable <samp><span class="env">POSIXLY_CORRECT</span></samp> to whether the script is
+running in Posix mode.  Therefore, take care when exporting or unsetting
+this variable, so as not to change whether <samp><span class="command">bash</span></samp> is in Posix
+mode.
+
+     <pre class="example">          $ <kbd>bash --posix -c 'set -o | grep posix</kbd>
+          &gt; <kbd>unset POSIXLY_CORRECT</kbd>
+          &gt; <kbd>set -o | grep posix'</kbd>
+          posix           on
+          posix           off
+</pre>
+     <br><dt><code>PWD</code><dd><a name="index-PWD-1763"></a>Posix 1003.1-2001 requires that <samp><span class="command">cd</span></samp> and
+<samp><span class="command">pwd</span></samp> must update the <samp><span class="env">PWD</span></samp> environment variable to point
+to the logical name of the current directory, but traditional shells
+do not support this.  This can cause confusion if one shell instance
+maintains <samp><span class="env">PWD</span></samp> but a subsidiary and different shell does not know
+about <samp><span class="env">PWD</span></samp> and executes <samp><span class="command">cd</span></samp>; in this case <samp><span class="env">PWD</span></samp>
+points to the wrong directory.  Use &lsquo;<samp><span class="samp">`pwd`</span></samp>&rsquo; rather than
+&lsquo;<samp><span class="samp">$PWD</span></samp>&rsquo;.
+
+     <br><dt><code>RANDOM</code><dd><a name="index-RANDOM-1764"></a>Many shells provide <code>RANDOM</code>, a variable that returns a different
+integer each time it is used.  Most of the time, its value does not
+change when it is not used, but on IRIX 6.5 the value changes all
+the time.  This can be observed by using <samp><span class="command">set</span></samp>.  It is common
+practice to use <code>$RANDOM</code> as part of a file name, but code
+shouldn't rely on <code>$RANDOM</code> expanding to a nonempty string.
+
+     <br><dt><code>status</code><dd><a name="index-status-1765"></a>This variable is an alias to &lsquo;<samp><span class="samp">$?</span></samp>&rsquo; for <code>zsh</code> (at least 3.1.6),
+hence read-only.  Do not use it. 
+</dl>
+
+   </body></html>
+

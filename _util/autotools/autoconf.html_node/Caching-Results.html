@@ -1,0 +1,139 @@
+<html lang="en">
+<head>
+<title>Caching Results - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Results.html#Results" title="Results">
+<link rel="prev" href="Special-Chars-in-Variables.html#Special-Chars-in-Variables" title="Special Chars in Variables">
+<link rel="next" href="Printing-Messages.html#Printing-Messages" title="Printing Messages">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Caching-Results"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Printing-Messages.html#Printing-Messages">Printing Messages</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Special-Chars-in-Variables.html#Special-Chars-in-Variables">Special Chars in Variables</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Results.html#Results">Results</a>
+<hr>
+</div>
+
+<h3 class="section">7.4 Caching Results</h3>
+
+<p><a name="index-Cache-1211"></a>
+To avoid checking for the same features repeatedly in various
+<samp><span class="command">configure</span></samp> scripts (or in repeated runs of one script),
+<samp><span class="command">configure</span></samp> can optionally save the results of many checks in a
+<dfn>cache file</dfn> (see <a href="Cache-Files.html#Cache-Files">Cache Files</a>).  If a <samp><span class="command">configure</span></samp> script
+runs with caching enabled and finds a cache file, it reads the results
+of previous runs from the cache and avoids rerunning those checks.  As a
+result, <samp><span class="command">configure</span></samp> can then run much faster than if it had to
+perform all of the checks every time.
+
+<div class="defun">
+&mdash; Macro: <b>AC_CACHE_VAL</b> (<var>cache-id, commands-to-set-it</var>)<var><a name="index-AC_005fCACHE_005fVAL-1212"></a></var><br>
+<blockquote><p><a name="index-AC_005fCACHE_005fVAL-1213"></a>
+Ensure that the results of the check identified by <var>cache-id</var> are
+available.  If the results of the check were in the cache file that was
+read, and <samp><span class="command">configure</span></samp> was not given the <samp><span class="option">--quiet</span></samp> or
+<samp><span class="option">--silent</span></samp> option, print a message saying that the result was
+cached; otherwise, run the shell commands <var>commands-to-set-it</var>.  If
+the shell commands are run to determine the value, the value is
+saved in the cache file just before <samp><span class="command">configure</span></samp> creates its output
+files.  See <a href="Cache-Variable-Names.html#Cache-Variable-Names">Cache Variable Names</a>, for how to choose the name of the
+<var>cache-id</var> variable.
+
+        <p>The <var>commands-to-set-it</var> <em>must have no side effects</em> except for
+setting the variable <var>cache-id</var>, see below. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CACHE_CHECK</b> (<var>message, cache-id, commands-to-set-it</var>)<var><a name="index-AC_005fCACHE_005fCHECK-1214"></a></var><br>
+<blockquote><p><a name="index-AC_005fCACHE_005fCHECK-1215"></a>
+A wrapper for <code>AC_CACHE_VAL</code> that takes care of printing the
+messages.  This macro provides a convenient shorthand for the most
+common way to use these macros.  It calls <code>AC_MSG_CHECKING</code> for
+<var>message</var>, then <code>AC_CACHE_VAL</code> with the <var>cache-id</var> and
+<var>commands</var> arguments, and <code>AC_MSG_RESULT</code> with <var>cache-id</var>.
+
+        <p>The <var>commands-to-set-it</var> <em>must have no side effects</em> except for
+setting the variable <var>cache-id</var>, see below. 
+</p></blockquote></div>
+
+   <p>It is common to find buggy macros using <code>AC_CACHE_VAL</code> or
+<code>AC_CACHE_CHECK</code>, because people are tempted to call
+<code>AC_DEFINE</code> in the <var>commands-to-set-it</var>.  Instead, the code that
+<em>follows</em> the call to <code>AC_CACHE_VAL</code> should call
+<code>AC_DEFINE</code>, by examining the value of the cache variable.  For
+instance, the following macro is broken:
+
+<pre class="example">     <!-- If you change this example, adjust tests/base.at:AC_CACHE_CHECK. -->
+     AC_DEFUN([AC_SHELL_TRUE],
+     [AC_CACHE_CHECK([whether true(1) works], [my_cv_shell_true_works],
+                     [my_cv_shell_true_works=no
+                      (true) 2&gt;/dev/null &amp;&amp; my_cv_shell_true_works=yes
+                      if test "x$my_cv_shell_true_works" = xyes; then
+                        AC_DEFINE([TRUE_WORKS], [1],
+                                  [Define if `true(1)' works properly.])
+                      fi])
+     ])
+</pre>
+   <p class="noindent">This fails if the cache is enabled: the second time this macro is run,
+<code>TRUE_WORKS</code> <em>will not be defined</em>.  The proper implementation
+is:
+
+<pre class="example">     <!-- If you change this example, adjust tests/base.at:AC_CACHE_CHECK. -->
+     AC_DEFUN([AC_SHELL_TRUE],
+     [AC_CACHE_CHECK([whether true(1) works], [my_cv_shell_true_works],
+                     [my_cv_shell_true_works=no
+                      (true) 2&gt;/dev/null &amp;&amp; my_cv_shell_true_works=yes])
+      if test "x$my_cv_shell_true_works" = xyes; then
+        AC_DEFINE([TRUE_WORKS], [1],
+                  [Define if `true(1)' works properly.])
+      fi
+     ])
+</pre>
+   <p>Also, <var>commands-to-set-it</var> should not print any messages, for
+example with <code>AC_MSG_CHECKING</code>; do that before calling
+<code>AC_CACHE_VAL</code>, so the messages are printed regardless of whether
+the results of the check are retrieved from the cache or determined by
+running the shell commands.
+
+<ul class="menu">
+<li><a accesskey="1" href="Cache-Variable-Names.html#Cache-Variable-Names">Cache Variable Names</a>:         Shell variables used in caches
+<li><a accesskey="2" href="Cache-Files.html#Cache-Files">Cache Files</a>:                  Files <samp><span class="command">configure</span></samp> uses for caching
+<li><a accesskey="3" href="Cache-Checkpointing.html#Cache-Checkpointing">Cache Checkpointing</a>:          Loading and saving the cache file
+</ul>
+
+   </body></html>
+

@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Serials</title>
+
+<meta name="description" content="automake: Serials">
+<meta name="keywords" content="automake: Serials">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="aclocal-Invocation.html#aclocal-Invocation" rel="up" title="aclocal Invocation">
+<link href="Future-of-aclocal.html#Future-of-aclocal" rel="next" title="Future of aclocal">
+<link href="Local-Macros.html#Local-Macros" rel="prev" title="Local Macros">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Serials"></a>
+<div class="header">
+<p>
+Next: <a href="Future-of-aclocal.html#Future-of-aclocal" accesskey="n" rel="next">Future of aclocal</a>, Previous: <a href="Local-Macros.html#Local-Macros" accesskey="p" rel="prev">Local Macros</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Serial-Numbers"></a>
+<h4 class="subsection">6.3.5 Serial Numbers</h4>
+<a name="index-serial-numbers-in-macros"></a>
+<a name="index-macro-serial-numbers"></a>
+<a name="index-_0023serial-syntax"></a>
+<a name="index-aclocal-and-serial-numbers"></a>
+
+<p>Because third-party macros defined in <samp>*.m4</samp> files are naturally
+shared between multiple projects, some people like to version them.
+This makes it easier to tell which of two M4 files is newer.  Since at
+least 1996, the tradition is to use a &lsquo;<samp>#serial</samp>&rsquo; line for this.
+</p>
+<p>A serial number should be a single line of the form
+</p>
+<div class="example">
+<pre class="example"># serial <var>version</var>
+</pre></div>
+
+<p>where <var>version</var> is a version number containing only digits and
+dots.  Usually people use a single integer, and they increment it each
+time they change the macro (hence the name of &ldquo;serial&rdquo;).  Such a
+line should appear in the M4 file before any macro definition.
+</p>
+<p>The &lsquo;<samp>#</samp>&rsquo; must be the first character on the line,
+and it is OK to have extra words after the version, as in
+</p>
+<div class="example">
+<pre class="example">#serial <var>version</var> <var>garbage</var>
+</pre></div>
+
+<p>Normally these serial numbers are completely ignored by
+<code>aclocal</code> and <code>autoconf</code>, like any genuine comment.
+However when using <code>aclocal</code>&rsquo;s <samp>--install</samp> feature, these
+serial numbers will modify the way <code>aclocal</code> selects the
+macros to install in the package: if two files with the same basename
+exist in your search path, and if at least one of them uses a
+&lsquo;<samp>#serial</samp>&rsquo; line, <code>aclocal</code> will ignore the file that has
+the older &lsquo;<samp>#serial</samp>&rsquo; line (or the file that has none).
+</p>
+<p>Note that a serial number applies to a whole M4 file, not to any macro
+it contains.  A file can contains multiple macros, but only one
+serial.
+</p>
+<p>Here is a use case that illustrates the use of <samp>--install</samp> and
+its interaction with serial numbers.  Let&rsquo;s assume we maintain a
+package called MyPackage, the <samp>configure.ac</samp> of which requires a
+third-party macro <code>AX_THIRD_PARTY</code> defined in
+<samp>/usr/share/aclocal/thirdparty.m4</samp> as follows:
+</p>
+<div class="example">
+<pre class="example"># serial 1
+AC_DEFUN([AX_THIRD_PARTY], [...])
+</pre></div>
+
+<p>MyPackage uses an <samp>m4/</samp> directory to store local macros as
+explained in <a href="Local-Macros.html#Local-Macros">Local Macros</a>, and has
+</p>
+<div class="example">
+<pre class="example">AC_CONFIG_MACRO_DIRS([m4])
+</pre></div>
+
+<p>in its <samp>configure.ac</samp>.
+</p>
+<p>Initially the <samp>m4/</samp> directory is empty.  The first time we run
+<code>aclocal --install</code>, it will notice that
+</p>
+<ul>
+<li> <samp>configure.ac</samp> uses <code>AX_THIRD_PARTY</code>
+</li><li> No local macros define <code>AX_THIRD_PARTY</code>
+</li><li> <samp>/usr/share/aclocal/thirdparty.m4</samp> defines <code>AX_THIRD_PARTY</code>
+with serial 1.
+</li></ul>
+
+<p>Because <samp>/usr/share/aclocal/thirdparty.m4</samp> is a system-wide macro
+and <code>aclocal</code> was given the <samp>--install</samp> option, it will
+copy this file in <samp>m4/thirdparty.m4</samp>, and output an
+<samp>aclocal.m4</samp> that contains &lsquo;<samp>m4_include([m4/thirdparty.m4])</samp>&rsquo;.
+</p>
+<p>The next time &lsquo;<samp>aclocal --install</samp>&rsquo; is run, something different
+happens.  <code>aclocal</code> notices that
+</p>
+<ul>
+<li> <samp>configure.ac</samp> uses <code>AX_THIRD_PARTY</code>
+</li><li> <samp>m4/thirdparty.m4</samp> defines <code>AX_THIRD_PARTY</code>
+with serial 1.
+</li><li> <samp>/usr/share/aclocal/thirdparty.m4</samp> defines <code>AX_THIRD_PARTY</code>
+with serial 1.
+</li></ul>
+
+<p>Because both files have the same serial number, <code>aclocal</code> uses
+the first it found in its search path order (see <a href="Macro-Search-Path.html#Macro-Search-Path">Macro Search Path</a>).  <code>aclocal</code> therefore ignores
+<samp>/usr/share/aclocal/thirdparty.m4</samp> and outputs an
+<samp>aclocal.m4</samp> that contains &lsquo;<samp>m4_include([m4/thirdparty.m4])</samp>&rsquo;.
+</p>
+<p>Local directories specified with <samp>-I</samp> are always searched before
+system-wide directories, so a local file will always be preferred to
+the system-wide file in case of equal serial numbers.
+</p>
+<p>Now suppose the system-wide third-party macro is changed.  This can
+happen if the package installing this macro is updated.  Let&rsquo;s suppose
+the new macro has serial number 2.  The next time &lsquo;<samp>aclocal --install</samp>&rsquo;
+is run the situation is the following:
+</p>
+<ul>
+<li> <samp>configure.ac</samp> uses <code>AX_THIRD_PARTY</code>
+</li><li> <samp>m4/thirdparty.m4</samp> defines <code>AX_THIRD_PARTY</code>
+with serial 1.
+</li><li> <samp>/usr/share/aclocal/thirdparty.m4</samp> defines <code>AX_THIRD_PARTY</code>
+with serial 2.
+</li></ul>
+
+<p>When <code>aclocal</code> sees a greater serial number, it immediately
+forgets anything it knows from files that have the same basename and a
+smaller serial number.  So after it has found
+<samp>/usr/share/aclocal/thirdparty.m4</samp> with serial 2,
+<code>aclocal</code> will proceed as if it had never seen
+<samp>m4/thirdparty.m4</samp>.  This brings us back to a situation similar
+to that at the beginning of our example, where no local file defined
+the macro.  <code>aclocal</code> will install the new version of the
+macro in <samp>m4/thirdparty.m4</samp>, in this case overriding the old
+version.  MyPackage just had its macro updated as a side effect of
+running <code>aclocal</code>.
+</p>
+<p>If you are leery of letting <code>aclocal</code> update your local
+macro, you can run &lsquo;<samp>aclocal --diff</samp>&rsquo; to review the changes
+&lsquo;<samp>aclocal --install</samp>&rsquo; would perform on these macros.
+</p>
+<p>Finally, note that the <samp>--force</samp> option of <code>aclocal</code> has
+absolutely no effect on the files installed by <samp>--install</samp>.  For
+instance, if you have modified your local macros, do not expect
+<samp>--install --force</samp> to replace the local macros by their
+system-wide versions.  If you want to do so, simply erase the local
+macros you want to revert, and run &lsquo;<samp>aclocal --install</samp>&rsquo;.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Future-of-aclocal.html#Future-of-aclocal" accesskey="n" rel="next">Future of aclocal</a>, Previous: <a href="Local-Macros.html#Local-Macros" accesskey="p" rel="prev">Local Macros</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

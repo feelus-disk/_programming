@@ -1,0 +1,190 @@
+<html lang="en">
+<head>
+<title>Signal Handling - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="File-Descriptors.html#File-Descriptors" title="File Descriptors">
+<link rel="next" href="File-System-Conventions.html#File-System-Conventions" title="File System Conventions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Signal-Handling"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="File-System-Conventions.html#File-System-Conventions">File System Conventions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="File-Descriptors.html#File-Descriptors">File Descriptors</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.5 Signal Handling</h3>
+
+<p><a name="index-Signal-handling-in-the-shell-1700"></a><a name="index-Signals_002c-shells-and-1701"></a>
+Portable handling of signals within the shell is another major source of
+headaches.  This is worsened by the fact that various different, mutually
+incompatible approaches are possible in this area, each with its
+distinctive merits and demerits.  A detailed description of these possible
+approaches, as well as of their pros and cons, can be found in
+<a href="http://www.cons.org/cracauer/sigint.html">this article</a>.
+
+   <p>Solaris 10 <samp><span class="command">/bin/sh</span></samp> automatically traps most signals by default;
+<!-- See: <http://dbaspot.com/shell/396118-bourne-shell-exit-code-term.html> -->
+the shell still exits with error upon termination by one of those signals,
+but in such a case the exit status might be somewhat unexpected (even if
+allowed by POSIX, strictly speaking):
+
+<pre class="example">     $ <kbd>bash -c 'kill -1 $$'; echo $?</kbd> # Will exit 128 + (signal number).
+     Hangup
+     129
+     $ <kbd>/bin/ksh -c 'kill -15 $$'; echo $?</kbd> # Likewise.
+     Terminated
+     143
+     $ <kbd>for sig in 1 2 3 15; do</kbd>
+     &gt; <kbd>  echo $sig:</kbd>
+     &gt; <kbd>  /bin/sh -c "kill -$s \$\$"; echo $?</kbd>
+     &gt; <kbd>done</kbd>
+     signal 1:
+     Hangup
+     129
+     signal 2:
+     208
+     signal 3:
+     208
+     signal 15:
+     208
+</pre>
+   <p>This gets even worse if one is using the POSIX `wait' interface to get
+details about the shell process terminations: it will result in the shell
+having exited normally, rather than by receiving a signal.
+
+<pre class="example">     $ <kbd>cat &gt; foo.c &lt;&lt;'END'</kbd>
+     #include &lt;stdio.h&gt;    /* for printf */
+     #include &lt;stdlib.h&gt;   /* for system */
+     #include &lt;sys/wait.h&gt; /* for WIF* macros */
+     int main(void)
+     {
+       int status = system ("kill -15 $$");
+       printf ("Terminated by signal: %s\n",
+               WIFSIGNALED (status) ? "yes" : "no");
+       printf ("Exited normally: %s\n",
+               WIFEXITED (status) ? "yes" : "no");
+       return 0;
+     }
+     END
+     <!-- $$ font-lock -->
+     $ <kbd>cc -o foo foo.c</kbd>
+     $ <kbd>./a.out</kbd> # On GNU/Linux
+     Terminated by signal: no
+     Exited normally: yes
+     $ <kbd>./a.out</kbd> # On Solaris 10
+     Terminated by signal: yes
+     Exited normally: no
+</pre>
+   <p>Various shells seem to handle <code>SIGQUIT</code> specially: they ignore it even
+if it is not blocked, and even if the shell is not running interactively
+(in fact, even if the shell has no attached tty); among these shells
+are at least Bash (from version 2 onwards), Zsh 4.3.12, Solaris 10
+<code>/bin/ksh</code> and <code>/usr/xpg4/bin/sh</code>, and AT&amp;T <code>ksh93</code> (2011). 
+Still, <code>SIGQUIT</code> seems to be trappable quite portably within all
+these shells.  OTOH, some other shells doesn't special-case the handling
+of <code>SIGQUIT</code>; among these shells are at least <code>pdksh</code> 5.2.14,
+Solaris 10 and NetBSD 5.1 <code>/bin/sh</code>, and the Almquist Shell 0.5.5.1.
+
+<!-- See: <http://mail.opensolaris.org/pipermail/ksh93-integration-discuss/2009-February/004121.html> -->
+   <p>Some shells (especially Korn shells and derivatives) might try to
+propagate to themselves a signal that has killed a child process; this is
+not a bug, but a conscious design choice (although its overall value might
+be debatable).  The exact details of how this is attained vary from shell
+to shell.  For example, upon running <code>perl -e 'kill 2, $$'</code>, after
+the perl process has been interrupted AT&amp;T <code>ksh93</code> (2011) will
+proceed to send itself a <code>SIGINT</code>, while Solaris 10 <code>/bin/ksh</code>
+and <code>/usr/xpg4/bin/sh</code> will proceed to exit with status 130 (i.e.,
+128 + 2). In any case, if there is an active trap associated with
+<code>SIGINT</code>, those shells will correctly execute it.
+
+<!-- See: <http://www.austingroupbugs.net/view.php?id=51> -->
+   <p>Some Korn shells, when a child process die due receiving a signal with
+signal number <var>n</var>, can leave in &lsquo;<samp><span class="samp">$?</span></samp>&rsquo; an exit status of
+256+<var>n</var> instead of the more common 128+<var>n</var>.  Observe the
+difference between AT&amp;T <code>ksh93</code> (2011) and <code>bash</code> 4.1.5 on
+Debian:
+
+<pre class="example">     $ <kbd>/bin/ksh -c 'sh -c "kill -1 \$\$"; echo $?'</kbd>
+     /bin/ksh: line 1: 7837: Hangup
+     257
+     $ <kbd>/bin/bash -c 'sh -c "kill -1 \$\$"; echo $?'</kbd>
+     /bin/bash: line 1:  7861 Hangup        (sh -c "kill -1 \$\$")
+     129
+</pre>
+   <p class="noindent">This <samp><span class="command">ksh</span></samp> behavior is allowed by POSIX, if implemented with
+due care; see this <a href="http://www.austingroupbugs.net/view.php?id=51">Austin Group discussion</a> for more background.  However, if it is not
+implemented with proper care, such a behavior might cause problems
+in some corner cases.  To see why, assume we have a &ldquo;wrapper&rdquo; script
+like this:
+
+<pre class="example">     #!/bin/sh
+     # Ignore some signals in the shell only, not in its child processes.
+     trap : 1 2 13 15
+     wrapped_command "$@"
+     ret=$?
+     other_command
+     exit $ret
+</pre>
+   <p class="noindent">If <samp><span class="command">wrapped_command</span></samp> is interrupted by a <code>SIGHUP</code> (which
+has signal number 1), <code>ret</code> will be set to 257.  Unless the
+<samp><span class="command">exit</span></samp> shell builtin is smart enough to understand that such
+a value can only have originated from a signal, and adjust the final
+wait status of the shell appropriately, the value 257 will just get
+truncated to 1 by the closing <code>exit</code> call, so that a caller of
+the script will have no way to determine that termination by a signal
+was involved.  Observe the different behavior of AT&amp;T <code>ksh93</code>
+(2011) and <code>bash</code> 4.1.5 on Debian:
+
+<pre class="example">     $ <kbd>cat foo.sh</kbd>
+     #!/bin/sh
+     sh -c 'kill -1 $$'
+     ret=$?
+     echo $ret
+     exit $ret
+     $ <kbd>/bin/ksh foo.sh; echo $?</kbd>
+     foo.sh: line 2: 12479: Hangup
+     257
+     1
+     $ <kbd>/bin/bash foo.sh; echo $?</kbd>
+     foo.sh: line 2: 12487 Hangup        (sh -c 'kill -1 $$')
+     129
+     129
+</pre>
+   </body></html>
+

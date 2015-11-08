@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Cross-Compilation</title>
+
+<meta name="description" content="automake: Cross-Compilation">
+<meta name="keywords" content="automake: Cross-Compilation">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Use-Cases.html#Use-Cases" rel="up" title="Use Cases">
+<link href="Renaming.html#Renaming" rel="next" title="Renaming">
+<link href="Two_002dPart-Install.html#Two_002dPart-Install" rel="prev" title="Two-Part Install">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Cross_002dCompilation"></a>
+<div class="header">
+<p>
+Next: <a href="Renaming.html#Renaming" accesskey="n" rel="next">Renaming</a>, Previous: <a href="Two_002dPart-Install.html#Two_002dPart-Install" accesskey="p" rel="prev">Two-Part Install</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Cross_002dCompilation-1"></a>
+<h4 class="subsection">2.2.8 Cross-Compilation</h4>
+<a name="index-cross_002dcompilation"></a>
+
+<p>To <em>cross-compile</em> is to build on one platform a binary that will
+run on another platform.  When speaking of cross-compilation, it is
+important to distinguish between the <em>build platform</em> on which
+the compilation is performed, and the <em>host platform</em> on which the
+resulting executable is expected to run.  The following
+<code>configure</code> options are used to specify each of them:
+</p>
+<dl compact="compact">
+<dt><samp>--build=<var>build</var></samp></dt>
+<dd><a name="index-_002d_002dbuild_003dbuild"></a>
+<p>The system on which the package is built.
+</p></dd>
+<dt><samp>--host=<var>host</var></samp></dt>
+<dd><a name="index-_002d_002dhost_003dhost"></a>
+<p>The system where built programs and libraries will run.
+</p></dd>
+</dl>
+
+<p>When the <samp>--host</samp> is used, <code>configure</code> will search for
+the cross-compiling suite for this platform.  Cross-compilation tools
+commonly have their target architecture as prefix of their name.  For
+instance my cross-compiler for MinGW32 has its binaries called
+<code>i586-mingw32msvc-gcc</code>, <code>i586-mingw32msvc-ld</code>,
+<code>i586-mingw32msvc-as</code>, etc.
+</p>
+<a name="index-MinGW-cross_002dcompilation-example"></a>
+<a name="index-cross_002dcompilation-example"></a>
+
+<p>Here is how we could build <code>amhello-1.0</code> for
+<code>i586-mingw32msvc</code> on a GNU/Linux PC.
+</p>
+<div class="smallexample">
+<pre class="smallexample">~/amhello-1.0 % <kbd>./configure --build i686-pc-linux-gnu --host i586-mingw32msvc</kbd>
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking for i586-mingw32msvc-strip... i586-mingw32msvc-strip
+checking for i586-mingw32msvc-gcc... i586-mingw32msvc-gcc
+checking for C compiler default output file name... a.exe
+checking whether the C compiler works... yes
+checking whether we are cross compiling... yes
+checking for suffix of executables... .exe
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether i586-mingw32msvc-gcc accepts -g... yes
+checking for i586-mingw32msvc-gcc option to accept ANSI C...
+&hellip;
+~/amhello-1.0 % <kbd>make</kbd>
+&hellip;
+~/amhello-1.0 % <kbd>cd src; file hello.exe</kbd>
+hello.exe: MS Windows PE 32-bit Intel 80386 console executable not relocatable
+</pre></div>
+
+<p>The <samp>--host</samp> and <samp>--build</samp> options are usually all we
+need for cross-compiling.  The only exception is if the package being
+built is itself a cross-compiler: we need a third option to specify
+its target architecture.
+</p>
+<dl compact="compact">
+<dt><samp>--target=<var>target</var></samp></dt>
+<dd><a name="index-_002d_002dtarget_003dtarget"></a>
+<p>When building compiler tools: the system for which the tools will
+create output.
+</p></dd>
+</dl>
+
+<p>For instance when installing GCC, the GNU Compiler Collection, we can
+use <samp>--target=<var>target</var></samp> to specify that we want to build
+GCC as a cross-compiler for <var>target</var>.  Mixing <samp>--build</samp> and
+<samp>--target</samp>, we can actually cross-compile a cross-compiler;
+such a three-way cross-compilation is known as a <em>Canadian cross</em>.
+</p>
+<p>See <a href="http://www.gnu.org/software/autoconf/manual/html_node/Specifying-Names.html#Specifying-Names">Specifying the System Type</a> in <cite>The
+Autoconf Manual</cite>, for more information about these <code>configure</code>
+options.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Renaming.html#Renaming" accesskey="n" rel="next">Renaming</a>, Previous: <a href="Two_002dPart-Install.html#Two_002dPart-Install" accesskey="p" rel="prev">Two-Part Install</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

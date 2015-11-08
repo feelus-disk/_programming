@@ -1,0 +1,437 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html><!-- InstanceBegin template="/Templates/find-helper.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>cli helper. Docs</title>
+<!-- InstanceEndEditable -->
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="autor" content="Korolev Igor">
+<meta name="copyright" content="unixpin.com">
+<META name="Home-url" content="http://ru.clihelper.com">
+<meta name="robots" content="index,all">
+<!-- Unix and linux find command helper. Option reminder for unix command find -->
+<!-- InstanceBeginEditable name="head" -->
+<meta name ="keywords" content="cli,helper.,Docs">
+<meta name ="description" content="cli helper. Any docs, documents, manual, tutorial about unix and linux command. Option reminder for unix command. cli helper. Docs">
+
+<!-- InstanceEndEditable -->
+<LINK REL="stylesheet" TYPE="text/css" HREF="../style.css">
+</head>
+
+<body>
+<table width="90%"  border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="130">&nbsp;</td>
+      <td width="379" align="center"><h1 class="head">
+	cli helper. Docs
+	</h1></td>
+      <td width="130" align="right"><!-- InstanceBeginEditable name="Lang" -->
+	  ﻿<!-- InstanceBeginEditable name="Lang" -->
+[<a href="http://www.clihelper.com/ldocs/find_mini_tutorial.html">english</a>]
+[русский]
+<!-- InstanceEndEditable -->
+
+	  <!-- InstanceEndEditable --></td>
+    </tr>
+</table>
+<!-- InstanceBeginEditable name="Menu" -->
+<div id='column1'>
+<table width=125 border=1 cellpadding="2" cellspacing="4">
+  <tr>
+
+	
+	    <td><a href="../index.html"> Все помощники </a></td>
+	
+
+  </tr>
+  <tr>
+
+    <td class="menu_active" title="Документация"> Документация </td>
+
+  </tr>
+  <tr>
+
+    <td><a href="../news" title="Новости сайта"> Новости </a></td>
+
+  </tr>
+  <tr>
+
+    <td><a href="../about.html" title="О проекте. CLI helpers"> О проекте </a></td>
+
+  </tr>
+  <tr>
+
+    <td><a href="../cgi-bin/email.pl"  title="Написать в поддержку"> Контакты </a></td>
+
+  </tr>
+</table>
+<br>
+
+<br>
+</div>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="Body" -->
+
+<div id='column2'>
+	  <h3 class="page_name">				
+	Docs. find
+	</h3>
+
+
+	  <h3>Unix Find Command Tutorial </h3>
+  Dr. Nikolai Bezroukov
+  Version 3.10
+  
+  <h2><b><a name="Introduction">Introduction</a></b></h2>
+<p>&nbsp;</p>
+<p>Unix find is a pretty tricky but very useful utility that can often fool even 
+experienced UNIX professionals with ten on more years of sysadmins work under the 
+belt. It can enhance functionality of those Unix utilities that does not include 
+tree traversal (BTW GNU <font color="#0000FF"><b>grep</b></font> has <b>
+<font color="#0000FF">-r </font></b>option for this purpose and can be used on its 
+own to perform tree traversal task: <font face="Fixedsys" color="#0000FF">grep -r 
+&quot;search string&quot; /tmp.</font>).&nbsp; There are several versions of 
+find with the main two being POSIX find used in Solaris, AIX, etc and GNU find 
+used in linux. GNU find can be installed on Solaris and AIX and it is actually a 
+strong recommendation as there are some differences; moreover gnu find have 
+additional capabilities that are often useful. </p>
+<p>But find can do more then a simple tree traversal available with option -r (or 
+-R) in many Unix utilities. Traversal provided by
+<font color="#0000FF" face="Fixedsys">find</font> can have excluded directory tree 
+branches, can select files or directories using regular expressions, can be limited 
+to specific typed of filesystem, etc. This capability is far above and beyond regular 
+tree traversal of Unix utilities so find is a real Unix utility -- a useful enhancer 
+of functionally of other utilities including both utilities that do not have capability 
+to traverse the directory tree and those which have built-in simple recursive tree 
+traversal</p>
+<p>The idea behind find is extremely simple: this is a utility for <b><i>searching 
+files using the directory information</i></b> and in this sense it is similar to
+<font color="#0000FF"><b>ls. </b></font>But it is more powerful then <b>
+<font color="#0000FF">ls</font></b> as it can provide &quot; a ride&quot; for other utilities 
+and has an idiosyncratic mini-language for specifying queries, the language which 
+probably outlived its usefulness but nobody has courage to replace it with a standard 
+scripting language. </p>
+<p>For obscure historical reasons <font color="#0000FF"><tt>find</tt></font> mini-language 
+is completely different from all other UNIX commands: it has full-word options rather 
+than single-letter options. For example, instead of a typical Unix-style option
+<font color="#0000FF">-f </font>to match filenames (like in
+<font color="#0000FF" face="Fixedsys">tar -xvf mytar.tar</font>) <b>
+<font color="#0000FF">find</font></b> uses option <font color="#0000FF"><b>-name</b></font>. 
+Also path to search can consist of multiple starting points, for example </p>
+<blockquote>
+	<p><font face="Fixedsys" color="#0000FF">find /usr /bin /sbin /opt -name sar
+	</font><font face="Fixedsys" color="#008000"># here we exclude non-relevant 
+	directories </font></p>
+</blockquote>
+<p>In general you need to specify the set of starting points for a search through 
+the file system first. The first argument starting with <b>
+<font color="#0000FF" face="Fixedsys">&quot;-&quot;</font> </b>is considered to be a start 
+of &quot;find expression&quot;. The latter can have side effects if you specified actions 
+in the expression. </p>
+<p><b><font color="#FF0000">It is very important to understand that you can specify 
+more than one directory as a starting point for the search. To look across the
+</font><font color="#0000FF">/bin</font><font color="#FF0000"> and </font>
+<font color="#0000FF">/var/html</font><font color="#FF0000"> directory trees for 
+filenames that contain the pattern </font></b><tt>*.htm*</tt><b>, you can use the 
+following command: </font></b></p>
+<blockquote>
+	<pre><font color="#0000FF"><b>find /usr /var/html -name &quot;*.htm*&quot; -print</b></font></pre>
+</blockquote>
+<p>Please note that you need quotes for any regex. Otherwise it will be evaluated 
+immediately in the current context by shell.</p>
+<p>It is simply impossible to remember all the details of this language unless you 
+construct complex queries each day and that&#39;s why this page was created. Along with 
+this page it make sense to consult the list of typical (and not so typical) examples 
+which can be found in in <a target="_blank" href="http://www.softpanorama.org/Tools/Find/find_examples.html">Examples</a> 
+page on this site as well as in the links listed in
+<a target="_blank" href="find_mini_tutorial.html#Webliography">Webliography</a>. An excellent paper
+<a target="_blank" href="http://www-128.ibm.com/developerworks/aix/library/au-unix-find.html">
+Advanced techniques for using the UNIX find command</a> was written by Bill Zimmerly. 
+I highly recommend to read it and then print and have a reference. Several examples 
+in this tutorial are borrowed from the article. </p>
+<p>The full <i>find language</i> is pretty complex and consist of several dozens 
+of different predicates and options. There are two versions of this language: one 
+implemented in POSIX find and the second implemented in GNU find which is a superset 
+of POSIX find. That can make big difference in complex scripts. But for interactive 
+use the differences is minor: only small subset of options is typically used on 
+day-to-day basis by system administrators. Among them:</p>
+<ul>
+	<li><font color="#0000FF"><b><kbd>-name </kbd></b></font>True if pattern matches 
+	the current file name. Simple regex (shell regex) may be used. A backslash (\) 
+	is used as an escape character within the pattern. The pattern should be escaped 
+	or quoted. If you need to include parts of the path in the pattern in GNU find 
+	you should use predicate <font face="Fixedsys" color="#0000FF">
+	<a target="_blank" href="find_mini_tutorial.html#wholename">wholename</a> </font>
+<p class="docText">Use the <tt>-iname</tt> predicate (GNU
+<span class="docEmphasis">find</span> supports it) to run a case-insensitive search, 
+rather than just <tt>-name</tt>. For example:</p>
+<pre>	$ find . -follow -iname &#39;*.htm&#39; -print0 | xargs -i -0 mv &#39;{}&#39; ~/webhome</pre>
+	<p>Usage of <b><font color="#FF0000">-print0</font></b> is a simple 
+	insurance for the correct processing of files with spaces. <br>
+	</li>
+	<li><kbd><b>-<font color="#0000FF">fstype</font></b></kbd><font color="#0000FF"><b>
+	<var>type</var> </b></font>True if the filesystem to which the file belongs 
+	is of type <var>type</var>. For example on Solaris mounted local filesystems 
+	have type <b><font color="#0000FF">ufs</font></b> (Solaris 10 added <b>
+	<font color="#0000FF">zfs</font></b>). For AIX local filesystem is
+	<font color="#0000FF"><b>jfs</b> </font>or <font color="#0000FF"><b>jfs2</b></font> 
+	(journalled file system). If you want to traverse NFS filesystems you can use
+	<font color="#0000FF"><b>nfs</b></font> (network file system). If you want to 
+	avoid traversing network and special filesystems you should use predicate
+	<font color="#0000FF"><b><a target="_blank" href="find_mini_tutorial.html#local">local</a> </b>
+	</font>and in certain circumstances<font color="#0000FF"><b> mount</b></font><br>
+	</li>
+	<li><font color="#0000FF"><b>&quot;-atime/-ctime/-mtime&quot;</b></font> 
+	<b>[+|-]<i>n<br>
+	</i></b>Specify selection of the files based on<i><b>&nbsp; three 
+	Unix timestamps: </b></i>the last time 
+	a files&#39;s &quot;access time&quot;, &quot;file status&quot; and &quot;modification time&quot;.&nbsp;&nbsp; <b> <i>
+	<br>
+	n </i> </b>is<b><i> time 
+	interval</i></b> -- an integer with optional sign. It is measured in 
+	24-hour periods (days) or minutes counted from the current moment.<ul>
+		<li><b><font color="#0000FF">n: </font></b>If the integer n does not have 
+		sign this means <i><b>exactly n 24-hour periods (days) ago</b></i>, 0 means 
+		today. <br>
+		</li>
+		<li><b><font color="#0000FF">+n:</font></b> if it has plus sing, then it 
+		means <i><b>&quot;more then n 24-hour periods (days) ago&quot;, or older then n</b></i>,<br>
+		</li>
+		<li><font color="#0000FF"><b>-n:</b></font> if it has the minus sign, then 
+		it means <i><b>less than n 24-hour periods (days) ago (-n), or younger then 
+		n</b></i>. It&#39;s evident that -1,&nbsp; and 0 are the same and both means &quot;today&quot;.
+		</li>
+	</ul>
+	<p>&nbsp;</p>
+	<div align="center">
+		<table border="0" width="80%" bgcolor="#00FFFF" id="table22">
+			<tr>
+				<td>
+				<p align="left"><font color="#FF0000"><b>Note:</b></font> If you use parameters 
+				with find command in scripts be careful when <b>
+				<font color="#0000FF">-mtime</font></b> parameter is 
+				equal zero. Some (earlier) versions of GNU find incorrectly 
+				interpret 
+the following expression</p>
+<pre>
+find -mtime +0 -mtime -1</pre>
+which should be equivalent to 
+<pre>
+find  -mtime -1</pre>
+but does not produce any files</td>
+			</tr>
+		</table>
+	</div>
+	<ul>
+		<li><b><font color="#0000FF">n: </font></b>If the integer n does not have 
+		sign this means <i><b>exactly n 24-hour periods (days) ago</b></i>, 0 means 
+		today. <br>
+		</li>
+		<li><b><font color="#0000FF">+n:</font></b> if it has plus sing, then it 
+		means <i><b>&quot;more then n 24-hour periods (days) ago&quot;, or older then n</b></i>,<br>
+		</li>
+		<li><font color="#0000FF"><b>-n:</b></font> if it has the minus sign, then 
+		it means <i><b>less than n 24-hour periods (days) ago (-n), or younger then 
+		n</b></i>. It&#39;s evident that -1 and 0 are the same and both means &quot;today&quot;.
+		<br>
+		</li>
+		<li><b>Examples:<br>
+&nbsp;</b><ul>
+			<li>Find everything in your home directory modified in the last 24 hours:<br>
+&nbsp;<ul>
+				<li><font size="2" face="Fixedsys" color="#0000FF">find $HOME -mtime 
+				-1 <br>
+				</font></li>
+			</ul>
+			</li>
+		</ul>
+		<ul>
+			<li>Find everything in your home directory modified in the last 
+			seven 24-hour 
+			periods (days): <br>
+&nbsp;<ul>
+				<li><font size="2" face="Fixedsys" color="#0000FF">find $HOME -mtime 
+				-7 <br>
+				</font></li>
+			</ul>
+			</li>
+		</ul>
+		<ul>
+			<li>Find everything in your home directory that have NOT been modified 
+			in the last year:<br>
+&nbsp;<ul>
+				<li><font size="2" face="Fixedsys" color="#0000FF">find $HOME -mtime 
+				+365 <br>
+				</font></li>
+			</ul>
+			</li>
+			<li>To find html files that have been modified in the last seven 24-hour 
+			periods (days), I can use <b><font color="#0000FF">-mtime</font></b> 
+			with the argument -7 (include the hyphen):
+			<blockquote>
+				<pre><font color="#0000FF"><b>find . -mtime -7 -name &quot;*.html&quot; -print</b></font></pre>
+			</blockquote>
+			<p>If you use the number 7 (without a hyphen), find will match only 
+			html files that were modified exactly seven 24-hour periods (days) ago:
+			</p>
+			<blockquote>
+				<pre><font color="#0000FF"><b>find . -mtime 7 -name &quot;*.html&quot; -print</b></font></pre>
+			</blockquote>
+			</li>
+			<li>To find those html files that I haven&#39;t touched for at least seven 
+			24-hour periods (days), I use +7:
+			<blockquote>
+				<pre><font color="#0000FF"><b>find . -mtime +7 -name &quot;*.html&quot; -print</b></font></pre>
+			</blockquote>
+			</li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+	<li><font size="2" face="Fixedsys" color="#0000FF">-newer/-anewer/-cnewer
+	</font><font size="2" face="Fixedsys" color="#FF0000"><i>baseline_file</i></font><font size="2" face="Fixedsys" color="#0000FF">
+	</font>The time of modification, access time or creation time are compared with 
+	the same timestamp in the baseline file. If file is a symbolic link and the 
+	-H option or the -L option is in effect, the modification time of the file it 
+	points to is always used.<br>
+	<ul>
+		<li><b><font color="#0000FF">-newer </font></b>Modification time is compared 
+		with modification time of the
+		<font size="2" face="Fixedsys" color="#0000FF"><i>basline_file </i>
+		</font>True if<font size="2" face="Fixedsys" color="#0000FF"><i> </i>
+		</font>file was modified more recently than baseline file. <br>
+		</li>
+		<li><font color="#0000FF"><b>-anewer</b></font> Access time is compared 
+		with access time of <font size="2" face="Fixedsys" color="#0000FF"><i>basline_file</i>
+		</font>. True if file was last accessed more recently than baseline file.
+		<br>
+		</li>
+		<li><font color="#0000FF"><b>-cnewer </b></font>Creation file is compared.
+		<font face="Arial" size="2">For example: find everything in your home that 
+		has been modified more recently than &quot;</font><b><font color="#0000FF" size="2" face="Arial">~joeuser/lastbatch.txt
+		</font></b><font size="2" face="Arial">&quot;: <br>
+		</font>
+		<ul>
+			<li><font color="#0000FF" face="Fixedsys" size="2">find $HOME -newer 
+			~joeuser/lastbatch.txt<br>
+&nbsp;</font></li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+	<li><kbd><font face="Fixedsys" color="#0000FF">-<a name="local">local</a></font></kbd> 
+	True if the file system type is not a remote file system type. In Solaris those 
+	types are defined in the <b><font color="#0000FF"><kbd>/etc/dfs/fstypes</kbd></font></b> 
+	file. <tt>nfs</tt> is used as the default remote filesystem type if the <b>
+	<font color="#0000FF"><kbd>/etc/dfs/fstypes</kbd></font></b> file is not present. 
+	The <font color="#0000FF"><kbd><b>-local</b></kbd> </font>option skips the hierarchy 
+	of non-local directories. You can also search without descending more then certain 
+	number of levels as explained later or exclude some directories from the search 
+	using <br>
+	</li>
+	<li><font face="Fixedsys" color="#0000FF"><kbd><font face="Fixedsys">-mount</font></kbd></font><b><kbd>
+	</kbd></b>Always true. Restricts the search to the file system containing the 
+	directory specified. Does not list mount points to other file systems. <br>
+	</li>
+	<li><kbd><font face="Fixedsys" color="#0000FF">-xdev</font></kbd> Same as the<font color="#0000FF"><font face="Fixedsys">
+	</font><kbd><font face="Fixedsys">-mount</font></kbd><font face="Fixedsys"> 
+	primary</font></font>. Always evaluates to the value True. Prevents the <b>find</b> 
+	command from traversing a file system different from the one specified by the
+	<i>Path</i> parameter.<br>
+	</li>
+	<li>-<font face="Fixedsys" color="#0000FF">xattr</font> True if the file has 
+	extended attributes. <br>
+	</li>
+	<li><b></b><font face="Fixedsys" color="#0000FF">-<a name="wholename">wholename</a></font>
+	<b><font color="#FF0000"><i>simple-regex</i></font></b> [GNU find only] . File 
+	name matches simple regular expression (often called shell patterns). In simple 
+	regular expressions the metacharacters <b><font color="#0000FF">&#39;/&#39;</font></b> 
+	and<b><font color="#0000FF"> &#39;.&#39; </font></b>do not exist; so, for example, you 
+	can specify:<pre><font color="#0000FF"><b>find . -wholename &#39;/lib*&#39;</b></pre>
+	</font>which will print entries from directories <b><font color="#0000FF">/lib64</font></b> 
+	and <b><font color="#0000FF">/lib</font></b>. <i><font color="#FF0000"><b>To 
+	ignore the directories specified, use option </b></font><b>
+	<font color="#0000FF">-prune </font></b></i>For example, to skip the directory<b><font color="#0000FF"> 
+	/proc</font></b> and all files and directories under it (which is important 
+	for linux as otherwise errors are produced you can something like this:<pre>
+<font color="#0000FF"><b>find . -wholename &#39;/proc&#39; -prune -o -name </b></font><i><font color="#FF0000"><b>file_to_be_found</b></font><font color="#0000FF">			</pre>
+	</font></i>If you administer a lot of linux boxes it is better to create alias
+	<font color="#0000FF"><b>ff: </b>
+	<pre>
+<font face="Fixedsys">if [[ `uname` == &quot;Linux&quot; ]] ; do <br>
+   alias ff=&#39;find . -wholename &#39;/proc&#39; -prune -o -name &#39;<br>
+else<br>
+   ff=&#39;find . -name &#39; # not GNU find does not support -wholename<br>
+fi </font></pre>
+	</font></li>
+</ul>
+<p>Other useful options of the find command include: </p>
+<ol>
+	<li><font color="#0000FF" face="Fixedsys">-regex</font><b> </b><i>regex [GNU 
+	find only] </i>File name matches regular expression. This is a match on the 
+	whole pathname not a filename. Stupidly enough the default regular expressions 
+	understood by find are Emacs Regular Expressions, not Perl regular expressions. 
+	It is important to note that &quot;<font color="#0000FF" face="Fixedsys">-iregex</font>&quot; 
+	option provide capability to ignore case.<br>
+	</li>
+	<li><tt>-perm <i>permissions</i></tt> Locates files with certain permission 
+	settings. Often used for finding world-writable files or SUID files. See
+	<a target="_blank" href="find_mini_tutorial.html#suid_sguid_games">below</a><br>
+	</li>
+	<li><tt>-user </tt>Locates files that have specified ownership. Option
+	<font color="#0000FF"><b>-nouser</b></font> locates files without ownership. 
+	For such files no user in <b><font color="#0000FF">/etc/passwd</font></b> corresponds 
+	to file&#39;s numeric user ID (UID). such files are often created when tar of sip 
+	archive is transferred from other server on which the account probably exists 
+	under a different UID)<br>
+	</li>
+	<li><tt>-group </tt>Locates files that are owned by specified group. Option
+	<font color="#0000FF"><b>-nogroup </b></font>means that no group corresponds 
+	to file&#39;s numeric group ID (GID) of the file<br>
+	</li>
+	<li><tt>-size </tt>Locates files with specified size. <code>-size</code> attribute 
+	lets you specify how big the files should be to match. You can specify your 
+	size in kilobytes and optionally also use <code>+</code> or <code>-</code> to 
+	specify size greater than or less than specified argument. For example:<pre><code>find /home -name &quot;*.txt&quot; -size 100k</code> </pre>
+	<pre><code>find /home -name &quot;*.txt&quot; -size +100k</code> </pre>
+	<pre><code>find /home -name &quot;*.txt&quot; -size -100k</code> </pre>
+	<p>The first brings up files of exactly 100KB, the second only files greater 
+	than 100KB, and the last only files less than 100KB. </p>
+	<p></p>
+	</li>
+	<li><font face="Fixedsys"><b><font color="#0000FF">-ls</font></b><font color="#0000FF">
+	</font></font>list current file in `ls -dils&#39; format on standard output. <br>
+	</li>
+	<li><tt>-type </tt>Locates a certain type of file. The most typical options 
+	for -type are as following:
+	<ul>
+		<li><font color="#0000FF"><b>d </b></font>-Directory </li>
+		<li><font color="#0000FF"><b>f </b></font>- File </li>
+		<li><font color="#0000FF"><b>l </b></font>- Link </li>
+	</ul>
+	<blockquote>
+	</blockquote>
+	<p>For example to find a list of the directories use can use the <tt>-type</tt> 
+	specifier. Here&#39;s one example: </p>
+	<blockquote>
+		<pre><font color="#0000FF"><b>find . -type d -print</b></font></pre>
+	</blockquote>
+	</li>
+</ol><br>
+<strong>Source http://www.softpanorama.org/Tools/Find/find_mini_tutorial.shtml</strong>
+
+
+</div>
+
+
+
+<!-- InstanceEndEditable -->
+<div id='cr' align=center><hr size="1" noshade><a href="http://www.clihelper.com">www.clihelper.com &copy; 2008-2014</a></div> 
+<!-- InstanceBeginEditable name="JavaScripts" -->
+
+<!-- InstanceEndEditable --> 
+</body> 
+<!-- InstanceEnd --></html>
+

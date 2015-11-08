@@ -1,0 +1,110 @@
+<html lang="en">
+<head>
+<title>Signed Overflow Advice - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integer-Overflow.html#Integer-Overflow" title="Integer Overflow">
+<link rel="prev" href="Optimization-and-Wraparound.html#Optimization-and-Wraparound" title="Optimization and Wraparound">
+<link rel="next" href="Signed-Integer-Division.html#Signed-Integer-Division" title="Signed Integer Division">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Signed-Overflow-Advice"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Signed-Integer-Division.html#Signed-Integer-Division">Signed Integer Division</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Optimization-and-Wraparound.html#Optimization-and-Wraparound">Optimization and Wraparound</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integer-Overflow.html#Integer-Overflow">Integer Overflow</a>
+<hr>
+</div>
+
+<h4 class="subsection">13.2.4 Practical Advice for Signed Overflow Issues</h4>
+
+<p><a name="index-integer-overflow-1899"></a><a name="index-overflow_002c-signed-integer-1900"></a><a name="index-signed-integer-overflow-1901"></a><a name="index-wraparound-arithmetic-1902"></a>
+Ideally the safest approach is to avoid signed integer overflow
+entirely.  For example, instead of multiplying two signed integers, you
+can convert them to unsigned integers, multiply the unsigned values,
+then test whether the result is in signed range.
+
+   <p>Rewriting code in this way will be inconvenient, though, particularly if
+the signed values might be negative.  Also, it may hurt
+performance.  Using unsigned arithmetic to check for overflow is
+particularly painful to do portably and efficiently when dealing with an
+integer type like <code>uid_t</code> whose width and signedness vary from
+platform to platform.
+
+   <p>Furthermore, many C applications pervasively assume wraparound behavior
+and typically it is not easy to find and remove all these assumptions. 
+Hence it is often useful to maintain nonstandard code that assumes
+wraparound on overflow, instead of rewriting the code.  The rest of this
+section attempts to give practical advice for this situation.
+
+   <p>If your code wants to detect signed integer overflow in <code>sum = a +
+b</code>, it is generally safe to use an expression like <code>(sum &lt; a) != (b
+&lt; 0)</code>.
+
+   <p>If your code uses a signed loop index, make sure that the index cannot
+overflow, along with all signed expressions derived from the index. 
+Here is a contrived example of problematic code with two instances of
+overflow.
+
+<pre class="example">     for (i = INT_MAX - 10; i &lt;= INT_MAX; i++)
+       if (i + 1 &lt; 0)
+         {
+           report_overflow ();
+           break;
+         }
+</pre>
+   <p class="noindent">Because of the two overflows, a compiler might optimize away or
+transform the two comparisons in a way that is incompatible with the
+wraparound assumption.
+
+   <p>If your code uses an expression like <code>(i * 2000) / 1000</code> and you
+actually want the multiplication to wrap around on overflow, use
+unsigned arithmetic
+to do it, e.g., <code>((int) (i * 2000u)) / 1000</code>.
+
+   <p>If your code assumes wraparound behavior and you want to insulate it
+against any GCC optimizations that would fail to support that
+behavior, you should use GCC's <samp><span class="option">-fwrapv</span></samp> option, which
+causes signed overflow to wrap around reliably (except for division and
+remainder, as discussed in the next section).
+
+   <p>If you need to port to platforms where signed integer overflow does not
+reliably wrap around (e.g., due to hardware overflow checking, or to
+highly aggressive optimizations), you should consider debugging with
+GCC's <samp><span class="option">-ftrapv</span></samp> option, which causes signed overflow to
+raise an exception.
+
+   </body></html>
+

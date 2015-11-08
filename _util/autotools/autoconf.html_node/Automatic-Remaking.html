@@ -1,0 +1,106 @@
+<html lang="en">
+<head>
+<title>Automatic Remaking - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Makefile-Substitutions.html#Makefile-Substitutions" title="Makefile Substitutions">
+<link rel="prev" href="Build-Directories.html#Build-Directories" title="Build Directories">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Automatic-Remaking"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Build-Directories.html#Build-Directories">Build Directories</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Makefile-Substitutions.html#Makefile-Substitutions">Makefile Substitutions</a>
+<hr>
+</div>
+
+<h4 class="subsection">4.8.5 Automatic Remaking</h4>
+
+<p><a name="index-Automatic-remaking-199"></a><a name="index-Remaking-automatically-200"></a>
+You can put rules like the following in the top-level <samp><span class="file">Makefile.in</span></samp>
+for a package to automatically update the configuration information when
+you change the configuration files.  This example includes all of the
+optional files, such as <samp><span class="file">aclocal.m4</span></samp> and those related to
+configuration header files.  Omit from the <samp><span class="file">Makefile.in</span></samp> rules for
+any of these files that your package does not use.
+
+   <p>The &lsquo;<samp><span class="samp">$(srcdir)/</span></samp>&rsquo; prefix is included because of limitations in the
+<code>VPATH</code> mechanism.
+
+   <p>The <samp><span class="file">stamp-</span></samp> files are necessary because the timestamps of
+<samp><span class="file">config.h.in</span></samp> and <samp><span class="file">config.h</span></samp> are not changed if remaking
+them does not change their contents.  This feature avoids unnecessary
+recompilation.  You should include the file <samp><span class="file">stamp-h.in</span></samp> in your
+package's distribution, so that <samp><span class="command">make</span></samp> considers
+<samp><span class="file">config.h.in</span></samp> up to date.  Don't use <samp><span class="command">touch</span></samp>
+(see <a href="touch.html#touch">Limitations of Usual Tools</a>); instead, use
+<samp><span class="command">echo</span></samp> (using
+<samp><span class="command">date</span></samp> would cause needless differences, hence CVS
+conflicts, etc.).
+
+<pre class="example">     $(srcdir)/configure: configure.ac aclocal.m4
+             cd '$(srcdir)' &amp;&amp; autoconf
+     
+     # autoheader might not change config.h.in, so touch a stamp file.
+     $(srcdir)/config.h.in: stamp-h.in
+     $(srcdir)/stamp-h.in: configure.ac aclocal.m4
+             cd '$(srcdir)' &amp;&amp; autoheader
+             echo timestamp &gt; '$(srcdir)/stamp-h.in'
+     
+     config.h: stamp-h
+     stamp-h: config.h.in config.status
+             ./config.status
+     
+     Makefile: Makefile.in config.status
+             ./config.status
+     
+     config.status: configure
+             ./config.status --recheck
+</pre>
+   <p class="noindent">(Be careful if you copy these lines directly into your makefile, as you
+need to convert the indented lines to start with the tab character.)
+
+   <p>In addition, you should use
+
+<pre class="example">     AC_CONFIG_FILES([stamp-h], [echo timestamp &gt; stamp-h])
+</pre>
+   <p class="noindent">so <samp><span class="file">config.status</span></samp> ensures that <samp><span class="file">config.h</span></samp> is considered up to
+date.  See <a href="Output.html#Output">Output</a>, for more information about <code>AC_OUTPUT</code>.
+
+   <p>See <a href="config_002estatus-Invocation.html#config_002estatus-Invocation">config.status Invocation</a>, for more examples of handling
+configuration-related dependencies.
+
+   </body></html>
+

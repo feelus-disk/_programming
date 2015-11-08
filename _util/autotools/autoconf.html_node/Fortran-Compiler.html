@@ -1,0 +1,659 @@
+<html lang="en">
+<head>
+<title>Fortran Compiler - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors" title="Compilers and Preprocessors">
+<link rel="prev" href="Erlang-Compiler-and-Interpreter.html#Erlang-Compiler-and-Interpreter" title="Erlang Compiler and Interpreter">
+<link rel="next" href="Go-Compiler.html#Go-Compiler" title="Go Compiler">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Fortran-Compiler"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Go-Compiler.html#Go-Compiler">Go Compiler</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Erlang-Compiler-and-Interpreter.html#Erlang-Compiler-and-Interpreter">Erlang Compiler and Interpreter</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors">Compilers and Preprocessors</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.10.8 Fortran Compiler Characteristics</h4>
+
+<p><a name="index-Fortran-981"></a><a name="index-F77-982"></a>
+The Autoconf Fortran support is divided into two categories: legacy
+Fortran 77 macros (<code>F77</code>), and modern Fortran macros (<code>FC</code>). 
+The former are intended for traditional Fortran 77 code, and have output
+variables like <code>F77</code>, <code>FFLAGS</code>, and <code>FLIBS</code>.  The latter
+are for newer programs that can (or must) compile under the newer
+Fortran standards, and have output variables like <code>FC</code>,
+<code>FCFLAGS</code>, and <code>FCLIBS</code>.
+
+   <p>Except for the macros <code>AC_FC_SRCEXT</code>, <code>AC_FC_FREEFORM</code>,
+<code>AC_FC_FIXEDFORM</code>, and <code>AC_FC_LINE_LENGTH</code> (see below), the
+<code>FC</code> and <code>F77</code> macros behave almost identically, and so they
+are documented together in this section.
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_F77</b> (<span class="roman">[</span><var>compiler-search-list</var><span class="roman">]</span>)<var><a name="index-AC_005fPROG_005fF77-983"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fF77-984"></a>
+<a name="index-F77-985"></a><a name="index-FFLAGS-986"></a><a name="index-F77-987"></a><a name="index-FFLAGS-988"></a><a name="index-ac_005fcv_005ff77_005fcompiler_005fgnu-989"></a>
+<a name="index-ac_005fcv_005fprog_005ff77_005fg-990"></a>
+Determine a Fortran 77 compiler to use.  If <code>F77</code> is not already
+set in the environment, then check for <code>g77</code> and <code>f77</code>, and
+then some other names.  Set the output variable <code>F77</code> to the name
+of the compiler found.
+
+        <p>This macro may, however, be invoked with an optional first argument
+which, if specified, must be a blank-separated list of Fortran 77
+compilers to search for.  This just gives the user an opportunity to
+specify an alternative search list for the Fortran 77 compiler.  For
+example, if you didn't like the default order, then you could invoke
+<code>AC_PROG_F77</code> like this:
+
+     <pre class="example">          AC_PROG_F77([fl32 f77 fort77 xlf g77 f90 xlf90])
+</pre>
+        <p>If using <code>g77</code> (the GNU Fortran 77 compiler), then
+set the shell variable <code>G77</code> to &lsquo;<samp><span class="samp">yes</span></samp>&rsquo;. 
+If the output variable <code>FFLAGS</code> was not already set in the
+environment, then set it to <samp><span class="option">-g -02</span></samp> for <code>g77</code> (or <samp><span class="option">-O2</span></samp>
+where <code>g77</code> does not accept <samp><span class="option">-g</span></samp>).  Otherwise, set
+<code>FFLAGS</code> to <samp><span class="option">-g</span></samp> for all other Fortran 77 compilers.
+
+        <p>The result of the GNU test is cached in the
+<code>ac_cv_f77_compiler_gnu</code> variable, acceptance of <samp><span class="option">-g</span></samp> in the
+<code>ac_cv_prog_f77_g</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_FC</b> (<span class="roman">[</span><var>compiler-search-list</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>dialect</var><span class="roman">]</span>)<var><a name="index-AC_005fPROG_005fFC-991"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fFC-992"></a>
+<a name="index-FC-993"></a><a name="index-FCFLAGS-994"></a><a name="index-FC-995"></a><a name="index-FCFLAGS-996"></a><a name="index-ac_005fcv_005ffc_005fcompiler_005fgnu-997"></a>
+<a name="index-ac_005fcv_005fprog_005ffc_005fg-998"></a>
+Determine a Fortran compiler to use.  If <code>FC</code> is not already set in
+the environment, then <code>dialect</code> is a hint to indicate what Fortran
+dialect to search for; the default is to search for the newest available
+dialect.  Set the output variable <code>FC</code> to the name of the compiler
+found.
+
+        <p>By default, newer dialects are preferred over older dialects, but if
+<code>dialect</code> is specified then older dialects are preferred starting
+with the specified dialect.  <code>dialect</code> can currently be one of
+Fortran 77, Fortran 90, or Fortran 95.  However, this is only a hint of
+which compiler <em>name</em> to prefer (e.g., <code>f90</code> or <code>f95</code>),
+and no attempt is made to guarantee that a particular language standard
+is actually supported.  Thus, it is preferable that you avoid the
+<code>dialect</code> option, and use AC_PROG_FC only for code compatible with
+the latest Fortran standard.
+
+        <p>This macro may, alternatively, be invoked with an optional first argument
+which, if specified, must be a blank-separated list of Fortran
+compilers to search for, just as in <code>AC_PROG_F77</code>.
+
+        <p>If using <code>gfortran</code> or <code>g77</code> (the GNU Fortran compilers), then
+set the shell variable <code>GFC</code> to &lsquo;<samp><span class="samp">yes</span></samp>&rsquo;. 
+If the output variable <code>FCFLAGS</code> was not already set in the
+environment, then set it to <samp><span class="option">-g -02</span></samp> for GNU <code>g77</code> (or
+<samp><span class="option">-O2</span></samp> where <code>g77</code> does not accept <samp><span class="option">-g</span></samp>).  Otherwise,
+set <code>FCFLAGS</code> to <samp><span class="option">-g</span></samp> for all other Fortran compilers.
+
+        <p>The result of the GNU test is cached in the <code>ac_cv_fc_compiler_gnu</code>
+variable, acceptance of <samp><span class="option">-g</span></samp> in the <code>ac_cv_prog_fc_g</code>
+variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_F77_C_O</b><var><a name="index-AC_005fPROG_005fF77_005fC_005fO-999"></a></var><br>
+&mdash; Macro: <b>AC_PROG_FC_C_O</b><var><a name="index-AC_005fPROG_005fFC_005fC_005fO-1000"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fF77_005fC_005fO-1001"></a>
+<a name="index-AC_005fPROG_005fFC_005fC_005fO-1002"></a>
+<a name="index-F77_005fNO_005fMINUS_005fC_005fMINUS_005fO-1003"></a><a name="index-FC_005fNO_005fMINUS_005fC_005fMINUS_005fO-1004"></a><a name="index-ac_005fcv_005fprog_005ff77_005fc_005fo-1005"></a>
+<a name="index-ac_005fcv_005fprog_005ffc_005fc_005fo-1006"></a>
+Test whether the Fortran compiler accepts the options <samp><span class="option">-c</span></samp> and
+<samp><span class="option">-o</span></samp> simultaneously, and define <code>F77_NO_MINUS_C_MINUS_O</code> or
+<code>FC_NO_MINUS_C_MINUS_O</code>, respectively, if it does not.
+
+        <p>The result of the test is cached in the <code>ac_cv_prog_f77_c_o</code> or
+<code>ac_cv_prog_fc_c_o</code> variable, respectively. 
+</p></blockquote></div>
+
+   <p>The following macros check for Fortran compiler characteristics. 
+To check for characteristics not listed here, use
+<code>AC_COMPILE_IFELSE</code> (see <a href="Running-the-Compiler.html#Running-the-Compiler">Running the Compiler</a>) or
+<code>AC_RUN_IFELSE</code> (see <a href="Runtime.html#Runtime">Runtime</a>), making sure to first set the
+current language to Fortran 77 or Fortran via <code>AC_LANG([Fortran 77])</code>
+or <code>AC_LANG(Fortran)</code> (see <a href="Language-Choice.html#Language-Choice">Language Choice</a>).
+
+<div class="defun">
+&mdash; Macro: <b>AC_F77_LIBRARY_LDFLAGS</b><var><a name="index-AC_005fF77_005fLIBRARY_005fLDFLAGS-1007"></a></var><br>
+&mdash; Macro: <b>AC_FC_LIBRARY_LDFLAGS</b><var><a name="index-AC_005fFC_005fLIBRARY_005fLDFLAGS-1008"></a></var><br>
+<blockquote><p><a name="index-AC_005fF77_005fLIBRARY_005fLDFLAGS-1009"></a>
+<a name="index-FLIBS-1010"></a><a name="index-AC_005fFC_005fLIBRARY_005fLDFLAGS-1011"></a>
+<a name="index-FCLIBS-1012"></a><a name="index-ac_005fcv_005fprog_005ff77_005fv-1013"></a>
+<a name="index-ac_005fcv_005fprog_005ffc_005fv-1014"></a>
+<a name="index-ac_005fcv_005ff77_005flibs-1015"></a>
+<a name="index-ac_005fcv_005ffc_005flibs-1016"></a>
+Determine the linker flags (e.g., <samp><span class="option">-L</span></samp> and <samp><span class="option">-l</span></samp>) for the
+<dfn>Fortran intrinsic and runtime libraries</dfn> that are required to
+successfully link a Fortran program or shared library.  The output
+variable <code>FLIBS</code> or <code>FCLIBS</code> is set to these flags (which
+should be included after <code>LIBS</code> when linking).
+
+        <p>This macro is intended to be used in those situations when it is
+necessary to mix, e.g., C++ and Fortran source code in a single
+program or shared library (see <a href="../automake/Mixing-Fortran-77-With-C-and-C_002b_002b.html#Mixing-Fortran-77-With-C-and-C_002b_002b">Mixing Fortran 77 With C and C++</a>).
+
+        <p>For example, if object files from a C++ and Fortran compiler must be
+linked together, then the C++ compiler/linker must be used for linking
+(since special C++-ish things need to happen at link time like calling
+global constructors, instantiating templates, enabling exception
+support, etc.).
+
+        <p>However, the Fortran intrinsic and runtime libraries must be linked in
+as well, but the C++ compiler/linker doesn't know by default how to add
+these Fortran 77 libraries.  Hence, this macro was created to determine
+these Fortran libraries.
+
+        <p>The macros <code>AC_F77_DUMMY_MAIN</code> and <code>AC_FC_DUMMY_MAIN</code> or
+<code>AC_F77_MAIN</code> and <code>AC_FC_MAIN</code> are probably also necessary to
+link C/C++ with Fortran; see below.  Further, it is highly recommended
+that you use <code>AC_CONFIG_HEADERS</code> (see <a href="Configuration-Headers.html#Configuration-Headers">Configuration Headers</a>)
+because the complex defines that the function wrapper macros create
+may not work with C/C++ compiler drivers.
+
+        <p>These macros internally compute the flag needed to verbose linking
+output and cache it in <code>ac_cv_prog_f77_v</code> or <code>ac_cv_prog_fc_v</code>
+variables, respectively.  The computed linker flags are cached in
+<code>ac_cv_f77_libs</code> or <code>ac_cv_fc_libs</code>, respectively. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_F77_DUMMY_MAIN</b> (<span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fF77_005fDUMMY_005fMAIN-1017"></a></var><br>
+&mdash; Macro: <b>AC_FC_DUMMY_MAIN</b> (<span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fDUMMY_005fMAIN-1018"></a></var><br>
+<blockquote><p><a name="index-AC_005fF77_005fDUMMY_005fMAIN-1019"></a>
+<a name="index-F77_005fDUMMY_005fMAIN-1020"></a><a name="index-AC_005fFC_005fDUMMY_005fMAIN-1021"></a>
+<a name="index-FC_005fDUMMY_005fMAIN-1022"></a><a name="index-ac_005fcv_005ff77_005fdummy_005fmain-1023"></a>
+<a name="index-ac_005fcv_005ffc_005fdummy_005fmain-1024"></a>
+With many compilers, the Fortran libraries detected by
+<code>AC_F77_LIBRARY_LDFLAGS</code> or <code>AC_FC_LIBRARY_LDFLAGS</code> provide
+their own <code>main</code> entry function that initializes things like
+Fortran I/O, and which then calls a user-provided entry function named
+(say) <code>MAIN__</code> to run the user's program.  The
+<code>AC_F77_DUMMY_MAIN</code> and <code>AC_FC_DUMMY_MAIN</code> or
+<code>AC_F77_MAIN</code> and <code>AC_FC_MAIN</code> macros figure out how to deal with
+this interaction.
+
+        <p>When using Fortran for purely numerical functions (no I/O, etc.) often
+one prefers to provide one's own <code>main</code> and skip the Fortran
+library initializations.  In this case, however, one may still need to
+provide a dummy <code>MAIN__</code> routine in order to prevent linking errors
+on some systems.  <code>AC_F77_DUMMY_MAIN</code> or <code>AC_FC_DUMMY_MAIN</code>
+detects whether any such routine is <em>required</em> for linking, and
+what its name is; the shell variable <code>F77_DUMMY_MAIN</code> or
+<code>FC_DUMMY_MAIN</code> holds this name, <code>unknown</code> when no solution
+was found, and <code>none</code> when no such dummy main is needed.
+
+        <p>By default, <var>action-if-found</var> defines <code>F77_DUMMY_MAIN</code> or
+<code>FC_DUMMY_MAIN</code> to the name of this routine (e.g., <code>MAIN__</code>)
+<em>if</em> it is required.  <var>action-if-not-found</var> defaults to
+exiting with an error.
+
+        <p>In order to link with Fortran routines, the user's C/C++ program should
+then include the following code to define the dummy main if it is
+needed:
+
+     <pre class="example">          <!-- If you change this example, adjust tests/fortran.at:AC_F77_DUMMY_MAIN usage. -->
+          #ifdef F77_DUMMY_MAIN
+          #  ifdef __cplusplus
+               extern "C"
+          #  endif
+             int F77_DUMMY_MAIN () { return 1; }
+          #endif
+</pre>
+        <p>(Replace <code>F77</code> with <code>FC</code> for Fortran instead of Fortran 77.)
+
+        <p>Note that this macro is called automatically from <code>AC_F77_WRAPPERS</code>
+or <code>AC_FC_WRAPPERS</code>; there is generally no need to call it
+explicitly unless one wants to change the default actions.
+
+        <p>The result of this macro is cached in the <code>ac_cv_f77_dummy_main</code> or
+<code>ac_cv_fc_dummy_main</code> variable, respectively. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_F77_MAIN</b><var><a name="index-AC_005fF77_005fMAIN-1025"></a></var><br>
+&mdash; Macro: <b>AC_FC_MAIN</b><var><a name="index-AC_005fFC_005fMAIN-1026"></a></var><br>
+<blockquote><p><a name="index-AC_005fF77_005fMAIN-1027"></a>
+<a name="index-F77_005fMAIN-1028"></a><a name="index-AC_005fFC_005fMAIN-1029"></a>
+<a name="index-FC_005fMAIN-1030"></a><a name="index-ac_005fcv_005ff77_005fmain-1031"></a>
+<a name="index-ac_005fcv_005ffc_005fmain-1032"></a>
+As discussed above, many Fortran libraries allow you to provide an entry
+point called (say) <code>MAIN__</code> instead of the usual <code>main</code>, which
+is then called by a <code>main</code> function in the Fortran libraries that
+initializes things like Fortran I/O.  The
+<code>AC_F77_MAIN</code> and <code>AC_FC_MAIN</code> macros detect whether it is
+<em>possible</em> to utilize such an alternate main function, and defines
+<code>F77_MAIN</code> and <code>FC_MAIN</code> to the name of the function.  (If no
+alternate main function name is found, <code>F77_MAIN</code> and <code>FC_MAIN</code> are
+simply defined to <code>main</code>.)
+
+        <p>Thus, when calling Fortran routines from C that perform things like I/O,
+one should use this macro and declare the "main" function like so:
+
+     <pre class="example">          <!-- If you change this example, adjust tests/fortran.at:AC_F77_DUMMY_MAIN usage. -->
+          #ifdef __cplusplus
+            extern "C"
+          #endif
+          int F77_MAIN (int argc, char *argv[]);
+</pre>
+        <p>(Again, replace <code>F77</code> with <code>FC</code> for Fortran instead of Fortran 77.)
+
+        <p>The result of this macro is cached in the <code>ac_cv_f77_main</code> or
+<code>ac_cv_fc_main</code> variable, respectively. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_F77_WRAPPERS</b><var><a name="index-AC_005fF77_005fWRAPPERS-1033"></a></var><br>
+&mdash; Macro: <b>AC_FC_WRAPPERS</b><var><a name="index-AC_005fFC_005fWRAPPERS-1034"></a></var><br>
+<blockquote><p><a name="index-AC_005fF77_005fWRAPPERS-1035"></a>
+<a name="index-F77_005fFUNC-1036"></a><a name="index-F77_005fFUNC_005f-1037"></a><a name="index-AC_005fFC_005fWRAPPERS-1038"></a>
+<a name="index-FC_005fFUNC-1039"></a><a name="index-FC_005fFUNC_005f-1040"></a><a name="index-ac_005fcv_005ff77_005fmangling-1041"></a>
+<a name="index-ac_005fcv_005ffc_005fmangling-1042"></a>
+Defines C macros <code>F77_FUNC (name, NAME)</code>, <code>FC_FUNC (name, NAME)</code>,
+<code>F77_FUNC_(name, NAME)</code>, and <code>FC_FUNC_(name, NAME)</code> to properly
+mangle the names of C/C++ identifiers, and identifiers with underscores,
+respectively, so that they match the name-mangling scheme used by the
+Fortran compiler.
+
+        <p>Fortran is case-insensitive, and in order to achieve this the Fortran
+compiler converts all identifiers into a canonical case and format.  To
+call a Fortran subroutine from C or to write a C function that is
+callable from Fortran, the C program must explicitly use identifiers in
+the format expected by the Fortran compiler.  In order to do this, one
+simply wraps all C identifiers in one of the macros provided by
+<code>AC_F77_WRAPPERS</code> or <code>AC_FC_WRAPPERS</code>.  For example, suppose
+you have the following Fortran 77 subroutine:
+
+     <pre class="example">          <!-- If you change this example, adjust tests/fortran.at:AC_F77_DUMMY_MAIN usage. -->
+                subroutine foobar (x, y)
+                double precision x, y
+                y = 3.14159 * x
+                return
+                end
+</pre>
+        <p>You would then declare its prototype in C or C++ as:
+
+     <pre class="example">          <!-- If you change this example, adjust tests/fortran.at:AC_F77_DUMMY_MAIN usage. -->
+          #define FOOBAR_F77 F77_FUNC (foobar, FOOBAR)
+          #ifdef __cplusplus
+          extern "C"  /* prevent C++ name mangling */
+          #endif
+          void FOOBAR_F77 (double *x, double *y);
+</pre>
+        <p>Note that we pass both the lowercase and uppercase versions of the
+function name to <code>F77_FUNC</code> so that it can select the right one. 
+Note also that all parameters to Fortran 77 routines are passed as
+pointers (see <a href="../automake/Mixing-Fortran-77-With-C-and-C_002b_002b.html#Mixing-Fortran-77-With-C-and-C_002b_002b">Mixing Fortran 77 With C and C++</a>).
+
+        <p>(Replace <code>F77</code> with <code>FC</code> for Fortran instead of Fortran 77.)
+
+        <p>Although Autoconf tries to be intelligent about detecting the
+name-mangling scheme of the Fortran compiler, there may be Fortran
+compilers that it doesn't support yet.  In this case, the above code
+generates a compile-time error, but some other behavior
+(e.g., disabling Fortran-related features) can be induced by checking
+whether <code>F77_FUNC</code> or <code>FC_FUNC</code> is defined.
+
+        <p>Now, to call that routine from a C program, we would do something like:
+
+     <pre class="example">          <!-- If you change this example, adjust tests/fortran.at:AC_F77_DUMMY_MAIN usage. -->
+          {
+              double x = 2.7183, y;
+              FOOBAR_F77 (&amp;x, &amp;y);
+          }
+</pre>
+        <p>If the Fortran identifier contains an underscore (e.g., <code>foo_bar</code>),
+you should use <code>F77_FUNC_</code> or <code>FC_FUNC_</code> instead of
+<code>F77_FUNC</code> or <code>FC_FUNC</code> (with the same arguments).  This is
+because some Fortran compilers mangle names differently if they contain
+an underscore.
+
+        <p>The name mangling scheme is encoded in the <code>ac_cv_f77_mangling</code> or
+<code>ac_cv_fc_mangling</code> cache variable, respectively, and also used for
+the <code>AC_F77_FUNC</code> and <code>AC_FC_FUNC</code> macros described below. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_F77_FUNC</b> (<var>name, </var><span class="roman">[</span><var>shellvar</var><span class="roman">]</span>)<var><a name="index-AC_005fF77_005fFUNC-1043"></a></var><br>
+&mdash; Macro: <b>AC_FC_FUNC</b> (<var>name, </var><span class="roman">[</span><var>shellvar</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fFUNC-1044"></a></var><br>
+<blockquote><p><a name="index-AC_005fF77_005fFUNC-1045"></a>
+<a name="index-AC_005fFC_005fFUNC-1046"></a>
+Given an identifier <var>name</var>, set the shell variable <var>shellvar</var> to
+hold the mangled version <var>name</var> according to the rules of the
+Fortran linker (see also <code>AC_F77_WRAPPERS</code> or
+<code>AC_FC_WRAPPERS</code>).  <var>shellvar</var> is optional; if it is not
+supplied, the shell variable is simply <var>name</var>.  The purpose of
+this macro is to give the caller a way to access the name-mangling
+information other than through the C preprocessor as above, for example,
+to call Fortran routines from some language other than C/C++. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_SRCEXT</b> (<var>ext, </var><span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fSRCEXT-1047"></a></var><br>
+&mdash; Macro: <b>AC_FC_PP_SRCEXT</b> (<var>ext, </var><span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fPP_005fSRCEXT-1048"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fSRCEXT-1049"></a>
+<a name="index-AC_005fFC_005fPP_005fSRCEXT-1050"></a>
+<a name="index-ac_005fcv_005ffc_005fsrcext_005f_0040var_007bext_007d-1051"></a>
+<a name="index-ac_005fcv_005ffc_005fpp_005fsrcext_005f_0040var_007bext_007d-1052"></a>
+By default, the <code>FC</code> macros perform their tests using a <samp><span class="file">.f</span></samp>
+extension for source-code files.  Some compilers, however, only enable
+newer language features for appropriately named files, e.g., Fortran 90
+features only for <samp><span class="file">.f90</span></samp> files, or preprocessing only with
+<samp><span class="file">.F</span></samp> files or maybe other upper-case extensions.  On the other
+hand, some other compilers expect all source files to end in <samp><span class="file">.f</span></samp>
+and require special flags to support other file name extensions.  The
+<code>AC_FC_SRCEXT</code> and <code>AC_FC_PP_SRCEXT</code> macros deal with these
+issues.
+
+        <p>The <code>AC_FC_SRCEXT</code> macro tries to get the <code>FC</code> compiler to
+accept files ending with the extension <samp><span class="file">.</span><var>ext</var></samp> (i.e.,
+<var>ext</var> does <em>not</em> contain the dot).  If any special compiler
+flags are needed for this, it stores them in the output variable
+<code>FCFLAGS_</code><var>ext</var>.  This extension and these flags are then used
+for all subsequent <code>FC</code> tests (until <code>AC_FC_SRCEXT</code> or
+<code>AC_FC_PP_SRCEXT</code> is called another time).
+
+        <p>For example, you would use <code>AC_FC_SRCEXT(f90)</code> to employ the
+<samp><span class="file">.f90</span></samp> extension in future tests, and it would set the
+<code>FCFLAGS_f90</code> output variable with any extra flags that are needed
+to compile such files.
+
+        <p>Similarly, the <code>AC_FC_PP_SRCEXT</code> macro tries to get the <code>FC</code>
+compiler to preprocess and compile files with the extension
+<samp><span class="file">.</span><var>ext</var></samp>.  When both <samp><span class="command">fpp</span></samp> and <samp><span class="command">cpp</span></samp> style
+preprocessing are provided, the former is preferred, as the latter may
+treat continuation lines, <code>//</code> tokens, and white space differently
+from what some Fortran dialects expect.  Conversely, if you do not want
+files to be preprocessed, use only lower-case characters in the file
+name extension.  Like with <code>AC_FC_SRCEXT(f90)</code>, any needed flags
+are stored in the <code>FCFLAGS_</code><var>ext</var> variable.
+
+        <p>The <code>FCFLAGS_</code><var>ext</var> flags can <em>not</em> be simply absorbed
+into <code>FCFLAGS</code>, for two reasons based on the limitations of some
+compilers.  First, only one <code>FCFLAGS_</code><var>ext</var> can be used at a
+time, so files with different extensions must be compiled separately. 
+Second, <code>FCFLAGS_</code><var>ext</var> must appear <em>immediately</em> before
+the source-code file name when compiling.  So, continuing the example
+above, you might compile a <samp><span class="file">foo.f90</span></samp> file in your makefile with the
+command:
+
+     <pre class="example">          foo.o: foo.f90
+                 $(FC) -c $(FCFLAGS) $(FCFLAGS_f90) '$(srcdir)/foo.f90'
+</pre>
+        <p>If <code>AC_FC_SRCEXT</code> or <code>AC_FC_PP_SRCEXT</code> succeeds in compiling
+files with the <var>ext</var> extension, it calls <var>action-if-success</var>
+(defaults to nothing).  If it fails, and cannot find a way to make the
+<code>FC</code> compiler accept such files, it calls <var>action-if-failure</var>
+(defaults to exiting with an error message).
+
+        <p>The <code>AC_FC_SRCEXT</code> and <code>AC_FC_PP_SRCEXT</code> macros cache their
+results in <code>ac_cv_fc_srcext_</code><var>ext</var> and
+<code>ac_cv_fc_pp_srcext_</code><var>ext</var> variables, respectively. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_PP_DEFINE</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fPP_005fDEFINE-1053"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fPP_005fDEFINE-1054"></a>
+<a name="index-ac_005fcv_005ffc_005fpp_005fdefine-1055"></a>
+
+        <p>Find a flag to specify defines for preprocessed Fortran.  Not all
+Fortran compilers use <samp><span class="option">-D</span></samp>.  Substitute <code>FC_DEFINE</code> with
+the result and call <var>action-if-success</var> (defaults to nothing) if
+successful, and <var>action-if-failure</var> (defaults to failing with an
+error message) if not.
+
+        <p>This macro calls <code>AC_FC_PP_SRCEXT([F])</code> in order to learn how to
+preprocess a <samp><span class="file">conftest.F</span></samp> file, but restores a previously used
+Fortran source file extension afterwards again.
+
+        <p>The result of this test is cached in the <code>ac_cv_fc_pp_define</code>
+variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_FREEFORM</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fFREEFORM-1056"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fFREEFORM-1057"></a>
+<a name="index-ac_005fcv_005ffc_005ffreeform-1058"></a>
+
+        <p>Try to ensure that the Fortran compiler (<code>$FC</code>) allows free-format
+source code (as opposed to the older fixed-format style from Fortran
+77).  If necessary, it may add some additional flags to <code>FCFLAGS</code>.
+
+        <p>This macro is most important if you are using the default <samp><span class="file">.f</span></samp>
+extension, since many compilers interpret this extension as indicating
+fixed-format source unless an additional flag is supplied.  If you
+specify a different extension with <code>AC_FC_SRCEXT</code>, such as
+<samp><span class="file">.f90</span></samp>, then <code>AC_FC_FREEFORM</code> ordinarily succeeds without
+modifying <code>FCFLAGS</code>.  For extensions which the compiler does not
+know about, the flag set by the <code>AC_FC_SRCEXT</code> macro might let
+the compiler assume Fortran 77 by default, however.
+
+        <p>If <code>AC_FC_FREEFORM</code> succeeds in compiling free-form source, it
+calls <var>action-if-success</var> (defaults to nothing).  If it fails, it
+calls <var>action-if-failure</var> (defaults to exiting with an error
+message).
+
+        <p>The result of this test, or &lsquo;<samp><span class="samp">none</span></samp>&rsquo; or &lsquo;<samp><span class="samp">unknown</span></samp>&rsquo;, is cached in
+the <code>ac_cv_fc_freeform</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_FIXEDFORM</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fFIXEDFORM-1059"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fFIXEDFORM-1060"></a>
+<a name="index-ac_005fcv_005ffc_005ffixedform-1061"></a>
+
+        <p>Try to ensure that the Fortran compiler (<code>$FC</code>) allows the old
+fixed-format source code (as opposed to free-format style).  If
+necessary, it may add some additional flags to <code>FCFLAGS</code>.
+
+        <p>This macro is needed for some compilers alias names like <samp><span class="command">xlf95</span></samp>
+which assume free-form source code by default, and in case you want to
+use fixed-form source with an extension like <samp><span class="file">.f90</span></samp> which many
+compilers interpret as free-form by default.  If you specify a different
+extension with <code>AC_FC_SRCEXT</code>, such as <samp><span class="file">.f</span></samp>, then
+<code>AC_FC_FIXEDFORM</code> ordinarily succeeds without modifying
+<code>FCFLAGS</code>.
+
+        <p>If <code>AC_FC_FIXEDFORM</code> succeeds in compiling fixed-form source, it
+calls <var>action-if-success</var> (defaults to nothing).  If it fails, it
+calls <var>action-if-failure</var> (defaults to exiting with an error
+message).
+
+        <p>The result of this test, or &lsquo;<samp><span class="samp">none</span></samp>&rsquo; or &lsquo;<samp><span class="samp">unknown</span></samp>&rsquo;, is cached in
+the <code>ac_cv_fc_fixedform</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_LINE_LENGTH</b> (<span class="roman">[</span><var>length</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fLINE_005fLENGTH-1062"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fLINE_005fLENGTH-1063"></a>
+<a name="index-ac_005fcv_005ffc_005fline_005flength-1064"></a>
+
+        <p>Try to ensure that the Fortran compiler (<code>$FC</code>) accepts long source
+code lines.  The <var>length</var> argument may be given as 80, 132, or
+unlimited, and defaults to 132.  Note that line lengths above 254
+columns are not portable, and some compilers do not accept more than 132
+columns at least for fixed format source.  If necessary, it may add some
+additional flags to <code>FCFLAGS</code>.
+
+        <p>If <code>AC_FC_LINE_LENGTH</code> succeeds in compiling fixed-form source, it
+calls <var>action-if-success</var> (defaults to nothing).  If it fails, it
+calls <var>action-if-failure</var> (defaults to exiting with an error
+message).
+
+        <p>The result of this test, or &lsquo;<samp><span class="samp">none</span></samp>&rsquo; or &lsquo;<samp><span class="samp">unknown</span></samp>&rsquo;, is cached in
+the <code>ac_cv_fc_line_length</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_CHECK_BOUNDS</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fCHECK_005fBOUNDS-1065"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fCHECK_005fBOUNDS-1066"></a>
+<a name="index-ac_005fcv_005ffc_005fcheck_005fbounds-1067"></a>
+
+        <p>The <code>AC_FC_CHECK_BOUNDS</code> macro tries to enable array bounds checking
+in the Fortran compiler.  If successful, the <var>action-if-success</var>
+is called and any needed flags are added to <code>FCFLAGS</code>.  Otherwise,
+<var>action-if-failure</var> is called, which defaults to failing with an error
+message.  The macro currently requires Fortran 90 or a newer dialect.
+
+        <p>The result of the macro is cached in the <code>ac_cv_fc_check_bounds</code>
+variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_F77_IMPLICIT_NONE</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fF77_005fIMPLICIT_005fNONE-1068"></a></var><br>
+&mdash; Macro: <b>AC_FC_IMPLICIT_NONE</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fIMPLICIT_005fNONE-1069"></a></var><br>
+<blockquote><p><a name="index-AC_005fF77_005fIMPLICIT_005fNONE-1070"></a>
+<a name="index-AC_005fFC_005fIMPLICIT_005fNONE-1071"></a>
+<a name="index-ac_005fcv_005ff77_005fimplicit_005fnone-1072"></a>
+<a name="index-ac_005fcv_005ffc_005fimplicit_005fnone-1073"></a>
+
+        <p>Try to disallow implicit declarations in the Fortran compiler.  If
+successful, <var>action-if-success</var> is called and any needed flags
+are added to <code>FFLAGS</code> or <code>FCFLAGS</code>, respectively.  Otherwise,
+<var>action-if-failure</var> is called, which defaults to failing with an error
+message.
+
+        <p>The result of these macros are cached in the
+<code>ac_cv_f77_implicit_none</code> and <code>ac_cv_fc_implicit_none</code>
+variables, respectively. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_MODULE_EXTENSION</b><var><a name="index-AC_005fFC_005fMODULE_005fEXTENSION-1074"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fMODULE_005fEXTENSION-1075"></a>
+<a name="index-ac_005fcv_005ffc_005fmodule_005fext-1076"></a>
+<a name="index-FC_005fMODEXT-1077"></a>
+Find the Fortran 90 module file name extension.  Most Fortran 90
+compilers store module information in files separate from the object
+files.  The module files are usually named after the name of the module
+rather than the source file name, with characters possibly turned to
+upper case, plus an extension, often <samp><span class="file">.mod</span></samp>.
+
+        <p>Not all compilers use module files at all, or by default.  The Cray
+Fortran compiler requires <samp><span class="option">-e m</span></samp> in order to store and search
+module information in <samp><span class="file">.mod</span></samp> files rather than in object files. 
+Likewise, the Fujitsu Fortran compilers uses the <samp><span class="option">-Am</span></samp> option to
+indicate how module information is stored.
+
+        <p>The <code>AC_FC_MODULE_EXTENSION</code> macro computes the module extension
+without the leading dot, and stores that in the <code>FC_MODEXT</code>
+variable.  If the compiler does not produce module files, or the
+extension cannot be determined, <code>FC_MODEXT</code> is empty.  Typically,
+the result of this macro may be used in cleanup <samp><span class="command">make</span></samp> rules as
+follows:
+
+     <pre class="example">          clean-modules:
+                  -test -z "$(FC_MODEXT)" || rm -f *.$(FC_MODEXT)
+</pre>
+        <p>The extension, or &lsquo;<samp><span class="samp">unknown</span></samp>&rsquo;, is cached in the
+<code>ac_cv_fc_module_ext</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_MODULE_FLAG</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fMODULE_005fFLAG-1078"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fMODULE_005fFLAG-1079"></a>
+<a name="index-ac_005fcv_005ffc_005fmodule_005fflag-1080"></a>
+<a name="index-FC_005fMODINC-1081"></a><a name="index-ac_005fempty-1082"></a>
+Find the compiler flag to include Fortran 90 module information from
+another directory, and store that in the <code>FC_MODINC</code> variable. 
+Call <var>action-if-success</var> (defaults to nothing) if successful, and
+set <code>FC_MODINC</code> to empty and call <var>action-if-failure</var> (defaults
+to exiting with an error message) if not.
+
+        <p>Most Fortran 90 compilers provide a way to specify module directories. 
+Some have separate flags for the directory to write module files to,
+and directories to search them in, whereas others only allow writing to
+the current directory or to the first directory specified in the include
+path.  Further, with some compilers, the module search path and the
+preprocessor search path can only be modified with the same flag.  Thus,
+for portability, write module files to the current directory only and
+list that as first directory in the search path.
+
+        <p>There may be no whitespace between <code>FC_MODINC</code> and the following
+directory name, but <code>FC_MODINC</code> may contain trailing white space. 
+For example, if you use Automake and would like to search <samp><span class="file">../lib</span></samp>
+for module files, you can use the following:
+
+     <pre class="example">          AM_FCFLAGS = $(FC_MODINC). $(FC_MODINC)../lib
+</pre>
+        <p>Inside <samp><span class="command">configure</span></samp> tests, you can use:
+
+     <pre class="example">          if test -n "$FC_MODINC"; then
+            FCFLAGS="$FCFLAGS $FC_MODINC. $FC_MODINC../lib"
+          fi
+</pre>
+        <p>The flag is cached in the <code>ac_cv_fc_module_flag</code> variable. 
+The substituted value of <code>FC_MODINC</code> may refer to the
+<code>ac_empty</code> dummy placeholder empty variable, to avoid losing
+the significant trailing whitespace in a <samp><span class="file">Makefile</span></samp>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_FC_MODULE_OUTPUT_FLAG</b> (<span class="roman">[</span><var>action-if-success</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-failure = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fFC_005fMODULE_005fOUTPUT_005fFLAG-1083"></a></var><br>
+<blockquote><p><a name="index-AC_005fFC_005fMODULE_005fOUTPUT_005fFLAG-1084"></a>
+<a name="index-ac_005fcv_005ffc_005fmodule_005foutput_005fflag-1085"></a>
+<a name="index-FC_005fMODOUT-1086"></a>
+Find the compiler flag to write Fortran 90 module information to
+another directory, and store that in the <code>FC_MODOUT</code> variable. 
+Call <var>action-if-success</var> (defaults to nothing) if successful, and
+set <code>FC_MODOUT</code> to empty and call <var>action-if-failure</var> (defaults
+to exiting with an error message) if not.
+
+        <p>Not all Fortran 90 compilers write module files, and of those that do,
+not all allow writing to a directory other than the current one, nor
+do all have separate flags for writing and reading; see the description
+of <code>AC_FC_MODULE_FLAG</code> above.  If you need to be able to write to
+another directory, for maximum portability use <code>FC_MODOUT</code> before
+any <code>FC_MODINC</code> and include both the current directory and the one
+you write to in the search path:
+
+     <pre class="example">          AM_FCFLAGS = $(FC_MODOUT)../mod $(FC_MODINC)../mod $(FC_MODINC). ...
+</pre>
+        <p>The flag is cached in the <code>ac_cv_fc_module_output_flag</code> variable. 
+The substituted value of <code>FC_MODOUT</code> may refer to the
+<code>ac_empty</code> dummy placeholder empty variable, to avoid losing
+the significant trailing whitespace in a <samp><span class="file">Makefile</span></samp>. 
+</p></blockquote></div>
+
+   </body></html>
+

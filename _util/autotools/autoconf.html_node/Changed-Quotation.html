@@ -1,0 +1,109 @@
+<html lang="en">
+<head>
+<title>Changed Quotation - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Autoconf-2_002e13.html#Autoconf-2_002e13" title="Autoconf 2.13">
+<link rel="next" href="New-Macros.html#New-Macros" title="New Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Changed-Quotation"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="New-Macros.html#New-Macros">New Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Autoconf-2_002e13.html#Autoconf-2_002e13">Autoconf 2.13</a>
+<hr>
+</div>
+
+<h4 class="subsection">18.6.1 Changed Quotation</h4>
+
+<p>The most important changes are invisible to you: the implementation of
+most macros have completely changed.  This allowed more factorization of
+the code, better error messages, a higher uniformity of the user's
+interface etc.  Unfortunately, as a side effect, some construct which
+used to (miraculously) work might break starting with Autoconf 2.50. 
+The most common culprit is bad quotation.
+
+   <p>For instance, in the following example, the message is not properly
+quoted:
+
+<pre class="example">     AC_INIT
+     AC_CHECK_HEADERS(foo.h, ,
+       AC_MSG_ERROR(cannot find foo.h, bailing out))
+     AC_OUTPUT
+</pre>
+   <p class="noindent">Autoconf 2.13 simply ignores it:
+
+<pre class="example">     $ <kbd>autoconf-2.13; ./configure --silent</kbd>
+     creating cache ./config.cache
+     configure: error: cannot find foo.h
+     $
+</pre>
+   <p class="noindent">while Autoconf 2.50 produces a broken <samp><span class="file">configure</span></samp>:
+
+<pre class="example">     $ <kbd>autoconf-2.50; ./configure --silent</kbd>
+     configure: error: cannot find foo.h
+     ./configure: exit: bad non-numeric arg `bailing'
+     ./configure: exit: bad non-numeric arg `bailing'
+     $
+</pre>
+   <p>The message needs to be quoted, and the <code>AC_MSG_ERROR</code> invocation
+too!
+
+<pre class="example">     AC_INIT([Example], [1.0], [bug-example@example.org])
+     AC_CHECK_HEADERS([foo.h], [],
+       [AC_MSG_ERROR([cannot find foo.h, bailing out])])
+     AC_OUTPUT
+</pre>
+   <p>Many many (and many more) Autoconf macros were lacking proper quotation,
+including no less than<small class="dots">...</small> <code>AC_DEFUN</code> itself!
+
+<pre class="example">     $ <kbd>cat configure.in</kbd>
+     AC_DEFUN([AC_PROG_INSTALL],
+     [# My own much better version
+     ])
+     AC_INIT
+     AC_PROG_INSTALL
+     AC_OUTPUT
+     $ <kbd>autoconf-2.13</kbd>
+     autoconf: Undefined macros:
+     ***BUG in Autoconf--please report*** AC_FD_MSG
+     ***BUG in Autoconf--please report*** AC_EPI
+     configure.in:1:AC_DEFUN([AC_PROG_INSTALL],
+     configure.in:5:AC_PROG_INSTALL
+     $ <kbd>autoconf-2.50</kbd>
+     $
+</pre>
+   </body></html>
+

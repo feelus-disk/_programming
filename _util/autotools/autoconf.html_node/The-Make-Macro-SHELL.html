@@ -1,0 +1,121 @@
+<html lang="en">
+<head>
+<title>The Make Macro SHELL - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Make.html#Portable-Make" title="Portable Make">
+<link rel="prev" href="The-Make-Macro-MAKEFLAGS.html#The-Make-Macro-MAKEFLAGS" title="The Make Macro MAKEFLAGS">
+<link rel="next" href="Parallel-Make.html#Parallel-Make" title="Parallel Make">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="The-Make-Macro-SHELL"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Parallel-Make.html#Parallel-Make">Parallel Make</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="The-Make-Macro-MAKEFLAGS.html#The-Make-Macro-MAKEFLAGS">The Make Macro MAKEFLAGS</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Make.html#Portable-Make">Portable Make</a>
+<hr>
+</div>
+
+<h3 class="section">12.9 The Make Macro <code>SHELL</code></h3>
+
+<p><a name="index-g_t_0040code_007bSHELL_007d-and-_0040command_007bmake_007d-1850"></a><a name="index-g_t_0040command_007bmake_007d-and-_0040code_007bSHELL_007d-1851"></a>
+Posix-compliant <samp><span class="command">make</span></samp> internally uses the <code>$(SHELL)</code>
+macro to spawn shell processes and execute Make rules.  This
+is a builtin macro supplied by <samp><span class="command">make</span></samp>, but it can be modified
+by a makefile or by a command-line argument.
+
+   <p>Not all <samp><span class="command">make</span></samp> implementations define this <code>SHELL</code> macro. 
+Tru64
+<samp><span class="command">make</span></samp> is an example; this implementation always uses
+<code>/bin/sh</code>.  So it's a good idea to always define <code>SHELL</code> in
+your makefiles.  If you use Autoconf, do
+
+<pre class="example">     SHELL = @SHELL@
+</pre>
+   <p class="noindent">If you use Automake, this is done for you.
+
+   <p>Do not force <code>SHELL = /bin/sh</code> because that is not correct
+everywhere.  Remember, <samp><span class="file">/bin/sh</span></samp> is not Posix compliant on many
+systems, such as FreeBSD 4, NetBSD 3, AIX 3, Solaris 10, or Tru64. 
+Additionally, DJGPP lacks <code>/bin/sh</code>, and when its
+GNU <samp><span class="command">make</span></samp> port sees such a setting it enters a
+special emulation mode where features like pipes and redirections are
+emulated on top of DOS's <samp><span class="command">command.com</span></samp>.  Unfortunately this
+emulation is incomplete; for instance it does not handle command
+substitutions.  Using <code>@SHELL@</code> means that your makefile will
+benefit from the same improved shell, such as <samp><span class="command">bash</span></samp> or
+<samp><span class="command">ksh</span></samp>, that was discovered during <samp><span class="command">configure</span></samp>, so that
+you aren't fighting two different sets of shell bugs between the two
+contexts.
+
+   <p>Posix-compliant <samp><span class="command">make</span></samp> should never acquire the value of
+$(SHELL) from the environment, even when <code>make -e</code> is used
+(otherwise, think about what would happen to your rules if
+<code>SHELL=/bin/tcsh</code>).
+
+   <p>However not all <samp><span class="command">make</span></samp> implementations have this exception. 
+For instance it's not surprising that Tru64 <samp><span class="command">make</span></samp> doesn't
+protect <code>SHELL</code>, since it doesn't use it.
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     SHELL = /bin/sh
+     FOO = foo
+     all:
+             @echo $(SHELL)
+             @echo $(FOO)
+     $ <kbd>env SHELL=/bin/tcsh FOO=bar make -e</kbd>   # Tru64 Make
+     /bin/tcsh
+     bar
+     $ <kbd>env SHELL=/bin/tcsh FOO=bar gmake -e</kbd>  # GNU make
+     /bin/sh
+     bar
+</pre>
+   <p>Conversely, <samp><span class="command">make</span></samp> is not supposed to export any changes to the
+macro <code>SHELL</code> to child processes.  Again, many implementations
+break this rule:
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     all:
+             @echo $(SHELL)
+             @printenv SHELL
+     $ <kbd>env SHELL=sh make -e SHELL=/bin/ksh</kbd>   # BSD Make, GNU make 3.80
+     /bin/ksh
+     /bin/ksh
+     $ <kbd>env SHELL=sh gmake -e SHELL=/bin/ksh</kbd>  # GNU make 3.81
+     /bin/ksh
+     sh
+</pre>
+   </body></html>
+

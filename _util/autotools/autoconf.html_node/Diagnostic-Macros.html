@@ -1,0 +1,115 @@
+<html lang="en">
+<head>
+<title>Diagnostic Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Redefined-M4-Macros.html#Redefined-M4-Macros" title="Redefined M4 Macros">
+<link rel="next" href="Diversion-support.html#Diversion-support" title="Diversion support">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Diagnostic-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Diversion-support.html#Diversion-support">Diversion support</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Redefined-M4-Macros.html#Redefined-M4-Macros">Redefined M4 Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.2 Diagnostic messages from M4sugar</h4>
+
+<p><a name="index-Messages_002c-from-_0040command_007bM4sugar_007d-1336"></a>
+When macros statically diagnose abnormal situations, benign or fatal,
+they should report them using these macros.  For issuing dynamic issues,
+i.e., when <samp><span class="command">configure</span></samp> is run, see <a href="Printing-Messages.html#Printing-Messages">Printing Messages</a>.
+
+<div class="defun">
+&mdash; Macro: <b>m4_assert</b> (<var>expression, </var><span class="roman">[</span><var>exit-status = &lsquo;</var><samp><span class="samp">1</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-m4_005fassert-1337"></a></var><br>
+<blockquote><p><a name="index-m4_005fassert-1338"></a>
+Assert that the arithmetic <var>expression</var> evaluates to non-zero. 
+Otherwise, issue a fatal error, and exit <samp><span class="command">autom4te</span></samp> with
+<var>exit-status</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_errprintn</b> (<var>message</var>)<var><a name="index-m4_005ferrprintn-1339"></a></var><br>
+<blockquote><p><a name="index-m4_005ferrprintn-1340"></a>
+Similar to the builtin <code>m4_errprint</code>, except that a newline is
+guaranteed after <var>message</var>. 
+</p></blockquote></div>
+
+   <p><a name="m4_005ffatal"></a>
+
+<div class="defun">
+&mdash; Macro: <b>m4_fatal</b> (<var>message</var>)<var><a name="index-m4_005ffatal-1341"></a></var><br>
+<blockquote><p><a name="index-m4_005ffatal-1342"></a>
+Report a severe error <var>message</var> prefixed with the current location,
+and have <samp><span class="command">autom4te</span></samp> die. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_location</b><var><a name="index-m4_005flocation-1343"></a></var><br>
+<blockquote><p><a name="index-m4_005flocation-1344"></a>
+Useful as a prefix in a message line.  Short for:
+     <pre class="example">          __file__:__line__
+</pre>
+        </blockquote></div>
+
+   <p><a name="m4_005fwarn"></a>
+
+<div class="defun">
+&mdash; Macro: <b>m4_warn</b> (<var>category, message</var>)<var><a name="index-m4_005fwarn-1345"></a></var><br>
+<blockquote><p><a name="index-m4_005fwarn-1346"></a>
+Report <var>message</var> as a warning (or as an error if requested by the
+user) if warnings of the <var>category</var> are turned on.  If the message
+is emitted, it is prefixed with the current location, and followed by a
+call trace of all macros defined via <code>AC_DEFUN</code> used to get to the
+current expansion.  You are encouraged to use standard categories, which
+currently include:
+
+          <dl>
+<dt>&lsquo;<samp><span class="samp">all</span></samp>&rsquo;<dd>messages that don't fall into one of the following categories.  Use of an
+empty <var>category</var> is equivalent.
+
+          <br><dt>&lsquo;<samp><span class="samp">cross</span></samp>&rsquo;<dd>related to cross compilation issues.
+
+          <br><dt>&lsquo;<samp><span class="samp">obsolete</span></samp>&rsquo;<dd>use of an obsolete construct.
+
+          <br><dt>&lsquo;<samp><span class="samp">syntax</span></samp>&rsquo;<dd>dubious syntactic constructs, incorrectly ordered macro calls. 
+</dl>
+        </p></blockquote></div>
+
+   </body></html>
+

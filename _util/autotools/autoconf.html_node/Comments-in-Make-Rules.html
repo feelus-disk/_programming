@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+<title>Comments in Make Rules - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Make.html#Portable-Make" title="Portable Make">
+<link rel="prev" href="Parallel-Make.html#Parallel-Make" title="Parallel Make">
+<link rel="next" href="Newlines-in-Make-Rules.html#Newlines-in-Make-Rules" title="Newlines in Make Rules">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Comments-in-Make-Rules"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Newlines-in-Make-Rules.html#Newlines-in-Make-Rules">Newlines in Make Rules</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Parallel-Make.html#Parallel-Make">Parallel Make</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Make.html#Portable-Make">Portable Make</a>
+<hr>
+</div>
+
+<h3 class="section">12.11 Comments in Make Rules</h3>
+
+<p><a name="index-Comments-in-_0040file_007bMakefile_007d-rules-1853"></a><a name="index-g_t_0040file_007bMakefile_007d-rules-and-comments-1854"></a>
+Never put comments in a rule.
+
+   <p>Some <samp><span class="command">make</span></samp> treat anything starting with a tab as a command for
+the current rule, even if the tab is immediately followed by a <code>#</code>. 
+The <samp><span class="command">make</span></samp> from Tru64 Unix V5.1 is one of them.  The following
+makefile runs <code># foo</code> through the shell.
+
+<pre class="example">     all:
+             # foo
+</pre>
+   <p>As a workaround, you can use the <samp><span class="command">:</span></samp> no-op command with a string
+argument that gets ignored:
+
+<pre class="example">     all:
+             : "foo"
+</pre>
+   <p>Conversely, if you want to use the &lsquo;<samp><span class="samp">#</span></samp>&rsquo; character in some command,
+you can only do so by expanding it inside a rule (see <a href="Comments-in-Make-Macros.html#Comments-in-Make-Macros">Comments in Make Macros</a>).  So for example, if &lsquo;<samp><span class="samp">COMMENT_CHAR</span></samp>&rsquo; is substituted by
+<samp><span class="command">config.status</span></samp> as &lsquo;<samp><span class="samp">#</span></samp>&rsquo;, then the following substitutes
+&lsquo;<samp><span class="samp">@COMMENT_CHAR@</span></samp>&rsquo; in a generated header:
+
+<pre class="example">     foo.h: foo.h.in
+             sed -e 's|@''COMMENT_CHAR''@|@COMMENT_CHAR@|g' \
+                 $(srcdir)/foo.h.in &gt; $@
+</pre>
+   <p>The funny shell quoting avoids a substitution at <samp><span class="command">config.status</span></samp>
+run time of the left-hand side of the <samp><span class="command">sed</span></samp> &lsquo;<samp><span class="samp">s</span></samp>&rsquo; command.
+
+   </body></html>
+

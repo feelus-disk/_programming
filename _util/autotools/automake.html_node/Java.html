@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Java</title>
+
+<meta name="description" content="automake: Java">
+<meta name="keywords" content="automake: Java">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Other-GNU-Tools.html#Other-GNU-Tools" rel="up" title="Other GNU Tools">
+<link href="Python.html#Python" rel="next" title="Python">
+<link href="Libtool.html#Libtool" rel="prev" title="Libtool">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Java"></a>
+<div class="header">
+<p>
+Next: <a href="Python.html#Python" accesskey="n" rel="next">Python</a>, Previous: <a href="Libtool.html#Libtool" accesskey="p" rel="prev">Libtool</a>, Up: <a href="Other-GNU-Tools.html#Other-GNU-Tools" accesskey="u" rel="up">Other GNU Tools</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Java-bytecode-compilation-_0028deprecated_0029"></a>
+<h3 class="section">10.4 Java bytecode compilation (deprecated)</h3>
+
+<a name="index-_005fJAVA-primary_002c-defined"></a>
+<a name="index-JAVA-primary_002c-defined"></a>
+<a name="index-Primary-variable_002c-JAVA"></a>
+<a name="index-Java-to-bytecode_002c-compilation"></a>
+<a name="index-Compilation-of-Java-to-bytecode"></a>
+
+<p>Automake provides some minimal support for Java bytecode compilation with
+the <code>JAVA</code> primary (in addition to the support for compiling Java to
+native machine code; see <a href="Java-Support-with-gcj.html#Java-Support-with-gcj">Java Support with gcj</a>).  Note however that
+<em>the interface and most features described here are deprecated</em>.
+Future Automake releases will strive to provide a better and cleaner
+interface, which however <em>won&rsquo;t be backward-compatible</em>; the present
+interface will probably be removed altogether some time after the
+introduction of the new interface (if that ever materializes).  In any
+case, the current <code>JAVA</code> primary features are frozen and will no
+longer be developed, not even to take bug fixes.
+</p>
+<p>Any <samp>.java</samp> files listed in a <code>_JAVA</code> variable will be
+compiled with <code>JAVAC</code> at build time.  By default, <samp>.java</samp>
+files are not included in the distribution, you should use the
+<code>dist_</code> prefix to distribute them.
+</p>
+<p>Here is a typical setup for distributing <samp>.java</samp> files and
+installing the <samp>.class</samp> files resulting from their compilation.
+</p>
+<div class="example">
+<pre class="example">javadir = $(datadir)/java
+dist_java_JAVA = a.java b.java &hellip;
+</pre></div>
+
+<a name="index-JAVA-restrictions"></a>
+<a name="index-Restrictions-for-JAVA"></a>
+
+<p>Currently Automake enforces the restriction that only one <code>_JAVA</code>
+primary can be used in a given <samp>Makefile.am</samp>.  The reason for this
+restriction is that, in general, it isn&rsquo;t possible to know which
+<samp>.class</samp> files were generated from which <samp>.java</samp> files, so
+it would be impossible to know which files to install where.  For
+instance, a <samp>.java</samp> file can define multiple classes; the resulting
+<samp>.class</samp> file names cannot be predicted without parsing the
+<samp>.java</samp> file.
+</p>
+<p>There are a few variables that are used when compiling Java sources:
+</p>
+<dl compact="compact">
+<dt><code>JAVAC</code>
+<a name="index-JAVAC"></a>
+</dt>
+<dd><p>The name of the Java compiler.  This defaults to &lsquo;<samp>javac</samp>&rsquo;.
+</p>
+</dd>
+<dt><code>JAVACFLAGS</code>
+<a name="index-JAVACFLAGS"></a>
+</dt>
+<dd><p>The flags to pass to the compiler.  This is considered to be a user
+variable (see <a href="User-Variables.html#User-Variables">User Variables</a>).
+</p>
+</dd>
+<dt><code>AM_JAVACFLAGS</code>
+<a name="index-AM_005fJAVACFLAGS"></a>
+</dt>
+<dd><p>More flags to pass to the Java compiler.  This, and not
+<code>JAVACFLAGS</code>, should be used when it is necessary to put Java
+compiler flags into <samp>Makefile.am</samp>.
+</p>
+</dd>
+<dt><code>JAVAROOT</code>
+<a name="index-JAVAROOT"></a>
+</dt>
+<dd><p>The value of this variable is passed to the <samp>-d</samp> option to
+<code>javac</code>.  It defaults to &lsquo;<samp>$(top_builddir)</samp>&rsquo;.
+</p>
+</dd>
+<dt><code>CLASSPATH_ENV</code>
+<a name="index-CLASSPATH_005fENV"></a>
+</dt>
+<dd><p>This variable is a shell expression that is used to set the
+<code>CLASSPATH</code> environment variable on the <code>javac</code> command line.
+(In the future we will probably handle class path setting differently.)
+</p></dd>
+</dl>
+
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Python.html#Python" accesskey="n" rel="next">Python</a>, Previous: <a href="Libtool.html#Libtool" accesskey="p" rel="prev">Libtool</a>, Up: <a href="Other-GNU-Tools.html#Other-GNU-Tools" accesskey="u" rel="up">Other GNU Tools</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

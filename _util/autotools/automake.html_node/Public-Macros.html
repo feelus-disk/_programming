@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Public Macros</title>
+
+<meta name="description" content="automake: Public Macros">
+<meta name="keywords" content="automake: Public Macros">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Macros.html#Macros" rel="up" title="Macros">
+<link href="Obsolete-Macros.html#Obsolete-Macros" rel="next" title="Obsolete Macros">
+<link href="Macros.html#Macros" rel="prev" title="Macros">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Public-Macros"></a>
+<div class="header">
+<p>
+Next: <a href="Obsolete-Macros.html#Obsolete-Macros" accesskey="n" rel="next">Obsolete Macros</a>, Up: <a href="Macros.html#Macros" accesskey="u" rel="up">Macros</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Public-Macros-1"></a>
+<h4 class="subsection">6.4.1 Public Macros</h4>
+
+<dl compact="compact">
+<dt><code>AM_INIT_AUTOMAKE([OPTIONS])</code></dt>
+<dd><a name="index-AM_005fINIT_005fAUTOMAKE-1"></a>
+<p>Runs many macros required for proper operation of the generated Makefiles.
+</p>
+<a name="index-AUTOMAKE_005fOPTIONS"></a>
+<p>Today, <code>AM_INIT_AUTOMAKE</code> is called with a single argument: a
+space-separated list of Automake options that should be applied to
+every <samp>Makefile.am</samp> in the tree.  The effect is as if
+each option were listed in <code>AUTOMAKE_OPTIONS</code> (see <a href="Options.html#Options">Options</a>).
+</p>
+<a name="index-AC_005fINIT"></a>
+<p>This macro can also be called in another, <em>deprecated</em> form:
+<code>AM_INIT_AUTOMAKE(PACKAGE, VERSION, [NO-DEFINE])</code>.  In this form,
+there are two required arguments: the package and the version number.
+This usage is mostly obsolete because the <var>package</var> and <var>version</var>
+can be obtained from Autoconf&rsquo;s <code>AC_INIT</code> macro.  However,
+differently from what happens for <code>AC_INIT</code> invocations, this
+<code>AM_INIT_AUTOMAKE</code> invocation supports shell variables&rsquo; expansions
+in the <code>PACKAGE</code> and <code>VERSION</code> arguments (which otherwise
+defaults, respectively, to the <code>PACKAGE_TARNAME</code> and
+<code>PACKAGE_VERSION</code> defined via the <code>AC_INIT</code> invocation;
+see <a href="http://www.gnu.org/software/autoconf/manual/html_node/AC_005fINIT.html#AC_005fINIT">The <code>AC_INIT</code> macro</a> in <cite>The Autoconf Manual</cite>);
+and this can be still be useful in some selected situations.
+Our hope is that future Autoconf versions will improve their support
+for package versions defined dynamically at configure runtime; when
+(and if) this happens, support for the two-args <code>AM_INIT_AUTOMAKE</code>
+invocation will likely be removed from Automake.
+</p>
+<a name="Modernize-AM_005fINIT_005fAUTOMAKE-invocation"></a><p>If your <samp>configure.ac</samp> has:
+</p>
+<div class="example">
+<pre class="example">AC_INIT([src/foo.c])
+AM_INIT_AUTOMAKE([mumble], [1.5])
+</pre></div>
+
+<p>you should modernize it as follows:
+</p>
+<div class="example">
+<pre class="example">AC_INIT([mumble], [1.5])
+AC_CONFIG_SRCDIR([src/foo.c])
+AM_INIT_AUTOMAKE
+</pre></div>
+
+<p>Note that if you&rsquo;re upgrading your <samp>configure.ac</samp> from an earlier
+version of Automake, it is not always correct to simply move the
+package and version arguments from <code>AM_INIT_AUTOMAKE</code> directly to
+<code>AC_INIT</code>, as in the example above.  The first argument to
+<code>AC_INIT</code> should be the name of your package (e.g., &lsquo;<samp>GNU
+Automake</samp>&rsquo;), not the tarball name (e.g., &lsquo;<samp>automake</samp>&rsquo;) that you used
+to pass to <code>AM_INIT_AUTOMAKE</code>.  Autoconf tries to derive a
+tarball name from the package name, which should work for most but not
+all package names.  (If it doesn&rsquo;t work for yours, you can use the
+four-argument form of <code>AC_INIT</code> to provide the tarball name
+explicitly).
+</p>
+<a name="index-PACKAGE_002c-prevent-definition"></a>
+<a name="index-VERSION_002c-prevent-definition"></a>
+<a name="index-no_002ddefine"></a>
+<p>By default this macro <code>AC_DEFINE</code>&rsquo;s <code>PACKAGE</code> and
+<code>VERSION</code>.  This can be avoided by passing the <samp>no-define</samp>
+option (see <a href="List-of-Automake-options.html#List-of-Automake-options">List of Automake options</a>):
+</p><div class="example">
+<pre class="example">AM_INIT_AUTOMAKE([no-define ...])
+</pre></div>
+
+</dd>
+<dt><code>AM_PATH_LISPDIR</code></dt>
+<dd><a name="index-AM_005fPATH_005fLISPDIR"></a>
+<a name="index-EMACS"></a>
+<a name="index-lispdir"></a>
+<p>Searches for the program <code>emacs</code>, and, if found, sets the
+output variable <code>lispdir</code> to the full path to Emacs&rsquo; site-lisp
+directory.
+</p>
+<p>Note that this test assumes the <code>emacs</code> found to be a version
+that supports Emacs Lisp (such as GNU Emacs or XEmacs).  Other
+emacsen can cause this test to hang (some, like old versions of
+MicroEmacs, start up in interactive mode, requiring <kbd>C-x C-c</kbd> to
+exit, which is hardly obvious for a non-emacs user).  In most cases,
+however, you should be able to use <kbd>C-c</kbd> to kill the test.  In
+order to avoid problems, you can set <code>EMACS</code> to &ldquo;no&rdquo; in the
+environment, or use the <samp>--with-lispdir</samp> option to
+<code>configure</code> to explicitly set the correct path (if you&rsquo;re sure
+you have an <code>emacs</code> that supports Emacs Lisp).
+</p>
+</dd>
+<dt><code>AM_PROG_AR(<span class="roman">[</span><var>act-if-fail</var><span class="roman">]</span>)</code></dt>
+<dd><a name="index-AM_005fPROG_005fAR"></a>
+<a name="index-AR"></a>
+<p>You must use this macro when you use the archiver in your project, if
+you want support for unusual archivers such as Microsoft <code>lib</code>.
+The content of the optional argument is executed if the archiver
+interface is not recognized; the default action is to abort configure
+with an error message.
+</p>
+</dd>
+<dt><code>AM_PROG_AS</code></dt>
+<dd><a name="index-AM_005fPROG_005fAS"></a>
+<a name="index-CCAS"></a>
+<a name="index-CCASFLAGS"></a>
+<p>Use this macro when you have assembly code in your project.  This will
+choose the assembler for you (by default the C compiler) and set
+<code>CCAS</code>, and will also set <code>CCASFLAGS</code> if required.
+</p>
+</dd>
+<dt><code>AM_PROG_CC_C_O</code></dt>
+<dd><a name="index-AM_005fPROG_005fCC_005fC_005fO"></a>
+<p>This is an obsolescent macro that checks that the C compiler supports
+the <samp>-c</samp> and <samp>-o</samp> options together.  Note that, since
+Automake 1.14, the <code>AC_PROG_CC</code> is rewritten to implement such
+checks itself, and thus the explicit use of <code>AM_PROG_CC_C_O</code>
+should no longer be required.
+</p>
+</dd>
+<dt><code>AM_PROG_LEX</code></dt>
+<dd><a name="index-AM_005fPROG_005fLEX"></a>
+<a name="index-AC_005fPROG_005fLEX"></a>
+<a name="index-HP_002dUX-10_002c-lex-problems"></a>
+<a name="index-lex-problems-with-HP_002dUX-10"></a>
+<p>Like <code>AC_PROG_LEX</code> (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Particular-Programs.html#Particular-Programs">Particular
+Program Checks</a> in <cite>The Autoconf Manual</cite>), but uses the
+<code>missing</code> script on systems that do not have <code>lex</code>.
+HP-UX 10 is one such system.
+</p>
+</dd>
+<dt><code>AM_PROG_GCJ</code></dt>
+<dd><a name="index-AM_005fPROG_005fGCJ"></a>
+<a name="index-GCJ"></a>
+<a name="index-GCJFLAGS"></a>
+<p>This macro finds the <code>gcj</code> program or causes an error.  It sets
+<code>GCJ</code> and <code>GCJFLAGS</code>.  <code>gcj</code> is the Java front-end to the
+GNU Compiler Collection.
+</p>
+</dd>
+<dt><code>AM_PROG_UPC([<var>compiler-search-list</var>])</code></dt>
+<dd><a name="index-AM_005fPROG_005fUPC"></a>
+<a name="index-UPC"></a>
+<p>Find a compiler for Unified Parallel C and define the <code>UPC</code>
+variable.  The default <var>compiler-search-list</var> is &lsquo;<samp>upcc upc</samp>&rsquo;.
+This macro will abort <code>configure</code> if no Unified Parallel C
+compiler is found.
+</p>
+</dd>
+<dt><code>AM_MISSING_PROG(<var>name</var>, <var>program</var>)</code></dt>
+<dd><a name="index-AM_005fMISSING_005fPROG"></a>
+<a name="index-MISSING"></a>
+<p>Find a maintainer tool <var>program</var> and define the <var>name</var>
+environment variable with its location.  If <var>program</var> is not
+detected, then <var>name</var> will instead invoke the <code>missing</code>
+script, in order to give useful advice to the user about the missing
+maintainer tool.  See <a href="maintainer_002dmode.html#maintainer_002dmode">maintainer-mode</a>, for more information on when
+the <code>missing</code> script is appropriate.
+</p>
+</dd>
+<dt><code>AM_SILENT_RULES</code></dt>
+<dd><a name="index-AM_005fSILENT_005fRULES"></a>
+<p>Control the machinery for less verbose build output
+(see <a href="Automake-Silent-Rules.html#Automake-Silent-Rules">Automake Silent Rules</a>).
+</p>
+</dd>
+<dt><code>AM_WITH_DMALLOC</code></dt>
+<dd><a name="index-AM_005fWITH_005fDMALLOC"></a>
+<a name="index-dmalloc_002c-support-for"></a>
+<a name="index-WITH_005fDMALLOC"></a>
+<a name="index-_002d_002dwith_002ddmalloc"></a>
+<p>Add support for the <a href="http://dmalloc.com/">Dmalloc package</a>.  If
+the user runs <code>configure</code> with <samp>--with-dmalloc</samp>, then
+define <code>WITH_DMALLOC</code> and add <samp>-ldmalloc</samp> to <code>LIBS</code>.
+</p>
+</dd>
+</dl>
+
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Obsolete-Macros.html#Obsolete-Macros" accesskey="n" rel="next">Obsolete Macros</a>, Up: <a href="Macros.html#Macros" accesskey="u" rel="up">Macros</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<html lang="en">
+<head>
+<title>Why Not Imake - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="FAQ.html#FAQ" title="FAQ">
+<link rel="prev" href="Bootstrapping.html#Bootstrapping" title="Bootstrapping">
+<link rel="next" href="Defining-Directories.html#Defining-Directories" title="Defining Directories">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Why-Not-Imake"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Defining-Directories.html#Defining-Directories">Defining Directories</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Bootstrapping.html#Bootstrapping">Bootstrapping</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="FAQ.html#FAQ">FAQ</a>
+<hr>
+</div>
+
+<h3 class="section">20.4 Why Not Imake?</h3>
+
+<p><a name="index-Imake-2316"></a>
+<pre class="display">     Why not use Imake instead of <samp><span class="command">configure</span></samp> scripts?
+</pre>
+   <p>Several people have written addressing this question, so
+adaptations of their explanations are included here.
+
+   <p>The following answer is based on one written by Richard Pixley:
+
+   <blockquote>
+Autoconf generated scripts frequently work on machines that it has
+never been set up to handle before.  That is, it does a good job of
+inferring a configuration for a new system.  Imake cannot do this.
+
+   <p>Imake uses a common database of host specific data.  For X11, this makes
+sense because the distribution is made as a collection of tools, by one
+central authority who has control over the database.
+
+   <p>GNU tools are not released this way.  Each GNU tool has a
+maintainer; these maintainers are scattered across the world.  Using a
+common database would be a maintenance nightmare.  Autoconf may appear
+to be this kind of database, but in fact it is not.  Instead of listing
+host dependencies, it lists program requirements.
+
+   <p>If you view the GNU suite as a collection of native tools, then the
+problems are similar.  But the GNU development tools can be
+configured as cross tools in almost any host+target permutation.  All of
+these configurations can be installed concurrently.  They can even be
+configured to share host independent files across hosts.  Imake doesn't
+address these issues.
+
+   <p>Imake templates are a form of standardization.  The GNU coding
+standards address the same issues without necessarily imposing the same
+restrictions. 
+</blockquote>
+
+   <p>Here is some further explanation, written by Per Bothner:
+
+   <blockquote>
+One of the advantages of Imake is that it is easy to generate large
+makefiles using the &lsquo;<samp><span class="samp">#include</span></samp>&rsquo; and macro mechanisms of <samp><span class="command">cpp</span></samp>. 
+However, <code>cpp</code> is not programmable: it has limited conditional
+facilities, and no looping.  And <code>cpp</code> cannot inspect its
+environment.
+
+   <p>All of these problems are solved by using <code>sh</code> instead of
+<code>cpp</code>.  The shell is fully programmable, has macro substitution,
+can execute (or source) other shell scripts, and can inspect its
+environment. 
+</blockquote>
+
+   <p>Paul Eggert elaborates more:
+
+   <blockquote>
+With Autoconf, installers need not assume that Imake itself is already
+installed and working well.  This may not seem like much of an advantage
+to people who are accustomed to Imake.  But on many hosts Imake is not
+installed or the default installation is not working well, and requiring
+Imake to install a package hinders the acceptance of that package on
+those hosts.  For example, the Imake template and configuration files
+might not be installed properly on a host, or the Imake build procedure
+might wrongly assume that all source files are in one big directory
+tree, or the Imake configuration might assume one compiler whereas the
+package or the installer needs to use another, or there might be a
+version mismatch between the Imake expected by the package and the Imake
+supported by the host.  These problems are much rarer with Autoconf,
+where each package comes with its own independent configuration
+processor.
+
+   <p>Also, Imake often suffers from unexpected interactions between
+<samp><span class="command">make</span></samp> and the installer's C preprocessor.  The fundamental problem
+here is that the C preprocessor was designed to preprocess C programs,
+not makefiles.  This is much less of a problem with Autoconf,
+which uses the general-purpose preprocessor M4, and where the
+package's author (rather than the installer) does the preprocessing in a
+standard way. 
+</blockquote>
+
+   <p>Finally, Mark Eichin notes:
+
+   <blockquote>
+Imake isn't all that extensible, either.  In order to add new features to
+Imake, you need to provide your own project template, and duplicate most
+of the features of the existing one.  This means that for a sophisticated
+project, using the vendor-provided Imake templates fails to provide any
+leverage&mdash;since they don't cover anything that your own project needs
+(unless it is an X11 program).
+
+   <p>On the other side, though:
+
+   <p>The one advantage that Imake has over <samp><span class="command">configure</span></samp>:
+<samp><span class="file">Imakefile</span></samp> files tend to be much shorter (likewise, less redundant)
+than <samp><span class="file">Makefile.in</span></samp> files.  There is a fix to this, however&mdash;at least
+for the Kerberos V5 tree, we've modified things to call in common
+<samp><span class="file">post.in</span></samp> and <samp><span class="file">pre.in</span></samp> makefile fragments for the
+entire tree.  This means that a lot of common things don't have to be
+duplicated, even though they normally are in <samp><span class="command">configure</span></samp> setups. 
+</blockquote>
+
+   </body></html>
+

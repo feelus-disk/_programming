@@ -1,0 +1,580 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on February, 19  2004 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>Autoconf: Создание скриптов configure</TITLE>
+
+<META NAME="description" CONTENT="Autoconf: Создание скриптов configure">
+<META NAME="keywords" CONTENT="Autoconf: Создание скриптов configure">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC2"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_1.html#SEC1"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC3"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_1.html#SEC1"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 2. Создание скриптов <CODE>configure</CODE> </H1>
+<!--docid::SEC2::-->
+<P>
+
+Скрипты конфигурации, создаваемые Autoconf, по принятым соглашениям
+называются <CODE>configure</CODE>.  При запуске <CODE>configure</CODE> создает
+несколько файлов, заменяя в них параметры конфигурации на
+соответствующие системе значения.  <CODE>configure</CODE> создает следующие
+файлы:
+</P><P>
+
+<UL>
+<LI>
+один или несколько файлов <TT>`Makefile'</TT>, по одному на каждый
+подкаталог пакета (see section <A HREF="autoconf-ru_3.html#SEC11">3.3 Подстановки в файлах Makefile</A>);
+<P>
+
+<LI>
+если задано, создается заголовочный файл для языка C, имя которого можно
+задать при создании скрипта, и который содержит директивы <CODE>#define</CODE>
+(see section <A HREF="autoconf-ru_3.html#SEC15">3.4 Заголовочные файлы конфигурации</A>);
+<P>
+
+<LI>
+скрипт командного процессора с именем <TT>`config.status'</TT>, который при
+запуске заново создаст вышеперечисленные файлы (see section <A HREF="autoconf-ru_11.html#SEC90">11. Воссоздание конфигурации</A>);
+<P>
+
+<LI>
+скрипт командного процессора с именем <TT>`config.cache'</TT>, который
+сохраняет результаты выполнения многих тестов (see section <A HREF="autoconf-ru_6.html#SEC57">6.3.2 Кэш-файлы</A>);
+<P>
+
+<LI>
+файл с именем <TT>`config.log'</TT>, который содержит все сообщения,
+выданные компиляторами. Этот файл может использоваться при отладке, если
+<CODE>configure</CODE> работает неправильно.
+</UL>
+<P>
+
+Для того, чтобы с помощью Autoconf создать скрипт <CODE>configure</CODE>, вам
+необходимо написать входной файл с именем <TT>`configure.in'</TT> и
+выполнить команду <CODE>autoconf</CODE>. Если вы напишите собственный код
+тестирования возможностей системы в дополнение к поставляемым с
+Autoconf, то вам придется записать его в файлы с именами
+</P><P>
+
+<TT>`aclocal.m4'</TT> и <TT>`acsite.m4'</TT>.  Если вы используете заголовочный
+файл, который содержит директивы <CODE>#define</CODE>, то вы также должны
+создать файл <TT>`acconfig.h'</TT>, тогда вы сможете распространять с пакетом
+созданный с помощью Autoconf файл <TT>`config.h.in'</TT>.
+</P><P>
+
+Вот диаграмма, показывающая, как создаются файлы, используемые при
+конфигурации.  Выполняемые программы обозначены суффиксом <SAMP>`*'</SAMP>.
+Необязательные файлы взяты в квадратные скобки (<SAMP>`[]'</SAMP>). Программы
+<CODE>autoconf</CODE> и <CODE>autoheader</CODE> также читают установленные файлы с
+макросами Autoconf (обрабатывая файл <TT>`autoconf.m4'</TT>).
+</P><P>
+
+Файлы, используемые при подготовке программного пакета к распространению:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>Файлы исходных текстов --&#62; [autoscan*] --&#62; [configure.scan] --&#62; configure.in
+
+configure.in --.   .------&#62; autoconf* -----&#62; configure
+               +---+
+[aclocal.m4] --+   `---.
+[acsite.m4] ---'       |
+                       +--&#62; [autoheader*] -&#62; [config.h.in]
+[acconfig.h] ----.     |
+                 +-----'
+[config.h.top] --+
+[config.h.bot] --'
+
+Makefile.in -------------------------------&#62; Makefile.in
+</pre></td></tr></table></P><P>
+
+Файлы, используемые при конфигурации программного пакета:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>                       .-------------&#62; config.cache
+configure* ------------+-------------&#62; config.log
+                       |
+[config.h.in] -.       v            .-&#62; [config.h] -.
+               +--&#62; config.status* -+               +--&#62; make*
+Makefile.in ---'                    `-&#62; Makefile ---'
+</pre></td></tr></table></P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_2.html#SEC3">2.1 Написание <TT>`configure.in'</TT></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Что нужно написать во входном файле Autoconf.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_2.html#SEC4">2.2 Использование программы <CODE>autoscan</CODE> для создания <TT>`configure.in'</TT></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Полуавтоматическое написание <TT>`configure.in'</TT>.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_2.html#SEC5">2.3 Использование программы <CODE>ifnames</CODE> для перечисления условных</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Список условных выражений в исходных текстах.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_2.html#SEC6">2.4 Использование программы <CODE>autoconf</CODE> для создания скрипта <CODE>configure</CODE></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Как создать скрипты конфигурации.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_2.html#SEC7">2.5 Использование <CODE>autoreconf</CODE> для обновления ваших скриптов <CODE>configure</CODE></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Пересоздание нескольких скриптов <CODE>configure</CODE>.</TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Написание configure.in"></A>
+<HR SIZE="6">
+<A NAME="SEC3"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC4"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 2.1 Написание <TT>`configure.in'</TT> </H2>
+<!--docid::SEC3::-->
+<P>
+
+Для создания скрипта <CODE>configure</CODE> для программного пакета, создайте
+файл с именем <TT>`configure.in'</TT>, который содержит вызовы макросов
+Autoconf, проверяющие системные возможности, необходимые вашему
+пакету или используемые ими.  Для многих таких возможностей
+макросы Autoconf уже написаны; See section <A HREF="autoconf-ru_4.html#SEC21">4. Существующие тесты</A>, где находится
+их описание.  Для большинства других возможностей вы можете использовать
+шаблонные макросы Autoconf, на базе которых можно создать специальные
+проверки; See section <A HREF="autoconf-ru_5.html#SEC40">5. Написание тестов</A>, где это описано.  Для особо
+хитроумных или специализированных возможностей в файл
+<TT>`configure.in'</TT> может понадобиться включить специально написанные
+скрипты командного процессора.  Программа <CODE>autoscan</CODE> может оказать
+вам хорошую помощь на первых порах при создании файла
+<TT>`configure.in'</TT> (see section <A HREF="autoconf-ru_2.html#SEC4">2.2 Использование программы <CODE>autoscan</CODE> для создания <TT>`configure.in'</TT></A>, где описана эта
+программа).
+</P><P>
+
+За некоторыми исключениями, порядок вызовов макросов Autoconf в
+<TT>`configure.in'</TT> не важен.  Каждый файл <TT>`configure.in'</TT> должен в
+самом начале содержать вызов макроса <CODE>AC_INIT</CODE>, а также вызов
+макроса <CODE>AC_OUTPUT</CODE> в самом конце (see section <A HREF="autoconf-ru_3.html#SEC10">3.2 Создание выходных файлов</A>). Также некоторые
+макросы полагаются на то, что другие макросы были вызваны первыми,
+поскольку для того, чтобы принять решение, они проверяют уже
+установленные значения переменных.  Такие макросы отдельно отмечены в
+описании (see section <A HREF="autoconf-ru_4.html#SEC21">4. Существующие тесты</A>), а при создании скрипта
+<CODE>configure</CODE> выдается предупреждение, если вы нарушили порядок
+вызова макросов.
+</P><P>
+
+Для того, чтобы ваши файлы были последовательны и единообразны, мы
+приведем желательный порядок вызова макросов Autoconf. В принципе,
+то,что находится ближе к концу списка, может зависеть от того, что
+находится в начале списка.  Например, библиотечные функции могут
+зависеть от определений типов и библиотек.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=display><pre style="font-family: serif"><CODE>AC_INIT(<VAR>file</VAR>)</CODE>
+Проверка программ
+Проверка библиотек
+Проверка заголовочных файлов
+Проверка определений типов
+Проверка структур
+Проверка характеристик компилятора
+Проверка библиотечных функций
+Проверка системных сервисов
+<CODE>AC_OUTPUT([<VAR>file<small>...</small></VAR>])</CODE>
+</pre></td></tr></table></P><P>
+
+Лучше всего помещать каждый вызов макроса на отдельную строку файла
+<TT>`configure.in'</TT>. Большинство макросов не добавляют дополнительных
+переводов строк: они полагают, что после каждого вызова макроса
+находится новая строка.  Это позволяет сделать скрипт <CODE>configure</CODE>
+читабельнее, не добавляя ненужных пустых строк.  Можно спокойно
+устанавливать переменные окружения в той же строке, что и вызов макроса,
+потому что командные процессоры позволяют выполнять присваивание в одной
+строке, без дополнительных пустых строк.
+</P><P>
+
+При вызове макросов с аргументами между открывающей скобкой и
+названием макроса не должно быть пробелов.  Аргументы могут
+занимать несколько строк, если они заключены в "кавычки" языка
+<CODE>m4</CODE>---  <SAMP>`['</SAMP> и <SAMP>`]'</SAMP>. Если у вас
+есть длинная строка, например, список имен файлов, то можно использовать 
+символ обратного слэша в конце строки для указания продолжения списка
+на следующей строке (эта возможность реализуется командным
+процессором без привлечения возможностей Autoconf).
+</P><P>
+
+Некоторые макросы отрабатывают два случая:---выполнение заданного
+условия и невыполнение заданного условия. В некоторых местах вы можете
+захотеть сделать что-либо, если условие выполняется, и ничего не делать
+в противном случае, и наоборот. Для того, чтобы пропустить действие при
+выполнении условия, передайте пустое значение аргументу
+<VAR>action-if-found</VAR> данного макроса. Для пропуска действия при
+невыполнении условия уберите аргумент <VAR>action-if-not-found</VAR> данного
+макроса, включая предшествующую ему запятую.
+</P><P>
+
+В файл <TT>`configure.in'</TT> можно включать комментарии, начиная их со
+встроенного макроса <CODE>m4</CODE>--- <CODE>dnl</CODE>, который отбрасывает текст
+вплоть до начала новой строки. Эти комментарии не появятся в созданных
+скриптах <CODE>configure</CODE>. Например, полезно начинать файлы 
+<TT>`configure.in'</TT> со строки, которая может выглядеть так:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>dnl для создания скрипта configure обработайте этот файл программой autoconf.
+</pre></td></tr></table></P><P>
+
+<A NAME="Запуск autoscan"></A>
+<HR SIZE="6">
+<A NAME="SEC4"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC3"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC5"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 2.2 Использование программы <CODE>autoscan</CODE> для создания <TT>`configure.in'</TT> </H2>
+<!--docid::SEC4::-->
+<A NAME="Invoking autoscan"></A>
+<P>
+
+Программа <CODE>autoscan</CODE> может помочь вам в создании файла
+<TT>`configure.in'</TT> для программного пакета.
+<CODE>autoscan</CODE> выполняет анализ дерева исходных текстов, корень
+которого указан в командной строке или совпадает с текущим каталогом.
+Программа ищет в
+исходных текстах следы обычных проблем с переносимостью и создает
+файл <TT>`configure.scan'</TT>, который является заготовкой 
+<TT>`configure.in'</TT> для данного пакета.
+</P><P>
+
+Вы должны сами просмотреть файл <TT>`configure.scan'</TT> перед тем, как
+переименовать его в <TT>`configure.in'</TT>: скорее всего он будет нуждаться
+в некоторых исправлениях. Иногда <CODE>autoscan</CODE> выдает макросы в
+неправильном порядке, и поэтому
+<CODE>autoconf</CODE> будет выдавать предупреждения; вам необходимо вручную
+передвинуть эти макросы. Если же вы хотите, чтобы пакет использовал
+заголовочный файл настроек, то вы должны сами добавить вызов макроса
+<CODE>AC_CONFIG_HEADER</CODE> (see section <A HREF="autoconf-ru_3.html#SEC15">3.4 Заголовочные файлы конфигурации</A>).  Вам
+также необходимо добавить или изменить некоторые директивы препроцессора
+<CODE>#if</CODE> в вашей программе для того, чтобы заставить ее работать с
+Autoconf (see section <A HREF="autoconf-ru_2.html#SEC5">2.3 Использование программы <CODE>ifnames</CODE> для перечисления условных</A>, где описана программа, помогающая 
+вам выполнить эту работу).
+</P><P>
+
+Программа <CODE>autoscan</CODE> использует несколько файлов данных, чтобы
+определить, какие макросы следует использовать при обнаружении
+определенных символов в исходных файлах пакета.  Эти файлы данных
+устанавливаются вместе с дистрибутивными макро-файлами Autoconf и имеют
+одинаковый формат.
+Каждая строка
+состоит из символа, пробелов и имени макроса Autoconf, которое выдается 
+в том случае, если заданный символ имеется в исходных текстах.  Строки,
+начинающиеся с символа <SAMP>`#'</SAMP>, являются комментариями.
+</P><P>
+
+<CODE>autoscan</CODE> устанавливается только в том случае, если у вас установлена
+программа Perl. <CODE>autoscan</CODE> распознает следующие ключи командной строки:
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>--help</CODE>
+<DD>Выдает список ключей командной строки и прекращает работу.
+<P>
+
+<DT><CODE>--macrodir=<VAR>dir</VAR></CODE>
+<DD><A NAME="IDX1"></A>
+Заставляет программу искать файлы данных в каталоге <VAR>dir</VAR>, а не
+в каталоге, куда производилась установка. Вы также можете установить
+значение переменной окружения <CODE>AC_MACRODIR</CODE> равным пути к этому
+каталогу; данный ключ командной строки переопределяет значение переменной
+окружения.
+<P>
+
+<DT><CODE>--verbose</CODE>
+<DD>Выдает имена исследуемых файлов и потенциально интересные символы,
+обнаруженные в этих файлах.  Выдача может быть довольно обширной.
+<P>
+
+<DT><CODE>--version</CODE>
+<DD>выдает номер версии Autoconf и прекращает работу.
+</DL>
+<P>
+
+<A NAME="Запуск ifnames"></A>
+<HR SIZE="6">
+<A NAME="SEC5"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC4"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC6"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 2.3 Использование программы <CODE>ifnames</CODE> для перечисления условных </H2>
+<!--docid::SEC5::-->
+ выражений
+<A NAME="Invoking ifnames"></A>
+<P>
+
+Программа <CODE>ifnames</CODE> может помочь при создании файла
+<TT>`configure.in'</TT> для программного пакета.  Она выдает список
+идентификаторов, которые пакет уже использует в условных выражениях
+препроцессора языка С. Если ваша программа уже была написана с учетом
+возможного переноса на другие платформы, то данная программа может
+помочь вам определить, какие проверки необходимо выполнить в
+<CODE>configure</CODE>. Эта программа может помочь заполнить некоторые пробелы
+в файле <TT>`configure.in'</TT>, созданном программой <CODE>autoscan</CODE>
+(see section <A HREF="autoconf-ru_2.html#SEC4">2.2 Использование программы <CODE>autoscan</CODE> для создания <TT>`configure.in'</TT></A>).
+</P><P>
+
+Программа <CODE>ifnames</CODE> обрабатывает все исходные тексты на C,
+перечисленные в командной строке (или же принимает текст со стандартного 
+ввода, если ни один файл не был указан), и выдает на стандартный вывод
+сортированный список
+идентификаторов, используемых в директивах <CODE>#if</CODE>,
+<CODE>#elif</CODE>, <CODE>#ifdef</CODE> или <CODE>#ifndef</CODE>. Программа выдает каждый
+идентификатор на отдельной строке, за которым через пробел следует
+список файлов, в которых этот идентификатор встречается.
+</P><P>
+
+Программа <CODE>ifnames</CODE> распознает следующие ключи командной строки:
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>--help</CODE>
+<DD><DT><CODE>-h</CODE>
+<DD>выдает список ключей командной строки и прекращает работу.
+<P>
+
+<DT><CODE>--macrodir=<VAR>dir</VAR></CODE>
+<DD><A NAME="IDX2"></A>
+Заставляет программу искать файлы данных в каталоге <VAR>dir</VAR>, а не
+в каталоге, куда производилась установка. Вы также можете установить
+значение переменной окружения <CODE>AC_MACRODIR</CODE> равным пути к этому
+каталогу; данный ключ командной строки переопределяет значение переменной
+окружения.
+<P>
+
+<DT><CODE>--version</CODE>
+<DD>выдает номер версии Autoconf и прекращает работу.
+</DL>
+<P>
+
+<A NAME="Запуск autoconf"></A>
+<HR SIZE="6">
+<A NAME="SEC6"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC5"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC7"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 2.4 Использование программы <CODE>autoconf</CODE> для создания скрипта <CODE>configure</CODE> </H2>
+<!--docid::SEC6::-->
+<A NAME="Invoking autoconf"></A>
+<P>
+
+Для того, чтобы создать скрипт <CODE>configure</CODE> из файла
+<TT>`configure.in'</TT>, просто запустите программу <CODE>autoconf</CODE> без
+аргументов. <CODE>autoconf</CODE> обработает файл <TT>`configure.in'</TT> с
+помощью макропроцессора <CODE>m4</CODE>, используя макросы Autoconf. Если вы
+зададите аргумент программе <CODE>autoconf</CODE>, то программа будет
+выполнять чтение заданного файла, а не файла <TT>`configure.in'</TT>, и
+вывод будет производиться на стандартный вывод, не в в файл
+<CODE>configure</CODE>. Если вы дадите программе <CODE>autoconf</CODE> аргумент
+<SAMP>`-'</SAMP>, то она будет читать со стандартного ввода, а не из файла
+<TT>`configure.in'</TT>, но результаты будут выдаваться на стандартный
+вывод.
+</P><P>
+
+Макросы Autoconf определены в нескольких файлах. Некоторые из них
+распространяются вместе с Autoconf: <CODE>autoconf</CODE> читает их в первую
+очередь. Затем ищется необязательный файл <TT>`acsite.m4'</TT> в каталоге,
+содержащем распространяемые с Autoconf файлы макросов, и необязательный
+файл <TT>`aclocal.m4'</TT> в текущем каталоге.  Эти файлы могут содержать
+макросы, специфические для вашей машины, или макросы для конкретных
+пакетов программного обеспечения (see section <A HREF="autoconf-ru_7.html#SEC59">7. Создание макросов</A>, где
+приведена дополнительная информация).  Если определение макроса
+существует в нескольких файлах, считывающих <CODE>autoconf</CODE>, то
+последнее макроопределение переопределяет все предыдущие.
+</P><P>
+
+<CODE>autoconf</CODE> распознает следующие ключи командной строки:
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>--help</CODE>
+<DD><DT><CODE>-h</CODE>
+<DD>выдает список ключей командной строки и прекращает работу.
+<P>
+
+<DT><CODE>--localdir=<VAR>dir</VAR></CODE>
+<DD><DT><CODE>-l <VAR>dir</VAR></CODE>
+<DD>Ищет файл <TT>`aclocal.m4'</TT> для данного пакета в каталоге <VAR>dir</VAR>, а не в
+текущем каталоге.
+<P>
+
+<DT><CODE>--macrodir=<VAR>dir</VAR></CODE>
+<DD><A NAME="IDX3"></A>
+Заставляет программу искать файлы данных в каталоге <VAR>dir</VAR>, а не
+в каталоге, куда производилась установка. Вы также можете установить
+значение переменной окружения <CODE>AC_MACRODIR</CODE> равным пути к этому
+каталогу; данный ключ командной строки переопределяет значение переменной
+окружения.
+<P>
+
+<DT><CODE>--version</CODE>
+<DD>выдает номер версии Autoconf и прекращает работу.
+</DL>
+<P>
+
+<A NAME="Запуск autoreconf"></A>
+<HR SIZE="6">
+<A NAME="SEC7"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC6"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 2.5 Использование <CODE>autoreconf</CODE> для обновления ваших скриптов <CODE>configure</CODE> </H2>
+<!--docid::SEC7::-->
+<A NAME="Invoking autoreconf"></A>
+<P>
+
+Если у вас много скриптов <CODE>configure</CODE>, созданных с помощью
+Autoconf, то программа <CODE>autoreconf</CODE> может
+облегчить вашу работу. Она запускает программы
+<CODE>autoconf</CODE> (и если необходимо -  <CODE>autoheader</CODE>) для
+повторного создания скриптов <CODE>configure</CODE> и шаблонов заголовочных
+файлов настройки для исходных текстов, корневой каталог которых
+находится в текущем каталоге. По умолчанию эти программы создают заново
+только те файлы, которые старше, чем соответствующий файл
+<TT>`configure.in'</TT> или (если имеется) <TT>`aclocal.m4'</TT>. Поскольку
+программа <CODE>autoheader</CODE> не изменяет время модификации
+выходного файла в случае, если файл не изменялся, то не обязательно
+будет проделано минимальное количество работы.  Если вы
+установили новую версию Autoconf, то вы можете заставить
+<CODE>autoreconf</CODE> заново создать <EM>все</EM> файлы, задав ключ командной
+строки <SAMP>`--force'</SAMP>.
+</P><P>
+
+Если вы зададите программе <CODE>autoreconf</CODE> ключи командной строки 
+<SAMP>`--macrodir=<VAR>dir</VAR>'</SAMP> или <SAMP>`--localdir=<VAR>dir</VAR>'</SAMP>, то она
+передаст их программам <CODE>autoconf</CODE> и <CODE>autoheader</CODE> (с правильно
+настроенными относительными путями).
+</P><P>
+
+<CODE>autoreconf</CODE> не поддерживает нахождение в одном дереве каталогов,
+являющихся частями большого проекта (они используют одни и те же
+файлы <TT>`aclocal.m4'</TT> и <TT>`acconfig.h'</TT>), и каталогов, являющихся
+независимыми пакетами (они  имеют собственные файлы <TT>`aclocal.m4'</TT>
+и <TT>`acconfig.h'</TT>). Программа предполагает, что все каталоги являются
+частями одного пакета, если вы используете ключ командной строки
+<SAMP>`--localdir'</SAMP>, или что каждый каталог является отдельным пакетом,
+если вы не используете этот ключ. Это ограничение может быть убрано в
+будущем.
+</P><P>
+
+See section <A HREF="autoconf-ru_3.html#SEC14">3.3.3 Автоматическая пересборка</A>, в которой описаны правила
+<TT>`Makefile'</TT> для автоматического пересоздания скриптов
+<CODE>configure</CODE>, если изменяются исходные тексты этих скриптов.  Этот
+метод корректно обрабатывает изменение шаблонов заголовочных файлов
+конфигурации, но не передает команде ключи командной строки
+<SAMP>`--macrodir=<VAR>dir</VAR>'</SAMP> или <SAMP>`--localdir=<VAR>dir</VAR>'</SAMP>.
+</P><P>
+
+<CODE>autoreconf</CODE> распознает следующие ключи командной строки:
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>--help</CODE>
+<DD><DT><CODE>-h</CODE>
+<DD>выдает список ключей командной строки и прекращает работу.
+<P>
+
+<DT><CODE>--force</CODE>
+<DD><DT><CODE>-f</CODE>
+<DD>Пересоздать даже те скрипты <TT>`configure'</TT> и заголовочные файлы настройки,
+которые новее, чем соответствующие входные файлы (<TT>`configure.in'</TT> и, 
+если есть, <TT>`aclocal.m4'</TT>).
+<P>
+
+<DT><CODE>--localdir=<VAR>dir</VAR></CODE>
+<DD><DT><CODE>-l <VAR>dir</VAR></CODE>
+<DD>Заставляет программы <CODE>autoconf</CODE> и <CODE>autoheader</CODE> искать файлы 
+<TT>`aclocal.m4'</TT> и (для <CODE>autoheader</CODE>) <TT>`acconfig.h'</TT> (но не
+<TT>`<VAR>file</VAR>.top'</TT> и <TT>`<VAR>file</VAR>.bot'</TT>) данного пакета в каталоге
+<VAR>dir</VAR> вместо каталога, который содержит отдельный файл
+<TT>`configure.in'</TT>.
+<P>
+
+<DT><CODE>--macrodir=<VAR>dir</VAR></CODE>
+<DD><DT><CODE>-m <VAR>dir</VAR></CODE>
+<DD><A NAME="IDX4"></A>
+Заставляет программу искать файлы данных в каталоге <VAR>dir</VAR>, а не
+в каталоге, куда производилась установка. Вы также можете установить
+значение переменной окружения <CODE>AC_MACRODIR</CODE> равным пути к этому
+каталогу; данный ключ командной строки переопределяет значение переменной
+окружения.
+<P>
+
+<DT><CODE>--verbose</CODE>
+<DD>Выдает имена каждого каталога, в котором <CODE>autoreconf</CODE> запускает
+<CODE>autoconf</CODE> (если есть необходимость, то и <CODE>autoheader</CODE>).
+<P>
+
+<DT><CODE>--version</CODE>
+<DD>Выдает номер версии Autoconf и прекращает работу.
+</DL>
+<P>
+
+<A NAME="Настройка"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_2.html#SEC2"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_3.html#SEC8"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+on <I>February, 19  2004</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct = "UA-78697-3"; urchinTracker(); </script></body>
+</HTML>

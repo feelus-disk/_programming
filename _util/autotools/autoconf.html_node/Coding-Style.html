@@ -1,0 +1,238 @@
+<html lang="en">
+<head>
+<title>Coding Style - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros" title="Writing Autoconf Macros">
+<link rel="prev" href="Obsoleting-Macros.html#Obsoleting-Macros" title="Obsoleting Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Coding-Style"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Obsoleting-Macros.html#Obsoleting-Macros">Obsoleting Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros">Writing Autoconf Macros</a>
+<hr>
+</div>
+
+<h3 class="section">10.6 Coding Style</h3>
+
+<p><a name="index-Coding-style-1676"></a>
+The Autoconf macros follow a strict coding style.  You are encouraged to
+follow this style, especially if you intend to distribute your macro,
+either by contributing it to Autoconf itself or the
+<a href="http://www.gnu.org/software/autoconf-archive/">Autoconf Macro Archive</a>, or by other means.
+
+   <p>The first requirement is to pay great attention to the quotation.  For
+more details, see <a href="Autoconf-Language.html#Autoconf-Language">Autoconf Language</a>, and <a href="M4-Quotation.html#M4-Quotation">M4 Quotation</a>.
+
+   <p>Do not try to invent new interfaces.  It is likely that there is a macro
+in Autoconf that resembles the macro you are defining: try to stick to
+this existing interface (order of arguments, default values, etc.).  We
+<em>are</em> conscious that some of these interfaces are not perfect;
+nevertheless, when harmless, homogeneity should be preferred over
+creativity.
+
+   <p>Be careful about clashes both between M4 symbols and between shell
+variables.
+
+   <p>If you stick to the suggested M4 naming scheme (see <a href="Macro-Names.html#Macro-Names">Macro Names</a>),
+you are unlikely to generate conflicts.  Nevertheless, when you need to
+set a special value, <em>avoid using a regular macro name</em>; rather,
+use an &ldquo;impossible&rdquo; name.  For instance, up to version 2.13, the macro
+<code>AC_SUBST</code> used to remember what <var>symbol</var> macros were already defined
+by setting <code>AC_SUBST_</code><var>symbol</var>, which is a regular macro name. 
+But since there is a macro named <code>AC_SUBST_FILE</code>, it was just
+impossible to &lsquo;<samp><span class="samp">AC_SUBST(FILE)</span></samp>&rsquo;!  In this case,
+<code>AC_SUBST(</code><var>symbol</var><code>)</code> or <code>_AC_SUBST(</code><var>symbol</var><code>)</code> should
+have been used (yes, with the parentheses). 
+<!-- or better yet, high-level macros such as @code{m4_expand_once} -->
+
+   <p>No Autoconf macro should ever enter the user-variable name space; i.e.,
+except for the variables that are the actual result of running the
+macro, all shell variables should start with <code>ac_</code>.  In
+addition, small macros or any macro that is likely to be embedded in
+other macros should be careful not to use obvious names.
+
+   <p><a name="index-g_t_0040code_007bdnl_007d-1677"></a>Do not use <code>dnl</code> to introduce comments: most of the comments you
+are likely to write are either header comments which are not output
+anyway, or comments that should make their way into <samp><span class="file">configure</span></samp>. 
+There are exceptional cases where you do want to comment special M4
+constructs, in which case <code>dnl</code> is right, but keep in mind that it
+is unlikely.
+
+   <p>M4 ignores the leading blanks and newlines before each argument. 
+Use this feature to
+indent in such a way that arguments are (more or less) aligned with the
+opening parenthesis of the macro being called.  For instance, instead of
+
+<pre class="example">     AC_CACHE_CHECK(for EMX OS/2 environment,
+     ac_cv_emxos2,
+     [AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [return __EMX__;])],
+     [ac_cv_emxos2=yes], [ac_cv_emxos2=no])])
+</pre>
+   <p class="noindent">write
+
+<pre class="example">     AC_CACHE_CHECK([for EMX OS/2 environment], [ac_cv_emxos2],
+     [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return __EMX__;])],
+                        [ac_cv_emxos2=yes],
+                        [ac_cv_emxos2=no])])
+</pre>
+   <p class="noindent">or even
+
+<pre class="example">     AC_CACHE_CHECK([for EMX OS/2 environment],
+                    [ac_cv_emxos2],
+                    [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
+                                                        [return __EMX__;])],
+                                       [ac_cv_emxos2=yes],
+                                       [ac_cv_emxos2=no])])
+</pre>
+   <p>When using <code>AC_RUN_IFELSE</code> or any macro that cannot work when
+cross-compiling, provide a pessimistic value (typically &lsquo;<samp><span class="samp">no</span></samp>&rsquo;).
+
+   <p>Feel free to use various tricks to prevent auxiliary tools, such as
+syntax-highlighting editors, from behaving improperly.  For instance,
+instead of:
+
+<pre class="example">     m4_bpatsubst([$1], [$"])
+</pre>
+   <p class="noindent">use
+
+<pre class="example">     m4_bpatsubst([$1], [$""])
+</pre>
+   <p class="noindent">so that Emacsen do not open an endless &ldquo;string&rdquo; at the first quote. 
+For the same reasons, avoid:
+
+<pre class="example">     test $[#] != 0
+</pre>
+   <p class="noindent">and use:
+
+<pre class="example">     test $[@%:@] != 0
+</pre>
+   <p class="noindent">Otherwise, the closing bracket would be hidden inside a &lsquo;<samp><span class="samp">#</span></samp>&rsquo;-comment,
+breaking the bracket-matching highlighting from Emacsen.  Note the
+preferred style to escape from M4: &lsquo;<samp><span class="samp">$[1]</span></samp>&rsquo;, &lsquo;<samp><span class="samp">$[@]</span></samp>&rsquo;, etc.  Do
+not escape when it is unnecessary.  Common examples of useless quotation
+are &lsquo;<samp><span class="samp">[$]$1</span></samp>&rsquo; (write &lsquo;<samp><span class="samp">$$1</span></samp>&rsquo;), &lsquo;<samp><span class="samp">[$]var</span></samp>&rsquo; (use &lsquo;<samp><span class="samp">$var</span></samp>&rsquo;),
+etc.  If you add portability issues to the picture, you'll prefer
+&lsquo;<samp><span class="samp">${1+"$[@]"}</span></samp>&rsquo; to &lsquo;<samp><span class="samp">"[$]@"</span></samp>&rsquo;, and you'll prefer do something
+better than hacking Autoconf <code>:-)</code>.
+
+   <p>When using <samp><span class="command">sed</span></samp>, don't use <samp><span class="option">-e</span></samp> except for indenting
+purposes.  With the <code>s</code> and <code>y</code> commands, the preferred
+separator is &lsquo;<samp><span class="samp">/</span></samp>&rsquo; unless &lsquo;<samp><span class="samp">/</span></samp>&rsquo; itself might appear in the pattern
+or replacement, in which case you should use &lsquo;<samp><span class="samp">|</span></samp>&rsquo;, or optionally
+&lsquo;<samp><span class="samp">,</span></samp>&rsquo; if you know the pattern and replacement cannot contain a file
+name.  If none of these characters will do, choose a printable character
+that cannot appear in the pattern or replacement.  Characters from the
+set &lsquo;<samp><span class="samp">"#$&amp;'()*;&lt;=&gt;?`|~</span></samp>&rsquo; are good choices if the pattern or
+replacement might contain a file name, since they have special meaning
+to the shell and are less likely to occur in file names.
+
+   <p>See <a href="Macro-Definitions.html#Macro-Definitions">Macro Definitions</a>, for details on how to define a macro.  If a
+macro doesn't use <code>AC_REQUIRE</code>, is expected to never be the object
+of an <code>AC_REQUIRE</code> directive, and macros required by other macros
+inside arguments do not need to be expanded before this macro, then
+use <code>m4_define</code>.  In case of doubt, use <code>AC_DEFUN</code>. 
+Also take into account that public third-party macros need to use
+<code>AC_DEFUN</code> in order to be found by <samp><span class="command">aclocal</span></samp>
+(see <a href="../automake/Extending-aclocal.html#Extending-aclocal">Extending aclocal</a>). 
+All the <code>AC_REQUIRE</code> statements should be at the beginning of the
+macro, and each statement should be followed by <code>dnl</code>.
+
+   <p>You should not rely on the number of arguments: instead of checking
+whether an argument is missing, test that it is not empty.  It provides
+both a simpler and a more predictable interface to the user, and saves
+room for further arguments.
+
+   <p>Unless the macro is short, try to leave the closing &lsquo;<samp><span class="samp">])</span></samp>&rsquo; at the
+beginning of a line, followed by a comment that repeats the name of the
+macro being defined.  This introduces an additional newline in
+<samp><span class="command">configure</span></samp>; normally, that is not a problem, but if you want to
+remove it you can use &lsquo;<samp><span class="samp">[]dnl</span></samp>&rsquo; on the last line.  You can similarly
+use &lsquo;<samp><span class="samp">[]dnl</span></samp>&rsquo; after a macro call to remove its newline.  &lsquo;<samp><span class="samp">[]dnl</span></samp>&rsquo;
+is recommended instead of &lsquo;<samp><span class="samp">dnl</span></samp>&rsquo; to ensure that M4 does not
+interpret the &lsquo;<samp><span class="samp">dnl</span></samp>&rsquo; as being attached to the preceding text or
+macro output.  For example, instead of:
+
+<pre class="example">     AC_DEFUN([AC_PATH_X],
+     [AC_MSG_CHECKING([for X])
+     AC_REQUIRE_CPP()
+     <span class="roman"># ...omitted...</span>
+       AC_MSG_RESULT([libraries $x_libraries, headers $x_includes])
+     fi])
+</pre>
+   <p class="noindent">you would write:
+
+<pre class="example">     AC_DEFUN([AC_PATH_X],
+     [AC_REQUIRE_CPP()[]dnl
+     AC_MSG_CHECKING([for X])
+     <span class="roman"># ...omitted...</span>
+       AC_MSG_RESULT([libraries $x_libraries, headers $x_includes])
+     fi[]dnl
+     ])# AC_PATH_X
+</pre>
+   <p>If the macro is long, try to split it into logical chunks.  Typically,
+macros that check for a bug in a function and prepare its
+<code>AC_LIBOBJ</code> replacement should have an auxiliary macro to perform
+this setup.  Do not hesitate to introduce auxiliary macros to factor
+your code.
+
+   <p>In order to highlight the recommended coding style, here is a macro
+written the old way:
+
+<pre class="example">     dnl Check for EMX on OS/2.
+     dnl _AC_EMXOS2
+     AC_DEFUN(_AC_EMXOS2,
+     [AC_CACHE_CHECK(for EMX OS/2 environment, ac_cv_emxos2,
+     [AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, return __EMX__;)],
+     ac_cv_emxos2=yes, ac_cv_emxos2=no)])
+     test "x$ac_cv_emxos2" = xyes &amp;&amp; EMXOS2=yes])
+</pre>
+   <p class="noindent">and the new way:
+
+<pre class="example">     # _AC_EMXOS2
+     # ----------
+     # Check for EMX on OS/2.
+     m4_define([_AC_EMXOS2],
+     [AC_CACHE_CHECK([for EMX OS/2 environment], [ac_cv_emxos2],
+     [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return __EMX__;])],
+                        [ac_cv_emxos2=yes],
+                        [ac_cv_emxos2=no])])
+     test "x$ac_cv_emxos2" = xyes &amp;&amp; EMXOS2=yes[]dnl
+     ])# _AC_EMXOS2
+</pre>
+   <!-- ============================================= Portable Shell Programming -->
+   </body></html>
+

@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: automake Invocation</title>
+
+<meta name="description" content="automake: automake Invocation">
+<meta name="keywords" content="automake: automake Invocation">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="configure.html#configure" rel="next" title="configure">
+<link href="true.html#true" rel="prev" title="true">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="automake-Invocation"></a>
+<div class="header">
+<p>
+Next: <a href="configure.html#configure" accesskey="n" rel="next">configure</a>, Previous: <a href="Examples.html#Examples" accesskey="p" rel="prev">Examples</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Creating-a-Makefile_002ein"></a>
+<h2 class="chapter">5 Creating a <samp>Makefile.in</samp></h2>
+<a name="Invoking-automake"></a>
+<a name="index-Multiple-configure_002eac-files"></a>
+<a name="index-Invoking-automake"></a>
+<a name="index-automake_002c-invoking"></a>
+<a name="index-Invocation-of-automake"></a>
+<a name="index-automake_002c-invocation"></a>
+
+<p>To create all the <samp>Makefile.in</samp>s for a package, run the
+<code>automake</code> program in the top level directory, with no
+arguments.  <code>automake</code> will automatically find each
+appropriate <samp>Makefile.am</samp> (by scanning <samp>configure.ac</samp>;
+see <a href="configure.html#configure">configure</a>) and generate the corresponding <samp>Makefile.in</samp>.
+Note that <code>automake</code> has a rather simplistic view of what
+constitutes a package; it assumes that a package has only one
+<samp>configure.ac</samp>, at the top.  If your package has multiple
+<samp>configure.ac</samp>s, then you must run <code>automake</code> in each
+directory holding a <samp>configure.ac</samp>.  (Alternatively, you may rely
+on Autoconf&rsquo;s <code>autoreconf</code>, which is able to recurse your
+package tree and run <code>automake</code> where appropriate.)
+</p>
+<p>You can optionally give <code>automake</code> an argument; <samp>.am</samp> is
+appended to the argument and the result is used as the name of the
+input file.  This feature is generally only used to automatically
+rebuild an out-of-date <samp>Makefile.in</samp>.  Note that
+<code>automake</code> must always be run from the topmost directory of a
+project, even if being used to regenerate the <samp>Makefile.in</samp> in
+some subdirectory.  This is necessary because <code>automake</code> must
+scan <samp>configure.ac</samp>, and because <code>automake</code> uses the
+knowledge that a <samp>Makefile.in</samp> is in a subdirectory to change its
+behavior in some cases.
+</p>
+<a name="index-AUTOCONF"></a>
+<p>Automake will run <code>autoconf</code> to scan <samp>configure.ac</samp> and
+its dependencies (i.e., <samp>aclocal.m4</samp> and any included file),
+therefore <code>autoconf</code> must be in your <code>PATH</code>.  If there is
+an <code>AUTOCONF</code> variable in your environment it will be used
+instead of <code>autoconf</code>, this allows you to select a particular
+version of Autoconf.  By the way, don&rsquo;t misunderstand this paragraph:
+<code>automake</code> runs <code>autoconf</code> to <strong>scan</strong> your
+<samp>configure.ac</samp>, this won&rsquo;t build <samp>configure</samp> and you still
+have to run <code>autoconf</code> yourself for this purpose.
+</p>
+<a name="index-automake-options"></a>
+<a name="index-Options_002c-automake"></a>
+<a name="index-Strictness_002c-command-line"></a>
+
+<p><code>automake</code> accepts the following options:
+</p>
+<a name="index-Extra-files-distributed-with-Automake"></a>
+<a name="index-Files-distributed-with-Automake"></a>
+<a name="index-config_002eguess"></a>
+
+<dl compact="compact">
+<dt><code>-a</code></dt>
+<dt><code>--add-missing</code></dt>
+<dd><a name="index-_002da"></a>
+<a name="index-_002d_002dadd_002dmissing"></a>
+<p>Automake requires certain common files to exist in certain situations;
+for instance, <samp>config.guess</samp> is required if <samp>configure.ac</samp> invokes
+<code>AC_CANONICAL_HOST</code>.  Automake is distributed with several of these
+files (see <a href="Auxiliary-Programs.html#Auxiliary-Programs">Auxiliary Programs</a>); this option will cause the missing
+ones to be automatically added to the package, whenever possible.  In
+general if Automake tells you a file is missing, try using this option.
+By default Automake tries to make a symbolic link pointing to its own
+copy of the missing file; this can be changed with <samp>--copy</samp>.
+</p>
+<p>Many of the potentially-missing files are common scripts whose
+location may be specified via the <code>AC_CONFIG_AUX_DIR</code> macro.
+Therefore, <code>AC_CONFIG_AUX_DIR</code>&rsquo;s setting affects whether a
+file is considered missing, and where the missing file is added
+(see <a href="Optional.html#Optional">Optional</a>).
+</p>
+<p>In some strictness modes, additional files are installed, see <a href="Gnits.html#Gnits">Gnits</a>
+for more information.
+</p>
+</dd>
+<dt><code>--libdir=<var>dir</var></code></dt>
+<dd><a name="index-_002d_002dlibdir"></a>
+<p>Look for Automake data files in directory <var>dir</var> instead of in the
+installation directory.  This is typically used for debugging.
+</p>
+</dd>
+<dt><code>--print-libdir</code></dt>
+<dd><a name="index-_002d_002dprint_002dlibdir"></a>
+<p>Print the path of the installation directory containing Automake-provided
+scripts and data files (like e.g., <samp>texinfo.texi</samp> and
+<samp>install-sh</samp>).
+</p>
+</dd>
+<dt><code>-c</code></dt>
+<dd><a name="index-_002dc"></a>
+</dd>
+<dt><code>--copy</code></dt>
+<dd><a name="index-_002d_002dcopy"></a>
+<p>When used with <samp>--add-missing</samp>, causes installed files to be
+copied.  The default is to make a symbolic link.
+</p>
+</dd>
+<dt><code>-f</code></dt>
+<dd><a name="index-_002df"></a>
+</dd>
+<dt><code>--force-missing</code></dt>
+<dd><a name="index-_002d_002dforce_002dmissing"></a>
+<p>When used with <samp>--add-missing</samp>, causes standard files to be reinstalled
+even if they already exist in the source tree.  This involves removing
+the file from the source tree before creating the new symlink (or, with
+<samp>--copy</samp>, copying the new file).
+</p>
+</dd>
+<dt><code>--foreign</code></dt>
+<dd><a name="index-_002d_002dforeign"></a>
+<p>Set the global strictness to <samp>foreign</samp>.  For more information, see
+<a href="Strictness.html#Strictness">Strictness</a>.
+</p>
+</dd>
+<dt><code>--gnits</code></dt>
+<dd><a name="index-_002d_002dgnits"></a>
+<p>Set the global strictness to <samp>gnits</samp>.  For more information, see
+<a href="Gnits.html#Gnits">Gnits</a>.
+</p>
+</dd>
+<dt><code>--gnu</code></dt>
+<dd><a name="index-_002d_002dgnu"></a>
+<p>Set the global strictness to <samp>gnu</samp>.  For more information, see
+<a href="Gnits.html#Gnits">Gnits</a>.  This is the default strictness.
+</p>
+</dd>
+<dt><code>--help</code></dt>
+<dd><a name="index-_002d_002dhelp"></a>
+<p>Print a summary of the command line options and exit.
+</p>
+</dd>
+<dt><code>-i</code></dt>
+<dt><code>--ignore-deps</code></dt>
+<dd><a name="index-_002di"></a>
+<p>This disables the dependency tracking feature in generated
+<samp>Makefile</samp>s; see <a href="Dependencies.html#Dependencies">Dependencies</a>.
+</p>
+</dd>
+<dt><code>--include-deps</code></dt>
+<dd><a name="index-_002d_002dinclude_002ddeps"></a>
+<p>This enables the dependency tracking feature.  This feature is enabled
+by default.  This option is provided for historical reasons only and
+probably should not be used.
+</p>
+</dd>
+<dt><code>--no-force</code></dt>
+<dd><a name="index-_002d_002dno_002dforce"></a>
+<p>Ordinarily <code>automake</code> creates all <samp>Makefile.in</samp>s mentioned in
+<samp>configure.ac</samp>.  This option causes it to only update those
+<samp>Makefile.in</samp>s that are out of date with respect to one of their
+dependents.
+</p>
+</dd>
+<dt><code>-o <var>dir</var></code></dt>
+<dt><code>--output-dir=<var>dir</var></code></dt>
+<dd><a name="index-_002do"></a>
+<a name="index-_002d_002doutput_002ddir"></a>
+<p>Put the generated <samp>Makefile.in</samp> in the directory <var>dir</var>.
+Ordinarily each <samp>Makefile.in</samp> is created in the directory of the
+corresponding <samp>Makefile.am</samp>.  This option is deprecated and will be
+removed in a future release.
+</p>
+</dd>
+<dt><code>-v</code></dt>
+<dt><code>--verbose</code></dt>
+<dd><a name="index-_002dv"></a>
+<a name="index-_002d_002dverbose"></a>
+<p>Cause Automake to print information about which files are being read or
+created.
+</p>
+</dd>
+<dt><code>--version</code></dt>
+<dd><a name="index-_002d_002dversion"></a>
+<p>Print the version number of Automake and exit.
+</p>
+</dd>
+<dt><code>-W CATEGORY</code></dt>
+<dt><code>--warnings=<var>category</var></code></dt>
+<dd><a name="index-_002dW"></a>
+<a name="index-_002d_002dwarnings"></a>
+<p>Output warnings falling in <var>category</var>.  <var>category</var> can be
+one of:
+</p><dl compact="compact">
+<dt><code>gnu</code></dt>
+<dd><p>warnings related to the GNU Coding Standards
+(see <cite><a href="http://www.gnu.org/prep/standards/html_node/index.html#Top">The GNU Coding Standards</a></cite>).
+</p></dd>
+<dt><code>obsolete</code></dt>
+<dd><p>obsolete features or constructions
+</p></dd>
+<dt><code>override</code></dt>
+<dd><p>user redefinitions of Automake rules or variables
+</p></dd>
+<dt><code>portability</code></dt>
+<dd><p>portability issues (e.g., use of <code>make</code> features that are
+known to be not portable)
+</p></dd>
+<dt><code>extra-portability</code></dt>
+<dd><p>extra portability issues related to obscure tools.  One example of such
+a tool is the Microsoft <code>lib</code> archiver.
+</p></dd>
+<dt><code>syntax</code></dt>
+<dd><p>weird syntax, unused variables, typos
+</p></dd>
+<dt><code>unsupported</code></dt>
+<dd><p>unsupported or incomplete features
+</p></dd>
+<dt><code>all</code></dt>
+<dd><p>all the warnings
+</p></dd>
+<dt><code>none</code></dt>
+<dd><p>turn off all the warnings
+</p></dd>
+<dt><code>error</code></dt>
+<dd><p>treat warnings as errors
+</p></dd>
+</dl>
+
+<p>A category can be turned off by prefixing its name with &lsquo;<samp>no-</samp>&rsquo;.  For
+instance, <samp>-Wno-syntax</samp> will hide the warnings about unused
+variables.
+</p>
+<p>The categories output by default are &lsquo;<samp>obsolete</samp>&rsquo;, &lsquo;<samp>syntax</samp>&rsquo; and
+&lsquo;<samp>unsupported</samp>&rsquo;.  Additionally, &lsquo;<samp>gnu</samp>&rsquo; and &lsquo;<samp>portability</samp>&rsquo;
+are enabled in <samp>--gnu</samp> and <samp>--gnits</samp> strictness.
+</p>
+<p>Turning off &lsquo;<samp>portability</samp>&rsquo; will also turn off &lsquo;<samp>extra-portability</samp>&rsquo;,
+and similarly turning on &lsquo;<samp>extra-portability</samp>&rsquo; will also turn on
+&lsquo;<samp>portability</samp>&rsquo;.  However, turning on &lsquo;<samp>portability</samp>&rsquo; or turning
+off &lsquo;<samp>extra-portability</samp>&rsquo; will not affect the other category.
+</p>
+<a name="index-WARNINGS"></a>
+<p>The environment variable <code>WARNINGS</code> can contain a comma separated
+list of categories to enable.  It will be taken into account before the
+command-line switches, this way <samp>-Wnone</samp> will also ignore any
+warning category enabled by <code>WARNINGS</code>.  This variable is also used
+by other tools like <code>autoconf</code>; unknown categories are ignored
+for this reason.
+</p>
+</dd>
+</dl>
+
+<a name="index-AUTOMAKE_005fJOBS"></a>
+<p>If the environment variable <code>AUTOMAKE_JOBS</code> contains a positive
+number, it is taken as the maximum number of Perl threads to use in
+<code>automake</code> for generating multiple <samp>Makefile.in</samp> files
+concurrently.  This is an experimental feature.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="configure.html#configure" accesskey="n" rel="next">configure</a>, Previous: <a href="Examples.html#Examples" accesskey="p" rel="prev">Examples</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

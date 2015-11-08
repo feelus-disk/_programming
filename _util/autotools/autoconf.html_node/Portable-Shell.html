@@ -1,0 +1,140 @@
+<html lang="en">
+<head>
+<title>Portable Shell - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros" title="Writing Autoconf Macros">
+<link rel="next" href="Portable-Make.html#Portable-Make" title="Portable Make">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Portable-Shell"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Portable-Make.html#Portable-Make">Portable Make</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros">Writing Autoconf Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">11 Portable Shell Programming</h2>
+
+<p><a name="index-Portable-shell-programming-1678"></a>
+When writing your own checks, there are some shell-script programming
+techniques you should avoid in order to make your code portable.  The
+Bourne shell and upward-compatible shells like the Korn shell and Bash
+have evolved over the years, and many features added to the original
+System7 shell are now supported on all interesting porting targets. 
+However, the following discussion between Russ Allbery and Robert Lipe
+is worth reading:
+
+<p class="noindent">Russ Allbery:
+
+   <blockquote>
+The GNU assumption that <samp><span class="command">/bin/sh</span></samp> is the one and only shell
+leads to a permanent deadlock.  Vendors don't want to break users'
+existing shell scripts, and there are some corner cases in the Bourne
+shell that are not completely compatible with a Posix shell.  Thus,
+vendors who have taken this route will <em>never</em> (OK<small class="dots">...</small>&ldquo;never say
+never&rdquo;) replace the Bourne shell (as <samp><span class="command">/bin/sh</span></samp>) with a
+Posix shell. 
+</blockquote>
+
+<p class="noindent">Robert Lipe:
+
+   <blockquote>
+This is exactly the problem.  While most (at least most System V's) do
+have a Bourne shell that accepts shell functions most vendor
+<samp><span class="command">/bin/sh</span></samp> programs are not the Posix shell.
+
+   <p>So while most modern systems do have a shell <em>somewhere</em> that meets the
+Posix standard, the challenge is to find it. 
+</blockquote>
+
+   <p>For this reason, part of the job of M4sh (see <a href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>)
+is to find such a shell.  But to prevent trouble, if you're not using
+M4sh you should not take advantage of features that were added after Unix
+version 7, circa 1977 (see <a href="Systemology.html#Systemology">Systemology</a>); you should not use aliases,
+negated character classes, or even <samp><span class="command">unset</span></samp>.  <code>#</code> comments,
+while not in Unix version 7, were retrofitted in the original Bourne
+shell and can be assumed to be part of the least common denominator.
+
+   <p>On the other hand, if you're using M4sh you can assume that the shell
+has the features that were added in SVR2 (circa 1984), including shell
+functions,
+<samp><span class="command">return</span></samp>, <samp><span class="command">unset</span></samp>, and I/O redirection for builtins.  For
+more information, refer to <a href="http://www.in-ulm.de/~mascheck/bourne/">http://www.in-ulm.de/~mascheck/bourne/</a>. 
+However, some pitfalls have to be avoided for portable use of these
+constructs; these will be documented in the rest of this chapter. 
+See in particular <a href="Shell-Functions.html#Shell-Functions">Shell Functions</a> and <a href="Limitations-of-Builtins.html#Limitations-of-Builtins">Limitations of Shell Builtins</a>.
+
+   <p>Some ancient systems have quite
+small limits on the length of the &lsquo;<samp><span class="samp">#!</span></samp>&rsquo; line; for instance, 32
+bytes (not including the newline) on SunOS 4. 
+However, these ancient systems are no longer of practical concern.
+
+   <p>The set of external programs you should run in a <samp><span class="command">configure</span></samp> script
+is fairly small.  See <a href="../standards/Utilities-in-Makefiles.html#Utilities-in-Makefiles">Utilities in Makefiles</a>, for the list.  This
+restriction allows users to start out with a fairly small set of
+programs and build the rest, avoiding too many interdependencies between
+packages.
+
+   <p>Some of these external utilities have a portable subset of features; see
+<a href="Limitations-of-Usual-Tools.html#Limitations-of-Usual-Tools">Limitations of Usual Tools</a>.
+
+   <p>There are other sources of documentation about shells.  The
+specification for the Posix
+<a href="http://www.opengroup.org/susv3/utilities/xcu_chap02.html">Shell Command Language</a>, though more generous than the restrictive shell
+subset described above, is fairly portable nowadays.  Also please see
+<a href="http://www.faqs.org/faqs/unix-faq/shell/">the Shell FAQs</a>.
+
+<ul class="menu">
+<li><a accesskey="1" href="Shellology.html#Shellology">Shellology</a>:                   A zoology of shells
+<li><a accesskey="2" href="Invoking-the-Shell.html#Invoking-the-Shell">Invoking the Shell</a>:           Invoking the shell as a command
+<li><a accesskey="3" href="Here_002dDocuments.html#Here_002dDocuments">Here-Documents</a>:               Quirks and tricks
+<li><a accesskey="4" href="File-Descriptors.html#File-Descriptors">File Descriptors</a>:             FDs and redirections
+<li><a accesskey="5" href="Signal-Handling.html#Signal-Handling">Signal Handling</a>:              Shells, signals, and headaches
+<li><a accesskey="6" href="File-System-Conventions.html#File-System-Conventions">File System Conventions</a>:      File names
+<li><a accesskey="7" href="Shell-Pattern-Matching.html#Shell-Pattern-Matching">Shell Pattern Matching</a>:       Pattern matching
+<li><a accesskey="8" href="Shell-Substitutions.html#Shell-Substitutions">Shell Substitutions</a>:          Variable and command expansions
+<li><a accesskey="9" href="Assignments.html#Assignments">Assignments</a>:                  Varying side effects of assignments
+<li><a href="Parentheses.html#Parentheses">Parentheses</a>:                  Parentheses in shell scripts
+<li><a href="Slashes.html#Slashes">Slashes</a>:                      Slashes in shell scripts
+<li><a href="Special-Shell-Variables.html#Special-Shell-Variables">Special Shell Variables</a>:      Variables you should not change
+<li><a href="Shell-Functions.html#Shell-Functions">Shell Functions</a>:              What to look out for if you use them
+<li><a href="Limitations-of-Builtins.html#Limitations-of-Builtins">Limitations of Builtins</a>:      Portable use of not so portable /bin/sh
+<li><a href="Limitations-of-Usual-Tools.html#Limitations-of-Usual-Tools">Limitations of Usual Tools</a>:   Portable use of portable tools
+</ul>
+
+   </body></html>
+

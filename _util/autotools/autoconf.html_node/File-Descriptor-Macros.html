@@ -1,0 +1,116 @@
+<html lang="en">
+<head>
+<title>File Descriptor Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sh.html#Programming-in-M4sh" title="Programming in M4sh">
+<link rel="prev" href="Initialization-Macros.html#Initialization-Macros" title="Initialization Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="File-Descriptor-Macros"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Initialization-Macros.html#Initialization-Macros">Initialization Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>
+<hr>
+</div>
+
+<h3 class="section">9.4 File Descriptor Macros</h3>
+
+<p><a name="index-input-1635"></a><a name="index-standard-input-1636"></a><a name="index-file-descriptors-1637"></a><a name="index-descriptors-1638"></a><a name="index-low_002dlevel-output-1639"></a><a name="index-output_002c-low_002dlevel-1640"></a>
+The following macros define file descriptors used to output messages
+(or input values) from <samp><span class="file">configure</span></samp> scripts. 
+For example:
+
+<pre class="example">     echo "$wombats found" &gt;&amp;AS_MESSAGE_LOG_FD
+     echo 'Enter desired kangaroo count:' &gt;&amp;AS_MESSAGE_FD
+     read kangaroos &lt;&amp;AS_ORIGINAL_STDIN_FD`
+</pre>
+   <p class="noindent">However doing so is seldom needed, because Autoconf provides higher
+level macros as described below.
+
+<div class="defun">
+&mdash; Macro: <b>AS_MESSAGE_FD</b><var><a name="index-AS_005fMESSAGE_005fFD-1641"></a></var><br>
+<blockquote><p><a name="index-AS_005fMESSAGE_005fFD-1642"></a>
+The file descriptor for &lsquo;<samp><span class="samp">checking for...</span></samp>&rsquo;  messages and results. 
+By default, <code>AS_INIT</code> sets this to &lsquo;<samp><span class="samp">1</span></samp>&rsquo; for standalone M4sh
+clients.  However, <code>AC_INIT</code> shuffles things around to another file
+descriptor, in order to allow the <samp><span class="option">-q</span></samp> option of
+<samp><span class="command">configure</span></samp> to choose whether messages should go to the script's
+standard output or be discarded.
+
+        <p>If you want to display some messages, consider using one of the printing
+macros (see <a href="Printing-Messages.html#Printing-Messages">Printing Messages</a>) instead.  Copies of messages output
+via these macros are also recorded in <samp><span class="file">config.log</span></samp>. 
+</p></blockquote></div>
+
+   <p><a name="AS_005fMESSAGE_005fLOG_005fFD"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AS_MESSAGE_LOG_FD</b><var><a name="index-AS_005fMESSAGE_005fLOG_005fFD-1643"></a></var><br>
+<blockquote><p><a name="index-AS_005fMESSAGE_005fLOG_005fFD-1644"></a>
+This must either be empty, or expand to a file descriptor for log
+messages.  By default, <code>AS_INIT</code> sets this macro to the empty
+string for standalone M4sh clients, thus disabling logging.  However,
+<code>AC_INIT</code> shuffles things around so that both <samp><span class="command">configure</span></samp>
+and <samp><span class="command">config.status</span></samp> use <samp><span class="file">config.log</span></samp> for log messages. 
+Macros that run tools, like <code>AC_COMPILE_IFELSE</code> (see <a href="Running-the-Compiler.html#Running-the-Compiler">Running the Compiler</a>), redirect all output to this descriptor.  You may want to do
+so if you develop such a low-level macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_ORIGINAL_STDIN_FD</b><var><a name="index-AS_005fORIGINAL_005fSTDIN_005fFD-1645"></a></var><br>
+<blockquote><p><a name="index-AS_005fORIGINAL_005fSTDIN_005fFD-1646"></a>
+This must expand to a file descriptor for the original standard input. 
+By default, <code>AS_INIT</code> sets this macro to &lsquo;<samp><span class="samp">0</span></samp>&rsquo; for standalone
+M4sh clients.  However, <code>AC_INIT</code> shuffles things around for
+safety.
+
+        <p>When <samp><span class="command">configure</span></samp> runs, it may accidentally execute an
+interactive command that has the same name as the non-interactive meant
+to be used or checked.  If the standard input was the terminal, such
+interactive programs would cause <samp><span class="command">configure</span></samp> to stop, pending
+some user input.  Therefore <samp><span class="command">configure</span></samp> redirects its standard
+input from <samp><span class="file">/dev/null</span></samp> during its initialization.  This is not
+normally a problem, since <samp><span class="command">configure</span></samp> normally does not need
+user input.
+
+        <p>In the extreme case where your <samp><span class="file">configure</span></samp> script really needs to
+obtain some values from the original standard input, you can read them
+explicitly from <code>AS_ORIGINAL_STDIN_FD</code>. 
+</p></blockquote></div>
+
+<!-- =================================================== Writing Autoconf Macros. -->
+   </body></html>
+

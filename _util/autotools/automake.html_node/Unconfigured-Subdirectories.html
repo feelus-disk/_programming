@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Unconfigured Subdirectories</title>
+
+<meta name="description" content="automake: Unconfigured Subdirectories">
+<meta name="keywords" content="automake: Unconfigured Subdirectories">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Conditional-Subdirectories.html#Conditional-Subdirectories" rel="up" title="Conditional Subdirectories">
+<link href="Alternative.html#Alternative" rel="next" title="Alternative">
+<link href="Subdirectories-with-AC_005fSUBST.html#Subdirectories-with-AC_005fSUBST" rel="prev" title="Subdirectories with AC_SUBST">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Unconfigured-Subdirectories"></a>
+<div class="header">
+<p>
+Previous: <a href="Subdirectories-with-AC_005fSUBST.html#Subdirectories-with-AC_005fSUBST" accesskey="p" rel="prev">Subdirectories with AC_SUBST</a>, Up: <a href="Conditional-Subdirectories.html#Conditional-Subdirectories" accesskey="u" rel="up">Conditional Subdirectories</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Unconfigured-Subdirectories-1"></a>
+<h4 class="subsection">7.2.4 Unconfigured Subdirectories</h4>
+<a name="index-Subdirectories_002c-configured-conditionally"></a>
+
+<p>The semantics of <code>DIST_SUBDIRS</code> are often misunderstood by some
+users that try to <em>configure and build</em> subdirectories
+conditionally.  Here by configuring we mean creating the
+<samp>Makefile</samp> (it might also involve running a nested
+<code>configure</code> script: this is a costly operation that explains
+why people want to do it conditionally, but only the <samp>Makefile</samp>
+is relevant to the discussion).
+</p>
+<p>The above examples all assume that every <samp>Makefile</samp> is created,
+even in directories that are not going to be built.  The simple reason
+is that we want &lsquo;<samp>make dist</samp>&rsquo; to distribute even the directories
+that are not being built (e.g., platform-dependent code), hence
+<samp>make dist</samp> must recurse into the subdirectory, hence this
+directory must be configured and appear in <code>DIST_SUBDIRS</code>.
+</p>
+<p>Building packages that do not configure every subdirectory is a tricky
+business, and we do not recommend it to the novice as it is easy to
+produce an incomplete tarball by mistake.  We will not discuss this
+topic in depth here, yet for the adventurous here are a few rules to
+remember.
+</p>
+<table class="cartouche" border="1"><tr><td>
+<ul>
+<li> <code>SUBDIRS</code> should always be a subset of <code>DIST_SUBDIRS</code>.
+
+<p>It makes little sense to have a directory in <code>SUBDIRS</code> that
+is not in <code>DIST_SUBDIRS</code>.  Think of the former as a way to tell
+which directories listed in the latter should be built.
+</p></li><li> Any directory listed in <code>DIST_SUBDIRS</code> and <code>SUBDIRS</code>
+must be configured.
+
+<p>I.e., the <samp>Makefile</samp> must exists or the recursive <code>make</code>
+rules will not be able to process the directory.
+</p></li><li> Any configured directory must be listed in <code>DIST_SUBDIRS</code>.
+
+<p>So that the cleaning rules remove the generated <samp>Makefile</samp>s.
+It would be correct to see <code>DIST_SUBDIRS</code> as a variable that
+lists all the directories that have been configured.
+</p></li></ul>
+</td></tr></table>
+
+<p>In order to prevent recursion in some unconfigured directory you
+must therefore ensure that this directory does not appear in
+<code>DIST_SUBDIRS</code> (and <code>SUBDIRS</code>).  For instance, if you define
+<code>SUBDIRS</code> conditionally using <code>AC_SUBST</code> and do not define
+<code>DIST_SUBDIRS</code> explicitly, it will be default to
+&lsquo;<samp>$(SUBDIRS)</samp>&rsquo;; another possibility is to force <code>DIST_SUBDIRS
+= $(SUBDIRS)</code>.
+</p>
+<p>Of course, directories that are omitted from <code>DIST_SUBDIRS</code> will
+not be distributed unless you make other arrangements for this to
+happen (for instance, always running &lsquo;<samp>make dist</samp>&rsquo; in a
+configuration where all directories are known to appear in
+<code>DIST_SUBDIRS</code>; or writing a <code>dist-hook</code> target to
+distribute these directories).
+</p>
+<a name="index-Subdirectories_002c-not-distributed"></a>
+<p>In few packages, unconfigured directories are not even expected to
+be distributed.  Although these packages do not require the
+aforementioned extra arrangements, there is another pitfall.  If the
+name of a directory appears in <code>SUBDIRS</code> or <code>DIST_SUBDIRS</code>,
+<code>automake</code> will make sure the directory exists.  Consequently
+<code>automake</code> cannot be run on such a distribution when one
+directory has been omitted.  One way to avoid this check is to use the
+<code>AC_SUBST</code> method to declare conditional directories; since
+<code>automake</code> does not know the values of <code>AC_SUBST</code>
+variables it cannot ensure the corresponding directory exists.
+</p>
+<hr>
+<div class="header">
+<p>
+Previous: <a href="Subdirectories-with-AC_005fSUBST.html#Subdirectories-with-AC_005fSUBST" accesskey="p" rel="prev">Subdirectories with AC_SUBST</a>, Up: <a href="Conditional-Subdirectories.html#Conditional-Subdirectories" accesskey="u" rel="up">Conditional Subdirectories</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

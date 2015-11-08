@@ -1,0 +1,126 @@
+<html lang="en">
+<head>
+<title>Configuration Headers - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Setup.html#Setup" title="Setup">
+<link rel="prev" href="Makefile-Substitutions.html#Makefile-Substitutions" title="Makefile Substitutions">
+<link rel="next" href="Configuration-Commands.html#Configuration-Commands" title="Configuration Commands">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Configuration-Headers"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Configuration-Commands.html#Configuration-Commands">Configuration Commands</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Makefile-Substitutions.html#Makefile-Substitutions">Makefile Substitutions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Setup.html#Setup">Setup</a>
+<hr>
+</div>
+
+<h3 class="section">4.9 Configuration Header Files</h3>
+
+<p><a name="index-Configuration-Header-201"></a><a name="index-g_t_0040file_007bconfig_002eh_007d-202"></a>
+When a package contains more than a few tests that define C preprocessor
+symbols, the command lines to pass <samp><span class="option">-D</span></samp> options to the compiler
+can get quite long.  This causes two problems.  One is that the
+<samp><span class="command">make</span></samp> output is hard to visually scan for errors.  More
+seriously, the command lines can exceed the length limits of some
+operating systems.  As an alternative to passing <samp><span class="option">-D</span></samp> options to
+the compiler, <samp><span class="command">configure</span></samp> scripts can create a C header file
+containing &lsquo;<samp><span class="samp">#define</span></samp>&rsquo; directives.  The <code>AC_CONFIG_HEADERS</code>
+macro selects this kind of output.  Though it can be called anywhere
+between <code>AC_INIT</code> and <code>AC_OUTPUT</code>, it is customary to call
+it right after <code>AC_INIT</code>.
+
+   <p>The package should &lsquo;<samp><span class="samp">#include</span></samp>&rsquo; the configuration header file before
+any other header files, to prevent inconsistencies in declarations (for
+example, if it redefines <code>const</code>).
+
+   <p>To provide for VPATH builds, remember to pass the C compiler a <samp><span class="option">-I.</span></samp>
+option (or <samp><span class="option">-I..</span></samp>; whichever directory contains <samp><span class="file">config.h</span></samp>). 
+Even if you use &lsquo;<samp><span class="samp">#include "config.h"</span></samp>&rsquo;, the preprocessor searches only
+the directory of the currently read file, i.e., the source directory, not
+the build directory.
+
+   <p>With the appropriate <samp><span class="option">-I</span></samp> option, you can use
+&lsquo;<samp><span class="samp">#include &lt;config.h&gt;</span></samp>&rsquo;.  Actually, it's a good habit to use it,
+because in the rare case when the source directory contains another
+<samp><span class="file">config.h</span></samp>, the build directory should be searched first.
+
+<div class="defun">
+&mdash; Macro: <b>AC_CONFIG_HEADERS</b> (<var>header <small class="dots">...</small>, </var><span class="roman">[</span><var>cmds</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>init-cmds</var><span class="roman">]</span>)<var><a name="index-AC_005fCONFIG_005fHEADERS-203"></a></var><br>
+<blockquote><p><a name="index-AC_005fCONFIG_005fHEADERS-204"></a>
+<a name="index-HAVE_005fCONFIG_005fH-205"></a>This macro is one of the instantiating macros; see <a href="Configuration-Actions.html#Configuration-Actions">Configuration Actions</a>.  Make <code>AC_OUTPUT</code> create the file(s) in the
+blank-or-newline-separated list <var>header</var> containing C preprocessor
+<code>#define</code> statements, and replace &lsquo;<samp><span class="samp">@DEFS@</span></samp>&rsquo; in generated
+files with <samp><span class="option">-DHAVE_CONFIG_H</span></samp> instead of the value of <code>DEFS</code>. 
+The usual name for <var>header</var> is <samp><span class="file">config.h</span></samp>.
+
+        <p>If <var>header</var> already exists and its contents are identical to what
+<code>AC_OUTPUT</code> would put in it, it is left alone.  Doing this allows
+making some changes in the configuration without needlessly causing
+object files that depend on the header file to be recompiled.
+
+        <p>Usually the input file is named <samp><var>header</var><span class="file">.in</span></samp>; however, you can
+override the input file name by appending to <var>header</var> a
+colon-separated list of input files.  For example, you might need to make
+the input file name acceptable to DOS variants:
+
+     <pre class="example">          AC_CONFIG_HEADERS([config.h:config.hin])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AH_HEADER</b><var><a name="index-AH_005fHEADER-206"></a></var><br>
+<blockquote><p><a name="index-AH_005fHEADER-207"></a>
+This macro is defined as the name of the first declared config header
+and undefined if no config headers have been declared up to this point. 
+A third-party macro may, for example, require use of a config header
+without invoking AC_CONFIG_HEADERS twice, like this:
+
+     <pre class="example">          AC_CONFIG_COMMANDS_PRE(
+                  [m4_ifndef([AH_HEADER], [AC_CONFIG_HEADERS([config.h])])])
+</pre>
+        </blockquote></div>
+
+   <p>See <a href="Configuration-Actions.html#Configuration-Actions">Configuration Actions</a>, for more details on <var>header</var>.
+
+<ul class="menu">
+<li><a accesskey="1" href="Header-Templates.html#Header-Templates">Header Templates</a>:             Input for the configuration headers
+<li><a accesskey="2" href="autoheader-Invocation.html#autoheader-Invocation">autoheader Invocation</a>:        How to create configuration templates
+<li><a accesskey="3" href="Autoheader-Macros.html#Autoheader-Macros">Autoheader Macros</a>:            How to specify CPP templates
+</ul>
+
+   </body></html>
+

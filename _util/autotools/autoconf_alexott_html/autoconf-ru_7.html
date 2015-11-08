@@ -1,0 +1,486 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on February, 19  2004 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>Autoconf: Создание макросов</TITLE>
+
+<META NAME="description" CONTENT="Autoconf: Создание макросов">
+<META NAME="keywords" CONTENT="Autoconf: Создание макросов">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC59"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC58"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC60"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 7. Создание макросов </H1>
+<!--docid::SEC59::-->
+<A NAME="Writing Macros"></A>
+<P>
+
+Когда вы пишете тест свойства, который будет применяться в более чем
+одном пакете программного обеспечения, то лучше всего оформить его в
+виде нового макроса. В этом разделе приводятся некоторые инструкции и
+указания по написанию макросов Autoconf.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_7.html#SEC60">7.1 Определение макросов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Базовый формат макросов Autoconf.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_7.html#SEC61">7.2 Имена макросов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_7.html#SEC62">7.3 Заключение в кавычки</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_7.html#SEC63">7.4 Зависимости между макросами</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Определение макросов"></A>
+<HR SIZE="6">
+<A NAME="SEC60"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC61"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.1 Определение макросов </H2>
+<!--docid::SEC60::-->
+<A NAME="Macro Definitions"></A>
+<P>
+
+<A NAME="IDX452"></A>
+Макросы Autoconf определяются с помощью макроса <CODE>AC_DEFUN</CODE>, который
+подобен встроенному макросу <CODE>define</CODE> программы <CODE>m4</CODE>. В
+добавление к определению макроса, <CODE>AC_DEFUN</CODE> добавляет к нему
+некий код, использующийся для ограничения порядка вызова
+макросов (see section <A HREF="autoconf-ru_7.html#SEC64">7.4.1 Требуемые макросы</A>).
+</P><P>
+
+Определение макроса Autoconf выглядит примерно следующим образом:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_DEFUN(<VAR>macro-name</VAR>, [<VAR>macro-body</VAR>])
+</pre></td></tr></table></P><P>
+
+Квадратные скобки не показывают необязательный параметр: они должны
+присутствовать в определении макроса для избежания проблем расширения
+макроса (see section <A HREF="autoconf-ru_7.html#SEC62">7.3 Заключение в кавычки</A>). Вы можете ссылаться на
+передаваемые макросу параметры с помощью переменных <SAMP>`$1'</SAMP>, <SAMP>`$2'</SAMP>
+и т.п.
+</P><P>
+
+Для ввода комментариев в <CODE>m4</CODE> используйте встроенный макрос
+<CODE>m4</CODE> <CODE>dnl</CODE>; он заставляет <CODE>m4</CODE> игнорировать текст до
+начала новой строки. Он не нужен между определениями макросов в файлах
+<TT>`acsite.m4'</TT> и <TT>`aclocal.m4'</TT>, поскольку весь вывод удаляется до
+вызова <CODE>AC_INIT</CODE>.
+</P><P>
+
+See section `How to define new macros' in <CITE>GNU m4</CITE>, для
+более полной информации о написании макросов <CODE>m4</CODE>.
+</P><P>
+
+<A NAME="Имена макросов"></A>
+<HR SIZE="6">
+<A NAME="SEC61"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC60"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC62"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.2 Имена макросов </H2>
+<!--docid::SEC61::-->
+<A NAME="Macro Names"></A>
+<P>
+
+Все макросы Autoconf названы именами, состоящими из заглавных букв и
+начинающихся с префикса <SAMP>`AC_'</SAMP>, для того, чтобы избежать конфликтов
+с другим текстом. Все переменные командного процессора, которые
+используются для внутренних целей в этих макросах, как правило,
+называются именами из прописных букв и начинаются с <SAMP>`ac_'</SAMP>. Чтобы
+ваши макросы не конфликтовали с существующими или будущими макросами
+Autoconf, вы должны использовать собственный префикс для ваших макросов
+и переменных командного процессора. В качестве возможных значений вы
+можете использовать ваши инициалы, сокращенное название вашей
+организации или пакета программ.
+</P><P>
+
+Большинство имен макросов Autoconf следуют соглашению о структуре имени,
+которое показывает какой тип свойства проверяется данным
+макросом. Имена макросов состоят из нескольких слов, которые разделены
+символами подчеркивания, продвигаясь от общих слов к более
+специфическим. Имена соответствующих переменных кэша используют то же
+соглашение по именованию (see section <A HREF="autoconf-ru_6.html#SEC56">6.3.1 Имена переменных кэша</A> для получения
+дополнительной информации о них).
+</P><P>
+
+Первое слово имени после префикса <SAMP>`AC_'</SAMP> обычно сообщает категорию
+тестируемого свойства. Вот какие категории используются Autoconf для
+специфических макросов, один из типов которых вы вероятно захотите
+написать.  Они также используются для наименования переменных кэша,
+только уже прописными буквами. Используйте перечисленные категории при
+написании ваших макросов; если нужной категории нет, то вы можете вводит
+собственные.
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>C</CODE>
+<DD>Встроенные возможности языка C.
+<DT><CODE>DECL</CODE>
+<DD>Объявления переменных C в заголовочных файлах.
+<DT><CODE>FUNC</CODE>
+<DD>Функции в библиотеках.
+<DT><CODE>GROUP</CODE>
+<DD>Группа UNIX, владеющая файлами.
+<DT><CODE>HEADER</CODE>
+<DD>Заголовочные файлы.
+<DT><CODE>LIB</CODE>
+<DD>Библиотеки C.
+<DT><CODE>PATH</CODE>
+<DD>Полные путевые имена файлов, включая программы.
+<DT><CODE>PROG</CODE>
+<DD>Базовые имена программ.
+<DT><CODE>STRUCT</CODE>
+<DD>Определения структур C в заголовочных файлах.
+<DT><CODE>SYS</CODE>
+<DD>Свойства операционной системы.
+<DT><CODE>TYPE</CODE>
+<DD>Встроенные или объявленные типы C.
+<DT><CODE>VAR</CODE>
+<DD>Переменные C в библиотеках.
+</DL>
+<P>
+
+После категории следует имя тестируемого свойства. Любые дополнительные
+слова в имени макроса указывают на специфические аспекты тестируемого
+свойства. Например, <CODE>AC_FUNC_UTIME_NULL</CODE> проверяет поведение
+функции <CODE>utime</CODE> при вызове ее с указателем равным <CODE>NULL</CODE>.
+</P><P>
+
+Макрос,  являющийся внутренней подпрограммой другого макроса, должен
+иметь имя, начинающееся с имени этого макроса, за которым следует
+одно или несколько слов, описывающих что делает этот макрос. Например,
+макрос <CODE>AC_PATH_X</CODE> имеет внутренние макросы <CODE>AC_PATH_X_XMKMF</CODE>
+и <CODE>AC_PATH_X_DIRECT</CODE>.
+</P><P>
+
+<A NAME="Заключение в кавычки"></A>
+<HR SIZE="6">
+<A NAME="SEC62"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC61"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC63"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.3 Заключение в кавычки </H2>
+<!--docid::SEC62::-->
+<A NAME="Quoting"></A>
+<P>
+
+Макросы, которые вызываются другими макросами, оцениваются программой
+<CODE>m4</CODE> несколько раз; каждая оценка может потребовать другого уровня
+кавычек для предотвращения нежелательных расширений макросов или
+встроенных возможностей <CODE>m4</CODE>, таких как <SAMP>`define'</SAMP> и
+<SAMP>`$1'</SAMP>. Кавычки также требуются вокруг аргументов макросов,
+содержащих запятые, поскольку запятые разделяют аргументы макроса. Также
+хорошей привычкой является заключение в кавычки аргументов, содержащих
+символы новой строки или вызовы других макросов.
+</P><P>
+
+Autoconf изменяет символ-кавычку программы <CODE>m4</CODE> со значений по
+умолчанию <SAMP>``'</SAMP> и <SAMP>`''</SAMP> на <SAMP>`['</SAMP> и <SAMP>`]'</SAMP>, поскольку многие
+из макросов используют не сочетаемые <SAMP>``'</SAMP> и <SAMP>`''</SAMP>. Однако в
+нескольких местах макросам необходимо использование символов-скобок
+(обычно в тексте программ на языке C или в регулярных выражениях). В
+этих местах макросы используют встроенную команду <CODE>m4</CODE>
+<CODE>changequote</CODE> для временного изменения символа-кавычек на <SAMP>`&#60;&#60;'</SAMP>
+и <SAMP>`&#62;&#62;'</SAMP>. (Иногда, если им нет нужды заключать в кавычки что-либо, то
+они запрещают заключение в кавычки установкой символов-кавычек равных
+пустым символам). Вот пример использования:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_TRY_LINK(
+changequote(&#60;&#60;, &#62;&#62;)dnl
+&#60;&#60;#include &#60;time.h&#62;
+#ifndef tzname /* For SGI.  */
+extern char *tzname[]; /* RS6000 and others reject char **tzname.  */
+#endif&#62;&#62;,
+changequote([, ])dnl
+[atoi(*tzname);], ac_cv_var_tzname=yes, ac_cv_var_tzname=no)
+</pre></td></tr></table></P><P>
+
+Когда вы создаете скрипт <CODE>configure</CODE>, используя только что
+написанные макросы, то тщательно проверьте, нужно ли добавить
+дополнительные символы-кавычки в эти макросы. Если одно или несколько
+слов исчезнут в выводе <CODE>m4</CODE>, то вам необходимо добавить
+дополнительные символы-кавычки. Если вы сомневаетесь, то просто добавьте
+кавычки.
+</P><P>
+
+Однако также возможно поместить слишком много уровней кавычек.  Если это
+случается, то полученный скрипт <CODE>configure</CODE> будет содержать
+не-расширенный макрос. Программа <CODE>autoconf</CODE> выполняет проверку этой
+проблемы, выполняя команду <SAMP>`grep AC_ configure'</SAMP>.
+</P><P>
+
+<A NAME="Зависимости между макросами"></A>
+<HR SIZE="6">
+<A NAME="SEC63"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC62"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC64"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 7.4 Зависимости между макросами </H2>
+<!--docid::SEC63::-->
+<A NAME="Dependencies Between Macros"></A>
+<P>
+
+Некоторые макросы Autoconf зависят от других макросов, которые должны
+быть вызваны первыми для того, чтобы работа производилась
+правильно. Autoconf предоставляет способпроверки вызововн екоторых
+макросов и способ предоставления пользователю информацию о макросах,
+вызывающихся в порядке, приводимом к неправильному выполнению.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_7.html#SEC64">7.4.1 Требуемые макросы</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_7.html#SEC65">7.4.2 Предлагаемый порядок</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_7.html#SEC66">7.4.3 Устаревшие макросы</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Требуемые макросы"></A>
+<HR SIZE="6">
+<A NAME="SEC64"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC63"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC65"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC62"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC63"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 7.4.1 Требуемые макросы </H3>
+<!--docid::SEC64::-->
+<A NAME="Prerequisite Macros"></A>
+<P>
+
+Макрос, который вы можете написать, может нуждаться в значениях,
+вычисленных перед этим другими макросами. Например,
+<CODE>AC_DECL_YYTEXT</CODE> проверяет вывод <CODE>flex</CODE> или <CODE>lex</CODE>, так
+что он зависит от <CODE>AC_PROG_LEX</CODE>, который должен быть вызван перед
+этим для установки переменной командного процессора <CODE>LEX</CODE>.
+</P><P>
+
+Вместо того, чтобы заставлять пользователя макросов помнить все
+зависимости между макросами, вы можете использовать макрос
+<CODE>AC_REQUIRE</CODE> для автоматического отслеживания
+зависимости. <CODE>AC_REQUIRE</CODE> может помочь в обеспечении вызова макроса
+только по мере необходимости, и будет вызываться только один раз.
+</P><P>
+
+<A NAME="IDX453"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_REQUIRE</B> <I>(<VAR>macro-name</VAR>)</I>
+<DD><A NAME="IDX454"></A>
+Если макрос <CODE>m4</CODE> с именем <VAR>macro-name</VAR> еще не был вызван, то
+необходимо вызвать его (без каких-либо аргументов). Убедитесь, что вы
+поместили имя <VAR>macro-name</VAR> в квадратные кавычки. <VAR>macro-name</VAR>
+должен быть определен с использованием макроса <CODE>AC_DEFUN</CODE> или
+должен содержать вызов макроса <CODE>AC_PROVIDE</CODE> для того, чтобы
+указать, что он был вызван.
+</DL>
+</P><P>
+
+Альтернативой этому использованию <CODE>AC_DEFUN</CODE> является использование
+<CODE>define</CODE> и вызов макроса <CODE>AC_PROVIDE</CODE>. Поскольку этот подход
+не предотвращает вложенных сообщений, то эта техника является
+устаревшей.
+</P><P>
+
+<A NAME="IDX455"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_PROVIDE</B> <I>(<VAR>this-macro-name</VAR>)</I>
+<DD><A NAME="IDX456"></A>
+Запоминает тот факт, что макрос <VAR>this-macro-name</VAR> был вызван.
+<VAR>this-macro-name</VAR> должен быть именем макроса, который вызывает
+<CODE>AC_PROVIDE</CODE>. Для простого получения этого имени используйте
+встроенную переменную <CODE>m4</CODE> с именем <CODE>$0</CODE>, примерно так:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_PROVIDE([$0])
+</pre></td></tr></table></DL>
+</P><P>
+
+<A NAME="Предлагаемый порядок"></A>
+<HR SIZE="6">
+<A NAME="SEC65"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC64"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC66"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC62"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC63"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 7.4.2 Предлагаемый порядок </H3>
+<!--docid::SEC65::-->
+<A NAME="Suggested Ordering"></A>
+<P>
+
+Некоторые макросы должны быть вызваны до других макросов, если оба они
+вызываются, но не <EM>требуют</EM>, чтобы другие макросы были
+вызваны. Например, макрос, изменяющий поведение компилятора C, должен
+быть вызван до любого из макросов, запускающих компилятор C. Многие из
+этих зависимостей упоминаются в документации.
+</P><P>
+
+Autoconf предоставляет макрос <CODE>AC_BEFORE</CODE> для предупреждения
+пользователя о тех случаях, когда эти макросы вызываются в неправильном
+порядке в файле <TT>`configure.in'</TT>. Предупреждение выдается при
+создании скрипта <CODE>configure</CODE> из файла <TT>`configure.in'</TT>, а не при
+запуске созданного <CODE>configure</CODE>. Например, <CODE>AC_PROG_CPP</CODE>
+проверяет, может ли компилятор C запустить препроцессор C с ключом
+<SAMP>`-E'</SAMP>. Он должен быть вызван после любого из макросов, который
+изменяет поведение используемого компилятора C, такого как
+<CODE>AC_PROG_CC</CODE>. Так что макрос <CODE>AC_PROG_CC</CODE> должен содержать:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_BEFORE([$0], [AC_PROG_CPP])dnl
+</pre></td></tr></table></P><P>
+
+Это вызывает выдачу предупреждения пользователю, если вызов 
+<CODE>AC_PROG_CPP</CODE> уже произошел до вызова макроса <CODE>AC_PROG_CC</CODE>.
+</P><P>
+
+<A NAME="IDX457"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_BEFORE</B> <I>(<VAR>this-macro-name</VAR>, <VAR>called-macro-name</VAR>)</I>
+<DD><A NAME="IDX458"></A>
+Заставляет <CODE>m4</CODE> выдать предупреждающее сообщение в стандартный
+поток сообщений об ошибках в том случае, если макрос
+<VAR>called-macro-name</VAR> уже был вызван. <VAR>this-macro-name</VAR> должен
+быть именем макроса, вызывающим <CODE>AC_BEFORE</CODE>. Макрос
+<VAR>called-macro-name</VAR> должен быть определен макросом <CODE>AC_DEFUN</CODE>
+или должен содержать вызов <CODE>AC_PROVIDE</CODE> для того, чтобы показать,
+что он был вызван.
+</DL>
+</P><P>
+
+<A NAME="Устаревшие макросы"></A>
+<HR SIZE="6">
+<A NAME="SEC66"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC65"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC62"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC63"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 7.4.3 Устаревшие макросы </H3>
+<!--docid::SEC66::-->
+<A NAME="Obsolete Macros"></A>
+<P>
+
+Технология настройки и переносимости развивалась многие годы. Часто
+разрабатывались лучшие решения отдельных проблем, или
+систематизировались специальные подходы. Этот процесс происходил во
+многих частях Autoconf. Результатом этого является то, что некоторые
+макросы в настоящее время считаются <EM>устаревшими</EM>; они до сих пор
+работают, но не считаются лучшим способом решения. Autoconf
+предоставляет макрос <CODE>AC_OBSOLETE</CODE>, который предупреждает
+пользователей создающих скрипты <CODE>configure</CODE> о том, что они
+используют устаревшие макросы, чтобы поощрить их к использованию
+современных макросов. Простой вызов этого макроса выглядит так:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_OBSOLETE([$0], [; use AC_CHECK_HEADERS(unistd.h) instead])dnl
+</pre></td></tr></table></P><P>
+
+<A NAME="IDX459"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_OBSOLETE</B> <I>(<VAR>this-macro-name</VAR> [, <VAR>suggestion</VAR>])</I>
+<DD><A NAME="IDX460"></A>
+Заставляет <CODE>m4</CODE> выдать сообщение в стандартный поток сообщений об
+ошибках, которое говорит, что макрос <VAR>this-macro-name</VAR> устарел, и
+выдает имя файла и номер строки, где был вызван этот макрос,
+<VAR>this-macro-name</VAR> должен быть именем макроса, который производит
+вызов <CODE>AC_OBSOLETE</CODE>. Если задан аргумент <VAR>suggestion</VAR>, то он
+выдается в конце предупреждающего сообщения; например, он может быть
+советом о том, что нужно использовать вместо <VAR>this-macro-name</VAR>.
+</DL>
+</P><P>
+
+<A NAME="Ручная настройка"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC62"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+on <I>February, 19  2004</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct = "UA-78697-3"; urchinTracker(); </script></body>
+</HTML>

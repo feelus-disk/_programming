@@ -1,0 +1,271 @@
+<html lang="en">
+<head>
+<title>Common Shell Constructs - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sh.html#Programming-in-M4sh" title="Programming in M4sh">
+<link rel="next" href="Polymorphic-Variables.html#Polymorphic-Variables" title="Polymorphic Variables">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Common-Shell-Constructs"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Polymorphic-Variables.html#Polymorphic-Variables">Polymorphic Variables</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>
+<hr>
+</div>
+
+<h3 class="section">9.1 Common Shell Constructs</h3>
+
+<p>M4sh provides portable alternatives for some common shell constructs
+that unfortunately are not portable in practice.
+
+<!-- Deprecated, to be replaced by a better API -->
+<div class="defun">
+&mdash; Macro: <b>AS_BOX</b> (<var>text, </var><span class="roman">[</span><var>char = &lsquo;</var><samp><span class="samp">-</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AS_005fBOX-1557"></a></var><br>
+<blockquote><p><a name="index-AS_005fBOX-1558"></a>
+Expand into shell code that will output <var>text</var> surrounded by a box
+with <var>char</var> in the top and bottom border.  <var>text</var> should not
+contain a newline, but may contain shell expansions valid for unquoted
+here-documents.  <var>char</var> defaults to &lsquo;<samp><span class="samp">-</span></samp>&rsquo;, but can be any
+character except &lsquo;<samp><span class="samp">/</span></samp>&rsquo;, &lsquo;<samp><span class="samp">'</span></samp>&rsquo;, &lsquo;<samp><span class="samp">"</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\</span></samp>&rsquo;,
+&lsquo;<samp><span class="samp">&amp;</span></samp>&rsquo;, or &lsquo;<samp><span class="samp">`</span></samp>&rsquo;.  This is useful for outputting a comment box into
+log files to separate distinct phases of script operation. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_CASE</b> (<var>word, </var><span class="roman">[</span><var>pattern1</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-matched1</var><span class="roman">]</span><var>, <small class="dots">...</small>, </var><span class="roman">[</span><var>default</var><span class="roman">]</span>)<var><a name="index-AS_005fCASE-1559"></a></var><br>
+<blockquote><p><a name="index-AS_005fCASE-1560"></a>
+Expand into a shell &lsquo;<samp><span class="samp">case</span></samp>&rsquo; statement, where <var>word</var> is matched
+against one or more patterns.  <var>if-matched</var> is run if the
+corresponding pattern matched <var>word</var>, else <var>default</var> is run. 
+Avoids several portability issues (see <a href="case.html#case">Limitations of Shell Builtins</a>). 
+</p></blockquote></div>
+
+<!-- Deprecated, to be replaced by a better API -->
+<div class="defun">
+&mdash; Macro: <b>AS_DIRNAME</b> (<var>file-name</var>)<var><a name="index-AS_005fDIRNAME-1561"></a></var><br>
+<blockquote><p><a name="index-AS_005fDIRNAME-1562"></a>
+Output the directory portion of <var>file-name</var>.  For example,
+if <code>$file</code> is &lsquo;<samp><span class="samp">/one/two/three</span></samp>&rsquo;, the command
+<code>dir=`AS_DIRNAME(["$file"])`</code> sets <code>dir</code> to &lsquo;<samp><span class="samp">/one/two</span></samp>&rsquo;.
+
+        <p>This interface may be improved in the future to avoid forks and losing
+trailing newlines. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_ECHO</b> (<var>word</var>)<var><a name="index-AS_005fECHO-1563"></a></var><br>
+<blockquote><p><a name="index-AS_005fECHO-1564"></a>
+Emits <var>word</var> to the standard output, followed by a newline.  <var>word</var>
+must be a single shell word (typically a quoted string).  The bytes of
+<var>word</var> are output as-is, even if it starts with "-" or contains "\". 
+Redirections can be placed outside the macro invocation.  This is much
+more portable than using <samp><span class="command">echo</span></samp> (see <a href="echo.html#echo">Limitations of Shell Builtins</a>). 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_ECHO_N</b> (<var>word</var>)<var><a name="index-AS_005fECHO_005fN-1565"></a></var><br>
+<blockquote><p><a name="index-AS_005fECHO_005fN-1566"></a>
+Emits <var>word</var> to the standard output, without a following newline. 
+<var>word</var> must be a single shell word (typically a quoted string) and,
+for portability, should not include more than one newline.  The bytes of
+<var>word</var> are output as-is, even if it starts with "-" or contains "\". 
+Redirections can be placed outside the macro invocation. 
+</p></blockquote></div>
+
+<!-- We cannot use @dvar because the macro expansion mistreats backslashes. -->
+<div class="defun">
+&mdash; Macro: <b>AS_ESCAPE</b> (<var>string, </var><span class="roman">[</span><var>chars = &lsquo;</var><samp><span class="samp">`\"$</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AS_005fESCAPE-1567"></a></var><br>
+<blockquote><p><a name="index-AS_005fESCAPE-1568"></a>
+Expands to <var>string</var>, with any characters in <var>chars</var> escaped with
+a backslash (&lsquo;<samp><span class="samp">\</span></samp>&rsquo;).  <var>chars</var> should be at most four bytes long,
+and only contain characters from the set &lsquo;<samp><span class="samp">`\"$</span></samp>&rsquo;; however,
+characters may be safely listed more than once in <var>chars</var> for the
+sake of syntax highlighting editors.  The current implementation expands
+<var>string</var> after adding escapes; if <var>string</var> contains macro calls
+that in turn expand to text needing shell quoting, you can use
+<code>AS_ESCAPE(m4_dquote(m4_expand([string])))</code>.
+
+        <p>The default for <var>chars</var> (&lsquo;<samp><span class="samp">\"$`</span></samp>&rsquo;) is the set of characters
+needing escapes when <var>string</var> will be used literally within double
+quotes.  One common variant is the set of characters to protect when
+<var>string</var> will be used literally within back-ticks or an unquoted
+here-document (&lsquo;<samp><span class="samp">\$`</span></samp>&rsquo;).  Another common variant is &lsquo;<samp><span class="samp">""</span></samp>&rsquo;, which can
+be used to form a double-quoted string containing the same expansions
+that would have occurred if <var>string</var> were expanded in an unquoted
+here-document; however, when using this variant, care must be taken that
+<var>string</var> does not use double quotes within complex variable
+expansions (such as &lsquo;<samp><span class="samp">${foo-`echo "hi"`}</span></samp>&rsquo;) that would be broken
+with improper escapes.
+
+        <p>This macro is often used with <code>AS_ECHO</code>.  For an example, observe
+the output generated by the shell code generated from this snippet:
+
+     <pre class="example">          foo=bar
+          AS_ECHO(["AS_ESCAPE(["$foo" = ])AS_ESCAPE(["$foo"], [""])"])
+          &rArr;"$foo" = "bar"
+          m4_define([macro], [a, [\b]])
+          AS_ECHO(["AS_ESCAPE([[macro]])"])
+          &rArr;macro
+          AS_ECHO(["AS_ESCAPE([macro])"])
+          &rArr;a, b
+          AS_ECHO(["AS_ESCAPE(m4_dquote(m4_expand([macro])))"])
+          &rArr;a, \b
+</pre>
+        <!-- Should we add AS_ESCAPE_SINGLE? If we do, we can optimize in -->
+     <!-- the case of @var{string} that does not contain '. -->
+        <p>To escape a string that will be placed within single quotes, use:
+
+     <pre class="example">          m4_bpatsubst([[<var>string</var>]], ['], ['\\''])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_EXECUTABLE_P</b> (<var>file</var>)<var><a name="index-AS_005fEXECUTABLE_005fP-1569"></a></var><br>
+<blockquote><p><a name="index-AS_005fEXECUTABLE_005fP-1570"></a>
+Emit code to probe whether <var>file</var> is a regular file with executable
+permissions (and not a directory with search permissions).  The caller
+is responsible for quoting <var>file</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_EXIT</b> (<span class="roman">[</span><var>status = &lsquo;</var><samp><span class="samp">$?</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AS_005fEXIT-1571"></a></var><br>
+<blockquote><p><a name="index-AS_005fEXIT-1572"></a>
+Emit code to exit the shell with <var>status</var>, defaulting to &lsquo;<samp><span class="samp">$?</span></samp>&rsquo;. 
+This macro
+works around shells that see the exit status of the command prior to
+<code>exit</code> inside a &lsquo;<samp><span class="samp">trap 0</span></samp>&rsquo; handler (see <a href="trap.html#trap">Limitations of Shell Builtins</a>). 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_IF</b> (<var>test1, </var><span class="roman">[</span><var>run-if-true1</var><span class="roman">]</span><var>, <small class="dots">...</small>, </var><span class="roman">[</span><var>run-if-false</var><span class="roman">]</span>)<var><a name="index-AS_005fIF-1573"></a></var><br>
+<blockquote><p><a name="index-AS_005fIF-1574"></a>
+Run shell code <var>test1</var>.  If <var>test1</var> exits with a zero status then
+run shell code <var>run-if-true1</var>, else examine further tests.  If no test
+exits with a zero status, run shell code <var>run-if-false</var>, with
+simplifications if either <var>run-if-true1</var> or <var>run-if-false</var>
+is empty.  For example,
+
+     <pre class="example">          AS_IF([test "x$foo" = xyes], [HANDLE_FOO([yes])],
+                [test "x$foo" != xno], [HANDLE_FOO([maybe])],
+                [echo foo not specified])
+</pre>
+        <p class="noindent">ensures any required macros of <code>HANDLE_FOO</code>
+are expanded before the first test. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_MKDIR_P</b> (<var>file-name</var>)<var><a name="index-AS_005fMKDIR_005fP-1575"></a></var><br>
+<blockquote><p><a name="index-AS_005fMKDIR_005fP-1576"></a>
+Make the directory <var>file-name</var>, including intervening directories
+as necessary.  This is equivalent to &lsquo;<samp><span class="samp">mkdir -p -- </span><var>file-name</var></samp>&rsquo;,
+except that it is portable to older versions of <samp><span class="command">mkdir</span></samp> that
+lack support for the <samp><span class="option">-p</span></samp> option or for the <samp><span class="option">--</span></samp>
+delimiter (see <a href="mkdir.html#mkdir">Limitations of Usual Tools</a>).  Also,
+<code>AS_MKDIR_P</code>
+succeeds if <var>file-name</var> is a symbolic link to an existing directory,
+even though Posix is unclear whether &lsquo;<samp><span class="samp">mkdir -p</span></samp>&rsquo; should
+succeed in that case.  If creation of <var>file-name</var> fails, exit the
+script.
+
+        <p>Also see the <code>AC_PROG_MKDIR_P</code> macro (see <a href="Particular-Programs.html#Particular-Programs">Particular Programs</a>). 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_SET_STATUS</b> (<var>status</var>)<var><a name="index-AS_005fSET_005fSTATUS-1577"></a></var><br>
+<blockquote><p><a name="index-AS_005fSET_005fSTATUS-1578"></a>
+Emit shell code to set the value of &lsquo;<samp><span class="samp">$?</span></samp>&rsquo; to <var>status</var>, as
+efficiently as possible.  However, this is not guaranteed to abort a
+shell running with <code>set -e</code> (see <a href="set.html#set">Limitations of Shell Builtins</a>).  This should also be used at the end of a complex shell
+function instead of &lsquo;<samp><span class="samp">return</span></samp>&rsquo; (see <a href="Shell-Functions.html#Shell-Functions">Shell Functions</a>) to avoid
+a DJGPP shell bug. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_TR_CPP</b> (<var>expression</var>)<var><a name="index-AS_005fTR_005fCPP-1579"></a></var><br>
+<blockquote><p><a name="index-AS_005fTR_005fCPP-1580"></a>
+Transform <var>expression</var> into a valid right-hand side for a C <code>#define</code>. 
+For example:
+
+     <pre class="example">          # This outputs "#define HAVE_CHAR_P 1".
+          # Notice the m4 quoting around #, to prevent an m4 comment
+          type="char *"
+          echo "[#]define AS_TR_CPP([HAVE_$type]) 1"
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_TR_SH</b> (<var>expression</var>)<var><a name="index-AS_005fTR_005fSH-1581"></a></var><br>
+<blockquote><p><a name="index-AS_005fTR_005fSH-1582"></a>
+Transform <var>expression</var> into shell code that generates a valid shell
+variable name.  The result is literal when possible at m4 time, but must
+be used with <code>eval</code> if <var>expression</var> causes shell indirections. 
+For example:
+
+     <pre class="example">          # This outputs "Have it!".
+          header="sys/some file.h"
+          eval AS_TR_SH([HAVE_$header])=yes
+          if test "x$HAVE_sys_some_file_h" = xyes; then echo "Have it!"; fi
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_SET_CATFILE</b> (<var>var, dir, file</var>)<var><a name="index-AS_005fSET_005fCATFILE-1583"></a></var><br>
+<blockquote><p><a name="index-AS_005fSET_005fCATFILE-1584"></a>
+Set the polymorphic shell variable <var>var</var> to <var>dir</var>/<var>file</var>,
+but optimizing the common cases (<var>dir</var> or <var>file</var> is &lsquo;<samp><span class="samp">.</span></samp>&rsquo;,
+<var>file</var> is absolute, etc.). 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_UNSET</b> (<var>var</var>)<var><a name="index-AS_005fUNSET-1585"></a></var><br>
+<blockquote><p><a name="index-AS_005fUNSET-1586"></a>
+Unsets the shell variable <var>var</var>, working around bugs in older
+shells (see <a href="unset.html#unset">Limitations of Shell Builtins</a>).  <var>var</var> can be a literal or indirect variable name. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VERSION_COMPARE</b> (<var>version-1, version-2, </var><span class="roman">[</span><var>action-if-less</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-equal</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-greater</var><span class="roman">]</span>)<var><a name="index-AS_005fVERSION_005fCOMPARE-1587"></a></var><br>
+<blockquote><p><a name="index-AS_005fVERSION_005fCOMPARE-1588"></a>
+Compare two strings <var>version-1</var> and <var>version-2</var>, possibly
+containing shell variables, as version strings, and expand
+<var>action-if-less</var>, <var>action-if-equal</var>, or <var>action-if-greater</var>
+depending upon the result. 
+The algorithm to compare is similar to the one used by strverscmp in
+glibc (see <a href="../libc/String_002fArray-Comparison.html#String_002fArray-Comparison">String/Array Comparison</a>). 
+</p></blockquote></div>
+
+   </body></html>
+

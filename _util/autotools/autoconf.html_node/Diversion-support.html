@@ -1,0 +1,230 @@
+<html lang="en">
+<head>
+<title>Diversion support - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Diagnostic-Macros.html#Diagnostic-Macros" title="Diagnostic Macros">
+<link rel="next" href="Conditional-constructs.html#Conditional-constructs" title="Conditional constructs">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Diversion-support"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Conditional-constructs.html#Conditional-constructs">Conditional constructs</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Diagnostic-Macros.html#Diagnostic-Macros">Diagnostic Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.3 Diversion support</h4>
+
+<p>M4sugar makes heavy use of diversions under the hood, because it is
+often the case that
+text that must appear early in the output is not discovered until late
+in the input.  Additionally, some of the topological sorting algorithms
+used in resolving macro dependencies use diversions.  However, most
+macros should not need to change diversions directly, but rather rely on
+higher-level M4sugar macros to manage diversions transparently.  If you
+change diversions improperly, you risk generating a syntactically
+invalid script, because an incorrect diversion will violate assumptions
+made by many macros about whether prerequisite text has been previously
+output.  In short, if you manually change the diversion, you should not
+expect any macros provided by the Autoconf package to work until you
+have restored the diversion stack back to its original state.
+
+   <p>In the rare case that it is necessary to write a macro that explicitly
+outputs text to a different diversion, it is important to be aware of an
+M4 limitation regarding diversions: text only goes to a diversion if it
+is not part of argument collection.  Therefore, any macro that changes
+the current diversion cannot be used as an unquoted argument to another
+macro, but must be expanded at the top level.  The macro
+<code>m4_expand</code> will diagnose any attempt to change diversions, since
+it is generally useful only as an argument to another macro.  The
+following example shows what happens when diversion manipulation is
+attempted within macro arguments:
+
+<pre class="example">     m4_do([normal text]
+     m4_divert_push([KILL])unwanted[]m4_divert_pop([KILL])
+     [m4_divert_push([KILL])discarded[]m4_divert_pop([KILL])])dnl
+     &rArr;normal text
+     &rArr;unwanted
+</pre>
+   <p class="noindent">Notice that the unquoted text <code>unwanted</code> is output, even though it
+was processed while the current diversion was <code>KILL</code>, because it
+was collected as part of the argument to <code>m4_do</code>.  However, the
+text <code>discarded</code> disappeared as desired, because the diversion
+changes were single-quoted, and were not expanded until the top-level
+rescan of the output of <code>m4_do</code>.
+
+   <p>To make diversion management easier, M4sugar uses the concept of named
+diversions.  Rather than using diversion numbers directly, it is nicer
+to associate a name with each diversion.  The diversion number associated
+with a particular diversion name is an implementation detail, and a
+syntax warning is issued if a diversion number is used instead of a
+name.  In general, you should not output text
+to a named diversion until after calling the appropriate initialization
+routine for your language (<code>m4_init</code>, <code>AS_INIT</code>,
+<code>AT_INIT</code>, <small class="dots">...</small>), although there are some exceptions documented
+below.
+
+   <p>M4sugar defines two named diversions.
+     <dl>
+<dt><code>KILL</code><dd>Text written to this diversion is discarded.  This is the default
+diversion once M4sugar is initialized. 
+<br><dt><code>GROW</code><dd>This diversion is used behind the scenes by topological sorting macros,
+such as <code>AC_REQUIRE</code>. 
+</dl>
+
+   <p>M4sh adds several more named diversions.
+     <dl>
+<dt><code>BINSH</code><dd>This diversion is reserved for the &lsquo;<samp><span class="samp">#!</span></samp>&rsquo; interpreter line. 
+<br><dt><code>HEADER-REVISION</code><dd>This diversion holds text from <code>AC_REVISION</code>. 
+<br><dt><code>HEADER-COMMENT</code><dd>This diversion holds comments about the purpose of a file. 
+<br><dt><code>HEADER-COPYRIGHT</code><dd>This diversion is managed by <code>AC_COPYRIGHT</code>. 
+<br><dt><code>M4SH-SANITIZE</code><dd>This diversion contains M4sh sanitization code, used to ensure M4sh is
+executing in a reasonable shell environment. 
+<br><dt><code>M4SH-INIT</code><dd>This diversion contains M4sh initialization code, initializing variables
+that are required by other M4sh macros. 
+<br><dt><code>BODY</code><dd>This diversion contains the body of the shell code, and is the default
+diversion once M4sh is initialized. 
+</dl>
+
+   <p>Autotest inherits diversions from M4sh, and changes the default
+diversion from <code>BODY</code> back to <code>KILL</code>.  It also adds several
+more named diversions, with the following subset designed for developer
+use.
+     <dl>
+<dt><code>PREPARE_TESTS</code><dd>This diversion contains initialization sequences which are executed
+after <samp><span class="file">atconfig</span></samp> and <samp><span class="file">atlocal</span></samp>, and after all command line
+arguments have been parsed, but prior to running any tests.  It can be
+used to set up state that is required across all tests.  This diversion
+will work even before <code>AT_INIT</code>. 
+</dl>
+
+   <p>Autoconf inherits diversions from M4sh, and adds the following named
+diversions which developers can utilize.
+     <dl>
+<dt><code>DEFAULTS</code><dd>This diversion contains shell variable assignments to set defaults that
+must be in place before arguments are parsed.  This diversion is placed
+early enough in <samp><span class="file">configure</span></samp> that it is unsafe to expand any
+autoconf macros into this diversion. 
+<br><dt><code>HELP_ENABLE</code><dd>If <code>AC_PRESERVE_HELP_ORDER</code> was used, then text placed in this
+diversion will be included as part of a quoted here-doc providing all of
+the <samp><span class="option">--help</span></samp> output of <samp><span class="file">configure</span></samp> related to options
+created by <code>AC_ARG_WITH</code> and <code>AC_ARG_ENABLE</code>. 
+<br><dt><code>INIT_PREPARE</code><dd>This diversion occurs after all command line options have been parsed,
+but prior to the main body of the <samp><span class="file">configure</span></samp> script.  This
+diversion is the last chance to insert shell code such as variable
+assignments or shell function declarations that will used by the
+expansion of other macros. 
+</dl>
+
+   <p>For now, the remaining named diversions of Autoconf, Autoheader, and
+Autotest are not documented.  In other words,
+intentionally outputting text into an undocumented diversion is subject
+to breakage in a future release of Autoconf.
+
+<div class="defun">
+&mdash; Macro: <b>m4_cleardivert</b> (<var>diversion<small class="dots">...</small></var>)<var><a name="index-m4_005fcleardivert-1347"></a></var><br>
+<blockquote><p><a name="index-m4_005fcleardivert-1348"></a>
+Permanently discard any text that has been diverted into
+<var>diversion</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_divert_once</b> (<var>diversion, </var><span class="roman">[</span><var>content</var><span class="roman">]</span>)<var><a name="index-m4_005fdivert_005fonce-1349"></a></var><br>
+<blockquote><p><a name="index-m4_005fdivert_005fonce-1350"></a>
+Similar to <code>m4_divert_text</code>, except that <var>content</var> is only
+output to <var>diversion</var> if this is the first time that
+<code>m4_divert_once</code> has been called with its particular arguments. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_divert_pop</b> (<span class="roman">[</span><var>diversion</var><span class="roman">]</span>)<var><a name="index-m4_005fdivert_005fpop-1351"></a></var><br>
+<blockquote><p><a name="index-m4_005fdivert_005fpop-1352"></a>
+If provided, check that the current diversion is indeed <var>diversion</var>. 
+Then change to the diversion located earlier on the stack, giving an
+error if an attempt is made to pop beyond the initial m4sugar diversion
+of <code>KILL</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_divert_push</b> (<var>diversion</var>)<var><a name="index-m4_005fdivert_005fpush-1353"></a></var><br>
+<blockquote><p><a name="index-m4_005fdivert_005fpush-1354"></a>
+Remember the former diversion on the diversion stack, and output
+subsequent text into <var>diversion</var>.  M4sugar maintains a diversion
+stack, and issues an error if there is not a matching pop for every
+push. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_divert_text</b> (<var>diversion, </var><span class="roman">[</span><var>content</var><span class="roman">]</span>)<var><a name="index-m4_005fdivert_005ftext-1355"></a></var><br>
+<blockquote><p><a name="index-m4_005fdivert_005ftext-1356"></a>
+Output <var>content</var> and a newline into <var>diversion</var>, without
+affecting the current diversion.  Shorthand for:
+     <pre class="example">          m4_divert_push([<var>diversion</var>])<var>content</var>
+          m4_divert_pop([<var>diversion</var>])dnl
+</pre>
+        <p>One use of <code>m4_divert_text</code> is to develop two related macros, where
+macro &lsquo;<samp><span class="samp">MY_A</span></samp>&rsquo; does the work, but adjusts what work is performed
+based on whether the optional macro &lsquo;<samp><span class="samp">MY_B</span></samp>&rsquo; has also been expanded. 
+Of course, it is possible to use <code>AC_BEFORE</code> within <code>MY_A</code> to
+require that &lsquo;<samp><span class="samp">MY_B</span></samp>&rsquo; occurs first, if it occurs at all.  But this
+imposes an ordering restriction on the user; it would be nicer if macros
+&lsquo;<samp><span class="samp">MY_A</span></samp>&rsquo; and &lsquo;<samp><span class="samp">MY_B</span></samp>&rsquo; can be invoked in either order.  The trick
+is to let &lsquo;<samp><span class="samp">MY_B</span></samp>&rsquo; leave a breadcrumb in an early diversion, which
+&lsquo;<samp><span class="samp">MY_A</span></samp>&rsquo; can then use to determine whether &lsquo;<samp><span class="samp">MY_B</span></samp>&rsquo; has been
+expanded.
+
+     <pre class="example">          AC_DEFUN([MY_A],
+          [# various actions
+          if test -n "$b_was_used"; then
+            # extra action
+          fi])
+          AC_DEFUN([MY_B],
+          [AC_REQUIRE([MY_A])dnl
+          m4_divert_text([INIT_PREPARE], [b_was_used=true])])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_init</b><var><a name="index-m4_005finit-1357"></a></var><br>
+<blockquote><p><a name="index-m4_005finit-1358"></a>
+Initialize the M4sugar environment, setting up the default named
+diversion to be <code>KILL</code>. 
+</p></blockquote></div>
+
+   </body></html>
+

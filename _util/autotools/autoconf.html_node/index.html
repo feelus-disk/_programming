@@ -1,0 +1,975 @@
+<html lang="en">
+<head>
+<title>Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="#Top">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled "GNU Free Documentation License."
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<h1 class="settitle">Autoconf</h1>
+   <div class="contents">
+<h2>Table of Contents</h2>
+<ul>
+<li><a name="toc_Top" href="index.html#Top">Autoconf</a>
+<li><a name="toc_Introduction" href="Introduction.html#Introduction">1 Introduction</a>
+<li><a name="toc_The-GNU-Build-System" href="The-GNU-Build-System.html#The-GNU-Build-System">2 The GNU Build System</a>
+<ul>
+<li><a href="Automake.html#Automake">2.1 Automake</a>
+<li><a href="Gnulib.html#Gnulib">2.2 Gnulib</a>
+<li><a href="Libtool.html#Libtool">2.3 Libtool</a>
+<li><a href="Pointers.html#Pointers">2.4 Pointers</a>
+</li></ul>
+<li><a name="toc_Making-configure-Scripts" href="Making-configure-Scripts.html#Making-configure-Scripts">3 Making <samp><span class="command">configure</span></samp> Scripts</a>
+<ul>
+<li><a href="Writing-Autoconf-Input.html#Writing-Autoconf-Input">3.1 Writing <samp><span class="file">configure.ac</span></samp></a>
+<ul>
+<li><a href="Shell-Script-Compiler.html#Shell-Script-Compiler">3.1.1 A Shell Script Compiler</a>
+<li><a href="Autoconf-Language.html#Autoconf-Language">3.1.2 The Autoconf Language</a>
+<li><a href="Autoconf-Input-Layout.html#Autoconf-Input-Layout">3.1.3 Standard <samp><span class="file">configure.ac</span></samp> Layout</a>
+</li></ul>
+<li><a href="autoscan-Invocation.html#autoscan-Invocation">3.2 Using <samp><span class="command">autoscan</span></samp> to Create <samp><span class="file">configure.ac</span></samp></a>
+<li><a href="ifnames-Invocation.html#ifnames-Invocation">3.3 Using <samp><span class="command">ifnames</span></samp> to List Conditionals</a>
+<li><a href="autoconf-Invocation.html#autoconf-Invocation">3.4 Using <samp><span class="command">autoconf</span></samp> to Create <samp><span class="command">configure</span></samp></a>
+<li><a href="autoreconf-Invocation.html#autoreconf-Invocation">3.5 Using <samp><span class="command">autoreconf</span></samp> to Update <samp><span class="command">configure</span></samp> Scripts</a>
+</li></ul>
+<li><a name="toc_Setup" href="Setup.html#Setup">4 Initialization and Output Files</a>
+<ul>
+<li><a href="Initializing-configure.html#Initializing-configure">4.1 Initializing <samp><span class="command">configure</span></samp></a>
+<li><a href="Versioning.html#Versioning">4.2 Dealing with Autoconf versions</a>
+<li><a href="Notices.html#Notices">4.3 Notices in <samp><span class="command">configure</span></samp></a>
+<li><a href="Input.html#Input">4.4 Finding <samp><span class="command">configure</span></samp> Input</a>
+<li><a href="Output.html#Output">4.5 Outputting Files</a>
+<li><a href="Configuration-Actions.html#Configuration-Actions">4.6 Performing Configuration Actions</a>
+<li><a href="Configuration-Files.html#Configuration-Files">4.7 Creating Configuration Files</a>
+<li><a href="Makefile-Substitutions.html#Makefile-Substitutions">4.8 Substitutions in Makefiles</a>
+<ul>
+<li><a href="Preset-Output-Variables.html#Preset-Output-Variables">4.8.1 Preset Output Variables</a>
+<li><a href="Installation-Directory-Variables.html#Installation-Directory-Variables">4.8.2 Installation Directory Variables</a>
+<li><a href="Changed-Directory-Variables.html#Changed-Directory-Variables">4.8.3 Changed Directory Variables</a>
+<li><a href="Build-Directories.html#Build-Directories">4.8.4 Build Directories</a>
+<li><a href="Automatic-Remaking.html#Automatic-Remaking">4.8.5 Automatic Remaking</a>
+</li></ul>
+<li><a href="Configuration-Headers.html#Configuration-Headers">4.9 Configuration Header Files</a>
+<ul>
+<li><a href="Header-Templates.html#Header-Templates">4.9.1 Configuration Header Templates</a>
+<li><a href="autoheader-Invocation.html#autoheader-Invocation">4.9.2 Using <samp><span class="command">autoheader</span></samp> to Create <samp><span class="file">config.h.in</span></samp></a>
+<li><a href="Autoheader-Macros.html#Autoheader-Macros">4.9.3 Autoheader Macros</a>
+</li></ul>
+<li><a href="Configuration-Commands.html#Configuration-Commands">4.10 Running Arbitrary Configuration Commands</a>
+<li><a href="Configuration-Links.html#Configuration-Links">4.11 Creating Configuration Links</a>
+<li><a href="Subdirectories.html#Subdirectories">4.12 Configuring Other Packages in Subdirectories</a>
+<li><a href="Default-Prefix.html#Default-Prefix">4.13 Default Prefix</a>
+</li></ul>
+<li><a name="toc_Existing-Tests" href="Existing-Tests.html#Existing-Tests">5 Existing Tests</a>
+<ul>
+<li><a href="Common-Behavior.html#Common-Behavior">5.1 Common Behavior</a>
+<ul>
+<li><a href="Standard-Symbols.html#Standard-Symbols">5.1.1 Standard Symbols</a>
+<li><a href="Default-Includes.html#Default-Includes">5.1.2 Default Includes</a>
+</li></ul>
+<li><a href="Alternative-Programs.html#Alternative-Programs">5.2 Alternative Programs</a>
+<ul>
+<li><a href="Particular-Programs.html#Particular-Programs">5.2.1 Particular Program Checks</a>
+<li><a href="Generic-Programs.html#Generic-Programs">5.2.2 Generic Program and File Checks</a>
+</li></ul>
+<li><a href="Files.html#Files">5.3 Files</a>
+<li><a href="Libraries.html#Libraries">5.4 Library Files</a>
+<li><a href="Library-Functions.html#Library-Functions">5.5 Library Functions</a>
+<ul>
+<li><a href="Function-Portability.html#Function-Portability">5.5.1 Portability of C Functions</a>
+<li><a href="Particular-Functions.html#Particular-Functions">5.5.2 Particular Function Checks</a>
+<li><a href="Generic-Functions.html#Generic-Functions">5.5.3 Generic Function Checks</a>
+</li></ul>
+<li><a href="Header-Files.html#Header-Files">5.6 Header Files</a>
+<ul>
+<li><a href="Header-Portability.html#Header-Portability">5.6.1 Portability of Headers</a>
+<li><a href="Particular-Headers.html#Particular-Headers">5.6.2 Particular Header Checks</a>
+<li><a href="Generic-Headers.html#Generic-Headers">5.6.3 Generic Header Checks</a>
+</li></ul>
+<li><a href="Declarations.html#Declarations">5.7 Declarations</a>
+<ul>
+<li><a href="Particular-Declarations.html#Particular-Declarations">5.7.1 Particular Declaration Checks</a>
+<li><a href="Generic-Declarations.html#Generic-Declarations">5.7.2 Generic Declaration Checks</a>
+</li></ul>
+<li><a href="Structures.html#Structures">5.8 Structures</a>
+<ul>
+<li><a href="Particular-Structures.html#Particular-Structures">5.8.1 Particular Structure Checks</a>
+<li><a href="Generic-Structures.html#Generic-Structures">5.8.2 Generic Structure Checks</a>
+</li></ul>
+<li><a href="Types.html#Types">5.9 Types</a>
+<ul>
+<li><a href="Particular-Types.html#Particular-Types">5.9.1 Particular Type Checks</a>
+<li><a href="Generic-Types.html#Generic-Types">5.9.2 Generic Type Checks</a>
+</li></ul>
+<li><a href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors">5.10 Compilers and Preprocessors</a>
+<ul>
+<li><a href="Specific-Compiler-Characteristics.html#Specific-Compiler-Characteristics">5.10.1 Specific Compiler Characteristics</a>
+<li><a href="Generic-Compiler-Characteristics.html#Generic-Compiler-Characteristics">5.10.2 Generic Compiler Characteristics</a>
+<li><a href="C-Compiler.html#C-Compiler">5.10.3 C Compiler Characteristics</a>
+<li><a href="C_002b_002b-Compiler.html#C_002b_002b-Compiler">5.10.4 C++ Compiler Characteristics</a>
+<li><a href="Objective-C-Compiler.html#Objective-C-Compiler">5.10.5 Objective C Compiler Characteristics</a>
+<li><a href="Objective-C_002b_002b-Compiler.html#Objective-C_002b_002b-Compiler">5.10.6 Objective C++ Compiler Characteristics</a>
+<li><a href="Erlang-Compiler-and-Interpreter.html#Erlang-Compiler-and-Interpreter">5.10.7 Erlang Compiler and Interpreter Characteristics</a>
+<li><a href="Fortran-Compiler.html#Fortran-Compiler">5.10.8 Fortran Compiler Characteristics</a>
+<li><a href="Go-Compiler.html#Go-Compiler">5.10.9 Go Compiler Characteristics</a>
+</li></ul>
+<li><a href="System-Services.html#System-Services">5.11 System Services</a>
+<li><a href="Posix-Variants.html#Posix-Variants">5.12 Posix Variants</a>
+<li><a href="Erlang-Libraries.html#Erlang-Libraries">5.13 Erlang Libraries</a>
+</li></ul>
+<li><a name="toc_Writing-Tests" href="Writing-Tests.html#Writing-Tests">6 Writing Tests</a>
+<ul>
+<li><a href="Language-Choice.html#Language-Choice">6.1 Language Choice</a>
+<li><a href="Writing-Test-Programs.html#Writing-Test-Programs">6.2 Writing Test Programs</a>
+<ul>
+<li><a href="Guidelines.html#Guidelines">6.2.1 Guidelines for Test Programs</a>
+<li><a href="Test-Functions.html#Test-Functions">6.2.2 Test Functions</a>
+<li><a href="Generating-Sources.html#Generating-Sources">6.2.3 Generating Sources</a>
+</li></ul>
+<li><a href="Running-the-Preprocessor.html#Running-the-Preprocessor">6.3 Running the Preprocessor</a>
+<li><a href="Running-the-Compiler.html#Running-the-Compiler">6.4 Running the Compiler</a>
+<li><a href="Running-the-Linker.html#Running-the-Linker">6.5 Running the Linker</a>
+<li><a href="Runtime.html#Runtime">6.6 Checking Runtime Behavior</a>
+<li><a href="Systemology.html#Systemology">6.7 Systemology</a>
+<li><a href="Multiple-Cases.html#Multiple-Cases">6.8 Multiple Cases</a>
+</li></ul>
+<li><a name="toc_Results" href="Results.html#Results">7 Results of Tests</a>
+<ul>
+<li><a href="Defining-Symbols.html#Defining-Symbols">7.1 Defining C Preprocessor Symbols</a>
+<li><a href="Setting-Output-Variables.html#Setting-Output-Variables">7.2 Setting Output Variables</a>
+<li><a href="Special-Chars-in-Variables.html#Special-Chars-in-Variables">7.3 Special Characters in Output Variables</a>
+<li><a href="Caching-Results.html#Caching-Results">7.4 Caching Results</a>
+<ul>
+<li><a href="Cache-Variable-Names.html#Cache-Variable-Names">7.4.1 Cache Variable Names</a>
+<li><a href="Cache-Files.html#Cache-Files">7.4.2 Cache Files</a>
+<li><a href="Cache-Checkpointing.html#Cache-Checkpointing">7.4.3 Cache Checkpointing</a>
+</li></ul>
+<li><a href="Printing-Messages.html#Printing-Messages">7.5 Printing Messages</a>
+</li></ul>
+<li><a name="toc_Programming-in-M4" href="Programming-in-M4.html#Programming-in-M4">8 Programming in M4</a>
+<ul>
+<li><a href="M4-Quotation.html#M4-Quotation">8.1 M4 Quotation</a>
+<ul>
+<li><a href="Active-Characters.html#Active-Characters">8.1.1 Active Characters</a>
+<li><a href="One-Macro-Call.html#One-Macro-Call">8.1.2 One Macro Call</a>
+<li><a href="Quoting-and-Parameters.html#Quoting-and-Parameters">8.1.3 Quoting and Parameters</a>
+<li><a href="Quotation-and-Nested-Macros.html#Quotation-and-Nested-Macros">8.1.4 Quotation and Nested Macros</a>
+<li><a href="Changequote-is-Evil.html#Changequote-is-Evil">8.1.5 <code>changequote</code> is Evil</a>
+<li><a href="Quadrigraphs.html#Quadrigraphs">8.1.6 Quadrigraphs</a>
+<li><a href="Balancing-Parentheses.html#Balancing-Parentheses">8.1.7 Dealing with unbalanced parentheses</a>
+<li><a href="Quotation-Rule-Of-Thumb.html#Quotation-Rule-Of-Thumb">8.1.8 Quotation Rule Of Thumb</a>
+</li></ul>
+<li><a href="Using-autom4te.html#Using-autom4te">8.2 Using <samp><span class="command">autom4te</span></samp></a>
+<ul>
+<li><a href="autom4te-Invocation.html#autom4te-Invocation">8.2.1 Invoking <samp><span class="command">autom4te</span></samp></a>
+<li><a href="Customizing-autom4te.html#Customizing-autom4te">8.2.2 Customizing <samp><span class="command">autom4te</span></samp></a>
+</li></ul>
+<li><a href="Programming-in-M4sugar.html#Programming-in-M4sugar">8.3 Programming in M4sugar</a>
+<ul>
+<li><a href="Redefined-M4-Macros.html#Redefined-M4-Macros">8.3.1 Redefined M4 Macros</a>
+<li><a href="Diagnostic-Macros.html#Diagnostic-Macros">8.3.2 Diagnostic messages from M4sugar</a>
+<li><a href="Diversion-support.html#Diversion-support">8.3.3 Diversion support</a>
+<li><a href="Conditional-constructs.html#Conditional-constructs">8.3.4 Conditional constructs</a>
+<li><a href="Looping-constructs.html#Looping-constructs">8.3.5 Looping constructs</a>
+<li><a href="Evaluation-Macros.html#Evaluation-Macros">8.3.6 Evaluation Macros</a>
+<li><a href="Text-processing-Macros.html#Text-processing-Macros">8.3.7 String manipulation in M4</a>
+<li><a href="Number-processing-Macros.html#Number-processing-Macros">8.3.8 Arithmetic computation in M4</a>
+<li><a href="Set-manipulation-Macros.html#Set-manipulation-Macros">8.3.9 Set manipulation in M4</a>
+<li><a href="Forbidden-Patterns.html#Forbidden-Patterns">8.3.10 Forbidden Patterns</a>
+</li></ul>
+<li><a href="Debugging-via-autom4te.html#Debugging-via-autom4te">8.4 Debugging via autom4te</a>
+</li></ul>
+<li><a name="toc_Programming-in-M4sh" href="Programming-in-M4sh.html#Programming-in-M4sh">9 Programming in M4sh</a>
+<ul>
+<li><a href="Common-Shell-Constructs.html#Common-Shell-Constructs">9.1 Common Shell Constructs</a>
+<li><a href="Polymorphic-Variables.html#Polymorphic-Variables">9.2 Support for indirect variable names</a>
+<li><a href="Initialization-Macros.html#Initialization-Macros">9.3 Initialization Macros</a>
+<li><a href="File-Descriptor-Macros.html#File-Descriptor-Macros">9.4 File Descriptor Macros</a>
+</li></ul>
+<li><a name="toc_Writing-Autoconf-Macros" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros">10 Writing Autoconf Macros</a>
+<ul>
+<li><a href="Macro-Definitions.html#Macro-Definitions">10.1 Macro Definitions</a>
+<li><a href="Macro-Names.html#Macro-Names">10.2 Macro Names</a>
+<li><a href="Reporting-Messages.html#Reporting-Messages">10.3 Reporting Messages</a>
+<li><a href="Dependencies-Between-Macros.html#Dependencies-Between-Macros">10.4 Dependencies Between Macros</a>
+<ul>
+<li><a href="Prerequisite-Macros.html#Prerequisite-Macros">10.4.1 Prerequisite Macros</a>
+<li><a href="Suggested-Ordering.html#Suggested-Ordering">10.4.2 Suggested Ordering</a>
+<li><a href="One_002dShot-Macros.html#One_002dShot-Macros">10.4.3 One-Shot Macros</a>
+</li></ul>
+<li><a href="Obsoleting-Macros.html#Obsoleting-Macros">10.5 Obsoleting Macros</a>
+<li><a href="Coding-Style.html#Coding-Style">10.6 Coding Style</a>
+</li></ul>
+<li><a name="toc_Portable-Shell" href="Portable-Shell.html#Portable-Shell">11 Portable Shell Programming</a>
+<ul>
+<li><a href="Shellology.html#Shellology">11.1 Shellology</a>
+<li><a href="Invoking-the-Shell.html#Invoking-the-Shell">11.2 Invoking the Shell</a>
+<li><a href="Here_002dDocuments.html#Here_002dDocuments">11.3 Here-Documents</a>
+<li><a href="File-Descriptors.html#File-Descriptors">11.4 File Descriptors</a>
+<li><a href="Signal-Handling.html#Signal-Handling">11.5 Signal Handling</a>
+<li><a href="File-System-Conventions.html#File-System-Conventions">11.6 File System Conventions</a>
+<li><a href="Shell-Pattern-Matching.html#Shell-Pattern-Matching">11.7 Shell Pattern Matching</a>
+<li><a href="Shell-Substitutions.html#Shell-Substitutions">11.8 Shell Substitutions</a>
+<li><a href="Assignments.html#Assignments">11.9 Assignments</a>
+<li><a href="Parentheses.html#Parentheses">11.10 Parentheses in Shell Scripts</a>
+<li><a href="Slashes.html#Slashes">11.11 Slashes in Shell Scripts</a>
+<li><a href="Special-Shell-Variables.html#Special-Shell-Variables">11.12 Special Shell Variables</a>
+<li><a href="Shell-Functions.html#Shell-Functions">11.13 Shell Functions</a>
+<li><a href="Limitations-of-Builtins.html#Limitations-of-Builtins">11.14 Limitations of Shell Builtins</a>
+<li><a href="Limitations-of-Usual-Tools.html#Limitations-of-Usual-Tools">11.15 Limitations of Usual Tools</a>
+</li></ul>
+<li><a name="toc_Portable-Make" href="Portable-Make.html#Portable-Make">12 Portable Make Programming</a>
+<ul>
+<li><a href="_0024_003c-in-Ordinary-Make-Rules.html#_0024_003c-in-Ordinary-Make-Rules">12.1 <code>$&lt;</code> in Ordinary Make Rules</a>
+<li><a href="Failure-in-Make-Rules.html#Failure-in-Make-Rules">12.2 Failure in Make Rules</a>
+<li><a href="Special-Chars-in-Names.html#Special-Chars-in-Names">12.3 Special Characters in Make Macro Names</a>
+<li><a href="Backslash_002dNewline_002dEmpty.html#Backslash_002dNewline_002dEmpty">12.4 Backslash-Newline Before Empty Lines</a>
+<li><a href="Backslash_002dNewline-Comments.html#Backslash_002dNewline-Comments">12.5 Backslash-Newline in Make Comments</a>
+<li><a href="Long-Lines-in-Makefiles.html#Long-Lines-in-Makefiles">12.6 Long Lines in Makefiles</a>
+<li><a href="Macros-and-Submakes.html#Macros-and-Submakes">12.7 <code>make macro=value</code> and Submakes</a>
+<li><a href="The-Make-Macro-MAKEFLAGS.html#The-Make-Macro-MAKEFLAGS">12.8 The Make Macro MAKEFLAGS</a>
+<li><a href="The-Make-Macro-SHELL.html#The-Make-Macro-SHELL">12.9 The Make Macro <code>SHELL</code></a>
+<li><a href="Parallel-Make.html#Parallel-Make">12.10 Parallel Make</a>
+<li><a href="Comments-in-Make-Rules.html#Comments-in-Make-Rules">12.11 Comments in Make Rules</a>
+<li><a href="Newlines-in-Make-Rules.html#Newlines-in-Make-Rules">12.12 Newlines in Make Rules</a>
+<li><a href="Comments-in-Make-Macros.html#Comments-in-Make-Macros">12.13 Comments in Make Macros</a>
+<li><a href="Trailing-whitespace-in-Make-Macros.html#Trailing-whitespace-in-Make-Macros">12.14 Trailing whitespace in Make Macros</a>
+<li><a href="Command_002dline-Macros-and-whitespace.html#Command_002dline-Macros-and-whitespace">12.15 Command-line Macros and whitespace</a>
+<li><a href="obj_002f-and-Make.html#obj_002f-and-Make">12.16 The <samp><span class="file">obj/</span></samp> Subdirectory and Make</a>
+<li><a href="make-_002dk-Status.html#make-_002dk-Status">12.17 Exit Status of <code>make -k</code></a>
+<li><a href="VPATH-and-Make.html#VPATH-and-Make">12.18 <code>VPATH</code> and Make</a>
+<ul>
+<li><a href="Variables-listed-in-VPATH.html#Variables-listed-in-VPATH">12.18.1 Variables listed in <code>VPATH</code></a>
+<li><a href="VPATH-and-Double_002dcolon.html#VPATH-and-Double_002dcolon">12.18.2 <code>VPATH</code> and Double-colon Rules</a>
+<li><a href="_0024_003c-in-Explicit-Rules.html#_0024_003c-in-Explicit-Rules">12.18.3 <code>$&lt;</code> Not Supported in Explicit Rules</a>
+<li><a href="Automatic-Rule-Rewriting.html#Automatic-Rule-Rewriting">12.18.4 Automatic Rule Rewriting</a>
+<li><a href="Tru64-Directory-Magic.html#Tru64-Directory-Magic">12.18.5 Tru64 <samp><span class="command">make</span></samp> Creates Prerequisite Directories Magically</a>
+<li><a href="Make-Target-Lookup.html#Make-Target-Lookup">12.18.6 Make Target Lookup</a>
+</li></ul>
+<li><a href="Single-Suffix-Rules.html#Single-Suffix-Rules">12.19 Single Suffix Rules and Separated Dependencies</a>
+<li><a href="Timestamps-and-Make.html#Timestamps-and-Make">12.20 Timestamp Resolution and Make</a>
+</li></ul>
+<li><a name="toc_Portable-C-and-C_002b_002b" href="Portable-C-and-C_002b_002b.html#Portable-C-and-C_002b_002b">13 Portable C and C++ Programming</a>
+<ul>
+<li><a href="Varieties-of-Unportability.html#Varieties-of-Unportability">13.1 Varieties of Unportability</a>
+<li><a href="Integer-Overflow.html#Integer-Overflow">13.2 Integer Overflow</a>
+<ul>
+<li><a href="Integer-Overflow-Basics.html#Integer-Overflow-Basics">13.2.1 Basics of Integer Overflow</a>
+<li><a href="Signed-Overflow-Examples.html#Signed-Overflow-Examples">13.2.2 Examples of Code Assuming Wraparound Overflow</a>
+<li><a href="Optimization-and-Wraparound.html#Optimization-and-Wraparound">13.2.3 Optimizations That Break Wraparound Arithmetic</a>
+<li><a href="Signed-Overflow-Advice.html#Signed-Overflow-Advice">13.2.4 Practical Advice for Signed Overflow Issues</a>
+<li><a href="Signed-Integer-Division.html#Signed-Integer-Division">13.2.5 Signed Integer Division and Integer Overflow</a>
+</li></ul>
+<li><a href="Preprocessor-Arithmetic.html#Preprocessor-Arithmetic">13.3 Preprocessor Arithmetic</a>
+<li><a href="Null-Pointers.html#Null-Pointers">13.4 Properties of Null Pointers</a>
+<li><a href="Buffer-Overruns.html#Buffer-Overruns">13.5 Buffer Overruns and Subscript Errors</a>
+<li><a href="Volatile-Objects.html#Volatile-Objects">13.6 Volatile Objects</a>
+<li><a href="Floating-Point-Portability.html#Floating-Point-Portability">13.7 Floating Point Portability</a>
+<li><a href="Exiting-Portably.html#Exiting-Portably">13.8 Exiting Portably</a>
+</li></ul>
+<li><a name="toc_Manual-Configuration" href="Manual-Configuration.html#Manual-Configuration">14 Manual Configuration</a>
+<ul>
+<li><a href="Specifying-Target-Triplets.html#Specifying-Target-Triplets">14.1 Specifying target triplets</a>
+<li><a href="Canonicalizing.html#Canonicalizing">14.2 Getting the Canonical System Type</a>
+<li><a href="Using-System-Type.html#Using-System-Type">14.3 Using the System Type</a>
+</li></ul>
+<li><a name="toc_Site-Configuration" href="Site-Configuration.html#Site-Configuration">15 Site Configuration</a>
+<ul>
+<li><a href="Help-Formatting.html#Help-Formatting">15.1 Controlling Help Output</a>
+<li><a href="External-Software.html#External-Software">15.2 Working With External Software</a>
+<li><a href="Package-Options.html#Package-Options">15.3 Choosing Package Options</a>
+<li><a href="Pretty-Help-Strings.html#Pretty-Help-Strings">15.4 Making Your Help Strings Look Pretty</a>
+<li><a href="Option-Checking.html#Option-Checking">15.5 Controlling Checking of <samp><span class="command">configure</span></samp> Options</a>
+<li><a href="Site-Details.html#Site-Details">15.6 Configuring Site Details</a>
+<li><a href="Transforming-Names.html#Transforming-Names">15.7 Transforming Program Names When Installing</a>
+<ul>
+<li><a href="Transformation-Options.html#Transformation-Options">15.7.1 Transformation Options</a>
+<li><a href="Transformation-Examples.html#Transformation-Examples">15.7.2 Transformation Examples</a>
+<li><a href="Transformation-Rules.html#Transformation-Rules">15.7.3 Transformation Rules</a>
+</li></ul>
+<li><a href="Site-Defaults.html#Site-Defaults">15.8 Setting Site Defaults</a>
+</li></ul>
+<li><a name="toc_Running-configure-Scripts" href="Running-configure-Scripts.html#Running-configure-Scripts">16 Running <samp><span class="command">configure</span></samp> Scripts</a>
+<ul>
+<li><a href="Basic-Installation.html#Basic-Installation">16.1 Basic Installation</a>
+<li><a href="Compilers-and-Options.html#Compilers-and-Options">16.2 Compilers and Options</a>
+<li><a href="Multiple-Architectures.html#Multiple-Architectures">16.3 Compiling For Multiple Architectures</a>
+<li><a href="Installation-Names.html#Installation-Names">16.4 Installation Names</a>
+<li><a href="Optional-Features.html#Optional-Features">16.5 Optional Features</a>
+<li><a href="Particular-Systems.html#Particular-Systems">16.6 Particular systems</a>
+<li><a href="System-Type.html#System-Type">16.7 Specifying the System Type</a>
+<li><a href="Sharing-Defaults.html#Sharing-Defaults">16.8 Sharing Defaults</a>
+<li><a href="Defining-Variables.html#Defining-Variables">16.9 Defining Variables</a>
+<li><a href="configure-Invocation.html#configure-Invocation">16.10 <samp><span class="command">configure</span></samp> Invocation</a>
+</li></ul>
+<li><a name="toc_config_002estatus-Invocation" href="config_002estatus-Invocation.html#config_002estatus-Invocation">17 config.status Invocation</a>
+<li><a name="toc_Obsolete-Constructs" href="Obsolete-Constructs.html#Obsolete-Constructs">18 Obsolete Constructs</a>
+<ul>
+<li><a href="Obsolete-config_002estatus-Use.html#Obsolete-config_002estatus-Use">18.1 Obsolete <samp><span class="file">config.status</span></samp> Invocation</a>
+<li><a href="acconfig-Header.html#acconfig-Header">18.2 <samp><span class="file">acconfig.h</span></samp></a>
+<li><a href="autoupdate-Invocation.html#autoupdate-Invocation">18.3 Using <samp><span class="command">autoupdate</span></samp> to Modernize <samp><span class="file">configure.ac</span></samp></a>
+<li><a href="Obsolete-Macros.html#Obsolete-Macros">18.4 Obsolete Macros</a>
+<li><a href="Autoconf-1.html#Autoconf-1">18.5 Upgrading From Version 1</a>
+<ul>
+<li><a href="Changed-File-Names.html#Changed-File-Names">18.5.1 Changed File Names</a>
+<li><a href="Changed-Makefiles.html#Changed-Makefiles">18.5.2 Changed Makefiles</a>
+<li><a href="Changed-Macros.html#Changed-Macros">18.5.3 Changed Macros</a>
+<li><a href="Changed-Results.html#Changed-Results">18.5.4 Changed Results</a>
+<li><a href="Changed-Macro-Writing.html#Changed-Macro-Writing">18.5.5 Changed Macro Writing</a>
+</li></ul>
+<li><a href="Autoconf-2_002e13.html#Autoconf-2_002e13">18.6 Upgrading From Version 2.13</a>
+<ul>
+<li><a href="Changed-Quotation.html#Changed-Quotation">18.6.1 Changed Quotation</a>
+<li><a href="New-Macros.html#New-Macros">18.6.2 New Macros</a>
+<li><a href="Hosts-and-Cross_002dCompilation.html#Hosts-and-Cross_002dCompilation">18.6.3 Hosts and Cross-Compilation</a>
+<li><a href="AC_005fLIBOBJ-vs-LIBOBJS.html#AC_005fLIBOBJ-vs-LIBOBJS">18.6.4 <code>AC_LIBOBJ</code> vs. <code>LIBOBJS</code></a>
+<li><a href="AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT.html#AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT">18.6.5 <code>AC_</code><var>ACT</var><code>_IFELSE</code> vs. <code>AC_TRY_</code><var>ACT</var></a>
+</li></ul>
+</li></ul>
+<li><a name="toc_Using-Autotest" href="Using-Autotest.html#Using-Autotest">19 Generating Test Suites with Autotest</a>
+<ul>
+<li><a href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite">19.1 Using an Autotest Test Suite</a>
+<ul>
+<li><a href="testsuite-Scripts.html#testsuite-Scripts">19.1.1 <samp><span class="command">testsuite</span></samp> Scripts</a>
+<li><a href="Autotest-Logs.html#Autotest-Logs">19.1.2 Autotest Logs</a>
+</li></ul>
+<li><a href="Writing-Testsuites.html#Writing-Testsuites">19.2 Writing <samp><span class="file">testsuite.at</span></samp></a>
+<li><a href="testsuite-Invocation.html#testsuite-Invocation">19.3 Running <samp><span class="command">testsuite</span></samp> Scripts</a>
+<li><a href="Making-testsuite-Scripts.html#Making-testsuite-Scripts">19.4 Making <samp><span class="command">testsuite</span></samp> Scripts</a>
+</li></ul>
+<li><a name="toc_FAQ" href="FAQ.html#FAQ">20 Frequent Autoconf Questions, with answers</a>
+<ul>
+<li><a href="Distributing.html#Distributing">20.1 Distributing <samp><span class="command">configure</span></samp> Scripts</a>
+<li><a href="Why-GNU-M4.html#Why-GNU-M4">20.2 Why Require GNU M4?</a>
+<li><a href="Bootstrapping.html#Bootstrapping">20.3 How Can I Bootstrap?</a>
+<li><a href="Why-Not-Imake.html#Why-Not-Imake">20.4 Why Not Imake?</a>
+<li><a href="Defining-Directories.html#Defining-Directories">20.5 How Do I <code>#define</code> Installation Directories?</a>
+<li><a href="Autom4te-Cache.html#Autom4te-Cache">20.6 What is <samp><span class="file">autom4te.cache</span></samp>?</a>
+<li><a href="Present-But-Cannot-Be-Compiled.html#Present-But-Cannot-Be-Compiled">20.7 Header Present But Cannot Be Compiled</a>
+<li><a href="Expanded-Before-Required.html#Expanded-Before-Required">20.8 Expanded Before Required</a>
+<li><a href="Debugging.html#Debugging">20.9 Debugging <samp><span class="command">configure</span></samp> scripts</a>
+</li></ul>
+<li><a name="toc_History" href="History.html#History">21 History of Autoconf</a>
+<ul>
+<li><a href="Genesis.html#Genesis">21.1 Genesis</a>
+<li><a href="Exodus.html#Exodus">21.2 Exodus</a>
+<li><a href="Leviticus.html#Leviticus">21.3 Leviticus</a>
+<li><a href="Numbers.html#Numbers">21.4 Numbers</a>
+<li><a href="Deuteronomy.html#Deuteronomy">21.5 Deuteronomy</a>
+</li></ul>
+<li><a name="toc_GNU-Free-Documentation-License" href="GNU-Free-Documentation-License.html#GNU-Free-Documentation-License">Appendix A GNU Free Documentation License</a>
+<li><a name="toc_Indices" href="Indices.html#Indices">Appendix B Indices</a>
+<ul>
+<li><a href="Environment-Variable-Index.html#Environment-Variable-Index">B.1 Environment Variable Index</a>
+<li><a href="Output-Variable-Index.html#Output-Variable-Index">B.2 Output Variable Index</a>
+<li><a href="Preprocessor-Symbol-Index.html#Preprocessor-Symbol-Index">B.3 Preprocessor Symbol Index</a>
+<li><a href="Cache-Variable-Index.html#Cache-Variable-Index">B.4 Cache Variable Index</a>
+<li><a href="Autoconf-Macro-Index.html#Autoconf-Macro-Index">B.5 Autoconf Macro Index</a>
+<li><a href="M4-Macro-Index.html#M4-Macro-Index">B.6 M4 Macro Index</a>
+<li><a href="Autotest-Macro-Index.html#Autotest-Macro-Index">B.7 Autotest Macro Index</a>
+<li><a href="Program-_0026-Function-Index.html#Program-_0026-Function-Index">B.8 Program and Function Index</a>
+<li><a href="Concept-Index.html#Concept-Index">B.9 Concept Index</a>
+</li></ul>
+</li></ul>
+</div>
+
+
+
+<div class="node">
+<a name="Top"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Introduction.html#Introduction">Introduction</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="../index.html#dir">(dir)</a>
+<hr>
+</div>
+
+<h2 class="unnumbered">Autoconf</h2>
+
+<p>This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+   <p>Copyright &copy; 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+   <blockquote>
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, no Front-Cover texts, and
+no Back-Cover Texts.  A copy of the license is included in the section
+entitled &ldquo;GNU Free Documentation License.&rdquo;
+</blockquote>
+
+<!-- The master menu, created with texinfo-master-menu, goes here. -->
+<ul class="menu">
+<li><a accesskey="1" href="Introduction.html#Introduction">Introduction</a>:                 Autoconf's purpose, strengths, and weaknesses
+<li><a accesskey="2" href="The-GNU-Build-System.html#The-GNU-Build-System">The GNU Build System</a>:         A set of tools for portable software packages
+<li><a accesskey="3" href="Making-configure-Scripts.html#Making-configure-Scripts">Making configure Scripts</a>:     How to organize and produce Autoconf scripts
+<li><a accesskey="4" href="Setup.html#Setup">Setup</a>:                        Initialization and output
+<li><a accesskey="5" href="Existing-Tests.html#Existing-Tests">Existing Tests</a>:               Macros that check for particular features
+<li><a accesskey="6" href="Writing-Tests.html#Writing-Tests">Writing Tests</a>:                How to write new feature checks
+<li><a accesskey="7" href="Results.html#Results">Results</a>:                      What to do with results from feature checks
+<li><a accesskey="8" href="Programming-in-M4.html#Programming-in-M4">Programming in M4</a>:            Layers on top of which Autoconf is written
+<li><a accesskey="9" href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>:          Shell portability layer
+<li><a href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros">Writing Autoconf Macros</a>:      Adding new macros to Autoconf
+<li><a href="Portable-Shell.html#Portable-Shell">Portable Shell</a>:               Shell script portability pitfalls
+<li><a href="Portable-Make.html#Portable-Make">Portable Make</a>:                Makefile portability pitfalls
+<li><a href="Portable-C-and-C_002b_002b.html#Portable-C-and-C_002b_002b">Portable C and C++</a>:           C and C++ portability pitfalls
+<li><a href="Manual-Configuration.html#Manual-Configuration">Manual Configuration</a>:         Selecting features that can't be guessed
+<li><a href="Site-Configuration.html#Site-Configuration">Site Configuration</a>:           Local defaults for <samp><span class="command">configure</span></samp>
+<li><a href="Running-configure-Scripts.html#Running-configure-Scripts">Running configure Scripts</a>:    How to use the Autoconf output
+<li><a href="config_002estatus-Invocation.html#config_002estatus-Invocation">config.status Invocation</a>:     Recreating a configuration
+<li><a href="Obsolete-Constructs.html#Obsolete-Constructs">Obsolete Constructs</a>:          Kept for backward compatibility
+<li><a href="Using-Autotest.html#Using-Autotest">Using Autotest</a>:               Creating portable test suites
+<li><a href="FAQ.html#FAQ">FAQ</a>:                          Frequent Autoconf Questions, with answers
+<li><a href="History.html#History">History</a>:                      History of Autoconf
+<li><a href="GNU-Free-Documentation-License.html#GNU-Free-Documentation-License">GNU Free Documentation License</a>:   License for copying this manual
+<li><a href="Indices.html#Indices">Indices</a>:                      Indices of symbols, concepts, etc.
+
+</li></ul>
+<p>--- The Detailed Node Listing ---
+
+<p>The GNU Build System
+
+</p>
+<ul class="menu">
+<li><a href="Automake.html#Automake">Automake</a>:                     Escaping makefile hell
+<li><a href="Gnulib.html#Gnulib">Gnulib</a>:                       The GNU portability library
+<li><a href="Libtool.html#Libtool">Libtool</a>:                      Building libraries portably
+<li><a href="Pointers.html#Pointers">Pointers</a>:                     More info on the GNU build system
+
+</li></ul>
+<p>Making <samp><span class="command">configure</span></samp> Scripts
+
+</p>
+<ul class="menu">
+<li><a href="Writing-Autoconf-Input.html#Writing-Autoconf-Input">Writing Autoconf Input</a>:       What to put in an Autoconf input file
+<li><a href="autoscan-Invocation.html#autoscan-Invocation">autoscan Invocation</a>:          Semi-automatic <samp><span class="file">configure.ac</span></samp> writing
+<li><a href="ifnames-Invocation.html#ifnames-Invocation">ifnames Invocation</a>:           Listing the conditionals in source code
+<li><a href="autoconf-Invocation.html#autoconf-Invocation">autoconf Invocation</a>:          How to create configuration scripts
+<li><a href="autoreconf-Invocation.html#autoreconf-Invocation">autoreconf Invocation</a>:        Remaking multiple <samp><span class="command">configure</span></samp> scripts
+
+</li></ul>
+<p>Writing <samp><span class="file">configure.ac</span></samp>
+
+</p>
+<ul class="menu">
+<li><a href="Shell-Script-Compiler.html#Shell-Script-Compiler">Shell Script Compiler</a>:        Autoconf as solution of a problem
+<li><a href="Autoconf-Language.html#Autoconf-Language">Autoconf Language</a>:            Programming in Autoconf
+<li><a href="Autoconf-Input-Layout.html#Autoconf-Input-Layout">Autoconf Input Layout</a>:        Standard organization of <samp><span class="file">configure.ac</span></samp>
+
+</li></ul>
+<p>Initialization and Output Files
+
+</p>
+<ul class="menu">
+<li><a href="Initializing-configure.html#Initializing-configure">Initializing configure</a>:       Option processing etc. 
+<li><a href="Versioning.html#Versioning">Versioning</a>:                   Dealing with Autoconf versions
+<li><a href="Notices.html#Notices">Notices</a>:                      Copyright, version numbers in <samp><span class="command">configure</span></samp>
+<li><a href="Input.html#Input">Input</a>:                        Where Autoconf should find files
+<li><a href="Output.html#Output">Output</a>:                       Outputting results from the configuration
+<li><a href="Configuration-Actions.html#Configuration-Actions">Configuration Actions</a>:        Preparing the output based on results
+<li><a href="Configuration-Files.html#Configuration-Files">Configuration Files</a>:          Creating output files
+<li><a href="Makefile-Substitutions.html#Makefile-Substitutions">Makefile Substitutions</a>:       Using output variables in makefiles
+<li><a href="Configuration-Headers.html#Configuration-Headers">Configuration Headers</a>:        Creating a configuration header file
+<li><a href="Configuration-Commands.html#Configuration-Commands">Configuration Commands</a>:       Running arbitrary instantiation commands
+<li><a href="Configuration-Links.html#Configuration-Links">Configuration Links</a>:          Links depending on the configuration
+<li><a href="Subdirectories.html#Subdirectories">Subdirectories</a>:               Configuring independent packages together
+<li><a href="Default-Prefix.html#Default-Prefix">Default Prefix</a>:               Changing the default installation prefix
+
+</li></ul>
+<p>Substitutions in Makefiles
+
+</p>
+<ul class="menu">
+<li><a href="Preset-Output-Variables.html#Preset-Output-Variables">Preset Output Variables</a>:      Output variables that are always set
+<li><a href="Installation-Directory-Variables.html#Installation-Directory-Variables">Installation Directory Variables</a>:   Other preset output variables
+<li><a href="Changed-Directory-Variables.html#Changed-Directory-Variables">Changed Directory Variables</a>:   Warnings about <samp><span class="file">datarootdir</span></samp>
+<li><a href="Build-Directories.html#Build-Directories">Build Directories</a>:            Supporting multiple concurrent compiles
+<li><a href="Automatic-Remaking.html#Automatic-Remaking">Automatic Remaking</a>:           Makefile rules for configuring
+
+</li></ul>
+<p>Configuration Header Files
+
+</p>
+<ul class="menu">
+<li><a href="Header-Templates.html#Header-Templates">Header Templates</a>:             Input for the configuration headers
+<li><a href="autoheader-Invocation.html#autoheader-Invocation">autoheader Invocation</a>:        How to create configuration templates
+<li><a href="Autoheader-Macros.html#Autoheader-Macros">Autoheader Macros</a>:            How to specify CPP templates
+
+</li></ul>
+<p>Existing Tests
+
+</p>
+<ul class="menu">
+<li><a href="Common-Behavior.html#Common-Behavior">Common Behavior</a>:              Macros' standard schemes
+<li><a href="Alternative-Programs.html#Alternative-Programs">Alternative Programs</a>:         Selecting between alternative programs
+<li><a href="Files.html#Files">Files</a>:                        Checking for the existence of files
+<li><a href="Libraries.html#Libraries">Libraries</a>:                    Library archives that might be missing
+<li><a href="Library-Functions.html#Library-Functions">Library Functions</a>:            C library functions that might be missing
+<li><a href="Header-Files.html#Header-Files">Header Files</a>:                 Header files that might be missing
+<li><a href="Declarations.html#Declarations">Declarations</a>:                 Declarations that may be missing
+<li><a href="Structures.html#Structures">Structures</a>:                   Structures or members that might be missing
+<li><a href="Types.html#Types">Types</a>:                        Types that might be missing
+<li><a href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors">Compilers and Preprocessors</a>:   Checking for compiling programs
+<li><a href="System-Services.html#System-Services">System Services</a>:              Operating system services
+<li><a href="Posix-Variants.html#Posix-Variants">Posix Variants</a>:               Special kludges for specific Posix variants
+<li><a href="Erlang-Libraries.html#Erlang-Libraries">Erlang Libraries</a>:             Checking for the existence of Erlang libraries
+
+</li></ul>
+<p>Common Behavior
+
+</p>
+<ul class="menu">
+<li><a href="Standard-Symbols.html#Standard-Symbols">Standard Symbols</a>:             Symbols defined by the macros
+<li><a href="Default-Includes.html#Default-Includes">Default Includes</a>:             Includes used by the generic macros
+
+</li></ul>
+<p>Alternative Programs
+
+</p>
+<ul class="menu">
+<li><a href="Particular-Programs.html#Particular-Programs">Particular Programs</a>:          Special handling to find certain programs
+<li><a href="Generic-Programs.html#Generic-Programs">Generic Programs</a>:             How to find other programs
+
+</li></ul>
+<p>Library Functions
+
+</p>
+<ul class="menu">
+<li><a href="Function-Portability.html#Function-Portability">Function Portability</a>:         Pitfalls with usual functions
+<li><a href="Particular-Functions.html#Particular-Functions">Particular Functions</a>:         Special handling to find certain functions
+<li><a href="Generic-Functions.html#Generic-Functions">Generic Functions</a>:            How to find other functions
+
+</li></ul>
+<p>Header Files
+
+</p>
+<ul class="menu">
+<li><a href="Header-Portability.html#Header-Portability">Header Portability</a>:           Collected knowledge on common headers
+<li><a href="Particular-Headers.html#Particular-Headers">Particular Headers</a>:           Special handling to find certain headers
+<li><a href="Generic-Headers.html#Generic-Headers">Generic Headers</a>:              How to find other headers
+
+</li></ul>
+<p>Declarations
+
+</p>
+<ul class="menu">
+<li><a href="Particular-Declarations.html#Particular-Declarations">Particular Declarations</a>:      Macros to check for certain declarations
+<li><a href="Generic-Declarations.html#Generic-Declarations">Generic Declarations</a>:         How to find other declarations
+
+</li></ul>
+<p>Structures
+
+</p>
+<ul class="menu">
+<li><a href="Particular-Structures.html#Particular-Structures">Particular Structures</a>:        Macros to check for certain structure members
+<li><a href="Generic-Structures.html#Generic-Structures">Generic Structures</a>:           How to find other structure members
+
+</li></ul>
+<p>Types
+
+</p>
+<ul class="menu">
+<li><a href="Particular-Types.html#Particular-Types">Particular Types</a>:             Special handling to find certain types
+<li><a href="Generic-Types.html#Generic-Types">Generic Types</a>:                How to find other types
+
+</li></ul>
+<p>Compilers and Preprocessors
+
+</p>
+<ul class="menu">
+<li><a href="Specific-Compiler-Characteristics.html#Specific-Compiler-Characteristics">Specific Compiler Characteristics</a>:   Some portability issues
+<li><a href="Generic-Compiler-Characteristics.html#Generic-Compiler-Characteristics">Generic Compiler Characteristics</a>:   Language independent tests and features
+<li><a href="C-Compiler.html#C-Compiler">C Compiler</a>:                   Checking its characteristics
+<li><a href="C_002b_002b-Compiler.html#C_002b_002b-Compiler">C++ Compiler</a>:                 Likewise
+<li><a href="Objective-C-Compiler.html#Objective-C-Compiler">Objective C Compiler</a>:         Likewise
+<li><a href="Objective-C_002b_002b-Compiler.html#Objective-C_002b_002b-Compiler">Objective C++ Compiler</a>:       Likewise
+<li><a href="Erlang-Compiler-and-Interpreter.html#Erlang-Compiler-and-Interpreter">Erlang Compiler and Interpreter</a>:   Likewise
+<li><a href="Fortran-Compiler.html#Fortran-Compiler">Fortran Compiler</a>:             Likewise
+<li><a href="Go-Compiler.html#Go-Compiler">Go Compiler</a>:                  Likewise
+
+</li></ul>
+<p>Writing Tests
+
+</p>
+<ul class="menu">
+<li><a href="Language-Choice.html#Language-Choice">Language Choice</a>:              Selecting which language to use for testing
+<li><a href="Writing-Test-Programs.html#Writing-Test-Programs">Writing Test Programs</a>:        Forging source files for compilers
+<li><a href="Running-the-Preprocessor.html#Running-the-Preprocessor">Running the Preprocessor</a>:     Detecting preprocessor symbols
+<li><a href="Running-the-Compiler.html#Running-the-Compiler">Running the Compiler</a>:         Detecting language or header features
+<li><a href="Running-the-Linker.html#Running-the-Linker">Running the Linker</a>:           Detecting library features
+<li><a href="Runtime.html#Runtime">Runtime</a>:                      Testing for runtime features
+<li><a href="Systemology.html#Systemology">Systemology</a>:                  A zoology of operating systems
+<li><a href="Multiple-Cases.html#Multiple-Cases">Multiple Cases</a>:               Tests for several possible values
+
+</li></ul>
+<p>Writing Test Programs
+
+</p>
+<ul class="menu">
+<li><a href="Guidelines.html#Guidelines">Guidelines</a>:                   General rules for writing test programs
+<li><a href="Test-Functions.html#Test-Functions">Test Functions</a>:               Avoiding pitfalls in test programs
+<li><a href="Generating-Sources.html#Generating-Sources">Generating Sources</a>:           Source program boilerplate
+
+</li></ul>
+<p>Results of Tests
+
+</p>
+<ul class="menu">
+<li><a href="Defining-Symbols.html#Defining-Symbols">Defining Symbols</a>:             Defining C preprocessor symbols
+<li><a href="Setting-Output-Variables.html#Setting-Output-Variables">Setting Output Variables</a>:     Replacing variables in output files
+<li><a href="Special-Chars-in-Variables.html#Special-Chars-in-Variables">Special Chars in Variables</a>:   Characters to beware of in variables
+<li><a href="Caching-Results.html#Caching-Results">Caching Results</a>:              Speeding up subsequent <samp><span class="command">configure</span></samp> runs
+<li><a href="Printing-Messages.html#Printing-Messages">Printing Messages</a>:            Notifying <samp><span class="command">configure</span></samp> users
+
+</li></ul>
+<p>Caching Results
+
+</p>
+<ul class="menu">
+<li><a href="Cache-Variable-Names.html#Cache-Variable-Names">Cache Variable Names</a>:         Shell variables used in caches
+<li><a href="Cache-Files.html#Cache-Files">Cache Files</a>:                  Files <samp><span class="command">configure</span></samp> uses for caching
+<li><a href="Cache-Checkpointing.html#Cache-Checkpointing">Cache Checkpointing</a>:          Loading and saving the cache file
+
+</li></ul>
+<p>Programming in M4
+
+</p>
+<ul class="menu">
+<li><a href="M4-Quotation.html#M4-Quotation">M4 Quotation</a>:                 Protecting macros from unwanted expansion
+<li><a href="Using-autom4te.html#Using-autom4te">Using autom4te</a>:               The Autoconf executables backbone
+<li><a href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>:       Convenient pure M4 macros
+<li><a href="Debugging-via-autom4te.html#Debugging-via-autom4te">Debugging via autom4te</a>:       Figuring out what M4 was doing
+
+</li></ul>
+<p>M4 Quotation
+
+</p>
+<ul class="menu">
+<li><a href="Active-Characters.html#Active-Characters">Active Characters</a>:            Characters that change the behavior of M4
+<li><a href="One-Macro-Call.html#One-Macro-Call">One Macro Call</a>:               Quotation and one macro call
+<li><a href="Quoting-and-Parameters.html#Quoting-and-Parameters">Quoting and Parameters</a>:       M4 vs. shell parameters
+<li><a href="Quotation-and-Nested-Macros.html#Quotation-and-Nested-Macros">Quotation and Nested Macros</a>:   Macros calling macros
+<li><a href="Changequote-is-Evil.html#Changequote-is-Evil">Changequote is Evil</a>:          Worse than INTERCAL: M4 + changequote
+<li><a href="Quadrigraphs.html#Quadrigraphs">Quadrigraphs</a>:                 Another way to escape special characters
+<li><a href="Balancing-Parentheses.html#Balancing-Parentheses">Balancing Parentheses</a>:        Dealing with unbalanced parentheses
+<li><a href="Quotation-Rule-Of-Thumb.html#Quotation-Rule-Of-Thumb">Quotation Rule Of Thumb</a>:      One parenthesis, one quote
+
+</li></ul>
+<p>Using <samp><span class="command">autom4te</span></samp>
+
+</p>
+<ul class="menu">
+<li><a href="autom4te-Invocation.html#autom4te-Invocation">autom4te Invocation</a>:          A GNU M4 wrapper
+<li><a href="Customizing-autom4te.html#Customizing-autom4te">Customizing autom4te</a>:         Customizing the Autoconf package
+
+</li></ul>
+<p>Programming in M4sugar
+
+</p>
+<ul class="menu">
+<li><a href="Redefined-M4-Macros.html#Redefined-M4-Macros">Redefined M4 Macros</a>:          M4 builtins changed in M4sugar
+<li><a href="Diagnostic-Macros.html#Diagnostic-Macros">Diagnostic Macros</a>:            Diagnostic messages from M4sugar
+<li><a href="Diversion-support.html#Diversion-support">Diversion support</a>:            Diversions in M4sugar
+<li><a href="Conditional-constructs.html#Conditional-constructs">Conditional constructs</a>:       Conditions in M4
+<li><a href="Looping-constructs.html#Looping-constructs">Looping constructs</a>:           Iteration in M4
+<li><a href="Evaluation-Macros.html#Evaluation-Macros">Evaluation Macros</a>:            More quotation and evaluation control
+<li><a href="Text-processing-Macros.html#Text-processing-Macros">Text processing Macros</a>:       String manipulation in M4
+<li><a href="Number-processing-Macros.html#Number-processing-Macros">Number processing Macros</a>:     Arithmetic computation in M4
+<li><a href="Set-manipulation-Macros.html#Set-manipulation-Macros">Set manipulation Macros</a>:      Set manipulation in M4
+<li><a href="Forbidden-Patterns.html#Forbidden-Patterns">Forbidden Patterns</a>:           Catching unexpanded macros
+
+</li></ul>
+<p>Programming in M4sh
+
+</p>
+<ul class="menu">
+<li><a href="Common-Shell-Constructs.html#Common-Shell-Constructs">Common Shell Constructs</a>:      Portability layer for common shell constructs
+<li><a href="Polymorphic-Variables.html#Polymorphic-Variables">Polymorphic Variables</a>:        Support for indirect variable names
+<li><a href="Initialization-Macros.html#Initialization-Macros">Initialization Macros</a>:        Macros to establish a sane shell environment
+<li><a href="File-Descriptor-Macros.html#File-Descriptor-Macros">File Descriptor Macros</a>:       File descriptor macros for input and output
+
+</li></ul>
+<p>Writing Autoconf Macros
+
+</p>
+<ul class="menu">
+<li><a href="Macro-Definitions.html#Macro-Definitions">Macro Definitions</a>:            Basic format of an Autoconf macro
+<li><a href="Macro-Names.html#Macro-Names">Macro Names</a>:                  What to call your new macros
+<li><a href="Reporting-Messages.html#Reporting-Messages">Reporting Messages</a>:           Notifying <samp><span class="command">autoconf</span></samp> users
+<li><a href="Dependencies-Between-Macros.html#Dependencies-Between-Macros">Dependencies Between Macros</a>:   What to do when macros depend on other macros
+<li><a href="Obsoleting-Macros.html#Obsoleting-Macros">Obsoleting Macros</a>:            Warning about old ways of doing things
+<li><a href="Coding-Style.html#Coding-Style">Coding Style</a>:                 Writing Autoconf macros &agrave; la Autoconf
+
+</li></ul>
+<p>Dependencies Between Macros
+
+</p>
+<ul class="menu">
+<li><a href="Prerequisite-Macros.html#Prerequisite-Macros">Prerequisite Macros</a>:          Ensuring required information
+<li><a href="Suggested-Ordering.html#Suggested-Ordering">Suggested Ordering</a>:           Warning about possible ordering problems
+<li><a href="One_002dShot-Macros.html#One_002dShot-Macros">One-Shot Macros</a>:              Ensuring a macro is called only once
+
+</li></ul>
+<p>Portable Shell Programming
+
+</p>
+<ul class="menu">
+<li><a href="Shellology.html#Shellology">Shellology</a>:                   A zoology of shells
+<li><a href="Invoking-the-Shell.html#Invoking-the-Shell">Invoking the Shell</a>:           Invoking the shell as a command
+<li><a href="Here_002dDocuments.html#Here_002dDocuments">Here-Documents</a>:               Quirks and tricks
+<li><a href="File-Descriptors.html#File-Descriptors">File Descriptors</a>:             FDs and redirections
+<li><a href="Signal-Handling.html#Signal-Handling">Signal Handling</a>:              Shells, signals, and headaches
+<li><a href="File-System-Conventions.html#File-System-Conventions">File System Conventions</a>:      File names
+<li><a href="Shell-Pattern-Matching.html#Shell-Pattern-Matching">Shell Pattern Matching</a>:       Pattern matching
+<li><a href="Shell-Substitutions.html#Shell-Substitutions">Shell Substitutions</a>:          Variable and command expansions
+<li><a href="Assignments.html#Assignments">Assignments</a>:                  Varying side effects of assignments
+<li><a href="Parentheses.html#Parentheses">Parentheses</a>:                  Parentheses in shell scripts
+<li><a href="Slashes.html#Slashes">Slashes</a>:                      Slashes in shell scripts
+<li><a href="Special-Shell-Variables.html#Special-Shell-Variables">Special Shell Variables</a>:      Variables you should not change
+<li><a href="Shell-Functions.html#Shell-Functions">Shell Functions</a>:              What to look out for if you use them
+<li><a href="Limitations-of-Builtins.html#Limitations-of-Builtins">Limitations of Builtins</a>:      Portable use of not so portable /bin/sh
+<li><a href="Limitations-of-Usual-Tools.html#Limitations-of-Usual-Tools">Limitations of Usual Tools</a>:   Portable use of portable tools
+
+</li></ul>
+<p>Portable Make Programming
+
+</p>
+<ul class="menu">
+<li><a href="_0024_003c-in-Ordinary-Make-Rules.html#g_t_0024_003c-in-Ordinary-Make-Rules">$&lt; in Ordinary Make Rules</a>:    $&lt; in ordinary rules
+<li><a href="Failure-in-Make-Rules.html#Failure-in-Make-Rules">Failure in Make Rules</a>:        Failing portably in rules
+<li><a href="Special-Chars-in-Names.html#Special-Chars-in-Names">Special Chars in Names</a>:       Special Characters in Macro Names
+<li><a href="Backslash_002dNewline_002dEmpty.html#Backslash_002dNewline_002dEmpty">Backslash-Newline-Empty</a>:      Empty lines after backslash-newline
+<li><a href="Backslash_002dNewline-Comments.html#Backslash_002dNewline-Comments">Backslash-Newline Comments</a>:   Spanning comments across line boundaries
+<li><a href="Long-Lines-in-Makefiles.html#Long-Lines-in-Makefiles">Long Lines in Makefiles</a>:      Line length limitations
+<li><a href="Macros-and-Submakes.html#Macros-and-Submakes">Macros and Submakes</a>:          <code>make macro=value</code> and submakes
+<li><a href="The-Make-Macro-MAKEFLAGS.html#The-Make-Macro-MAKEFLAGS">The Make Macro MAKEFLAGS</a>:     <code>$(MAKEFLAGS)</code> portability issues
+<li><a href="The-Make-Macro-SHELL.html#The-Make-Macro-SHELL">The Make Macro SHELL</a>:         <code>$(SHELL)</code> portability issues
+<li><a href="Parallel-Make.html#Parallel-Make">Parallel Make</a>:                Parallel <samp><span class="command">make</span></samp> quirks
+<li><a href="Comments-in-Make-Rules.html#Comments-in-Make-Rules">Comments in Make Rules</a>:       Other problems with Make comments
+<li><a href="Newlines-in-Make-Rules.html#Newlines-in-Make-Rules">Newlines in Make Rules</a>:       Using literal newlines in rules
+<li><a href="Comments-in-Make-Macros.html#Comments-in-Make-Macros">Comments in Make Macros</a>:      Other problems with Make comments in macros
+<li><a href="Trailing-whitespace-in-Make-Macros.html#Trailing-whitespace-in-Make-Macros">Trailing whitespace in Make Macros</a>:   Macro substitution problems
+<li><a href="Command_002dline-Macros-and-whitespace.html#Command_002dline-Macros-and-whitespace">Command-line Macros and whitespace</a>:   Whitespace trimming of values
+<li><a href="obj_002f-and-Make.html#obj_002f-and-Make">obj/ and Make</a>:                Don't name a subdirectory <samp><span class="file">obj</span></samp>
+<li><a href="make-_002dk-Status.html#make-_002dk-Status">make -k Status</a>:               Exit status of &lsquo;<samp><span class="samp">make -k</span></samp>&rsquo;
+<li><a href="VPATH-and-Make.html#VPATH-and-Make">VPATH and Make</a>:               <code>VPATH</code> woes
+<li><a href="Single-Suffix-Rules.html#Single-Suffix-Rules">Single Suffix Rules</a>:          Single suffix rules and separated dependencies
+<li><a href="Timestamps-and-Make.html#Timestamps-and-Make">Timestamps and Make</a>:          Subsecond timestamp resolution
+
+</li></ul>
+<p><code>VPATH</code> and Make
+
+</p>
+<ul class="menu">
+<li><a href="Variables-listed-in-VPATH.html#Variables-listed-in-VPATH">Variables listed in VPATH</a>:    <code>VPATH</code> must be literal on ancient hosts
+<li><a href="VPATH-and-Double_002dcolon.html#VPATH-and-Double_002dcolon">VPATH and Double-colon</a>:       Problems with &lsquo;<samp><span class="samp">::</span></samp>&rsquo; on ancient hosts
+<li><a href="_0024_003c-in-Explicit-Rules.html#g_t_0024_003c-in-Explicit-Rules">$&lt; in Explicit Rules</a>:         <code>$&lt;</code> does not work in ordinary rules
+<li><a href="Automatic-Rule-Rewriting.html#Automatic-Rule-Rewriting">Automatic Rule Rewriting</a>:     <code>VPATH</code> goes wild on Solaris
+<li><a href="Tru64-Directory-Magic.html#Tru64-Directory-Magic">Tru64 Directory Magic</a>:        <samp><span class="command">mkdir</span></samp> goes wild on Tru64
+<li><a href="Make-Target-Lookup.html#Make-Target-Lookup">Make Target Lookup</a>:           More details about <code>VPATH</code> lookup
+
+</li></ul>
+<p>Portable C and C++ Programming
+
+</p>
+<ul class="menu">
+<li><a href="Varieties-of-Unportability.html#Varieties-of-Unportability">Varieties of Unportability</a>:   How to make your programs unportable
+<li><a href="Integer-Overflow.html#Integer-Overflow">Integer Overflow</a>:             When integers get too large
+<li><a href="Preprocessor-Arithmetic.html#Preprocessor-Arithmetic">Preprocessor Arithmetic</a>:      <code>#if</code> expression problems
+<li><a href="Null-Pointers.html#Null-Pointers">Null Pointers</a>:                Properties of null pointers
+<li><a href="Buffer-Overruns.html#Buffer-Overruns">Buffer Overruns</a>:              Subscript errors and the like
+<li><a href="Volatile-Objects.html#Volatile-Objects">Volatile Objects</a>:             <code>volatile</code> and signals
+<li><a href="Floating-Point-Portability.html#Floating-Point-Portability">Floating Point Portability</a>:   Portable floating-point arithmetic
+<li><a href="Exiting-Portably.html#Exiting-Portably">Exiting Portably</a>:             Exiting and the exit status
+
+</li></ul>
+<p>Integer Overflow
+
+</p>
+<ul class="menu">
+<li><a href="Integer-Overflow-Basics.html#Integer-Overflow-Basics">Integer Overflow Basics</a>:      Why integer overflow is a problem
+<li><a href="Signed-Overflow-Examples.html#Signed-Overflow-Examples">Signed Overflow Examples</a>:     Examples of code assuming wraparound
+<li><a href="Optimization-and-Wraparound.html#Optimization-and-Wraparound">Optimization and Wraparound</a>:   Optimizations that break uses of wraparound
+<li><a href="Signed-Overflow-Advice.html#Signed-Overflow-Advice">Signed Overflow Advice</a>:       Practical advice for signed overflow issues
+<li><a href="Signed-Integer-Division.html#Signed-Integer-Division">Signed Integer Division</a>:      <code>INT_MIN / -1</code> and <code>INT_MIN % -1</code>
+
+</li></ul>
+<p>Manual Configuration
+
+</p>
+<ul class="menu">
+<li><a href="Specifying-Target-Triplets.html#Specifying-Target-Triplets">Specifying Target Triplets</a>:   Specifying target triplets
+<li><a href="Canonicalizing.html#Canonicalizing">Canonicalizing</a>:               Getting the canonical system type
+<li><a href="Using-System-Type.html#Using-System-Type">Using System Type</a>:            What to do with the system type
+
+</li></ul>
+<p>Site Configuration
+
+</p>
+<ul class="menu">
+<li><a href="Help-Formatting.html#Help-Formatting">Help Formatting</a>:              Customizing &lsquo;<samp><span class="samp">configure --help</span></samp>&rsquo;
+<li><a href="External-Software.html#External-Software">External Software</a>:            Working with other optional software
+<li><a href="Package-Options.html#Package-Options">Package Options</a>:              Selecting optional features
+<li><a href="Pretty-Help-Strings.html#Pretty-Help-Strings">Pretty Help Strings</a>:          Formatting help string
+<li><a href="Option-Checking.html#Option-Checking">Option Checking</a>:              Controlling checking of <samp><span class="command">configure</span></samp> options
+<li><a href="Site-Details.html#Site-Details">Site Details</a>:                 Configuring site details
+<li><a href="Transforming-Names.html#Transforming-Names">Transforming Names</a>:           Changing program names when installing
+<li><a href="Site-Defaults.html#Site-Defaults">Site Defaults</a>:                Giving <samp><span class="command">configure</span></samp> local defaults
+
+</li></ul>
+<p>Transforming Program Names When Installing
+
+</p>
+<ul class="menu">
+<li><a href="Transformation-Options.html#Transformation-Options">Transformation Options</a>:       <samp><span class="command">configure</span></samp> options to transform names
+<li><a href="Transformation-Examples.html#Transformation-Examples">Transformation Examples</a>:      Sample uses of transforming names
+<li><a href="Transformation-Rules.html#Transformation-Rules">Transformation Rules</a>:         Makefile uses of transforming names
+
+</li></ul>
+<p>Running <samp><span class="command">configure</span></samp> Scripts
+
+</p>
+<ul class="menu">
+<li><a href="Basic-Installation.html#Basic-Installation">Basic Installation</a>:           Instructions for typical cases
+<li><a href="Compilers-and-Options.html#Compilers-and-Options">Compilers and Options</a>:        Selecting compilers and optimization
+<li><a href="Multiple-Architectures.html#Multiple-Architectures">Multiple Architectures</a>:       Compiling for multiple architectures at once
+<li><a href="Installation-Names.html#Installation-Names">Installation Names</a>:           Installing in different directories
+<li><a href="Optional-Features.html#Optional-Features">Optional Features</a>:            Selecting optional features
+<li><a href="Particular-Systems.html#Particular-Systems">Particular Systems</a>:           Particular systems
+<li><a href="System-Type.html#System-Type">System Type</a>:                  Specifying the system type
+<li><a href="Sharing-Defaults.html#Sharing-Defaults">Sharing Defaults</a>:             Setting site-wide defaults for <samp><span class="command">configure</span></samp>
+<li><a href="Defining-Variables.html#Defining-Variables">Defining Variables</a>:           Specifying the compiler etc. 
+<li><a href="configure-Invocation.html#configure-Invocation">configure Invocation</a>:         Changing how <samp><span class="command">configure</span></samp> runs
+
+</li></ul>
+<p>Obsolete Constructs
+
+</p>
+<ul class="menu">
+<li><a href="Obsolete-config_002estatus-Use.html#Obsolete-config_002estatus-Use">Obsolete config.status Use</a>:   Obsolete convention for <samp><span class="command">config.status</span></samp>
+<li><a href="acconfig-Header.html#acconfig-Header">acconfig Header</a>:              Additional entries in <samp><span class="file">config.h.in</span></samp>
+<li><a href="autoupdate-Invocation.html#autoupdate-Invocation">autoupdate Invocation</a>:        Automatic update of <samp><span class="file">configure.ac</span></samp>
+<li><a href="Obsolete-Macros.html#Obsolete-Macros">Obsolete Macros</a>:              Backward compatibility macros
+<li><a href="Autoconf-1.html#Autoconf-1">Autoconf 1</a>:                   Tips for upgrading your files
+<li><a href="Autoconf-2_002e13.html#Autoconf-2_002e13">Autoconf 2.13</a>:                Some fresher tips
+
+</li></ul>
+<p>Upgrading From Version 1
+
+</p>
+<ul class="menu">
+<li><a href="Changed-File-Names.html#Changed-File-Names">Changed File Names</a>:           Files you might rename
+<li><a href="Changed-Makefiles.html#Changed-Makefiles">Changed Makefiles</a>:            New things to put in <samp><span class="file">Makefile.in</span></samp>
+<li><a href="Changed-Macros.html#Changed-Macros">Changed Macros</a>:               Macro calls you might replace
+<li><a href="Changed-Results.html#Changed-Results">Changed Results</a>:              Changes in how to check test results
+<li><a href="Changed-Macro-Writing.html#Changed-Macro-Writing">Changed Macro Writing</a>:        Better ways to write your own macros
+
+</li></ul>
+<p>Upgrading From Version 2.13
+
+</p>
+<ul class="menu">
+<li><a href="Changed-Quotation.html#Changed-Quotation">Changed Quotation</a>:            Broken code which used to work
+<li><a href="New-Macros.html#New-Macros">New Macros</a>:                   Interaction with foreign macros
+<li><a href="Hosts-and-Cross_002dCompilation.html#Hosts-and-Cross_002dCompilation">Hosts and Cross-Compilation</a>:   Bugward compatibility kludges
+<li><a href="AC_005fLIBOBJ-vs-LIBOBJS.html#AC_005fLIBOBJ-vs-LIBOBJS">AC_LIBOBJ vs LIBOBJS</a>:         LIBOBJS is a forbidden token
+<li><a href="AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT.html#AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT">AC_ACT_IFELSE vs AC_TRY_ACT</a>:   A more generic scheme for testing sources
+
+</li></ul>
+<p>Generating Test Suites with Autotest
+
+</p>
+<ul class="menu">
+<li><a href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite">Using an Autotest Test Suite</a>:   Autotest and the user
+<li><a href="Writing-Testsuites.html#Writing-Testsuites">Writing Testsuites</a>:           Autotest macros
+<li><a href="testsuite-Invocation.html#testsuite-Invocation">testsuite Invocation</a>:         Running <samp><span class="command">testsuite</span></samp> scripts
+<li><a href="Making-testsuite-Scripts.html#Making-testsuite-Scripts">Making testsuite Scripts</a>:     Using autom4te to create <samp><span class="command">testsuite</span></samp>
+
+</li></ul>
+<p>Using an Autotest Test Suite
+
+</p>
+<ul class="menu">
+<li><a href="testsuite-Scripts.html#testsuite-Scripts">testsuite Scripts</a>:            The concepts of Autotest
+<li><a href="Autotest-Logs.html#Autotest-Logs">Autotest Logs</a>:                Their contents
+
+</li></ul>
+<p>Frequent Autoconf Questions, with answers
+
+</p>
+<ul class="menu">
+<li><a href="Distributing.html#Distributing">Distributing</a>:                 Distributing <samp><span class="command">configure</span></samp> scripts
+<li><a href="Why-GNU-M4.html#Why-GNU-M4">Why GNU M4</a>:                   Why not use the standard M4? 
+<li><a href="Bootstrapping.html#Bootstrapping">Bootstrapping</a>:                Autoconf and GNU M4 require each other? 
+<li><a href="Why-Not-Imake.html#Why-Not-Imake">Why Not Imake</a>:                Why GNU uses <samp><span class="command">configure</span></samp> instead of Imake
+<li><a href="Defining-Directories.html#Defining-Directories">Defining Directories</a>:         Passing <code>datadir</code> to program
+<li><a href="Autom4te-Cache.html#Autom4te-Cache">Autom4te Cache</a>:               What is it?  Can I remove it? 
+<li><a href="Present-But-Cannot-Be-Compiled.html#Present-But-Cannot-Be-Compiled">Present But Cannot Be Compiled</a>:   Compiler and Preprocessor Disagree
+<li><a href="Expanded-Before-Required.html#Expanded-Before-Required">Expanded Before Required</a>:     Expanded Before Required
+<li><a href="Debugging.html#Debugging">Debugging</a>:                    Debugging <samp><span class="command">configure</span></samp> scripts
+
+</li></ul>
+<p>History of Autoconf
+
+</p>
+<ul class="menu">
+<li><a href="Genesis.html#Genesis">Genesis</a>:                      Prehistory and naming of <samp><span class="command">configure</span></samp>
+<li><a href="Exodus.html#Exodus">Exodus</a>:                       The plagues of M4 and Perl
+<li><a href="Leviticus.html#Leviticus">Leviticus</a>:                    The priestly code of portability arrives
+<li><a href="Numbers.html#Numbers">Numbers</a>:                      Growth and contributors
+<li><a href="Deuteronomy.html#Deuteronomy">Deuteronomy</a>:                  Approaching the promises of easy configuration
+
+</li></ul>
+<p>Indices
+
+</p>
+<ul class="menu">
+<li><a href="Environment-Variable-Index.html#Environment-Variable-Index">Environment Variable Index</a>:   Index of environment variables used
+<li><a href="Output-Variable-Index.html#Output-Variable-Index">Output Variable Index</a>:        Index of variables set in output files
+<li><a href="Preprocessor-Symbol-Index.html#Preprocessor-Symbol-Index">Preprocessor Symbol Index</a>:    Index of C preprocessor symbols defined
+<li><a href="Cache-Variable-Index.html#Cache-Variable-Index">Cache Variable Index</a>:         Index of documented cache variables
+<li><a href="Autoconf-Macro-Index.html#Autoconf-Macro-Index">Autoconf Macro Index</a>:         Index of Autoconf macros
+<li><a href="M4-Macro-Index.html#M4-Macro-Index">M4 Macro Index</a>:               Index of M4, M4sugar, and M4sh macros
+<li><a href="Autotest-Macro-Index.html#Autotest-Macro-Index">Autotest Macro Index</a>:         Index of Autotest macros
+<li><a href="Program-_0026-Function-Index.html#Program-_0026-Function-Index">Program &amp; Function Index</a>:     Index of those with portability problems
+<li><a href="Concept-Index.html#Concept-Index">Concept Index</a>:                General index
+
+   </ul>
+
+<!-- ============================================================= Introduction. -->
+   </body></html>
+

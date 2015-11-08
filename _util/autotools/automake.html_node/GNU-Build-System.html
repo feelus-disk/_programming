@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: GNU Build System</title>
+
+<meta name="description" content="automake: GNU Build System">
+<meta name="keywords" content="automake: GNU Build System">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Autotools-Introduction.html#Autotools-Introduction" rel="up" title="Autotools Introduction">
+<link href="Use-Cases.html#Use-Cases" rel="next" title="Use Cases">
+<link href="Autotools-Introduction.html#Autotools-Introduction" rel="prev" title="Autotools Introduction">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="GNU-Build-System"></a>
+<div class="header">
+<p>
+Next: <a href="Use-Cases.html#Use-Cases" accesskey="n" rel="next">Use Cases</a>, Up: <a href="Autotools-Introduction.html#Autotools-Introduction" accesskey="u" rel="up">Autotools Introduction</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Introducing-the-GNU-Build-System"></a>
+<h3 class="section">2.1 Introducing the GNU Build System</h3>
+<a name="index-GNU-Build-System_002c-introduction"></a>
+
+<p>It is a truth universally acknowledged, that as a developer in
+possession of a new package, you must be in want of a build system.
+</p>
+<p>In the Unix world, such a build system is traditionally achieved using
+the command <code>make</code> (see <a href="http://www.gnu.org/software/make/manual/html_node/index.html#Top">Overview</a> in <cite>The GNU Make
+Manual</cite>).  You express the recipe to build your package in a
+<samp>Makefile</samp>.  This file is a set of rules to build the files in
+the package.  For instance the program <samp>prog</samp> may be built by
+running the linker on the files <samp>main.o</samp>, <samp>foo.o</samp>, and
+<samp>bar.o</samp>; the file <samp>main.o</samp> may be built by running the
+compiler on <samp>main.c</samp>; etc.  Each time <code>make</code> is run, it
+reads <samp>Makefile</samp>, checks the existence and modification time of
+the files mentioned, decides what files need to be built (or rebuilt),
+and runs the associated commands.
+</p>
+<p>When a package needs to be built on a different platform than the one
+it was developed on, its <samp>Makefile</samp> usually needs to be adjusted.
+For instance the compiler may have another name or require more
+options.  In 1991, David J. MacKenzie got tired of customizing
+<samp>Makefile</samp> for the 20 platforms he had to deal with.  Instead, he
+handcrafted a little shell script called <samp>configure</samp> to
+automatically adjust the <samp>Makefile</samp> (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Genesis.html#Genesis">Genesis</a> in <cite>The Autoconf Manual</cite>).  Compiling his package was now
+as simple as running <code>./configure &amp;&amp; make</code>.
+</p>
+<a name="index-GNU-Coding-Standards"></a>
+
+<p>Today this process has been standardized in the GNU project.  The GNU
+Coding Standards (see <a href="http://www.gnu.org/prep/standards/html_node/Managing-Releases.html#Managing-Releases">The Release Process</a> in <cite>The GNU Coding Standards</cite>) explains how each package of the
+GNU project should have a <samp>configure</samp> script, and the minimal
+interface it should have.  The <samp>Makefile</samp> too should follow some
+established conventions.  The result?  A unified build system that
+makes all packages almost indistinguishable by the installer.  In its
+simplest scenario, all the installer has to do is to unpack the
+package, run <code>./configure &amp;&amp; make &amp;&amp; make install</code>, and repeat
+with the next package to install.
+</p>
+<p>We call this build system the <em>GNU Build System</em>, since it was
+grown out of the GNU project.  However it is used by a vast number of
+other packages: following any existing convention has its advantages.
+</p>
+<a name="index-Autotools_002c-introduction"></a>
+
+<p>The Autotools are tools that will create a GNU Build System for your
+package.  Autoconf mostly focuses on <samp>configure</samp> and Automake on
+<samp>Makefile</samp>s.  It is entirely possible to create a GNU Build
+System without the help of these tools.  However it is rather
+burdensome and error-prone.  We will discuss this again after some
+illustration of the GNU Build System in action.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Use-Cases.html#Use-Cases" accesskey="n" rel="next">Use Cases</a>, Up: <a href="Autotools-Introduction.html#Autotools-Introduction" accesskey="u" rel="up">Autotools Introduction</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

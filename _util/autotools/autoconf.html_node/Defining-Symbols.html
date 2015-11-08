@@ -1,0 +1,163 @@
+<html lang="en">
+<head>
+<title>Defining Symbols - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Results.html#Results" title="Results">
+<link rel="next" href="Setting-Output-Variables.html#Setting-Output-Variables" title="Setting Output Variables">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Defining-Symbols"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Setting-Output-Variables.html#Setting-Output-Variables">Setting Output Variables</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Results.html#Results">Results</a>
+<hr>
+</div>
+
+<h3 class="section">7.1 Defining C Preprocessor Symbols</h3>
+
+<p>A common action to take in response to a feature test is to define a C
+preprocessor symbol indicating the results of the test.  That is done by
+calling <code>AC_DEFINE</code> or <code>AC_DEFINE_UNQUOTED</code>.
+
+   <p>By default, <code>AC_OUTPUT</code> places the symbols defined by these macros
+into the output variable <code>DEFS</code>, which contains an option
+<samp><span class="option">-D</span><var>symbol</var><span class="option">=</span><var>value</var></samp> for each symbol defined.  Unlike in
+Autoconf version 1, there is no variable <code>DEFS</code> defined while
+<samp><span class="command">configure</span></samp> is running.  To check whether Autoconf macros have
+already defined a certain C preprocessor symbol, test the value of the
+appropriate cache variable, as in this example:
+
+<pre class="example">     AC_CHECK_FUNC([vprintf], [AC_DEFINE([HAVE_VPRINTF], [1],
+                               [Define if vprintf exists.])])
+     if test "x$ac_cv_func_vprintf" != xyes; then
+       AC_CHECK_FUNC([_doprnt], [AC_DEFINE([HAVE_DOPRNT], [1],
+                                 [Define if _doprnt exists.])])
+     fi
+</pre>
+   <p>If <code>AC_CONFIG_HEADERS</code> has been called, then instead of creating
+<code>DEFS</code>, <code>AC_OUTPUT</code> creates a header file by substituting the
+correct values into <code>#define</code> statements in a template file. 
+See <a href="Configuration-Headers.html#Configuration-Headers">Configuration Headers</a>, for more information about this kind of
+output.
+
+<div class="defun">
+&mdash; Macro: <b>AC_DEFINE</b> (<var>variable, value, </var><span class="roman">[</span><var>description</var><span class="roman">]</span>)<var><a name="index-AC_005fDEFINE-1193"></a></var><br>
+&mdash; Macro: <b>AC_DEFINE</b> (<var>variable</var>)<var><a name="index-AC_005fDEFINE-1194"></a></var><br>
+<blockquote><p><a name="index-g_t_0040var_007bvariable_007d-1195"></a><a name="index-AC_005fDEFINE-1196"></a>
+Define <var>variable</var> to <var>value</var> (verbatim), by defining a C
+preprocessor macro for <var>variable</var>.  <var>variable</var> should be a C
+identifier, optionally suffixed by a parenthesized argument list to
+define a C preprocessor macro with arguments.  The macro argument list,
+if present, should be a comma-separated list of C identifiers, possibly
+terminated by an ellipsis &lsquo;<samp><span class="samp">...</span></samp>&rsquo; if C99 syntax is employed. 
+<var>variable</var> should not contain comments, white space, trigraphs,
+backslash-newlines, universal character names, or non-ASCII
+characters.
+
+        <p><var>value</var> may contain backslash-escaped newlines, which will be
+preserved if you use <code>AC_CONFIG_HEADERS</code> but flattened if passed
+via <code>@DEFS@</code> (with no effect on the compilation, since the
+preprocessor sees only one line in the first place).  <var>value</var> should
+not contain raw newlines.  If you are not using
+<code>AC_CONFIG_HEADERS</code>, <var>value</var> should not contain any &lsquo;<samp><span class="samp">#</span></samp>&rsquo;
+characters, as <samp><span class="command">make</span></samp> tends to eat them.  To use a shell
+variable, use <code>AC_DEFINE_UNQUOTED</code> instead.
+
+        <p><var>description</var> is only useful if you are using
+<code>AC_CONFIG_HEADERS</code>.  In this case, <var>description</var> is put into
+the generated <samp><span class="file">config.h.in</span></samp> as the comment before the macro define. 
+The following example defines the C preprocessor variable
+<code>EQUATION</code> to be the string constant &lsquo;<samp><span class="samp">"$a &gt; $b"</span></samp>&rsquo;:
+
+     <pre class="example">          AC_DEFINE([EQUATION], ["$a &gt; $b"],
+            [Equation string.])
+</pre>
+        <p>If neither <var>value</var> nor <var>description</var> are given, then
+<var>value</var> defaults to 1 instead of to the empty string.  This is for
+backwards compatibility with older versions of Autoconf, but this usage
+is obsolescent and may be withdrawn in future versions of Autoconf.
+
+        <p>If the <var>variable</var> is a literal string, it is passed to
+<code>m4_pattern_allow</code> (see <a href="Forbidden-Patterns.html#Forbidden-Patterns">Forbidden Patterns</a>).
+
+        <p>If multiple <code>AC_DEFINE</code> statements are executed for the same
+<var>variable</var> name (not counting any parenthesized argument list),
+the last one wins. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_DEFINE_UNQUOTED</b> (<var>variable, value, </var><span class="roman">[</span><var>description</var><span class="roman">]</span>)<var><a name="index-AC_005fDEFINE_005fUNQUOTED-1197"></a></var><br>
+&mdash; Macro: <b>AC_DEFINE_UNQUOTED</b> (<var>variable</var>)<var><a name="index-AC_005fDEFINE_005fUNQUOTED-1198"></a></var><br>
+<blockquote><p><a name="index-AC_005fDEFINE_005fUNQUOTED-1199"></a>
+<a name="index-g_t_0040var_007bvariable_007d-1200"></a>Like <code>AC_DEFINE</code>, but three shell expansions are
+performed&mdash;once&mdash;on <var>variable</var> and <var>value</var>: variable expansion
+(&lsquo;<samp><span class="samp">$</span></samp>&rsquo;), command substitution (&lsquo;<samp><span class="samp">`</span></samp>&rsquo;), and backslash escaping
+(&lsquo;<samp><span class="samp">\</span></samp>&rsquo;), as if in an unquoted here-document.  Single and double quote
+characters in the value have no
+special meaning.  Use this macro instead of <code>AC_DEFINE</code> when
+<var>variable</var> or <var>value</var> is a shell variable.  Examples:
+
+     <pre class="example">          AC_DEFINE_UNQUOTED([config_machfile], ["$machfile"],
+            [Configuration machine file.])
+          AC_DEFINE_UNQUOTED([GETGROUPS_T], [$ac_cv_type_getgroups],
+            [getgroups return type.])
+          AC_DEFINE_UNQUOTED([$ac_tr_hdr], [1],
+            [Translated header name.])
+</pre>
+        </blockquote></div>
+
+   <p>Due to a syntactical bizarreness of the Bourne shell, do not use
+semicolons to separate <code>AC_DEFINE</code> or <code>AC_DEFINE_UNQUOTED</code>
+calls from other macro calls or shell code; that can cause syntax errors
+in the resulting <samp><span class="command">configure</span></samp> script.  Use either blanks or
+newlines.  That is, do this:
+
+<pre class="example">     AC_CHECK_HEADER([elf.h],
+       [AC_DEFINE([SVR4], [1], [System V Release 4]) LIBS="-lelf $LIBS"])
+</pre>
+   <p class="noindent">or this:
+
+<pre class="example">     AC_CHECK_HEADER([elf.h],
+       [AC_DEFINE([SVR4], [1], [System V Release 4])
+        LIBS="-lelf $LIBS"])
+</pre>
+   <p class="noindent">instead of this:
+
+<pre class="example">     AC_CHECK_HEADER([elf.h],
+       [AC_DEFINE([SVR4], [1], [System V Release 4]); LIBS="-lelf $LIBS"])
+</pre>
+   </body></html>
+

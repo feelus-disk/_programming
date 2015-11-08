@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+<title>Invoking the Shell - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="Shellology.html#Shellology" title="Shellology">
+<link rel="next" href="Here_002dDocuments.html#Here_002dDocuments" title="Here-Documents">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Invoking-the-Shell"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Here_002dDocuments.html#Here_002dDocuments">Here-Documents</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Shellology.html#Shellology">Shellology</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.2 Invoking the Shell</h3>
+
+<p><a name="index-invoking-the-shell-1693"></a><a name="index-shell-invocation-1694"></a>
+The Korn shell (up to at least version M-12/28/93d) has a bug when
+invoked on a file whose name does not contain a slash.  It first
+searches for the file's name in <samp><span class="env">PATH</span></samp>, and if found it executes
+that rather than the original file.  For example, assuming there is a
+binary executable <samp><span class="file">/usr/bin/script</span></samp> in your <samp><span class="env">PATH</span></samp>, the last
+command in the following example fails because the Korn shell finds
+<samp><span class="file">/usr/bin/script</span></samp> and refuses to execute it as a shell script:
+
+<pre class="example">     $ <kbd>touch xxyzzyz script</kbd>
+     $ <kbd>ksh xxyzzyz</kbd>
+     $ <kbd>ksh ./script</kbd>
+     $ <kbd>ksh script</kbd>
+     ksh: script: cannot execute
+</pre>
+   <p>Bash 2.03 has a bug when invoked with the <samp><span class="option">-c</span></samp> option: if the
+option-argument ends in backslash-newline, Bash incorrectly reports a
+syntax error.  The problem does not occur if a character follows the
+backslash:
+
+<pre class="example">     $ <kbd>$ bash -c 'echo foo \</kbd>
+     &gt; <kbd>'</kbd>
+     bash: -c: line 2: syntax error: unexpected end of file
+     $ <kbd>bash -c 'echo foo \</kbd>
+     &gt; <kbd> '</kbd>
+     foo
+</pre>
+   <p class="noindent">See <a href="Backslash_002dNewline_002dEmpty.html#Backslash_002dNewline_002dEmpty">Backslash-Newline-Empty</a>, for how this can cause problems in makefiles.
+
+   </body></html>
+

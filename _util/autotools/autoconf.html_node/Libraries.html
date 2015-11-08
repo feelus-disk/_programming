@@ -1,0 +1,133 @@
+<html lang="en">
+<head>
+<title>Libraries - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Existing-Tests.html#Existing-Tests" title="Existing Tests">
+<link rel="prev" href="Files.html#Files" title="Files">
+<link rel="next" href="Library-Functions.html#Library-Functions" title="Library Functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Libraries"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Library-Functions.html#Library-Functions">Library Functions</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Files.html#Files">Files</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Existing-Tests.html#Existing-Tests">Existing Tests</a>
+<hr>
+</div>
+
+<h3 class="section">5.4 Library Files</h3>
+
+<p><a name="index-Library_002c-checking-339"></a>
+The following macros check for the presence of certain C, C++, Fortran,
+or Go library archive files.
+
+   <p><a name="AC_005fCHECK_005fLIB"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_LIB</b> (<var>library, function, </var><span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>other-libraries</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fLIB-340"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fLIB-341"></a>
+<a name="index-ac_005fcv_005flib_005f_0040var_007blibrary_007d_005f_0040var_007bfunction_007d-342"></a>
+Test whether the library <var>library</var> is available by trying to link
+a test program that calls function <var>function</var> with the library. 
+<var>function</var> should be a function provided by the library. 
+Use the base
+name of the library; e.g., to check for <samp><span class="option">-lmp</span></samp>, use &lsquo;<samp><span class="samp">mp</span></samp>&rsquo; as
+the <var>library</var> argument.
+
+        <p><var>action-if-found</var> is a list of shell commands to run if the link
+with the library succeeds; <var>action-if-not-found</var> is a list of shell
+commands to run if the link fails.  If <var>action-if-found</var> is not
+specified, the default action prepends <samp><span class="option">-l</span><var>library</var></samp> to
+<code>LIBS</code> and defines &lsquo;<samp><span class="samp">HAVE_LIB</span><var>library</var></samp>&rsquo; (in all
+capitals).  This macro is intended to support building <code>LIBS</code> in
+a right-to-left (least-dependent to most-dependent) fashion such that
+library dependencies are satisfied as a natural side effect of
+consecutive tests.  Linkers are sensitive to library ordering
+so the order in which <code>LIBS</code> is generated is important to reliable
+detection of libraries.
+
+        <p>If linking with <var>library</var> results in unresolved symbols that would
+be resolved by linking with additional libraries, give those libraries
+as the <var>other-libraries</var> argument, separated by spaces:
+e.g., <samp><span class="option">-lXt -lX11</span></samp>.  Otherwise, this macro may fail to detect
+that <var>library</var> is present, because linking the test program can
+fail with unresolved symbols.  The <var>other-libraries</var> argument
+should be limited to cases where it is desirable to test for one library
+in the presence of another that is not already in <code>LIBS</code>.
+
+        <p><code>AC_CHECK_LIB</code> requires some care in usage, and should be avoided
+in some common cases.  Many standard functions like <code>gethostbyname</code>
+appear in the standard C library on some hosts, and in special libraries
+like <code>nsl</code> on other hosts.  On some hosts the special libraries
+contain variant implementations that you may not want to use.  These
+days it is normally better to use <code>AC_SEARCH_LIBS([gethostbyname],
+[nsl])</code> instead of <code>AC_CHECK_LIB([nsl], [gethostbyname])</code>.
+
+        <p>The result of this test is cached in the
+<code>ac_cv_lib_</code><var>library</var><code>_</code><var>function</var> variable. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fSEARCH_005fLIBS"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_SEARCH_LIBS</b> (<var>function, search-libs, </var><span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>other-libraries</var><span class="roman">]</span>)<var><a name="index-AC_005fSEARCH_005fLIBS-343"></a></var><br>
+<blockquote><p><a name="index-AC_005fSEARCH_005fLIBS-344"></a>
+<a name="index-ac_005fcv_005fsearch_005f_0040var_007bfunction_007d-345"></a>
+Search for a library defining <var>function</var> if it's not already
+available.  This equates to calling
+&lsquo;<samp><span class="samp">AC_LINK_IFELSE([AC_LANG_CALL([], [</span><var>function</var><span class="samp">])])</span></samp>&rsquo; first with
+no libraries, then for each library listed in <var>search-libs</var>.
+
+        <p>Prepend <samp><span class="option">-l</span><var>library</var></samp> to <code>LIBS</code> for the first library found
+to contain <var>function</var>, and run <var>action-if-found</var>.  If the
+function is not found, run <var>action-if-not-found</var>.
+
+        <p>If linking with <var>library</var> results in unresolved symbols that would
+be resolved by linking with additional libraries, give those libraries
+as the <var>other-libraries</var> argument, separated by spaces:
+e.g., <samp><span class="option">-lXt -lX11</span></samp>.  Otherwise, this macro fails to detect
+that <var>function</var> is present, because linking the test program
+always fails with unresolved symbols.
+
+        <p>The result of this test is cached in the
+<code>ac_cv_search_</code><var>function</var> variable as &lsquo;<samp><span class="samp">none required</span></samp>&rsquo; if
+<var>function</var> is already available, as &lsquo;<samp><span class="samp">no</span></samp>&rsquo; if no library
+containing <var>function</var> was found, otherwise as the
+<samp><span class="option">-l</span><var>library</var></samp> option that needs to be prepended to <code>LIBS</code>. 
+</p></blockquote></div>
+
+   </body></html>
+

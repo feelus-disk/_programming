@@ -1,0 +1,100 @@
+<html lang="en">
+<head>
+<title>Guidelines - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Test-Programs.html#Writing-Test-Programs" title="Writing Test Programs">
+<link rel="next" href="Test-Functions.html#Test-Functions" title="Test Functions">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Guidelines"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Test-Functions.html#Test-Functions">Test Functions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Test-Programs.html#Writing-Test-Programs">Writing Test Programs</a>
+<hr>
+</div>
+
+<h4 class="subsection">6.2.1 Guidelines for Test Programs</h4>
+
+<p>The most important rule to follow when writing testing samples is:
+
+<div align="center"><em>Look for realism.</em></div>
+
+   <p>This motto means that testing samples must be written with the same
+strictness as real programs are written.  In particular, you should
+avoid &ldquo;shortcuts&rdquo; and simplifications.
+
+   <p>Don't just play with the preprocessor if you want to prepare a
+compilation.  For instance, using <samp><span class="command">cpp</span></samp> to check whether a header is
+functional might let your <samp><span class="command">configure</span></samp> accept a header which
+causes some <em>compiler</em> error.  Do not hesitate to check a header with
+other headers included before, especially required headers.
+
+   <p>Make sure the symbols you use are properly defined, i.e., refrain from
+simply declaring a function yourself instead of including the proper
+header.
+
+   <p>Test programs should not write to standard output.  They
+should exit with status 0 if the test succeeds, and with status 1
+otherwise, so that success
+can be distinguished easily from a core dump or other failure;
+segmentation violations and other failures produce a nonzero exit
+status.  Unless you arrange for <code>exit</code> to be declared, test
+programs should <code>return</code>, not <code>exit</code>, from <code>main</code>,
+because on many systems <code>exit</code> is not declared by default.
+
+   <p>Test programs can use <code>#if</code> or <code>#ifdef</code> to check the values of
+preprocessor macros defined by tests that have already run.  For
+example, if you call <code>AC_HEADER_STDBOOL</code>, then later on in
+<samp><span class="file">configure.ac</span></samp> you can have a test program that includes
+<samp><span class="file">stdbool.h</span></samp> conditionally:
+
+<pre class="example">     #ifdef HAVE_STDBOOL_H
+     # include &lt;stdbool.h&gt;
+     #endif
+</pre>
+   <p>Both <code>#if HAVE_STDBOOL_H</code> and <code>#ifdef HAVE_STDBOOL_H</code> will
+work with any standard C compiler.  Some developers prefer <code>#if</code>
+because it is easier to read, while others prefer <code>#ifdef</code> because
+it avoids diagnostics with picky compilers like GCC with the
+<samp><span class="option">-Wundef</span></samp> option.
+
+   <p>If a test program needs to use or create a data file, give it a name
+that starts with <samp><span class="file">conftest</span></samp>, such as <samp><span class="file">conftest.data</span></samp>.  The
+<samp><span class="command">configure</span></samp> script cleans up by running &lsquo;<samp><span class="samp">rm -f -r conftest*</span></samp>&rsquo;
+after running test programs and if the script is interrupted.
+
+   </body></html>
+

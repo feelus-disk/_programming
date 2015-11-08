@@ -1,0 +1,176 @@
+<html lang="en">
+<head>
+<title>Initialization Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sh.html#Programming-in-M4sh" title="Programming in M4sh">
+<link rel="prev" href="Polymorphic-Variables.html#Polymorphic-Variables" title="Polymorphic Variables">
+<link rel="next" href="File-Descriptor-Macros.html#File-Descriptor-Macros" title="File Descriptor Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Initialization-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="File-Descriptor-Macros.html#File-Descriptor-Macros">File Descriptor Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Polymorphic-Variables.html#Polymorphic-Variables">Polymorphic Variables</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>
+<hr>
+</div>
+
+<h3 class="section">9.3 Initialization Macros</h3>
+
+<div class="defun">
+&mdash; Macro: <b>AS_BOURNE_COMPATIBLE</b><var><a name="index-AS_005fBOURNE_005fCOMPATIBLE-1616"></a></var><br>
+<blockquote><p><a name="index-AS_005fBOURNE_005fCOMPATIBLE-1617"></a>
+Set up the shell to be more compatible with the Bourne shell as
+standardized by Posix, if possible.  This may involve setting
+environment variables, or setting options, or similar
+implementation-specific actions.  This macro is deprecated, since
+<code>AS_INIT</code> already invokes it. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_INIT</b><var><a name="index-AS_005fINIT-1618"></a></var><br>
+<blockquote><p><a name="index-AS_005fINIT-1619"></a>
+<a name="index-LC_005fALL-1620"></a><a name="index-SHELL-1621"></a>Initialize the M4sh environment.  This macro calls <code>m4_init</code>, then
+outputs the <code>#! /bin/sh</code> line, a notice about where the output was
+generated from, and code to sanitize the environment for the rest of the
+script.  Among other initializations, this sets <samp><span class="env">SHELL</span></samp> to the shell
+chosen to run the script (see <a href="CONFIG_005fSHELL.html#CONFIG_005fSHELL">CONFIG_SHELL</a>), and <samp><span class="env">LC_ALL</span></samp> to
+ensure the C locale.  Finally, it changes the current diversion to
+<code>BODY</code>.  <code>AS_INIT</code> is called automatically by <code>AC_INIT</code>
+and <code>AT_INIT</code>, so shell code in <samp><span class="file">configure</span></samp>,
+<samp><span class="file">config.status</span></samp>, and <samp><span class="file">testsuite</span></samp> all benefit from a sanitized
+shell environment. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_INIT_GENERATED</b> (<var>file, </var><span class="roman">[</span><var>comment</var><span class="roman">]</span>)<var><a name="index-AS_005fINIT_005fGENERATED-1622"></a></var><br>
+<blockquote><p><a name="index-AS_005fINIT_005fGENERATED-1623"></a>
+Emit shell code to start the creation of a subsidiary shell script in
+<var>file</var>, including changing <var>file</var> to be executable.  This macro
+populates the child script with information learned from the parent
+(thus, the emitted code is equivalent in effect, but more efficient,
+than the code output by <code>AS_INIT</code>, <code>AS_BOURNE_COMPATIBLE</code>, and
+<code>AS_SHELL_SANITIZE</code>).  If present, <var>comment</var> is output near the
+beginning of the child, prior to the shell initialization code, and is
+subject to parameter expansion, command substitution, and backslash
+quote removal.  The
+parent script should check the exit status after this macro, in case
+<var>file</var> could not be properly created (for example, if the disk was
+full).  If successfully created, the parent script can then proceed to
+append additional M4sh constructs into the child script.
+
+        <p>Note that the child script starts life without a log file open, so if
+the parent script uses logging (see <a href="AS_005fMESSAGE_005fLOG_005fFD.html#AS_005fMESSAGE_005fLOG_005fFD">AS_MESSAGE_LOG_FD</a>), you
+must temporarily disable any attempts to use the log file until after
+emitting code to open a log within the child.  On the other hand, if the
+parent script has <code>AS_MESSAGE_FD</code> redirected somewhere besides
+&lsquo;<samp><span class="samp">1</span></samp>&rsquo;, then the child script already has code that copies stdout to
+that descriptor.  Currently, the suggested
+idiom for writing a M4sh shell script from within another script is:
+
+     <pre class="example">          AS_INIT_GENERATED([<var>file</var>], [[# My child script.
+          ]]) || { AS_ECHO(["Failed to create child script"]); AS_EXIT; }
+          m4_pushdef([AS_MESSAGE_LOG_FD])dnl
+          cat &gt;&gt; "<var>file</var>" &lt;&lt;\__EOF__
+          # Code to initialize AS_MESSAGE_LOG_FD
+          m4_popdef([AS_MESSAGE_LOG_FD])dnl
+          # Additional code
+          __EOF__
+</pre>
+        <p>This, however, may change in the future as the M4sh interface is
+stabilized further.
+
+        <p>Also, be aware that use of <samp><span class="env">LINENO</span></samp> within the child script may
+report line numbers relative to their location in the parent script,
+even when using <code>AS_LINENO_PREPARE</code>, if the parent script was
+unable to locate a shell with working <samp><span class="env">LINENO</span></samp> support. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_LINENO_PREPARE</b><var><a name="index-AS_005fLINENO_005fPREPARE-1624"></a></var><br>
+<blockquote><p><a name="index-AS_005fLINENO_005fPREPARE-1625"></a>
+<a name="index-LINENO-1626"></a>Find a shell that supports the special variable <samp><span class="env">LINENO</span></samp>, which
+contains the number of the currently executing line.  This macro is
+automatically invoked by <code>AC_INIT</code> in configure scripts. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_ME_PREPARE</b><var><a name="index-AS_005fME_005fPREPARE-1627"></a></var><br>
+<blockquote><p><a name="index-AS_005fME_005fPREPARE-1628"></a>
+Set up variable <samp><span class="env">as_me</span></samp> to be the basename of the currently executing
+script.  This macro is automatically invoked by <code>AC_INIT</code> in
+configure scripts. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_TMPDIR</b> (<var>prefix, </var><span class="roman">[</span><var>dir = &lsquo;</var><samp><span class="samp">${TMPDIR:=/tmp}</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AS_005fTMPDIR-1629"></a></var><br>
+<blockquote><p><a name="index-AS_005fTMPDIR-1630"></a>
+<a name="index-TMPDIR-1631"></a><a name="index-tmp-1632"></a>Create, as safely as possible, a temporary sub-directory within
+<var>dir</var> with a name starting with <var>prefix</var>.  <var>prefix</var> should
+be 2-4 characters, to make it slightly easier to identify the owner of
+the directory.  If <var>dir</var> is omitted, then the value of <samp><span class="env">TMPDIR</span></samp>
+will be used (defaulting to &lsquo;<samp><span class="samp">/tmp</span></samp>&rsquo;).  On success, the name of the
+newly created directory is stored in the shell variable <code>tmp</code>.  On
+error, the script is aborted.
+
+        <p>Typically, this macro is coupled with some exit traps to delete the created
+directory and its contents on exit or interrupt.  However, there is a
+slight window between when the directory is created and when the name is
+actually known to the shell, so an interrupt at the right moment might
+leave the temporary directory behind.  Hence it is important to use a
+<var>prefix</var> that makes it easier to determine if a leftover temporary
+directory from an interrupted script is safe to delete.
+
+        <p>The use of the output variable &lsquo;<samp><span class="samp">$tmp</span></samp>&rsquo; rather than something in the
+&lsquo;<samp><span class="samp">as_</span></samp>&rsquo; namespace is historical; it has the unfortunate consequence
+that reusing this otherwise common name for any other purpose inside
+your script has the potential to break any cleanup traps designed to
+remove the temporary directory. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_SHELL_SANITIZE</b><var><a name="index-AS_005fSHELL_005fSANITIZE-1633"></a></var><br>
+<blockquote><p><a name="index-AS_005fSHELL_005fSANITIZE-1634"></a>
+Initialize the shell suitably for <samp><span class="command">configure</span></samp> scripts.  This has
+the effect of <code>AS_BOURNE_COMPATIBLE</code>, and sets some other
+environment variables for predictable results from configuration tests. 
+For example, it sets <samp><span class="env">LC_ALL</span></samp> to change to the default C locale. 
+See <a href="Special-Shell-Variables.html#Special-Shell-Variables">Special Shell Variables</a>.  This macro is deprecated, since
+<code>AS_INIT</code> already invokes it. 
+</p></blockquote></div>
+
+   </body></html>
+

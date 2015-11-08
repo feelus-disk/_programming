@@ -1,0 +1,274 @@
+<html lang="en">
+<head>
+<title>Polymorphic Variables - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sh.html#Programming-in-M4sh" title="Programming in M4sh">
+<link rel="prev" href="Common-Shell-Constructs.html#Common-Shell-Constructs" title="Common Shell Constructs">
+<link rel="next" href="Initialization-Macros.html#Initialization-Macros" title="Initialization Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Polymorphic-Variables"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Initialization-Macros.html#Initialization-Macros">Initialization Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Common-Shell-Constructs.html#Common-Shell-Constructs">Common Shell Constructs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>
+<hr>
+</div>
+
+<h3 class="section">9.2 Support for indirect variable names</h3>
+
+<p><a name="index-variable-name-indirection-1589"></a><a name="index-polymorphic-variable-name-1590"></a><a name="index-indirection_002c-variable-name-1591"></a>
+Often, it is convenient to write a macro that will emit shell code
+operating on a shell variable.  The simplest case is when the variable
+name is known.  But a more powerful idiom is writing shell code that can
+work through an indirection, where another variable or command
+substitution produces the name of the variable to actually manipulate. 
+M4sh supports the notion of polymorphic shell variables, making it easy
+to write a macro that can deal with either literal or indirect variable
+names and output shell code appropriate for both use cases.  Behavior is
+undefined if expansion of an indirect variable does not result in a
+literal variable name.
+
+<div class="defun">
+&mdash; Macro: <b>AS_LITERAL_IF</b> (<var>expression, </var><span class="roman">[</span><var>if-literal</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-not</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-simple-ref = &lsquo;</var><samp><var>if-not</var></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AS_005fLITERAL_005fIF-1592"></a></var><br>
+&mdash; Macro: <b>AS_LITERAL_WORD_IF</b> (<var>expression, </var><span class="roman">[</span><var>if-literal</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-not</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-simple-ref = &lsquo;</var><samp><var>if-not</var></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AS_005fLITERAL_005fWORD_005fIF-1593"></a></var><br>
+<blockquote><p><a name="index-AS_005fLITERAL_005fIF-1594"></a>
+<a name="index-AS_005fLITERAL_005fWORD_005fIF-1595"></a>
+If the expansion of <var>expression</var> is definitely a shell literal,
+expand <var>if-literal</var>.  If the expansion of <var>expression</var> looks
+like it might contain shell indirections (such as <code>$var</code> or
+<code>`expr`</code>), then <var>if-not</var> is expanded.  Sometimes, it is
+possible to output optimized code if <var>expression</var> consists only of
+shell variable expansions (such as <code>${var}</code>), in which case
+<var>if-simple-ref</var> can be provided; but defaulting to <var>if-not</var>
+should always be safe.  <code>AS_LITERAL_WORD_IF</code> only expands
+<var>if-literal</var> if <var>expression</var> looks like a single shell word,
+containing no whitespace; while <code>AS_LITERAL_IF</code> allows whitespace
+in <var>expression</var>.
+
+        <p>In order to reduce the time spent recognizing whether an
+<var>expression</var> qualifies as a literal or a simple indirection, the
+implementation is somewhat conservative: <var>expression</var> must be a
+single shell word (possibly after stripping whitespace), consisting only
+of bytes that would have the same meaning whether unquoted or enclosed
+in double quotes (for example, &lsquo;<samp><span class="samp">a.b</span></samp>&rsquo; results in <var>if-literal</var>,
+even though it is not a valid shell variable name; while both &lsquo;<samp><span class="samp">'a'</span></samp>&rsquo;
+and &lsquo;<samp><span class="samp">[$]</span></samp>&rsquo; result in <var>if-not</var>, because they behave differently
+than &lsquo;<samp><span class="samp">"'a'"</span></samp>&rsquo; and &lsquo;<samp><span class="samp">"[$]"</span></samp>&rsquo;).  This macro can be used in contexts
+for recognizing portable file names (such as in the implementation of
+<code>AC_LIBSOURCE</code>), or coupled with some transliterations for forming
+valid variable names (such as in the implementation of <code>AS_TR_SH</code>,
+which uses an additional <code>m4_translit</code> to convert &lsquo;<samp><span class="samp">.</span></samp>&rsquo; to
+&lsquo;<samp><span class="samp">_</span></samp>&rsquo;).
+
+        <p>This example shows how to read the contents of the shell variable
+<code>bar</code>, exercising all three arguments to <code>AS_LITERAL_IF</code>.  It
+results in a script that will output the line &lsquo;<samp><span class="samp">hello</span></samp>&rsquo; three times.
+
+     <pre class="example">          AC_DEFUN([MY_ACTION],
+          [AS_LITERAL_IF([$1],
+            [echo "$$1"],
+          <!-- $$ -->
+            [AS_VAR_COPY([var], [$1])
+             echo "$var"],
+            [eval 'echo "$'"$1"\"])])
+          foo=bar bar=hello
+          MY_ACTION([bar])
+          MY_ACTION([`echo bar`])
+          MY_ACTION([$foo])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_APPEND</b> (<var>var, text</var>)<var><a name="index-AS_005fVAR_005fAPPEND-1596"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fAPPEND-1597"></a>
+Emit shell code to append the shell expansion of <var>text</var> to the end
+of the current contents of the polymorphic shell variable <var>var</var>,
+taking advantage of shells that provide the &lsquo;<samp><span class="samp">+=</span></samp>&rsquo; extension for more
+efficient scaling.
+
+        <p>For situations where the final contents of <var>var</var> are relatively
+short (less than 256 bytes), it is more efficient to use the simpler
+code sequence of <var>var</var><code>=${</code><var>var</var><code>}</code><var>text</var> (or its
+polymorphic equivalent of <code>AS_VAR_COPY([t], [</code><var>var</var><code>])</code> and
+<code>AS_VAR_SET([</code><var>var</var><code>], ["$t"</code><var>text</var><code>])</code>).  But in the case
+when the script will be repeatedly appending text into <code>var</code>,
+issues of scaling start to become apparent.  A naive implementation
+requires execution time linear to the length of the current contents of
+<var>var</var> as well as the length of <var>text</var> for a single append, for
+an overall quadratic scaling with multiple appends.  This macro takes
+advantage of shells which provide the extension
+<var>var</var><code>+=</code><var>text</var>, which can provide amortized constant time
+for a single append, for an overall linear scaling with multiple
+appends.  Note that unlike <code>AS_VAR_SET</code>, this macro requires that
+<var>text</var> be quoted properly to avoid field splitting and file name
+expansion. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_ARITH</b> (<var>var, expression</var>)<var><a name="index-AS_005fVAR_005fARITH-1598"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fARITH-1599"></a>
+Emit shell code to compute the arithmetic expansion of <var>expression</var>,
+assigning the result as the contents of the polymorphic shell variable
+<var>var</var>.  The code takes advantage of shells that provide &lsquo;<samp><span class="samp">$(())</span></samp>&rsquo;
+for fewer forks, but uses <samp><span class="command">expr</span></samp> as a fallback.  Therefore, the
+syntax for a valid <var>expression</var> is rather limited: all operators
+must occur as separate shell arguments and with proper quoting, there is
+no portable equality operator, all variables containing numeric values
+must be expanded prior to the computation, all numeric values must be
+provided in decimal without leading zeroes, and the first shell argument
+should not be a negative number.  In the following example, this snippet
+will print &lsquo;<samp><span class="samp">(2+3)*4 == 20</span></samp>&rsquo;.
+
+     <pre class="example">          bar=3
+          AS_VAR_ARITH([foo], [\( 2 + $bar \) \* 4])
+          echo "(2+$bar)*4 == $foo"
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_COPY</b> (<var>dest, source</var>)<var><a name="index-AS_005fVAR_005fCOPY-1600"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fCOPY-1601"></a>
+Emit shell code to assign the contents of the polymorphic shell variable
+<var>source</var> to the polymorphic shell variable <var>dest</var>.  For example,
+executing this M4sh snippet will output &lsquo;<samp><span class="samp">bar hi</span></samp>&rsquo;:
+
+     <pre class="example">          foo=bar bar=hi
+          AS_VAR_COPY([a], [foo])
+          AS_VAR_COPY([b], [$foo])
+          echo "$a $b"
+</pre>
+        <p>When it is necessary to access the contents of an indirect variable
+inside a shell double-quoted context, the recommended idiom is to first
+copy the contents into a temporary literal shell variable.
+
+     <pre class="smallexample">          for header in stdint_h inttypes_h ; do
+            AS_VAR_COPY([var], [ac_cv_header_$header])
+            echo "$header detected: $var"
+          done
+</pre>
+        </blockquote></div>
+
+<!-- AS_VAR_GET is intentionally undocumented; it can't handle -->
+<!-- trailing newlines uniformly, and forks too much. -->
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_IF</b> (<var>var, </var><span class="roman">[</span><var>word</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-equal</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-not-equal</var><span class="roman">]</span>)<var><a name="index-AS_005fVAR_005fIF-1602"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fIF-1603"></a>
+Output a shell conditional statement.  If the contents of the
+polymorphic shell variable <var>var</var> match the string <var>word</var>,
+execute <var>if-equal</var>; otherwise execute <var>if-not-equal</var>.  <var>word</var>
+must be a single shell word (typically a quoted string).  Avoids
+shell bugs if an interrupt signal arrives while a command substitution
+in <var>var</var> is being expanded. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_PUSHDEF</b> (<var>m4-name, value</var>)<var><a name="index-AS_005fVAR_005fPUSHDEF-1604"></a></var><br>
+&mdash; Macro: <b>AS_VAR_POPDEF</b> (<var>m4-name</var>)<var><a name="index-AS_005fVAR_005fPOPDEF-1605"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fPUSHDEF-1606"></a>
+<a name="index-AS_005fVAR_005fPOPDEF-1607"></a>
+<a name="index-composing-variable-names-1608"></a><a name="index-variable-names_002c-composing-1609"></a>A common M4sh idiom involves composing shell variable names from an m4
+argument (for example, writing a macro that uses a cache variable). 
+<var>value</var> can be an arbitrary string, which will be transliterated
+into a valid shell name by <code>AS_TR_SH</code>.  In order to access the
+composed variable name based on <var>value</var>, it is easier to declare a
+temporary m4 macro <var>m4-name</var> with <code>AS_VAR_PUSHDEF</code>, then use
+that macro as the argument to subsequent <code>AS_VAR</code> macros as a
+polymorphic variable name, and finally free the temporary macro with
+<code>AS_VAR_POPDEF</code>.  These macros are often followed with <code>dnl</code>,
+to avoid excess newlines in the output.
+
+        <p>Here is an involved example, that shows the power of writing macros that
+can handle composed shell variable names:
+
+     <pre class="example">          m4_define([MY_CHECK_HEADER],
+          [AS_VAR_PUSHDEF([my_Header], [ac_cv_header_$1])dnl
+          AS_VAR_IF([my_Header], [yes], [echo "header $1 detected"])dnl
+          AS_VAR_POPDEF([my_Header])dnl
+          ])
+          MY_CHECK_HEADER([stdint.h])
+          for header in inttypes.h stdlib.h ; do
+            MY_CHECK_HEADER([$header])
+          done
+</pre>
+        <p class="noindent">In the above example, <code>MY_CHECK_HEADER</code> can operate on polymorphic
+variable names.  In the first invocation, the m4 argument is
+<code>stdint.h</code>, which transliterates into a literal <code>stdint_h</code>. 
+As a result, the temporary macro <code>my_Header</code> expands to the literal
+shell name &lsquo;<samp><span class="samp">ac_cv_header_stdint_h</span></samp>&rsquo;.  In the second invocation, the
+m4 argument to <code>MY_CHECK_HEADER</code> is <code>$header</code>, and the
+temporary macro <code>my_Header</code> expands to the indirect shell name
+&lsquo;<samp><span class="samp">$as_my_Header</span></samp>&rsquo;.  During the shell execution of the for loop, when
+&lsquo;<samp><span class="samp">$header</span></samp>&rsquo; contains &lsquo;<samp><span class="samp">inttypes.h</span></samp>&rsquo;, then &lsquo;<samp><span class="samp">$as_my_Header</span></samp>&rsquo;
+contains &lsquo;<samp><span class="samp">ac_cv_header_inttypes_h</span></samp>&rsquo;.  If this script is then run on a
+platform where all three headers have been previously detected, the
+output of the script will include:
+
+     <pre class="smallexample">          header stdint.h detected
+          header inttypes.h detected
+          header stdlib.h detected
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_SET</b> (<var>var, </var><span class="roman">[</span><var>value</var><span class="roman">]</span>)<var><a name="index-AS_005fVAR_005fSET-1610"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fSET-1611"></a>
+Emit shell code to assign the contents of the polymorphic shell variable
+<var>var</var> to the shell expansion of <var>value</var>.  <var>value</var> is not
+subject to field splitting or file name expansion, so if command
+substitution is used, it may be done with &lsquo;<samp><span class="samp">`""`</span></samp>&rsquo; rather than using
+an intermediate variable (see <a href="Shell-Substitutions.html#Shell-Substitutions">Shell Substitutions</a>).  However,
+<var>value</var> does undergo rescanning for additional macro names; behavior
+is unspecified if late expansion results in any shell meta-characters. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_SET_IF</b> (<var>var, </var><span class="roman">[</span><var>if-set</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-undef</var><span class="roman">]</span>)<var><a name="index-AS_005fVAR_005fSET_005fIF-1612"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fSET_005fIF-1613"></a>
+Emit a shell conditional statement, which executes <var>if-set</var> if the
+polymorphic shell variable <code>var</code> is set to any value, and
+<var>if-undef</var> otherwise. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AS_VAR_TEST_SET</b> (<var>var</var>)<var><a name="index-AS_005fVAR_005fTEST_005fSET-1614"></a></var><br>
+<blockquote><p><a name="index-AS_005fVAR_005fTEST_005fSET-1615"></a>
+Emit a shell statement that results in a successful exit status only if
+the polymorphic shell variable <code>var</code> is set. 
+</p></blockquote></div>
+
+   </body></html>
+

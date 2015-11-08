@@ -1,0 +1,104 @@
+<html lang="en">
+<head>
+<title>Changed Results - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Autoconf-1.html#Autoconf-1" title="Autoconf 1">
+<link rel="prev" href="Changed-Macros.html#Changed-Macros" title="Changed Macros">
+<link rel="next" href="Changed-Macro-Writing.html#Changed-Macro-Writing" title="Changed Macro Writing">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Changed-Results"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Changed-Macro-Writing.html#Changed-Macro-Writing">Changed Macro Writing</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Changed-Macros.html#Changed-Macros">Changed Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Autoconf-1.html#Autoconf-1">Autoconf 1</a>
+<hr>
+</div>
+
+<h4 class="subsection">18.5.4 Changed Results</h4>
+
+<p>If you were checking the results of previous tests by examining the
+shell variable <code>DEFS</code>, you need to switch to checking the values of
+the cache variables for those tests.  <code>DEFS</code> no longer exists while
+<samp><span class="command">configure</span></samp> is running; it is only created when generating output
+files.  This difference from version 1 is because properly quoting the
+contents of that variable turned out to be too cumbersome and
+inefficient to do every time <code>AC_DEFINE</code> is called.  See <a href="Cache-Variable-Names.html#Cache-Variable-Names">Cache Variable Names</a>.
+
+   <p>For example, here is a <samp><span class="file">configure.ac</span></samp> fragment written for Autoconf
+version 1:
+
+<pre class="example">     AC_HAVE_FUNCS(syslog)
+     case "$DEFS" in
+     *-DHAVE_SYSLOG*) ;;
+     *) # syslog is not in the default libraries.  See if it's in some other.
+       saved_LIBS="$LIBS"
+       for lib in bsd socket inet; do
+         AC_CHECKING(for syslog in -l$lib)
+         LIBS="-l$lib $saved_LIBS"
+         AC_HAVE_FUNCS(syslog)
+         case "$DEFS" in
+         *-DHAVE_SYSLOG*) break ;;
+         *) ;;
+         esac
+         LIBS="$saved_LIBS"
+       done ;;
+     esac
+</pre>
+   <p>Here is a way to write it for version 2:
+
+<pre class="example">     AC_CHECK_FUNCS([syslog])
+     if test "x$ac_cv_func_syslog" = xno; then
+       # syslog is not in the default libraries.  See if it's in some other.
+       for lib in bsd socket inet; do
+         AC_CHECK_LIB([$lib], [syslog], [AC_DEFINE([HAVE_SYSLOG])
+           LIBS="-l$lib $LIBS"; break])
+       done
+     fi
+</pre>
+   <p>If you were working around bugs in <code>AC_DEFINE_UNQUOTED</code> by adding
+backslashes before quotes, you need to remove them.  It now works
+predictably, and does not treat quotes (except back quotes) specially. 
+See <a href="Setting-Output-Variables.html#Setting-Output-Variables">Setting Output Variables</a>.
+
+   <p>All of the Boolean shell variables set by Autoconf macros now use
+&lsquo;<samp><span class="samp">yes</span></samp>&rsquo; for the true value.  Most of them use &lsquo;<samp><span class="samp">no</span></samp>&rsquo; for false,
+though for backward compatibility some use the empty string instead.  If
+you were relying on a shell variable being set to something like 1 or
+&lsquo;<samp><span class="samp">t</span></samp>&rsquo; for true, you need to change your tests.
+
+   </body></html>
+

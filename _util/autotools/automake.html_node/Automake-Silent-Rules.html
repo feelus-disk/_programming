@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Automake Silent Rules</title>
+
+<meta name="description" content="automake: Automake Silent Rules">
+<meta name="keywords" content="automake: Automake Silent Rules">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Silencing-Make.html#Silencing-Make" rel="up" title="Silencing Make">
+<link href="Gnits.html#Gnits" rel="next" title="Gnits">
+<link href="Tricks-For-Silencing-Make.html#Tricks-For-Silencing-Make" rel="prev" title="Tricks For Silencing Make">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Automake-Silent-Rules"></a>
+<div class="header">
+<p>
+Previous: <a href="Tricks-For-Silencing-Make.html#Tricks-For-Silencing-Make" accesskey="p" rel="prev">Tricks For Silencing Make</a>, Up: <a href="Silencing-Make.html#Silencing-Make" accesskey="u" rel="up">Silencing Make</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="How-Automake-can-help-in-silencing-make"></a>
+<h3 class="section">21.3 How Automake can help in silencing make</h3>
+
+<p>The tricks and idioms for silencing <code>make</code> described in the
+previous section can be useful from time to time, but we&rsquo;ve seen that
+they all have their serious drawbacks and limitations.  That&rsquo;s why
+automake provides support for a more advanced and flexible way of
+obtaining quieter output from <code>make</code> (for most rules at least).
+</p>
+<p>To give the gist of what Automake can do in this respect, here is a simple
+comparison between a typical <code>make</code> output (where silent rules
+are disabled) and one with silent rules enabled:
+</p>
+<div class="example">
+<pre class="example">% <kbd>cat Makefile.am</kbd>
+bin_PROGRAMS = foo
+foo_SOURCES = main.c func.c
+% <kbd>cat main.c</kbd>
+int main (void) { return func (); }  /* func used undeclared */
+% <kbd>cat func.c</kbd>
+int func (void) { int i; return i; } /* i used uninitialized */
+
+<i>The make output is by default very verbose.  This causes warnings
+from the compiler to be somewhat hidden, and not immediate to spot.</i>
+% <kbd>make CFLAGS=-Wall</kbd>
+gcc -DPACKAGE_NAME=\&quot;foo\&quot; -DPACKAGE_TARNAME=\&quot;foo\&quot; ...
+-DPACKAGE_STRING=\&quot;foo\ 1.0\&quot; -DPACKAGE_BUGREPORT=\&quot;\&quot; ...
+-DPACKAGE=\&quot;foo\&quot; -DVERSION=\&quot;1.0\&quot; -I. -Wall -MT main.o
+-MD -MP -MF .deps/main.Tpo -c -o main.o main.c
+main.c: In function ‘main’:
+main.c:3:3: warning: implicit declaration of function ‘func’
+mv -f .deps/main.Tpo .deps/main.Po
+gcc -DPACKAGE_NAME=\&quot;foo\&quot; -DPACKAGE_TARNAME=\&quot;foo\&quot; ...
+-DPACKAGE_STRING=\&quot;foo\ 1.0\&quot; -DPACKAGE_BUGREPORT=\&quot;\&quot; ...
+-DPACKAGE=\&quot;foo\&quot; -DVERSION=\&quot;1.0\&quot; -I. -Wall -MT func.o
+-MD -MP -MF .deps/func.Tpo -c -o func.o func.c
+func.c: In function ‘func’:
+func.c:4:3: warning: ‘i’ used uninitialized in this function
+mv -f .deps/func.Tpo .deps/func.Po
+gcc -Wall -o foo main.o func.o
+
+<i>Clean up, so that we we can rebuild everything from scratch.</i>
+% <kbd>make clean</kbd>
+test -z &quot;foo&quot; || rm -f foo
+rm -f *.o
+
+<i>Silent rules enabled: the output is minimal but informative.  In
+particular, the warnings from the compiler stick out very clearly.</i>
+% <kbd>make V=0 CFLAGS=-Wall</kbd>
+  CC     main.o
+main.c: In function ‘main’:
+main.c:3:3: warning: implicit declaration of function ‘func’
+  CC     func.o
+func.c: In function ‘func’:
+func.c:4:3: warning: ‘i’ used uninitialized in this function
+  CCLD   foo
+</pre></div>
+
+<a name="index-silent-rules-and-libtool"></a>
+<p>Also, in projects using <code>libtool</code>, the use of silent rules can
+automatically enable the <code>libtool</code>&rsquo;s <samp>--silent</samp> option:
+</p>
+<div class="example">
+<pre class="example">% <kbd>cat Makefile.am</kbd>
+lib_LTLIBRARIES = libx.la
+
+% <kbd>make # Both make and libtool are verbose by default.</kbd>
+...
+libtool: compile: gcc -DPACKAGE_NAME=\&quot;foo\&quot; ... -DLT_OBJDIR=\&quot;.libs/\&quot;
+  -I. -g -O2 -MT libx.lo -MD -MP -MF .deps/libx.Tpo -c libx.c -fPIC
+  -DPIC -o .libs/libx.o
+mv -f .deps/libx.Tpo .deps/libx.Plo
+/bin/sh ./libtool --tag=CC --mode=link gcc -g -O2 -o libx.la -rpath
+  /usr/local/lib libx.lo
+libtool: link: gcc -shared .libs/libx.o -Wl,-soname -Wl,libx.so.0
+  -o .libs/libx.so.0.0.0
+libtool: link: cd .libs &amp;&amp; rm -f libx.so &amp;&amp; ln -s libx.so.0.0.0 libx.so
+...
+
+% <kbd>make V=0</kbd>
+  CC     libx.lo
+  CCLD   libx.la
+</pre></div>
+
+<p>For Automake-generated <samp>Makefile</samp>s, the user may influence the
+verbosity at <code>configure</code> run time as well as at <code>make</code>
+run time:
+</p>
+<ul>
+<li> <a name="index-_002d_002denable_002dsilent_002drules"></a>
+<a name="index-_002d_002ddisable_002dsilent_002drules"></a>
+Passing <samp>--enable-silent-rules</samp> to <code>configure</code> will cause
+build rules to be less verbose; the option <samp>--disable-silent-rules</samp>
+will cause normal verbose output.
+</li><li> <a name="index-V"></a>
+At <code>make</code> run time, the default chosen at <code>configure</code>
+time may be overridden: <code>make V=1</code> will produce verbose output,
+<code>make V=0</code> less verbose output.
+</li></ul>
+
+<a name="index-default-verbosity-for-silent-rules"></a>
+<p>Note that silent rules are <em>disabled</em> by default; the user must
+enable them explicitly at either <code>configure</code> run time or at
+<code>make</code> run time.  We think that this is a good policy, since
+it provides the casual user with enough information to prepare a good
+bug report in case anything breaks.
+</p>
+<p>Still, notwithstanding the rationales above, a developer who really
+wants to make silent rules enabled by default in his own package can
+do so by calling <code>AM_SILENT_RULES([yes])</code> in <samp>configure.ac</samp>.
+</p>
+<p>Users who prefer to have silent rules enabled by default can edit their
+<samp>config.site</samp> file to make the variable <code>enable_silent_rules</code>
+default to &lsquo;<samp>yes</samp>&rsquo;.  This should still allow disabling silent rules
+at <code>configure</code> time and at <code>make</code> time.
+</p>
+<p>For portability to different <code>make</code> implementations, package authors
+are advised to not set the variable <code>V</code> inside the <samp>Makefile.am</samp>
+file, to allow the user to override the value for subdirectories as well.
+</p>
+<p>To work at its best, the current implementation of this feature normally
+uses nested variable expansion &lsquo;<samp>$(<var>var1</var>$(V))</samp>&rsquo;, a <samp>Makefile</samp>
+feature that is not required by POSIX 2008 but is widely supported in
+practice.  On the rare <code>make</code> implementations that do not support
+nested variable expansion, whether rules are silent is always determined at
+configure time, and cannot be overridden at make time.  Future versions of
+POSIX are likely to require nested variable expansion, so this minor
+limitation should go away with time.
+</p>
+<a name="index-AM_005fV_005fGEN"></a>
+<a name="index-AM_005fV_005fat"></a>
+<a name="index-AM_005fDEFAULT_005fVERBOSITY"></a>
+<a name="index-AM_005fV"></a>
+<a name="index-AM_005fDEFAULT_005fV"></a>
+<p>To extend the silent mode to your own rules, you have few choices:
+</p>
+<ul>
+<li> You can use the predefined variable <code>AM_V_GEN</code> as a prefix to
+commands that should output a status line in silent mode, and
+<code>AM_V_at</code> as a prefix to commands that should not output anything
+in silent mode.  When output is to be verbose, both of these variables
+will expand to the empty string.
+
+</li><li> You can silence a recipe unconditionally with <code>@</code>, and then use
+the predefined variable <code>AM_V_P</code> to know whether make is being run
+in silent or verbose mode, adjust the verbose information your recipe
+displays accordingly:
+
+<div class="example">
+<pre class="example">generate-headers:
+                ... [commands defining a shell variable '$headers'] ...; \
+        if $(AM_V_P); then set -x; else echo &quot; GEN   [headers]&quot;; fi; \
+        rm -f $$headers &amp;&amp; generate-header --flags $$headers
+</pre></div>
+
+</li><li> You can add your own variables, so strings of your own choice are shown.
+The following snippet shows how you would define your own equivalent of
+<code>AM_V_GEN</code>:
+
+<div class="example">
+<pre class="example">pkg_verbose = $(pkg_verbose_@AM_V@)
+pkg_verbose_ = $(pkg_verbose_@AM_DEFAULT_V@)
+pkg_verbose_0 = @echo PKG-GEN $@;
+
+foo: foo.in
+        $(pkg_verbose)cp $(srcdir)/foo.in $@
+</pre></div>
+
+</li></ul>
+
+<p>As a final note, observe that, even when silent rules are enabled,
+the <samp>--no-print-directory</samp> option is still required with GNU
+<code>make</code> if the &ldquo;<i>Entering/Leaving directory ...</i>&rdquo; messages
+are to be disabled.
+</p>
+<hr>
+<div class="header">
+<p>
+Previous: <a href="Tricks-For-Silencing-Make.html#Tricks-For-Silencing-Make" accesskey="p" rel="prev">Tricks For Silencing Make</a>, Up: <a href="Silencing-Make.html#Silencing-Make" accesskey="u" rel="up">Silencing Make</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

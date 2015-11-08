@@ -1,0 +1,179 @@
+<html lang="en">
+<head>
+<title>Making testsuite Scripts - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Using-Autotest.html#Using-Autotest" title="Using Autotest">
+<link rel="prev" href="testsuite-Invocation.html#testsuite-Invocation" title="testsuite Invocation">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Making-testsuite-Scripts"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="testsuite-Invocation.html#testsuite-Invocation">testsuite Invocation</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Using-Autotest.html#Using-Autotest">Using Autotest</a>
+<hr>
+</div>
+
+<h3 class="section">19.4 Making <samp><span class="command">testsuite</span></samp> Scripts</h3>
+
+<p>For putting Autotest into movement, you need some configuration and
+makefile machinery.  We recommend, at least if your package uses deep or
+shallow hierarchies, that you use <samp><span class="file">tests/</span></samp> as the name of the
+directory holding all your tests and their makefile.  Here is a
+check list of things to do.
+
+     <ul>
+<li><a name="index-g_t_0040file_007bpackage_002em4_007d-2305"></a><a name="index-AT_005fPACKAGE_005fSTRING-2306"></a>
+<a name="index-AT_005fPACKAGE_005fBUGREPORT-2307"></a>
+<a name="index-AT_005fPACKAGE_005fNAME-2308"></a>
+<a name="index-AT_005fPACKAGE_005fTARNAME-2309"></a>
+<a name="index-AT_005fPACKAGE_005fVERSION-2310"></a>
+<a name="index-AT_005fPACKAGE_005fURL-2311"></a>
+Make sure to create the file <samp><span class="file">package.m4</span></samp>, which defines the
+identity of the package.  It must define <code>AT_PACKAGE_STRING</code>, the
+full signature of the package, and <code>AT_PACKAGE_BUGREPORT</code>, the
+address to which bug reports should be sent.  For sake of completeness,
+we suggest that you also define <code>AT_PACKAGE_NAME</code>,
+<code>AT_PACKAGE_TARNAME</code>, <code>AT_PACKAGE_VERSION</code>, and
+<code>AT_PACKAGE_URL</code>. 
+See <a href="Initializing-configure.html#Initializing-configure">Initializing configure</a>, for a description of these variables. 
+Be sure to distribute <samp><span class="file">package.m4</span></samp> and to put it into the source
+hierarchy: the test suite ought to be shipped!  See below for an example
+<samp><span class="file">Makefile</span></samp> excerpt.
+
+     <li>Invoke <code>AC_CONFIG_TESTDIR</code>.
+
+     <div class="defun">
+&mdash; Macro: <b>AC_CONFIG_TESTDIR</b> (<var>directory, </var><span class="roman">[</span><var>test-path = &lsquo;</var><samp><span class="samp">directory</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCONFIG_005fTESTDIR-2312"></a></var><br>
+<blockquote> <p><a name="index-AC_005fCONFIG_005fTESTDIR-2313"></a>
+An Autotest test suite is to be configured in <var>directory</var>.  This
+macro causes <samp><var>directory</var><span class="file">/atconfig</span></samp> to be created by
+<samp><span class="command">config.status</span></samp> and sets the default <code>AUTOTEST_PATH</code> to
+<var>test-path</var> (see <a href="testsuite-Invocation.html#testsuite-Invocation">testsuite Invocation</a>). 
+</p></blockquote></div>
+
+     <li>Still within <samp><span class="file">configure.ac</span></samp>, as appropriate, ensure that some
+<code>AC_CONFIG_FILES</code> command includes substitution for
+<samp><span class="file">tests/atlocal</span></samp>.
+
+     <li>The appropriate <samp><span class="file">Makefile</span></samp> should be modified so the validation in
+your package is triggered by &lsquo;<samp><span class="samp">make check</span></samp>&rsquo;.  An example is provided
+below. 
+</ul>
+
+   <p>With Automake, here is a minimal example for inclusion in
+<samp><span class="file">tests/Makefile.am</span></samp>, in order to link &lsquo;<samp><span class="samp">make check</span></samp>&rsquo; with a
+validation suite.
+
+<pre class="example">     # The `:;' works around a Bash 3.2 bug when the output is not writable.
+     $(srcdir)/package.m4: $(top_srcdir)/configure.ac
+             :;{ \
+               echo '# Signature of the current package.' &amp;&amp; \
+               echo 'm4_define([AT_PACKAGE_NAME],' &amp;&amp; \
+               echo '  [$(PACKAGE_NAME)])' &amp;&amp; \
+               echo 'm4_define([AT_PACKAGE_TARNAME],' &amp;&amp; \
+               echo '  [$(PACKAGE_TARNAME)])' &amp;&amp; \
+               echo 'm4_define([AT_PACKAGE_VERSION],' &amp;&amp; \
+               echo '  [$(PACKAGE_VERSION)])' &amp;&amp; \
+               echo 'm4_define([AT_PACKAGE_STRING],' &amp;&amp; \
+               echo '  [$(PACKAGE_STRING)])' &amp;&amp; \
+               echo 'm4_define([AT_PACKAGE_BUGREPORT],' &amp;&amp; \
+               echo '  [$(PACKAGE_BUGREPORT)])'; \
+               echo 'm4_define([AT_PACKAGE_URL],' &amp;&amp; \
+               echo '  [$(PACKAGE_URL)])'; \
+             } &gt;'$(srcdir)/package.m4'
+     
+     EXTRA_DIST = testsuite.at $(srcdir)/package.m4 $(TESTSUITE) atlocal.in
+     TESTSUITE = $(srcdir)/testsuite
+     
+     check-local: atconfig atlocal $(TESTSUITE)
+             $(SHELL) '$(TESTSUITE)' $(TESTSUITEFLAGS)
+     
+     installcheck-local: atconfig atlocal $(TESTSUITE)
+             $(SHELL) '$(TESTSUITE)' AUTOTEST_PATH='$(bindir)' \
+               $(TESTSUITEFLAGS)
+     
+     clean-local:
+             test ! -f '$(TESTSUITE)' || \
+              $(SHELL) '$(TESTSUITE)' --clean
+     
+     AUTOM4TE = $(SHELL) $(srcdir)/build-aux/missing --run autom4te
+     AUTOTEST = $(AUTOM4TE) --language=autotest
+     $(TESTSUITE): $(srcdir)/testsuite.at $(srcdir)/package.m4
+             $(AUTOTEST) -I '$(srcdir)' -o $@.tmp $@.at
+             mv $@.tmp $@
+</pre>
+   <p>Note that the built testsuite is distributed; this is necessary because
+users might not have Autoconf installed, and thus would not be able to
+rebuild it.  Likewise, the use of <samp><span class="file">missing</span></samp> provides the user with
+a nicer error message if they modify a source file to the testsuite, and
+accidentally trigger the rebuild rules.
+
+   <p>You might want to list explicitly the dependencies, i.e., the list of
+the files <samp><span class="file">testsuite.at</span></samp> includes.
+
+   <p>If you don't use Automake, you should include the above example in
+<samp><span class="file">tests/Makefile.in</span></samp>, along with additional lines inspired from
+the following:
+
+<pre class="example">     subdir = tests
+     PACKAGE_NAME = @PACKAGE_NAME@
+     PACKAGE_TARNAME = @PACKAGE_TARNAME@
+     PACKAGE_VERSION = @PACKAGE_VERSION@
+     PACKAGE_STRING = @PACKAGE_STRING@
+     PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+     PACKAGE_URL = @PACKAGE_URL@
+     
+     atconfig: $(top_builddir)/config.status
+             cd $(top_builddir) &amp;&amp; \
+                $(SHELL) ./config.status $(subdir)/$@
+     
+     atlocal: $(srcdir)/atlocal.in $(top_builddir)/config.status
+             cd $(top_builddir) &amp;&amp; \
+                $(SHELL) ./config.status $(subdir)/$@
+</pre>
+   <p class="noindent">and manage to have <code>$(EXTRA_DIST)</code> distributed.  You will also want
+to distribute the file <samp><span class="file">build-aux/missing</span></samp> from the Automake
+project; a copy of this file resides in the Autoconf source tree.
+
+   <p>With all this in place, and if you have not initialized &lsquo;<samp><span class="samp">TESTSUITEFLAGS</span></samp>&rsquo;
+within your makefile, you can fine-tune test suite execution with this
+variable, for example:
+
+<pre class="example">     make check TESTSUITEFLAGS='-v -d -x 75 -k AC_PROG_CC CFLAGS=-g'
+</pre>
+   <!-- =============================== Frequent Autoconf Questions, with answers -->
+   </body></html>
+

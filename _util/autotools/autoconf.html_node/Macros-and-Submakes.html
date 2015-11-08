@@ -1,0 +1,129 @@
+<html lang="en">
+<head>
+<title>Macros and Submakes - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Make.html#Portable-Make" title="Portable Make">
+<link rel="prev" href="Long-Lines-in-Makefiles.html#Long-Lines-in-Makefiles" title="Long Lines in Makefiles">
+<link rel="next" href="The-Make-Macro-MAKEFLAGS.html#The-Make-Macro-MAKEFLAGS" title="The Make Macro MAKEFLAGS">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Macros-and-Submakes"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="The-Make-Macro-MAKEFLAGS.html#The-Make-Macro-MAKEFLAGS">The Make Macro MAKEFLAGS</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Long-Lines-in-Makefiles.html#Long-Lines-in-Makefiles">Long Lines in Makefiles</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Make.html#Portable-Make">Portable Make</a>
+<hr>
+</div>
+
+<h3 class="section">12.7 <code>make macro=value</code> and Submakes</h3>
+
+<p>A command-line variable definition such as <code>foo=bar</code> overrides any
+definition of <code>foo</code> in a makefile.  Some <samp><span class="command">make</span></samp>
+implementations (such as GNU <samp><span class="command">make</span></samp>) propagate this
+override to subsidiary invocations of <samp><span class="command">make</span></samp>.  Some other
+implementations do not pass the substitution along to submakes.
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     foo = foo
+     one:
+             @echo $(foo)
+             $(MAKE) two
+     two:
+             @echo $(foo)
+     $ <kbd>make foo=bar</kbd>            # GNU make 3.79.1
+     bar
+     make two
+     make[1]: Entering directory `/home/adl'
+     bar
+     make[1]: Leaving directory `/home/adl'
+     $ <kbd>pmake foo=bar</kbd>           # BSD make
+     bar
+     pmake two
+     foo
+</pre>
+   <p>You have a few possibilities if you do want the <code>foo=bar</code> override
+to propagate to submakes.  One is to use the <samp><span class="option">-e</span></samp>
+option, which causes all environment variables to have precedence over
+the makefile macro definitions, and declare foo as an environment
+variable:
+
+<pre class="example">     $ <kbd>env foo=bar make -e</kbd>
+</pre>
+   <p>The <samp><span class="option">-e</span></samp> option is propagated to submakes automatically,
+and since the environment is inherited between <samp><span class="command">make</span></samp>
+invocations, the <code>foo</code> macro is overridden in
+submakes as expected.
+
+   <p>This syntax (<code>foo=bar make -e</code>) is portable only when used
+outside of a makefile, for instance from a script or from the
+command line.  When run inside a <samp><span class="command">make</span></samp> rule, GNU
+<samp><span class="command">make</span></samp> 3.80 and prior versions forget to propagate the
+<samp><span class="option">-e</span></samp> option to submakes.
+
+   <p>Moreover, using <samp><span class="option">-e</span></samp> could have unexpected side effects if your
+environment contains some other macros usually defined by the
+makefile.  (See also the note about <code>make -e</code> and <code>SHELL</code>
+below.)
+
+   <p>If you can foresee all macros that a user might want to override, then
+you can propagate them to submakes manually, from your makefile:
+
+<pre class="example">     foo = foo
+     one:
+             @echo $(foo)
+             $(MAKE) foo=$(foo) two
+     two:
+             @echo $(foo)
+</pre>
+   <p>Another way to propagate a variable to submakes in a portable way is to
+expand an extra variable in every invocation of &lsquo;<samp><span class="samp">$(MAKE)</span></samp>&rsquo; within
+your makefile:
+
+<pre class="example">     foo = foo
+     one:
+             @echo $(foo)
+             $(MAKE) $(SUBMAKEFLAGS) two
+     two:
+             @echo $(foo)
+</pre>
+   <p>Users must be aware that this technique is in use to take advantage of
+it, e.g. with <code>make foo=bar SUBMAKEFLAGS='foo=bar'</code>, but it
+allows any macro to be overridden.  Makefiles generated by
+<samp><span class="command">automake</span></samp> use this technique, expanding <code>$(AM_MAKEFLAGS)</code>
+on the command lines of submakes (see <a href="../automake/Subdirectories.html#Subdirectories">Automake</a>).
+
+   </body></html>
+

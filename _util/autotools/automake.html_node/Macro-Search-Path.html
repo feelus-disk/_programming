@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Macro Search Path</title>
+
+<meta name="description" content="automake: Macro Search Path">
+<meta name="keywords" content="automake: Macro Search Path">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="aclocal-Invocation.html#aclocal-Invocation" rel="up" title="aclocal Invocation">
+<link href="Extending-aclocal.html#Extending-aclocal" rel="next" title="Extending aclocal">
+<link href="aclocal-Options.html#aclocal-Options" rel="prev" title="aclocal Options">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Macro-Search-Path"></a>
+<div class="header">
+<p>
+Next: <a href="Extending-aclocal.html#Extending-aclocal" accesskey="n" rel="next">Extending aclocal</a>, Previous: <a href="aclocal-Options.html#aclocal-Options" accesskey="p" rel="prev">aclocal Options</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Macro-Search-Path-1"></a>
+<h4 class="subsection">6.3.2 Macro Search Path</h4>
+
+<a name="index-Macro-search-path"></a>
+<a name="index-aclocal-search-path"></a>
+
+<p>By default, <code>aclocal</code> searches for <samp>.m4</samp> files in the following
+directories, in this order:
+</p>
+<dl compact="compact">
+<dt><code><var>acdir-APIVERSION</var></code></dt>
+<dd><p>This is where the <samp>.m4</samp> macros distributed with Automake itself
+are stored.  <var>APIVERSION</var> depends on the Automake release used;
+for example, for Automake 1.11.x, <var>APIVERSION</var> = <code>1.11</code>.
+</p>
+</dd>
+<dt><code><var>acdir</var></code></dt>
+<dd><p>This directory is intended for third party <samp>.m4</samp> files, and is
+configured when <code>automake</code> itself is built.  This is
+<samp>@datadir@/aclocal/</samp>, which typically
+expands to <samp>${prefix}/share/aclocal/</samp>.  To find the compiled-in
+value of <var>acdir</var>, use the <samp>--print-ac-dir</samp> option
+(see <a href="aclocal-Options.html#aclocal-Options">aclocal Options</a>).
+</p></dd>
+</dl>
+
+<p>As an example, suppose that <code>automake-1.11.2</code> was configured with
+<samp>--prefix=/usr/local</samp>.  Then, the search path would be:
+</p>
+<ol>
+<li> <samp>/usr/local/share/aclocal-1.11.2/</samp>
+</li><li> <samp>/usr/local/share/aclocal/</samp>
+</li></ol>
+
+<p>The paths for the <var>acdir</var> and <var>acdir-APIVERSION</var> directories can
+be changed respectively through aclocal options <samp>--system-acdir</samp>
+and <samp>--automake-acdir</samp> (see <a href="aclocal-Options.html#aclocal-Options">aclocal Options</a>).  Note however
+that these options are only intended for use by the internal Automake
+test suite, or for debugging under highly unusual situations; they are
+not ordinarily needed by end-users.
+</p>
+<p>As explained in (see <a href="aclocal-Options.html#aclocal-Options">aclocal Options</a>), there are several options that
+can be used to change or extend this search path.
+</p>
+<a name="Modifying-the-Macro-Search-Path_003a-_002dI-dir"></a>
+<h4 class="subsubheading">Modifying the Macro Search Path: &lsquo;<samp>-I <var>dir</var></samp>&rsquo;</h4>
+
+<p>Any extra directories specified using <samp>-I</samp> options
+(see <a href="aclocal-Options.html#aclocal-Options">aclocal Options</a>) are <em>prepended</em> to this search list.  Thus,
+&lsquo;<samp>aclocal -I /foo -I /bar</samp>&rsquo; results in the following search path:
+</p>
+<ol>
+<li> <samp>/foo</samp>
+</li><li> <samp>/bar</samp>
+</li><li> <var>acdir</var>-<var>APIVERSION</var>
+</li><li> <var>acdir</var>
+</li></ol>
+
+<a name="Modifying-the-Macro-Search-Path_003a-dirlist"></a>
+<h4 class="subsubheading">Modifying the Macro Search Path: <samp>dirlist</samp></h4>
+<a name="index-dirlist"></a>
+
+<p>There is a third mechanism for customizing the search path.  If a
+<samp>dirlist</samp> file exists in <var>acdir</var>, then that file is assumed to
+contain a list of directory patterns, one per line.  <code>aclocal</code>
+expands these patterns to directory names, and adds them to the search
+list <em>after</em> all other directories.  <samp>dirlist</samp> entries may
+use shell wildcards such as &lsquo;<samp>*</samp>&rsquo;, &lsquo;<samp>?</samp>&rsquo;, or <code>[...]</code>.
+</p>
+<p>For example, suppose
+<samp><var>acdir</var>/dirlist</samp> contains the following:
+</p>
+<div class="example">
+<pre class="example">/test1
+/test2
+/test3*
+</pre></div>
+
+<p>and that <code>aclocal</code> was called with the &lsquo;<samp>-I /foo -I /bar</samp>&rsquo; options.
+Then, the search path would be
+</p>
+<ol>
+<li> <code>/foo</code>
+</li><li> <code>/bar</code>
+</li><li> <var>acdir</var>-<var>APIVERSION</var>
+</li><li> <var>acdir</var>
+</li><li> <code>/test1</code>
+</li><li> <code>/test2</code>
+</li></ol>
+
+<p>and all directories with path names starting with <code>/test3</code>.
+</p>
+<p>If the <samp>--system-acdir=<var>dir</var></samp> option is used, then
+<code>aclocal</code> will search for the <samp>dirlist</samp> file in
+<var>dir</var>; but remember the warnings  above against the use of
+<samp>--system-acdir</samp>.
+</p>
+<p><samp>dirlist</samp> is useful in the following situation: suppose that
+<code>automake</code> version <code>1.11.2</code> is installed with
+&lsquo;<samp>--prefix=/usr</samp>&rsquo; by the system vendor.  Thus, the default search
+directories are
+</p>
+<ol>
+<li> <code>/usr/share/aclocal-1.11/</code>
+</li><li> <code>/usr/share/aclocal/</code>
+</li></ol>
+
+<p>However, suppose further that many packages have been manually
+installed on the system, with $prefix=/usr/local, as is typical.  In
+that case, many of these &ldquo;extra&rdquo; <samp>.m4</samp> files are in
+<samp>/usr/local/share/aclocal</samp>.  The only way to force
+<samp>/usr/bin/aclocal</samp> to find these &ldquo;extra&rdquo; <samp>.m4</samp> files is to
+always call &lsquo;<samp>aclocal -I /usr/local/share/aclocal</samp>&rsquo;.  This is
+inconvenient.  With <samp>dirlist</samp>, one may create a file
+<samp>/usr/share/aclocal/dirlist</samp> containing only the single line
+</p>
+<div class="example">
+<pre class="example">/usr/local/share/aclocal
+</pre></div>
+
+<p>Now, the &ldquo;default&rdquo; search path on the affected system is
+</p>
+<ol>
+<li> <code>/usr/share/aclocal-1.11/</code>
+</li><li> <code>/usr/share/aclocal/</code>
+</li><li> <code>/usr/local/share/aclocal/</code>
+</li></ol>
+
+<p>without the need for <samp>-I</samp> options; <samp>-I</samp> options can be reserved
+for project-specific needs (<samp>my-source-dir/m4/</samp>), rather than
+using it to work around local system-dependent tool installation
+directories.
+</p>
+<p>Similarly, <samp>dirlist</samp> can be handy if you have installed a local
+copy of Automake in your account and want <code>aclocal</code> to look for
+macros installed at other places on the system.
+</p>
+<a name="ACLOCAL_005fPATH"></a><a name="Modifying-the-Macro-Search-Path_003a-ACLOCAL_005fPATH"></a>
+<h4 class="subsubheading">Modifying the Macro Search Path: <samp>ACLOCAL_PATH</samp></h4>
+<a name="index-ACLOCAL_005fPATH"></a>
+
+<p>The fourth and last mechanism to customize the macro search path is
+also the simplest.  Any directory included in the colon-separated
+environment variable <code>ACLOCAL_PATH</code> is added to the search path
+and takes precedence over system directories (including those found via
+<samp>dirlist</samp>), with the exception of the versioned directory
+<var>acdir-APIVERSION</var> (see <a href="#Macro-Search-Path">Macro Search Path</a>).  However, directories
+passed via <samp>-I</samp> will take precedence over directories in
+<code>ACLOCAL_PATH</code>.
+</p>
+<p>Also note that, if the <samp>--install</samp> option is used, any <samp>.m4</samp>
+file containing a required macro that is found in a directory listed in
+<code>ACLOCAL_PATH</code> will be installed locally.
+In this case, serial numbers in <samp>.m4</samp> are honored too,
+see <a href="Serials.html#Serials">Serials</a>.
+</p>
+<p>Conversely to <samp>dirlist</samp>, <code>ACLOCAL_PATH</code> is useful if you are
+using a global copy of Automake and want <code>aclocal</code> to look for
+macros somewhere under your home directory.
+</p>
+<a name="Planned-future-incompatibilities"></a>
+<h4 class="subsubheading">Planned future incompatibilities</h4>
+
+<p>The order in which the directories in the macro search path are currently
+looked up is confusing and/or suboptimal in various aspects, and is
+probably going to be changed in the future Automake release.  In
+particular, directories in <code>ACLOCAL_PATH</code> and <samp><var>acdir</var></samp>
+might end up taking precedence over <samp><var>acdir-APIVERSION</var></samp>, and
+directories in <samp><var>acdir</var>/dirlist</samp> might end up taking precedence
+over <samp><var>acdir</var></samp>.  <em>This is a possible future incompatibility!</em>
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Extending-aclocal.html#Extending-aclocal" accesskey="n" rel="next">Extending aclocal</a>, Previous: <a href="aclocal-Options.html#aclocal-Options" accesskey="p" rel="prev">aclocal Options</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

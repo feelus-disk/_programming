@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Scripts</title>
+
+<meta name="description" content="automake: Scripts">
+<meta name="keywords" content="automake: Scripts">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Other-Objects.html#Other-Objects" rel="up" title="Other Objects">
+<link href="Headers.html#Headers" rel="next" title="Headers">
+<link href="Other-Objects.html#Other-Objects" rel="prev" title="Other Objects">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Scripts"></a>
+<div class="header">
+<p>
+Next: <a href="Headers.html#Headers" accesskey="n" rel="next">Headers</a>, Up: <a href="Other-Objects.html#Other-Objects" accesskey="u" rel="up">Other Objects</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Executable-Scripts"></a>
+<h3 class="section">9.1 Executable Scripts</h3>
+
+<a name="index-_005fSCRIPTS-primary_002c-defined"></a>
+<a name="index-SCRIPTS-primary_002c-defined"></a>
+<a name="index-Primary-variable_002c-SCRIPTS"></a>
+<a name="index-_005fSCRIPTS"></a>
+<a name="index-Installing-scripts"></a>
+
+<p>It is possible to define and install programs that are scripts.  Such
+programs are listed using the <code>SCRIPTS</code> primary name.  When the
+script is distributed in its final, installable form, the
+<samp>Makefile</samp> usually looks as follows:
+<a name="index-SCRIPTS-1"></a>
+</p>
+<div class="example">
+<pre class="example"># Install my_script in $(bindir) and distribute it.
+dist_bin_SCRIPTS = my_script
+</pre></div>
+
+<p>Scripts are not distributed by default; as we have just seen, those
+that should be distributed can be specified using a <code>dist_</code>
+prefix as with other primaries.
+</p>
+<a name="index-SCRIPTS_002c-installation-directories"></a>
+<a name="index-bin_005fSCRIPTS"></a>
+<a name="index-sbin_005fSCRIPTS"></a>
+<a name="index-libexec_005fSCRIPTS"></a>
+<a name="index-pkgdata_005fSCRIPTS"></a>
+<a name="index-pkglibexec_005fSCRIPTS"></a>
+<a name="index-noinst_005fSCRIPTS"></a>
+<a name="index-check_005fSCRIPTS"></a>
+
+<p>Scripts can be installed in <code>bindir</code>, <code>sbindir</code>,
+<code>libexecdir</code>, <code>pkglibexecdir</code>, or <code>pkgdatadir</code>.
+</p>
+<p>Scripts that need not be installed can be listed in
+<code>noinst_SCRIPTS</code>, and among them, those which are needed only by
+&lsquo;<samp>make check</samp>&rsquo; should go in <code>check_SCRIPTS</code>.
+</p>
+<p>When a script needs to be built, the <samp>Makefile.am</samp> should include
+the appropriate rules.  For instance the <code>automake</code> program
+itself is a Perl script that is generated from <samp>automake.in</samp>.
+Here is how this is handled:
+</p>
+<div class="example">
+<pre class="example">bin_SCRIPTS = automake
+CLEANFILES = $(bin_SCRIPTS)
+EXTRA_DIST = automake.in
+
+do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
+            -e 's,[@]PERL[@],$(PERL),g' \
+            -e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+            -e 's,[@]VERSION[@],$(VERSION),g' \
+            &hellip;
+
+automake: automake.in Makefile
+        $(do_subst) &lt; $(srcdir)/automake.in &gt; automake
+        chmod +x automake
+</pre></div>
+
+<p>Such scripts for which a build rule has been supplied need to be
+deleted explicitly using <code>CLEANFILES</code> (see <a href="Clean.html#Clean">Clean</a>), and their
+sources have to be distributed, usually with <code>EXTRA_DIST</code>
+(see <a href="Basics-of-Distribution.html#Basics-of-Distribution">Basics of Distribution</a>).
+</p>
+<p>Another common way to build scripts is to process them from
+<samp>configure</samp> with <code>AC_CONFIG_FILES</code>.  In this situation
+Automake knows which files should be cleaned and distributed, and what
+the rebuild rules should look like.
+</p>
+<p>For instance if <samp>configure.ac</samp> contains
+</p>
+<div class="example">
+<pre class="example">AC_CONFIG_FILES([src/my_script], [chmod +x src/my_script])
+</pre></div>
+
+<p>to build <samp>src/my_script</samp> from <samp>src/my_script.in</samp>, then a
+<samp>src/Makefile.am</samp> to install this script in <code>$(bindir)</code> can
+be as simple as
+</p>
+<div class="example">
+<pre class="example">bin_SCRIPTS = my_script
+CLEANFILES = $(bin_SCRIPTS)
+</pre></div>
+
+<p>There is no need for <code>EXTRA_DIST</code> or any build rule: Automake
+infers them from <code>AC_CONFIG_FILES</code> (see <a href="Requirements.html#Requirements">Requirements</a>).
+<code>CLEANFILES</code> is still useful, because by default Automake will
+clean targets of <code>AC_CONFIG_FILES</code> in <code>distclean</code>, not
+<code>clean</code>.
+</p>
+<p>Although this looks simpler, building scripts this way has one
+drawback: directory variables such as <code>$(datadir)</code> are not fully
+expanded and may refer to other directory variables.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Headers.html#Headers" accesskey="n" rel="next">Headers</a>, Up: <a href="Other-Objects.html#Other-Objects" accesskey="u" rel="up">Other Objects</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

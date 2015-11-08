@@ -1,0 +1,166 @@
+<html lang="en">
+<head>
+<title>Runtime - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Tests.html#Writing-Tests" title="Writing Tests">
+<link rel="prev" href="Running-the-Linker.html#Running-the-Linker" title="Running the Linker">
+<link rel="next" href="Systemology.html#Systemology" title="Systemology">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Runtime"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Systemology.html#Systemology">Systemology</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Running-the-Linker.html#Running-the-Linker">Running the Linker</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Tests.html#Writing-Tests">Writing Tests</a>
+<hr>
+</div>
+
+<h3 class="section">6.6 Checking Runtime Behavior</h3>
+
+<p>Sometimes you need to find out how a system performs at runtime, such
+as whether a given function has a certain capability or bug.  If you
+can, make such checks when your program runs instead of when it is
+configured.  You can check for things like the machine's endianness when
+your program initializes itself.
+
+   <p>If you really need to test for a runtime behavior while configuring,
+you can write a test program to determine the result, and compile and
+run it using <code>AC_RUN_IFELSE</code>.  Avoid running test programs if
+possible, because this prevents people from configuring your package for
+cross-compiling.
+
+   <p><a name="AC_005fRUN_005fIFELSE"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_RUN_IFELSE</b> (<var>input, </var><span class="roman">[</span><var>action-if-true</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-false</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-cross-compiling = &lsquo;</var><samp><span class="samp">AC_MSG_FAILURE</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fRUN_005fIFELSE-1184"></a></var><br>
+<blockquote><p><a name="index-AC_005fRUN_005fIFELSE-1185"></a>
+Run the compiler (and compilation flags) and the linker of the current
+language (see <a href="Language-Choice.html#Language-Choice">Language Choice</a>) on the <var>input</var>, then execute the
+resulting program.  If the program returns an exit
+status of 0 when executed, run shell commands <var>action-if-true</var>. 
+Otherwise, run shell commands <var>action-if-false</var>.
+
+        <p>The <var>input</var> can be made by <code>AC_LANG_PROGRAM</code> and friends. 
+<code>LDFLAGS</code> and <code>LIBS</code> are used for linking, in addition to the
+compilation flags of the current language (see <a href="Language-Choice.html#Language-Choice">Language Choice</a>). 
+Additionally, <var>action-if-true</var> can run <samp><span class="command">./conftest$EXEEXT</span></samp>
+for further testing.
+
+        <p>In the <var>action-if-false</var> section, the failing exit status is
+available in the shell variable &lsquo;<samp><span class="samp">$?</span></samp>&rsquo;.  This exit status might be
+that of a failed compilation, or it might be that of a failed program
+execution.
+
+        <p>If cross-compilation mode is enabled (this is the case if either the
+compiler being used does not produce executables that run on the system
+where <samp><span class="command">configure</span></samp> is being run, or if the options <code>--build</code>
+and <code>--host</code> were both specified and their values are different),
+then the test program is
+not run.  If the optional shell commands <var>action-if-cross-compiling</var>
+are given, those commands are run instead; typically these commands
+provide pessimistic defaults that allow cross-compilation to work even
+if the guess was wrong.  If the fourth argument is empty or omitted, but
+cross-compilation is detected, then <samp><span class="command">configure</span></samp> prints an error
+message and exits.  If you want your package to be useful in a
+cross-compilation scenario, you <em>should</em> provide a non-empty
+<var>action-if-cross-compiling</var> clause, as well as wrap the
+<code>AC_RUN_IFELSE</code> compilation inside an <code>AC_CACHE_CHECK</code>
+(see <a href="Caching-Results.html#Caching-Results">Caching Results</a>) which allows the user to override the
+pessimistic default if needed.
+
+        <p>It is customary to report unexpected failures with
+<code>AC_MSG_FAILURE</code>. 
+</p></blockquote></div>
+
+   <p><samp><span class="command">autoconf</span></samp> prints a warning message when creating
+<samp><span class="command">configure</span></samp> each time it encounters a call to
+<code>AC_RUN_IFELSE</code> with no <var>action-if-cross-compiling</var> argument
+given.  If you are not concerned about users configuring your package
+for cross-compilation, you may ignore the warning.  A few of the macros
+distributed with Autoconf produce this warning message; but if this is a
+problem for you, please report it as a bug, along with an appropriate
+pessimistic guess to use instead.
+
+   <p>To configure for cross-compiling you can also choose a value for those
+parameters based on the canonical system name (see <a href="Manual-Configuration.html#Manual-Configuration">Manual Configuration</a>).  Alternatively, set up a test results cache file with
+the correct values for the host system (see <a href="Caching-Results.html#Caching-Results">Caching Results</a>).
+
+   <p><a name="index-cross_005fcompiling-1186"></a>To provide a default for calls of <code>AC_RUN_IFELSE</code> that are embedded
+in other macros, including a few of the ones that come with Autoconf,
+you can test whether the shell variable <code>cross_compiling</code> is set to
+&lsquo;<samp><span class="samp">yes</span></samp>&rsquo;, and then use an alternate method to get the results instead
+of calling the macros.
+
+   <p>It is also permissible to temporarily assign to <code>cross_compiling</code>
+in order to force tests to behave as though they are in a
+cross-compilation environment, particularly since this provides a way to
+test your <var>action-if-cross-compiling</var> even when you are not using a
+cross-compiler.
+
+<pre class="example">     # We temporarily set cross-compile mode to force AC_COMPUTE_INT
+     # to use the slow link-only method
+     save_cross_compiling=$cross_compiling
+     cross_compiling=yes
+     AC_COMPUTE_INT([...])
+     cross_compiling=$save_cross_compiling
+</pre>
+   <p>A C or C++ runtime test should be portable. 
+See <a href="Portable-C-and-C_002b_002b.html#Portable-C-and-C_002b_002b">Portable C and C++</a>.
+
+   <p>Erlang tests must exit themselves the Erlang VM by calling the <code>halt/1</code>
+function: the given status code is used to determine the success of the test
+(status is <code>0</code>) or its failure (status is different than <code>0</code>), as
+explained above.  It must be noted that data output through the standard output
+(e.g., using <code>io:format/2</code>) may be truncated when halting the VM. 
+Therefore, if a test must output configuration information, it is recommended
+to create and to output data into the temporary file named <samp><span class="file">conftest.out</span></samp>,
+using the functions of module <code>file</code>.  The <code>conftest.out</code> file is
+automatically deleted by the <code>AC_RUN_IFELSE</code> macro.  For instance, a
+simplified implementation of Autoconf's <code>AC_ERLANG_SUBST_LIB_DIR</code>
+macro is:
+
+<pre class="example">     AC_INIT([LibdirTest], [1.0], [bug-libdirtest@example.org])
+     AC_ERLANG_NEED_ERL
+     AC_LANG(Erlang)
+     AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM([], [dnl
+         file:write_file("conftest.out", code:lib_dir()),
+         halt(0)])],
+       [echo "code:lib_dir() returned: `cat conftest.out`"],
+       [AC_MSG_FAILURE([test Erlang program execution failed])])
+</pre>
+   </body></html>
+

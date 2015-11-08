@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Complete</title>
+
+<meta name="description" content="automake: Complete">
+<meta name="keywords" content="automake: Complete">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Examples.html#Examples" rel="up" title="Examples">
+<link href="true.html#true" rel="next" title="true">
+<link href="Examples.html#Examples" rel="prev" title="Examples">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Complete"></a>
+<div class="header">
+<p>
+Next: <a href="true.html#true" accesskey="n" rel="next">true</a>, Up: <a href="Examples.html#Examples" accesskey="u" rel="up">Examples</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="A-simple-example_002c-start-to-finish"></a>
+<h3 class="section">4.1 A simple example, start to finish</h3>
+
+<a name="index-Complete-example"></a>
+
+<p>Let&rsquo;s suppose you just finished writing <code>zardoz</code>, a program to make
+your head float from vortex to vortex.  You&rsquo;ve been using Autoconf to
+provide a portability framework, but your <samp>Makefile.in</samp>s have been
+ad-hoc.  You want to make them bulletproof, so you turn to Automake.
+</p>
+<a name="index-AM_005fINIT_005fAUTOMAKE_002c-example-use"></a>
+
+<p>The first step is to update your <samp>configure.ac</samp> to include the
+commands that <code>automake</code> needs.  The way to do this is to add an
+<code>AM_INIT_AUTOMAKE</code> call just after <code>AC_INIT</code>:
+</p>
+<div class="example">
+<pre class="example">AC_INIT([zardoz], [1.0])
+AM_INIT_AUTOMAKE
+&hellip;
+</pre></div>
+
+<p>Since your program doesn&rsquo;t have any complicating factors (e.g., it
+doesn&rsquo;t use <code>gettext</code>, it doesn&rsquo;t want to build a shared library),
+you&rsquo;re done with this part.  That was easy!
+</p>
+<a name="index-aclocal-program_002c-introduction"></a>
+<a name="index-aclocal_002em4_002c-preexisting"></a>
+<a name="index-acinclude_002em4_002c-defined"></a>
+
+<p>Now you must regenerate <samp>configure</samp>.  But to do that, you&rsquo;ll need
+to tell <code>autoconf</code> how to find the new macro you&rsquo;ve used.  The
+easiest way to do this is to use the <code>aclocal</code> program to
+generate your <samp>aclocal.m4</samp> for you.  But wait&hellip; maybe you
+already have an <samp>aclocal.m4</samp>, because you had to write some hairy
+macros for your program.  The <code>aclocal</code> program lets you put
+your own macros into <samp>acinclude.m4</samp>, so simply rename and then
+run:
+</p>
+<div class="example">
+<pre class="example">mv aclocal.m4 acinclude.m4
+aclocal
+autoconf
+</pre></div>
+
+<a name="index-zardoz-example"></a>
+
+<p>Now it is time to write your <samp>Makefile.am</samp> for <code>zardoz</code>.
+Since <code>zardoz</code> is a user program, you want to install it where the
+rest of the user programs go: <code>bindir</code>.  Additionally,
+<code>zardoz</code> has some Texinfo documentation.  Your <samp>configure.ac</samp>
+script uses <code>AC_REPLACE_FUNCS</code>, so you need to link against
+&lsquo;<samp>$(LIBOBJS)</samp>&rsquo;.  So here&rsquo;s what you&rsquo;d write:
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = zardoz
+zardoz_SOURCES = main.c head.c float.c vortex9.c gun.c
+zardoz_LDADD = $(LIBOBJS)
+
+info_TEXINFOS = zardoz.texi
+</pre></div>
+
+<p>Now you can run &lsquo;<samp>automake --add-missing</samp>&rsquo; to generate your
+<samp>Makefile.in</samp> and grab any auxiliary files you might need, and
+you&rsquo;re done!
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="true.html#true" accesskey="n" rel="next">true</a>, Up: <a href="Examples.html#Examples" accesskey="u" rel="up">Examples</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

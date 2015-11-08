@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Libtool Convenience Libraries</title>
+
+<meta name="description" content="automake: Libtool Convenience Libraries">
+<meta name="keywords" content="automake: Libtool Convenience Libraries">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="A-Shared-Library.html#A-Shared-Library" rel="up" title="A Shared Library">
+<link href="Libtool-Modules.html#Libtool-Modules" rel="next" title="Libtool Modules">
+<link href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources" rel="prev" title="Conditional Libtool Sources">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Libtool-Convenience-Libraries"></a>
+<div class="header">
+<p>
+Next: <a href="Libtool-Modules.html#Libtool-Modules" accesskey="n" rel="next">Libtool Modules</a>, Previous: <a href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources" accesskey="p" rel="prev">Conditional Libtool Sources</a>, Up: <a href="A-Shared-Library.html#A-Shared-Library" accesskey="u" rel="up">A Shared Library</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Libtool-Convenience-Libraries-1"></a>
+<h4 class="subsection">8.3.5 Libtool Convenience Libraries</h4>
+<a name="index-convenience-libraries_002c-libtool"></a>
+<a name="index-libtool-convenience-libraries"></a>
+<a name="index-noinst_005fLTLIBRARIES"></a>
+<a name="index-check_005fLTLIBRARIES"></a>
+
+<p>Sometimes you want to build libtool libraries that should not be
+installed.  These are called <em>libtool convenience libraries</em> and
+are typically used to encapsulate many sublibraries, later gathered
+into one big installed library.
+</p>
+<p>Libtool convenience libraries are declared by directory-less variables
+such as <code>noinst_LTLIBRARIES</code>, <code>check_LTLIBRARIES</code>, or even
+<code>EXTRA_LTLIBRARIES</code>.  Unlike installed libtool libraries they do
+not need an <samp>-rpath</samp> flag at link time (actually this is the only
+difference).
+</p>
+<p>Convenience libraries listed in <code>noinst_LTLIBRARIES</code> are always
+built.  Those listed in <code>check_LTLIBRARIES</code> are built only upon
+&lsquo;<samp>make check</samp>&rsquo;.  Finally, libraries listed in
+<code>EXTRA_LTLIBRARIES</code> are never built explicitly: Automake outputs
+rules to build them, but if the library does not appear as a Makefile
+dependency anywhere it won&rsquo;t be built (this is why
+<code>EXTRA_LTLIBRARIES</code> is used for conditional compilation).
+</p>
+<p>Here is a sample setup merging libtool convenience libraries from
+subdirectories into one main <samp>libtop.la</samp> library.
+</p>
+<div class="example">
+<pre class="example"># -- Top-level Makefile.am --
+SUBDIRS = sub1 sub2 &hellip;
+lib_LTLIBRARIES = libtop.la
+libtop_la_SOURCES =
+libtop_la_LIBADD = \
+  sub1/libsub1.la \
+  sub2/libsub2.la \
+  &hellip;
+
+# -- sub1/Makefile.am --
+noinst_LTLIBRARIES = libsub1.la
+libsub1_la_SOURCES = &hellip;
+
+# -- sub2/Makefile.am --
+# showing nested convenience libraries
+SUBDIRS = sub2.1 sub2.2 &hellip;
+noinst_LTLIBRARIES = libsub2.la
+libsub2_la_SOURCES =
+libsub2_la_LIBADD = \
+  sub21/libsub21.la \
+  sub22/libsub22.la \
+  &hellip;
+</pre></div>
+
+<p>When using such setup, beware that <code>automake</code> will assume
+<samp>libtop.la</samp> is to be linked with the C linker.  This is because
+<code>libtop_la_SOURCES</code> is empty, so <code>automake</code> picks C as
+default language.  If <code>libtop_la_SOURCES</code> was not empty,
+<code>automake</code> would select the linker as explained in <a href="How-the-Linker-is-Chosen.html#How-the-Linker-is-Chosen">How the Linker is Chosen</a>.
+</p>
+<p>If one of the sublibraries contains non-C source, it is important that
+the appropriate linker be chosen.  One way to achieve this is to
+pretend that there is such a non-C file among the sources of the
+library, thus forcing <code>automake</code> to select the appropriate
+linker.  Here is the top-level <samp>Makefile</samp> of our example updated
+to force C++ linking.
+</p>
+<div class="example">
+<pre class="example">SUBDIRS = sub1 sub2 &hellip;
+lib_LTLIBRARIES = libtop.la
+libtop_la_SOURCES =
+# Dummy C++ source to cause C++ linking.
+nodist_EXTRA_libtop_la_SOURCES = dummy.cxx
+libtop_la_LIBADD = \
+  sub1/libsub1.la \
+  sub2/libsub2.la \
+  &hellip;
+</pre></div>
+
+<p>&lsquo;<samp>EXTRA_*_SOURCES</samp>&rsquo; variables are used to keep track of source
+files that might be compiled (this is mostly useful when doing
+conditional compilation using <code>AC_SUBST</code>, see <a href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources">Conditional Libtool Sources</a>), and the <code>nodist_</code> prefix means the listed
+sources are not to be distributed (see <a href="Program-and-Library-Variables.html#Program-and-Library-Variables">Program and Library Variables</a>).  In effect the file <samp>dummy.cxx</samp> does not need to
+exist in the source tree.  Of course if you have some real source file
+to list in <code>libtop_la_SOURCES</code> there is no point in cheating with
+<code>nodist_EXTRA_libtop_la_SOURCES</code>.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Libtool-Modules.html#Libtool-Modules" accesskey="n" rel="next">Libtool Modules</a>, Previous: <a href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources" accesskey="p" rel="prev">Conditional Libtool Sources</a>, Up: <a href="A-Shared-Library.html#A-Shared-Library" accesskey="u" rel="up">A Shared Library</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

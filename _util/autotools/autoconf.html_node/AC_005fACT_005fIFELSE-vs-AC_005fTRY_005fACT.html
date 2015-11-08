@@ -1,0 +1,106 @@
+<html lang="en">
+<head>
+<title>AC_ACT_IFELSE vs AC_TRY_ACT - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Autoconf-2_002e13.html#Autoconf-2_002e13" title="Autoconf 2.13">
+<link rel="prev" href="AC_005fLIBOBJ-vs-LIBOBJS.html#AC_005fLIBOBJ-vs-LIBOBJS" title="AC_LIBOBJ vs LIBOBJS">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="AC_ACT_IFELSE-vs-AC_TRY_ACT"></a>
+<a name="AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="AC_005fLIBOBJ-vs-LIBOBJS.html#AC_005fLIBOBJ-vs-LIBOBJS">AC_LIBOBJ vs LIBOBJS</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Autoconf-2_002e13.html#Autoconf-2_002e13">Autoconf 2.13</a>
+<hr>
+</div>
+
+<h4 class="subsection">18.6.5 <code>AC_</code><var>ACT</var><code>_IFELSE</code> vs. <code>AC_TRY_</code><var>ACT</var></h4>
+
+<!-- the anchor keeps the old node name, to try to avoid breaking links -->
+<p><a name="AC_005fFOO_005fIFELSE-vs-AC_005fTRY_005fFOO"></a><a name="index-AC_005f_0040var_007bACT_007d_005fIFELSE-2255"></a>
+<a name="index-AC_005fTRY_005f_0040var_007bACT_007d-2256"></a>
+Since Autoconf 2.50, internal codes uses <code>AC_PREPROC_IFELSE</code>,
+<code>AC_COMPILE_IFELSE</code>, <code>AC_LINK_IFELSE</code>, and
+<code>AC_RUN_IFELSE</code> on one hand and <code>AC_LANG_SOURCE</code>,
+and <code>AC_LANG_PROGRAM</code> on the other hand instead of the deprecated
+<code>AC_TRY_CPP</code>, <code>AC_TRY_COMPILE</code>, <code>AC_TRY_LINK</code>, and
+<code>AC_TRY_RUN</code>.  The motivations where:
+     <ul>
+<li>a more consistent interface: <code>AC_TRY_COMPILE</code> etc. were double
+quoting their arguments;
+
+     <li>the combinatoric explosion is solved by decomposing on the one hand the
+generation of sources, and on the other hand executing the program;
+
+     <li>this scheme helps supporting more languages than plain C and C++. 
+</ul>
+
+   <p>In addition to the change of syntax, the philosophy has changed too:
+while emphasis was put on speed at the expense of accuracy, today's
+Autoconf promotes accuracy of the testing framework at, ahem<small class="dots">...</small>, the
+expense of speed.
+
+   <p>As a perfect example of what is <em>not</em> to be done, here is how to
+find out whether a header file contains a particular declaration, such
+as a typedef, a structure, a structure member, or a function.  Use
+<code>AC_EGREP_HEADER</code> instead of running <code>grep</code> directly on the
+header file; on some systems the symbol might be defined in another
+header file that the file you are checking includes.
+
+   <p>As a (bad) example, here is how you should not check for C preprocessor
+symbols, either defined by header files or predefined by the C
+preprocessor: using <code>AC_EGREP_CPP</code>:
+
+<pre class="example">     AC_EGREP_CPP(yes,
+     [#ifdef _AIX
+       yes
+     #endif
+     ], is_aix=yes, is_aix=no)
+</pre>
+   <p>The above example, properly written would (i) use
+<code>AC_LANG_PROGRAM</code>, and (ii) run the compiler:
+
+<pre class="example">     AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+     [[#ifndef _AIX
+      error: This isn't AIX!
+     #endif
+     ]])],
+                        [is_aix=yes],
+                        [is_aix=no])
+</pre>
+   <!-- ============================= Generating Test Suites with Autotest -->
+   </body></html>
+

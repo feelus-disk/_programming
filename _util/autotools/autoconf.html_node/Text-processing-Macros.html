@@ -1,0 +1,315 @@
+<html lang="en">
+<head>
+<title>Text processing Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Evaluation-Macros.html#Evaluation-Macros" title="Evaluation Macros">
+<link rel="next" href="Number-processing-Macros.html#Number-processing-Macros" title="Number processing Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Text-processing-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Number-processing-Macros.html#Number-processing-Macros">Number processing Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Evaluation-Macros.html#Evaluation-Macros">Evaluation Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.7 String manipulation in M4</h4>
+
+<p>The following macros may be used to manipulate strings in M4.  Many of
+the macros in this section intentionally result in quoted strings as
+output, rather than subjecting the arguments to further expansions.  As
+a result, if you are manipulating text that contains active M4
+characters, the arguments are passed with single quoting rather than
+double.
+
+<div class="defun">
+&mdash; Macro: <b>m4_append</b> (<var>macro-name, string, </var><span class="roman">[</span><var>separator</var><span class="roman">]</span>)<var><a name="index-m4_005fappend-1459"></a></var><br>
+&mdash; Macro: <b>m4_append_uniq</b> (<var>macro-name, string, </var><span class="roman">[</span><var>separator</var><span class="roman">]</span> <span class="roman">[</span><var>if-uniq</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-duplicate</var><span class="roman">]</span>)<var><a name="index-m4_005fappend_005funiq-1460"></a></var><br>
+<blockquote><p><a name="index-m4_005fappend-1461"></a>
+<a name="index-m4_005fappend_005funiq-1462"></a>
+Redefine <var>macro-name</var> to its former contents with <var>separator</var>
+and <var>string</var> added at the end.  If <var>macro-name</var> was undefined
+before (but not if it was defined but empty), then no <var>separator</var> is
+added.  As of Autoconf 2.62, neither <var>string</var> nor <var>separator</var>
+are expanded during this macro; instead, they are expanded when
+<var>macro-name</var> is invoked.
+
+        <p><code>m4_append</code> can be used to grow strings, and <code>m4_append_uniq</code>
+to grow strings without duplicating substrings.  Additionally,
+<code>m4_append_uniq</code> takes two optional parameters as of Autoconf 2.62;
+<var>if-uniq</var> is expanded if <var>string</var> was appended, and
+<var>if-duplicate</var> is expanded if <var>string</var> was already present. 
+Also, <code>m4_append_uniq</code> warns if <var>separator</var> is not empty, but
+occurs within <var>string</var>, since that can lead to duplicates.
+
+        <p>Note that <code>m4_append</code> can scale linearly in the length of the final
+string, depending on the quality of the underlying M4 implementation,
+while <code>m4_append_uniq</code> has an inherent quadratic scaling factor. 
+If an algorithm can tolerate duplicates in the final string, use the
+former for speed.  If duplicates must be avoided, consider using
+<code>m4_set_add</code> instead (see <a href="Set-manipulation-Macros.html#Set-manipulation-Macros">Set manipulation Macros</a>).
+
+     <pre class="example">          m4_define([active], [ACTIVE])dnl
+          m4_append([sentence], [This is an])dnl
+          m4_append([sentence], [ active ])dnl
+          m4_append([sentence], [symbol.])dnl
+          sentence
+          &rArr;This is an ACTIVE symbol.
+          m4_undefine([active])dnl
+          &rArr;This is an active symbol.
+          m4_append_uniq([list], [one], [, ], [new], [existing])
+          &rArr;new
+          m4_append_uniq([list], [one], [, ], [new], [existing])
+          &rArr;existing
+          m4_append_uniq([list], [two], [, ], [new], [existing])
+          &rArr;new
+          m4_append_uniq([list], [three], [, ], [new], [existing])
+          &rArr;new
+          m4_append_uniq([list], [two], [, ], [new], [existing])
+          &rArr;existing
+          list
+          &rArr;one, two, three
+          m4_dquote(list)
+          &rArr;[one],[two],[three]
+          m4_append([list2], [one], [[, ]])dnl
+          m4_append_uniq([list2], [two], [[, ]])dnl
+          m4_append([list2], [three], [[, ]])dnl
+          list2
+          &rArr;one, two, three
+          m4_dquote(list2)
+          &rArr;[one, two, three]
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_append_uniq_w</b> (<var>macro-name, strings</var>)<var><a name="index-m4_005fappend_005funiq_005fw-1463"></a></var><br>
+<blockquote><p><a name="index-m4_005fappend_005funiq_005fw-1464"></a>
+This macro was introduced in Autoconf 2.62.  It is similar to
+<code>m4_append_uniq</code>, but treats <var>strings</var> as a whitespace
+separated list of words to append, and only appends unique words. 
+<var>macro-name</var> is updated with a single space between new words.
+     <pre class="example">          m4_append_uniq_w([numbers], [1 1 2])dnl
+          m4_append_uniq_w([numbers], [ 2 3 ])dnl
+          numbers
+          &rArr;1 2 3
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_chomp</b> (<var>string</var>)<var><a name="index-m4_005fchomp-1465"></a></var><br>
+&mdash; Macro: <b>m4_chomp_all</b> (<var>string</var>)<var><a name="index-m4_005fchomp_005fall-1466"></a></var><br>
+<blockquote><p><a name="index-m4_005fchomp-1467"></a>
+<a name="index-m4_005fchomp_005fall-1468"></a>
+Output <var>string</var> in quotes, but without a trailing newline.  The
+macro <code>m4_chomp</code> is slightly faster, and removes at most one
+newline; the macro <code>m4_chomp_all</code> removes all consecutive trailing
+newlines.  Unlike <code>m4_flatten</code>, embedded newlines are left intact,
+and backslash does not influence the result. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_combine</b> (<span class="roman">[</span><var>separator</var><span class="roman">]</span><var>, prefix-list, </var><span class="roman">[</span><var>infix</var><span class="roman">]</span><var>, suffix-1, </var><span class="roman">[</span><var>suffix-2</var><span class="roman">]</span><var>, <small class="dots">...</small></var>)<var><a name="index-m4_005fcombine-1469"></a></var><br>
+<blockquote><p><a name="index-m4_005fcombine-1470"></a>
+This macro produces a quoted string containing the pairwise combination
+of every element of the quoted, comma-separated <var>prefix-list</var>, and
+every element from the <var>suffix</var> arguments.  Each pairwise
+combination is joined with <var>infix</var> in the middle, and successive
+pairs are joined by <var>separator</var>.  No expansion occurs on any of the
+arguments.  No output occurs if either the <var>prefix</var> or <var>suffix</var>
+list is empty, but the lists can contain empty elements.
+     <pre class="example">          m4_define([a], [oops])dnl
+          m4_combine([, ], [[a], [b], [c]], [-], [1], [2], [3])
+          &rArr;a-1, a-2, a-3, b-1, b-2, b-3, c-1, c-2, c-3
+          m4_combine([, ], [[a], [b]], [-])
+          &rArr;
+          m4_combine([, ], [[a], [b]], [-], [])
+          &rArr;a-, b-
+          m4_combine([, ], [], [-], [1], [2])
+          &rArr;
+          m4_combine([, ], [[]], [-], [1], [2])
+          &rArr;-1, -2
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_escape</b> (<var>string</var>)<var><a name="index-m4_005fescape-1471"></a></var><br>
+<blockquote><p><a name="index-m4_005fescape-1472"></a>
+Convert all instances of &lsquo;<samp><span class="samp">[</span></samp>&rsquo;, &lsquo;<samp><span class="samp">]</span></samp>&rsquo;, &lsquo;<samp><span class="samp">#</span></samp>&rsquo;, and &lsquo;<samp><span class="samp">$</span></samp>&rsquo;
+within <var>string</var> into their respective quadrigraphs.  The result is
+still a quoted string. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_flatten</b> (<var>string</var>)<var><a name="index-m4_005fflatten-1473"></a></var><br>
+<blockquote><p><a name="index-m4_005fflatten-1474"></a>
+Flatten <var>string</var> into a single line.  Delete all backslash-newline
+pairs, and replace all remaining newlines with a space.  The result is
+still a quoted string. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_join</b> (<span class="roman">[</span><var>separator</var><span class="roman">]</span><var>, args<small class="dots">...</small></var>)<var><a name="index-m4_005fjoin-1475"></a></var><br>
+&mdash; Macro: <b>m4_joinall</b> (<span class="roman">[</span><var>separator</var><span class="roman">]</span><var>, args<small class="dots">...</small></var>)<var><a name="index-m4_005fjoinall-1476"></a></var><br>
+<blockquote><p><a name="index-m4_005fjoin-1477"></a>
+<a name="index-m4_005fjoinall-1478"></a>
+Concatenate each <var>arg</var>, separated by <var>separator</var>. 
+<code>joinall</code> uses every argument, while <code>join</code> omits empty
+arguments so that there are no back-to-back separators in the output. 
+The result is a quoted string.
+     <pre class="example">          m4_define([active], [ACTIVE])dnl
+          m4_join([|], [one], [], [active], [two])
+          &rArr;one|active|two
+          m4_joinall([|], [one], [], [active], [two])
+          &rArr;one||active|two
+</pre>
+        <p>Note that if all you intend to do is join <var>args</var> with commas between
+them, to form a quoted list suitable for <code>m4_foreach</code>, it is more
+efficient to use <code>m4_dquote</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_newline</b> (<span class="roman">[</span><var>text</var><span class="roman">]</span>)<var><a name="index-m4_005fnewline-1479"></a></var><br>
+<blockquote><p><a name="index-m4_005fnewline-1480"></a>
+This macro was introduced in Autoconf 2.62, and expands to a newline,
+followed by any <var>text</var>. 
+It is primarily useful for maintaining macro formatting, and ensuring
+that M4 does not discard leading whitespace during argument collection. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_normalize</b> (<var>string</var>)<var><a name="index-m4_005fnormalize-1481"></a></var><br>
+<blockquote><p><a name="index-m4_005fnormalize-1482"></a>
+Remove leading and trailing spaces and tabs, sequences of
+backslash-then-newline, and replace multiple spaces, tabs, and newlines
+with a single space.  This is a combination of <code>m4_flatten</code> and
+<code>m4_strip</code>.  To determine if <var>string</var> consists only of bytes
+that would be removed by <code>m4_normalize</code>, you can use
+<code>m4_ifblank</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_re_escape</b> (<var>string</var>)<var><a name="index-m4_005fre_005fescape-1483"></a></var><br>
+<blockquote><p><a name="index-m4_005fre_005fescape-1484"></a>
+Backslash-escape all characters in <var>string</var> that are active in
+regexps. 
+</p></blockquote></div>
+
+<!-- We cannot use @dvar because the macro expansion mistreats backslashes. -->
+<div class="defun">
+&mdash; Macro: <b>m4_split</b> (<var>string, </var><span class="roman">[</span><var>regexp = &lsquo;</var><samp><span class="samp">[\t ]+</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-m4_005fsplit-1485"></a></var><br>
+<blockquote><p><a name="index-m4_005fsplit-1486"></a>
+Split <var>string</var> into an M4 list of elements quoted by &lsquo;<samp><span class="samp">[</span></samp>&rsquo; and
+&lsquo;<samp><span class="samp">]</span></samp>&rsquo;, while keeping white space at the beginning and at the end. 
+If <var>regexp</var> is given, use it instead of &lsquo;<samp><span class="samp">[\t ]+</span></samp>&rsquo; for splitting. 
+If <var>string</var> is empty, the result is an empty list. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_strip</b> (<var>string</var>)<var><a name="index-m4_005fstrip-1487"></a></var><br>
+<blockquote><p><a name="index-m4_005fstrip-1488"></a>
+Strip whitespace from <var>string</var>.  Sequences of spaces and tabs are
+reduced to a single space, then leading and trailing spaces are removed. 
+The result is still a quoted string.  Note that this does not interfere
+with newlines; if you want newlines stripped as well, consider
+<code>m4_flatten</code>, or do it all at once with <code>m4_normalize</code>.  To
+quickly test if <var>string</var> has only whitespace, use <code>m4_ifblank</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_text_box</b> (<var>message, </var><span class="roman">[</span><var>frame = &lsquo;</var><samp><span class="samp">-</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-m4_005ftext_005fbox-1489"></a></var><br>
+<blockquote><p><a name="index-m4_005ftext_005fbox-1490"></a>
+Add a text box around <var>message</var>, using <var>frame</var> as the border
+character above and below the message.  The <var>frame</var> argument must be
+a single byte, and does not support quadrigraphs. 
+The frame correctly accounts for
+the subsequent expansion of <var>message</var>.  For example:
+     <pre class="example">          m4_define([macro], [abc])dnl
+          m4_text_box([macro])
+          &rArr;## --- ##
+          &rArr;## abc ##
+          &rArr;## --- ##
+</pre>
+        <p>The <var>message</var> must contain balanced quotes and parentheses, although
+quadrigraphs can be used to work around this. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_text_wrap</b> (<var>string, </var><span class="roman">[</span><var>prefix</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>prefix1 = &lsquo;</var><samp><var>prefix</var></samp><var>&rsquo;</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>width = &lsquo;</var><samp><span class="samp">79</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-m4_005ftext_005fwrap-1491"></a></var><br>
+<blockquote><p><a name="index-m4_005ftext_005fwrap-1492"></a>
+Break <var>string</var> into a series of whitespace-separated words, then
+output those words separated by spaces, and wrapping lines any time the
+output would exceed <var>width</var> columns.  If given, <var>prefix1</var> begins
+the first line, and <var>prefix</var> begins all wrapped lines.  If
+<var>prefix1</var> is longer than <var>prefix</var>, then the first line consists
+of just <var>prefix1</var>.  If <var>prefix</var> is longer than <var>prefix1</var>,
+padding is inserted so that the first word of <var>string</var> begins at the
+same indentation as all wrapped lines.  Note that using literal tab
+characters in any of the arguments will interfere with the calculation
+of width.  No expansions occur on <var>prefix</var>, <var>prefix1</var>, or the
+words of <var>string</var>, although quadrigraphs are recognized.
+
+        <p>For some examples:
+     <pre class="example">          m4_text_wrap([Short string */], [   ], [/* ], [20])
+          &rArr;/* Short string */
+          m4_text_wrap([Much longer string */], [   ], [/* ], [20])
+          &rArr;/* Much longer
+          &rArr;   string */
+          m4_text_wrap([Short doc.], [          ], [  --short ], [30])
+          &rArr;  --short Short doc.
+          m4_text_wrap([Short doc.], [          ], [  --too-wide ], [30])
+          &rArr;  --too-wide
+          &rArr;          Short doc.
+          m4_text_wrap([Super long documentation.], [     ],
+                       [  --too-wide ], 30)
+          &rArr;  --too-wide
+          &rArr;     Super long
+          &rArr;     documentation.
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_tolower</b> (<var>string</var>)<var><a name="index-m4_005ftolower-1493"></a></var><br>
+&mdash; Macro: <b>m4_toupper</b> (<var>string</var>)<var><a name="index-m4_005ftoupper-1494"></a></var><br>
+<blockquote><p><a name="index-m4_005ftolower-1495"></a>
+<a name="index-m4_005ftoupper-1496"></a>
+Return <var>string</var> with letters converted to upper or lower case,
+respectively. 
+</p></blockquote></div>
+
+   </body></html>
+

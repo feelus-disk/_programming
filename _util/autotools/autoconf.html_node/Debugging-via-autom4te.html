@@ -1,0 +1,89 @@
+<html lang="en">
+<head>
+<title>Debugging via autom4te - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4.html#Programming-in-M4" title="Programming in M4">
+<link rel="prev" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Debugging-via-autom4te"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4.html#Programming-in-M4">Programming in M4</a>
+<hr>
+</div>
+
+<h3 class="section">8.4 Debugging via autom4te</h3>
+
+<p><a name="index-debugging-tips-1554"></a><a name="index-autom4te-debugging-tips-1555"></a><a name="index-m4sugar-debugging-tips-1556"></a>At times, it is desirable to see what was happening inside m4, to see
+why output was not matching expectations.  However, post-processing done
+by <samp><span class="command">autom4te</span></samp> means that directly using the m4 builtin
+<code>m4_traceon</code> is likely to interfere with operation.  Also, frequent
+diversion changes and the concept of forbidden tokens make it difficult
+to use <code>m4_defn</code> to generate inline comments in the final output.
+
+   <p>There are a couple of tools to help with this.  One is the use of the
+<samp><span class="option">--trace</span></samp> option provided by <samp><span class="command">autom4te</span></samp> (as well as each
+of the programs that wrap <samp><span class="command">autom4te</span></samp>, such as
+<samp><span class="command">autoconf</span></samp>), in order to inspect when a macro is called and with
+which arguments.  For example, when this paragraph was written, the
+autoconf version could be found by:
+
+<pre class="example">     $ <kbd>autoconf --trace=AC_INIT</kbd>
+     configure.ac:23:AC_INIT:GNU Autoconf:2.63b.95-3963:bug-autoconf@gnu.org
+     $ <kbd>autoconf --trace='AC_INIT:version is $2'</kbd>
+     version is 2.63b.95-3963
+</pre>
+   <p>Another trick is to print out the expansion of various m4 expressions to
+standard error or to an independent file, with no further m4 expansion,
+and without interfering with diversion changes or the post-processing
+done to standard output.  <code>m4_errprintn</code> shows a given expression
+on standard error.  For example, if you want to see the expansion of an
+autoconf primitive or of one of your autoconf macros, you can do it like
+this:
+
+<pre class="example">     $ <kbd>cat &lt;&lt;\EOF &gt; configure.ac</kbd>
+     AC_INIT
+     m4_errprintn([The definition of AC_DEFINE_UNQUOTED:])
+     m4_errprintn(m4_defn([AC_DEFINE_UNQUOTED]))
+     AC_OUTPUT
+     EOF
+     $ <kbd>autoconf</kbd>
+     error--&gt;The definition of AC_DEFINE_UNQUOTED:
+     error--&gt;_AC_DEFINE_Q([], $@)
+</pre>
+   </body></html>
+

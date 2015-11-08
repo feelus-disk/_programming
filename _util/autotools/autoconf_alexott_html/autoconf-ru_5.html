@@ -1,0 +1,895 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on February, 19  2004 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>Autoconf: Написание тестов</TITLE>
+
+<META NAME="description" CONTENT="Autoconf: Написание тестов">
+<META NAME="keywords" CONTENT="Autoconf: Написание тестов">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC40"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC39"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC41"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_4.html#SEC21"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 5. Написание тестов </H1>
+<!--docid::SEC40::-->
+<A NAME="Writing Tests"></A>
+<P>
+
+Если существующие тесты делают не то, что вам надо, то вы
+можете написать собственные тесты. Эти макросы являются строительными
+блоками для этих тестов. Они предоставляют другим макросам возможность
+проверить доступность различных свойств и сообщить о результатах.
+</P><P>
+
+Эта глава содержит некоторые пожелания и описание того, почему
+существующие тесты написаны так, а не иначе.  Вы также можете научиться
+тому, как писать тесты Autoconf, разглядывая существующие тесты.  Если в
+одном или нескольких тестах Autoconf что-нибудь пойдет не так, то эта
+информация может помочь вам понять предположения, которые стоят за ними,
+что, в свою очередь, может помочь вам определить наилучший способ
+решения проблемы.
+</P><P>
+
+Эти макросы проверяют вывод системного компилятора C. Они не кэшируют
+результаты тестов для последующего использования (see section <A HREF="autoconf-ru_6.html#SEC55">6.3 Кэширование результатов</A>), поскольку для генерации имени переменной кэша они не
+имеют достаточно информации о том, что они проверяют. Также по некоторым
+причинам они не печатают никаких сообщений. Проверки отдельных свойств
+компилятора С вызывают эти макросы и кэшируют свои результаты, а также
+выводят сообщения о том, что они проверяют.
+</P><P>
+
+Когда вы пишете тест свойства, который может быть применим для более чем
+одного пакета программного обеспечения, то лучше всего будет описать его
+как новый макрос. Для того, чтобы узнать, как это делается
+See section <A HREF="autoconf-ru_7.html#SEC59">7. Создание макросов</A>.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC41">5.1 Исследование деклараций</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC42">5.2 Проверка синтаксиса</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC43">5.3 Проверка библиотек</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC44">5.4 Проверка поведения во время выполнения</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC48">5.5 Переносимое программирование на языке командного процессора</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC49">5.6 Тестирование значений и файлов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC50">5.7 Множество вариантов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC51">5.8 Выбор языка</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Исследование объявлений"></A>
+<HR SIZE="6">
+<A NAME="SEC41"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC42"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.1 Исследование деклараций </H2>
+<!--docid::SEC41::-->
+<A NAME="Examining Declarations"></A>
+<P>
+
+Макрос <CODE>AC_TRY_CPP</CODE> используется для проверки существования
+конкретных заголовочных файлов.  You can check for one at a time, or
+more than one if you need several header files to all exist for some
+purpose.
+</P><P>
+
+<A NAME="IDX392"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_TRY_CPP</B> <I>(<VAR>includes</VAR>, [<VAR>action-if-true</VAR> [, <VAR>action-if-false</VAR>]])</I>
+<DD><A NAME="IDX393"></A>
+<VAR>includes</VAR> содержит директивы <CODE>#include</CODE> языков C или C++, а
+также объявления, над которыми выполняются подстановки переменных
+командного процессора, обратных кавычек и обратных слэшей.  (В
+действительности, <VAR>includes</VAR> может быть любой программой на C, но
+другие выражения, вероятно, бесполезны).  Если препроцессор не выдает
+сообщений об ошибках в течение обработки директивы, то выполняется код
+командного процессора <VAR>action-if-true</VAR>. В противном случае
+выполняется код <VAR>action-if-false</VAR>.
+</P><P>
+
+Этот макрос использует переменную <CODE>CPPFLAGS</CODE>, а не <CODE>CFLAGS</CODE>,
+поскольку <SAMP>`-g'</SAMP>, <SAMP>`-O'</SAMP> и т. п. не являются правильными
+ключами для многих препроцессоров C.
+</DL>
+</P><P>
+
+Вот как узнать, содержит ли конкретный заголовочный файл определенное
+объявление, например, объявление типа, структуры, члена структуры или
+функции. Используйте макрос <CODE>AC_EGREP_HEADER</CODE> вместо прямого
+запуска команды <CODE>grep</CODE> для заголовочного файла; в некоторых
+системах символ может быть объявлен в другом заголовочном файле, а не в
+том, который вы проверяете в <SAMP>`#include'</SAMP>.
+</P><P>
+
+<A NAME="IDX394"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_EGREP_HEADER</B> <I>(<VAR>pattern</VAR>, <VAR>header-file</VAR>, <VAR>action-if-found</VAR> [, <VAR>action-if-not-found</VAR>])</I>
+<DD><A NAME="IDX395"></A>
+Если вывод препроцессора, запущенного для системного заголовочного файла
+<VAR>header-file</VAR>, соответствует регулярному выражению <CODE>egrep</CODE>
+<VAR>pattern</VAR>, то выполняются команды командного процессора
+<VAR>action-if-found</VAR>, в противном случае выполняются команды
+<VAR>action-if-not-found</VAR>.
+</DL>
+</P><P>
+
+Для проверки символов препроцессора C, определенных в заголовочном
+файле, либо предопределенных препроцессором C, используйте макрос
+<CODE>AC_EGREP_CPP</CODE>. Вот пример последнего:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_EGREP_CPP(yes,
+[#ifdef _AIX
+  yes
+#endif
+], is_aix=yes, is_aix=no)
+</pre></td></tr></table></P><P>
+
+<A NAME="IDX396"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_EGREP_CPP</B> <I>(<VAR>pattern</VAR>, <VAR>program</VAR>, [<VAR>action-if-found</VAR> [, <VAR>action-if-not-found</VAR>]])</I>
+<DD><A NAME="IDX397"></A>
+<VAR>program</VAR> является текстом программы на C или C++, для которой
+выполняются подстановки переменных командного процессора, обратных
+кавычек и обратных слэшей. Если вывод препроцессора, обрабатывавшего
+<VAR>program</VAR>, соответствует регулярному выражению команды <CODE>egrep</CODE>
+<VAR>pattern</VAR>, то выполняется код командного процессора
+<VAR>action-if-found</VAR>, иначе выполняется <VAR>action-if-not-found</VAR>.
+</P><P>
+
+Этот макрос вызывает <CODE>AC_PROG_CPP</CODE> или <CODE>AC_PROG_CXXCPP</CODE> (в
+зависимости от того, какой из языков является текущим, see section <A HREF="autoconf-ru_5.html#SEC51">5.8 Выбор языка</A>), если эти макросы еще не вызывались.
+</DL>
+</P><P>
+
+<A NAME="Проверка синтаксиса"></A>
+<HR SIZE="6">
+<A NAME="SEC42"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC41"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC43"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.2 Проверка синтаксиса </H2>
+<!--docid::SEC42::-->
+<A NAME="Examining Syntax"></A>
+<P>
+
+Для проверки синтаксических возможностей компиляторов C, C++ или Fortran
+77, например, распознавания определенных ключевых слов, используется
+макрос <CODE>AC_TRY_COMPILE</CODE>, который пробует откомпилировать маленькую
+программу, которая использует заданную возможность.  Вы также можете
+использовать этот макрос для проверки структур и полей структур, которые
+присутствуют не во всех системах.
+</P><P>
+
+<A NAME="IDX398"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_TRY_COMPILE</B> <I>(<VAR>includes</VAR>, <VAR>function-body</VAR>, [<VAR>action-if-found</VAR> [, <VAR>action-if-not-found</VAR>]])</I>
+<DD><A NAME="IDX399"></A>
+Создает тестовую программу на C, C++ или Fortran 77 (в зависимости от того, 
+какой язык является текущим, see section <A HREF="autoconf-ru_5.html#SEC51">5.8 Выбор языка</A>), для того, чтобы 
+убедиться, что функция, чье тело состоит из <VAR>function-body</VAR>, может 
+быть скомпилирована.
+</P><P>
+
+Для C и C++, <VAR>includes</VAR> является любыми директивами <CODE>#include</CODE>, в
+которых нуждается код в <VAR>function-body</VAR> (параметр <VAR>includes</VAR> будет 
+проигнорирован, если текущим языком является Fortran 77). Этот макрос
+при компиляции помимо переменной <CODE>CPPFLAGS</CODE>
+также использует переменные <CODE>CFLAGS</CODE> или <CODE>CXXFLAGS</CODE>, если 
+текущим языком является C или C++.  Переменная <CODE>FFLAGS</CODE> будет
+использована при компиляции, если текущим языком является Fortran 77.
+</P><P>
+
+Если файл компилируется нормально, то выполняются команды
+<VAR>action-if-found</VAR>, иначе выполняется <VAR>action-if-not-found</VAR>.
+</P><P>
+
+Этот макрос не пытается выполнить компоновку программы -- для этого вам
+придется использовать макрос
+<CODE>AC_TRY_LINK</CODE> (see section <A HREF="autoconf-ru_5.html#SEC43">5.3 Проверка библиотек</A>).
+</DL>
+</P><P>
+
+<A NAME="Проверка библиотек"></A>
+<HR SIZE="6">
+<A NAME="SEC43"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC42"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC44"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.3 Проверка библиотек </H2>
+<!--docid::SEC43::-->
+<A NAME="Examining Libraries"></A>
+<P>
+
+Для проверки библиотеки, функции или глобальной переменной скрипт
+<CODE>configure</CODE> попытается скомпилировать и скомпоновать небольшую
+программу, использующую тестируемые возможности.  Этим Autoconf
+отличается от Metaconfig, который обрабатывает файлы библиотеки C,
+используя <CODE>nm</CODE> или <CODE>ar</CODE>, чтобы определить, какие функции
+доступны.  Попытка скомпоновать программу с функцией -- более надежный
+вариант, поскольку он избавляет от необходимости обрабатывать различные
+ключи командной строки и форматы выдачи результатов программ <CODE>nm</CODE> и
+<CODE>ar</CODE>, а также выяснять расположение стандартных библиотек. Этот
+подход также позволяет конфигурировать кросс-компиляцию, а также
+проверять поведение функции во время выполнения.  С другой стороны, этот
+подход может оказаться значительно более медленным, чем однократное
+сканирование библиотек.
+</P><P>
+
+Компоновщики в нескольких существующих системах не возвращают статус
+ошибки, если не могут найти какие-либо символы при компоновке.  Эта
+ошибка делает невозможным использование на таких системах скриптов
+настройки, созданных Autoconf.  Однако некоторым из них могут быть
+заданы ключи, позволяющие получить правильный статус завершения
+работы.  Эту проблему в настоящий момент Autoconf не может обработать
+автоматически. Если пользователь столкнется с таким, то он может решить
+эту проблему установкой переменной среды <CODE>LDFLAGS</CODE>, передавая
+компоновщику необходимые ключи командной строки (например,
+<SAMP>`-Wl,-dn'</SAMP> на MIPS RISC/OS).
+</P><P>
+
+Макрос <CODE>AC_TRY_LINK</CODE> используется для компиляции тестовой программы
+для проверки функций и глобальных переменных. Он также используется
+макросом <CODE>AC_CHECK_LIB</CODE> для проверки библиотек
+(see section <A HREF="autoconf-ru_4.html#SEC25">4.2 Файлы библиотек</A>), временно добавляя проверяемую библиотеку в
+переменную <CODE>LIBS</CODE> и пытаясь скомпоновать маленькую программу.
+</P><P>
+
+<A NAME="IDX400"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_TRY_LINK</B> <I>(<VAR>includes</VAR>, <VAR>function-body</VAR>, [<VAR>action-if-found</VAR> [, <VAR>action-if-not-found</VAR>]])</I>
+<DD><A NAME="IDX401"></A>
+В зависимости от текущего языка (see section <A HREF="autoconf-ru_5.html#SEC51">5.8 Выбор языка</A>), создается
+тестовая программа, чтобы выяснить, может ли быть
+скомпилирована и скомпонована функция, чье тело состоит из аргумента
+<VAR>function-body</VAR>.
+</P><P>
+
+Для C и C++ <VAR>includes</VAR> является любыми директивами <CODE>#include</CODE>, в
+которых нуждается код в <VAR>function-body</VAR> (параметр <VAR>includes</VAR> будет 
+проигнорирован, если текущим языком является Fortran 77). Этот макрос
+при компиляции помимо переменной <CODE>CPPFLAGS</CODE>
+также использует переменные <CODE>CFLAGS</CODE> или <CODE>CXXFLAGS</CODE>, если 
+текущим языком является C или C++.  Переменная <CODE>FFLAGS</CODE> будет
+использована при компиляции, если текущим языком является Fortran 77. 
+Однако в любом случае при компоновке будут использованы
+переменные <CODE>LDFLAGS</CODE> и <CODE>LIBS</CODE>.
+</P><P>
+
+Если файл компилируется и компонуется, то выполняются команды
+<VAR>action-if-found</VAR>, в противном случае ---
+<VAR>action-if-not-found</VAR>.
+</DL>
+</P><P>
+
+<A NAME="IDX402"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_TRY_LINK_FUNC</B> <I>(<VAR>function</VAR>, [<VAR>action-if-found</VAR> [, <VAR>action-if-not-found</VAR>]])</I>
+<DD><A NAME="IDX403"></A>
+В зависимости от текущего языка see section <A HREF="autoconf-ru_5.html#SEC51">5.8 Выбор языка</A>), создается тестовая
+программа для того, чтобы убедиться, что программа, чье тело состоит из
+прототипа и вызова <VAR>function</VAR>, может быть скомпилирована и
+скомпонована.
+</P><P>
+
+Если файл компилируется и компонуется без ошибок, то выполняется код
+<VAR>action-if-found</VAR>, в противном случае выполняется
+<VAR>action-if-not-found</VAR>.
+</DL>
+</P><P>
+
+<A NAME="IDX404"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_TRY_LINK_FUNC</B> <I>(<VAR>function</VAR>, [<VAR>action-if-found</VAR> [, <VAR>action-if-not-found</VAR>]])</I>
+<DD><A NAME="IDX405"></A>
+Этот макрос пробует скомпилировать и скомпоновать маленькую программу,
+которая компонуется с <VAR>function</VAR>. Если файл компилируется и
+компонуется без ошибок, то запускается код командного процессора
+<VAR>action-if-found</VAR>, в противном случае выполняется
+<VAR>action-if-not-found</VAR>.
+</DL>
+</P><P>
+
+<A NAME="IDX406"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_COMPILE_CHECK</B> <I>(<VAR>echo-text</VAR>, <VAR>includes</VAR>, <VAR>function-body</VAR>, <VAR>action-if-found</VAR> [, <VAR>action-if-not-found</VAR>])</I>
+<DD><A NAME="IDX407"></A>
+Этот макрос является устаревшей версией <CODE>AC_TRY_LINK</CODE>.  Он
+отличается тем, что выдает сообщение <SAMP>`checking for
+<VAR>echo-text</VAR>'</SAMP> в поток стандартного вывода в том случае, если аргумент
+<VAR>echo-text</VAR> не является пустым.  Вместо этого макроса для выдачи
+сообщений используйте <CODE>AC_MSG_CHECKING</CODE> и <CODE>AC_MSG_RESULT</CODE>
+(see section <A HREF="autoconf-ru_6.html#SEC58">6.4 Выдача сообщений</A>).
+</DL>
+</P><P>
+
+<A NAME="Время выполнения"></A>
+<HR SIZE="6">
+<A NAME="SEC44"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC43"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC45"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC48"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.4 Проверка поведения во время выполнения </H2>
+<!--docid::SEC44::-->
+<A NAME="Run Time"></A>
+<P>
+
+Иногда вам необходимо определить, как система работает во время
+выполнения программы, например, имеет ли заданная функция определенные
+возможности или ошибки.  Старайтесь выполнять такие проверки
+непосредственно во время выполнения программы, а не во время
+конфигурирования.  Такие вещи, как расположение байтов в памяти машины,
+также следует проверять при инициализации программы.
+</P><P>
+
+Если вам действительно необходимо протестировать поведение программы во
+время выполнения при конфигурировании, то вы можете написать тестовую
+программу для определения результатов, откомпилировать и запустить ее с
+помощью макроса <CODE>AC_TRY_RUN</CODE>.  Если возможно, избегайте запуска
+тестовых программ, поскольку их использование мешает пользователям
+настраивать ваш пакет для кросс-компиляции.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC45">5.4.1 Запуск тестовых программ</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC46">5.4.2 Рекомендации по написанию тестовых программ</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_5.html#SEC47">5.4.3 Тестовые функции</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Тестовые программы"></A>
+<HR SIZE="6">
+<A NAME="SEC45"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC44"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC46"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC43"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC44"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC48"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 5.4.1 Запуск тестовых программ </H3>
+<!--docid::SEC45::-->
+<A NAME="Test Programs"></A>
+<P>
+
+Используйте следующий макрос, если вам нужно при конфигурировании
+протестировать поведение системы во время исполнения.
+</P><P>
+
+<A NAME="IDX408"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_TRY_RUN</B> <I>(<VAR>program</VAR>, [<VAR>action-if-true</VAR> [, <VAR>action-if-false</VAR> [, <VAR>action-if-cross-compiling</VAR>]]])</I>
+<DD><A NAME="IDX409"></A>
+Аргумент <VAR>program</VAR> является текстом программы на языке C, для
+которой выполняются подстановки переменных командного процессора, а
+также обратных кавычек и обратных слэшей. Если она компилируется и
+компонуется, и при выполнении возвращает код завершения 0, то
+выполняется код командного процессора <VAR>action-if-true</VAR>. В противном
+случае выполняются команды <VAR>action-if-false</VAR>; код завершения
+тестовой программы доступен в переменной командного процессора
+<SAMP>`$?'</SAMP>. При компиляции этот макрос использует переменные
+<CODE>CFLAGS</CODE> или <CODE>CXXFLAGS</CODE>, <CODE>CPPFLAGS</CODE>, <CODE>LDFLAGS</CODE> и
+<CODE>LIBS</CODE>.
+</P><P>
+
+Если используемый компилятор C не создает исполняемых файлов,
+запускающихся на той же системе, где выполняется скрипт
+<CODE>configure</CODE>, то тестовая программа не запускается. Если задан
+аргумент <VAR>action-if-cross-compiling</VAR>, то вместо программы
+запускается код, заданный в этом аргументе.  В противном случае
+<CODE>configure</CODE> выдает сообщение об ошибке и прекращает работу.
+</DL>
+</P><P>
+
+Постарайтесь сделать значения по умолчанию пессимистическими, если
+кросс-компиляция не позволяет проверить поведение времени выполнения.
+Это можно сделать, передав макросу <CODE>AC_TRY_RUN</CODE> необязательный
+последний аргумент.  <CODE>autoconf</CODE> выдает предупреждающее
+сообщение при создании <CODE>configure</CODE> каждый раз, когда встречается
+вызов макроса <CODE>AC_TRY_RUN</CODE> с незаданным аргументом
+<VAR>action-if-cross-compiling</VAR>. Вы можете игнорировать это
+предупреждение, хотя пользователи не смогут настроить ваш пакет для
+кросс-компиляции. Несколько макросов, поставляемых в составе Autoconf,
+выдают это предупреждающее сообщение.
+</P><P>
+
+Для конфигурирования для кросс-компиляции вы также можете выбрать значения
+параметров, основываясь на каноническом имени системы (see section <A HREF="autoconf-ru_8.html#SEC67">8. Ручная настройка</A>). В качестве альтернативы вы можете установить правильное
+значение для целевой системы в кэш-файле с результатами тестов
+(see section <A HREF="autoconf-ru_6.html#SEC55">6.3 Кэширование результатов</A>).
+</P><P>
+
+Для задания значений по умолчанию для вызовов макроса <CODE>AC_TRY_RUN</CODE>,
+которые включены в другие макросы (включая те, которые поставляются с
+Autoconf), вы можете вызвать макрос <CODE>AC_PROG_CC</CODE> до их вызова.
+Затем, если переменная командного процессора <CODE>cross_compiling</CODE>
+имеет значение <SAMP>`yes'</SAMP>, то используется альтернативный метод для
+получения результатов вместо вызова макросов.
+</P><P>
+
+<A NAME="IDX410"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_C_CROSS</B>
+<DD><A NAME="IDX411"></A>
+Этот макрос является устаревшим; он ничего не делает.
+</DL>
+</P><P>
+
+<A NAME="Рекомендации"></A>
+<HR SIZE="6">
+<A NAME="SEC46"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC45"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC47"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC43"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC44"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC48"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 5.4.2 Рекомендации по написанию тестовых программ </H3>
+<!--docid::SEC46::-->
+<A NAME="Guidelines"></A>
+<P>
+
+Тестовые программы не должны выдавать никаких сообщений на поток
+стандартного вывода.  Они должны возвращать значение 0 в случае удачи и
+ненулевое значение --- в противном случае, так что удачное
+выполнение можно легко отличить от выдачи дампа при крахе программы или
+другого неудачного выполнения; нарушение доступа к памяти и другие сбои
+возвращают ненулевой статус завершения. Тестовые программы должны
+завершать работу с помощью вызова функции <CODE>exit</CODE>, а не с помощью
+оператора <CODE>return</CODE> из подпрограммы <CODE>main</CODE>, поскольку на
+некоторых системах (по крайней мере, на старых машинах Sun) в
+подпрограмме <CODE>main</CODE> игнорируется аргумент оператора <CODE>return</CODE>.
+</P><P>
+
+Тестовые программы могут использовать директивы <CODE>#if</CODE> или
+<CODE>#ifdef</CODE> для проверки значений макросов препроцессора, определенных
+уже проведенными тестами. Например, если вы вызовете
+<CODE>AC_HEADER_STDC</CODE>, то далее в <TT>`configure.in'</TT> можно использовать
+тестовую программу, которая в зависимости от условия включает
+заголовочные файлы ANSI C:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>#if STDC_HEADERS
+# include &#60;stdlib.h&#62;
+#endif
+</pre></td></tr></table></P><P>
+
+Если тестовой программе нужно использовать или создать файл данных, то
+задавайте этому файлу имя, которое начинается с <TT>`conftest'</TT>,
+например, <TT>`conftestdata'</TT>.  Скрипт <CODE>configure</CODE> после выполнения
+тестовых программ а также в случае прерывания работы скрипта удаляет эти
+файлы с помощью команды <SAMP>`rm -rf conftest*'</SAMP>.
+</P><P>
+
+<A NAME="Тестовые функции"></A>
+<HR SIZE="6">
+<A NAME="SEC47"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC46"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC48"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC43"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC44"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC48"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H3> 5.4.3 Тестовые функции </H3>
+<!--docid::SEC47::-->
+<A NAME="Test Functions"></A>
+<P>
+
+Объявления функций в тестовой программе должны быть с помощью условной
+компиляции объявлены как для компилятора C++, так и для компилятора C. 
+На практике, однако, тестовые программы
+редко нуждаются в функциях, которым передаются аргументы.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>#ifdef __cplusplus
+foo(int i)
+#else
+foo(i) int i;
+#endif
+</pre></td></tr></table></P><P>
+
+Функции, объявляющиеся в тестовых программах, должны быть также
+объявлены с применением прототипов <SAMP>`extern "C"'</SAMP> для использования с
+компиляторами C++.  Убедитесь, что вы не включаете заголовочные файлы,
+содержащие конфликтующие прототипы.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>#ifdef __cplusplus
+extern "C" void *malloc(size_t);
+#else
+char *malloc();
+#endif
+</pre></td></tr></table></P><P>
+
+Если тестовая программа вызывает функцию с неправильными параметрами
+(просто чтобы убедиться, что такая существует), то организуйте программу
+таким образом, чтобы эта функция никогда не была вызвана.  Это можно
+сделать путем вызова ее в другой функции, которая никогда не вызывается.
+Вы не можете сделать это, поместив вызов функции после вызова функции
+<CODE>exit</CODE>, поскольку GCC версии 2 знает о том, что функция <CODE>exit</CODE>
+никогда не возвращается в точку вызова, и оптимизирует любой код,
+который следует за ней в том же блоке.
+</P><P>
+
+Если вы включаете какой-либо заголовочный файл, то убедитесь, что
+функции, находящиеся в этих файлах, вызываются с правильным числом
+параметров, даже если все эти параметры равны нулю.  Это нужно, чтобы
+избежать ошибок компиляции из-за несоответствия прототипов. GCC версии 2
+имеет внутренние прототипы нескольких функций, которые он встраивает в
+код автоматически: к таким относится <CODE>memcpy</CODE>. Для того,
+чтобы избежать ошибок при их проверке, либо передавайте этим функциям
+правильное количество аргументов, либо повторно объявите эти функции с
+другим типом возвращаемого значения (например, как <CODE>char</CODE>).
+</P><P>
+
+<A NAME="Переносимый командный процессор"></A>
+<HR SIZE="6">
+<A NAME="SEC48"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC47"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC49"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC44"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.5 Переносимое программирование на языке командного процессора </H2>
+<!--docid::SEC48::-->
+<A NAME="Portable Shell"></A>
+<P>
+
+Есть определенные техники программирования скриптов командного
+процессора, которых вам следует избегать, чтобы ваш код был переносим.
+Bourne shell и совместимые с ним процессоры, такие как Bash и Korn,
+развивались в течение многих лет, но для того, чтобы избежать
+трудностей, не используйте возможностей, добавленнхы после выпуска UNIX
+версии 7, примерно в 1977 году.  Вы не должны использовать функции
+командного процессора, псевдонимы (aliases), отрицательные классы
+символов и другие возможности, присутствующие не во всех версиях
+командных процессоров, совместимых с процессором Bourne; ограничьте себя
+общим знаменателем. Даже <CODE>unset</CODE> не поддерживается всеми командными
+процессорами! При указании интерпретатора ставьте пробел после символов
+<SAMP>`#!'</SAMP>, например,
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>#! /usr/bin/perl
+</pre></td></tr></table></P><P>
+
+Если вы уберете пробел перед путевым именем, то системы типа
+4.2BSD, такие как Sequent DYNIX, будут просто игнорировать эту строку,
+поскольку они интерпретируют <SAMP>`#! /'</SAMP> как 4-х байтовое магическое
+число.
+</P><P>
+
+Набор внешних программ, которые можно запускать из скрипта
+<CODE>configure</CODE>, довольно мал.  See section `Utilities in Makefiles' in <CITE>GNU Coding Standards</CITE>,
+ниже приведен список этих программ.
+Это ограничение позволяет пользователям начать с небольшого количества
+программ, постепенно компилируя остальные, и избежать слишком большого
+числа зависимостей между пакетами.
+</P><P>
+
+Многие такие внешние утилиты обладают общим подмножеством переносимых
+возможностей; например, не полагайтесь на то, что команда <CODE>ln</CODE>
+имеет ключ <SAMP>`-f'</SAMP>, а <CODE>cat</CODE> вообще имеет какие-либо ключи.
+Скрипты <CODE>sed</CODE> не должны содержать комментарии или использовать
+метки длиннее 8 символов. Не используйте <SAMP>`grep -s'</SAMP> для
+запрещения вывода, поскольку <SAMP>`grep -s'</SAMP> на System V не запрещает
+вывод, а запрещает только сообщения об ошибках. Вместо этого ключа лучше
+перенаправьте стандартные потоки вывода и сообщений об ошибках
+(сообщения о несуществующих файлах) программы <CODE>grep</CODE> на устройство
+<TT>`/dev/null'</TT>. Проверяйте код возврата <CODE>grep</CODE>, чтобы узнать,
+произошло ли совпадение.
+</P><P>
+
+<A NAME="Проверка значений и файлов"></A>
+<HR SIZE="6">
+<A NAME="SEC49"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC48"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC50"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.6 Тестирование значений и файлов </H2>
+<!--docid::SEC49::-->
+<A NAME="Testing Values and Files"></A>
+<P>
+
+Скрипты <CODE>configure</CODE> должны проверять различные свойства разных
+файлов и строк.  Вот небольшой список проблем с переносимостью, которых
+нужно избегать при написании проверок.
+</P><P>
+
+Программа <CODE>test</CODE> используется для выполнения многих проверок файлов
+и строк. Она часто запускается альтернативным способом через имя
+<SAMP>`['</SAMP>, но использование этого имени в коде Autoconf приведет к
+ошибкам, потому что этот символ является символом кавычек в <CODE>m4</CODE>.
+</P><P>
+
+Если вам необходимо выполнить несколько проверок, используя команду
+<CODE>test</CODE>, то объединяйте их с помощью операторов командного
+процессора <SAMP>`&#38;&#38;'</SAMP> и <SAMP>`||'</SAMP>, а не используйте операторы программы
+<CODE>test</CODE> <SAMP>`-a'</SAMP> и <SAMP>`-o'</SAMP>. На System V приоритеты операторов
+<SAMP>`-a'</SAMP> и <SAMP>`-o'</SAMP> неправильно соотносятся с приоритетами унарных
+операторов; из-за этого POSIX не определяет эти операторы, так что их
+использование приводит к непереносимому коду.  Если вы в одном выражении
+используете как <SAMP>`&#38;&#38;'</SAMP>, так и <SAMP>`||'</SAMP>, то помните, что они имеют
+одинаковый приоритет.
+</P><P>
+
+Скрипты <CODE>configure</CODE>, поддерживающие кросс-компиляцию, не должны не
+делать ничего, что тестирует свойства системы, на которой выполняется
+скрипт.  Но иногда возникает необходимость проверить, существует ли
+определенный файл. Чтобы сделать это, используйте команды <SAMP>`test -f'</SAMP>
+или <SAMP>`test -r'</SAMP>. Не используйте команду <SAMP>`test -x'</SAMP>, поскольку
+4.3BSD не поддерживает ее.
+</P><P>
+
+Другой непереносимой конструкцией программирования командного процессора
+является
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre><VAR>var</VAR>=${<VAR>var</VAR>:-<VAR>value</VAR>}
+</pre></td></tr></table></P><P>
+
+Она предназначена для установки значения переменной <VAR>var</VAR> равным
+<VAR>value</VAR>, но только в тех случаях, когда переменная еще не имеет
+значения.  Если <VAR>var</VAR> уже было присвоено значение, даже равное
+пустой строке, то оно остается неизменным.  Старые командные процессоры
+BSD, включая Ultrix-версию <CODE>sh</CODE>, не воспринимают символ двоеточия,
+выдают ошибку и прекращают работу. Переносимым эквивалентом данной
+конструкции является:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>: ${<VAR>var</VAR>=<VAR>value</VAR>}
+</pre></td></tr></table></P><P>
+
+<A NAME="Несколько вариантов"></A>
+<HR SIZE="6">
+<A NAME="SEC50"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC49"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC51"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.7 Множество вариантов </H2>
+<!--docid::SEC50::-->
+<A NAME="Multiple Cases"></A>
+<P>
+
+Некоторые операции выполняются несколькими способами в зависимости от
+используемого варианта UNIX.  Их проверка требует "оператора выбора".
+Autoconf напрямую не обеспечивает такой оператор, однако достаточно
+легко эмулировать его, используя переменную командного процессора для
+запоминания, найден ли уже пригодный способ.
+</P><P>
+
+Вот пример, который использует переменную <CODE>fstype</CODE> для отслеживания
+того, остались ли варианты, которые необходимо проверить.
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_MSG_CHECKING(как получить тип файловой системы)
+fstype=no
+# Порядок этих действий является важным.
+AC_TRY_CPP([#include &#60;sys/statvfs.h&#62;
+#include &#60;sys/fstyp.h&#62;], AC_DEFINE(FSTYPE_STATVFS) fstype=SVR4)
+if test $fstype = no; then
+AC_TRY_CPP([#include &#60;sys/statfs.h&#62;
+#include &#60;sys/fstyp.h&#62;], AC_DEFINE(FSTYPE_USG_STATFS) fstype=SVR3)
+fi
+if test $fstype = no; then
+AC_TRY_CPP([#include &#60;sys/statfs.h&#62;
+#include &#60;sys/vmount.h&#62;], AC_DEFINE(FSTYPE_AIX_STATFS) fstype=AIX)
+fi
+# (остальные варианты пропущены в этом примере)
+AC_MSG_RESULT($fstype)
+</pre></td></tr></table></P><P>
+
+<A NAME="Выбор языка"></A>
+<HR SIZE="6">
+<A NAME="SEC51"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC50"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 5.8 Выбор языка </H2>
+<!--docid::SEC51::-->
+<A NAME="Language Choice"></A>
+<P>
+
+Пакеты, использующие одновременно и C, и C++, нуждаются в проверке
+возможностей обоих компиляторов. Созданные Autoconf скрипты
+<CODE>configure</CODE> по умолчанию выполняют проверку возможностей
+компилятора C.  Описанные ниже макросы определяют, компилятор какого
+языка будет использоваться в тестах, последующих за вызовом этого
+макроса в <TT>`configure.in'</TT>.
+</P><P>
+
+<A NAME="IDX412"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_LANG_C</B>
+<DD><A NAME="IDX413"></A>
+Выполняет тесты компиляции, используя переменные <CODE>CC</CODE> и <CODE>CPP</CODE>,
+а также используя расширение <TT>`.c'</TT> для тестовых программ.
+Устанавливает переменную командного процессора <CODE>cross_compiling</CODE> в
+значение, вычисленное макросом <CODE>AC_PROG_CC</CODE>, если он был запущен, и
+в пустое значение в противном случае.
+</DL>
+</P><P>
+
+<A NAME="IDX414"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_LANG_CPLUSPLUS</B>
+<DD><A NAME="IDX415"></A>
+Выполняет тесты компиляции, используя переменные <CODE>CXX</CODE> и
+<CODE>CXXPP</CODE>, а также используя расширение <TT>`.C'</TT> для тестовых
+программ. Устанавливает переменную командного процессора
+<CODE>cross_compiling</CODE> в значение, вычисленное макросом
+<CODE>AC_PROG_CXX</CODE>, если он был запущен, и в пустое значение в противном
+случае.
+</DL>
+</P><P>
+
+<A NAME="IDX416"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_LANG_FORTRAN77</B>
+<DD><A NAME="IDX417"></A>
+Выполняет тесты компиляции, используя переменную <CODE>F77</CODE>, а также
+используя расширение <TT>`.f'</TT> для тестовых программ. Устанавливает
+переменную командного процессора <CODE>cross_compiling</CODE> в значение,
+вычисленное макросом <CODE>AC_PROG_F77</CODE>, если он был запущен, и в пустое
+значение в противном случае.
+</DL>
+</P><P>
+
+<A NAME="IDX418"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_LANG_SAVE</B>
+<DD><A NAME="IDX419"></A>
+Запоминает в стеке значение текущего языка (установленное макросами
+<CODE>AC_LANG_C</CODE>, <CODE>AC_LANG_CPLUSPLUS</CODE> или
+<CODE>AC_LANG_FORTRAN77</CODE>).  Не изменяет значение текущего
+языка. Используйте этот макрос и <CODE>AC_LANG_RESTORE</CODE> в макросах,
+которым необходимо временно переключиться на конкретный язык.
+</DL>
+</P><P>
+
+<A NAME="IDX420"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_LANG_RESTORE</B>
+<DD><A NAME="IDX421"></A>
+Выбирает язык, который был сохранен на вершине стека макросом
+<CODE>AC_LANG_SAVE</CODE>, и удаляет его со стека. Этот макрос эквивалентен
+вызову <CODE>AC_LANG_C</CODE>, <CODE>AC_LANG_CPLUSPLUS</CODE> или
+<CODE>AC_LANG_FORTRAN77</CODE> в зависимости от того, который из них
+действовал во время последнего вызова макроса <CODE>AC_LANG_SAVE</CODE>.
+</P><P>
+
+ Вызывайте этот макрос столько же раз, сколько и <CODE>AC_LANG_SAVE</CODE>,
+не больше!
+</DL>
+</P><P>
+
+<A NAME="IDX422"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_REQUIRE_CPP</B>
+<DD><A NAME="IDX423"></A>
+Убеждается, что препроцессор, который должен сейчас использоваться, был
+найден. Вызывает макрос <CODE>AC_REQUIRE</CODE> (see section <A HREF="autoconf-ru_7.html#SEC64">7.4.1 Требуемые макросы</A>) с
+аргументом, равным либо <CODE>AC_PROG_CPP</CODE>, либо <CODE>AC_PROG_CXXCPP</CODE>
+в зависимости от того, какой язык был выбран.
+</DL>
+</P><P>
+
+<A NAME="Результаты"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_5.html#SEC40"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_6.html#SEC52"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+on <I>February, 19  2004</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct = "UA-78697-3"; urchinTracker(); </script></body>
+</HTML>

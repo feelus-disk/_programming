@@ -1,0 +1,113 @@
+<html lang="en">
+<head>
+<title>Using System Type - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Manual-Configuration.html#Manual-Configuration" title="Manual Configuration">
+<link rel="prev" href="Canonicalizing.html#Canonicalizing" title="Canonicalizing">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Using-System-Type"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Canonicalizing.html#Canonicalizing">Canonicalizing</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Manual-Configuration.html#Manual-Configuration">Manual Configuration</a>
+<hr>
+</div>
+
+<h3 class="section">14.3 Using the System Type</h3>
+
+<p>In <samp><span class="file">configure.ac</span></samp> the system type is generally used by one or more
+<code>case</code> statements to select system-specifics.  Shell wildcards can
+be used to match a group of system types.
+
+   <p>For example, an extra assembler code object file could be chosen, giving
+access to a CPU cycle counter register.  <code>$(CYCLE_OBJ)</code> in the
+following would be used in a makefile to add the object to a
+program or library.
+
+<pre class="example">     AS_CASE([$host],
+       [alpha*-*-*], [CYCLE_OBJ=rpcc.o],
+       [i?86-*-*],   [CYCLE_OBJ=rdtsc.o],
+       [CYCLE_OBJ=""]
+     )
+     AC_SUBST([CYCLE_OBJ])
+</pre>
+   <p><code>AC_CONFIG_LINKS</code> (see <a href="Configuration-Links.html#Configuration-Links">Configuration Links</a>) is another good way
+to select variant source files, for example optimized code for some
+CPUs.  The configured CPU type doesn't always indicate exact CPU types,
+so some runtime capability checks may be necessary too.
+
+<pre class="example">     case $host in
+       alpha*-*-*)   AC_CONFIG_LINKS([dither.c:alpha/dither.c]) ;;
+       powerpc*-*-*) AC_CONFIG_LINKS([dither.c:powerpc/dither.c]) ;;
+       *-*-*)        AC_CONFIG_LINKS([dither.c:generic/dither.c]) ;;
+     esac
+</pre>
+   <p>The host system type can also be used to find cross-compilation tools
+with <code>AC_CHECK_TOOL</code> (see <a href="Generic-Programs.html#Generic-Programs">Generic Programs</a>).
+
+   <p>The above examples all show &lsquo;<samp><span class="samp">$host</span></samp>&rsquo;, since this is where the code
+is going to run.  Only rarely is it necessary to test &lsquo;<samp><span class="samp">$build</span></samp>&rsquo;
+(which is where the build is being done).
+
+   <p>Whenever you're tempted to use &lsquo;<samp><span class="samp">$host</span></samp>&rsquo; it's worth considering
+whether some sort of probe would be better.  New system types come along
+periodically or previously missing features are added.  Well-written
+probes can adapt themselves to such things, but hard-coded lists of
+names can't.  Here are some guidelines,
+
+     <ul>
+<li>Availability of libraries and library functions should always be checked
+by probing. 
+<li>Variant behavior of system calls is best identified with runtime tests
+if possible, but bug workarounds or obscure difficulties might have to
+be driven from &lsquo;<samp><span class="samp">$host</span></samp>&rsquo;. 
+<li>Assembler code is inevitably highly CPU-specific and is best selected
+according to &lsquo;<samp><span class="samp">$host_cpu</span></samp>&rsquo;. 
+<li>Assembler variations like underscore prefix on globals or ELF versus
+COFF type directives are however best determined by probing, perhaps
+even examining the compiler output. 
+</ul>
+
+   <p>&lsquo;<samp><span class="samp">$target</span></samp>&rsquo; is for use by a package creating a compiler or similar. 
+For ordinary packages it's meaningless and should not be used.  It
+indicates what the created compiler should generate code for, if it can
+cross-compile.  &lsquo;<samp><span class="samp">$target</span></samp>&rsquo; generally selects various hard-coded CPU
+and system conventions, since usually the compiler or tools under
+construction themselves determine how the target works.
+
+<!-- ===================================================== Site Configuration. -->
+   </body></html>
+

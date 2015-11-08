@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Clean</title>
+
+<meta name="description" content="automake: Clean">
+<meta name="keywords" content="automake: Clean">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="index.html#Top" rel="up" title="Top">
+<link href="Dist.html#Dist" rel="next" title="Dist">
+<link href="Install-Rules-for-the-User.html#Install-Rules-for-the-User" rel="prev" title="Install Rules for the User">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Clean"></a>
+<div class="header">
+<p>
+Next: <a href="Dist.html#Dist" accesskey="n" rel="next">Dist</a>, Previous: <a href="Install.html#Install" accesskey="p" rel="prev">Install</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="What-Gets-Cleaned"></a>
+<h2 class="chapter">13 What Gets Cleaned</h2>
+
+<a name="index-make-clean-support"></a>
+
+<p>The GNU Makefile Standards specify a number of different clean rules.
+See <a href="http://www.gnu.org/prep/standards/html_node/Standard-Targets.html#Standard-Targets">Standard Targets for Users</a> in <cite>The GNU Coding Standards</cite>.
+</p>
+<p>Generally the files that can be cleaned are determined automatically by
+Automake.  Of course, Automake also recognizes some variables that can
+be defined to specify additional files to clean.  These variables are
+<code>MOSTLYCLEANFILES</code>, <code>CLEANFILES</code>, <code>DISTCLEANFILES</code>, and
+<code>MAINTAINERCLEANFILES</code>.
+<a name="index-MOSTLYCLEANFILES"></a>
+<a name="index-CLEANFILES"></a>
+<a name="index-DISTCLEANFILES"></a>
+<a name="index-MAINTAINERCLEANFILES"></a>
+</p>
+<a name="index-mostlyclean_002dlocal"></a>
+<a name="index-clean_002dlocal"></a>
+<a name="index-distclean_002dlocal"></a>
+<a name="index-maintainer_002dclean_002dlocal"></a>
+<p>When cleaning involves more than deleting some hard-coded list of
+files, it is also possible to supplement the cleaning rules with your
+own commands.  Simply define a rule for any of the
+<code>mostlyclean-local</code>, <code>clean-local</code>, <code>distclean-local</code>,
+or <code>maintainer-clean-local</code> targets (see <a href="Extending.html#Extending">Extending</a>).  A common
+case is deleting a directory, for instance, a directory created by the
+test suite:
+</p>
+<div class="example">
+<pre class="example">clean-local:
+        -rm -rf testSubDir
+</pre></div>
+
+<p>Since <code>make</code> allows only one set of rules for a given target,
+a more extensible way of writing this is to use a separate target
+listed as a dependency:
+</p>
+<div class="example">
+<pre class="example">clean-local: clean-local-check
+.PHONY: clean-local-check
+clean-local-check:
+        -rm -rf testSubDir
+</pre></div>
+
+<p>As the GNU Standards aren&rsquo;t always explicit as to which files should
+be removed by which rule, we&rsquo;ve adopted a heuristic that we believe
+was first formulated by Fran&ccedil;ois Pinard:
+</p>
+<ul>
+<li> If <code>make</code> built it, and it is commonly something that one would
+want to rebuild (for instance, a <samp>.o</samp> file), then
+<code>mostlyclean</code> should delete it.
+
+</li><li> Otherwise, if <code>make</code> built it, then <code>clean</code> should delete it.
+
+</li><li> If <code>configure</code> built it, then <code>distclean</code> should delete it.
+
+</li><li> If the maintainer built it (for instance, a <samp>.info</samp> file), then
+<code>maintainer-clean</code> should delete it.  However
+<code>maintainer-clean</code> should not delete anything that needs to exist
+in order to run &lsquo;<samp>./configure &amp;&amp; make</samp>&rsquo;.
+</li></ul>
+
+<p>We recommend that you follow this same set of heuristics in your
+<samp>Makefile.am</samp>.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Dist.html#Dist" accesskey="n" rel="next">Dist</a>, Previous: <a href="Install.html#Install" accesskey="p" rel="prev">Install</a>, Up: <a href="index.html#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

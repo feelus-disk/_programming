@@ -1,0 +1,159 @@
+<html lang="en">
+<head>
+<title>Volatile Objects - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-C-and-C_002b_002b.html#Portable-C-and-C_002b_002b" title="Portable C and C++">
+<link rel="prev" href="Buffer-Overruns.html#Buffer-Overruns" title="Buffer Overruns">
+<link rel="next" href="Floating-Point-Portability.html#Floating-Point-Portability" title="Floating Point Portability">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Volatile-Objects"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Floating-Point-Portability.html#Floating-Point-Portability">Floating Point Portability</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Buffer-Overruns.html#Buffer-Overruns">Buffer Overruns</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-C-and-C_002b_002b.html#Portable-C-and-C_002b_002b">Portable C and C++</a>
+<hr>
+</div>
+
+<h3 class="section">13.6 Volatile Objects</h3>
+
+<p><a name="index-volatile-objects-1907"></a>
+The keyword <code>volatile</code> is often misunderstood in portable code. 
+Its use inhibits some memory-access optimizations, but programmers often
+wish that it had a different meaning than it actually does.
+
+   <p><code>volatile</code> was designed for code that accesses special objects like
+memory-mapped device registers whose contents spontaneously change. 
+Such code is inherently low-level, and it is difficult to specify
+portably what <code>volatile</code> means in these cases.  The C standard
+says, &ldquo;What constitutes an access to an object that has
+volatile-qualified type is implementation-defined,&rdquo; so in theory each
+implementation is supposed to fill in the gap by documenting what
+<code>volatile</code> means for that implementation.  In practice, though,
+this documentation is usually absent or incomplete.
+
+   <p>One area of confusion is the distinction between objects defined with
+volatile types, and volatile lvalues.  From the C standard's point of
+view, an object defined with a volatile type has externally visible
+behavior.  You can think of such objects as having little oscilloscope
+probes attached to them, so that the user can observe some properties of
+accesses to them, just as the user can observe data written to output
+files.  However, the standard does not make it clear whether users can
+observe accesses by volatile lvalues to ordinary objects.  For example:
+
+<pre class="example">     /* Declare and access a volatile object.
+        Accesses to X are "visible" to users.  */
+     static int volatile x;
+     x = 1;
+     
+     /* Access two ordinary objects via a volatile lvalue.
+        It's not clear whether accesses to *P are "visible".  */
+     int y;
+     int *z = malloc (sizeof (int));
+     int volatile *p;
+     p = &amp;y;
+     *p = 1;
+     p = z;
+     *p = 1;
+</pre>
+   <p>Programmers often wish that <code>volatile</code> meant &ldquo;Perform the memory
+access here and now, without merging several memory accesses, without
+changing the memory word size, and without reordering.&rdquo;  But the C
+standard does not require this.  For objects defined with a volatile
+type, accesses must be done before the next sequence point; but
+otherwise merging, reordering, and word-size change is allowed.  Worse,
+it is not clear from the standard whether volatile lvalues provide more
+guarantees in general than nonvolatile lvalues, if the underlying
+objects are ordinary.
+
+   <p>Even when accessing objects defined with a volatile type,
+the C standard allows only
+extremely limited signal handlers: the behavior is undefined if a signal
+handler reads any nonlocal object, or writes to any nonlocal object
+whose type is not <code>sig_atomic_t volatile</code>, or calls any standard
+library function other than <code>abort</code>, <code>signal</code>, and (if C99)
+<code>_Exit</code>.  Hence C compilers need not worry about a signal handler
+disturbing ordinary computation, unless the computation accesses a
+<code>sig_atomic_t volatile</code> lvalue that is not a local variable. 
+(There is an obscure exception for accesses via a pointer to a volatile
+character, since it may point into part of a <code>sig_atomic_t
+volatile</code> object.)  Posix
+adds to the list of library functions callable from a portable signal
+handler, but otherwise is like the C standard in this area.
+
+   <p>Some C implementations allow memory-access optimizations within each
+translation unit, such that actual behavior agrees with the behavior
+required by the standard only when calling a function in some other
+translation unit, and a signal handler acts like it was called from a
+different translation unit.  The C standard hints that in these
+implementations, objects referred to by signal handlers &ldquo;would require
+explicit specification of <code>volatile</code> storage, as well as other
+implementation-defined restrictions.&rdquo;  But unfortunately even for this
+special case these other restrictions are often not documented well. 
+See <a href="../gcc/Volatiles.html#Volatiles">When is a Volatile Object Accessed?</a>, for some
+restrictions imposed by GCC.  See <a href="../libc/Defining-Handlers.html#Defining-Handlers">Defining Signal Handlers</a>, for some
+restrictions imposed by the GNU C library.  Restrictions
+differ on other platforms.
+
+   <p>If possible, it is best to use a signal handler that fits within the
+limits imposed by the C and Posix standards.
+
+   <p>If this is not practical, you can try the following rules of thumb.  A
+signal handler should access only volatile lvalues, preferably lvalues
+that refer to objects defined with a volatile type, and should not
+assume that the accessed objects have an internally consistent state
+if they are larger than a machine word.  Furthermore, installers
+should employ compilers and compiler options that are commonly used
+for building operating system kernels, because kernels often need more
+from <code>volatile</code> than the C Standard requires, and installers who
+compile an application in a similar environment can sometimes benefit
+from the extra constraints imposed by kernels on compilers. 
+Admittedly we are handwaving somewhat here, as there are few
+guarantees in this area; the rules of thumb may help to fix some bugs
+but there is a good chance that they will not fix them all.
+
+   <p>For <code>volatile</code>, C++ has the same problems that C does. 
+Multithreaded applications have even more problems with <code>volatile</code>,
+but they are beyond the scope of this section.
+
+   <p>The bottom line is that using <code>volatile</code> typically hurts
+performance but should not hurt correctness.  In some cases its use
+does help correctness, but these cases are often so poorly understood
+that all too often adding <code>volatile</code> to a data structure merely
+alleviates some symptoms of a bug while not fixing the bug in general.
+
+   </body></html>
+

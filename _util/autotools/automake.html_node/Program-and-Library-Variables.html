@@ -1,0 +1,398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Program and Library Variables</title>
+
+<meta name="description" content="automake: Program and Library Variables">
+<meta name="keywords" content="automake: Program and Library Variables">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Programs.html#Programs" rel="up" title="Programs">
+<link href="Default-_005fSOURCES.html#Default-_005fSOURCES" rel="next" title="Default _SOURCES">
+<link href="Objects-created-both-with-libtool-and-without.html#Objects-created-both-with-libtool-and-without" rel="prev" title="Objects created both with libtool and without">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Program-and-Library-Variables"></a>
+<div class="header">
+<p>
+Next: <a href="Default-_005fSOURCES.html#Default-_005fSOURCES" accesskey="n" rel="next">Default _SOURCES</a>, Previous: <a href="A-Shared-Library.html#A-Shared-Library" accesskey="p" rel="prev">A Shared Library</a>, Up: <a href="Programs.html#Programs" accesskey="u" rel="up">Programs</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Program-and-Library-Variables-1"></a>
+<h3 class="section">8.4 Program and Library Variables</h3>
+
+<p>Associated with each program is a collection of variables that can be
+used to modify how that program is built.  There is a similar list of
+such variables for each library.  The canonical name of the program (or
+library) is used as a base for naming these variables.
+</p>
+<p>In the list below, we use the name &ldquo;maude&rdquo; to refer to the program or
+library.  In your <samp>Makefile.am</samp> you would replace this with the
+canonical name of your program.  This list also refers to &ldquo;maude&rdquo; as a
+program, but in general the same rules apply for both static and dynamic
+libraries; the documentation below notes situations where programs and
+libraries differ.
+</p>
+<dl compact="compact">
+<dt><code>maude_SOURCES</code>
+<a name="index-maude_005fSOURCES"></a>
+</dt>
+<dd><p>This variable, if it exists, lists all the source files that are
+compiled to build the program.  These files are added to the
+distribution by default.  When building the program, Automake will cause
+each source file to be compiled to a single <samp>.o</samp> file (or
+<samp>.lo</samp> when using libtool).  Normally these object files are named
+after the source file, but other factors can change this.  If a file in
+the <code>_SOURCES</code> variable has an unrecognized extension, Automake
+will do one of two things with it.  If a suffix rule exists for turning
+files with the unrecognized extension into <samp>.o</samp> files, then
+<code>automake</code> will treat this file as it will any other source file
+(see <a href="Support-for-Other-Languages.html#Support-for-Other-Languages">Support for Other Languages</a>).  Otherwise, the file will be
+ignored as though it were a header file.
+</p>
+<p>The prefixes <code>dist_</code> and <code>nodist_</code> can be used to control
+whether files listed in a <code>_SOURCES</code> variable are distributed.
+<code>dist_</code> is redundant, as sources are distributed by default, but it
+can be specified for clarity if desired.
+</p>
+<p>It is possible to have both <code>dist_</code> and <code>nodist_</code> variants of
+a given <code>_SOURCES</code> variable at once; this lets you easily
+distribute some files and not others, for instance:
+</p>
+<div class="example">
+<pre class="example">nodist_maude_SOURCES = nodist.c
+dist_maude_SOURCES = dist-me.c
+</pre></div>
+
+<p>By default the output file (on Unix systems, the <samp>.o</samp> file) will
+be put into the current build directory.  However, if the option
+<samp>subdir-objects</samp> is in effect in the current directory then the
+<samp>.o</samp> file will be put into the subdirectory named after the
+source file.  For instance, with <samp>subdir-objects</samp> enabled,
+<samp>sub/dir/file.c</samp> will be compiled to <samp>sub/dir/file.o</samp>.  Some
+people prefer this mode of operation.  You can specify
+<samp>subdir-objects</samp> in <code>AUTOMAKE_OPTIONS</code> (see <a href="Options.html#Options">Options</a>).
+<a name="index-Subdirectory_002c-objects-in"></a>
+<a name="index-Objects-in-subdirectory"></a>
+</p>
+
+</dd>
+<dt><code>EXTRA_maude_SOURCES</code>
+<a name="index-EXTRA_005fmaude_005fSOURCES"></a>
+</dt>
+<dd><p>Automake needs to know the list of files you intend to compile
+<em>statically</em>.  For one thing, this is the only way Automake has of
+knowing what sort of language support a given <samp>Makefile.in</samp>
+requires.  <a name="DOCF3" href="#FOOT3"><sup>3</sup></a>  This means that, for example, you can&rsquo;t put a
+configure substitution like &lsquo;<samp>@my_sources@</samp>&rsquo; into a &lsquo;<samp>_SOURCES</samp>&rsquo;
+variable.  If you intend to conditionally compile source files and use
+<samp>configure</samp> to substitute the appropriate object names into, e.g.,
+<code>_LDADD</code> (see below), then you should list the corresponding source
+files in the <code>EXTRA_</code> variable.
+</p>
+<p>This variable also supports <code>dist_</code> and <code>nodist_</code> prefixes.
+For instance, <code>nodist_EXTRA_maude_SOURCES</code> would list extra
+sources that may need to be built, but should not be distributed.
+</p>
+</dd>
+<dt><code>maude_AR</code>
+<a name="index-maude_005fAR"></a>
+</dt>
+<dd><p>A static library is created by default by invoking &lsquo;<samp>$(AR)
+$(ARFLAGS)</samp>&rsquo; followed by the name of the library and then the objects
+being put into the library.  You can override this by setting the
+<code>_AR</code> variable.  This is usually used with C++; some C++
+compilers require a special invocation in order to instantiate all the
+templates that should go into a library.  For instance, the SGI C++
+compiler likes this variable set like so:
+</p><div class="example">
+<pre class="example">libmaude_a_AR = $(CXX) -ar -o
+</pre></div>
+
+</dd>
+<dt><code>maude_LIBADD</code>
+<a name="index-maude_005fLIBADD-1"></a>
+</dt>
+<dd><p>Extra objects can be added to a <em>library</em> using the <code>_LIBADD</code>
+variable.  For instance, this should be used for objects determined by
+<code>configure</code> (see <a href="A-Library.html#A-Library">A Library</a>).
+</p>
+<p>In the case of libtool libraries, <code>maude_LIBADD</code> can also refer
+to other libtool libraries.
+</p>
+</dd>
+<dt><code>maude_LDADD</code>
+<a name="index-maude_005fLDADD-1"></a>
+</dt>
+<dd><p>Extra objects (<samp>*.$(OBJEXT)</samp>) and libraries (<samp>*.a</samp>,
+<samp>*.la</samp>) can be added to a <em>program</em> by listing them in the
+<code>_LDADD</code> variable.  For instance, this should be used for objects
+determined by <code>configure</code> (see <a href="Linking.html#Linking">Linking</a>).
+</p>
+<p><code>_LDADD</code> and <code>_LIBADD</code> are inappropriate for passing
+program-specific linker flags (except for <samp>-l</samp>, <samp>-L</samp>,
+<samp>-dlopen</samp> and <samp>-dlpreopen</samp>).  Use the <code>_LDFLAGS</code> variable
+for this purpose.
+</p>
+<p>For instance, if your <samp>configure.ac</samp> uses <code>AC_PATH_XTRA</code>, you
+could link your program against the X libraries like so:
+</p>
+<div class="example">
+<pre class="example">maude_LDADD = $(X_PRE_LIBS) $(X_LIBS) $(X_EXTRA_LIBS)
+</pre></div>
+
+<p>We recommend that you use <samp>-l</samp> and <samp>-L</samp> only when
+referring to third-party libraries, and give the explicit file names
+of any library built by your package.  Doing so will ensure that
+<code>maude_DEPENDENCIES</code> (see below) is correctly defined by default.
+</p>
+</dd>
+<dt><code>maude_LDFLAGS</code>
+<a name="index-maude_005fLDFLAGS-1"></a>
+</dt>
+<dd><p>This variable is used to pass extra flags to the link step of a program
+or a shared library.  It overrides the <code>AM_LDFLAGS</code> variable.
+</p>
+</dd>
+<dt><code>maude_LIBTOOLFLAGS</code>
+<a name="index-maude_005fLIBTOOLFLAGS-1"></a>
+</dt>
+<dd><p>This variable is used to pass extra options to <code>libtool</code>.
+It overrides the <code>AM_LIBTOOLFLAGS</code> variable.
+These options are output before <code>libtool</code>&rsquo;s <samp>--mode=<var>mode</var></samp>
+option, so they should not be mode-specific options (those belong to
+the compiler or linker flags).  See <a href="Libtool-Flags.html#Libtool-Flags">Libtool Flags</a>.
+</p>
+</dd>
+<dt><code>maude_DEPENDENCIES</code>
+<a name="index-maude_005fDEPENDENCIES-1"></a>
+</dt>
+<dt><code>EXTRA_maude_DEPENDENCIES</code>
+<a name="index-EXTRA_005fmaude_005fDEPENDENCIES-1"></a>
+</dt>
+<dd><p>It is also occasionally useful to have a target (program or library)
+depend on some other file that is not actually part of that target.
+This can be done using the <code>_DEPENDENCIES</code> variable.  Each
+target depends on the contents of such a variable, but no further
+interpretation is done.
+</p>
+<p>Since these dependencies are associated to the link rule used to
+create the programs they should normally list files used by the link
+command.  That is <samp>*.$(OBJEXT)</samp>, <samp>*.a</samp>, or <samp>*.la</samp> files
+for programs; <samp>*.lo</samp> and <samp>*.la</samp> files for Libtool libraries;
+and <samp>*.$(OBJEXT)</samp> files for static libraries.  In rare cases you
+may need to add other kinds of files such as linker scripts, but
+<em>listing a source file in <code>_DEPENDENCIES</code> is wrong</em>.  If
+some source file needs to be built before all the components of a
+program are built, consider using the <code>BUILT_SOURCES</code> variable
+(see <a href="Sources.html#Sources">Sources</a>).
+</p>
+<p>If <code>_DEPENDENCIES</code> is not supplied, it is computed by Automake.
+The automatically-assigned value is the contents of <code>_LDADD</code> or
+<code>_LIBADD</code>, with most configure substitutions, <samp>-l</samp>, <samp>-L</samp>,
+<samp>-dlopen</samp> and <samp>-dlpreopen</samp> options removed.  The configure
+substitutions that are left in are only &lsquo;<samp>$(LIBOBJS)</samp>&rsquo; and
+&lsquo;<samp>$(ALLOCA)</samp>&rsquo;; these are left because it is known that they will not
+cause an invalid value for <code>_DEPENDENCIES</code> to be generated.
+</p>
+<p><code>_DEPENDENCIES</code> is more likely used to perform conditional
+compilation using an <code>AC_SUBST</code> variable that contains a list of
+objects.  See <a href="Conditional-Sources.html#Conditional-Sources">Conditional Sources</a>, and <a href="Conditional-Libtool-Sources.html#Conditional-Libtool-Sources">Conditional Libtool Sources</a>.
+</p>
+<p>The <code>EXTRA_*_DEPENDENCIES</code> variable may be useful for cases where
+you merely want to augment the <code>automake</code>-generated
+<code>_DEPENDENCIES</code> variable rather than replacing it.
+</p>
+</dd>
+<dt><code>maude_LINK</code>
+<a name="index-maude_005fLINK"></a>
+</dt>
+<dd><p>You can override the linker on a per-program basis.  By default the
+linker is chosen according to the languages used by the program.  For
+instance, a program that includes C++ source code would use the C++
+compiler to link.  The <code>_LINK</code> variable must hold the name of a
+command that can be passed all the <samp>.o</samp> file names and libraries
+to link against as arguments.  Note that the name of the underlying
+program is <em>not</em> passed to <code>_LINK</code>; typically one uses
+&lsquo;<samp>$@</samp>&rsquo;:
+</p>
+<div class="example">
+<pre class="example">maude_LINK = $(CCLD) -magic -o $@
+</pre></div>
+
+<p>If a <code>_LINK</code> variable is not supplied, it may still be generated
+and used by Automake due to the use of per-target link flags such as
+<code>_CFLAGS</code>, <code>_LDFLAGS</code> or <code>_LIBTOOLFLAGS</code>, in cases where
+they apply.
+</p>
+</dd>
+<dt><code>maude_CCASFLAGS</code>
+<a name="index-maude_005fCCASFLAGS"></a>
+</dt>
+<dt><code>maude_CFLAGS</code>
+<a name="index-maude_005fCFLAGS"></a>
+</dt>
+<dt><code>maude_CPPFLAGS</code>
+<a name="index-maude_005fCPPFLAGS"></a>
+</dt>
+<dt><code>maude_CXXFLAGS</code>
+<a name="index-maude_005fCXXFLAGS"></a>
+</dt>
+<dt><code>maude_FFLAGS</code>
+<a name="index-maude_005fFFLAGS"></a>
+</dt>
+<dt><code>maude_GCJFLAGS</code>
+<a name="index-maude_005fGCJFLAGS"></a>
+</dt>
+<dt><code>maude_LFLAGS</code>
+<a name="index-maude_005fLFLAGS"></a>
+</dt>
+<dt><code>maude_OBJCFLAGS</code>
+<a name="index-maude_005fOBJCFLAGS"></a>
+</dt>
+<dt><code>maude_OBJCXXFLAGS</code>
+<a name="index-maude_005fOBJCXXFLAGS"></a>
+</dt>
+<dt><code>maude_RFLAGS</code>
+<a name="index-maude_005fRFLAGS"></a>
+</dt>
+<dt><code>maude_UPCFLAGS</code>
+<a name="index-maude_005fUPCFLAGS"></a>
+</dt>
+<dt><code>maude_YFLAGS</code>
+<a name="index-maude_005fYFLAGS"></a>
+</dt>
+<dd><a name="index-per_002dtarget-compilation-flags_002c-defined"></a>
+<p>Automake allows you to set compilation flags on a per-program (or
+per-library) basis.  A single source file can be included in several
+programs, and it will potentially be compiled with different flags for
+each program.  This works for any language directly supported by
+Automake.  These <em>per-target compilation flags</em> are
+&lsquo;<samp>_CCASFLAGS</samp>&rsquo;,
+&lsquo;<samp>_CFLAGS</samp>&rsquo;,
+&lsquo;<samp>_CPPFLAGS</samp>&rsquo;,
+&lsquo;<samp>_CXXFLAGS</samp>&rsquo;,
+&lsquo;<samp>_FFLAGS</samp>&rsquo;,
+&lsquo;<samp>_GCJFLAGS</samp>&rsquo;,
+&lsquo;<samp>_LFLAGS</samp>&rsquo;,
+&lsquo;<samp>_OBJCFLAGS</samp>&rsquo;,
+&lsquo;<samp>_OBJCXXFLAGS</samp>&rsquo;,
+&lsquo;<samp>_RFLAGS</samp>&rsquo;,
+&lsquo;<samp>_UPCFLAGS</samp>&rsquo;, and
+&lsquo;<samp>_YFLAGS</samp>&rsquo;.
+</p>
+<p>When using a per-target compilation flag, Automake will choose a
+different name for the intermediate object files.  Ordinarily a file
+like <samp>sample.c</samp> will be compiled to produce <samp>sample.o</samp>.
+However, if the program&rsquo;s <code>_CFLAGS</code> variable is set, then the
+object file will be named, for instance, <samp>maude-sample.o</samp>.  (See
+also <a href="Renamed-Objects.html#Renamed-Objects">Renamed Objects</a>).
+</p>
+<p>In compilations with per-target flags, the ordinary &lsquo;<samp>AM_</samp>&rsquo; form of
+the flags variable is <em>not</em> automatically included in the
+compilation (however, the user form of the variable <em>is</em> included).
+So for instance, if you want the hypothetical <samp>maude</samp> compilations
+to also use the value of <code>AM_CFLAGS</code>, you would need to write:
+</p>
+<div class="example">
+<pre class="example">maude_CFLAGS = &hellip; your flags &hellip; $(AM_CFLAGS)
+</pre></div>
+
+<p>See <a href="Flag-Variables-Ordering.html#Flag-Variables-Ordering">Flag Variables Ordering</a>, for more discussion about the
+interaction between user variables, &lsquo;<samp>AM_</samp>&rsquo; shadow variables, and
+per-target variables.
+</p>
+</dd>
+<dt><code>maude_SHORTNAME</code>
+<a name="index-maude_005fSHORTNAME"></a>
+</dt>
+<dd><p>On some platforms the allowable file names are very short.  In order to
+support these systems and per-target compilation flags at the same
+time, Automake allows you to set a &ldquo;short name&rdquo; that will influence
+how intermediate object files are named.  For instance, in the following
+example,
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = maude
+maude_CPPFLAGS = -DSOMEFLAG
+maude_SHORTNAME = m
+maude_SOURCES = sample.c &hellip;
+</pre></div>
+
+<p>the object file would be named <samp>m-sample.o</samp> rather than
+<samp>maude-sample.o</samp>.
+</p>
+<p>This facility is rarely needed in practice,
+and we recommend avoiding it until you find it is required.
+</p></dd>
+</dl>
+
+<div class="footnote">
+<hr>
+<h4 class="footnotes-heading">Footnotes</h4>
+
+<h3><a name="FOOT3" href="#DOCF3">(3)</a></h3>
+<p>There are other, more obscure reasons for
+this limitation as well.</p>
+</div>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Default-_005fSOURCES.html#Default-_005fSOURCES" accesskey="n" rel="next">Default _SOURCES</a>, Previous: <a href="A-Shared-Library.html#A-Shared-Library" accesskey="p" rel="prev">A Shared Library</a>, Up: <a href="Programs.html#Programs" accesskey="u" rel="up">Programs</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

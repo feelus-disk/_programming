@@ -1,0 +1,86 @@
+<html lang="en">
+<head>
+<title>Transformation Rules - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Transforming-Names.html#Transforming-Names" title="Transforming Names">
+<link rel="prev" href="Transformation-Examples.html#Transformation-Examples" title="Transformation Examples">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Transformation-Rules"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Transformation-Examples.html#Transformation-Examples">Transformation Examples</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Transforming-Names.html#Transforming-Names">Transforming Names</a>
+<hr>
+</div>
+
+<h4 class="subsection">15.7.3 Transformation Rules</h4>
+
+<p>Here is how to use the variable <code>program_transform_name</code> in a
+<samp><span class="file">Makefile.in</span></samp>:
+
+<pre class="example">     PROGRAMS = cp ls rm
+     transform = @program_transform_name@
+     install:
+             for p in $(PROGRAMS); do \
+               $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p | \
+                                                   sed '$(transform)'`; \
+             done
+     
+     uninstall:
+             for p in $(PROGRAMS); do \
+               rm -f $(DESTDIR)$(bindir)/`echo $$p | sed '$(transform)'`; \
+     <!-- $$ restore font-lock -->
+             done
+</pre>
+   <p>It is guaranteed that <code>program_transform_name</code> is never empty, and
+that there are no useless separators.  Therefore you may safely embed
+<code>program_transform_name</code> within a sed program using &lsquo;<samp><span class="samp">;</span></samp>&rsquo;:
+
+<pre class="example">     transform = @program_transform_name@
+     transform_exe = s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/
+</pre>
+   <p>Whether to do the transformations on documentation files (Texinfo or
+<code>man</code>) is a tricky question; there seems to be no perfect answer,
+due to the several reasons for name transforming.  Documentation is not
+usually particular to a specific architecture, and Texinfo files do not
+conflict with system documentation.  But they might conflict with
+earlier versions of the same files, and <code>man</code> pages sometimes do
+conflict with system documentation.  As a compromise, it is probably
+best to do name transformations on <code>man</code> pages but not on Texinfo
+manuals.
+
+   </body></html>
+

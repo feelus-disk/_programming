@@ -1,0 +1,127 @@
+<html lang="en">
+<head>
+<title>Macro Definitions - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros" title="Writing Autoconf Macros">
+<link rel="next" href="Macro-Names.html#Macro-Names" title="Macro Names">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Macro-Definitions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Macro-Names.html#Macro-Names">Macro Names</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Autoconf-Macros.html#Writing-Autoconf-Macros">Writing Autoconf Macros</a>
+<hr>
+</div>
+
+<h3 class="section">10.1 Macro Definitions</h3>
+
+<div class="defun">
+&mdash; Macro: <b>AC_DEFUN</b> (<var>name, </var><span class="roman">[</span><var>body</var><span class="roman">]</span>)<var><a name="index-AC_005fDEFUN-1647"></a></var><br>
+<blockquote><p><a name="index-AC_005fDEFUN-1648"></a>
+Autoconf macros are defined using the <code>AC_DEFUN</code> macro, which is
+similar to the M4 builtin <code>m4_define</code> macro; this creates a macro
+named <var>name</var> and with <var>body</var> as its expansion.  In addition to
+defining a macro, <code>AC_DEFUN</code> adds to it some code that is used to
+constrain the order in which macros are called, while avoiding redundant
+output (see <a href="Prerequisite-Macros.html#Prerequisite-Macros">Prerequisite Macros</a>). 
+</p></blockquote></div>
+
+   <p>An Autoconf macro definition looks like this:
+
+<pre class="example">     AC_DEFUN(<var>macro-name</var>, <var>macro-body</var>)
+</pre>
+   <p>You can refer to any arguments passed to the macro as &lsquo;<samp><span class="samp">$1</span></samp>&rsquo;,
+&lsquo;<samp><span class="samp">$2</span></samp>&rsquo;, etc.  See <a href="../m4/Definitions.html#Definitions">How to define new macros</a>, for more complete information on writing M4 macros.
+
+   <p>Most macros fall in one of two general categories.  The first category
+includes macros which take arguments, in order to generate output
+parameterized by those arguments.  Macros in this category are designed
+to be directly expanded, often multiple times, and should not be used as
+the argument to <code>AC_REQUIRE</code>.  The other category includes macros
+which are shorthand for a fixed block of text, and therefore do not take
+arguments.  For this category of macros, directly expanding the macro
+multiple times results in redundant output, so it is more common to use
+the macro as the argument to <code>AC_REQUIRE</code>, or to declare the macro
+with <code>AC_DEFUN_ONCE</code> (see <a href="One_002dShot-Macros.html#One_002dShot-Macros">One-Shot Macros</a>).
+
+   <p>Be sure to properly quote both the <var>macro-body</var> <em>and</em> the
+<var>macro-name</var> to avoid any problems if the macro happens to have
+been previously defined.
+
+   <p>Each macro should have a header comment that gives its prototype, and a
+brief description.  When arguments have default values, display them in
+the prototype.  For example:
+
+<pre class="example">     # AC_MSG_ERROR(ERROR, [EXIT-STATUS = 1])
+     # --------------------------------------
+     m4_define([AC_MSG_ERROR],
+       [{ AS_MESSAGE([error: $1], [2])
+          exit m4_default([$2], [1]); }])
+</pre>
+   <p>Comments about the macro should be left in the header comment.  Most
+other comments make their way into <samp><span class="file">configure</span></samp>, so just keep
+using &lsquo;<samp><span class="samp">#</span></samp>&rsquo; to introduce comments.
+
+   <p><a name="index-g_t_0040code_007bdnl_007d-1649"></a>If you have some special comments about pure M4 code, comments
+that make no sense in <samp><span class="file">configure</span></samp> and in the header comment, then
+use the builtin <code>dnl</code>: it causes M4 to discard the text
+through the next newline.
+
+   <p>Keep in mind that <code>dnl</code> is rarely needed to introduce comments;
+<code>dnl</code> is more useful to get rid of the newlines following macros
+that produce no output, such as <code>AC_REQUIRE</code>.
+
+   <p>Public third-party macros need to use <code>AC_DEFUN</code>, and not
+<code>m4_define</code>, in order to be found by <samp><span class="command">aclocal</span></samp>
+(see <a href="../automake/Extending-aclocal.html#Extending-aclocal">Extending aclocal</a>). 
+Additionally, if it is ever determined that a macro should be made
+obsolete, it is easy to convert from <code>AC_DEFUN</code> to <code>AU_DEFUN</code>
+in order to have <samp><span class="command">autoupdate</span></samp> assist the user in choosing a
+better alternative, but there is no corresponding way to make
+<code>m4_define</code> issue an upgrade notice (see <a href="AU_005fDEFUN.html#AU_005fDEFUN">AU_DEFUN</a>).
+
+   <p>There is another subtle, but important, difference between using
+<code>m4_define</code> and <code>AC_DEFUN</code>: only the former is unaffected by
+<code>AC_REQUIRE</code>.  When writing a file, it is always safe to replace a
+block of text with a <code>m4_define</code> macro that will expand to the same
+text.  But replacing a block of text with an <code>AC_DEFUN</code> macro with
+the same content does not necessarily give the same results, because it
+changes the location where any embedded but unsatisfied
+<code>AC_REQUIRE</code> invocations within the block will be expanded.  For an
+example of this, see <a href="Expanded-Before-Required.html#Expanded-Before-Required">Expanded Before Required</a>.
+
+   </body></html>
+

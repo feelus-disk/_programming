@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Extending</title>
+
+<meta name="description" content="automake: Extending">
+<meta name="keywords" content="automake: Extending">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Not-Enough.html#Not-Enough" rel="up" title="Not Enough">
+<link href="Third_002dParty-Makefiles.html#Third_002dParty-Makefiles" rel="next" title="Third-Party Makefiles">
+<link href="Not-Enough.html#Not-Enough" rel="prev" title="Not Enough">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Extending"></a>
+<div class="header">
+<p>
+Next: <a href="Third_002dParty-Makefiles.html#Third_002dParty-Makefiles" accesskey="n" rel="next">Third-Party Makefiles</a>, Up: <a href="Not-Enough.html#Not-Enough" accesskey="u" rel="up">Not Enough</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Extending-Automake-Rules"></a>
+<h3 class="section">23.1 Extending Automake Rules</h3>
+
+<p>With some minor exceptions (for example <code>_PROGRAMS</code> variables,
+<code>TESTS</code>, or <code>XFAIL_TESTS</code>) being rewritten to append
+&lsquo;<samp>$(EXEEXT)</samp>&rsquo;), the contents of a <samp>Makefile.am</samp> is copied to
+<samp>Makefile.in</samp> verbatim.
+</p>
+<a name="index-copying-semantics"></a>
+
+<p>These copying semantics mean that many problems can be worked around
+by simply adding some <code>make</code> variables and rules to
+<samp>Makefile.am</samp>.  Automake will ignore these additions.
+</p>
+<a name="index-conflicting-definitions"></a>
+<a name="index-rules_002c-conflicting"></a>
+<a name="index-variables_002c-conflicting"></a>
+<a name="index-definitions_002c-conflicts"></a>
+
+<p>Since a <samp>Makefile.in</samp> is built from data gathered from three
+different places (<samp>Makefile.am</samp>, <samp>configure.ac</samp>, and
+<code>automake</code> itself), it is possible to have conflicting
+definitions of rules or variables.  When building <samp>Makefile.in</samp>
+the following priorities are respected by <code>automake</code> to ensure
+the user always has the last word:
+</p>
+<ul>
+<li> User defined variables in <samp>Makefile.am</samp> have priority over
+variables <code>AC_SUBST</code>ed from <samp>configure.ac</samp>, and
+<code>AC_SUBST</code>ed variables have priority over
+<code>automake</code>-defined variables.
+</li><li> As far as rules are concerned, a user-defined rule overrides any
+<code>automake</code>-defined rule for the same target.
+</li></ul>
+
+<a name="index-overriding-rules"></a>
+<a name="index-overriding-semantics"></a>
+<a name="index-rules_002c-overriding"></a>
+
+<p>These overriding semantics make it possible to fine tune some default
+settings of Automake, or replace some of its rules.  Overriding
+Automake rules is often inadvisable, particularly in the topmost
+directory of a package with subdirectories.  The <samp>-Woverride</samp>
+option (see <a href="automake-Invocation.html#automake-Invocation">automake Invocation</a>) comes in handy to catch overridden
+definitions.
+</p>
+<p>Note that Automake does not make any distinction between rules with
+commands and rules that only specify dependencies.  So it is not
+possible to append new dependencies to an <code>automake</code>-defined
+target without redefining the entire rule.
+</p>
+<a name="index-_002dlocal-targets"></a>
+<a name="index-local-targets"></a>
+
+<p>However, various useful targets have a &lsquo;<samp>-local</samp>&rsquo; version you can
+specify in your <samp>Makefile.am</samp>.  Automake will supplement the
+standard target with these user-supplied targets.
+</p>
+<a name="index-all-1"></a>
+<a name="index-all_002dlocal"></a>
+<a name="index-info-1"></a>
+<a name="index-info_002dlocal"></a>
+<a name="index-dvi-1"></a>
+<a name="index-dvi_002dlocal"></a>
+<a name="index-ps-1"></a>
+<a name="index-ps_002dlocal"></a>
+<a name="index-pdf-1"></a>
+<a name="index-pdf_002dlocal"></a>
+<a name="index-html-1"></a>
+<a name="index-html_002dlocal"></a>
+<a name="index-check-2"></a>
+<a name="index-check_002dlocal"></a>
+<a name="index-install-2"></a>
+<a name="index-install_002ddata-2"></a>
+<a name="index-install_002ddata_002dlocal-1"></a>
+<a name="index-install_002ddvi-1"></a>
+<a name="index-install_002ddvi_002dlocal"></a>
+<a name="index-install_002dexec-2"></a>
+<a name="index-install_002dexec_002dlocal-1"></a>
+<a name="index-install_002dhtml-1"></a>
+<a name="index-install_002dhtml_002dlocal"></a>
+<a name="index-install_002dinfo-2"></a>
+<a name="index-install_002dinfo_002dlocal"></a>
+<a name="index-install_002dpdf-1"></a>
+<a name="index-install_002dpdf_002dlocal"></a>
+<a name="index-install_002dps-1"></a>
+<a name="index-install_002dps_002dlocal"></a>
+<a name="index-uninstall-2"></a>
+<a name="index-uninstall_002dlocal"></a>
+<a name="index-mostlyclean"></a>
+<a name="index-mostlyclean_002dlocal-1"></a>
+<a name="index-clean-1"></a>
+<a name="index-clean_002dlocal-1"></a>
+<a name="index-distclean-1"></a>
+<a name="index-distclean_002dlocal-1"></a>
+<a name="index-installdirs-1"></a>
+<a name="index-installdirs_002dlocal"></a>
+<a name="index-installcheck-1"></a>
+<a name="index-installcheck_002dlocal"></a>
+
+<p>The targets that support a local version are <code>all</code>, <code>info</code>,
+<code>dvi</code>, <code>ps</code>, <code>pdf</code>, <code>html</code>, <code>check</code>,
+<code>install-data</code>, <code>install-dvi</code>, <code>install-exec</code>,
+<code>install-html</code>, <code>install-info</code>, <code>install-pdf</code>,
+<code>install-ps</code>, <code>uninstall</code>, <code>installdirs</code>,
+<code>installcheck</code> and the various <code>clean</code> targets
+(<code>mostlyclean</code>, <code>clean</code>, <code>distclean</code>, and
+<code>maintainer-clean</code>).
+</p>
+<p>Note that there are no <code>uninstall-exec-local</code> or
+<code>uninstall-data-local</code> targets; just use <code>uninstall-local</code>.
+It doesn&rsquo;t make sense to uninstall just data or just executables.
+</p>
+<p>For instance, here is one way to erase a subdirectory during
+&lsquo;<samp>make clean</samp>&rsquo; (see <a href="Clean.html#Clean">Clean</a>).
+</p>
+<div class="example">
+<pre class="example">clean-local:
+        -rm -rf testSubDir
+</pre></div>
+
+<p>You may be tempted to use <code>install-data-local</code> to install a file
+to some hard-coded location, but you should avoid this
+(see <a href="Hard_002dCoded-Install-Paths.html#Hard_002dCoded-Install-Paths">Hard-Coded Install Paths</a>).
+</p>
+<p>With the <code>-local</code> targets, there is no particular guarantee of
+execution order; typically, they are run early, but with parallel
+make, there is no way to be sure of that.
+</p>
+<a name="index-_002dhook-targets"></a>
+<a name="index-hook-targets"></a>
+<a name="index-install_002ddata_002dhook"></a>
+<a name="index-install_002dexec_002dhook"></a>
+<a name="index-uninstall_002dhook"></a>
+<a name="index-dist_002dhook-1"></a>
+
+<p>In contrast, some rules also have a way to run another rule, called a
+<em>hook</em>; hooks are always executed after the main rule&rsquo;s work is done.
+The hook is named after the principal target, with &lsquo;<samp>-hook</samp>&rsquo; appended.
+The targets allowing hooks are <code>install-data</code>,
+<code>install-exec</code>, <code>uninstall</code>, <code>dist</code>, and
+<code>distcheck</code>.
+</p>
+<p>For instance, here is how to create a hard link to an installed program:
+</p>
+<div class="example">
+<pre class="example">install-exec-hook:
+        ln $(DESTDIR)$(bindir)/program$(EXEEXT) \
+           $(DESTDIR)$(bindir)/proglink$(EXEEXT)
+</pre></div>
+
+<p>Although cheaper and more portable than symbolic links, hard links
+will not work everywhere (for instance, OS/2 does not have
+<code>ln</code>).  Ideally you should fall back to &lsquo;<samp>cp -p</samp>&rsquo; when
+<code>ln</code> does not work.  An easy way, if symbolic links are
+acceptable to you, is to add <code>AC_PROG_LN_S</code> to
+<samp>configure.ac</samp> (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Particular-Programs.html#Particular-Programs">Particular Program
+Checks</a> in <cite>The Autoconf Manual</cite>) and use &lsquo;<samp>$(LN_S)</samp>&rsquo; in
+<samp>Makefile.am</samp>.
+</p>
+<a name="index-versioned-binaries_002c-installing"></a>
+<a name="index-installing-versioned-binaries"></a>
+<a name="index-LN_005fS-example"></a>
+<p>For instance, here is how you could install a versioned copy of a
+program using &lsquo;<samp>$(LN_S)</samp>&rsquo;:
+</p>
+<div class="example">
+<pre class="example">install-exec-hook:
+        cd $(DESTDIR)$(bindir) &amp;&amp; \
+          mv -f prog$(EXEEXT) prog-$(VERSION)$(EXEEXT) &amp;&amp; \
+          $(LN_S) prog-$(VERSION)$(EXEEXT) prog$(EXEEXT)
+</pre></div>
+
+<p>Note that we rename the program so that a new version will erase the
+symbolic link, not the real binary.  Also we <code>cd</code> into the
+destination directory in order to create relative links.
+</p>
+<p>When writing <code>install-exec-hook</code> or <code>install-data-hook</code>,
+please bear in mind that the exec/data distinction is based on the
+installation directory, not on the primary used (see <a href="The-Two-Parts-of-Install.html#The-Two-Parts-of-Install">The Two Parts of Install</a>).
+So a <code>foo_SCRIPTS</code> will be installed by
+<code>install-data</code>, and a <code>barexec_SCRIPTS</code> will be installed by
+<code>install-exec</code>.  You should define your hooks consequently.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Third_002dParty-Makefiles.html#Third_002dParty-Makefiles" accesskey="n" rel="next">Third-Party Makefiles</a>, Up: <a href="Not-Enough.html#Not-Enough" accesskey="u" rel="up">Not Enough</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

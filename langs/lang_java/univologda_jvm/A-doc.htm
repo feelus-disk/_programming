@@ -1,0 +1,613 @@
+<HTML>
+<meta http-equiv="Content-Language" content="ru">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">   
+<BODY>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="A">Приложение A: оптимизация</A></P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Следующий набор псевдо-команд представляет быстрые варианты команд виртуальной машины языка Ява. Они используются, чтобы улучшить скорость интерпретирования байт-кодов. Они не являются частью описания виртуальной машины или множества инструкций, и невидимы вне реализации виртуальной машины языка Ява. Однако, внутри реализации виртуальной машины они используются для эффективной оптимизации. </P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Компилятор языка Ява — первоначальный</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman" COLOR="#000000">код из множества команд  виртуальной машины языка Ява, которое состоит из </FONT><FONT FACE="Courier New" COLOR="#000000">non-_quick</FONT><FONT FACE="Times New Roman" COLOR="#000000"> команд. Если используются</FONT><FONT FACE="Courier New" COLOR="#000000"> _quick</FONT><FONT FACE="Times New Roman" COLOR="#000000"> псевдо-команды,</FONT><FONT FACE="Times New Roman"> то каждое выполнение </FONT><FONT FACE="Courier New" COLOR="#000000">non-_quick</FONT><FONT FACE="Times New Roman" COLOR="#000000"> команды с</FONT><FONT FACE="Courier New" COLOR="#000000"> _quick</FONT><FONT FACE="Times New Roman" COLOR="#000000"> вариантом является перезаписыванием с исполнением</FONT><FONT FACE="Courier New" COLOR="Black"> </FONT><FONT FACE="Courier New" COLOR="#000000">_quick</FONT><FONT FACE="Times New Roman" COLOR="#000000"> варианта</FONT><FONT COLOR="Black">.</FONT><FONT FACE="Times New Roman"> Последующее выполнение этой команды будет иметь</FONT><FONT FACE="Courier New"> _quick</FONT><FONT FACE="Times New Roman"> вариант.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Во всех случаях, если команда имеет альтернативную </FONT><FONT FACE="Times New Roman" COLOR="#000000">версию с </FONT><FONT FACE="Courier New" COLOR="#000000">suffix _quick</FONT><FONT COLOR="#000000">,</FONT><FONT FACE="Times New Roman"> команда ссылается на константный пул. Если используется </FONT><FONT FACE="Courier New">_quick</FONT><FONT FACE="Times New Roman"> оптимизация, каждая </FONT><FONT FACE="Courier New">non-_quick</FONT><FONT FACE="Times New Roman"> команда с </FONT><FONT FACE="Courier New">_quick</FONT><FONT FACE="Times New Roman"> вариантом выполняет следующее:</P>
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Находит заданное значение в константном пуле</LI></UL>
+
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Сигнализирует об ошибке, если значение не может быть найдено для нескольких причин </LI></UL>
+
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Изменение в </FONT><FONT FACE="Courier New">_quick</FONT><FONT FACE="Times New Roman"> версию команды. Команды </FONT><FONT FACE="Courier New">putstatic, getstatic, putfield, </FONT><FONT FACE="Times New Roman">и</FONT><FONT FACE="Courier New"> getfield</FONT><FONT FACE="Times New Roman"> имеют две быстрые версии</LI></UL>
+
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Исполняет полученное действие</LI></UL>
+
+</FONT>
+<FONT FACE="Times New Roman"><P>Это идентично действию команды </FONT><FONT FACE="Courier New">без _quick</FONT><FONT FACE="Times New Roman">  оптимизации, кроме дополнительного шага, в котором команда перезаписывает себя </FONT><FONT FACE="Times New Roman" COLOR="#000000">с </FONT><FONT FACE="Courier New" COLOR="#000000">_quick</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman">вариантом. </FONT><FONT FACE="Courier New">_quick</FONT><FONT FACE="Times New Roman">  вариант команды присваивает  себе то значение,которое уже было найдено в константном пуле, и что это решение не приводит к большинсву ошибок. Просто исполняется полученное действие на найденном элементе.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: </FONT><FONT FACE="Times New Roman" COLOR="#000000">некоторые из описанных методов только поддерживают смещение байта со знаком в таблице объектов метода; для объектов с 256 или более методами некоторые</P>
+<P>вызовы не могут быть "убыстрены” только этими байткодами.  Мы также нуждаемся в определении или изменении существующих </FONT><FONT FACE="Courier New" COLOR="#000000">getfield </FONT><FONT FACE="Times New Roman" COLOR="#000000">и</FONT><FONT FACE="Courier New" COLOR="#000000"> putfield</FONT><FONT FACE="Times New Roman" COLOR="#000000"> байткодов, чтобы получить смещение более чем на байт. </P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Это Приложение не дает значений кода операции для псевдо-команд<STRIKE>ы</STRIKE>, так как они невидимы<STRIKE>е</STRIKE> и могут изменяться.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5 COLOR="#000000"><P><a Name="A.1">A.1 Обработка константного пула</A></P>
+</B></FONT><FONT SIZE=5 COLOR="#000000">
+</FONT><FONT FACE="Times New Roman"><P>Когда класс читается,  создается массив </FONT><FONT FACE="Courier New">constant_pool</FONT><FONT FACE="Times New Roman">  размера </FONT><FONT FACE="Courier New">nconstants </FONT><FONT FACE="Times New Roman">и присваивается полю класса. </FONT><FONT FACE="Courier New">constant_pool[0]</FONT><FONT FACE="Times New Roman">  устанавливается на точку динамически размещенного массива, которая указывает какие поля в </FONT><FONT FACE="Courier New">constant_pool</FONT><FONT FACE="Times New Roman"> уже обработаны. Элементы от </FONT><FONT FACE="Courier New">сonstant_pool[1]</FONT><FONT FACE="Times New Roman">  до</FONT><FONT FACE="Courier New"> сonstant_pool[nconstants - 1]</FONT><FONT FACE="Times New Roman"> устанавливаются, чтобы указывать на поле "типа", соответствующее данной константе.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Когда выполняется инструкция, ссылающаяся на константный пул, генерируется индекс, и проверяется значение </FONT><FONT FACE="Courier New">constant_pool[0]</FONT><FONT FACE="Times New Roman"> чтобы узнать, разрешен ли уже этот индекс.</FONT> <FONT FACE="Times New Roman">Если да, то возвращается значение </FONT><FONT FACE="Courier New">constant_pool[index</FONT><FONT FACE="Times New Roman">]. Если нет, то значение </FONT><FONT FACE="Courier New">constant_pool[index</FONT><FONT FACE="Times New Roman">] определяется как фактический указатель или данные, и записывается в </FONT><FONT FACE="Courier New">сonstant_pool[index].</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="A.2">A. 2 Помещение констант на стек (_quick варианты)</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>ldc1_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Помещение элемента константного пула  на стек</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=84>
+<TR><TD VALIGN="TOP">
+<P>ldc1_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., item</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1 </I><FONT FACE="Times New Roman">представляет собой беззнаковый 8-битный индекс константного пула текущего класса. </FONT><I>item </I><FONT FACE="Times New Roman">индекса помещается на стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>ldc2_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Помещение элемента константного пула на стек</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=84>
+<TR><TD VALIGN="TOP">
+<P>ldc2_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ... = &gt; ..., item</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и</FONT><B><I> </B>indexbyte2</I><FONT FACE="Times New Roman"> используются для конструирования индекса константного пула текущего класса. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Находится </FONT><I><FONT COLOR="#000000">constant </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">индекса и </FONT><I><FONT COLOR="#000000">item</I><B> </B></FONT><FONT FACE="Times New Roman" COLOR="#000000">его помещается на стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>ldc2w_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Помещение длинного целого или числа с плавающей точкой двойной точности из константного пула на стек.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=95>
+<TR><TD VALIGN="TOP">
+<P>ldc2w_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ... = &gt; ..., constant-word1, constant-word2</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><I><P>indexbyte1</I><B> </B><FONT FACE="Times New Roman">и</FONT><I> indexbyte2</I><B> </B><FONT FACE="Times New Roman">используются для конструирования индекса константного пула текущего класса.</FONT><FONT COLOR="#000000"> <I>constant</I><B> </B></FONT><FONT FACE="Times New Roman" COLOR="#000000">индекса помещается на стек.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="A.3">A. 3 Управление массивами (_quick варианты).</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>anewarray_quick</P>
+
+</B></FONT><FONT FACE="Times New Roman"><P>Создание нового массива из ссылок на объекты.</P>
+</FONT><FONT COLOR="Black"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=167>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P>anewarray_quick</FONT></TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P>indexbyte1</FONT></TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P>indexbyte2</FONT></TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., size = &gt; result</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>size должна быть целой. Она представляет  собой число элементов в новом массиве. </FONT><I>indexbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> indexbyte2</I><FONT FACE="Times New Roman">  используются для построения индекса в константном пуле текущего класса. Вход должен быть классом. </P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Новый массив обозначенного типа класса и допускающий размещение элементов полученого размера, result - есть ссылка на этот новый массив. Размещение  достаточно большого массива пытается содержать размеры элементов, дающиеся типом класса. Все элементы массива инициализируются нулем</FONT><FONT COLOR="Black">.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если размер меньше чем ноль, генерируется</FONT><FONT FACE="Courier New"> NegativeArraySizeException</FONT><FONT FACE="Arial"> .</FONT><FONT FACE="Times New Roman"> Если не достаточно памяти для размещения массива, генерируется </FONT><FONT FACE="Courier New">OutOfMemoryError .</P>
+</FONT>
+<B><FONT SIZE=4><P>multianewarray_quick</P>
+
+</B></FONT><FONT FACE="Times New Roman"><P>Размещение нового многомерного массива.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=217>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P>multianewarray_quick</FONT></TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P>indexbyte1</FONT></TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P>indexbyte2</FONT></TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P>dimensions</FONT></TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., size1, size2, ... sizen = &gt; result</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>Каждая size должна быть целой.</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman"> Каждая представляет собой число элементов в размерности массива.  </P>
+</FONT>
+<I><P>indexbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>indexbyte2</I><FONT FACE="Times New Roman"> используются для построения индекса в константном пуле текущего класса. Результирующий вход должен быть классом. </P>
+</FONT>
+<I><P>dimensions</I><FONT FACE="Times New Roman"> имеют следующие аспекты:</P>
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Это  должно быть целые</FONT><FONT FACE="Times New Roman" COLOR="Black"> числа.</LI></UL>
+
+</FONT><FONT COLOR="Black">
+
+<UL>
+</FONT><FONT FACE="Times New Roman" COLOR="Black"><LI>Представляет собой числа высшей размерности. Должно быть числом размерности из класса массива.</LI></UL>
+
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Это число элементов, которые берут  со стека.Все они должны быть целыми больше или равные нолю. Они используются как размеры измерения. </LI></UL>
+
+</FONT>
+<FONT FACE="Times New Roman"><P>Если любой из аргументов size на стеке - меньше чем ноль, генерируется </FONT><FONT FACE="Courier New">NegativeArraySizeException.</FONT><FONT FACE="Times New Roman"> Если не достаточно памяти для размещения массива, генерируется</FONT><FONT FACE="Courier New"> OutOfMemoryError.</FONT><FONT FACE="Arial"> </P>
+</FONT>
+<FONT FACE="Times New Roman"><P>result - ссылка на новый объект массива.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: Необходимо дать исчерпывающие объяснения относительно массива из массивов.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="A.4">А. 4 </FONT><FONT FACE="Times New Roman" SIZE=5 COLOR="Black">Управляющие объектные поля</FONT><FONT FACE="Times New Roman" SIZE=5> (_quick варианты)</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>putfield_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Устанавливает поля в объекте</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=102>
+<TR><TD VALIGN="TOP">
+<P>putfield_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>offset</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>unused</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref, value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>objectref<B> </B><FONT FACE="Times New Roman">должна</FONT><B> </B><FONT FACE="Times New Roman">быть</FONT><B> </B><FONT FACE="Times New Roman">ссылкой</FONT><B> </B><FONT FACE="Times New Roman">на</FONT><B> </B><FONT FACE="Times New Roman">объект</FONT><B>. </B>value<B> </B><FONT FACE="Times New Roman">должно</FONT><B> </B><FONT FACE="Times New Roman">быть</FONT><B> </B><FONT FACE="Times New Roman">значением</FONT><B> </B><FONT FACE="Times New Roman">типа,</P>
+<P>соответствующего</FONT><B> </B><FONT FACE="Times New Roman">определенному</FONT><B> </B><FONT FACE="Times New Roman">полю</FONT><B>. </B>offset</I><FONT FACE="Times New Roman"> - смещение для поля в этом объекте. </FONT><I>value<B> </B></I><FONT FACE="Times New Roman">- значение, соответствующее этому </FONT><I>offset</I><FONT FACE="Times New Roman"> в объекте. И </FONT><I>objectref</I><FONT FACE="Times New Roman"> и </FONT><I>value<B> </B></I><FONT FACE="Times New Roman">извлекаются из стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref пустая ссылка (</FONT><FONT FACE="Courier,Courier New">null </FONT><FONT FACE="Times New Roman">), то генерируется</FONT><FONT FACE="Courier,Courier New"> NullPointerException</FONT>.</P>
+
+<B><FONT SIZE=4><P>putfield2_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Устанавливает длинное целое или двойное вещественное поле в объекте</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=110>
+<TR><TD VALIGN="TOP">
+<P>putfield2_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>offset</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>unused</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref, value-word1, value-word2= &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>objectref<B> </B><FONT FACE="Times New Roman">должна</FONT><B> </B><FONT FACE="Times New Roman">быть</FONT><B> </B><FONT FACE="Times New Roman">ссылкой</FONT><B> </B><FONT FACE="Times New Roman">на</FONT><B> </B><FONT FACE="Times New Roman">объект</FONT><B>. </B>value<B> </B><FONT FACE="Times New Roman">должно</FONT><B> </B><FONT FACE="Times New Roman">быть</FONT><B> </B><FONT FACE="Times New Roman">значением</FONT><B> </B><FONT FACE="Times New Roman">типа, соответствующего</FONT><B> </B><FONT FACE="Times New Roman">определенному</FONT><B> </B><FONT FACE="Times New Roman">полю</FONT><B>. </B>offset</I><FONT FACE="Times New Roman"> - смещение для поля в этом объекте.  </FONT><I>value</I><FONT FACE="Times New Roman"> - значение, соответствующее этому </FONT><I>offset</I><FONT FACE="Times New Roman"> в объекте. И </FONT><I>objectref<B> </B></I><FONT FACE="Times New Roman">и </FONT><I>value</I><FONT FACE="Times New Roman"> извлекаются из стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref пустая ссылка (</FONT><FONT FACE="Courier,Courier New">null </FONT><FONT FACE="Times New Roman">), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException.</P>
+</FONT>
+<B><FONT SIZE=4><P>getfield_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Узнает значение поля объекта</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=101>
+<TR><TD VALIGN="TOP">
+<P>getfield_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>offset</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>unused</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., objectref = </FONT><FONT FACE="Courier New">&gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>objectref должна соответствовать объекту. Значение value, соответствующее </FONT><I>offset</I><FONT FACE="Times New Roman"> в</P>
+<P>вызываемом при помощи objectref объекте заменяет objectref, лежащую на вершине стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref пустая ссылка (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman"> ), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException.</P>
+</FONT>
+<B><FONT SIZE=4><P>getfield2_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Узнает значение поля объекта</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=109>
+<TR><TD VALIGN="TOP">
+<P>getfield2_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> offset</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> unused</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ..., value-word1, value-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>objectref должна соответствовать объекту. Значение value, соответствующее </FONT><I>offset</I><FONT FACE="Times New Roman"> в</P>
+<P>вызываемом при помощи objectref объекте заменяет objectref, лежащую на вершине стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref пустая ссылка (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException.</P>
+</FONT>
+<B><FONT SIZE=4><P>putstatic_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Устанавливает статическое поле в классе</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=108>
+<TR><TD VALIGN="TOP">
+<P>putstatic_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2<B> </B></I><FONT FACE="Times New Roman">используются для формирования индекса в константном пуле</P>
+<P> текущего класса. Элементом константного пула будет ссылка поля на статическое поле класса. Значение должно иметь тип, соответствующий этому полю.  Поле будет установлено так, что в качестве значение у него будет value.</P>
+</FONT>
+<B><FONT SIZE=4><P>putstatic2_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Устанавливает статическое поле в классе</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=116>
+<TR><TD VALIGN="TOP">
+<P>putstatic2_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2</I><FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего класса. Элементом константного пула будет ссылка поля на статическое поле класса. Поле должно быть или длинным целым или вещественным числом двойной точности. Значение должно иметь тип, соответствующий этому полю.  Поле будет установлено так, что в качестве значения у него будет value.</P>
+</FONT>
+<B><FONT SIZE=4><P>getstatic_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Узнает значение статического поля класса</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=107>
+<TR><TD VALIGN="TOP">
+<P>getstatic_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2</I><FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего класса. Элементом константного пула будет ссылка поля на статическое поле класса. Значение которого(того поля) заменяет обработчика в стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>getstatic2_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Узнает значение статического поля класса</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=115>
+<TR><TD VALIGN="TOP">
+<P>getstatic2_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., = &gt; ..., value-word1, value-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и</FONT><B><I> </B>indexbyte2</I><FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего класса. Элементом константного пула будет ссылка поля на статическое поле класса.  Поле должно быть длинным целым или вещественным числом двойной </P>
+<P>точности. Значение этого поля заменяет обработчика в стеке.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="A.5">A. 5 Вызов метода (_quick варианты)</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>invokevirtual_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вызывает метод экземпляра, диспетчеризация основана на типе во время выполнения</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=134>
+<TR><TD VALIGN="TOP">
+<P>invokevirtual_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> offset</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> nargs</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref, [arg1, [arg2 ...]] = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Стек операндов должен содержать objectref, ссылку на объект и </FONT><FONT FACE="Times New Roman" COLOR="Black">параметры </FONT><I><FONT COLOR="Black">nargs<B>-</B>1<B>.</B></I></FONT><FONT FACE="Times New Roman"> Определяется блок метода, соответствующий </FONT><I>offset</I><FONT FACE="Times New Roman"> в таблице </FONT><FONT FACE="Times New Roman" COLOR="Black">метода</FONT><FONT FACE="Times New Roman"> объекта,</P>
+<P>как определено динамическим типом объекта. Блок метода указывает тип метода </FONT><FONT FACE="Courier New">(</FONT><FONT FACE="Courier New" COLOR="Black">исходный</FONT><FONT FACE="Courier New">, синхронизированный, и т.д.).</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если тип метода является </FONT><FONT FACE="Courier New">синхронизированным,</FONT><FONT FACE="Times New Roman">то вводится монитор, связанный с объектом.</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="Black"><P>Основа массива из локальных переменных для новой структуры стека Ява назначена, чтобы указывать на </FONT><I><FONT COLOR="Black">objectref<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="Black">в стеке, создавая</FONT><B><I><FONT COLOR="Black"> </B>objectref</I><B> </B></FONT><FONT FACE="Times New Roman" COLOR="Black">и обеспечивающий параметры (</FONT><I><FONT COLOR="Black">arg1,<B> </B>arg2,</I></FONT><FONT FACE="Times New Roman" COLOR="Black"> ...) первые </FONT><I><FONT COLOR="Black">nargs<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="Black">локальные переменные новой структуры. Общее количество локальных переменных, используемых методом определено, и среда выполнения нового фрейма помещается на стек после того, как освободится достаточный участок памяти для локальных переменных. Основа стека операндов для этого метода вызова применяется к первому слову после среды выполнения.  После этого(В заключение), выполнение продолжается с первой команды(ой), соответствующей методу.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref является пустой (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. При  переполнении стека в течение метода вызывания генерируется </FONT><FONT FACE="Courier,Courier New">StackOverflowError.</P>
+</FONT>
+<B><FONT SIZE=4><P>invokevirtualobject_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вызывает метод экземпляра из класса </FONT><FONT FACE="Courier,Courier New">java.lang.Object</FONT>,<FONT FACE="Times New Roman" COLOR="Black"> определенного для увеличения(прибыли,пользы) массивов</P>
+</FONT><FONT COLOR="Black">
+</FONT><P>&nbsp;</P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=172>
+<TR><TD VALIGN="TOP">
+<P>invokevirtualobject_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> offset</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> nargs</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref, [arg1, [arg2 ...]] = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>Стек операндов должен содержать objectref, <I>ссылка</FONT><B> </B></I><FONT FACE="Times New Roman">на объект или на массив </FONT><FONT FACE="Times New Roman" COLOR="Black">и параметры </FONT><I><FONT COLOR="Black">nargs<B>-</B>1</I>.</FONT><FONT FACE="Times New Roman"> Определяется блок метода соответствующий </FONT><I>offset</I><FONT FACE="Times New Roman"> в таблице метода java.lang.Object. Блок метода указывает тип метода</FONT><FONT FACE="Courier New"> (</FONT><FONT FACE="Courier New" COLOR="Black">исходный</FONT><FONT FACE="Courier New">, синхронизированный, и т.д.).</P>
+</FONT><FONT FACE="Courier New">
+</FONT><FONT FACE="Times New Roman"><P>Если тип метода является </FONT><FONT FACE="Courier New">синхронизированным</FONT><FONT FACE="Times New Roman">, то вводится монитор связанный с обработчиком.</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="Black"><P>Основа массива из локальных переменных для новой структуры стека Ява назначена, чтобы указывать на </FONT><I><FONT COLOR="Black">objectref</I></FONT><FONT FACE="Times New Roman" COLOR="Black"> в стеке, создавая </FONT><I><FONT COLOR="Black">objectref<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="Black">и обеспечивающий параметры (</FONT><I><FONT COLOR="Black">arg1,<B> </B>arg2</I></FONT><FONT FACE="Times New Roman" COLOR="Black">, ...) первые </FONT><I><FONT COLOR="Black">nargs<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="Black">локальные переменные новой структуры. Общее количество локальных переменных, используемых методом определено, и среда выполнения нового фрейма помещается на стек после того, как освободится достаточный участок памяти для локальных переменных. Основа стека операндов для этого метода вызова применяется к первому слову после среды выполнения.  После этого(В заключение), выполнение продолжается с первой команды(ой), соответствующей методу.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref является пустой (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. При  переполнении стека в течение метода вызывания генерируется </FONT><FONT FACE="Courier,Courier New">StackOverflowError</FONT>.        </P>
+
+<B><FONT SIZE=4><P>invokenonvirtual_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вызывает метод экземпляра, диспетчеризация которого основана </FONT><FONT FACE="Times New Roman" COLOR="Black">на собирать-разовом типе</P>
+</U></FONT>
+<P>&nbsp;</P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=156>
+<TR><TD VALIGN="TOP">
+<P>invokenonvirtual_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref, [arg1, [arg2 ...]] = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Стек операндов должен содержать objectref, <I>ссылка</FONT><B> </B></I><FONT FACE="Times New Roman">на объект и некоторые </P>
+<P>параметры. </FONT><I>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2<B> </B></I><FONT FACE="Times New Roman">используются для формирования индекса в константном пуле текущего класса. Элемент, соответствующий этому индексу в константном пуле содержит индекс слота метода и указатель на класс. Определяется блок метода, соответствующий индексу слота метода в обозначенном классе.  Блок метода указывает тип метода </FONT><FONT FACE="Courier New">(исходный, синхронизированный</FONT><FONT FACE="Times New Roman">, и т.д.) и число параметров (nargs) ожидаемых в стеке операнда.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если тип метода является </FONT><FONT FACE="Courier New">синхронизированным</FONT><FONT FACE="Times New Roman">, то вводится монитор, связанный с объектом.</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="Black"><P>Основа массива из локальных переменных для новой структуры стека Ява назначена, чтобы указывать на </FONT><I><FONT COLOR="Black">objectref<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="Black">в стеке, создавая </FONT><I><FONT COLOR="Black">objectref<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="Black">и обеспечивающий параметры (</FONT><I><FONT COLOR="Black">arg1,<B> </B>arg2</I></FONT><FONT FACE="Times New Roman" COLOR="Black">, ...) первые </FONT><I><FONT COLOR="Black">nargs</I></FONT><FONT FACE="Times New Roman" COLOR="Black"> локальные переменные новой структуры. Общее количество локальных переменных, используемых методом определено, и среда выполнения нового фрейма помещается на стек после того, как освободится достаточный участок памяти для локальных переменных. Основа стека операндов для этого метода вызова применяется к первому слову после среды выполнения.  После этого(В заключение), выполнение продолжается с первой команды(ой), соответствующей методу.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref является пустой (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. При переполнении стека в течение метода вызывания генерируется </FONT><FONT FACE="Courier,Courier New">StackOverflowError.</P>
+</FONT>
+<B><FONT SIZE=4><P>invokestatic_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вызывает метод класса (статический) </P>
+
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=129>
+<TR><TD VALIGN="TOP">
+<P>invokestatic_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., [arg1, [arg2 ...]] = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Стек операндов должен содержать некоторое число параметров. </FONT><I>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2<B> </B></I><FONT FACE="Times New Roman">используются для создания индекса в константном пуле текущего класса. Элемент, соответствующий индексу в константном пуле содержит индекс слота метода и указатель на класс. Определяется блок метода в  индексе слота метода в обозначенном классе. Блок метода указывает тип метода </FONT><FONT FACE="Courier New">(исходный, синхронизированный,</FONT><FONT FACE="Times New Roman"> и т.д.) и число параметров (nargs) ожидаемых в стеке операндов.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если тип метода является </FONT><FONT FACE="Courier New">синхронизированным</FONT><FONT FACE="Times New Roman">, то вводится монитор, связанный с</P>
+<P>классом метода.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Основа массива из локальных переменных для новой структуры стека Ява назначена, чтобы указывать на первый параметр стека, обеспечивая параметры (</FONT><I>arg1,<B> </B>arg2</I><FONT FACE="Times New Roman">, ...) первые </FONT><I>nargs<B> </B></I><FONT FACE="Times New Roman">локальные переменные новой структуры. Общее количество локальных переменных, используемых методом определено, и среда выполнения нового фрейма помещается на стек после того, как освободится достаточный участок памяти для локальных переменных. Основа стека операндов для этого метода вызова применяется к первому слову после среды выполнения.  После этого(В заключение), выполнение продолжается с первой команды(ой), соответствующей методу.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref является пустой (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException</FONT>. <FONT FACE="Times New Roman">При переполнении стека в течение метода вызывания генерируется </FONT><FONT FACE="Courier,Courier New">StackOverflowError</FONT>.</P>
+
+<P>&nbsp;</P>
+<B><FONT SIZE=4><P>invokeinterface_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вызывает метод интерфейса</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=149>
+<TR><TD VALIGN="TOP">
+<P>invokeinterface_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> idbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> idbyte2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> nargs</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> guess</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref, [arg1, [arg2 ...]] = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Стек операндов должен содержать objectref, ссылку на объект, </FONT><FONT FACE="Times New Roman" COLOR="Black">и параметры </FONT><I><FONT COLOR="Black">nargs<B>-</B>1</I>.</FONT> <I>idbyte1<B> </B></I><FONT FACE="Times New Roman">и </FONT><I>idbyte2</I><FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего класса. Элемент, соответствующий этому индексу в константном пуле содержит полную  сигнатуру</FONT><U> </U><FONT FACE="Times New Roman">метода. Указатель на таблицу метода объекта определяется из </FONT><I><FONT FACE="Times New Roman" COLOR="Black">дескриптора</I></FONT><FONT FACE="Times New Roman"> объекта.</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="Black"><P>Сигнатуру метода ищут в таблице метода объекта. Как Сокращенный, сигнатуру метода в </FONT><I><FONT COLOR="Black">guess<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="Black">слота ищут сначала.</U></FONT><FONT FACE="Times New Roman"> Если это не приводит к нужному результату, то производится полный поиск в таблице метода. Гарантируется, что сигнатура метода будет точно соответствовать одной из сигнатур метода в таблице.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Результатом </FONT><FONT FACE="Times New Roman" COLOR="Black">поисковой таблицы</FONT><FONT FACE="Times New Roman"> является блок метода. Блок метода указывает тип метода (</FONT><FONT FACE="Courier New" COLOR="Black">исходный</FONT><FONT FACE="Courier New">, синхронизированный</FONT><FONT FACE="Times New Roman">, и т.д.) но число доступных параметров (nargs) берется из байткода.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если тип метода является </FONT><FONT FACE="Courier New">синхронизированным,</FONT><FONT FACE="Times New Roman"> то вводится монитор, связанный с обработчиком.</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="Black"><P>Основа массива из локальных переменных для новой структуры стека Ява назначена, чтобы указывать на </FONT><I><FONT COLOR="Black">handle</I></FONT><FONT FACE="Times New Roman" COLOR="Black"> в стеке, создавая </FONT><I><FONT COLOR="Black">handle</I></FONT><FONT FACE="Times New Roman" COLOR="Black"> и обеспечивая параметры     (</FONT><I><FONT COLOR="Black">arg1,<B> </B>arg2</I></FONT><FONT FACE="Times New Roman" COLOR="Black">, ...) первые </FONT><I><FONT COLOR="Black">nargs</I></FONT><FONT FACE="Times New Roman" COLOR="Black"> локальные переменные новой структуры. Общее количество локальных переменных, используемых методом определено, и среда выполнения нового фрейма помещается на стек после того, как освободится достаточный участок памяти для локальных переменных. Основа стека операндов для этого метода вызова применяется к первому слову после среды выполнения.  После этого(В заключение), выполнение продолжается с первой команды(ой), соответствующей методу.</P>
+</FONT><FONT COLOR="Black">
+</FONT><FONT FACE="Times New Roman"><P>Если objectref является пустой (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">), то генерируется </FONT><FONT FACE="Courier,Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. При переполнении стека в течение метода вызывания генерируется </FONT><FONT FACE="Courier,Courier New">StackOverflowError</FONT>.</P>
+
+<I><FONT COLOR="Black"><P>guess</I></FONT><FONT FACE="Times New Roman" COLOR="Black"> является последним guess(предположением). Периодически(Каждый раз через), guess(предположение) применяется к смещению метода, которое использовалось.</P>
+</FONT><B><FONT SIZE=5><P><a Name="A.6">A. 6 </FONT><FONT FACE="Times New Roman" SIZE=5 COLOR="Black">Операции с различными объектами</FONT><FONT FACE="Times New Roman" SIZE=5> (_quick варианты)</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>new_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Создает новый объект</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=87>
+<TR><TD VALIGN="TOP">
+<P>new_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., objectref</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2</I><FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего класса. Элемент, соответствующий этому индексу, должен быть классом. Затем создается новый элемент(образец) этого класса и </FONT><I>objectref</I><FONT FACE="Times New Roman">, ссылка на этот объект, помещается в стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>checkcast_quick</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Проверяет принадлежности объекта данному типу</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=118>
+<TR><TD VALIGN="TOP">
+<P>checkcast_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ..., objectref</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>objectref должна быть ссылкой на объект. </FONT><I>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2</I><FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего класса. Объект, соответветствующий этому индексу константного пула уже должен быть определен.</P>
+</FONT>
+<FONT FACE="Courier,Courier New"><P>checkcast</FONT><FONT FACE="Times New Roman"> затем определяет, может ли objectref приводиться к ссылке на объект класса <I>класса</I>(класс объекта класса). Пустая (null) <I>ссылка</FONT><B> </B></I><FONT FACE="Times New Roman">может приводиться к любому</FONT><B></B><FONT FACE="Times New Roman">классу, и
+иначе суперклассы типа</FONT> </B>objectref<FONT FACE="Times New Roman"> ищут</FONT><B> </B><FONT FACE="Times New Roman">класс. Если класс определен, чтобы быть суперклассом типа</FONT><B> </B>objectref<FONT FACE="Times New Roman">, или если </FONT>objectref<FONT FACE="Times New Roman"> является пустой(</FONT><FONT FACE="Courier,Courier New">null</FONT>),<B> </B><FONT FACE="Times New Roman">он может приводиться к </FONT>objectref<FONT FACE="Times New Roman">, которая не может приводиться к классу, то генерируется</P>
+</FONT><FONT FACE="Courier,Courier New"><P>ClassCastException.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: здесь (и вероятно в других местах) мы принимаем, что приведения не изменяют</P>
+<P>ссылок; это - зависимая(не объективная) реализация.</P>
+</FONT>
+<P>&nbsp;</P>
+<B><FONT SIZE=4><P>instanceof_quick</P>
+</B></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=118>
+<TR><TD VALIGN="TOP">
+<P>instanceof_quick</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Проверяет принадлежность объекта данному типу</P>
+</FONT>
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>objectref должна быть ссылкой на объект.</FONT><FONT FACE="Courier,Courier New"> indexbyte1</FONT><FONT FACE="Times New Roman"> и</FONT><B> </B>indexbyte2<FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего <I>класса</I>. Объект, соответветствующий этому индексу константного пула уже должен быть определен.</P>
+</FONT>
+<FONT FACE="Courier,Courier New"><P>instanseof</FONT><FONT FACE="Times New Roman"> определяет, может ли </FONT><I>objectref</I><FONT FACE="Times New Roman"> приводиться к объекту </FONT><FONT FACE="Times New Roman" COLOR="Black">класса <I>класса</I></FONT><FONT COLOR="Black">(</FONT><I><FONT FACE="Times New Roman" COLOR="Black">класс</I> объекта класса).</FONT><FONT FACE="Times New Roman"> Пустая (</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">) ссылка может приводиться к любому классу, и иначе </FONT><FONT FACE="Times New Roman" COLOR="Black">суперклассы типа</FONT><B><FONT COLOR="Black"> </B>objectref</FONT><FONT FACE="Times New Roman" COLOR="Black"> ищут <I>класс</I></FONT><FONT COLOR="Black">.</FONT><FONT FACE="Times New Roman"> Если <I>класс</FONT><B> </B></I><FONT FACE="Times New Roman">определен, чтобы быть суперклассом <I>типа</FONT><B> </B>objectref</I><FONT FACE="Times New Roman">, то result принимает значение 1(</FONT><FONT FACE="Courier,Courier New">true</FONT><FONT FACE="Times New Roman">). Иначе result принимает значение (</FONT><FONT FACE="Courier,Courier New">false</FONT><FONT FACE="Times New Roman">). Если программа обработки является пустой(</FONT><FONT FACE="Courier,Courier New">null</FONT><FONT FACE="Times New Roman">), то result принимает значени 0 (</FONT><FONT FACE="Courier,Courier New">false</FONT>). </P></BODY>
+</BODY>
+</HTML>
+

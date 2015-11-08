@@ -1,0 +1,191 @@
+<html lang="en">
+<head>
+<title>File System Conventions - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Shell.html#Portable-Shell" title="Portable Shell">
+<link rel="prev" href="Signal-Handling.html#Signal-Handling" title="Signal Handling">
+<link rel="next" href="Shell-Pattern-Matching.html#Shell-Pattern-Matching" title="Shell Pattern Matching">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="File-System-Conventions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Shell-Pattern-Matching.html#Shell-Pattern-Matching">Shell Pattern Matching</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Signal-Handling.html#Signal-Handling">Signal Handling</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Shell.html#Portable-Shell">Portable Shell</a>
+<hr>
+</div>
+
+<h3 class="section">11.6 File System Conventions</h3>
+
+<p><a name="index-File-system-conventions-1702"></a>
+Autoconf uses shell-script processing extensively, so the file names
+that it processes should not contain characters that are special to the
+shell.  Special characters include space, tab, newline, NUL, and
+the following:
+
+<pre class="example">     " # $ &amp; ' ( ) * ; &lt; = &gt; ? [ \ ` |
+</pre>
+   <p>Also, file names should not begin with &lsquo;<samp><span class="samp">~</span></samp>&rsquo; or &lsquo;<samp><span class="samp">-</span></samp>&rsquo;, and should
+contain neither &lsquo;<samp><span class="samp">-</span></samp>&rsquo; immediately after &lsquo;<samp><span class="samp">/</span></samp>&rsquo; nor &lsquo;<samp><span class="samp">~</span></samp>&rsquo;
+immediately after &lsquo;<samp><span class="samp">:</span></samp>&rsquo;.  On Posix-like platforms, directory names
+should not contain &lsquo;<samp><span class="samp">:</span></samp>&rsquo;, as this runs afoul of &lsquo;<samp><span class="samp">:</span></samp>&rsquo; used as the
+path separator.
+
+   <p>These restrictions apply not only to the files that you distribute, but
+also to the absolute file names of your source, build, and destination
+directories.
+
+   <p>On some Posix-like platforms, &lsquo;<samp><span class="samp">!</span></samp>&rsquo; and &lsquo;<samp><span class="samp">^</span></samp>&rsquo; are special too, so
+they should be avoided.
+
+   <p>Posix lets implementations treat leading <samp><span class="file">//</span></samp> specially, but
+requires leading <samp><span class="file">///</span></samp> and beyond to be equivalent to <samp><span class="file">/</span></samp>. 
+Most Unix variants treat <samp><span class="file">//</span></samp> like <samp><span class="file">/</span></samp>.  However, some treat
+<samp><span class="file">//</span></samp> as a &ldquo;super-root&rdquo; that can provide access to files that are
+not otherwise reachable from <samp><span class="file">/</span></samp>.  The super-root tradition began
+with Apollo Domain/OS, which died out long ago, but unfortunately Cygwin
+has revived it.
+
+   <p>While <samp><span class="command">autoconf</span></samp> and friends are usually run on some Posix
+variety, they can be used on other systems, most notably DOS
+variants.  This impacts several assumptions regarding file names.
+
+<p class="noindent">For example, the following code:
+
+<pre class="example">     case $foo_dir in
+       /*) # Absolute
+          ;;
+       *)
+          foo_dir=$dots$foo_dir ;;
+     esac
+</pre>
+   <p class="noindent">fails to properly detect absolute file names on those systems, because
+they can use a drivespec, and usually use a backslash as directory
+separator.  If you want to be portable to DOS variants (at the
+price of rejecting valid but oddball Posix file names like <samp><span class="file">a:\b</span></samp>),
+you can check for absolute file names like this:
+
+   <p><a name="index-absolute-file-names_002c-detect-1703"></a>
+<pre class="example">     case $foo_dir in
+       [\\/]* | ?:[\\/]* ) # Absolute
+          ;;
+       *)
+          foo_dir=$dots$foo_dir ;;
+     esac
+</pre>
+   <p class="noindent">Make sure you quote the brackets if appropriate and keep the backslash as
+first character (see <a href="case.html#case">Limitations of Shell Builtins</a>).
+
+   <p>Also, because the colon is used as part of a drivespec, these systems don't
+use it as path separator.  When creating or accessing paths, you can use the
+<code>PATH_SEPARATOR</code> output variable instead.  <samp><span class="command">configure</span></samp> sets this
+to the appropriate value for the build system (&lsquo;<samp><span class="samp">:</span></samp>&rsquo; or &lsquo;<samp><span class="samp">;</span></samp>&rsquo;) when it
+starts up.
+
+   <p>File names need extra care as well.  While DOS variants
+that are Posixy enough to run <samp><span class="command">autoconf</span></samp> (such as DJGPP)
+are usually able to handle long file names properly, there are still
+limitations that can seriously break packages.  Several of these issues
+can be easily detected by the
+<a href="ftp://ftp.gnu.org/gnu/non-gnu/doschk/doschk-1.1.tar.gz">doschk</a>
+package.
+
+   <p>A short overview follows; problems are marked with SFN/LFN to
+indicate where they apply: SFN means the issues are only relevant to
+plain DOS, not to DOS under Microsoft Windows
+variants, while LFN identifies problems that exist even under
+Microsoft Windows variants.
+
+     <dl>
+<dt>No multiple dots (SFN)<dd>DOS cannot handle multiple dots in file names.  This is an especially
+important thing to remember when building a portable configure script,
+as <samp><span class="command">autoconf</span></samp> uses a .in suffix for template files.
+
+     <p>This is perfectly OK on Posix variants:
+
+     <pre class="example">          AC_CONFIG_HEADERS([config.h])
+          AC_CONFIG_FILES([source.c foo.bar])
+          AC_OUTPUT
+</pre>
+     <p class="noindent">but it causes problems on DOS, as it requires &lsquo;<samp><span class="samp">config.h.in</span></samp>&rsquo;,
+&lsquo;<samp><span class="samp">source.c.in</span></samp>&rsquo; and &lsquo;<samp><span class="samp">foo.bar.in</span></samp>&rsquo;.  To make your package more portable
+to DOS-based environments, you should use this instead:
+
+     <pre class="example">          AC_CONFIG_HEADERS([config.h:config.hin])
+          AC_CONFIG_FILES([source.c:source.cin foo.bar:foobar.in])
+          AC_OUTPUT
+</pre>
+     <br><dt>No leading dot (SFN)<dd>DOS cannot handle file names that start with a dot.  This is usually
+not important for <samp><span class="command">autoconf</span></samp>.
+
+     <br><dt>Case insensitivity (LFN)<dd>DOS is case insensitive, so you cannot, for example, have both a
+file called &lsquo;<samp><span class="samp">INSTALL</span></samp>&rsquo; and a directory called &lsquo;<samp><span class="samp">install</span></samp>&rsquo;.  This
+also affects <samp><span class="command">make</span></samp>; if there's a file called &lsquo;<samp><span class="samp">INSTALL</span></samp>&rsquo; in
+the directory, &lsquo;<samp><span class="samp">make install</span></samp>&rsquo; does nothing (unless the
+&lsquo;<samp><span class="samp">install</span></samp>&rsquo; target is marked as PHONY).
+
+     <br><dt>The 8+3 limit (SFN)<dd>Because the DOS file system only stores the first 8 characters of
+the file name and the first 3 of the extension, those must be unique. 
+That means that <samp><span class="file">foobar-part1.c</span></samp>, <samp><span class="file">foobar-part2.c</span></samp> and
+<samp><span class="file">foobar-prettybird.c</span></samp> all resolve to the same file name
+(<samp><span class="file">FOOBAR-P.C</span></samp>).  The same goes for <samp><span class="file">foo.bar</span></samp> and
+<samp><span class="file">foo.bartender</span></samp>.
+
+     <p>The 8+3 limit is not usually a problem under Microsoft Windows, as it
+uses numeric
+tails in the short version of file names to make them unique.  However, a
+registry setting can turn this behavior off.  While this makes it
+possible to share file trees containing long file names between SFN
+and LFN environments, it also means the above problem applies there
+as well.
+
+     <br><dt>Invalid characters (LFN)<dd>Some characters are invalid in DOS file names, and should therefore
+be avoided.  In a LFN environment, these are &lsquo;<samp><span class="samp">/</span></samp>&rsquo;, &lsquo;<samp><span class="samp">\</span></samp>&rsquo;,
+&lsquo;<samp><span class="samp">?</span></samp>&rsquo;, &lsquo;<samp><span class="samp">*</span></samp>&rsquo;, &lsquo;<samp><span class="samp">:</span></samp>&rsquo;, &lsquo;<samp><span class="samp">&lt;</span></samp>&rsquo;, &lsquo;<samp><span class="samp">&gt;</span></samp>&rsquo;, &lsquo;<samp><span class="samp">|</span></samp>&rsquo; and &lsquo;<samp><span class="samp">"</span></samp>&rsquo;. 
+In a SFN environment, other characters are also invalid.  These
+include &lsquo;<samp><span class="samp">+</span></samp>&rsquo;, &lsquo;<samp><span class="samp">,</span></samp>&rsquo;, &lsquo;<samp><span class="samp">[</span></samp>&rsquo; and &lsquo;<samp><span class="samp">]</span></samp>&rsquo;.
+
+     <br><dt>Invalid names (LFN)<dd>Some DOS file names are reserved, and cause problems if you
+try to use files with those names.  These names include <samp><span class="file">CON</span></samp>,
+<samp><span class="file">AUX</span></samp>, <samp><span class="file">COM1</span></samp>, <samp><span class="file">COM2</span></samp>, <samp><span class="file">COM3</span></samp>, <samp><span class="file">COM4</span></samp>,
+<samp><span class="file">LPT1</span></samp>, <samp><span class="file">LPT2</span></samp>, <samp><span class="file">LPT3</span></samp>, <samp><span class="file">NUL</span></samp>, and <samp><span class="file">PRN</span></samp>. 
+File names are case insensitive, so even names like
+<samp><span class="file">aux/config.guess</span></samp> are disallowed.
+
+   </dl>
+
+   </body></html>
+

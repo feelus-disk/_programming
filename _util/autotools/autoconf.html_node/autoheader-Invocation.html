@@ -1,0 +1,137 @@
+<html lang="en">
+<head>
+<title>autoheader Invocation - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Configuration-Headers.html#Configuration-Headers" title="Configuration Headers">
+<link rel="prev" href="Header-Templates.html#Header-Templates" title="Header Templates">
+<link rel="next" href="Autoheader-Macros.html#Autoheader-Macros" title="Autoheader Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="autoheader-Invocation"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Autoheader-Macros.html#Autoheader-Macros">Autoheader Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Header-Templates.html#Header-Templates">Header Templates</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Configuration-Headers.html#Configuration-Headers">Configuration Headers</a>
+<hr>
+</div>
+
+<h4 class="subsection">4.9.2 Using <samp><span class="command">autoheader</span></samp> to Create <samp><span class="file">config.h.in</span></samp></h4>
+
+<p><a name="index-g_t_0040command_007bautoheader_007d-211"></a>
+The <samp><span class="command">autoheader</span></samp> program can create a template file of C
+&lsquo;<samp><span class="samp">#define</span></samp>&rsquo; statements for <samp><span class="command">configure</span></samp> to use. 
+It searches for the first invocation of <code>AC_CONFIG_HEADERS</code> in
+<samp><span class="file">configure</span></samp> sources to determine the name of the template. 
+(If the first call of <code>AC_CONFIG_HEADERS</code> specifies more than one
+input file name, <samp><span class="command">autoheader</span></samp> uses the first one.)
+
+   <p>It is recommended that only one input file is used.  If you want to append
+a boilerplate code, it is preferable to use
+&lsquo;<samp><span class="samp">AH_BOTTOM([#include &lt;conf_post.h&gt;])</span></samp>&rsquo;. 
+File <samp><span class="file">conf_post.h</span></samp> is not processed during the configuration then,
+which make things clearer.  Analogically, <code>AH_TOP</code> can be used to
+prepend a boilerplate code.
+
+   <p>In order to do its job, <samp><span class="command">autoheader</span></samp> needs you to document all
+of the symbols that you might use.  Typically this is done via an
+<code>AC_DEFINE</code> or <code>AC_DEFINE_UNQUOTED</code> call whose first argument
+is a literal symbol and whose third argument describes the symbol
+(see <a href="Defining-Symbols.html#Defining-Symbols">Defining Symbols</a>).  Alternatively, you can use
+<code>AH_TEMPLATE</code> (see <a href="Autoheader-Macros.html#Autoheader-Macros">Autoheader Macros</a>), or you can supply a
+suitable input file for a subsequent configuration header file. 
+Symbols defined by Autoconf's builtin tests are already documented properly;
+you need to document only those that you
+define yourself.
+
+   <p>You might wonder why <samp><span class="command">autoheader</span></samp> is needed: after all, why
+would <samp><span class="command">configure</span></samp> need to &ldquo;patch&rdquo; a <samp><span class="file">config.h.in</span></samp> to
+produce a <samp><span class="file">config.h</span></samp> instead of just creating <samp><span class="file">config.h</span></samp> from
+scratch?  Well, when everything rocks, the answer is just that we are
+wasting our time maintaining <samp><span class="command">autoheader</span></samp>: generating
+<samp><span class="file">config.h</span></samp> directly is all that is needed.  When things go wrong,
+however, you'll be thankful for the existence of <samp><span class="command">autoheader</span></samp>.
+
+   <p>The fact that the symbols are documented is important in order to
+<em>check</em> that <samp><span class="file">config.h</span></samp> makes sense.  The fact that there is a
+well-defined list of symbols that should be defined (or not) is
+also important for people who are porting packages to environments where
+<samp><span class="command">configure</span></samp> cannot be run: they just have to <em>fill in the
+blanks</em>.
+
+   <p>But let's come back to the point: the invocation of <samp><span class="command">autoheader</span></samp><small class="dots">...</small>
+
+   <p>If you give <samp><span class="command">autoheader</span></samp> an argument, it uses that file instead
+of <samp><span class="file">configure.ac</span></samp> and writes the header file to the standard output
+instead of to <samp><span class="file">config.h.in</span></samp>.  If you give <samp><span class="command">autoheader</span></samp> an
+argument of <samp><span class="option">-</span></samp>, it reads the standard input instead of
+<samp><span class="file">configure.ac</span></samp> and writes the header file to the standard output.
+
+   <p><samp><span class="command">autoheader</span></samp> accepts the following options:
+
+     <dl>
+<dt><samp><span class="option">--help</span></samp><dt><samp><span class="option">-h</span></samp><dd>Print a summary of the command line options and exit.
+
+     <br><dt><samp><span class="option">--version</span></samp><dt><samp><span class="option">-V</span></samp><dd>Print the version number of Autoconf and exit.
+
+     <br><dt><samp><span class="option">--verbose</span></samp><dt><samp><span class="option">-v</span></samp><dd>Report processing steps.
+
+     <br><dt><samp><span class="option">--debug</span></samp><dt><samp><span class="option">-d</span></samp><dd>Don't remove the temporary files.
+
+     <br><dt><samp><span class="option">--force</span></samp><dt><samp><span class="option">-f</span></samp><dd>Remake the template file even if newer than its input files.
+
+     <br><dt><samp><span class="option">--include=</span><var>dir</var></samp><dt><samp><span class="option">-I </span><var>dir</var></samp><dd>Append <var>dir</var> to the include path.  Multiple invocations accumulate.
+
+     <br><dt><samp><span class="option">--prepend-include=</span><var>dir</var></samp><dt><samp><span class="option">-B </span><var>dir</var></samp><dd>Prepend <var>dir</var> to the include path.  Multiple invocations accumulate.
+
+     <br><dt><samp><span class="option">--warnings=</span><var>category</var></samp><dt><samp><span class="option">-W </span><var>category</var></samp><dd><a name="index-WARNINGS-212"></a>Report the warnings related to <var>category</var> (which can actually be a
+comma separated list).  Current categories include:
+
+          <dl>
+<dt>&lsquo;<samp><span class="samp">obsolete</span></samp>&rsquo;<dd>report the uses of obsolete constructs
+
+          <br><dt>&lsquo;<samp><span class="samp">all</span></samp>&rsquo;<dd>report all the warnings
+
+          <br><dt>&lsquo;<samp><span class="samp">none</span></samp>&rsquo;<dd>report none
+
+          <br><dt>&lsquo;<samp><span class="samp">error</span></samp>&rsquo;<dd>treats warnings as errors
+
+          <br><dt>&lsquo;<samp><span class="samp">no-</span><var>category</var></samp>&rsquo;<dd>disable warnings falling into <var>category</var>
+</dl>
+
+   </dl>
+
+   </body></html>
+

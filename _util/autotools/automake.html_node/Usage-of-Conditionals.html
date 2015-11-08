@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Usage of Conditionals</title>
+
+<meta name="description" content="automake: Usage of Conditionals">
+<meta name="keywords" content="automake: Usage of Conditionals">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Conditionals.html#Conditionals" rel="up" title="Conditionals">
+<link href="Limits-of-Conditionals.html#Limits-of-Conditionals" rel="next" title="Limits of Conditionals">
+<link href="Conditionals.html#Conditionals" rel="prev" title="Conditionals">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Usage-of-Conditionals"></a>
+<div class="header">
+<p>
+Next: <a href="Limits-of-Conditionals.html#Limits-of-Conditionals" accesskey="n" rel="next">Limits of Conditionals</a>, Up: <a href="Conditionals.html#Conditionals" accesskey="u" rel="up">Conditionals</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Usage-of-Conditionals-1"></a>
+<h3 class="section">20.1 Usage of Conditionals</h3>
+
+<a name="index-AM_005fCONDITIONAL"></a>
+<p>Before using a conditional, you must define it by using
+<code>AM_CONDITIONAL</code> in the <samp>configure.ac</samp> file (see <a href="Macros.html#Macros">Macros</a>).
+</p>
+<dl>
+<dt><a name="index-AM_005fCONDITIONAL-2"></a>Macro: <strong>AM_CONDITIONAL</strong> <em>(<var>conditional</var>, <var>condition</var>)</em></dt>
+<dd><p>The conditional name, <var>conditional</var>, should be a simple string
+starting with a letter and containing only letters, digits, and
+underscores.  It must be different from &lsquo;<samp>TRUE</samp>&rsquo; and &lsquo;<samp>FALSE</samp>&rsquo;
+that are reserved by Automake.
+</p>
+<p>The shell <var>condition</var> (suitable for use in a shell <code>if</code>
+statement) is evaluated when <code>configure</code> is run.  Note that you
+must arrange for <em>every</em> <code>AM_CONDITIONAL</code> to be invoked every
+time <code>configure</code> is run.  If <code>AM_CONDITIONAL</code> is run
+conditionally (e.g., in a shell <code>if</code> statement), then the result
+will confuse <code>automake</code>.
+</p></dd></dl>
+
+<a name="index-_002d_002denable_002ddebug_002c-example"></a>
+<a name="index-Example-conditional-_002d_002denable_002ddebug"></a>
+<a name="index-Conditional-example_002c-_002d_002denable_002ddebug"></a>
+
+<p>Conditionals typically depend upon options that the user provides to
+the <code>configure</code> script.  Here is an example of how to write a
+conditional that is true if the user uses the <samp>--enable-debug</samp>
+option.
+</p>
+<div class="example">
+<pre class="example">AC_ARG_ENABLE([debug],
+[  --enable-debug    Turn on debugging],
+[case &quot;${enableval}&quot; in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[debug=false])
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+</pre></div>
+
+<p>Here is an example of how to use that conditional in <samp>Makefile.am</samp>:
+</p>
+<a name="index-if"></a>
+<a name="index-endif"></a>
+<a name="index-else"></a>
+
+<div class="example">
+<pre class="example">if DEBUG
+DBG = debug
+else
+DBG =
+endif
+noinst_PROGRAMS = $(DBG)
+</pre></div>
+
+<p>This trivial example could also be handled using <code>EXTRA_PROGRAMS</code>
+(see <a href="Conditional-Programs.html#Conditional-Programs">Conditional Programs</a>).
+</p>
+<p>You may only test a single variable in an <code>if</code> statement, possibly
+negated using &lsquo;<samp>!</samp>&rsquo;.  The <code>else</code> statement may be omitted.
+Conditionals may be nested to any depth.  You may specify an argument to
+<code>else</code> in which case it must be the negation of the condition used
+for the current <code>if</code>.  Similarly you may specify the condition
+that is closed on the <code>endif</code> line:
+</p>
+<div class="example">
+<pre class="example">if DEBUG
+DBG = debug
+else !DEBUG
+DBG =
+endif !DEBUG
+</pre></div>
+
+<p>Unbalanced conditions are errors.  The <code>if</code>, <code>else</code>, and
+<code>endif</code> statements should not be indented, i.e., start on column
+one.
+</p>
+<p>The <code>else</code> branch of the above two examples could be omitted,
+since assigning the empty string to an otherwise undefined variable
+makes no difference.
+</p>
+<a name="index-AM_005fCOND_005fIF"></a>
+<p>In order to allow access to the condition registered by
+<code>AM_CONDITIONAL</code> inside <samp>configure.ac</samp>, and to allow
+conditional <code>AC_CONFIG_FILES</code>, <code>AM_COND_IF</code> may be used:
+</p>
+<dl>
+<dt><a name="index-AM_005fCOND_005fIF-2"></a>Macro: <strong>AM_COND_IF</strong> <em>(<var>conditional</var>, <span class="roman">[</span><var>if-true</var><span class="roman">]</span>, <span class="roman">[</span><var>if-false</var><span class="roman">]</span>)</em></dt>
+<dd><p>If <var>conditional</var> is fulfilled, execute <var>if-true</var>, otherwise
+execute <var>if-false</var>.  If either branch contains <code>AC_CONFIG_FILES</code>,
+it will cause <code>automake</code> to output the rules for the respective
+files only for the given condition.
+</p></dd></dl>
+
+<p><code>AM_COND_IF</code> macros may be nested when m4 quotation is used
+properly (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/M4-Quotation.html#M4-Quotation">M4 Quotation</a> in <cite>The Autoconf Manual</cite>).
+</p>
+<a name="index-Example-conditional-AC_005fCONFIG_005fFILES"></a>
+<a name="index-AC_005fCONFIG_005fFILES_002c-conditional"></a>
+
+<p>Here is an example of how to define a conditional config file:
+</p>
+<div class="example">
+<pre class="example">AM_CONDITIONAL([SHELL_WRAPPER], [test &quot;x$with_wrapper&quot; = xtrue])
+AM_COND_IF([SHELL_WRAPPER],
+           [AC_CONFIG_FILES([wrapper:wrapper.in])])
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Limits-of-Conditionals.html#Limits-of-Conditionals" accesskey="n" rel="next">Limits of Conditionals</a>, Up: <a href="Conditionals.html#Conditionals" accesskey="u" rel="up">Conditionals</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

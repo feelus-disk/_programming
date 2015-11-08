@@ -1,0 +1,88 @@
+<html lang="en">
+<head>
+<title>Suggested Ordering - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Dependencies-Between-Macros.html#Dependencies-Between-Macros" title="Dependencies Between Macros">
+<link rel="prev" href="Prerequisite-Macros.html#Prerequisite-Macros" title="Prerequisite Macros">
+<link rel="next" href="One_002dShot-Macros.html#One_002dShot-Macros" title="One-Shot Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Suggested-Ordering"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="One_002dShot-Macros.html#One_002dShot-Macros">One-Shot Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Prerequisite-Macros.html#Prerequisite-Macros">Prerequisite Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Dependencies-Between-Macros.html#Dependencies-Between-Macros">Dependencies Between Macros</a>
+<hr>
+</div>
+
+<h4 class="subsection">10.4.2 Suggested Ordering</h4>
+
+<p><a name="index-Macros_002c-ordering-1662"></a><a name="index-Ordering-macros-1663"></a>
+Some macros should be run before another macro if both are called, but
+neither <em>requires</em> that the other be called.  For example, a macro
+that changes the behavior of the C compiler should be called before any
+macros that run the C compiler.  Many of these dependencies are noted in
+the documentation.
+
+   <p>Autoconf provides the <code>AC_BEFORE</code> macro to warn users when macros
+with this kind of dependency appear out of order in a
+<samp><span class="file">configure.ac</span></samp> file.  The warning occurs when creating
+<samp><span class="command">configure</span></samp> from <samp><span class="file">configure.ac</span></samp>, not when running
+<samp><span class="command">configure</span></samp>.
+
+   <p>For example, <code>AC_PROG_CPP</code> checks whether the C compiler
+can run the C preprocessor when given the <samp><span class="option">-E</span></samp> option.  It should
+therefore be called after any macros that change which C compiler is
+being used, such as <code>AC_PROG_CC</code>.  So <code>AC_PROG_CC</code> contains:
+
+<pre class="example">     AC_BEFORE([$0], [AC_PROG_CPP])dnl
+</pre>
+   <p class="noindent">This warns the user if a call to <code>AC_PROG_CPP</code> has already occurred
+when <code>AC_PROG_CC</code> is called.
+
+<div class="defun">
+&mdash; Macro: <b>AC_BEFORE</b> (<var>this-macro-name, called-macro-name</var>)<var><a name="index-AC_005fBEFORE-1664"></a></var><br>
+<blockquote><p><a name="index-AC_005fBEFORE-1665"></a>
+Make M4 print a warning message to the standard error output if
+<var>called-macro-name</var> has already been called.  <var>this-macro-name</var>
+should be the name of the macro that is calling <code>AC_BEFORE</code>.  The
+macro <var>called-macro-name</var> must have been defined using
+<code>AC_DEFUN</code> or else contain a call to <code>AC_PROVIDE</code> to indicate
+that it has been called. 
+</p></blockquote></div>
+
+   </body></html>
+

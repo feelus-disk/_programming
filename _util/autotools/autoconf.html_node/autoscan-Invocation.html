@@ -1,0 +1,104 @@
+<html lang="en">
+<head>
+<title>autoscan Invocation - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Making-configure-Scripts.html#Making-configure-Scripts" title="Making configure Scripts">
+<link rel="prev" href="Writing-Autoconf-Input.html#Writing-Autoconf-Input" title="Writing Autoconf Input">
+<link rel="next" href="ifnames-Invocation.html#ifnames-Invocation" title="ifnames Invocation">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="autoscan-Invocation"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="ifnames-Invocation.html#ifnames-Invocation">ifnames Invocation</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Writing-Autoconf-Input.html#Writing-Autoconf-Input">Writing Autoconf Input</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Making-configure-Scripts.html#Making-configure-Scripts">Making configure Scripts</a>
+<hr>
+</div>
+
+<h3 class="section">3.2 Using <samp><span class="command">autoscan</span></samp> to Create <samp><span class="file">configure.ac</span></samp></h3>
+
+<p><a name="index-g_t_0040command_007bautoscan_007d-11"></a>
+The <samp><span class="command">autoscan</span></samp> program can help you create and/or maintain a
+<samp><span class="file">configure.ac</span></samp> file for a software package.  <samp><span class="command">autoscan</span></samp>
+examines source files in the directory tree rooted at a directory given
+as a command line argument, or the current directory if none is given. 
+It searches the source files for common portability problems and creates
+a file <samp><span class="file">configure.scan</span></samp> which is a preliminary <samp><span class="file">configure.ac</span></samp>
+for that package, and checks a possibly existing <samp><span class="file">configure.ac</span></samp> for
+completeness.
+
+   <p>When using <samp><span class="command">autoscan</span></samp> to create a <samp><span class="file">configure.ac</span></samp>, you
+should manually examine <samp><span class="file">configure.scan</span></samp> before renaming it to
+<samp><span class="file">configure.ac</span></samp>; it probably needs some adjustments. 
+Occasionally, <samp><span class="command">autoscan</span></samp> outputs a macro in the wrong order
+relative to another macro, so that <samp><span class="command">autoconf</span></samp> produces a warning;
+you need to move such macros manually.  Also, if you want the package to
+use a configuration header file, you must add a call to
+<code>AC_CONFIG_HEADERS</code> (see <a href="Configuration-Headers.html#Configuration-Headers">Configuration Headers</a>).  You might
+also have to change or add some <code>#if</code> directives to your program in
+order to make it work with Autoconf (see <a href="ifnames-Invocation.html#ifnames-Invocation">ifnames Invocation</a>, for
+information about a program that can help with that job).
+
+   <p>When using <samp><span class="command">autoscan</span></samp> to maintain a <samp><span class="file">configure.ac</span></samp>, simply
+consider adding its suggestions.  The file <samp><span class="file">autoscan.log</span></samp>
+contains detailed information on why a macro is requested.
+
+   <p><samp><span class="command">autoscan</span></samp> uses several data files (installed along with Autoconf)
+to determine which macros to output when it finds particular symbols in
+a package's source files.  These data files all have the same format:
+each line consists of a symbol, one or more blanks, and the Autoconf macro to
+output if that symbol is encountered.  Lines starting with &lsquo;<samp><span class="samp">#</span></samp>&rsquo; are
+comments.
+
+   <p><samp><span class="command">autoscan</span></samp> accepts the following options:
+
+     <dl>
+<dt><samp><span class="option">--help</span></samp><dt><samp><span class="option">-h</span></samp><dd>Print a summary of the command line options and exit.
+
+     <br><dt><samp><span class="option">--version</span></samp><dt><samp><span class="option">-V</span></samp><dd>Print the version number of Autoconf and exit.
+
+     <br><dt><samp><span class="option">--verbose</span></samp><dt><samp><span class="option">-v</span></samp><dd>Print the names of the files it examines and the potentially interesting
+symbols it finds in them.  This output can be voluminous.
+
+     <br><dt><samp><span class="option">--debug</span></samp><dt><samp><span class="option">-d</span></samp><dd>Don't remove temporary files.
+
+     <br><dt><samp><span class="option">--include=</span><var>dir</var></samp><dt><samp><span class="option">-I </span><var>dir</var></samp><dd>Append <var>dir</var> to the include path.  Multiple invocations accumulate.
+
+     <br><dt><samp><span class="option">--prepend-include=</span><var>dir</var></samp><dt><samp><span class="option">-B </span><var>dir</var></samp><dd>Prepend <var>dir</var> to the include path.  Multiple invocations accumulate. 
+</dl>
+
+   </body></html>
+

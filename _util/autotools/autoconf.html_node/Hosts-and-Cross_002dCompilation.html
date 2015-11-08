@@ -1,0 +1,160 @@
+<html lang="en">
+<head>
+<title>Hosts and Cross-Compilation - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Autoconf-2_002e13.html#Autoconf-2_002e13" title="Autoconf 2.13">
+<link rel="prev" href="New-Macros.html#New-Macros" title="New Macros">
+<link rel="next" href="AC_005fLIBOBJ-vs-LIBOBJS.html#AC_005fLIBOBJ-vs-LIBOBJS" title="AC_LIBOBJ vs LIBOBJS">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Hosts-and-Cross-Compilation"></a>
+<a name="Hosts-and-Cross_002dCompilation"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="AC_005fLIBOBJ-vs-LIBOBJS.html#AC_005fLIBOBJ-vs-LIBOBJS">AC_LIBOBJ vs LIBOBJS</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="New-Macros.html#New-Macros">New Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Autoconf-2_002e13.html#Autoconf-2_002e13">Autoconf 2.13</a>
+<hr>
+</div>
+
+<h4 class="subsection">18.6.3 Hosts and Cross-Compilation</h4>
+
+<p><a name="index-Cross-compilation-2253"></a>
+Based on the experience of compiler writers, and after long public
+debates, many aspects of the cross-compilation chain have changed:
+
+     <ul>
+<li>the relationship between the build, host, and target architecture types,
+
+     <li>the command line interface for specifying them to <samp><span class="command">configure</span></samp>,
+
+     <li>the variables defined in <samp><span class="command">configure</span></samp>,
+
+     <li>the enabling of cross-compilation mode. 
+</ul>
+
+   <pre class="sp">
+
+</pre>
+
+The relationship between build, host, and target have been cleaned up:
+the chain of default is now simply: target defaults to host, host to
+build, and build to the result of <samp><span class="command">config.guess</span></samp>.  Nevertheless,
+in order to ease the transition from 2.13 to 2.50, the following
+transition scheme is implemented.  <em>Do not rely on it</em>, as it will
+be completely disabled in a couple of releases (we cannot keep it, as it
+proves to cause more problems than it cures).
+
+   <p>They all default to the result of running <samp><span class="command">config.guess</span></samp>, unless
+you specify either <samp><span class="option">--build</span></samp> or <samp><span class="option">--host</span></samp>.  In this case,
+the default becomes the system type you specified.  If you specify both,
+and they're different, <samp><span class="command">configure</span></samp> enters cross compilation
+mode, so it doesn't run any tests that require execution.
+
+   <p>Hint: if you mean to override the result of <samp><span class="command">config.guess</span></samp>,
+prefer <samp><span class="option">--build</span></samp> over <samp><span class="option">--host</span></samp>.
+
+   <pre class="sp">
+
+</pre>
+
+For backward compatibility, <samp><span class="command">configure</span></samp> accepts a system
+type as an option by itself.  Such an option overrides the
+defaults for build, host, and target system types.  The following
+configure statement configures a cross toolchain that runs on
+NetBSD/alpha but generates code for GNU Hurd/sparc,
+which is also the build platform.
+
+<pre class="example">     ./configure --host=alpha-netbsd sparc-gnu
+</pre>
+   <pre class="sp">
+
+</pre>
+
+In Autoconf 2.13 and before, the variables <code>build</code>, <code>host</code>,
+and <code>target</code> had a different semantics before and after the
+invocation of <code>AC_CANONICAL_BUILD</code> etc.  Now, the argument of
+<samp><span class="option">--build</span></samp> is strictly copied into <code>build_alias</code>, and is left
+empty otherwise.  After the <code>AC_CANONICAL_BUILD</code>, <code>build</code> is
+set to the canonicalized build type.  To ease the transition, before,
+its contents is the same as that of <code>build_alias</code>.  Do <em>not</em>
+rely on this broken feature.
+
+   <p>For consistency with the backward compatibility scheme exposed above,
+when <samp><span class="option">--host</span></samp> is specified but <samp><span class="option">--build</span></samp> isn't, the build
+system is assumed to be the same as <samp><span class="option">--host</span></samp>, and
+&lsquo;<samp><span class="samp">build_alias</span></samp>&rsquo; is set to that value.  Eventually, this
+historically incorrect behavior will go away.
+
+   <pre class="sp">
+
+</pre>
+
+The former scheme to enable cross-compilation proved to cause more harm
+than good, in particular, it used to be triggered too easily, leaving
+regular end users puzzled in front of cryptic error messages. 
+<samp><span class="command">configure</span></samp> could even enter cross-compilation mode only
+because the compiler was not functional.  This is mainly because
+<samp><span class="command">configure</span></samp> used to try to detect cross-compilation, instead of
+waiting for an explicit flag from the user.
+
+   <p>Now, <samp><span class="command">configure</span></samp> enters cross-compilation mode if and only if
+<samp><span class="option">--host</span></samp> is passed.
+
+   <p>That's the short documentation.  To ease the transition between 2.13 and
+its successors, a more complicated scheme is implemented.  <em>Do not
+rely on the following</em>, as it will be removed in the near future.
+
+   <p>If you specify <samp><span class="option">--host</span></samp>, but not <samp><span class="option">--build</span></samp>, when
+<samp><span class="command">configure</span></samp> performs the first compiler test it tries to run
+an executable produced by the compiler.  If the execution fails, it
+enters cross-compilation mode.  This is fragile.  Moreover, by the time
+the compiler test is performed, it may be too late to modify the
+build-system type: other tests may have already been performed. 
+Therefore, whenever you specify <samp><span class="option">--host</span></samp>, be sure to specify
+<samp><span class="option">--build</span></samp> too.
+
+<pre class="example">     ./configure --build=i686-pc-linux-gnu --host=m68k-coff
+</pre>
+   <p class="noindent">enters cross-compilation mode.  The former interface, which
+consisted in setting the compiler to a cross-compiler without informing
+<samp><span class="command">configure</span></samp> is obsolete.  For instance, <samp><span class="command">configure</span></samp>
+fails if it can't run the code generated by the specified compiler if you
+configure as follows:
+
+<pre class="example">     ./configure CC=m68k-coff-gcc
+</pre>
+   </body></html>
+

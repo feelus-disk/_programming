@@ -1,0 +1,105 @@
+<html lang="en">
+<head>
+<title>Changequote is Evil - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="M4-Quotation.html#M4-Quotation" title="M4 Quotation">
+<link rel="prev" href="Quotation-and-Nested-Macros.html#Quotation-and-Nested-Macros" title="Quotation and Nested Macros">
+<link rel="next" href="Quadrigraphs.html#Quadrigraphs" title="Quadrigraphs">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Changequote-is-Evil"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Quadrigraphs.html#Quadrigraphs">Quadrigraphs</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Quotation-and-Nested-Macros.html#Quotation-and-Nested-Macros">Quotation and Nested Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="M4-Quotation.html#M4-Quotation">M4 Quotation</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.1.5 <code>changequote</code> is Evil</h4>
+
+<p><a name="index-g_t_0040code_007bchangequote_007d-1237"></a>
+The temptation is often high to bypass proper quotation, in particular
+when it's late at night.  Then, many experienced Autoconf hackers
+finally surrender to the dark side of the force and use the ultimate
+weapon: <code>changequote</code>.
+
+   <p>The M4 builtin <code>changequote</code> belongs to a set of primitives that
+allow one to adjust the syntax of the language to adjust it to one's
+needs.  For instance, by default M4 uses &lsquo;<samp><span class="samp">`</span></samp>&rsquo; and &lsquo;<samp><span class="samp">'</span></samp>&rsquo; as
+quotes, but in the context of shell programming (and actually of most
+programming languages), that's about the worst choice one can make:
+because of strings and back-quoted expressions in shell code (such as
+&lsquo;<samp><span class="samp">'this'</span></samp>&rsquo; and &lsquo;<samp><span class="samp">`that`</span></samp>&rsquo;), and because of literal characters in usual
+programming languages (as in &lsquo;<samp><span class="samp">'0'</span></samp>&rsquo;), there are many unbalanced
+&lsquo;<samp><span class="samp">`</span></samp>&rsquo; and &lsquo;<samp><span class="samp">'</span></samp>&rsquo;.  Proper M4 quotation then becomes a nightmare, if
+not impossible.  In order to make M4 useful in such a context, its
+designers have equipped it with <code>changequote</code>, which makes it
+possible to choose another pair of quotes.  M4sugar, M4sh, Autoconf, and
+Autotest all have chosen to use &lsquo;<samp><span class="samp">[</span></samp>&rsquo; and &lsquo;<samp><span class="samp">]</span></samp>&rsquo;.  Not especially
+because they are unlikely characters, but <em>because they are
+characters unlikely to be unbalanced</em>.
+
+   <p>There are other magic primitives, such as <code>changecom</code> to specify
+what syntactic forms are comments (it is common to see
+&lsquo;<samp><span class="samp">changecom(&lt;!--, --&gt;)</span></samp>&rsquo; when M4 is used to produce HTML pages),
+<code>changeword</code> and <code>changesyntax</code> to change other syntactic
+details (such as the character to denote the <var>n</var>th argument, &lsquo;<samp><span class="samp">$</span></samp>&rsquo; by
+default, the parentheses around arguments, etc.).
+
+   <p>These primitives are really meant to make M4 more useful for specific
+domains: they should be considered like command line options:
+<samp><span class="option">--quotes</span></samp>, <samp><span class="option">--comments</span></samp>, <samp><span class="option">--words</span></samp>, and
+<samp><span class="option">--syntax</span></samp>.  Nevertheless, they are implemented as M4 builtins, as
+it makes M4 libraries self contained (no need for additional options).
+
+   <p>There lies the problem<small class="enddots">...</small>
+
+   <pre class="sp">
+
+</pre>
+
+The problem is that it is then tempting to use them in the middle of an
+M4 script, as opposed to its initialization.  This, if not carefully
+thought out, can lead to disastrous effects: <em>you are changing the
+language in the middle of the execution</em>.  Changing and restoring the
+syntax is often not enough: if you happened to invoke macros in between,
+these macros are lost, as the current syntax is probably not
+the one they were implemented with.
+
+<!-- FIXME: I've been looking for a short, real case example, but I -->
+<!-- lost them all :( -->
+   </body></html>
+

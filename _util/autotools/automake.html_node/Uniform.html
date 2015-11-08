@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Uniform</title>
+
+<meta name="description" content="automake: Uniform">
+<meta name="keywords" content="automake: Uniform">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Generalities.html#Generalities" rel="up" title="Generalities">
+<link href="Length-Limitations.html#Length-Limitations" rel="next" title="Length Limitations">
+<link href="Strictness.html#Strictness" rel="prev" title="Strictness">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Uniform"></a>
+<div class="header">
+<p>
+Next: <a href="Length-Limitations.html#Length-Limitations" accesskey="n" rel="next">Length Limitations</a>, Previous: <a href="Strictness.html#Strictness" accesskey="p" rel="prev">Strictness</a>, Up: <a href="Generalities.html#Generalities" accesskey="u" rel="up">Generalities</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="The-Uniform-Naming-Scheme"></a>
+<h3 class="section">3.3 The Uniform Naming Scheme</h3>
+
+<a name="index-Uniform-naming-scheme"></a>
+
+<p>Automake variables generally follow a <em>uniform naming scheme</em> that
+makes it easy to decide how programs (and other derived objects) are
+built, and how they are installed.  This scheme also supports
+<code>configure</code> time determination of what should be built.
+</p>
+<a name="index-_005fPROGRAMS-primary-variable"></a>
+<a name="index-PROGRAMS-primary-variable"></a>
+<a name="index-Primary-variable_002c-PROGRAMS"></a>
+<a name="index-Primary-variable_002c-defined"></a>
+<a name="index-_005fPROGRAMS"></a>
+
+<p>At <code>make</code> time, certain variables are used to determine which
+objects are to be built.  The variable names are made of several pieces
+that are concatenated together.
+</p>
+<p>The piece that tells <code>automake</code> what is being built is commonly called
+the <em>primary</em>.  For instance, the primary <code>PROGRAMS</code> holds a
+list of programs that are to be compiled and linked.
+<a name="index-PROGRAMS"></a>
+</p>
+<a name="index-pkgdatadir_002c-defined"></a>
+<a name="index-pkgincludedir_002c-defined"></a>
+<a name="index-pkglibdir_002c-defined"></a>
+<a name="index-pkglibexecdir_002c-defined"></a>
+
+<a name="index-pkgdatadir"></a>
+<a name="index-pkgincludedir"></a>
+<a name="index-pkglibdir"></a>
+<a name="index-pkglibexecdir"></a>
+
+<a name="index-PACKAGE_002c-directory"></a>
+<p>A different set of names is used to decide where the built objects
+should be installed.  These names are prefixes to the primary, and they
+indicate which standard directory should be used as the installation
+directory.  The standard directory names are given in the GNU standards
+(see <a href="http://www.gnu.org/prep/standards/html_node/Directory-Variables.html#Directory-Variables">Directory Variables</a> in <cite>The GNU Coding Standards</cite>).
+Automake extends this list with <code>pkgdatadir</code>, <code>pkgincludedir</code>,
+<code>pkglibdir</code>, and <code>pkglibexecdir</code>; these are the same as the
+non-&lsquo;<samp>pkg</samp>&rsquo; versions, but with &lsquo;<samp>$(PACKAGE)</samp>&rsquo; appended.  For instance,
+<code>pkglibdir</code> is defined as &lsquo;<samp>$(libdir)/$(PACKAGE)</samp>&rsquo;.
+</p>
+<a name="index-EXTRA_005f_002c-prepending"></a>
+<p>For each primary, there is one additional variable named by prepending
+&lsquo;<samp>EXTRA_</samp>&rsquo; to the primary name.  This variable is used to list
+objects that may or may not be built, depending on what
+<code>configure</code> decides.  This variable is required because Automake
+must statically know the entire list of objects that may be built in
+order to generate a <samp>Makefile.in</samp> that will work in all cases.
+</p>
+<a name="index-EXTRA_005fPROGRAMS_002c-defined"></a>
+<a name="index-Example_002c-EXTRA_005fPROGRAMS"></a>
+<a name="index-cpio-example"></a>
+
+<p>For instance, <code>cpio</code> decides at configure time which programs
+should be built.  Some of the programs are installed in <code>bindir</code>,
+and some are installed in <code>sbindir</code>:
+</p>
+<div class="example">
+<pre class="example">EXTRA_PROGRAMS = mt rmt
+bin_PROGRAMS = cpio pax
+sbin_PROGRAMS = $(MORE_PROGRAMS)
+</pre></div>
+
+<p>Defining a primary without a prefix as a variable, e.g.,
+&lsquo;<samp>PROGRAMS</samp>&rsquo;, is an error.
+</p>
+<p>Note that the common &lsquo;<samp>dir</samp>&rsquo; suffix is left off when constructing the
+variable names; thus one writes &lsquo;<samp>bin_PROGRAMS</samp>&rsquo; and not
+&lsquo;<samp>bindir_PROGRAMS</samp>&rsquo;.
+</p>
+<p>Not every sort of object can be installed in every directory.  Automake
+will flag those attempts it finds in error (but see below how to override
+the check if you really need to).
+Automake will also diagnose obvious misspellings in directory names.
+</p>
+<a name="index-Extending-list-of-installation-directories"></a>
+<a name="index-Installation-directories_002c-extending-list"></a>
+
+<p>Sometimes the standard directories&mdash;even as augmented by
+Automake&mdash;are not enough.  In particular it is sometimes useful, for
+clarity, to install objects in a subdirectory of some predefined
+directory.  To this end, Automake allows you to extend the list of
+possible installation directories.  A given prefix (e.g., &lsquo;<samp>zar</samp>&rsquo;)
+is valid if a variable of the same name with &lsquo;<samp>dir</samp>&rsquo; appended is
+defined (e.g., &lsquo;<samp>zardir</samp>&rsquo;).
+</p>
+<p>For instance, the following snippet will install <samp>file.xml</samp> into
+&lsquo;<samp>$(datadir)/xml</samp>&rsquo;.
+</p>
+<div class="example">
+<pre class="example">xmldir = $(datadir)/xml
+xml_DATA = file.xml
+</pre></div>
+
+<p>This feature can also be used to override the sanity checks Automake
+performs to diagnose suspicious directory/primary couples (in the
+unlikely case these checks are undesirable, and you really know what
+you&rsquo;re doing).  For example, Automake would error out on this input:
+</p>
+<div class="example">
+<pre class="example"># Forbidden directory combinations, automake will error out on this.
+pkglib_PROGRAMS = foo
+doc_LIBRARIES = libquux.a
+</pre></div>
+
+<p>but it will succeed with this:
+</p>
+<div class="example">
+<pre class="example"># Work around forbidden directory combinations.  Do not use this
+# without a very good reason!
+my_execbindir = $(pkglibdir)
+my_doclibdir = $(docdir)
+my_execbin_PROGRAMS = foo
+my_doclib_LIBRARIES = libquux.a
+</pre></div>
+
+<p>The &lsquo;<samp>exec</samp>&rsquo; substring of the &lsquo;<samp>my_execbindir</samp>&rsquo; variable lets
+the files be installed at the right time (see <a href="The-Two-Parts-of-Install.html#The-Two-Parts-of-Install">The Two Parts of Install</a>).
+</p>
+<a name="index-noinst_005f-primary-prefix_002c-definition"></a>
+<a name="index-noinst_005f"></a>
+
+<p>The special prefix &lsquo;<samp>noinst_</samp>&rsquo; indicates that the objects in question
+should be built but not installed at all.  This is usually used for
+objects required to build the rest of your package, for instance static
+libraries (see <a href="A-Library.html#A-Library">A Library</a>), or helper scripts.
+</p>
+<a name="index-check_005f-primary-prefix_002c-definition"></a>
+<a name="index-check_005f"></a>
+
+<p>The special prefix &lsquo;<samp>check_</samp>&rsquo; indicates that the objects in question
+should not be built until the &lsquo;<samp>make check</samp>&rsquo; command is run.  Those
+objects are not installed either.
+</p>
+<p>The current primary names are &lsquo;<samp>PROGRAMS</samp>&rsquo;, &lsquo;<samp>LIBRARIES</samp>&rsquo;,
+&lsquo;<samp>LTLIBRARIES</samp>&rsquo;, &lsquo;<samp>LISP</samp>&rsquo;, &lsquo;<samp>PYTHON</samp>&rsquo;, &lsquo;<samp>JAVA</samp>&rsquo;,
+&lsquo;<samp>SCRIPTS</samp>&rsquo;, &lsquo;<samp>DATA</samp>&rsquo;, &lsquo;<samp>HEADERS</samp>&rsquo;, &lsquo;<samp>MANS</samp>&rsquo;, and
+&lsquo;<samp>TEXINFOS</samp>&rsquo;.
+<a name="index-PROGRAMS-1"></a>
+<a name="index-LIBRARIES"></a>
+<a name="index-LTLIBRARIES"></a>
+<a name="index-LISP"></a>
+<a name="index-PYTHON"></a>
+<a name="index-JAVA"></a>
+<a name="index-SCRIPTS"></a>
+<a name="index-DATA"></a>
+<a name="index-HEADERS"></a>
+<a name="index-MANS"></a>
+<a name="index-TEXINFOS"></a>
+</p>
+<p>Some primaries also allow additional prefixes that control other
+aspects of <code>automake</code>&rsquo;s behavior.  The currently defined prefixes
+are &lsquo;<samp>dist_</samp>&rsquo;, &lsquo;<samp>nodist_</samp>&rsquo;, &lsquo;<samp>nobase_</samp>&rsquo;, and &lsquo;<samp>notrans_</samp>&rsquo;.
+These prefixes are explained later (see <a href="Program-and-Library-Variables.html#Program-and-Library-Variables">Program and Library Variables</a>)
+(see <a href="Man-Pages.html#Man-Pages">Man Pages</a>).
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Length-Limitations.html#Length-Limitations" accesskey="n" rel="next">Length Limitations</a>, Previous: <a href="Strictness.html#Strictness" accesskey="p" rel="prev">Strictness</a>, Up: <a href="Generalities.html#Generalities" accesskey="u" rel="up">Generalities</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

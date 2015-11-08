@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: aclocal Invocation</title>
+
+<meta name="description" content="automake: aclocal Invocation">
+<meta name="keywords" content="automake: aclocal Invocation">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="configure.html#configure" rel="up" title="configure">
+<link href="aclocal-Options.html#aclocal-Options" rel="next" title="aclocal Options">
+<link href="Optional.html#Optional" rel="prev" title="Optional">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="aclocal-Invocation"></a>
+<div class="header">
+<p>
+Next: <a href="Macros.html#Macros" accesskey="n" rel="next">Macros</a>, Previous: <a href="Optional.html#Optional" accesskey="p" rel="prev">Optional</a>, Up: <a href="configure.html#configure" accesskey="u" rel="up">configure</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Auto_002dgenerating-aclocal_002em4"></a>
+<h3 class="section">6.3 Auto-generating aclocal.m4</h3>
+<a name="Invoking-aclocal"></a>
+<a name="index-Invocation-of-aclocal"></a>
+<a name="index-aclocal_002c-Invocation"></a>
+<a name="index-Invoking-aclocal"></a>
+<a name="index-aclocal_002c-Invoking"></a>
+
+<p>Automake includes a number of Autoconf macros that can be used in
+your package (see <a href="Macros.html#Macros">Macros</a>); some of them are actually required by
+Automake in certain situations.  These macros must be defined in your
+<samp>aclocal.m4</samp>; otherwise they will not be seen by
+<code>autoconf</code>.
+</p>
+<p>The <code>aclocal</code> program will automatically generate
+<samp>aclocal.m4</samp> files based on the contents of <samp>configure.ac</samp>.
+This provides a convenient way to get Automake-provided macros,
+without having to search around.  The <code>aclocal</code> mechanism
+allows other packages to supply their own macros (see <a href="Extending-aclocal.html#Extending-aclocal">Extending aclocal</a>).  You can also use it to maintain your own set of custom
+macros (see <a href="Local-Macros.html#Local-Macros">Local Macros</a>).
+</p>
+<p>At startup, <code>aclocal</code> scans all the <samp>.m4</samp> files it can
+find, looking for macro definitions (see <a href="Macro-Search-Path.html#Macro-Search-Path">Macro Search Path</a>).  Then
+it scans <samp>configure.ac</samp>.  Any mention of one of the macros found
+in the first step causes that macro, and any macros it in turn
+requires, to be put into <samp>aclocal.m4</samp>.
+</p>
+<p><em>Putting</em> the file that contains the macro definition into
+<samp>aclocal.m4</samp> is usually done by copying the entire text of this
+file, including unused macro definitions as well as both &lsquo;<samp>#</samp>&rsquo; and
+&lsquo;<samp>dnl</samp>&rsquo; comments.  If you want to make a comment that will be
+completely ignored by <code>aclocal</code>, use &lsquo;<samp>##</samp>&rsquo; as the comment
+leader.
+</p>
+<p>When a file selected by <code>aclocal</code> is located in a subdirectory
+specified as a relative search path with <code>aclocal</code>&rsquo;s <samp>-I</samp>
+argument, <code>aclocal</code> assumes the file belongs to the package
+and uses <code>m4_include</code> instead of copying it into
+<samp>aclocal.m4</samp>.  This makes the package smaller, eases dependency
+tracking, and cause the file to be distributed automatically.
+(See <a href="Local-Macros.html#Local-Macros">Local Macros</a>, for an example.)  Any macro that is found in a
+system-wide directory, or via an absolute search path will be copied.
+So use &lsquo;<samp>-I `pwd`/reldir</samp>&rsquo; instead of &lsquo;<samp>-I reldir</samp>&rsquo; whenever
+some relative directory should be considered outside the package.
+</p>
+<p>The contents of <samp>acinclude.m4</samp>, if this file exists, are also
+automatically included in <samp>aclocal.m4</samp>.  We recommend against
+using <samp>acinclude.m4</samp> in new packages (see <a href="Local-Macros.html#Local-Macros">Local Macros</a>).
+</p>
+<a name="index-AUTOM4TE"></a>
+<a name="index-autom4te"></a>
+<p>While computing <samp>aclocal.m4</samp>, <code>aclocal</code> runs
+<code>autom4te</code> (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Using-autom4te.html#Using-autom4te">Using <code>Autom4te</code></a> in <cite>The Autoconf Manual</cite>) in order to trace the macros that are
+really used, and omit from <samp>aclocal.m4</samp> all macros that are
+mentioned but otherwise unexpanded (this can happen when a macro is
+called conditionally).  <code>autom4te</code> is expected to be in the
+<code>PATH</code>, just as <code>autoconf</code>.  Its location can be
+overridden using the <code>AUTOM4TE</code> environment variable.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="aclocal-Options.html#aclocal-Options" accesskey="1">aclocal Options</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Options supported by aclocal
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Macro-Search-Path.html#Macro-Search-Path" accesskey="2">Macro Search Path</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">How aclocal finds .m4 files
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Extending-aclocal.html#Extending-aclocal" accesskey="3">Extending aclocal</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Writing your own aclocal macros
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Local-Macros.html#Local-Macros" accesskey="4">Local Macros</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Organizing local macros
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Serials.html#Serials" accesskey="5">Serials</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Serial lines in Autoconf macros
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Future-of-aclocal.html#Future-of-aclocal" accesskey="6">Future of aclocal</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">aclocal&rsquo;s scheduled death
+</td></tr>
+</table>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Macros.html#Macros" accesskey="n" rel="next">Macros</a>, Previous: <a href="Optional.html#Optional" accesskey="p" rel="prev">Optional</a>, Up: <a href="configure.html#configure" accesskey="u" rel="up">configure</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

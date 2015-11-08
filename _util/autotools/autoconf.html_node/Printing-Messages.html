@@ -1,0 +1,155 @@
+<html lang="en">
+<head>
+<title>Printing Messages - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Results.html#Results" title="Results">
+<link rel="prev" href="Caching-Results.html#Caching-Results" title="Caching Results">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Printing-Messages"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Caching-Results.html#Caching-Results">Caching Results</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Results.html#Results">Results</a>
+<hr>
+</div>
+
+<h3 class="section">7.5 Printing Messages</h3>
+
+<p><a name="index-Messages_002c-from-_0040command_007bconfigure_007d-1221"></a>
+<samp><span class="command">configure</span></samp> scripts need to give users running them several kinds
+of information.  The following macros print messages in ways appropriate
+for each kind.  The arguments to all of them get enclosed in shell
+double quotes, so the shell performs variable and back-quote
+substitution on them.
+
+   <p>These macros are all wrappers around the <samp><span class="command">echo</span></samp> shell command. 
+They direct output to the appropriate file descriptor (see <a href="File-Descriptor-Macros.html#File-Descriptor-Macros">File Descriptor Macros</a>). 
+<samp><span class="command">configure</span></samp> scripts should rarely need to run <samp><span class="command">echo</span></samp> directly
+to print messages for the user.  Using these macros makes it easy to
+change how and when each kind of message is printed; such changes need
+only be made to the macro definitions and all the callers change
+automatically.
+
+   <p>To diagnose static issues, i.e., when <samp><span class="command">autoconf</span></samp> is run, see
+<a href="Diagnostic-Macros.html#Diagnostic-Macros">Diagnostic Macros</a>.
+
+<div class="defun">
+&mdash; Macro: <b>AC_MSG_CHECKING</b> (<var>feature-description</var>)<var><a name="index-AC_005fMSG_005fCHECKING-1222"></a></var><br>
+<blockquote><p><a name="index-AC_005fMSG_005fCHECKING-1223"></a>
+Notify the user that <samp><span class="command">configure</span></samp> is checking for a particular
+feature.  This macro prints a message that starts with &lsquo;<samp><span class="samp">checking </span></samp>&rsquo;
+and ends with &lsquo;<samp><span class="samp">...</span></samp>&rsquo; and no newline.  It must be followed by a call
+to <code>AC_MSG_RESULT</code> to print the result of the check and the
+newline.  The <var>feature-description</var> should be something like
+&lsquo;<samp><span class="samp">whether the Fortran compiler accepts C++ comments</span></samp>&rsquo; or &lsquo;<samp><span class="samp">for
+c89</span></samp>&rsquo;.
+
+        <p>This macro prints nothing if <samp><span class="command">configure</span></samp> is run with the
+<samp><span class="option">--quiet</span></samp> or <samp><span class="option">--silent</span></samp> option. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fMSG_005fRESULT"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_MSG_RESULT</b> (<var>result-description</var>)<var><a name="index-AC_005fMSG_005fRESULT-1224"></a></var><br>
+<blockquote><p><a name="index-AC_005fMSG_005fRESULT-1225"></a>
+Notify the user of the results of a check.  <var>result-description</var> is
+almost always the value of the cache variable for the check, typically
+&lsquo;<samp><span class="samp">yes</span></samp>&rsquo;, &lsquo;<samp><span class="samp">no</span></samp>&rsquo;, or a file name.  This macro should follow a call
+to <code>AC_MSG_CHECKING</code>, and the <var>result-description</var> should be
+the completion of the message printed by the call to
+<code>AC_MSG_CHECKING</code>.
+
+        <p>This macro prints nothing if <samp><span class="command">configure</span></samp> is run with the
+<samp><span class="option">--quiet</span></samp> or <samp><span class="option">--silent</span></samp> option. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fMSG_005fNOTICE"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_MSG_NOTICE</b> (<var>message</var>)<var><a name="index-AC_005fMSG_005fNOTICE-1226"></a></var><br>
+<blockquote><p><a name="index-AC_005fMSG_005fNOTICE-1227"></a>
+Deliver the <var>message</var> to the user.  It is useful mainly to print a
+general description of the overall purpose of a group of feature checks,
+e.g.,
+
+     <pre class="example">          AC_MSG_NOTICE([checking if stack overflow is detectable])
+</pre>
+        <p>This macro prints nothing if <samp><span class="command">configure</span></samp> is run with the
+<samp><span class="option">--quiet</span></samp> or <samp><span class="option">--silent</span></samp> option. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fMSG_005fERROR"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_MSG_ERROR</b> (<var>error-description, </var><span class="roman">[</span><var>exit-status = &lsquo;</var><samp><span class="samp">$?/1</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fMSG_005fERROR-1228"></a></var><br>
+<blockquote><p><a name="index-AC_005fMSG_005fERROR-1229"></a>
+Notify the user of an error that prevents <samp><span class="command">configure</span></samp> from
+completing.  This macro prints an error message to the standard error
+output and exits <samp><span class="command">configure</span></samp> with <var>exit-status</var> (&lsquo;<samp><span class="samp">$?</span></samp>&rsquo;
+by default, except that &lsquo;<samp><span class="samp">0</span></samp>&rsquo; is converted to &lsquo;<samp><span class="samp">1</span></samp>&rsquo;). 
+<var>error-description</var> should be something like &lsquo;<samp><span class="samp">invalid value
+$HOME for \$HOME</span></samp>&rsquo;.
+
+        <p>The <var>error-description</var> should start with a lower-case letter, and
+&ldquo;cannot&rdquo; is preferred to &ldquo;can't&rdquo;. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_MSG_FAILURE</b> (<var>error-description, </var><span class="roman">[</span><var>exit-status</var><span class="roman">]</span>)<var><a name="index-AC_005fMSG_005fFAILURE-1230"></a></var><br>
+<blockquote><p><a name="index-AC_005fMSG_005fFAILURE-1231"></a>
+This <code>AC_MSG_ERROR</code> wrapper notifies the user of an error that
+prevents <samp><span class="command">configure</span></samp> from completing <em>and</em> that additional
+details are provided in <samp><span class="file">config.log</span></samp>.  This is typically used when
+abnormal results are found during a compilation. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fMSG_005fWARN"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_MSG_WARN</b> (<var>problem-description</var>)<var><a name="index-AC_005fMSG_005fWARN-1232"></a></var><br>
+<blockquote><p><a name="index-AC_005fMSG_005fWARN-1233"></a>
+Notify the <samp><span class="command">configure</span></samp> user of a possible problem.  This macro
+prints the message to the standard error output; <samp><span class="command">configure</span></samp>
+continues running afterward, so macros that call <code>AC_MSG_WARN</code> should
+provide a default (back-up) behavior for the situations they warn about. 
+<var>problem-description</var> should be something like &lsquo;<samp><span class="samp">ln -s seems to
+make hard links</span></samp>&rsquo;. 
+</p></blockquote></div>
+
+<!-- ====================================================== Programming in M4. -->
+   </body></html>
+

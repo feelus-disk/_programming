@@ -1,0 +1,207 @@
+<html lang="en">
+<head>
+<title>Autoconf Language - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Autoconf-Input.html#Writing-Autoconf-Input" title="Writing Autoconf Input">
+<link rel="prev" href="Shell-Script-Compiler.html#Shell-Script-Compiler" title="Shell Script Compiler">
+<link rel="next" href="Autoconf-Input-Layout.html#Autoconf-Input-Layout" title="Autoconf Input Layout">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Autoconf-Language"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Autoconf-Input-Layout.html#Autoconf-Input-Layout">Autoconf Input Layout</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Shell-Script-Compiler.html#Shell-Script-Compiler">Shell Script Compiler</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Autoconf-Input.html#Writing-Autoconf-Input">Writing Autoconf Input</a>
+<hr>
+</div>
+
+<h4 class="subsection">3.1.2 The Autoconf Language</h4>
+
+<p><a name="index-quotation-10"></a>
+The Autoconf language differs from many other computer
+languages because it treats actual code the same as plain text.  Whereas
+in C, for instance, data and instructions have different syntactic
+status, in Autoconf their status is rigorously the same.  Therefore, we
+need a means to distinguish literal strings from text to be expanded:
+quotation.
+
+   <p>When calling macros that take arguments, there must not be any white
+space between the macro name and the open parenthesis.
+
+<pre class="example">     AC_INIT ([oops], [1.0]) # incorrect
+     AC_INIT([hello], [1.0]) # good
+</pre>
+   <p>Arguments should
+be enclosed within the quote characters &lsquo;<samp><span class="samp">[</span></samp>&rsquo; and &lsquo;<samp><span class="samp">]</span></samp>&rsquo;, and be
+separated by commas.  Any leading blanks or newlines in arguments are ignored,
+unless they are quoted.  You should always quote an argument that
+might contain a macro name, comma, parenthesis, or a leading blank or
+newline.  This rule applies recursively for every macro
+call, including macros called from other macros.  For more details on
+quoting rules, see <a href="Programming-in-M4.html#Programming-in-M4">Programming in M4</a>.
+
+   <p>For instance:
+
+<pre class="example">     AC_CHECK_HEADER([stdio.h],
+                     [AC_DEFINE([HAVE_STDIO_H], [1],
+                        [Define to 1 if you have &lt;stdio.h&gt;.])],
+                     [AC_MSG_ERROR([sorry, can't do anything for you])])
+</pre>
+   <p class="noindent">is quoted properly.  You may safely simplify its quotation to:
+
+<pre class="example">     AC_CHECK_HEADER([stdio.h],
+                     [AC_DEFINE([HAVE_STDIO_H], 1,
+                        [Define to 1 if you have &lt;stdio.h&gt;.])],
+                     [AC_MSG_ERROR([sorry, can't do anything for you])])
+</pre>
+   <p class="noindent">because &lsquo;<samp><span class="samp">1</span></samp>&rsquo; cannot contain a macro call.  Here, the argument of
+<code>AC_MSG_ERROR</code> must be quoted; otherwise, its comma would be
+interpreted as an argument separator.  Also, the second and third arguments
+of &lsquo;<samp><span class="samp">AC_CHECK_HEADER</span></samp>&rsquo; must be quoted, since they contain
+macro calls.  The three arguments &lsquo;<samp><span class="samp">HAVE_STDIO_H</span></samp>&rsquo;, &lsquo;<samp><span class="samp">stdio.h</span></samp>&rsquo;,
+and &lsquo;<samp><span class="samp">Define to 1 if you have &lt;stdio.h&gt;.</span></samp>&rsquo; do not need quoting, but
+if you unwisely defined a macro with a name like &lsquo;<samp><span class="samp">Define</span></samp>&rsquo; or
+&lsquo;<samp><span class="samp">stdio</span></samp>&rsquo; then they would need quoting.  Cautious Autoconf users
+would keep the quotes, but many Autoconf users find such precautions
+annoying, and would rewrite the example as follows:
+
+<pre class="example">     AC_CHECK_HEADER(stdio.h,
+                     [AC_DEFINE(HAVE_STDIO_H, 1,
+                        [Define to 1 if you have &lt;stdio.h&gt;.])],
+                     [AC_MSG_ERROR([sorry, can't do anything for you])])
+</pre>
+   <p class="noindent">This is safe, so long as you adopt good naming conventions and do not
+define macros with names like &lsquo;<samp><span class="samp">HAVE_STDIO_H</span></samp>&rsquo;, &lsquo;<samp><span class="samp">stdio</span></samp>&rsquo;, or
+&lsquo;<samp><span class="samp">h</span></samp>&rsquo;.  Though it is also safe here to omit the quotes around
+&lsquo;<samp><span class="samp">Define to 1 if you have &lt;stdio.h&gt;.</span></samp>&rsquo; this is not recommended, as
+message strings are more likely to inadvertently contain commas.
+
+   <p>The following example is wrong and dangerous, as it is underquoted:
+
+<pre class="example">     AC_CHECK_HEADER(stdio.h,
+                     AC_DEFINE(HAVE_STDIO_H, 1,
+                        Define to 1 if you have &lt;stdio.h&gt;.),
+                     AC_MSG_ERROR([sorry, can't do anything for you]))
+</pre>
+   <p>In other cases, you may have to use text that also resembles a macro
+call.  You must quote that text even when it is not passed as a macro
+argument.  For example, these two approaches in <samp><span class="file">configure.ac</span></samp>
+(quoting just the potential problems, or quoting the entire line) will
+protect your script in case autoconf ever adds a macro <code>AC_DC</code>:
+
+<pre class="example">     echo "Hard rock was here!  --[AC_DC]"
+     [echo "Hard rock was here!  --AC_DC"]
+</pre>
+   <p class="noindent">which results in this text in <samp><span class="file">configure</span></samp>:
+
+<pre class="example">     echo "Hard rock was here!  --AC_DC"
+     echo "Hard rock was here!  --AC_DC"
+</pre>
+   <p class="noindent">When you use the same text in a macro argument, you must therefore have
+an extra quotation level (since one is stripped away by the macro
+substitution).  In general, then, it is a good idea to <em>use double
+quoting for all literal string arguments</em>, either around just the
+problematic portions, or over the entire argument:
+
+<pre class="example">     AC_MSG_WARN([[AC_DC] stinks  --Iron Maiden])
+     AC_MSG_WARN([[AC_DC stinks  --Iron Maiden]])
+</pre>
+   <p>However, the above example triggers a warning about a possibly
+unexpanded macro when running <samp><span class="command">autoconf</span></samp>, because it collides
+with the namespace of macros reserved for the Autoconf language.  To be
+really safe, you can use additional escaping (either a quadrigraph, or
+creative shell constructs) to silence that particular warning:
+
+<pre class="example">     echo "Hard rock was here!  --AC""_DC"
+     AC_MSG_WARN([[AC@&amp;t@_DC stinks  --Iron Maiden]])
+</pre>
+   <p>You are now able to understand one of the constructs of Autoconf that
+has been continually misunderstood<small class="enddots">...</small>  The rule of thumb is that
+<em>whenever you expect macro expansion, expect quote expansion</em>;
+i.e., expect one level of quotes to be lost.  For instance:
+
+<pre class="example">     AC_COMPILE_IFELSE(AC_LANG_SOURCE([char b[10];]), [],
+      [AC_MSG_ERROR([you lose])])
+</pre>
+   <p class="noindent">is incorrect: here, the first argument of <code>AC_LANG_SOURCE</code> is
+&lsquo;<samp><span class="samp">char b[10];</span></samp>&rsquo; and is expanded once, which results in
+&lsquo;<samp><span class="samp">char b10;</span></samp>&rsquo;; and the <code>AC_LANG_SOURCE</code> is also expanded prior
+to being passed to <code>AC_COMPILE_IFELSE</code>.  (There was an idiom common
+in Autoconf's past to
+address this issue via the M4 <code>changequote</code> primitive, but do not
+use it!)  Let's take a closer look: the author meant the first argument
+to be understood as a literal, and therefore it must be quoted twice;
+likewise, the intermediate <code>AC_LANG_SOURCE</code> macro should be quoted
+once so that it is only expanded after the rest of the body of
+<code>AC_COMPILE_IFELSE</code> is in place:
+
+<pre class="example">     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[char b[10];]])], [],
+       [AC_MSG_ERROR([you lose])])
+</pre>
+   <p class="noindent">Voil&agrave;, you actually produce &lsquo;<samp><span class="samp">char b[10];</span></samp>&rsquo; this time!
+
+   <p>On the other hand, descriptions (e.g., the last parameter of
+<code>AC_DEFINE</code> or <code>AS_HELP_STRING</code>) are not literals&mdash;they
+are subject to line breaking, for example&mdash;and should not be double quoted. 
+Even if these descriptions are short and are not actually broken, double
+quoting them yields weird results.
+
+   <p>Some macros take optional arguments, which this documentation represents
+as <span class="roman">[</span><var>arg</var><span class="roman">]</span> (not to be confused with the quote characters).  You may
+just leave them empty, or use &lsquo;<samp><span class="samp">[]</span></samp>&rsquo; to make the emptiness of the
+argument explicit, or you may simply omit the trailing commas.  The
+three lines below are equivalent:
+
+<pre class="example">     AC_CHECK_HEADERS([stdio.h], [], [], [])
+     AC_CHECK_HEADERS([stdio.h],,,)
+     AC_CHECK_HEADERS([stdio.h])
+</pre>
+   <p>It is best to put each macro call on its own line in
+<samp><span class="file">configure.ac</span></samp>.  Most of the macros don't add extra newlines; they
+rely on the newline after the macro call to terminate the commands. 
+This approach makes the generated <samp><span class="command">configure</span></samp> script a little
+easier to read by not inserting lots of blank lines.  It is generally
+safe to set shell variables on the same line as a macro call, because
+the shell allows assignments without intervening newlines.
+
+   <p>You can include comments in <samp><span class="file">configure.ac</span></samp> files by starting them
+with the &lsquo;<samp><span class="samp">#</span></samp>&rsquo;.  For example, it is helpful to begin
+<samp><span class="file">configure.ac</span></samp> files with a line like this:
+
+<pre class="example">     # Process this file with autoconf to produce a configure script.
+</pre>
+   </body></html>
+

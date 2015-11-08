@@ -1,0 +1,435 @@
+<html lang="en">
+<head>
+<title>Writing Testsuites - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Using-Autotest.html#Using-Autotest" title="Using Autotest">
+<link rel="prev" href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite" title="Using an Autotest Test Suite">
+<link rel="next" href="testsuite-Invocation.html#testsuite-Invocation" title="testsuite Invocation">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Writing-Testsuites"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="testsuite-Invocation.html#testsuite-Invocation">testsuite Invocation</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite">Using an Autotest Test Suite</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Using-Autotest.html#Using-Autotest">Using Autotest</a>
+<hr>
+</div>
+
+<h3 class="section">19.2 Writing <samp><span class="file">testsuite.at</span></samp></h3>
+
+<p>The <samp><span class="file">testsuite.at</span></samp> is a Bourne shell script making use of special
+Autotest M4 macros.  It often contains a call to <code>AT_INIT</code> near
+its beginning followed by one call to <code>m4_include</code> per source file
+for tests.  Each such included file, or the remainder of
+<samp><span class="file">testsuite.at</span></samp> if include files are not used, contain a sequence of
+test groups.  Each test group begins with a call to <code>AT_SETUP</code>,
+then an arbitrary number of shell commands or calls to <code>AT_CHECK</code>,
+and then completes with a call to <code>AT_CLEANUP</code>.  Multiple test
+groups can be categorized by a call to <code>AT_BANNER</code>.
+
+   <p>All of the public Autotest macros have all-uppercase names in the
+namespace &lsquo;<samp><span class="samp">^AT_</span></samp>&rsquo; to prevent them from accidentally conflicting with
+other text; Autoconf also reserves the namespace &lsquo;<samp><span class="samp">^_AT_</span></samp>&rsquo; for
+internal macros.  All shell variables used in the testsuite for internal
+purposes have mostly-lowercase names starting with &lsquo;<samp><span class="samp">at_</span></samp>&rsquo;.  Autotest
+also uses here-document delimiters in the namespace &lsquo;<samp><span class="samp">^_AT[A-Z]</span></samp>&rsquo;, and
+makes use of the file system namespace &lsquo;<samp><span class="samp">^at-</span></samp>&rsquo;.
+
+   <p>Since Autoconf is built on top of M4sugar (see <a href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>) and M4sh (see <a href="Programming-in-M4sh.html#Programming-in-M4sh">Programming in M4sh</a>), you must also be aware
+of those namespaces (&lsquo;<samp><span class="samp">^_?\(m4\|AS\)_</span></samp>&rsquo;).  In general, you
+<em>should not use</em> the namespace of a package that does not own the
+macro or shell code you are writing.
+
+<div class="defun">
+&mdash; Macro: <b>AT_INIT</b> (<span class="roman">[</span><var>name</var><span class="roman">]</span>)<var><a name="index-AT_005fINIT-2260"></a></var><br>
+<blockquote><p><a name="index-AT_005fINIT-2261"></a>
+<!-- FIXME: Not clear, plus duplication of the information. -->
+Initialize Autotest.  Giving a <var>name</var> to the test suite is
+encouraged if your package includes several test suites.  Before this
+macro is called, <code>AT_PACKAGE_STRING</code> and
+<code>AT_PACKAGE_BUGREPORT</code> must be defined, which are used to display
+information about the testsuite to the user.  Typically, these macros
+are provided by a file <samp><span class="file">package.m4</span></samp> built by <samp><span class="command">make</span></samp>
+(see <a href="Making-testsuite-Scripts.html#Making-testsuite-Scripts">Making testsuite Scripts</a>), in order to inherit the package
+name, version, and bug reporting address from <samp><span class="file">configure.ac</span></samp>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_COPYRIGHT</b> (<var>copyright-notice</var>)<var><a name="index-AT_005fCOPYRIGHT-2262"></a></var><br>
+<blockquote><p><a name="index-AT_005fCOPYRIGHT-2263"></a>
+<a name="index-Copyright-Notice-2264"></a>State that, in addition to the Free Software Foundation's copyright on
+the Autotest macros, parts of your test suite are covered by
+<var>copyright-notice</var>.
+
+        <p>The <var>copyright-notice</var> shows up in both the head of
+<samp><span class="command">testsuite</span></samp> and in &lsquo;<samp><span class="samp">testsuite --version</span></samp>&rsquo;. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_ARG_OPTION</b> (<var>options, help-text, </var><span class="roman">[</span><var>action-if-given</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-given</var><span class="roman">]</span>)<var><a name="index-AT_005fARG_005fOPTION-2265"></a></var><br>
+<blockquote><p><a name="index-AT_005fARG_005fOPTION-2266"></a>
+<a name="index-at_005farg_005f_0040var_007boption_007d-2267"></a>Accept options from the space-separated list <var>options</var>, a list that
+has leading dashes removed from the options.  Long options will be
+prefixed with &lsquo;<samp><span class="samp">--</span></samp>&rsquo;, single-character options with &lsquo;<samp><span class="samp">-</span></samp>&rsquo;.  The
+first word in this list is the primary <var>option</var>, any others are
+assumed to be short-hand aliases.  The variable associated with it
+is <code>at_arg_</code><var>option</var>, with any dashes in <var>option</var> replaced
+with underscores.
+
+        <p>If the user passes <samp><span class="option">--</span><var>option</var></samp> to the <samp><span class="command">testsuite</span></samp>,
+the variable will be set to &lsquo;<samp><span class="samp">:</span></samp>&rsquo;.  If the user does not pass the
+option, or passes <samp><span class="option">--no-</span><var>option</var></samp>, then the variable will be
+set to &lsquo;<samp><span class="samp">false</span></samp>&rsquo;.
+
+        <p><a name="index-at_005foptarg-2268"></a><a name="index-at_005foptarg_005f_0040var_007boption_007d-2269"></a><var>action-if-given</var> is run each time the option is encountered; here,
+the variable <code>at_optarg</code> will be set to &lsquo;<samp><span class="samp">:</span></samp>&rsquo; or &lsquo;<samp><span class="samp">false</span></samp>&rsquo; as
+appropriate.  <code>at_optarg</code> is actually just a copy of
+<code>at_arg_</code><var>option</var>.
+
+        <p><var>action-if-not-given</var> will be run once after option parsing is
+complete and if no option from <var>options</var> was used.
+
+        <p><var>help-text</var> is added to the end of the list of options shown in
+<samp><span class="command">testsuite --help</span></samp> (see <a href="AS_005fHELP_005fSTRING.html#AS_005fHELP_005fSTRING">AS_HELP_STRING</a>).
+
+        <p>It is recommended that you use a package-specific prefix to <var>options</var>
+names in order to avoid clashes with future Autotest built-in options. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_ARG_OPTION_ARG</b> (<var>options, help-text, </var><span class="roman">[</span><var>action-if-given</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-given</var><span class="roman">]</span>)<var><a name="index-AT_005fARG_005fOPTION_005fARG-2270"></a></var><br>
+<blockquote><p><a name="index-AT_005fARG_005fOPTION_005fARG-2271"></a>
+<a name="index-at_005farg_005f_0040var_007boption_007d-2272"></a>Accept options with arguments from the space-separated list
+<var>options</var>, a list that has leading dashes removed from the options. 
+Long options will be prefixed with &lsquo;<samp><span class="samp">--</span></samp>&rsquo;, single-character options
+with &lsquo;<samp><span class="samp">-</span></samp>&rsquo;.  The first word in this list is the primary <var>option</var>,
+any others are assumed to be short-hand aliases.  The variable associated
+with it is <code>at_arg_</code><var>option</var>, with any dashes in <var>option</var>
+replaced with underscores.
+
+        <p>If the user passes <samp><span class="option">--</span><var>option</var><span class="option">=</span><var>arg</var></samp> or
+<samp><span class="option">--</span><var>option</var> <var>arg</var></samp> to the <samp><span class="command">testsuite</span></samp>, the
+variable will be set to &lsquo;<samp><var>arg</var></samp>&rsquo;.
+
+        <p><a name="index-at_005foptarg-2273"></a><var>action-if-given</var> is run each time the option is encountered; here,
+the variable <code>at_optarg</code> will be set to &lsquo;<samp><var>arg</var></samp>&rsquo;. 
+<code>at_optarg</code> is actually just a copy of <code>at_arg_</code><var>option</var>.
+
+        <p><var>action-if-not-given</var> will be run once after option parsing is
+complete and if no option from <var>options</var> was used.
+
+        <p><var>help-text</var> is added to the end of the list of options shown in
+<samp><span class="command">testsuite --help</span></samp> (see <a href="AS_005fHELP_005fSTRING.html#AS_005fHELP_005fSTRING">AS_HELP_STRING</a>).
+
+        <p>It is recommended that you use a package-specific prefix to <var>options</var>
+names in order to avoid clashes with future Autotest built-in options. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_COLOR_TESTS</b><var><a name="index-AT_005fCOLOR_005fTESTS-2274"></a></var><br>
+<blockquote><p><a name="index-AT_005fCOLOR_005fTESTS-2275"></a>
+Enable colored test results by default when the output is connected to
+a terminal. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_TESTED</b> (<var>executables</var>)<var><a name="index-AT_005fTESTED-2276"></a></var><br>
+<blockquote><p><a name="index-AT_005fTESTED-2277"></a>
+Log the file name and answer to <samp><span class="option">--version</span></samp> of each program in
+space-separated list <var>executables</var>.  Several invocations register
+new executables, in other words, don't fear registering one program
+several times.
+
+        <p>Autotest test suites rely on <samp><span class="env">PATH</span></samp> to find the tested program. 
+This avoids the need to generate absolute names of the various tools, and
+makes it possible to test installed programs.  Therefore, knowing which
+programs are being exercised is crucial to understanding problems in
+the test suite itself, or its occasional misuses.  It is a good idea to
+also subscribe foreign programs you depend upon, to avoid incompatible
+diagnostics. 
+</p></blockquote></div>
+
+   <pre class="sp">
+
+</pre>
+
+<div class="defun">
+&mdash; Macro: <b>AT_BANNER</b> (<var>test-category-name</var>)<var><a name="index-AT_005fBANNER-2278"></a></var><br>
+<blockquote><p><a name="index-AT_005fBANNER-2279"></a>
+This macro identifies the start of a category of related test groups. 
+When the resulting <samp><span class="file">testsuite</span></samp> is invoked with more than one test
+group to run, its output will include a banner containing
+<var>test-category-name</var> prior to any tests run from that category.  The
+banner should be no more than about 40 or 50 characters.  A blank banner
+indicates uncategorized tests; an empty line will be inserted after
+tests from an earlier category, effectively ending that category. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_SETUP</b> (<var>test-group-name</var>)<var><a name="index-AT_005fSETUP-2280"></a></var><br>
+<blockquote><p><a name="index-AT_005fSETUP-2281"></a>
+This macro starts a group of related tests, all to be executed in the
+same subshell.  It accepts a single argument, which holds a few words
+(no more than about 30 or 40 characters) quickly describing the purpose
+of the test group being started.  <var>test-group-name</var> must not expand
+to unbalanced quotes, although quadrigraphs can be used. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_KEYWORDS</b> (<var>keywords</var>)<var><a name="index-AT_005fKEYWORDS-2282"></a></var><br>
+<blockquote><p><a name="index-AT_005fKEYWORDS-2283"></a>
+Associate the space-separated list of <var>keywords</var> to the enclosing
+test group.  This makes it possible to run &ldquo;slices&rdquo; of the test suite. 
+For instance, if some of your test groups exercise some &lsquo;<samp><span class="samp">foo</span></samp>&rsquo;
+feature, then using &lsquo;<samp><span class="samp">AT_KEYWORDS(foo)</span></samp>&rsquo; lets you run
+&lsquo;<samp><span class="samp">./testsuite -k foo</span></samp>&rsquo; to run exclusively these test groups.  The
+<var>test-group-name</var> of the test group is automatically recorded to
+<code>AT_KEYWORDS</code>.
+
+        <p>Several invocations within a test group accumulate new keywords.  In
+other words, don't fear registering the same keyword several times in a
+test group. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_CAPTURE_FILE</b> (<var>file</var>)<var><a name="index-AT_005fCAPTURE_005fFILE-2284"></a></var><br>
+<blockquote><p><a name="index-AT_005fCAPTURE_005fFILE-2285"></a>
+If the current test group fails, log the contents of <var>file</var>. 
+Several identical calls within one test group have no additional effect. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_FAIL_IF</b> (<var>shell-condition</var>)<var><a name="index-AT_005fFAIL_005fIF-2286"></a></var><br>
+<blockquote><p><a name="index-AT_005fFAIL_005fIF-2287"></a>
+Make the test group fail and skip the rest of its execution, if
+<var>shell-condition</var> is true.  <var>shell-condition</var> is a shell expression
+such as a <code>test</code> command.  Tests before <samp><span class="command">AT_FAIL_IF</span></samp>
+will be executed and may still cause the test group to be skipped. 
+You can instantiate this macro many times from within the same test group.
+
+        <p>You should use this macro only for very simple failure conditions.  If the
+<var>shell-condition</var> could emit any kind of output you should instead
+use <samp><span class="command">AT_CHECK</span></samp> like
+     <pre class="example">          AT_CHECK([if <var>shell-condition</var>; then exit 99; fi])
+</pre>
+        <p class="noindent">so that such output is properly recorded in the <samp><span class="file">testsuite.log</span></samp>
+file. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_SKIP_IF</b> (<var>shell-condition</var>)<var><a name="index-AT_005fSKIP_005fIF-2288"></a></var><br>
+<blockquote><p><a name="index-AT_005fSKIP_005fIF-2289"></a>
+Determine whether the test should be skipped because it requires
+features that are unsupported on the machine under test. 
+<var>shell-condition</var> is a shell expression such as a <code>test</code>
+command.  Tests before <samp><span class="command">AT_SKIP_IF</span></samp> will be executed
+and may still cause the test group to fail.  You can instantiate this
+macro many times from within the same test group.
+
+        <p>You should use this macro only for very simple skip conditions.  If the
+<var>shell-condition</var> could emit any kind of output you should instead
+use <samp><span class="command">AT_CHECK</span></samp> like
+     <pre class="example">          AT_CHECK([if <var>shell-condition</var>; then exit 77; fi])
+</pre>
+        <p class="noindent">so that such output is properly recorded in the <samp><span class="file">testsuite.log</span></samp>
+file. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_XFAIL_IF</b> (<var>shell-condition</var>)<var><a name="index-AT_005fXFAIL_005fIF-2290"></a></var><br>
+<blockquote><p><a name="index-AT_005fXFAIL_005fIF-2291"></a>
+Determine whether the test is expected to fail because it is a known
+bug (for unsupported features, you should skip the test). 
+<var>shell-condition</var> is a shell expression such as a <code>test</code>
+command; you can instantiate this macro many times from within the
+same test group, and one of the conditions is enough to turn
+the test into an expected failure. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_CLEANUP</b><var><a name="index-AT_005fCLEANUP-2292"></a></var><br>
+<blockquote><p><a name="index-AT_005fCLEANUP-2293"></a>
+End the current test group. 
+</p></blockquote></div>
+
+   <pre class="sp">
+
+</pre>
+
+<div class="defun">
+&mdash; Macro: <b>AT_DATA</b> (<var>file, contents</var>)<var><a name="index-AT_005fDATA-2294"></a></var><br>
+<blockquote><p><a name="index-AT_005fDATA-2295"></a>
+Initialize an input data <var>file</var> with given <var>contents</var>.  Of
+course, the <var>contents</var> have to be properly quoted between square
+brackets to protect against included commas or spurious M4
+expansion.  <var>contents</var> must be empty or end with a newline. 
+<var>file</var> must
+be a single shell word that expands into a single file name. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_CHECK</b> (<var>commands, </var><span class="roman">[</span><var>status = &lsquo;</var><samp><span class="samp">0</span></samp><var>&rsquo;</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>stdout</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>stderr</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>run-if-fail</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>run-if-pass</var><span class="roman">]</span>)<var><a name="index-AT_005fCHECK-2296"></a></var><br>
+&mdash; Macro: <b>AT_CHECK_UNQUOTED</b> (<var>commands, </var><span class="roman">[</span><var>status = &lsquo;</var><samp><span class="samp">0</span></samp><var>&rsquo;</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>stdout</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>stderr</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>run-if-fail</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>run-if-pass</var><span class="roman">]</span>)<var><a name="index-AT_005fCHECK_005fUNQUOTED-2297"></a></var><br>
+<blockquote><p><a name="index-AT_005fCHECK-2298"></a>
+<a name="index-AT_005fCHECK_005fUNQUOTED-2299"></a>
+<a name="index-at_005fstatus-2300"></a>Execute a test by performing given shell <var>commands</var> in a subshell. 
+<var>commands</var> is output as-is, so shell expansions are honored.  These
+commands should normally exit with <var>status</var>, while producing expected
+<var>stdout</var> and <var>stderr</var> contents.  If <var>commands</var> exit with
+unexpected status 77, then the rest of the test group is skipped.  If
+<var>commands</var> exit with unexpected status 99, then the test group is
+immediately failed.  Otherwise, if this test fails, run shell commands
+<var>run-if-fail</var> or, if this test passes, run shell commands
+<var>run-if-pass</var>, both inside the current shell execution environment. 
+At the beginning of <var>run-if-fail</var> and <var>run-if-pass</var>, the status of
+<var>commands</var> is available in the <code>at_status</code> shell variable.
+
+        <p>This macro must be invoked in between <code>AT_SETUP</code> and <code>AT_CLEANUP</code>.
+
+        <p>If <var>status</var> is the literal &lsquo;<samp><span class="samp">ignore</span></samp>&rsquo;, then the corresponding
+exit status is not checked, except for the special cases of 77 (skip)
+and 99 (hard failure).  The existence of hard failures allows one to
+mark a test as an expected failure with <code>AT_XFAIL_IF</code> because a
+feature has not yet been implemented, but to still distinguish between
+gracefully handling the missing feature and dumping core.  A hard
+failure also inhibits post-test actions in <var>run-if-fail</var>.
+
+        <p>If the value of the <var>stdout</var> or <var>stderr</var> parameter is one of the
+literals in the following table, then the test treats the output
+according to the rules of that literal.  Otherwise, the value of the
+parameter is treated as text that must exactly match the output given by
+<var>commands</var> on standard output and standard error (including an empty
+parameter for no output); any differences are captured in the testsuite
+log and the test is failed (unless an unexpected exit status of 77
+skipped the test instead).  The difference between <code>AT_CHECK</code> and
+<code>AT_CHECK_UNQUOTED</code> is that only the latter performs shell variable
+expansion (&lsquo;<samp><span class="samp">$</span></samp>&rsquo;), command substitution (&lsquo;<samp><span class="samp">`</span></samp>&rsquo;), and backslash
+escaping (&lsquo;<samp><span class="samp">\</span></samp>&rsquo;) on comparison text given in the <var>stdout</var> and
+<var>stderr</var> arguments; if the text includes a trailing newline, this
+would be the same as if it were specified via an unquoted
+here-document.  (However, there is no difference in the interpretation
+of <var>commands</var>).
+
+          <dl>
+<dt>&lsquo;<samp><span class="samp">ignore</span></samp>&rsquo;<dd>The content of the output is ignored, but still captured in the test
+group log (if the testsuite is run with option <samp><span class="option">-v</span></samp>, the test
+group log is displayed as the test is run; if the test group later
+fails, the test group log is also copied into the overall testsuite
+log).  This action is valid for both <var>stdout</var> and <var>stderr</var>.
+
+          <br><dt>&lsquo;<samp><span class="samp">ignore-nolog</span></samp>&rsquo;<dd>The content of the output is ignored, and nothing is captured in the log
+files.  If <var>commands</var> are likely to produce binary output (including
+long lines) or large amounts of output, then logging the output can make
+it harder to locate details related to subsequent tests within the
+group, and could potentially corrupt terminal display of a user running
+<samp><span class="command">testsuite -v</span></samp>.
+
+          <br><dt>&lsquo;<samp><span class="samp">stdout</span></samp>&rsquo;<dd>For the <var>stdout</var> parameter, capture the content of standard output
+to both the file <samp><span class="file">stdout</span></samp> and the test group log.  Subsequent
+commands in the test group can then post-process the file.  This action
+is often used when it is desired to use <samp><span class="command">grep</span></samp> to look for a
+substring in the output, or when the output must be post-processed to
+normalize error messages into a common form.
+
+          <br><dt>&lsquo;<samp><span class="samp">stderr</span></samp>&rsquo;<dd>Like &lsquo;<samp><span class="samp">stdout</span></samp>&rsquo;, except that it only works for the <var>stderr</var>
+parameter, and the standard error capture file will be named
+<samp><span class="file">stderr</span></samp>.
+
+          <br><dt>&lsquo;<samp><span class="samp">stdout-nolog</span></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">stderr-nolog</span></samp>&rsquo;<dd>Like &lsquo;<samp><span class="samp">stdout</span></samp>&rsquo; or &lsquo;<samp><span class="samp">stderr</span></samp>&rsquo;, except that the captured output is
+not duplicated into the test group log.  This action is particularly
+useful for an intermediate check that produces large amounts of data,
+which will be followed by another check that filters down to the
+relevant data, as it makes it easier to locate details in the log.
+
+          <br><dt>&lsquo;<samp><span class="samp">expout</span></samp>&rsquo;<dd>For the <var>stdout</var> parameter, compare standard output contents with
+the previously created file <samp><span class="file">expout</span></samp>, and list any differences in
+the testsuite log.
+
+          <br><dt>&lsquo;<samp><span class="samp">experr</span></samp>&rsquo;<dd>Like &lsquo;<samp><span class="samp">expout</span></samp>&rsquo;, except that it only works for the <var>stderr</var>
+parameter, and the standard error contents are compared with
+<samp><span class="file">experr</span></samp>. 
+</dl>
+        </p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AT_CHECK_EUNIT</b> (<var>module, test-spec, </var><span class="roman">[</span><var>erlflags</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>run-if-fail</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>run-if-pass</var><span class="roman">]</span>)<var><a name="index-AT_005fCHECK_005fEUNIT-2301"></a></var><br>
+<blockquote><p><a name="index-AT_005fCHECK_005fEUNIT-2302"></a>
+Initialize and execute an Erlang module named <var>module</var> that performs
+tests following the <var>test-spec</var> EUnit test specification. 
+<var>test-spec</var> must be a valid EUnit test specification, as defined in
+the <a href="http://erlang.org/doc/apps/eunit/index.html">EUnit Reference Manual</a>.  <var>erlflags</var> are optional command-line options
+passed to the Erlang interpreter to execute the test Erlang module. 
+Typically, <var>erlflags</var> defines at least the paths to directories
+containing the compiled Erlang modules under test, as &lsquo;<samp><span class="samp">-pa path1
+path2 ...</span></samp>&rsquo;.
+
+        <p>For example, the unit tests associated with Erlang module &lsquo;<samp><span class="samp">testme</span></samp>&rsquo;,
+which compiled code is in subdirectory <samp><span class="file">src</span></samp>, can be performed
+with:
+
+     <pre class="example">          AT_CHECK_EUNIT([testme_testsuite], [{module, testme}],
+                         [-pa "${abs_top_builddir}/src"])
+</pre>
+        <p>This macro must be invoked in between <code>AT_SETUP</code> and <code>AT_CLEANUP</code>.
+
+        <p>Variables <code>ERL</code>, <code>ERLC</code>, and (optionally) <code>ERLCFLAGS</code>
+must be defined as the path of the Erlang interpreter, the path of the
+Erlang compiler, and the command-line flags to pass to the compiler,
+respectively.  Those variables should be configured in
+<samp><span class="file">configure.ac</span></samp> using the <samp><span class="command">AC_ERLANG_PATH_ERL</span></samp> and
+<samp><span class="command">AC_ERLANG_PATH_ERLC</span></samp> macros, and the configured values of those
+variables are automatically defined in the testsuite.  If <code>ERL</code> or
+<code>ERLC</code> is not defined, the test group is skipped.
+
+        <p>If the EUnit library cannot be found, i.e. if module <code>eunit</code> cannot
+be loaded, the test group is skipped.  Otherwise, if <var>test-spec</var> is
+an invalid EUnit test specification, the test group fails.  Otherwise,
+if the EUnit test passes, shell commands <var>run-if-pass</var> are executed
+or, if the EUnit test fails, shell commands <var>run-if-fail</var> are
+executed and the test group fails.
+
+        <p>Only the generated test Erlang module is automatically compiled and
+executed.  If <var>test-spec</var> involves testing other Erlang modules,
+e.g. module &lsquo;<samp><span class="samp">testme</span></samp>&rsquo; in the example above, those modules must be
+already compiled.
+
+        <p>If the testsuite is run in verbose mode, with option <samp><span class="option">--verbose</span></samp>,
+EUnit is also run in verbose mode to output more details about
+individual unit tests. 
+</p></blockquote></div>
+
+   </body></html>
+

@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: The dist Hook</title>
+
+<meta name="description" content="automake: The dist Hook">
+<meta name="keywords" content="automake: The dist Hook">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Dist.html#Dist" rel="up" title="Dist">
+<link href="Checking-the-Distribution.html#Checking-the-Distribution" rel="next" title="Checking the Distribution">
+<link href="Fine_002dgrained-Distribution-Control.html#Fine_002dgrained-Distribution-Control" rel="prev" title="Fine-grained Distribution Control">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="The-dist-Hook"></a>
+<div class="header">
+<p>
+Next: <a href="Checking-the-Distribution.html#Checking-the-Distribution" accesskey="n" rel="next">Checking the Distribution</a>, Previous: <a href="Fine_002dgrained-Distribution-Control.html#Fine_002dgrained-Distribution-Control" accesskey="p" rel="prev">Fine-grained Distribution Control</a>, Up: <a href="Dist.html#Dist" accesskey="u" rel="up">Dist</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="The-dist-Hook-1"></a>
+<h3 class="section">14.3 The dist Hook</h3>
+
+<a name="index-dist_002dhook"></a>
+
+<p>Occasionally it is useful to be able to change the distribution before
+it is packaged up.  If the <code>dist-hook</code> rule exists, it is run
+after the distribution directory is filled, but before the actual
+distribution archives are created.  One way to use this is for
+removing unnecessary files that get recursively included by specifying
+a directory in <code>EXTRA_DIST</code>:
+</p>
+<div class="example">
+<pre class="example">EXTRA_DIST = doc
+dist-hook:
+        rm -rf `find $(distdir)/doc -type d -name .svn`
+</pre></div>
+
+<p>Note that the <code>dist-hook</code> recipe shouldn&rsquo;t assume that the regular
+files in the distribution directory are writable; this might not be the
+case if one is packaging from a read-only source tree, or when a
+<code>make distcheck</code> is being done.  For similar reasons, the recipe
+shouldn&rsquo;t assume that the subdirectories put into the distribution
+directory as effect of having them listed in <code>EXTRA_DIST</code> are
+writable.  So, if the <code>dist-hook</code> recipe wants to modify the
+content of an existing file (or <code>EXTRA_DIST</code> subdirectory) in the
+distribution directory, it should explicitly to make it writable first:
+</p>
+<div class="example">
+<pre class="example">EXTRA_DIST = README doc
+dist-hook:
+        chmod u+w $(distdir)/README $(distdir)/doc
+        echo &quot;Distribution date: `date`&quot; &gt;&gt; README
+        rm -f $(distdir)/doc/HACKING
+</pre></div>
+
+<a name="index-distdir-1"></a>
+<a name="index-top_005fdistdir"></a>
+<p>Two variables that come handy when writing <code>dist-hook</code> rules are
+&lsquo;<samp>$(distdir)</samp>&rsquo; and &lsquo;<samp>$(top_distdir)</samp>&rsquo;.
+</p>
+<p>&lsquo;<samp>$(distdir)</samp>&rsquo; points to the directory where the <code>dist</code> rule
+will copy files from the current directory before creating the
+tarball.  If you are at the top-level directory, then &lsquo;<samp>distdir =
+$(PACKAGE)-$(VERSION)</samp>&rsquo;.  When used from subdirectory named
+<samp>foo/</samp>, then &lsquo;<samp>distdir = ../$(PACKAGE)-$(VERSION)/foo</samp>&rsquo;.
+&lsquo;<samp>$(distdir)</samp>&rsquo; can be a relative or absolute path, do not assume
+any form.
+</p>
+<p>&lsquo;<samp>$(top_distdir)</samp>&rsquo; always points to the root directory of the
+distributed tree.  At the top-level it&rsquo;s equal to &lsquo;<samp>$(distdir)</samp>&rsquo;.
+In the <samp>foo/</samp> subdirectory
+&lsquo;<samp>top_distdir = ../$(PACKAGE)-$(VERSION)</samp>&rsquo;.
+&lsquo;<samp>$(top_distdir)</samp>&rsquo; too can be a relative or absolute path.
+</p>
+<p>Note that when packages are nested using <code>AC_CONFIG_SUBDIRS</code>
+(see <a href="Subpackages.html#Subpackages">Subpackages</a>), then &lsquo;<samp>$(distdir)</samp>&rsquo; and
+&lsquo;<samp>$(top_distdir)</samp>&rsquo; are relative to the package where &lsquo;<samp>make
+dist</samp>&rsquo; was run, not to any sub-packages involved.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Checking-the-Distribution.html#Checking-the-Distribution" accesskey="n" rel="next">Checking the Distribution</a>, Previous: <a href="Fine_002dgrained-Distribution-Control.html#Fine_002dgrained-Distribution-Control" accesskey="p" rel="prev">Fine-grained Distribution Control</a>, Up: <a href="Dist.html#Dist" accesskey="u" rel="up">Dist</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

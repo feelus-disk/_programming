@@ -1,0 +1,250 @@
+<html lang="en">
+<head>
+<title>Conditional constructs - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Diversion-support.html#Diversion-support" title="Diversion support">
+<link rel="next" href="Looping-constructs.html#Looping-constructs" title="Looping constructs">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Conditional-constructs"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Looping-constructs.html#Looping-constructs">Looping constructs</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Diversion-support.html#Diversion-support">Diversion support</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.4 Conditional constructs</h4>
+
+<p>The following macros provide additional conditional constructs as
+convenience wrappers around <code>m4_if</code>.
+
+<div class="defun">
+&mdash; Macro: <b>m4_bmatch</b> (<var>string, regex-1, value-1, </var><span class="roman">[</span><var>regex-2</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>value-2</var><span class="roman">]</span><var>, <small class="dots">...</small>, </var><span class="roman">[</span><var>default</var><span class="roman">]</span>)<var><a name="index-m4_005fbmatch-1359"></a></var><br>
+<blockquote><p><a name="index-m4_005fbmatch-1360"></a>
+The string <var>string</var> is repeatedly compared against a series of
+<var>regex</var> arguments; if a match is found, the expansion is the
+corresponding <var>value</var>, otherwise, the macro moves on to the next
+<var>regex</var>.  If no <var>regex</var> match, then the result is the optional
+<var>default</var>, or nothing. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_bpatsubsts</b> (<var>string, regex-1, subst-1, </var><span class="roman">[</span><var>regex-2</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>subst-2</var><span class="roman">]</span><var>, <small class="dots">...</small></var>)<var><a name="index-m4_005fbpatsubsts-1361"></a></var><br>
+<blockquote><p><a name="index-m4_005fbpatsubsts-1362"></a>
+The string <var>string</var> is altered by <var>regex-1</var> and <var>subst-1</var>,
+as if by:
+     <pre class="example">          m4_bpatsubst([[<var>string</var>]], [<var>regex</var>], [<var>subst</var>])
+</pre>
+        <p class="noindent">The result of the substitution is then passed through the next set of
+<var>regex</var> and <var>subst</var>, and so forth.  An empty <var>subst</var> implies
+deletion of any matched portions in the current string.  Note that this
+macro over-quotes <var>string</var>; this behavior is intentional, so that
+the result of each step of the recursion remains as a quoted string. 
+However, it means that anchors (&lsquo;<samp><span class="samp">^</span></samp>&rsquo; and &lsquo;<samp><span class="samp">$</span></samp>&rsquo; in the <var>regex</var>
+will line up with the extra quotations, and not the characters of the
+original string.  The overquoting is removed after the final
+substitution. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_case</b> (<var>string, value-1, if-value-1, </var><span class="roman">[</span><var>value-2</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-value-2</var><span class="roman">]</span><var>, <small class="dots">...</small>, </var><span class="roman">[</span><var>default</var><span class="roman">]</span>)<var><a name="index-m4_005fcase-1363"></a></var><br>
+<blockquote><p><a name="index-m4_005fcase-1364"></a>
+Test <var>string</var> against multiple <var>value</var> possibilities, resulting
+in the first <var>if-value</var> for a match, or in the optional
+<var>default</var>.  This is shorthand for:
+     <pre class="example">          m4_if([<var>string</var>], [<var>value-1</var>], [<var>if-value-1</var>],
+                [<var>string</var>], [<var>value-2</var>], [<var>if-value-2</var>], ...,
+                [<var>default</var>])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_cond</b> (<var>test-1, value-1, if-value-1, </var><span class="roman">[</span><var>test-2</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>value-2</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-value-2</var><span class="roman">]</span><var>, <small class="dots">...</small>, </var><span class="roman">[</span><var>default</var><span class="roman">]</span>)<var><a name="index-m4_005fcond-1365"></a></var><br>
+<blockquote><p><a name="index-m4_005fcond-1366"></a>
+This macro was introduced in Autoconf 2.62.  Similar to <code>m4_if</code>,
+except that each <var>test</var> is expanded only when it is encountered. 
+This is useful for short-circuiting expensive tests; while <code>m4_if</code>
+requires all its strings to be expanded up front before doing
+comparisons, <code>m4_cond</code> only expands a <var>test</var> when all earlier
+tests have failed.
+
+        <p>For an example, these two sequences give the same result, but in the
+case where &lsquo;<samp><span class="samp">$1</span></samp>&rsquo; does not contain a backslash, the <code>m4_cond</code>
+version only expands <code>m4_index</code> once, instead of five times, for
+faster computation if this is a common case for &lsquo;<samp><span class="samp">$1</span></samp>&rsquo;.  Notice that
+every third argument is unquoted for <code>m4_if</code>, and quoted for
+<code>m4_cond</code>:
+
+     <pre class="example">          m4_if(m4_index([$1], [\]), [-1], [$2],
+                m4_eval(m4_index([$1], [\\]) &gt;= 0), [1], [$2],
+                m4_eval(m4_index([$1], [\$]) &gt;= 0), [1], [$2],
+                m4_eval(m4_index([$1], [\`]) &gt;= 0), [1], [$3],
+                m4_eval(m4_index([$1], [\"]) &gt;= 0), [1], [$3],
+                [$2])
+          m4_cond([m4_index([$1], [\])], [-1], [$2],
+                  [m4_eval(m4_index([$1], [\\]) &gt;= 0)], [1], [$2],
+                  [m4_eval(m4_index([$1], [\$]) &gt;= 0)], [1], [$2],
+                  [m4_eval(m4_index([$1], [\`]) &gt;= 0)], [1], [$3],
+                  [m4_eval(m4_index([$1], [\"]) &gt;= 0)], [1], [$3],
+                  [$2])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_default</b> (<var>expr-1, expr-2</var>)<var><a name="index-m4_005fdefault-1367"></a></var><br>
+&mdash; Macro: <b>m4_default_quoted</b> (<var>expr-1, expr-2</var>)<var><a name="index-m4_005fdefault_005fquoted-1368"></a></var><br>
+&mdash; Macro: <b>m4_default_nblank</b> (<var>expr-1, </var><span class="roman">[</span><var>expr-2</var><span class="roman">]</span>)<var><a name="index-m4_005fdefault_005fnblank-1369"></a></var><br>
+&mdash; Macro: <b>m4_default_nblank_quoted</b> (<var>expr-1, </var><span class="roman">[</span><var>expr-2</var><span class="roman">]</span>)<var><a name="index-m4_005fdefault_005fnblank_005fquoted-1370"></a></var><br>
+<blockquote><p><a name="index-m4_005fdefault-1371"></a>
+<a name="index-m4_005fdefault_005fquoted-1372"></a>
+<a name="index-m4_005fdefault_005fnblank-1373"></a>
+<a name="index-m4_005fdefault_005fnblank_005fquoted-1374"></a>
+If <var>expr-1</var> contains text, use it.  Otherwise, select <var>expr-2</var>. 
+<code>m4_default</code> expands the result, while <code>m4_default_quoted</code>
+does not.  Useful for providing a fixed default if the expression that
+results in <var>expr-1</var> would otherwise be empty.  The difference
+between <code>m4_default</code> and <code>m4_default_nblank</code> is whether an
+argument consisting of just blanks (space, tab, newline) is
+significant.  When using the expanding versions, note that an argument
+may contain text but still expand to an empty string.
+
+     <pre class="example">          m4_define([active], [ACTIVE])dnl
+          m4_define([empty], [])dnl
+          m4_define([demo1], [m4_default([$1], [$2])])dnl
+          m4_define([demo2], [m4_default_quoted([$1], [$2])])dnl
+          m4_define([demo3], [m4_default_nblank([$1], [$2])])dnl
+          m4_define([demo4], [m4_default_nblank_quoted([$1], [$2])])dnl
+          demo1([active], [default])
+          &rArr;ACTIVE
+          demo1([], [active])
+          &rArr;ACTIVE
+          demo1([empty], [text])
+          &rArr;
+          -demo1([ ], [active])-
+          &rArr;- -
+          demo2([active], [default])
+          &rArr;active
+          demo2([], [active])
+          &rArr;active
+          demo2([empty], [text])
+          &rArr;empty
+          -demo2([ ], [active])-
+          &rArr;- -
+          demo3([active], [default])
+          &rArr;ACTIVE
+          demo3([], [active])
+          &rArr;ACTIVE
+          demo3([empty], [text])
+          &rArr;
+          -demo3([ ], [active])-
+          &rArr;-ACTIVE-
+          demo4([active], [default])
+          &rArr;active
+          demo4([], [active])
+          &rArr;active
+          demo4([empty], [text])
+          &rArr;empty
+          -demo4([ ], [active])-
+          &rArr;-active-
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_define_default</b> (<var>macro, </var><span class="roman">[</span><var>default-definition</var><span class="roman">]</span>)<var><a name="index-m4_005fdefine_005fdefault-1375"></a></var><br>
+<blockquote><p><a name="index-m4_005fdefine_005fdefault-1376"></a>
+If <var>macro</var> does not already have a definition, then define it to
+<var>default-definition</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_ifblank</b> (<var>cond, </var><span class="roman">[</span><var>if-blank</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-text</var><span class="roman">]</span>)<var><a name="index-m4_005fifblank-1377"></a></var><br>
+&mdash; Macro: <b>m4_ifnblank</b> (<var>cond, </var><span class="roman">[</span><var>if-text</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-blank</var><span class="roman">]</span>)<var><a name="index-m4_005fifnblank-1378"></a></var><br>
+<blockquote><p><a name="index-m4_005fifblank-1379"></a>
+<a name="index-m4_005fifnblank-1380"></a>
+If <var>cond</var> is empty or consists only of blanks (space, tab, newline),
+then expand <var>if-blank</var>; otherwise, expand <var>if-text</var>.  Two
+variants exist, in order to make it easier to select the correct logical
+sense when using only two parameters.  Note that this is more efficient
+than the equivalent behavior of:
+     <pre class="example">          m4_ifval(m4_normalize([<var>cond</var>]), <var>if-text</var>, <var>if-blank</var>)
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_ifndef</b> (<var>macro, if-not-defined, </var><span class="roman">[</span><var>if-defined</var><span class="roman">]</span>)<var><a name="index-m4_005fifndef-1381"></a></var><br>
+<blockquote><p><a name="index-m4_005fifndef-1382"></a>
+This is shorthand for:
+     <pre class="example">          m4_ifdef([<var>macro</var>], [<var>if-defined</var>], [<var>if-not-defined</var>])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_ifset</b> (<var>macro, </var><span class="roman">[</span><var>if-true</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-false</var><span class="roman">]</span>)<var><a name="index-m4_005fifset-1383"></a></var><br>
+<blockquote><p><a name="index-m4_005fifset-1384"></a>
+If <var>macro</var> is undefined, or is defined as the empty string, expand
+to <var>if-false</var>.  Otherwise, expands to <var>if-true</var>.  Similar to:
+     <pre class="example">          m4_ifval(m4_defn([<var>macro</var>]), [<var>if-true</var>], [<var>if-false</var>])
+</pre>
+        <p class="noindent">except that it is not an error if <var>macro</var> is undefined. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_ifval</b> (<var>cond, </var><span class="roman">[</span><var>if-true</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-false</var><span class="roman">]</span>)<var><a name="index-m4_005fifval-1385"></a></var><br>
+<blockquote><p><a name="index-m4_005fifval-1386"></a>
+Expands to <var>if-true</var> if <var>cond</var> is not empty, otherwise to
+<var>if-false</var>.  This is shorthand for:
+     <pre class="example">          m4_if([<var>cond</var>], [], [<var>if-false</var>], [<var>if-true</var>])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_ifvaln</b> (<var>cond, </var><span class="roman">[</span><var>if-true</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-false</var><span class="roman">]</span>)<var><a name="index-m4_005fifvaln-1387"></a></var><br>
+<blockquote><p><a name="index-m4_005fifvaln-1388"></a>
+Similar to <code>m4_ifval</code>, except guarantee that a newline is present
+after any non-empty expansion.  Often followed by <code>dnl</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_n</b> (<var>text</var>)<var><a name="index-m4_005fn-1389"></a></var><br>
+<blockquote><p><a name="index-m4_005fn-1390"></a>
+Expand to <var>text</var>, and add a newline if <var>text</var> is not empty. 
+Often followed by <code>dnl</code>. 
+</p></blockquote></div>
+
+   </body></html>
+

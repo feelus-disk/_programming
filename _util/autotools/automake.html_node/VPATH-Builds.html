@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: VPATH Builds</title>
+
+<meta name="description" content="automake: VPATH Builds">
+<meta name="keywords" content="automake: VPATH Builds">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Use-Cases.html#Use-Cases" rel="up" title="Use Cases">
+<link href="Two_002dPart-Install.html#Two_002dPart-Install" rel="next" title="Two-Part Install">
+<link href="config_002esite.html#config_002esite" rel="prev" title="config.site">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="VPATH-Builds"></a>
+<div class="header">
+<p>
+Next: <a href="Two_002dPart-Install.html#Two_002dPart-Install" accesskey="n" rel="next">Two-Part Install</a>, Previous: <a href="config_002esite.html#config_002esite" accesskey="p" rel="prev">config.site</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Parallel-Build-Trees-_0028a_002ek_002ea_002e-VPATH-Builds_0029"></a>
+<h4 class="subsection">2.2.6 Parallel Build Trees (a.k.a. VPATH Builds)</h4>
+<a name="index-Parallel-build-trees"></a>
+<a name="index-VPATH-builds"></a>
+<a name="index-source-tree-and-build-tree"></a>
+<a name="index-build-tree-and-source-tree"></a>
+<a name="index-trees_002c-source-vs_002e-build"></a>
+
+<p>The GNU Build System distinguishes two trees: the source tree, and
+the build tree.
+</p>
+<p>The source tree is rooted in the directory containing
+<samp>configure</samp>.  It contains all the sources files (those that are
+distributed), and may be arranged using several subdirectories.
+</p>
+<p>The build tree is rooted in the directory in which <samp>configure</samp>
+was run, and is populated with all object files, programs, libraries,
+and other derived files built from the sources (and hence not
+distributed).  The build tree usually has the same subdirectory layout
+as the source tree; its subdirectories are created automatically by
+the build system.
+</p>
+<p>If <samp>configure</samp> is executed in its own directory, the source and
+build trees are combined: derived files are constructed in the same
+directories as their sources.  This was the case in our first
+installation example (see <a href="Basic-Installation.html#Basic-Installation">Basic Installation</a>).
+</p>
+<p>A common request from users is that they want to confine all derived
+files to a single directory, to keep their source directories
+uncluttered.  Here is how we could run <samp>configure</samp> to build
+everything in a subdirectory called <samp>build/</samp>.
+</p>
+<div class="example">
+<pre class="example">~ % <kbd>tar zxf ~/amhello-1.0.tar.gz</kbd>
+~ % <kbd>cd amhello-1.0</kbd>
+~/amhello-1.0 % <kbd>mkdir build &amp;&amp; cd build</kbd>
+~/amhello-1.0/build % <kbd>../configure</kbd>
+&hellip;
+~/amhello-1.0/build % <kbd>make</kbd>
+&hellip;
+</pre></div>
+
+<p>These setups, where source and build trees are different, are often
+called <em>parallel builds</em> or <em>VPATH builds</em>.  The expression
+<em>parallel build</em> is misleading: the word <em>parallel</em> is a
+reference to the way the build tree shadows the source tree, it is not
+about some concurrency in the way build commands are run.  For this
+reason we refer to such setups using the name <em>VPATH builds</em> in
+the following.  <em>VPATH</em> is the name of the <code>make</code> feature
+used by the <samp>Makefile</samp>s to allow these builds (see <a href="http://www.gnu.org/software/make/manual/html_node/General-Search.html#General-Search"><code>VPATH</code> Search Path for All Prerequisites</a> in <cite>The
+GNU Make Manual</cite>).
+</p>
+<a name="index-multiple-configurations_002c-example"></a>
+<a name="index-debug-build_002c-example"></a>
+<a name="index-optimized-build_002c-example"></a>
+
+<p>VPATH builds have other interesting uses.  One is to build the same
+sources with multiple configurations.  For instance:
+</p>
+<div class="example">
+<pre class="example">~ % <kbd>tar zxf ~/amhello-1.0.tar.gz</kbd>
+~ % <kbd>cd amhello-1.0</kbd>
+~/amhello-1.0 % <kbd>mkdir debug optim &amp;&amp; cd debug</kbd>
+~/amhello-1.0/debug % <kbd>../configure CFLAGS='-g -O0'</kbd>
+&hellip;
+~/amhello-1.0/debug % <kbd>make</kbd>
+&hellip;
+~/amhello-1.0/debug % cd ../optim
+~/amhello-1.0/optim % <kbd>../configure CFLAGS='-O3 -fomit-frame-pointer'</kbd>
+&hellip;
+~/amhello-1.0/optim % <kbd>make</kbd>
+&hellip;
+</pre></div>
+
+<p>With network file systems, a similar approach can be used to build the
+same sources on different machines.  For instance, suppose that the
+sources are installed on a directory shared by two hosts: <code>HOST1</code>
+and <code>HOST2</code>, which may be different platforms.
+</p>
+<div class="example">
+<pre class="example">~ % <kbd>cd /nfs/src</kbd>
+/nfs/src % <kbd>tar zxf ~/amhello-1.0.tar.gz</kbd>
+</pre></div>
+
+<p>On the first host, you could create a local build directory:
+</p><div class="example">
+<pre class="example">[HOST1] ~ % <kbd>mkdir /tmp/amh &amp;&amp; cd /tmp/amh</kbd>
+[HOST1] /tmp/amh % <kbd>/nfs/src/amhello-1.0/configure</kbd>
+...
+[HOST1] /tmp/amh % <kbd>make &amp;&amp; sudo make install</kbd>
+...
+</pre></div>
+
+<p>(Here we assume that the installer has configured <code>sudo</code> so it
+can execute <code>make install</code> with root privileges; it is more convenient
+than using <code>su</code> like in <a href="Basic-Installation.html#Basic-Installation">Basic Installation</a>).
+</p>
+<p>On the second host, you would do exactly the same, possibly at
+the same time:
+</p><div class="example">
+<pre class="example">[HOST2] ~ % <kbd>mkdir /tmp/amh &amp;&amp; cd /tmp/amh</kbd>
+[HOST2] /tmp/amh % <kbd>/nfs/src/amhello-1.0/configure</kbd>
+...
+[HOST2] /tmp/amh % <kbd>make &amp;&amp; sudo make install</kbd>
+...
+</pre></div>
+
+<a name="index-read_002donly-source-tree"></a>
+<a name="index-source-tree_002c-read_002donly"></a>
+
+<p>In this scenario, nothing forbids the <samp>/nfs/src/amhello-1.0</samp>
+directory from being read-only.  In fact VPATH builds are also a means
+of building packages from a read-only medium such as a CD-ROM.  (The
+FSF used to sell CD-ROM with unpacked source code, before the GNU
+project grew so big.)
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Two_002dPart-Install.html#Two_002dPart-Install" accesskey="n" rel="next">Two-Part Install</a>, Previous: <a href="config_002esite.html#config_002esite" accesskey="p" rel="prev">config.site</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Checking the Distribution</title>
+
+<meta name="description" content="automake: Checking the Distribution">
+<meta name="keywords" content="automake: Checking the Distribution">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Dist.html#Dist" rel="up" title="Dist">
+<link href="The-Types-of-Distributions.html#The-Types-of-Distributions" rel="next" title="The Types of Distributions">
+<link href="The-dist-Hook.html#The-dist-Hook" rel="prev" title="The dist Hook">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Checking-the-Distribution"></a>
+<div class="header">
+<p>
+Next: <a href="The-Types-of-Distributions.html#The-Types-of-Distributions" accesskey="n" rel="next">The Types of Distributions</a>, Previous: <a href="The-dist-Hook.html#The-dist-Hook" accesskey="p" rel="prev">The dist Hook</a>, Up: <a href="Dist.html#Dist" accesskey="u" rel="up">Dist</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Checking-the-Distribution-1"></a>
+<h3 class="section">14.4 Checking the Distribution</h3>
+
+<a name="index-make-distcheck"></a>
+<a name="index-distcheck-1"></a>
+<p>Automake also generates a <code>distcheck</code> rule that can be of help
+to ensure that a given distribution will actually work.  Simplifying
+a bit, we can say this rule first makes a distribution, and then,
+<em>operating from it</em>, takes the following steps:
+</p><ul>
+<li> tries to do a <code>VPATH</code> build (see <a href="VPATH-Builds.html#VPATH-Builds">VPATH Builds</a>), with the
+<code>srcdir</code> and all its content made <em>read-only</em>;
+</li><li> runs the test suite (with <code>make check</code>) on this fresh build;
+</li><li> installs the package in a temporary directory (with <code>make
+install</code>), and tries runs the test suite on the resulting installation
+(with <code>make installcheck</code>);
+</li><li> checks that the package can be correctly uninstalled (by <code>make
+uninstall</code>) and cleaned (by <code>make distclean</code>);
+</li><li> finally, makes another tarball to ensure the distribution is
+self-contained.
+</li></ul>
+
+<p>All of these actions are performed in a temporary directory.  Please
+note that the exact location and the exact structure of such a directory
+(where the read-only sources are placed, how the temporary build and
+install directories are named and how deeply they are nested, etc.) is
+to be considered an implementation detail, which can change at any time;
+so do not reply on it.
+</p>
+<a name="index-AM_005fDISTCHECK_005fCONFIGURE_005fFLAGS"></a>
+<a name="index-DISTCHECK_005fCONFIGURE_005fFLAGS"></a>
+<a name="DISTCHECK_005fCONFIGURE_005fFLAGS"></a>
+<h4 class="subheading">DISTCHECK_CONFIGURE_FLAGS</h4>
+<p>Building the package involves running &lsquo;<samp>./configure</samp>&rsquo;.  If you need
+to supply additional flags to <code>configure</code>, define them in the
+<code>AM_DISTCHECK_CONFIGURE_FLAGS</code> variable in your top-level
+<samp>Makefile.am</samp>.  The user can still extend or override the flags
+provided there by defining the <code>DISTCHECK_CONFIGURE_FLAGS</code> variable,
+on the command line when invoking <code>make</code>.
+It&rsquo;s worth nothing that <code>make distcheck</code> needs complete control
+over the <code>configure</code> options <samp>--srcdir</samp> and
+<samp>--prefix</samp>, so those options cannot be overridden by
+<code>AM_DISTCHECK_CONFIGURE_FLAGS</code> nor by
+<code>DISTCHECK_CONFIGURE_FLAGS</code>.
+</p>
+<p>Also note that developers are encouraged to strive to make their code
+buildable without requiring any special configure option; thus, in
+general, you shouldn&rsquo;t define <code>AM_DISTCHECK_CONFIGURE_FLAGS</code>.
+However, there might be few scenarios in which the use of this variable
+is justified.
+GNU <code>m4</code> offers an example.  GNU <code>m4</code> configures by
+default with its experimental and seldom used &quot;changeword&quot; feature
+disabled; so in its case it is useful to have <code>make distcheck</code>
+run configure with the <samp>--with-changeword</samp> option, to ensure that
+the code for changeword support still compiles correctly.
+GNU <code>m4</code> also employs the <code>AM_DISTCHECK_CONFIGURE_FLAGS</code>
+variable to stress-test the use of <samp>--program-prefix=g</samp>, since at
+one point the <code>m4</code> build system had a bug where <code>make
+installcheck</code> was wrongly assuming it could blindly test &quot;<code>m4</code>&quot;,
+rather than the just-installed &quot;<code>gm4</code>&quot;.
+</p>
+<a name="index-distcheck_002dhook"></a>
+<a name="distcheck_002dhook"></a>
+<h4 class="subheading">distcheck-hook</h4>
+<p>If the <code>distcheck-hook</code> rule is defined in your top-level
+<samp>Makefile.am</samp>, then it will be invoked by <code>distcheck</code> after
+the new distribution has been unpacked, but before the unpacked copy
+is configured and built.  Your <code>distcheck-hook</code> can do almost
+anything, though as always caution is advised.  Generally this hook is
+used to check for potential distribution errors not caught by the
+standard mechanism.  Note that <code>distcheck-hook</code> as well as
+<code>AM_DISTCHECK_CONFIGURE_FLAGS</code> and <code>DISTCHECK_CONFIGURE_FLAGS</code>
+are not honored in a subpackage <samp>Makefile.am</samp>, but the flags from
+<code>AM_DISTCHECK_CONFIGURE_FLAGS</code> and <code>DISTCHECK_CONFIGURE_FLAGS</code>
+are passed down to the <code>configure</code> script of the subpackage.
+</p>
+<a name="index-make-distcleancheck"></a>
+<a name="index-distcleancheck"></a>
+<a name="index-DISTCLEANFILES-1"></a>
+<a name="index-distcleancheck_005flistfiles"></a>
+
+<a name="distcleancheck"></a>
+<h4 class="subheading">distcleancheck</h4>
+<p>Speaking of potential distribution errors, <code>distcheck</code> also
+ensures that the <code>distclean</code> rule actually removes all built
+files.  This is done by running &lsquo;<samp>make distcleancheck</samp>&rsquo; at the end of
+the <code>VPATH</code> build.  By default, <code>distcleancheck</code> will run
+<code>distclean</code> and then make sure the build tree has been emptied by
+running &lsquo;<samp>$(distcleancheck_listfiles)</samp>&rsquo;.  Usually this check will
+find generated files that you forgot to add to the <code>DISTCLEANFILES</code>
+variable (see <a href="Clean.html#Clean">Clean</a>).
+</p>
+<p>The <code>distcleancheck</code> behavior should be OK for most packages,
+otherwise you have the possibility to override the definition of
+either the <code>distcleancheck</code> rule, or the
+&lsquo;<samp>$(distcleancheck_listfiles)</samp>&rsquo; variable.  For instance, to disable
+<code>distcleancheck</code> completely, add the following rule to your
+top-level <samp>Makefile.am</samp>:
+</p>
+<div class="example">
+<pre class="example">distcleancheck:
+        @:
+</pre></div>
+
+<p>If you want <code>distcleancheck</code> to ignore built files that have not
+been cleaned because they are also part of the distribution, add the
+following definition instead:
+</p>
+<div class="example">
+<pre class="example">distcleancheck_listfiles = \
+  find . -type f -exec sh -c 'test -f $(srcdir)/$$1 || echo $$1' \
+       sh '{}' ';'
+</pre></div>
+
+<p>The above definition is not the default because it&rsquo;s usually an error if
+your Makefiles cause some distributed files to be rebuilt when the user
+build the package.  (Think about the user missing the tool required to
+build the file; or if the required tool is built by your package,
+consider the cross-compilation case where it can&rsquo;t be run.)  There is
+an entry in the FAQ about this (see <a href="Errors-with-distclean.html#Errors-with-distclean">Errors with distclean</a>), make
+sure you read it before playing with <code>distcleancheck_listfiles</code>.
+</p>
+<a name="index-make-distuninstallcheck"></a>
+<a name="index-distuninstallcheck"></a>
+<a name="index-distuninstallcheck_005flistfiles"></a>
+
+<a name="distuninstallcheck"></a>
+<h4 class="subheading">distuninstallcheck</h4>
+<p><code>distcheck</code> also checks that the <code>uninstall</code> rule works
+properly, both for ordinary and <code>DESTDIR</code> builds.  It does this
+by invoking &lsquo;<samp>make uninstall</samp>&rsquo;, and then it checks the install tree
+to see if any files are left over.  This check will make sure that you
+correctly coded your <code>uninstall</code>-related rules.
+</p>
+<p>By default, the checking is done by the <code>distuninstallcheck</code> rule,
+and the list of files in the install tree is generated by
+&lsquo;<samp>$(distuninstallcheck_listfiles)</samp>&rsquo; (this is a variable whose value is
+a shell command to run that prints the list of files to stdout).
+</p>
+<p>Either of these can be overridden to modify the behavior of
+<code>distcheck</code>.  For instance, to disable this check completely, you
+would write:
+</p>
+<div class="example">
+<pre class="example">distuninstallcheck:
+        @:
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="The-Types-of-Distributions.html#The-Types-of-Distributions" accesskey="n" rel="next">The Types of Distributions</a>, Previous: <a href="The-dist-Hook.html#The-dist-Hook" accesskey="p" rel="prev">The dist Hook</a>, Up: <a href="Dist.html#Dist" accesskey="u" rel="up">Dist</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

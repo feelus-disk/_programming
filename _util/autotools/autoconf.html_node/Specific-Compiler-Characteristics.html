@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+<title>Specific Compiler Characteristics - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors" title="Compilers and Preprocessors">
+<link rel="next" href="Generic-Compiler-Characteristics.html#Generic-Compiler-Characteristics" title="Generic Compiler Characteristics">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Specific-Compiler-Characteristics"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Generic-Compiler-Characteristics.html#Generic-Compiler-Characteristics">Generic Compiler Characteristics</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors">Compilers and Preprocessors</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.10.1 Specific Compiler Characteristics</h4>
+
+<p>Some compilers exhibit different behaviors.
+
+     <dl>
+<dt>Static/Dynamic Expressions<dd>Autoconf relies on a trick to extract one bit of information from the C
+compiler: using negative array sizes.  For instance the following
+excerpt of a C source demonstrates how to test whether &lsquo;<samp><span class="samp">int</span></samp>&rsquo; objects are 4
+bytes wide:
+
+     <pre class="example">          static int test_array[sizeof (int) == 4 ? 1 : -1];
+</pre>
+     <p class="noindent">To our knowledge, there is a single compiler that does not support this
+trick: the HP C compilers (the real ones, not only the
+&ldquo;bundled&rdquo;) on HP-UX 11.00. 
+They incorrectly reject the above program with the diagnostic
+&ldquo;Variable-length arrays cannot have static storage.&rdquo;
+This bug comes from HP compilers' mishandling of <code>sizeof (int)</code>,
+not from the <code>? 1 : -1</code>, and
+Autoconf works around this problem by casting <code>sizeof (int)</code> to
+<code>long int</code> before comparing it. 
+</dl>
+
+   </body></html>
+

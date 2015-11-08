@@ -1,0 +1,79 @@
+<html lang="en">
+<head>
+<title>One-Shot Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Dependencies-Between-Macros.html#Dependencies-Between-Macros" title="Dependencies Between Macros">
+<link rel="prev" href="Suggested-Ordering.html#Suggested-Ordering" title="Suggested Ordering">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="One-Shot-Macros"></a>
+<a name="One_002dShot-Macros"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Suggested-Ordering.html#Suggested-Ordering">Suggested Ordering</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Dependencies-Between-Macros.html#Dependencies-Between-Macros">Dependencies Between Macros</a>
+<hr>
+</div>
+
+<h4 class="subsection">10.4.3 One-Shot Macros</h4>
+
+<p><a name="index-One_002dshot-macros-1666"></a><a name="index-Macros_002c-called-once-1667"></a>
+Some macros should be called only once, either because calling them
+multiple time is unsafe, or because it is bad style.  For instance
+Autoconf ensures that <code>AC_CANONICAL_BUILD</code> and cousins
+(see <a href="Canonicalizing.html#Canonicalizing">Canonicalizing</a>) are evaluated only once, because it makes no
+sense to run these expensive checks more than once.  Such one-shot
+macros can be defined using <code>AC_DEFUN_ONCE</code>.
+
+<div class="defun">
+&mdash; Macro: <b>AC_DEFUN_ONCE</b> (<var>macro-name, macro-body</var>)<var><a name="index-AC_005fDEFUN_005fONCE-1668"></a></var><br>
+<blockquote><p><a name="index-AC_005fDEFUN_005fONCE-1669"></a>
+Declare macro <var>macro-name</var> like <code>AC_DEFUN</code> would (see <a href="Macro-Definitions.html#Macro-Definitions">Macro Definitions</a>), but add additional logic that guarantees that only the
+first use of the macro (whether by direct expansion or
+<code>AC_REQUIRE</code>) causes an expansion of <var>macro-body</var>; the
+expansion will occur before the start of any enclosing macro defined by
+<code>AC_DEFUN</code>.  Subsequent expansions are silently ignored. 
+Generally, it does not make sense for <var>macro-body</var> to use parameters
+such as <code>$1</code>. 
+</p></blockquote></div>
+
+   <p>Prior to Autoconf 2.64, a macro defined by <code>AC_DEFUN_ONCE</code> would
+emit a warning if it was directly expanded a second time, so for
+portability, it is better to use <code>AC_REQUIRE</code> than direct
+invocation of <var>macro-name</var> inside a macro defined by <code>AC_DEFUN</code>
+(see <a href="Prerequisite-Macros.html#Prerequisite-Macros">Prerequisite Macros</a>).
+
+   </body></html>
+

@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Multiple Outputs</title>
+
+<meta name="description" content="automake: Multiple Outputs">
+<meta name="keywords" content="automake: Multiple Outputs">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="FAQ.html#FAQ" rel="up" title="FAQ">
+<link href="Hard_002dCoded-Install-Paths.html#Hard_002dCoded-Install-Paths" rel="next" title="Hard-Coded Install Paths">
+<link href="Per_002dObject-Flags.html#Per_002dObject-Flags" rel="prev" title="Per-Object Flags">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Multiple-Outputs"></a>
+<div class="header">
+<p>
+Next: <a href="Hard_002dCoded-Install-Paths.html#Hard_002dCoded-Install-Paths" accesskey="n" rel="next">Hard-Coded Install Paths</a>, Previous: <a href="Per_002dObject-Flags.html#Per_002dObject-Flags" accesskey="p" rel="prev">Per-Object Flags</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Handling-Tools-that-Produce-Many-Outputs"></a>
+<h3 class="section">27.9 Handling Tools that Produce Many Outputs</h3>
+<a name="index-multiple-outputs_002c-rules-with"></a>
+<a name="index-many-outputs_002c-rules-with"></a>
+<a name="index-rules-with-multiple-outputs"></a>
+
+<p>This section describes a <code>make</code> idiom that can be used when a
+tool produces multiple output files.  It is not specific to Automake
+and can be used in ordinary <samp>Makefile</samp>s.
+</p>
+<p>Suppose we have a program called <code>foo</code> that will read one file
+called <samp>data.foo</samp> and produce two files named <samp>data.c</samp> and
+<samp>data.h</samp>.  We want to write a <samp>Makefile</samp> rule that captures
+this one-to-two dependency.
+</p>
+<p>The naive rule is incorrect:
+</p>
+<div class="example">
+<pre class="example"># This is incorrect.
+data.c data.h: data.foo
+        foo data.foo
+</pre></div>
+
+<p>What the above rule really says is that <samp>data.c</samp> and
+<samp>data.h</samp> each depend on <samp>data.foo</samp>, and can each be built by
+running &lsquo;<samp>foo data.foo</samp>&rsquo;.  In other words it is equivalent to:
+</p>
+<div class="example">
+<pre class="example"># We do not want this.
+data.c: data.foo
+        foo data.foo
+data.h: data.foo
+        foo data.foo
+</pre></div>
+
+<p>which means that <code>foo</code> can be run twice.  Usually it will not
+be run twice, because <code>make</code> implementations are smart enough
+to check for the existence of the second file after the first one has
+been built; they will therefore detect that it already exists.
+However there are a few situations where it can run twice anyway:
+</p>
+<ul>
+<li> The most worrying case is when running a parallel <code>make</code>.  If
+<samp>data.c</samp> and <samp>data.h</samp> are built in parallel, two &lsquo;<samp>foo
+data.foo</samp>&rsquo; commands will run concurrently.  This is harmful.
+</li><li> Another case is when the dependency (here <samp>data.foo</samp>) is
+(or depends upon) a phony target.
+</li></ul>
+
+<p>A solution that works with parallel <code>make</code> but not with
+phony dependencies is the following:
+</p>
+<div class="example">
+<pre class="example">data.c data.h: data.foo
+        foo data.foo
+data.h: data.c
+</pre></div>
+
+<p>The above rules are equivalent to
+</p>
+<div class="example">
+<pre class="example">data.c: data.foo
+        foo data.foo
+data.h: data.foo data.c
+        foo data.foo
+</pre></div>
+
+<p>therefore a parallel <code>make</code> will have to serialize the builds
+of <samp>data.c</samp> and <samp>data.h</samp>, and will detect that the second is
+no longer needed once the first is over.
+</p>
+<p>Using this pattern is probably enough for most cases.  However it does
+not scale easily to more output files (in this scheme all output files
+must be totally ordered by the dependency relation), so we will
+explore a more complicated solution.
+</p>
+<p>Another idea is to write the following:
+</p>
+<div class="example">
+<pre class="example"># There is still a problem with this one.
+data.c: data.foo
+        foo data.foo
+data.h: data.c
+</pre></div>
+
+<p>The idea is that &lsquo;<samp>foo data.foo</samp>&rsquo; is run only when <samp>data.c</samp>
+needs to be updated, but we further state that <samp>data.h</samp> depends
+upon <samp>data.c</samp>.  That way, if <samp>data.h</samp> is required and
+<samp>data.foo</samp> is out of date, the dependency on <samp>data.c</samp> will
+trigger the build.
+</p>
+<p>This is almost perfect, but suppose we have built <samp>data.h</samp> and
+<samp>data.c</samp>, and then we erase <samp>data.h</samp>.  Then, running
+&lsquo;<samp>make data.h</samp>&rsquo; will not rebuild <samp>data.h</samp>.  The above rules
+just state that <samp>data.c</samp> must be up-to-date with respect to
+<samp>data.foo</samp>, and this is already the case.
+</p>
+<p>What we need is a rule that forces a rebuild when <samp>data.h</samp> is
+missing.  Here it is:
+</p>
+<div class="example">
+<pre class="example">data.c: data.foo
+        foo data.foo
+data.h: data.c
+## Recover from the removal of $@
+        @if test -f $@; then :; else \
+          rm -f data.c; \
+          $(MAKE) $(AM_MAKEFLAGS) data.c; \
+        fi
+</pre></div>
+
+<p>The above scheme can be extended to handle more outputs and more
+inputs.  One of the outputs is selected to serve as a witness to the
+successful completion of the command, it depends upon all inputs, and
+all other outputs depend upon it.  For instance, if <code>foo</code>
+should additionally read <samp>data.bar</samp> and also produce
+<samp>data.w</samp> and <samp>data.x</samp>, we would write:
+</p>
+<div class="example">
+<pre class="example">data.c: data.foo data.bar
+        foo data.foo data.bar
+data.h data.w data.x: data.c
+## Recover from the removal of $@
+        @if test -f $@; then :; else \
+          rm -f data.c; \
+          $(MAKE) $(AM_MAKEFLAGS) data.c; \
+        fi
+</pre></div>
+
+<p>However there are now three minor problems in this setup.  One is related
+to the timestamp ordering of <samp>data.h</samp>, <samp>data.w</samp>,
+<samp>data.x</samp>, and <samp>data.c</samp>.  Another one is a race condition
+if a parallel <code>make</code> attempts to run multiple instances of the
+recover block at once.  Finally, the recursive rule breaks &lsquo;<samp>make -n</samp>&rsquo;
+when run with GNU <code>make</code> (as well as some other <code>make</code>
+implementations), as it may remove <samp>data.h</samp> even when it should not
+(see <a href="http://www.gnu.org/software/make/manual/html_node/MAKE-Variable.html#MAKE-Variable">How the <code>MAKE</code> Variable Works</a> in <cite>The GNU Make Manual</cite>).
+</p>
+<p>Let us deal with the first problem.  <code>foo</code> outputs four files,
+but we do not know in which order these files are created.  Suppose
+that <samp>data.h</samp> is created before <samp>data.c</samp>.  Then we have a
+weird situation.  The next time <code>make</code> is run, <samp>data.h</samp>
+will appear older than <samp>data.c</samp>, the second rule will be
+triggered, a shell will be started to execute the &lsquo;<samp>if&hellip;fi</samp>&rsquo;
+command, but actually it will just execute the <code>then</code> branch,
+that is: nothing.  In other words, because the witness we selected is
+not the first file created by <code>foo</code>, <code>make</code> will start
+a shell to do nothing each time it is run.
+</p>
+<p>A simple riposte is to fix the timestamps when this happens.
+</p>
+<div class="example">
+<pre class="example">data.c: data.foo data.bar
+        foo data.foo data.bar
+data.h data.w data.x: data.c
+        @if test -f $@; then \
+          touch $@; \
+        else \
+## Recover from the removal of $@
+          rm -f data.c; \
+          $(MAKE) $(AM_MAKEFLAGS) data.c; \
+        fi
+</pre></div>
+
+<p>Another solution is to use a different and dedicated file as witness,
+rather than using any of <code>foo</code>&rsquo;s outputs.
+</p>
+<div class="example">
+<pre class="example">data.stamp: data.foo data.bar
+        @rm -f data.tmp
+        @touch data.tmp
+        foo data.foo data.bar
+        @mv -f data.tmp $@
+data.c data.h data.w data.x: data.stamp
+## Recover from the removal of $@
+        @if test -f $@; then :; else \
+          rm -f data.stamp; \
+          $(MAKE) $(AM_MAKEFLAGS) data.stamp; \
+        fi
+</pre></div>
+
+<p><samp>data.tmp</samp> is created before <code>foo</code> is run, so it has a
+timestamp older than output files output by <code>foo</code>.  It is then
+renamed to <samp>data.stamp</samp> after <code>foo</code> has run, because we
+do not want to update <samp>data.stamp</samp> if <code>foo</code> fails.
+</p>
+<p>This solution still suffers from the second problem: the race
+condition in the recover rule.  If, after a successful build, a user
+erases <samp>data.c</samp> and <samp>data.h</samp>, and runs &lsquo;<samp>make -j</samp>&rsquo;, then
+<code>make</code> may start both recover rules in parallel.  If the two
+instances of the rule execute &lsquo;<samp>$(MAKE) $(AM_MAKEFLAGS)
+data.stamp</samp>&rsquo; concurrently the build is likely to fail (for instance, the
+two rules will create <samp>data.tmp</samp>, but only one can rename it).
+</p>
+<p>Admittedly, such a weird situation does not arise during ordinary
+builds.  It occurs only when the build tree is mutilated.  Here
+<samp>data.c</samp> and <samp>data.h</samp> have been explicitly removed without
+also removing <samp>data.stamp</samp> and the other output files.
+<code>make clean; make</code> will always recover from these situations even
+with parallel makes, so you may decide that the recover rule is solely
+to help non-parallel make users and leave things as-is.  Fixing this
+requires some locking mechanism to ensure only one instance of the
+recover rule rebuilds <samp>data.stamp</samp>.  One could imagine something
+along the following lines.
+</p>
+<div class="example">
+<pre class="example">data.c data.h data.w data.x: data.stamp
+## Recover from the removal of $@
+        @if test -f $@; then :; else \
+          trap 'rm -rf data.lock data.stamp' 1 2 13 15; \
+## mkdir is a portable test-and-set
+          if mkdir data.lock 2&gt;/dev/null; then \
+## This code is being executed by the first process.
+            rm -f data.stamp; \
+            $(MAKE) $(AM_MAKEFLAGS) data.stamp; \
+            result=$$?; rm -rf data.lock; exit $$result; \
+          else \
+## This code is being executed by the follower processes.
+## Wait until the first process is done.
+            while test -d data.lock; do sleep 1; done; \
+## Succeed if and only if the first process succeeded.
+            test -f data.stamp; \
+          fi; \
+        fi
+</pre></div>
+
+<p>Using a dedicated witness, like <samp>data.stamp</samp>, is very handy when
+the list of output files is not known beforehand.  As an illustration,
+consider the following rules to compile many <samp>*.el</samp> files into
+<samp>*.elc</samp> files in a single command.  It does not matter how
+<code>ELFILES</code> is defined (as long as it is not empty: empty targets
+are not accepted by POSIX).
+</p>
+<div class="example">
+<pre class="example">ELFILES = one.el two.el three.el &hellip;
+ELCFILES = $(ELFILES:=c)
+
+elc-stamp: $(ELFILES)
+        @rm -f elc-temp
+        @touch elc-temp
+        $(elisp_comp) $(ELFILES)
+        @mv -f elc-temp $@
+
+$(ELCFILES): elc-stamp
+        @if test -f $@; then :; else \
+## Recover from the removal of $@
+          trap 'rm -rf elc-lock elc-stamp' 1 2 13 15; \
+          if mkdir elc-lock 2&gt;/dev/null; then \
+## This code is being executed by the first process.
+            rm -f elc-stamp; \
+            $(MAKE) $(AM_MAKEFLAGS) elc-stamp; \
+            rmdir elc-lock; \
+          else \
+## This code is being executed by the follower processes.
+## Wait until the first process is done.
+            while test -d elc-lock; do sleep 1; done; \
+## Succeed if and only if the first process succeeded.
+            test -f elc-stamp; exit $$?; \
+          fi; \
+        fi
+</pre></div>
+
+<p>These solutions all still suffer from the third problem, namely that
+they break the promise that &lsquo;<samp>make -n</samp>&rsquo; should not cause any actual
+changes to the tree.  For those solutions that do not create lock files,
+it is possible to split the recover rules into two separate recipe
+commands, one of which does all work but the recursion, and the
+other invokes the recursive &lsquo;<samp>$(MAKE)</samp>&rsquo;.  The solutions involving
+locking could act upon the contents of the &lsquo;<samp>MAKEFLAGS</samp>&rsquo; variable,
+but parsing that portably is not easy (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/The-Make-Macro-MAKEFLAGS.html#The-Make-Macro-MAKEFLAGS">The Make Macro MAKEFLAGS</a> in <cite>The Autoconf Manual</cite>).  Here is an example:
+</p>
+<div class="example">
+<pre class="example">ELFILES = one.el two.el three.el &hellip;
+ELCFILES = $(ELFILES:=c)
+
+elc-stamp: $(ELFILES)
+        @rm -f elc-temp
+        @touch elc-temp
+        $(elisp_comp) $(ELFILES)
+        @mv -f elc-temp $@
+
+$(ELCFILES): elc-stamp
+## Recover from the removal of $@
+        @dry=; for f in x $$MAKEFLAGS; do \
+          case $$f in \
+            *=*|--*);; \
+            *n*) dry=:;; \
+          esac; \
+        done; \
+        if test -f $@; then :; else \
+          $$dry trap 'rm -rf elc-lock elc-stamp' 1 2 13 15; \
+          if $$dry mkdir elc-lock 2&gt;/dev/null; then \
+## This code is being executed by the first process.
+            $$dry rm -f elc-stamp; \
+            $(MAKE) $(AM_MAKEFLAGS) elc-stamp; \
+            $$dry rmdir elc-lock; \
+          else \
+## This code is being executed by the follower processes.
+## Wait until the first process is done.
+            while test -d elc-lock &amp;&amp; test -z &quot;$$dry&quot;; do \
+              sleep 1; \
+            done; \
+## Succeed if and only if the first process succeeded.
+            $$dry test -f elc-stamp; exit $$?; \
+          fi; \
+        fi
+</pre></div>
+
+<p>For completeness it should be noted that GNU <code>make</code> is able to
+express rules with multiple output files using pattern rules
+(see <a href="http://www.gnu.org/software/make/manual/html_node/Pattern-Examples.html#Pattern-Examples">Pattern Rule Examples</a> in <cite>The GNU Make
+Manual</cite>).  We do not discuss pattern rules here because they are not
+portable, but they can be convenient in packages that assume GNU
+<code>make</code>.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Hard_002dCoded-Install-Paths.html#Hard_002dCoded-Install-Paths" accesskey="n" rel="next">Hard-Coded Install Paths</a>, Previous: <a href="Per_002dObject-Flags.html#Per_002dObject-Flags" accesskey="p" rel="prev">Per-Object Flags</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

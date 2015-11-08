@@ -1,0 +1,86 @@
+<html lang="en">
+<head>
+<title>Timestamps and Make - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Portable-Make.html#Portable-Make" title="Portable Make">
+<link rel="prev" href="Single-Suffix-Rules.html#Single-Suffix-Rules" title="Single Suffix Rules">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Timestamps-and-Make"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Single-Suffix-Rules.html#Single-Suffix-Rules">Single Suffix Rules</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Portable-Make.html#Portable-Make">Portable Make</a>
+<hr>
+</div>
+
+<h3 class="section">12.20 Timestamp Resolution and Make</h3>
+
+<p><a name="index-timestamp-resolution-1883"></a>Traditionally, file timestamps had 1-second resolution, and
+<samp><span class="command">make</span></samp> used those timestamps to determine whether one file was
+newer than the other.  However, many modern file systems have
+timestamps with 1-nanosecond resolution.  Some <samp><span class="command">make</span></samp>
+implementations look at the entire timestamp; others ignore the
+fractional part, which can lead to incorrect results.  Normally this
+is not a problem, but in some extreme cases you may need to use tricks
+like &lsquo;<samp><span class="samp">sleep 1</span></samp>&rsquo; to work around timestamp truncation bugs.
+
+   <p>Commands like &lsquo;<samp><span class="samp">cp -p</span></samp>&rsquo; and &lsquo;<samp><span class="samp">touch -r</span></samp>&rsquo; typically do not copy
+file timestamps to their full resolutions (see <a href="touch.html#touch">Limitations of Usual Tools</a>).  Hence you should be wary of rules like this:
+
+<pre class="example">     dest: src
+             cp -p src dest
+</pre>
+   <p>as <samp><span class="file">dest</span></samp> often appears to be older than <samp><span class="file">src</span></samp> after the
+timestamp is truncated, and this can cause <samp><span class="command">make</span></samp> to do
+needless rework the next time it is invoked.  To work around this
+problem, you can use a timestamp file, e.g.:
+
+<pre class="example">     dest-stamp: src
+             cp -p src dest
+             date &gt;dest-stamp
+</pre>
+   <p>Apart from timestamp resolution, there are also differences in handling
+equal timestamps.  HP-UX <samp><span class="command">make</span></samp> updates targets if it has the
+same time stamp as one of its prerequisites, in violation of Posix rules.
+
+   <p>This can cause spurious rebuilds for repeated runs of <samp><span class="command">make</span></samp>. 
+This in turn can cause <samp><span class="command">make</span></samp> to fail if it tries to rebuild
+generated files in a possibly read-only source tree with tools not
+present on the end-user machine.  Use GNU <samp><span class="command">make</span></samp> instead.
+
+<!-- ======================================== Portable C and C++ Programming -->
+   </body></html>
+

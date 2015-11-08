@@ -1,0 +1,1153 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Language" content="ru">
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">   
+<title></title>
+</head>
+
+<body>
+
+<h2><a Name="2">2 Формат файла класса</a></h2>
+
+<blockquote>
+  <p><u><a href="2-doc.htm#2.1">2.1 - Формат</a><br>
+  <a href="2-doc.htm#2.2"><b>2.2</b> - Сигнатуры</a><br>
+  <a href="2-doc.htm#2.3"><b>2.3 </b>- Константный пул</a><br>
+  <a href="2-doc.htm#2.4"><b>2.4 </b>- Поля</a><br>
+  <a href="2-doc.htm#2.5"><b>2.5 </b>- Методы</a><br>
+  <a href="2-doc.htm#2.6"><b>2.6 </b>- Атрибуты</a></p>
+  </u>
+</blockquote>
+
+<hr>
+
+<p>Эта глава описывает формат файла класса (<tt>.class</tt>)
+языка Ява. </p>
+
+<p>Каждый файл класса содержит откомпилированную
+версию или класса языка Ява, или интерфейса языка
+Ява. Корректные интерпретаторы языка Ява должны
+быть способны иметь дело с любыми файлами класса,
+которые соответствуют нижеследующим
+спецификациям.</p>
+
+<p>Файл класса языка Ява состоит из
+последовательности 8-битовых байт. Все 16-битные и
+32-битные элементы конструируются в виде двух или
+четырех 8-битовых байт, соответственно. Байты
+соединяются вместе в порядке, принятом в сетях,
+когда старшие байты приходят первыми. Этот
+формат поддерживается в языке Ява интерфейсами<tt>
+java.io.DataInput </tt>и <tt>java.io.DataOutput</tt> и классами, такими
+как <tt>java.io.DataInputStream</tt> и <tt>java.io.DataOutputStream</tt>. </p>
+
+<p>Формат файла классов описывается с
+использованием структурной нотации. Последующие
+поля структуры появляются во внешнем
+представлении без заполнения или выравнивания.
+Массивы переменного размера, чаще с элементами
+переменного размера называются таблицами и
+занимают общее место в таких структурах. </p>
+
+<p>Типы <tt>u1, u2,</tt> and <tt>u4 </tt>обозначают беззнаковые
+одно-, двух- или четырех-байтовые величины,
+соответственно, которые читают с помощью метода <tt>readUnsignedByte,readUnsignedShort</tt>
+и <tt>readInt</tt> из интерфейса<tt> java.io.DataInput.</tt></p>
+
+<h2><a Name="2.1">2.1 Формат</a></h2>
+
+<p>Следующая псевдо-структура дает
+высокоуровневое представление формата файла</p>
+
+<p>класса:</p>
+
+<pre>ClassFile {<br>
+  u4 magic;&nbsp;&nbsp;&nbsp;&nbsp; 
+  u2 minor_version; 
+  u2 major_version; 
+  u2 constant_pool_count; 
+     cp_info constant_pool[constant_pool_count - 1]; 
+  u2 access_flags; u2 this_class; u2 super_class; 
+  u2 interfaces_count; 
+     u2 interfaces[interfaces_count]; 
+  u2 fields_count; 
+     field_info fields[fields_count]; 
+  u2 methods_count; 
+     method_info methods[methods_count]; 
+  u2 attributes_count; 
+     attribute_info attributes[attribute_count];
+}</pre>
+
+<h3>magic //u4</h3>
+
+<p>Это поле имеет значение 0xCAFEBABE.</p>
+
+<h3>minor_version, major_version</h3>
+
+<p>Эти поля указывают на номер версии компилятора
+языка Ява, которым был создан этот файл класса.
+Реализация виртуальной машины языка Ява будет
+совместима с номерами от 0 до<tt> n </tt>низшей версии
+из множества чисел высшей версии. Если номер
+низшей версии увеличивается, то старая
+виртуальная машина не сможет работать с ее новым
+кодом, но есть возможность создать новую
+виртуальную машину, которая будет работать с
+версиями вплоть до <tt>n+1</tt>.</p>
+
+<p>{A change of the major version number indicates a major incompatible change, one that
+requires a different virtual machine that may not support the old</p>
+
+<p>major version in any way.!</p>
+
+<p>Номер текущей высшей версии 45, текущей низшей
+версии 3.</p>
+
+<h3>constant_pool_count;</h3>
+
+<p>Это поле означает число записей в константном
+пуле файла классов.</p>
+
+<h3>constant_pool[constant_pool_count-1] </h3>
+
+<p>Константный пул - это таблица значений. Эти
+значения являются различными строковыми
+константами, именами классов, именами полей и
+другими, которые обозначены структурой класса
+или кодом.</p>
+
+<p>constant_pool[0] никогда не используется компилятором,
+и может быть использован в некоторых целях
+реализацией. </p>
+
+<p>Все элементы constant_pool вводят 1 через constant_pool_count-1
+— это элемент переменной длины, имеющий формат,
+получаемый с помощью первого &quot;tag&quot; байта,
+который описывается в пункте 2.3.</p>
+
+<h3>access_flags</h3>
+
+<p>Это поле включает трафарет до 16 модификаций,
+используемых в описаниях классов, методов и
+полей. То же кодирование используется в подобных
+полях field_info и method_info, описанных выше.
+Представление:</p>
+
+<table BORDER="1" CELLSPACING="1" BORDERCOLOR="#000000" CELLPADDING="4" WIDTH="633">
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">Flag Name</td>
+    <td WIDTH="12%" VALIGN="TOP">Значение</td>
+    <td WIDTH="30%" VALIGN="TOP">Описание</td>
+    <td WIDTH="30%" VALIGN="TOP">Где использовался</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_PUBLIC </td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0001</td>
+    <td WIDTH="30%" VALIGN="TOP">Видимый для всех</td>
+    <td WIDTH="30%" VALIGN="TOP">Класс, Метод, Переменная</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_PRIVATE </td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0002</td>
+    <td WIDTH="30%" VALIGN="TOP">Видимый только для определяемого
+    класса</td>
+    <td WIDTH="30%" VALIGN="TOP">Метод, Переменная</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_PROTECTED </td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0004</td>
+    <td WIDTH="30%" VALIGN="TOP">Видимый для подклассов</td>
+    <td WIDTH="30%" VALIGN="TOP">Метод, Переменная</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_STATIC</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0008</td>
+    <td WIDTH="30%" VALIGN="TOP">Переменная или метод статические</td>
+    <td WIDTH="30%" VALIGN="TOP">Метод, Переменная</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_FINAL</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0010</td>
+    <td WIDTH="30%" VALIGN="TOP">Нет дальнейшей подкласификации,
+    обхода или присваивания после инициализации</td>
+    <td WIDTH="30%" VALIGN="TOP">Класс, Метод, Переменная</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_SYNCHRONIZED</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0020</td>
+    <td WIDTH="30%" VALIGN="TOP">Использует возврат в блокировке
+    монитора</td>
+    <td WIDTH="30%" VALIGN="TOP">Метод</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_VOLATILE</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0040</td>
+    <td WIDTH="30%" VALIGN="TOP">Не может помещать в кеш</td>
+    <td WIDTH="30%" VALIGN="TOP">Переменная</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_TRANSIENT</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0080</td>
+    <td WIDTH="30%" VALIGN="TOP">Не может боть написан или
+    прочитан постоянным объектом управления</td>
+    <td WIDTH="30%" VALIGN="TOP">Перемення</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_NATIVE</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0100</td>
+    <td WIDTH="30%" VALIGN="TOP">Реализован в других языках</td>
+    <td WIDTH="30%" VALIGN="TOP">Метод</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_INTERFACE</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0200</td>
+    <td WIDTH="30%" VALIGN="TOP">интерфейс</td>
+    <td WIDTH="30%" VALIGN="TOP">Класс</td>
+  </tr>
+  <tr>
+    <td WIDTH="28%" VALIGN="TOP">ACC_ABSTRACT</td>
+    <td WIDTH="12%" VALIGN="TOP"><p ALIGN="CENTER">0x0400</td>
+    <td WIDTH="30%" VALIGN="TOP">Ничего не предусматривает</td>
+    <td WIDTH="30%" VALIGN="TOP">Класс, Метод</td>
+  </tr>
+</table>
+
+<h3>this_class</h3>
+
+<p>Это поле-индекс в константном пуле;
+constant_pool[this_class] должен быть CONSTANT_class.</p>
+
+<h3>super_class</h3>
+
+<p>Это поле-индекс в константном пуле. Если
+значение super_class не равно нолю, то constant_pool[super_class]
+должен быть классом, и представляет индех
+суперкласса класса в константном пуле. </p>
+
+<p>Если значение super_class равно нолю, то класс должен
+быть java.lang.Object, и он не имеет суперкласса.</p>
+
+<h3>interfaces_count</h3>
+
+<p>Это поле дает число интерфейсов, которые этот
+класс реализует.</p>
+
+<h3>interfaces[interfaces_count]</h3>
+
+<p>Каждое значение этой таблицы является индексом
+в константном пуле. Если табличное значение не
+равно нулю (interfaces[i] != 0, где 0 &lt;= i &lt; interfaces_count), то
+constant_pool[interfaces[i]] должен быть интерфейсом, который<font
+color="#000000"> реализуется этим классом.</p>
+
+<p>Вопрос: Может ли хоть одно из вхождений быть 0?</p>
+
+<h3>fields_count</h3>
+
+<p>Это поле содержит число переменных, как
+статических так и динамических, определяемых
+этим классом. Таблица полей включает только те <font
+color="#000000">переменные, которые четко определяются
+этим классом. Она не включает те тех переменных,
+которые доступны этому классу, но унаследованы
+из суперклассов.</p>
+
+<h3>fields[fields_count]</h3>
+
+<p>Каждое значение в таблице-полностью
+завершенное описание поля класса. Смотри пункт 2.4
+для более полной информации о field_info структуре.</p>
+
+<h3>methods_count</h3>
+
+<p>Это поле показывает общее число методов, как
+статических так и динамических, определяемых
+этим классом. Эта таблица включает только те
+методы, которые определяются этим классом. Она не
+включает унаследованные методы.</p>
+
+<h3>methods[methods_count]</h3>
+
+<p>Каждое значение в таблице-завершенное описание
+метода в классе. Смотри пункт 2.5 для полной
+информации о method_info структуре.</p>
+
+<h3>attributes_count</h3>
+
+<p>Это поле показывает число дополнительных
+аттрибутов этого класса.</p>
+
+<h3>attributes[attributes_count]</h3>
+
+<p>Класс может иметь несколько необязательных
+аттрибутов связанных с ним. Считается, что только
+аттрибут класса признается как атрибут
+&quot;SourceFile&quot; , который обозначает имя файла
+источника, из которого формируется этот файл
+класса. Смотри пункт 2.6 для более полной
+информации о attribute_info структуре.</p>
+
+<h2><a Name="2.2">2.2 Сигнатуры</a></h2>
+
+<p>Сигнатура — это строка, задающая тип метода,
+поля или массива. </p>
+
+<p>Сигнатура поля определяет значение аргумента
+функции или значение переменной. Это
+последовательность байт, порождаемых следующей
+грамматикой:</p>
+
+<ul>
+<li>&lt; сигнатура_поля &gt; ::= &lt; тип_поля &gt;</li>
+<li>&lt; тип_поля &gt; ::= &lt; базовый_тип &gt;|&lt;объектный_тип &gt;|&lt; тип_массив &gt;</li>
+<li>&lt; базовый_тип &gt; ::= B|C|D|F|I|J|S|Z</li>
+<li>&lt; объектный_тип &gt; ::= L&lt; полное имя класса&gt;;</li>
+<li>&lt; тип массив &gt; ::= [&lt; необязательный_размер&gt;&lt; тип_поля &gt;</li>
+<li>&lt; необязательный_размер &gt; ::= [0-9]*</li>
+</ul>
+
+<p>Обозначения базовых типов следующие:</p>
+<ul>
+<li>B byte знаковый байт</li>
+<li>C char символьный</li>
+<li>D double вещественный двойной точности стандарта IEEE </li>
+<li>F float вещественный обычной точности стандарта IEEE </li>
+<li>I int целый</li>
+<li>J long длинный целый</li>
+<li>L&lt;fullclassname&gt;; ... объект данного класса</li>
+<li>S short короткий целый со знаком</li>
+<li>Z boolean true или false</li>
+<li>[&lt;field sig&gt; ... Массив</li>
+</ul>
+
+<p>Сигнатура возвращаемого типа представляет
+значение, возвращаемое методом. Это
+последовательность байт в следующей грамматике:</p>
+
+<ul>&lt; сигнатура_возврата &gt; ::= &lt; тип_поля &gt; | V</ul>
+
+<p>Буква V означает, что метод не возвращает
+значения. В противном случае, сигнатура
+указывает тип возвращаемого значения. </p>
+
+<p>Сигнатура аргумента определяет аргумент
+вызываемого метода:</p>
+
+<ul>&lt; сигнатура аргумента &gt; ::= &lt; тип_поля &gt;</ul>
+
+<p>Сигнатура метода определяет аргументы этого
+метода, а также возвращаемое значение .</p>
+
+<ul>&lt; сигнатура_метода &gt; ::= (&lt;
+сигнатура_аргументов &gt;) &lt; сигнатура_возврата
+&gt;</ul>
+
+<ul>&lt; сигнатура_аргументов&gt;: := &lt;
+сигнатура_аргумента &gt;*</ul>
+
+<h2><a Name="2.3">2.3 Константный пул </a></h2>
+
+<p>Все элементы константного пула начинаются с
+байта тега.</p>
+
+<p>Таблица, преставленная ниже, содержит перечень
+тегов и их значений:</p>
+
+<table BORDER="1" CELLSPACING="1" BORDERCOLOR="#000000" CELLPADDING="4" WIDTH="337">
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP"><p ALIGN="CENTER">Тип константы </td>
+    <td WIDTH="25%" VALIGN="TOP">Значение</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Class </td>
+    <td WIDTH="25%" VALIGN="TOP">7</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Fieldref </td>
+    <td WIDTH="25%" VALIGN="TOP">9</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Methodref </td>
+    <td WIDTH="25%" VALIGN="TOP">10</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_InterfaceMethodref</td>
+    <td WIDTH="25%" VALIGN="TOP">11</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_String </td>
+    <td WIDTH="25%" VALIGN="TOP">8</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Integer </td>
+    <td WIDTH="25%" VALIGN="TOP">3</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Float </td>
+    <td WIDTH="25%" VALIGN="TOP">4</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Long </td>
+    <td WIDTH="25%" VALIGN="TOP">5</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Double </td>
+    <td WIDTH="25%" VALIGN="TOP">6</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_NameAndType </td>
+    <td WIDTH="25%" VALIGN="TOP">12</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Utf8 </td>
+    <td WIDTH="25%" VALIGN="TOP">1</td>
+  </tr>
+  <tr>
+    <td WIDTH="75%" VALIGN="TOP">CONSTANT_Unicode </td>
+    <td WIDTH="25%" VALIGN="TOP">2</td>
+  </tr>
+</table>
+
+<p>Каждый байт тега-это один или несколько
+следующих байт, дающих информацию о специфике
+констант.</p>
+
+<h3>CONSTANT_Class</h3>
+
+<p>CONSTANT_Class используется для представления класса
+или интерфейса.</p>
+
+<pre>CONSTANT_Class_info {
+  u1 tag;
+  u2 name_index;
+}
+</pre>
+
+<h4>tag</h4>
+
+<p>тег будет иметь значение CONSTANT_Class</p>
+
+<h4>name_index</h4>
+
+<p>constant_pool [name_index] это CONSTANT_Utf8,<font color="#000000"> дающий
+строку имени класса. </p>
+
+<p>Поскольку массивы – это объекты, операции anewarray
+и multianewarray могут ссылаться на “классы” массивов
+посредством элемента CONSTANT_Class в константном пуле.
+В этом случае, имя класса является сигнатурой.
+Например, имя класса </p>
+
+<tt>int[][] </tt>
+
+<p>это </p>
+
+<tt>[[I</tt>
+
+<p>&nbsp;</p>
+
+<p>Имя класса </p>
+
+<tt>Thread[] </tt>
+
+<p>это</p>
+
+<tt>&quot;[Ljava.lang.Thread; &quot;</tt>
+
+<h3>CONSTANT_{Fieldref,Methodref,InterfaceMethodref}</h3>
+
+<p>Поля, методы и интерфейсные методы
+представляются следующей подобной структурой.</p>
+
+<pre>CONSTANT_Fieldref_info {
+  u1 tag;
+  u2 class_index;
+  u2 name_and_type_index;
+}</pre>
+
+<pre>CONSTANT_Methodref_info {
+  u1 tag;
+  u2 class_index;
+  u2 name_and_type_index;
+}</pre>
+
+<pre>CONSTANT_InterfaceMethodref_info {
+  u1 tag;
+  u2 class_index;
+  u2 name_and_type_index;
+}
+</pre>
+
+<h4>tag</h4>
+
+<p>Тег будет иметь значение CONSTANT_Fieldref, CONSTANT_Methodref,
+или CONSTANT_InterfaceMethodref.</p>
+
+<h4>class_index </h4>
+
+<p>constant_pool [class_index] должна быть элементом типа
+CONSTANT_Class, дающей имя класса или интерфейса,
+содержащего поле или метод. </p>
+
+<p>Для CONSTANT_Fieldref и CONSTANT_Methodref, CONSTANT_Class элемент
+должен быть фактическим классом. Для
+CONSTANT_InterfaceMethodref, элемент должен быть интерфейсом,
+который подразумевает реализацию метода.</p>
+
+<h4>name_and_type_index</h4>
+
+<p>constant_pool [name_and_type_index] должна быть CONSTANT_NameAndType. Эта
+составляющая константного пула указывает на имя
+и сигнатуру поля или метода.</p>
+
+<h3>CONSTANT_String</h3>
+
+<p>CONSTANT_String используется для представления
+объектов встроенного строкового типа <font
+color="#000000">(String)</p>
+
+<pre>CONSTANT_String_info {
+  u1 tag;
+  u2 string_index;
+}</pre>
+
+<h4>tag</h4>
+
+<p>Тег будет иметь значение СONSTANT</p>
+
+<h4>string_index</h4>
+
+<p>constant_pool [string_index] -это CONSTANT_Utf8 строка, дающая
+значение, которое инициализирует объект типа
+String.</p>
+
+<h3>CONSTANT_Integer and CONSTANT_Float</h3>
+
+<p>CONSTANT_Integer и CONSTANT_Float представляют собой
+четырехбайтовые константы.</p>
+
+<pre>CONSTANT_Integer_info {
+  u1 tag;
+  u4 bytes;
+}</pre>
+<pre>CONSTANT_Float_info {
+  u1 tag;
+  u4 bytes;
+}
+</pre>
+<h4>tag</h4>
+
+<p>тег будет иметь значение CONSTANT_Integer или CONSTANT_Float.</p>
+
+<h4>bytes</h4>
+
+<p>Для целых, четыре байта-целые значения. Для
+вещественных, в стандарте IEEE 754 они- число с
+плавающей точкой. Эти байты располагаются по
+возрастанию (первым старший байт ).</p>
+
+<p>&nbsp;</p>
+
+<h3>CONSTANT_Long и CONSTANT_Double</h3>
+
+<p>CONSTANT_Long и CONSTANT_Double представляют собой 8-байтовые
+константы.</p>
+
+<pre>CONSTANT_Long_info {
+  u1 tag;
+  u4 high_bytes;
+  u4 low_bytes;
+}</pre>
+
+<pre>CONSTANT_Double_info {
+  u1 tag;
+  u4 high_bytes;
+  u4 low_bytes;
+}</pre>
+
+<p>Все 8-байтовые константы занимают по два места в
+константном пуле. Если это n-ый элемент
+константного пула, то следующий будет находиться
+на n+2 месте.</p>
+
+<h4>tag</h4>
+
+<p>Тег будет иметь значение CONSTANT_Long или CONSTANT_Double.</p>
+
+<h4>high_bytes, low_bytes</h4>
+
+<p>Для CONSTANT_Long, 64-битовое значение это есть - (high_bytes
+&lt;&lt; 32) + low_bytes.</p>
+
+<p>Для CONSTANT_Double, 64-битовое значение это есть high_bytes
+и low_bytes вместе представленые в стандарте IEEE 754,
+как двойные вещественные с плавающей точкой.</p>
+
+<h3>CONSTANT_NameAndType</h3>
+
+<p>CONSTANT_NameAndType используется для представления
+поля или метода без указания принадлежности
+классу.</p>
+
+<pre>CONSTANT_NameAndType_info {
+  u1 tag;
+  u2 name_index;
+  u2 signature_index;
+}
+</pre>
+<h4>tag</h4>
+
+<p>Тег будет принимать значение CONSTANT_NameAndType.</p>
+
+<h4>name_index</h4>
+
+<p>constant_pool [name_index] - это CONSTANT_Utf8 строка, дающая имя
+поля или метода.</p>
+
+<h4>signature_index</h4>
+
+<p>constant_pool [signature_index] - это CONSTANT_Utf8 строка, дающая
+значение сигнатуры поля или метода.</p>
+
+<h3>CONSTANT_Utf8 и CONSTANT_Unicode</h3>
+
+<p>CONSTANT_Utf8 и CONSTANT_Unicode используются для
+представления значений строковых констант</p>
+
+<p>CONSTANT_Utf8-строки &quot;кодируются&quot; так, что
+строки, содержащие только
+символы ASCII не null, могут быть представлены так,
+что на каждый символ приходится один байт, но
+могут быть представлены символы до 16 бит:</p>
+
+<p>Все символы в диапазоне 0x0001 к 0x007F представлены
+единственным байтом:</p>
+
+<p>+-+-+-+-+-+-+-+-+</p>
+
+<p>|0|7 бит из данных|</p>
+
+<p>+-+-+-+-+-+-+-+-+</p>
+
+<p>Символ null (0x0000) и символы в диапазоне 0x0080 к 0x07FF
+представлены парой байт: </p>
+
+<p>+-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+</p>
+
+<p>|1|1|0|5 бит|</p><p> |1|0|6 бит|</p>
+
+<p>+-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+</p>
+
+<p>Символы в диапазоне 0x0800 к 0xFFFF представлены
+тремя байтами:</p>
+
+<p>+-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+</p>
+
+<p>|1|1|1|0|4 бита|</p><p>|1|0|6 бит|</p><p>|1|0|6 бит|</p>
+
+<p>+-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+</p>
+
+<p>Имеются два различия между этим форматом и
+&quot;стандартом&quot; формата UTF-8. Во-первых, пустой
+байт 0x00 кодируется в двухбайтовый формат, больше
+чем однобайтовый, чтобы наши строки не имели
+вложенных null. Во-вторых, используются только
+однобайтовые, двухбайтовые и трехбайтовые
+форматы. Мы не рассматриваем более длинные
+форматы.</p>
+
+<h4>tag</h4>
+
+<p>Тег будет иметь значение CONSTANT_Utf8 или CONSTANT_Unicode.</p>
+
+<h4>length</h4>
+
+<p>Число байтов строки. Эти строки оканчиваются не
+на null.</p>
+
+<h4>bytes</h4>
+
+<p>Фактические байты строки.</p>
+
+<h2><a Name="2.4">2.4 Поля</a></h2>
+
+<p>Информация о каждом поле следует сразу за полем
+field_count в файле класса. Каждое поле описано
+структурой field_info переменной длины.</p>
+
+<p>Формат этой структуры следующий:</p>
+
+<pre>field_info {
+  u2 access_flags;
+  u2 name_index;
+  u2 signature_index;
+  u2 attributes_count;
+  attribute_info attributes[attribute_count];
+}</pre>
+
+<h4>access_flags</h4>
+
+<p>Это - набор шестнадцати флагов, относящихся к
+классам, методам, и полям для описания различных
+свойств и какими методоми к ним можно обращаться
+из других классов. См. таблицу &quot;Access Flags&quot; на
+странице 12, которая указывает значение бит в этом
+поле.</p>
+
+<p>Флаги, которые можно устанавливать для поля -
+ACC_PUBLIC, ACC_PRIVATE, ACC_PROTECTED, ACC_STATIC, ACC_FINAL, ACC_VOLATILE, и
+ACC_TRANSIENT.</p>
+
+<p>В большинстве случаев один из ACC_PUBLIC, ACC_PROTECTED, и
+ACC_PRIVATE можно устанавливать для любого метода.</p>
+
+<h4>name_index</h4>
+
+<p>constant_pool [name_index] - это CONSTANT_Utf8 строка, которая
+является названием поля.</p>
+
+<h4>signature_index</h4>
+
+<p>constant_pool [signature_index] - это CONSTANT_Utf8 строка, которая
+является сигнатурой поля. См. секцию
+&quot;Сигнатуры&quot; для получения большей
+информации о сигнатурах.</p>
+
+<h4>attributes_count</h4>
+
+<p>Это значение указывает число дополнительных
+атрибутов этого поля.</p>
+
+<h4>attributes[attributes_count]</h4>
+
+<p>Поле может иметь любое число необязательных
+атрибутов, связанных с ним. В настоящее время,
+единственно предусмотренный атрибут поля -
+&quot;ConstantValues&quot;. Это атрибут, указывающий, что это
+поле - числовая константа и задает числовое
+значение этого поля.</p>
+
+<p>Любые другие атрибуты пропускаются.</p>
+
+<h2><a Name="2.5">2.5 Методы</a></h2>
+
+<p>Информация для каждого метода следует сразу за
+полем method_count в файле поля. Каждый метод описан
+структурой method_info переменной длины. Эта
+структура имеет следующий формат:</p>
+
+<pre>method_info {
+  u2 access_flags;
+  u2 name_index;
+  u2 signature_index;
+  u2 attributes_count;
+  attribute_info attributes[attribute_count];
+}</pre>
+
+<h4>access_flags</h4>
+
+<p>Это набор шестнадцати флагов, используемых
+классами, методами, и полями для описания
+различных свойств и как они доступны методам из
+других классов. См. таблицу &quot;Access Flags&quot; на
+странице 12, на которой можно найти представление
+бит в этом поле.</p>
+
+<p>Поля, которые можно устанавливать для метода -
+ACC_PUBLIC, ACC_PRIVATE, ACC_PROTECTED, ACC_STATIC, ACC_FINAL, ACC_SYNCHRONIZED,
+ACC_NATIVE, и ACC_ABSTRACT.</p>
+
+<p>В случаях ACC_PUBLIC, ACC_PROTECTED, и ACC_PRIVATE можно
+устанавливать для любого метода.</p>
+
+<h4>name_index</h4>
+
+<p>constant_pool [name_index] - это CONSTANT_Utf8 строка, в которой
+указывается название метода.</p>
+
+<h4>signature_index</h4>
+
+<p>constant_pool [signature_index] - это CONSTANT_Utf8 строка, в которой
+указывается сигнатура поля. См. секцию
+&quot;Сигнатуры&quot; для получения большей
+информации о записях.</p>
+
+<h4>attributes_count</h4>
+
+<p>Это значение указывает число дополнительных
+признаков этого поля.</p>
+
+<h4>atributes</h4>
+
+<p>Поле может иметь любое число необязательных
+признаков, связанных с ним. Каждый признак имеет
+название, и другую дополнительную информацию. В
+настоящее время, распознаются атрибуты &quot;Code&quot;
+и &quot;Exceptions&quot;, которые описывают байткоды,
+предназначенные для исполнения этого метода, и
+исключения Явы , которые могут возникать при
+выполнении метода, соответственно.</p>
+
+<p>Любые другие признаки пропускаются.</p>
+
+<h2><a Name="2.6">2.6 Атрибуты</a></h2>
+
+<p>Атрибуты используются в нескольких различных
+местах в формате класса. Все атрибуты имеют
+следующий формат:</p>
+
+<pre>GenericAttribute_info {
+  u2 attribute_name;
+  u4 attribute_length;
+  u1 info[attribute_length];
+}</pre>
+
+<p>attribute_name - 16-битный индекс в константном пуле
+класса; значение constant_pool [attribute_name] - CONSTANT_Utf8
+строка, в которой указывается название атрибута.
+Поле attribute_length указывает длину последующей
+информации в байтах. Эта длина не включает в себя
+шесть байт attribute_name и attribute_length.</p>
+
+<p>В следующем тексте всякий раз при упоминании
+атрибутов мы указываем название ao?eaooia, которые
+считаются понятыми. В дальнейшем, атрибуты будут
+добавлены. Предполагается, что читатели файла
+класса пропустят и игнорируют информацию любого
+атрибута, который они не понимают.</p>
+
+<h3>SourceFile</h3>
+
+<p>Атрибут &quot;SourceFile&quot; имеет следующий формат:</p>
+
+<pre>SourceFile_attribute {
+  u2 attribute_name_index;
+  u4 attribute_length;
+  u2 sourcefile_index;
+}</pre>
+
+<h4>attribute_name_index</h4>
+
+<p>constant_pool [attribute_name_index] - это CONSTANT_Utf8 строка
+&quot;SourceFile&quot;.</p>
+
+<h4>attribute_length</h4>
+
+<p>Длина SourceFile_attribute должна быть 2.</p>
+
+<h4>sourcefile_index</h4>
+
+<p>constant_pool [sourcefile_index] - это CONSTANT_Utf8 строка,
+указывающая первоначальный файл,из которого
+этот файл класса компилировался.</p>
+
+<h3>ConstantValue</h3>
+
+<p>Атрибут &quot;ConstantValue&quot; имеет следующий формат:</p>
+
+<pre>ConstantValue_attribute {
+  u2 attribute_name_index;
+  u4 attribute_length;
+  u2 constantvalue_index;
+}</pre>
+
+<h4>attribute_name_index</h4>
+
+<p>сonstant_pool [attribute_name_index] - это CONSTANT_Utf8 строка
+&quot;ConstantValue&quot;.</p>
+
+<h4>attribute_length</h4>
+
+<p>Длина ConstantValue_attribute должна быть 2.</p>
+
+<h4>сonstantvalue_index</h4>
+
+<p>сonstant_pool [constantvalue_index] дает значение константы
+для этого поля.</p>
+
+<p>Элемент константного пула должен иметь тип,
+соответствующий полю, как показано в следующей
+таблице:</p>
+
+<table BORDER="1" CELLSPACING="1" BORDERCOLOR="#000000" CELLPADDING="7" WIDTH="348">
+  <tr>
+    <td WIDTH="56%" VALIGN="TOP">long </td>
+    <td WIDTH="44%" VALIGN="TOP">CONSTANT_Long</td>
+  </tr>
+  <tr>
+    <td WIDTH="56%" VALIGN="TOP">float </td>
+    <td WIDTH="44%" VALIGN="TOP">CONSTANT_Float</td>
+  </tr>
+  <tr>
+    <td WIDTH="56%" VALIGN="TOP">double </td>
+    <td WIDTH="44%" VALIGN="TOP">CONSTANT_Double</td>
+  </tr>
+  <tr>
+    <td WIDTH="56%" VALIGN="TOP">int, short, char, byte, boolean</td>
+    <td WIDTH="44%" VALIGN="TOP">CONSTANT_Integer</td>
+  </tr>
+</table>
+
+<h3>Code</h3>
+
+<p>Атрибут &quot;Code&quot; имеет следующий формат:</p>
+
+<pre>Code_attribute {
+  u2 attribute_name_index;
+  u4 attribute_length;
+  u2 max_stack;
+  u2 max_locals;
+  u4 code_length;
+  u1 code[code_length];
+  u2 exception_table_length;
+  { 
+    u2 start_pc;
+    u2 end_pc;
+    u2 handler_pc;
+    u2 catch_type;
+  } exception_table[exception_table_length];
+  u2 attributes_count;
+  attribute_info attributes[attribute_count];
+}</pre>
+
+<h4>attribute_name_index</h4>
+
+<p>constant_pool [attribute_name_index] - это CONSTANT_Utf8 строка
+&quot;Code&quot;.</p>
+
+<h4>attribute_length</h4>
+
+<p>Это поле указывает общую длину атрибута
+&quot;Code&quot;, исключая начальные шесть байтов.</p>
+
+<h4>max_stack</h4>
+
+<p>Максимальное число элементов стека операндов,
+используемых при выполнении этого метода. См.
+другие главы в этом описании для получения
+большей информации о стеке операндов.</p>
+
+<h4>max_locals</h4>
+
+<p>Число слотов локальных переменных,
+используемых этим методом. См. другие главы в
+этом описании для получения большего количества
+информации о локальных переменных.</p>
+
+<h4>code_length</h4>
+
+<p>Число байт в коде виртуальной машины для этого
+метода.</p>
+
+<h4>code</h4>
+
+<p>Это фактические байты кода виртуальной машины,
+которые реализуют метод. Если первый байт кода
+выровнен на кратную четырем границу, то при
+считывании в память элементы операций tableswitch и
+tablelookup будут выровнены; см. их описание для
+получения большей информации по выравниванию
+требований.</p>
+
+<h4>exception_table_length</h4>
+
+<p>Число элементов в следующей таблице
+исключений.</p>
+
+<h4>exception_table</h4>
+
+<p>Каждый элемент таблицы исключений описывает
+одну программу-обработчик исключений в коде.</p>
+
+<h4>start_pc, end_pc</h4>
+
+<p>Два поля start_pc и end_pc указывают диапазоны в коде,
+в которых обработчик исключений активен.
+Значения обоих полей - это смещения от начала
+кода. start_pc включается. end_pc не включается.</p>
+
+<h4>handler_pc</h4>
+
+<p>Это поле указывает начальный адрес обработчика
+исключений. Значение поля-это смещение от начала
+кода.</p>
+
+<h4>catch_type</h4>
+
+<p>Если catch_type отличен от нуля, тогда constant_pool [catch_type]
+будет классом исключений, которые этот
+обработчик исключений перехватывает. Этот
+обработчик исключений должен вызываться только
+в том случае, если сгенерированное
+исключение-это элемент данного класса.</p>
+
+<p>Если catch_type - нуль, то этот обработчик исключений
+должен вызываться для всех исключений.</p>
+
+<h4>attributes_count</h4>
+
+<p>Это поле указывает число дополнительных
+атрибутов кода. Атрибут &quot;Code&quot; может иметь
+атрибуты.</p>
+
+<h4>attributes</h4>
+
+<p>Атрибут &quot;Code&quot; может иметь любое число
+необязательных атрибутов связанных с ним. Каждый
+атрибут имеет название и другую дополнительную
+информацию. В настоящее время, единственные <font
+color="#000000">определенные атрибуты кода -
+&quot;LineNumberTable&quot; и &quot;LocalVariableTable&quot;, оба из которых
+содержат отлаженную информацию.</p>
+
+<h3>Таблица Исключений</h3>
+
+<p>Эта таблица используется компиляторами,
+которые указывают на то, какие исключения
+генерировать описываемым методом:</p>
+
+<pre>Exceptions_attribute {
+  u2 attribute_name_index;
+  u4 attribute_length;
+  u2 number_of_exceptions;
+  u2 exception_index_table[number_of_exceptions];
+}</pre>
+
+<h4>attribute_name_index</h4>
+
+<p>constant_pool [attribute_name_index] будет CONSTANT_Utf8 строка
+&quot;Exceptions&quot;.</p>
+
+<h4>attribute_length</h4>
+
+<p>Это поле указывает общую длину Exceptions_attribute, за
+исключением начальных шести байтов.</p>
+
+<h4>number_of_exceptions</h4>
+
+<p>Это поле указывает число элементов в следующей
+таблице индексов исключений.</p>
+
+<h4>exception_index_table</h4>
+
+<p>Каждое значение в этой таблице - индекс в
+константном пуле. Для каждого элемента таблицы
+(exception_index_table [i]!= 0, где 0 &lt; = i &lt; number_of_exceptions),
+constant_pool [exception_index + table[i]] – это исключение, <font
+color="#000000">которое надо генерировать описываемым
+классом.</p>
+
+<h3>LineNumberTable</h3>
+
+<p>Этот атрибут используется отладчиками и
+обработчиком исключений, для определения того
+какая часть кода виртуальной машины
+соответствует данному местоположению в исходном
+тексте. LineNumberTable_attribute имеет следующий формат:</p>
+
+<pre>LineNumberTable_attribute {
+  u2 attribute_name_index;
+  u4 attribute_length;
+  u2 line_number_table_length;
+  { 
+    u2 start_pc; 
+    u2 line_number;
+  } line_number_table[line_number_table_length];
+}</pre>
+
+<h4>Attribute_name_index</h4>
+
+<p>constant_pool [attribute_name_index] будет CONSTANT_Utf8 строка
+&quot;LineNumberTable&quot;.</p>
+
+<h4>attribute_length</h4>
+
+<p>Это поле указывает общую длину LineNumberTable_attribute,
+за исключением начальных шести байтов.</p>
+
+<h4>line_number_table_length</h4>
+
+<p>Это поле указывает число элементов в следующей
+таблице номеров строк.</p>
+
+<h4>line_number_table</h4>
+
+<p>Каждый элемент в таблице номеров строк
+указывает на то, что номер строки в исходном
+файле изменяется в данном месте кода.</p>
+
+<h4>start_pc</h4>
+
+<p>Это поле указывает место в коде с которого
+начинается код для новой строки в источнике
+начал. source_pc &lt;&lt; &lt;SHOULD THAT BE start_pc? &gt;&gt; - смещенным
+от начала кода.</p>
+
+<h4>line_number</h4>
+
+<p>Номер текущей строки, которая начинается с
+данной позиции в файле </p>
+
+<h3>LocalVariableTable</h3>
+
+<p>Этот атрибут используется отладчиками, чтобы
+определить значение данной локальной переменной
+в ходе динамического выполнения метода. Формат
+LocalVariableTable_attribute следующий:</p>
+
+<pre>LocalVariableTable_attribute {
+  u2 attribute_name_index;
+  u4 attribute_length;
+  u2 local_variable_table_length;
+  { 
+    u2 start_pc;
+    u2 length;
+    u2 name_index;
+    u2 signature_index;
+    u2 slot;
+  } local_variable_table[local_variable_table_length];
+}</pre>
+
+<h4>attribute_name_index</h4>
+
+<p>constant_pool [attribute_name_index] будет CONSTANT_Utf8 строка
+&quot;LocalVariableTable&quot;.</p>
+
+<h4>attribute_length</h4>
+
+<p>Это поле указывает общую длину LineNumberTable_attribute,
+за исключением начальных шести байтов.</p>
+
+<h4>local_variable_table_length</h4>
+
+<p>Это поле указывает число элементов в следующей
+таблице локальных переменных</p>
+
+<h4>local_variable_table</h4>
+
+<p>Каждый элемент в таблице локальных переменных
+указывает диапазон кода в течение которого
+локальная переменная имеет значение. Оно также
+указывает где на стеке может быть найдено
+значение этой переменной.</p>
+
+<h4>start_pc, length</h4>
+
+<p>Данная локальная переменная будет иметь
+значение в коде между start_pc и start_pc + length. Эти два
+значения являются смещениями от начала кода.</p>
+
+<h4>name_index, signature_index</h4>
+
+<p>constant_pool [name_index] и constant_pool [signature_index] - это CONSTANT_Utf8
+строки, указывающие название и сигнатуру
+локальной переменной.</p>
+
+<h4>slot</h4>
+
+<p>Данная переменная будет ячейкой локальной
+переменной в структуре метода.</p>
+</font></font></font></font></font></font>
+</body>
+</html>

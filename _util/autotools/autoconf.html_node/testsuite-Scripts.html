@@ -1,0 +1,149 @@
+<html lang="en">
+<head>
+<title>testsuite Scripts - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite" title="Using an Autotest Test Suite">
+<link rel="next" href="Autotest-Logs.html#Autotest-Logs" title="Autotest Logs">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="testsuite-Scripts"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Autotest-Logs.html#Autotest-Logs">Autotest Logs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Using-an-Autotest-Test-Suite.html#Using-an-Autotest-Test-Suite">Using an Autotest Test Suite</a>
+<hr>
+</div>
+
+<h4 class="subsection">19.1.1 <samp><span class="command">testsuite</span></samp> Scripts</h4>
+
+<p><a name="index-g_t_0040command_007btestsuite_007d-2258"></a>
+Generating testing or validation suites using Autotest is rather easy. 
+The whole validation suite is held in a file to be processed through
+<samp><span class="command">autom4te</span></samp>, itself using GNU M4 under the hood, to
+produce a stand-alone Bourne shell script which then gets distributed. 
+Neither <samp><span class="command">autom4te</span></samp> nor GNU M4 are needed at
+the installer's end.
+
+   <p><a name="index-test-group-2259"></a>Each test of the validation suite should be part of some test group.  A
+<dfn>test group</dfn> is a sequence of interwoven tests that ought to be
+executed together, usually because one test in the group creates data
+files that a later test in the same group needs to read.  Complex test
+groups make later debugging more tedious.  It is much better to
+keep only a few tests per test group.  Ideally there is only one test
+per test group.
+
+   <p>For all but the simplest packages, some file such as <samp><span class="file">testsuite.at</span></samp>
+does not fully hold all test sources, as these are often easier to
+maintain in separate files.  Each of these separate files holds a single
+test group, or a sequence of test groups all addressing some common
+functionality in the package.  In such cases, <samp><span class="file">testsuite.at</span></samp>
+merely initializes the validation suite, and sometimes does elementary
+health checking, before listing include statements for all other test
+files.  The special file <samp><span class="file">package.m4</span></samp>, containing the
+identification of the package, is automatically included if found.
+
+   <p>A convenient alternative consists in moving all the global issues
+(local Autotest macros, elementary health checking, and <code>AT_INIT</code>
+invocation) into the file <code>local.at</code>, and making
+<samp><span class="file">testsuite.at</span></samp> be a simple list of <code>m4_include</code>s of sub test
+suites.  In such case, generating the whole test suite or pieces of it
+is only a matter of choosing the <samp><span class="command">autom4te</span></samp> command line
+arguments.
+
+   <p>The validation scripts that Autotest produces are by convention called
+<samp><span class="command">testsuite</span></samp>.  When run, <samp><span class="command">testsuite</span></samp> executes each test
+group in turn, producing only one summary line per test to say if that
+particular test succeeded or failed.  At end of all tests, summarizing
+counters get printed.  One debugging directory is left for each test
+group which failed, if any: such directories are named
+<samp><span class="file">testsuite.dir/</span><var>nn</var></samp>, where <var>nn</var> is the sequence number of
+the test group, and they include:
+
+     <ul>
+<li>a debugging script named <samp><span class="file">run</span></samp> which reruns the test in
+<dfn>debug mode</dfn> (see <a href="testsuite-Invocation.html#testsuite-Invocation">testsuite Invocation</a>).  The automatic generation
+of debugging scripts has the purpose of easing the chase for bugs.
+
+     <li>all the files created with <code>AT_DATA</code>
+
+     <li>all the Erlang source code files created with <code>AT_CHECK_EUNIT</code>
+
+     <li>a log of the run, named <samp><span class="file">testsuite.log</span></samp>
+</ul>
+
+   <p>In the ideal situation, none of the tests fail, and consequently no
+debugging directory is left behind for validation.
+
+   <p>It often happens in practice that individual tests in the validation
+suite need to get information coming out of the configuration process. 
+Some of this information, common for all validation suites, is provided
+through the file <samp><span class="file">atconfig</span></samp>, automatically created by
+<code>AC_CONFIG_TESTDIR</code>.  For configuration information which your
+testing environment specifically needs, you might prepare an optional
+file named <samp><span class="file">atlocal.in</span></samp>, instantiated by <code>AC_CONFIG_FILES</code>. 
+The configuration process produces <samp><span class="file">atconfig</span></samp> and <samp><span class="file">atlocal</span></samp>
+out of these two input files, and these two produced files are
+automatically read by the <samp><span class="file">testsuite</span></samp> script.
+
+   <p>Here is a diagram showing the relationship between files.
+
+<p class="noindent">Files used in preparing a software package for distribution:
+
+<pre class="example">                     [package.m4] --&gt;.
+                                      \
+     subfile-1.at -&gt;.  [local.at] ----&gt;+
+         ...         \                  \
+     subfile-i.at ----&gt;-- testsuite.at --&gt;-- autom4te* --&gt;testsuite
+         ...         /
+     subfile-n.at -&gt;'
+</pre>
+   <p class="noindent">Files used in configuring a software package:
+
+<pre class="example">                                          .--&gt; atconfig
+                                         /
+     [atlocal.in] --&gt;  config.status* --&lt;
+                                         \
+                                          `--&gt; [atlocal]
+</pre>
+   <p class="noindent">Files created during test suite execution:
+
+<pre class="example">     atconfig --&gt;.                    .--&gt; testsuite.log
+                  \                  /
+                   &gt;-- testsuite* --&lt;
+                  /                  \
+     [atlocal] -&gt;'                    `--&gt; [testsuite.dir]
+</pre>
+   </body></html>
+

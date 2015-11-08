@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Two-Part Install</title>
+
+<meta name="description" content="automake: Two-Part Install">
+<meta name="keywords" content="automake: Two-Part Install">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Use-Cases.html#Use-Cases" rel="up" title="Use Cases">
+<link href="Cross_002dCompilation.html#Cross_002dCompilation" rel="next" title="Cross-Compilation">
+<link href="VPATH-Builds.html#VPATH-Builds" rel="prev" title="VPATH Builds">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Two_002dPart-Install"></a>
+<div class="header">
+<p>
+Next: <a href="Cross_002dCompilation.html#Cross_002dCompilation" accesskey="n" rel="next">Cross-Compilation</a>, Previous: <a href="VPATH-Builds.html#VPATH-Builds" accesskey="p" rel="prev">VPATH Builds</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Two_002dPart-Installation"></a>
+<h4 class="subsection">2.2.7 Two-Part Installation</h4>
+
+<p>In our last example (see <a href="VPATH-Builds.html#VPATH-Builds">VPATH Builds</a>), a source tree was shared
+by two hosts, but compilation and installation were done separately on
+each host.
+</p>
+<p>The GNU Build System also supports networked setups where part of the
+installed files should be shared amongst multiple hosts.  It does so
+by distinguishing architecture-dependent files from
+architecture-independent files, and providing two <samp>Makefile</samp>
+targets to install each of these classes of files.
+</p>
+<a name="index-install_002dexec"></a>
+<a name="index-install_002ddata"></a>
+
+<p>These targets are <code>install-exec</code> for architecture-dependent files
+and <code>install-data</code> for architecture-independent files.
+The command we used up to now, <code>make install</code>, can be thought of
+as a shorthand for <code>make install-exec install-data</code>.
+</p>
+<p>From the GNU Build System point of view, the distinction between
+architecture-dependent files and architecture-independent files is
+based exclusively on the directory variable used to specify their
+installation destination.  In the list of directory variables we
+provided earlier (see <a href="Standard-Directory-Variables.html#Standard-Directory-Variables">Standard Directory Variables</a>), all the
+variables based on <var>exec-prefix</var> designate architecture-dependent
+directories whose files will be installed by <code>make install-exec</code>.
+The others designate architecture-independent directories and will
+serve files installed by <code>make install-data</code>.  See <a href="The-Two-Parts-of-Install.html#The-Two-Parts-of-Install">The Two Parts of Install</a>, for more details.
+</p>
+<p>Here is how we could revisit our two-host installation example,
+assuming that (1) we want to install the package directly in
+<samp>/usr</samp>, and (2) the directory <samp>/usr/share</samp> is shared by the
+two hosts.
+</p>
+<p>On the first host we would run
+</p><div class="example">
+<pre class="example">[HOST1] ~ % <kbd>mkdir /tmp/amh &amp;&amp; cd /tmp/amh</kbd>
+[HOST1] /tmp/amh % <kbd>/nfs/src/amhello-1.0/configure --prefix /usr</kbd>
+...
+[HOST1] /tmp/amh % <kbd>make &amp;&amp; sudo make install</kbd>
+...
+</pre></div>
+
+<p>On the second host, however, we need only install the
+architecture-specific files.
+</p><div class="example">
+<pre class="example">[HOST2] ~ % <kbd>mkdir /tmp/amh &amp;&amp; cd /tmp/amh</kbd>
+[HOST2] /tmp/amh % <kbd>/nfs/src/amhello-1.0/configure --prefix /usr</kbd>
+...
+[HOST2] /tmp/amh % <kbd>make &amp;&amp; sudo make install-exec</kbd>
+...
+</pre></div>
+
+<p>In packages that have installation checks, it would make sense to run
+<code>make installcheck</code> (see <a href="Basic-Installation.html#Basic-Installation">Basic Installation</a>) to verify that
+the package works correctly despite the apparent partial installation.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Cross_002dCompilation.html#Cross_002dCompilation" accesskey="n" rel="next">Cross-Compilation</a>, Previous: <a href="VPATH-Builds.html#VPATH-Builds" accesskey="p" rel="prev">VPATH Builds</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Overview of Custom Test Drivers Support</title>
+
+<meta name="description" content="automake: Overview of Custom Test Drivers Support">
+<meta name="keywords" content="automake: Overview of Custom Test Drivers Support">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Custom-Test-Drivers.html#Custom-Test-Drivers" rel="up" title="Custom Test Drivers">
+<link href="Declaring-Custom-Test-Drivers.html#Declaring-Custom-Test-Drivers" rel="next" title="Declaring Custom Test Drivers">
+<link href="Custom-Test-Drivers.html#Custom-Test-Drivers" rel="prev" title="Custom Test Drivers">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Overview-of-Custom-Test-Drivers-Support"></a>
+<div class="header">
+<p>
+Next: <a href="Declaring-Custom-Test-Drivers.html#Declaring-Custom-Test-Drivers" accesskey="n" rel="next">Declaring Custom Test Drivers</a>, Up: <a href="Custom-Test-Drivers.html#Custom-Test-Drivers" accesskey="u" rel="up">Custom Test Drivers</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Overview-of-Custom-Test-Drivers-Support-1"></a>
+<h4 class="subsection">15.3.1 Overview of Custom Test Drivers Support</h4>
+
+<p>Starting from Automake version 1.12, the parallel test harness allows
+the package authors to use third-party custom test drivers, in case the
+default ones are inadequate for their purposes, or do not support their
+testing protocol of choice.
+</p>
+<p>A custom test driver is expected to properly run the test programs passed
+to it (including the command-line arguments passed to those programs, if
+any), to analyze their execution and outcome, to create the <samp>.log</samp>
+and <samp>.trs</samp> files associated to these test runs, and to display the test
+results on the console. It is responsibility of the author of the test
+driver to ensure that it implements all the above steps meaningfully and
+correctly; Automake isn&rsquo;t and can&rsquo;t be of any help here.  On the other
+hand, the Automake-provided code for testsuite summary generation offers
+support for test drivers allowing several test results per test script,
+if they take care to register such results properly (see <a href="Log-files-generation-and-test-results-recording.html#Log-files-generation-and-test-results-recording">Log files generation and test results recording</a>).
+</p>
+<p>The exact details of how test scripts&rsquo; results are to be determined and
+analyzed is left to the individual drivers.  Some drivers might only
+consider the test script exit status (this is done for example by the
+default test driver used by the parallel test harness, described
+in the previous section).  Other drivers might implement more complex and
+advanced test protocols, which might require them to parse and interpreter
+the output emitted by the test script they&rsquo;re running (examples of such
+protocols are TAP and SubUnit).
+</p>
+<p>It&rsquo;s very important to note that, even when using custom test drivers,
+most of the infrastructure described in the previous section about the
+parallel harness remains in place; this includes:
+</p>
+<ul>
+<li> list of test scripts defined in <code>TESTS</code>, and overridable at
+runtime through the redefinition of <code>TESTS</code> or <code>TEST_LOGS</code>;
+</li><li> concurrency through the use of <code>make</code>&rsquo;s option <samp>-j</samp>;
+</li><li> per-test <samp>.log</samp> and <samp>.trs</samp> files, and generation of a summary
+<samp>.log</samp> file from them;
+</li><li> <code>recheck</code> target, <code>RECHECK_LOGS</code> variable, and lazy reruns
+of tests;
+</li><li> inter-test dependencies;
+</li><li> support for <code>check_*</code> variables (<code>check_PROGRAMS</code>,
+<code>check_LIBRARIES</code>, ...);
+</li><li> use of <code>VERBOSE</code> environment variable to get verbose output on
+testsuite failures;
+</li><li> definition and honoring of <code>TESTS_ENVIRONMENT</code>,
+<code>AM_TESTS_ENVIRONMENT</code> and <code>AM_TESTS_FD_REDIRECT</code>
+variables;
+</li><li> definition of generic and extension-specific <code>LOG_COMPILER</code> and
+<code>LOG_FLAGS</code> variables.
+</li></ul>
+
+<p>On the other hand, the exact semantics of how (and if) testsuite output
+colorization, <code>XFAIL_TESTS</code>, and hard errors are supported and
+handled is left to the individual test drivers.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Declaring-Custom-Test-Drivers.html#Declaring-Custom-Test-Drivers" accesskey="n" rel="next">Declaring Custom Test Drivers</a>, Up: <a href="Custom-Test-Drivers.html#Custom-Test-Drivers" accesskey="u" rel="up">Custom Test Drivers</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

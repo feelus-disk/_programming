@@ -1,0 +1,130 @@
+<html lang="en">
+<head>
+<title>Quotation Rule Of Thumb - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="M4-Quotation.html#M4-Quotation" title="M4 Quotation">
+<link rel="prev" href="Balancing-Parentheses.html#Balancing-Parentheses" title="Balancing Parentheses">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Quotation-Rule-Of-Thumb"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Balancing-Parentheses.html#Balancing-Parentheses">Balancing Parentheses</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="M4-Quotation.html#M4-Quotation">M4 Quotation</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.1.8 Quotation Rule Of Thumb</h4>
+
+<p>To conclude, the quotation rule of thumb is:
+
+<div align="center"><em>One pair of quotes per pair of parentheses.</em></div>
+
+   <p>Never over-quote, never under-quote, in particular in the definition of
+macros.  In the few places where the macros need to use brackets
+(usually in C program text or regular expressions), properly quote
+<em>the arguments</em>!
+
+   <p>It is common to read Autoconf programs with snippets like:
+
+<pre class="example">     AC_TRY_LINK(
+     changequote(&lt;&lt;, &gt;&gt;)dnl
+     &lt;&lt;#include &lt;time.h&gt;
+     #ifndef tzname /* For SGI.  */
+     extern char *tzname[]; /* RS6000 and others reject char **tzname.  */
+     #endif&gt;&gt;,
+     changequote([, ])dnl
+     [atoi (*tzname);], ac_cv_var_tzname=yes, ac_cv_var_tzname=no)
+</pre>
+   <p class="noindent">which is incredibly useless since <code>AC_TRY_LINK</code> is <em>already</em>
+double quoting, so you just need:
+
+<pre class="example">     AC_TRY_LINK(
+     [#include &lt;time.h&gt;
+     #ifndef tzname /* For SGI.  */
+     extern char *tzname[]; /* RS6000 and others reject char **tzname.  */
+     #endif],
+                 [atoi (*tzname);],
+                 [ac_cv_var_tzname=yes],
+                 [ac_cv_var_tzname=no])
+</pre>
+   <p class="noindent">The M4-fluent reader might note that these two examples are rigorously
+equivalent, since M4 swallows both the &lsquo;<samp><span class="samp">changequote(&lt;&lt;, &gt;&gt;)</span></samp>&rsquo;
+and &lsquo;<samp><span class="samp">&lt;&lt;</span></samp>&rsquo; &lsquo;<samp><span class="samp">&gt;&gt;</span></samp>&rsquo; when it <dfn>collects</dfn> the arguments: these
+quotes are not part of the arguments!
+
+   <p>Simplified, the example above is just doing this:
+
+<pre class="example">     changequote(&lt;&lt;, &gt;&gt;)dnl
+     &lt;&lt;[]&gt;&gt;
+     changequote([, ])dnl
+</pre>
+   <p class="noindent">instead of simply:
+
+<pre class="example">     [[]]
+</pre>
+   <p>With macros that do not double quote their arguments (which is the
+rule), double-quote the (risky) literals:
+
+<pre class="example">     AC_LINK_IFELSE([AC_LANG_PROGRAM(
+     [[#include &lt;time.h&gt;
+     #ifndef tzname /* For SGI.  */
+     extern char *tzname[]; /* RS6000 and others reject char **tzname.  */
+     #endif]],
+                                     [atoi (*tzname);])],
+                    [ac_cv_var_tzname=yes],
+                    [ac_cv_var_tzname=no])
+</pre>
+   <p>Please note that the macro <code>AC_TRY_LINK</code> is obsolete, so you really
+should be using <code>AC_LINK_IFELSE</code> instead.
+
+   <p>See <a href="Quadrigraphs.html#Quadrigraphs">Quadrigraphs</a>, for what to do if you run into a hopeless case
+where quoting does not suffice.
+
+   <p>When you create a <samp><span class="command">configure</span></samp> script using newly written macros,
+examine it carefully to check whether you need to add more quotes in
+your macros.  If one or more words have disappeared in the M4
+output, you need more quotes.  When in doubt, quote.
+
+   <p>However, it's also possible to put on too many layers of quotes.  If
+this happens, the resulting <samp><span class="command">configure</span></samp> script may contain
+unexpanded macros.  The <samp><span class="command">autoconf</span></samp> program checks for this problem
+by looking for the string &lsquo;<samp><span class="samp">AC_</span></samp>&rsquo; in <samp><span class="file">configure</span></samp>.  However, this
+heuristic does not work in general: for example, it does not catch
+overquoting in <code>AC_DEFINE</code> descriptions.
+
+<!--  Using autom4te -->
+   </body></html>
+

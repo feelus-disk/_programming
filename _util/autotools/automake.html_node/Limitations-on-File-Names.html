@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Limitations on File Names</title>
+
+<meta name="description" content="automake: Limitations on File Names">
+<meta name="keywords" content="automake: Limitations on File Names">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="FAQ.html#FAQ" rel="up" title="FAQ">
+<link href="Errors-with-distclean.html#Errors-with-distclean" rel="next" title="Errors with distclean">
+<link href="Wildcards.html#Wildcards" rel="prev" title="Wildcards">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Limitations-on-File-Names"></a>
+<div class="header">
+<p>
+Next: <a href="Errors-with-distclean.html#Errors-with-distclean" accesskey="n" rel="next">Errors with distclean</a>, Previous: <a href="Wildcards.html#Wildcards" accesskey="p" rel="prev">Wildcards</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Limitations-on-File-Names-1"></a>
+<h3 class="section">27.4 Limitations on File Names</h3>
+<a name="index-file-names_002c-limitations-on"></a>
+
+<p>Automake attempts to support all kinds of file names, even those that
+contain unusual characters or are unusually long.  However, some
+limitations are imposed by the underlying operating system and tools.
+</p>
+<p>Most operating systems prohibit the use of the null byte in file
+names, and reserve &lsquo;<samp>/</samp>&rsquo; as a directory separator.  Also, they
+require that file names are properly encoded for the user&rsquo;s locale.
+Automake is subject to these limits.
+</p>
+<p>Portable packages should limit themselves to POSIX file
+names.  These can contain ASCII letters and digits,
+&lsquo;<samp>_</samp>&rsquo;, &lsquo;<samp>.</samp>&rsquo;, and &lsquo;<samp>-</samp>&rsquo;.  File names consist of components
+separated by &lsquo;<samp>/</samp>&rsquo;.  File name components cannot begin with
+&lsquo;<samp>-</samp>&rsquo;.
+</p>
+<p>Portable POSIX file names cannot contain components that exceed a
+14-byte limit, but nowadays it&rsquo;s normally safe to assume the
+more-generous XOPEN limit of 255 bytes.  POSIX
+limits file names to 255 bytes (XOPEN allows 1023 bytes),
+but you may want to limit a source tarball to file names of 99 bytes
+to avoid interoperability problems with old versions of <code>tar</code>.
+</p>
+<p>If you depart from these rules (e.g., by using non-ASCII
+characters in file names, or by using lengthy file names), your
+installers may have problems for reasons unrelated to Automake.
+However, if this does not concern you, you should know about the
+limitations imposed by Automake itself.  These limitations are
+undesirable, but some of them seem to be inherent to underlying tools
+like Autoconf, Make, M4, and the shell.  They fall into three
+categories: install directories, build directories, and file names.
+</p>
+<p>The following characters:
+</p>
+<div class="example">
+<pre class="example"><span class="roman">newline</span> &quot; # $ ' `
+</pre></div>
+
+<p>should not appear in the names of install directories.  For example,
+the operand of <code>configure</code>&rsquo;s <samp>--prefix</samp> option should
+not contain these characters.
+</p>
+<p>Build directories suffer the same limitations as install directories,
+and in addition should not contain the following characters:
+</p>
+<div class="example">
+<pre class="example">&amp; @ \
+</pre></div>
+
+<p>For example, the full name of the directory containing the source
+files should not contain these characters.
+</p>
+<p>Source and installation file names like <samp>main.c</samp> are limited even
+further: they should conform to the POSIX/XOPEN
+rules described above.  In addition, if you plan to port to
+non-POSIX environments, you should avoid file names that
+differ only in case (e.g., <samp>makefile</samp> and <samp>Makefile</samp>).
+Nowadays it is no longer worth worrying about the 8.3 limits of
+DOS file systems.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Errors-with-distclean.html#Errors-with-distclean" accesskey="n" rel="next">Errors with distclean</a>, Previous: <a href="Wildcards.html#Wildcards" accesskey="p" rel="prev">Wildcards</a>, Up: <a href="FAQ.html#FAQ" accesskey="u" rel="up">FAQ</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

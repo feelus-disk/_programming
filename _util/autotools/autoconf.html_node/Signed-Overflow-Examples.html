@@ -1,0 +1,135 @@
+<html lang="en">
+<head>
+<title>Signed Overflow Examples - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Integer-Overflow.html#Integer-Overflow" title="Integer Overflow">
+<link rel="prev" href="Integer-Overflow-Basics.html#Integer-Overflow-Basics" title="Integer Overflow Basics">
+<link rel="next" href="Optimization-and-Wraparound.html#Optimization-and-Wraparound" title="Optimization and Wraparound">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Signed-Overflow-Examples"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Optimization-and-Wraparound.html#Optimization-and-Wraparound">Optimization and Wraparound</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Integer-Overflow-Basics.html#Integer-Overflow-Basics">Integer Overflow Basics</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Integer-Overflow.html#Integer-Overflow">Integer Overflow</a>
+<hr>
+</div>
+
+<h4 class="subsection">13.2.2 Examples of Code Assuming Wraparound Overflow</h4>
+
+<p><a name="index-integer-overflow-1894"></a><a name="index-overflow_002c-signed-integer-1895"></a><a name="index-signed-integer-overflow-1896"></a><a name="index-wraparound-arithmetic-1897"></a>
+There has long been a tension between what the C standard requires for
+signed integer overflow, and what C programs commonly assume.  The
+standard allows aggressive optimizations based on assumptions that
+overflow never occurs, but many practical C programs rely on overflow
+wrapping around.  These programs do not conform to the standard, but
+they commonly work in practice because compiler writers are
+understandably reluctant to implement optimizations that would break
+many programs, unless perhaps a user specifies aggressive optimization.
+
+   <p>The C Standard says that if a program has signed integer overflow its
+behavior is undefined, and the undefined behavior can even precede the
+overflow.  To take an extreme example:
+
+<!-- Inspired by Robert Dewar's example in -->
+<!-- <http://gcc.gnu.org/ml/gcc/2007-01/msg00038.html> (2007-01-01). -->
+<pre class="example">     if (password == expected_password)
+       allow_superuser_privileges ();
+     else if (counter++ == INT_MAX)
+       abort ();
+     else
+       printf ("%d password mismatches\n", counter);
+</pre>
+   <p class="noindent">If the <code>int</code> variable <code>counter</code> equals <code>INT_MAX</code>,
+<code>counter++</code> must overflow and the behavior is undefined, so the C
+standard allows the compiler to optimize away the test against
+<code>INT_MAX</code> and the <code>abort</code> call. 
+Worse, if an earlier bug in the program lets the compiler deduce that
+<code>counter == INT_MAX</code> or that <code>counter</code> previously overflowed,
+the C standard allows the compiler to optimize away the password test
+and generate code that allows superuser privileges unconditionally.
+
+   <p>Despite this requirement by the standard, it has long been common for C
+code to assume wraparound arithmetic after signed overflow, and all
+known practical C implementations support some C idioms that assume
+wraparound signed arithmetic, even if the idioms do not conform
+strictly to the standard.  If your code looks like the following
+examples it will almost surely work with real-world compilers.
+
+   <p>Here is an example derived from the 7th Edition Unix implementation of
+<code>atoi</code> (1979-01-10):
+
+<pre class="example">     char *p;
+     int f, n;
+     ...
+     while (*p &gt;= '0' &amp;&amp; *p &lt;= '9')
+       n = n * 10 + *p++ - '0';
+     return (f ? -n : n);
+</pre>
+   <p class="noindent">Even if the input string is in range, on most modern machines this has
+signed overflow when computing the most negative integer (the <code>-n</code>
+overflows) or a value near an extreme integer (the first <code>+</code>
+overflows).
+
+   <p>Here is another example, derived from the 7th Edition implementation of
+<code>rand</code> (1979-01-10).  Here the programmer expects both
+multiplication and addition to wrap on overflow:
+
+<pre class="example">     static long int randx = 1;
+     ...
+     randx = randx * 1103515245 + 12345;
+     return (randx &gt;&gt; 16) &amp; 077777;
+</pre>
+   <p>In the following example, derived from the GNU C Library 2.5
+implementation of <code>mktime</code> (2006-09-09), the code assumes
+wraparound arithmetic in <code>+</code> to detect signed overflow:
+
+<pre class="example">     time_t t, t1, t2;
+     int sec_requested, sec_adjustment;
+     ...
+     t1 = t + sec_requested;
+     t2 = t1 + sec_adjustment;
+     if (((t1 &lt; t) != (sec_requested &lt; 0))
+         | ((t2 &lt; t1) != (sec_adjustment &lt; 0)))
+       return -1;
+</pre>
+   <p>If your code looks like these examples, it is probably safe even though
+it does not strictly conform to the C standard.  This might lead one to
+believe that one can generally assume wraparound on overflow, but that
+is not always true, as can be seen in the next section.
+
+   </body></html>
+

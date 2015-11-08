@@ -1,0 +1,415 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on February, 19  2004 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>Autoconf: Обновление</TITLE>
+
+<META NAME="description" CONTENT="Autoconf: Обновление">
+<META NAME="keywords" CONTENT="Autoconf: Обновление">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC96"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_12.html#SEC95"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC97"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_12.html#SEC91"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 13. Обновление с версии 1 </H1>
+<!--docid::SEC96::-->
+<A NAME="Upgrading"></A>
+<P>
+
+По большей части Autoconf версии 2 обратно совместим с версией 1.
+Однако в нем появились более удобные способы решения некоторых вещей, а
+некоторые особенно уродливые способы из версии 1 не поддерживаются.  Так
+что, в зависимости от сложности ваших файлов <TT>`configure.in'</TT>, вам,
+может быть, придется вручную скорректировать ваши файлы, чтобы
+использовать их с Autoconf версии 2. Этот раздел описывает некоторые
+проблемы, которых можно ожидать при переходе к новой версии.  Также,
+возможно, ваши скрипты <CODE>configure</CODE> получат выгоду от использования
+новых возможностей версии 2; список изменений приведен в файле
+<TT>`NEWS'</TT> дистрибутива Autoconf.
+</P><P>
+
+В первую очередь убедитесь, что у вас установлен GNU <CODE>m4</CODE> версии
+1.1 или более свежей (предпочтительней использовать версию 1.3) или
+следующие. Версии до 1.1 имели ошибку, которая препятствовала их работе
+с Autoconf версии 2. Версии 1.3 и более поздние работают быстрее, чем
+более ранние версии, поскольку с версии 1.3 GNU <CODE>m4</CODE> имеет более
+эффективную реализацию diversions и может сохранить свое состояние в
+файле, который потом может быстро считан обратно.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_13.html#SEC97">13.1 Измененные имена файлов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_13.html#SEC98">13.2 Измененные файлы Makefile</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Новые вещи, которые можно поместить в <TT>`Makefile.in'</TT>.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_13.html#SEC99">13.3 Измененные макросы</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_13.html#SEC100">13.4 Использование <CODE>autoupdate</CODE> для обновления <CODE>configure</CODE></A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP">Замена старых имен макросов в <CODE>configure.in</CODE>.</TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_13.html#SEC101">13.5 Измененные результаты</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_13.html#SEC102">13.6 Измененное написание макросов</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Измененные имена файлов"></A>
+<HR SIZE="6">
+<A NAME="SEC97"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC98"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 13.1 Измененные имена файлов </H2>
+<!--docid::SEC97::-->
+<A NAME="Changed File Names"></A>
+<P>
+
+Если у вас есть файл <TT>`aclocal.m4'</TT>, установленный вместе с Autoconf
+(а не в каталоге с исходными текстами), то вы
+должны переименовать его в <TT>`acsite.m4'</TT>.  See section <A HREF="autoconf-ru_2.html#SEC6">2.4 Использование программы <CODE>autoconf</CODE> для создания скрипта <CODE>configure</CODE></A>.
+</P><P>
+
+Если вы распространяете с вашим пакетом файл <TT>`install.sh'</TT>, то
+переименуйте его в <TT>`install-sh'</TT>, так что встроенные правила
+<CODE>make</CODE> не будут создавать на его основе файл
+<TT>`install'</TT>. <CODE>AC_PROG_INSTALL</CODE> ищет файл, пользуясь обоими
+именами, но лучше использовать новое имя.
+</P><P>
+
+Если вы используете <TT>`config.h.top'</TT> или <TT>`config.h.bot'</TT>, то
+будет лучше,сли вы объедините их в файл <TT>`acconfig.h'</TT>. See section <A HREF="autoconf-ru_3.html#SEC17">3.4.2 Использование <CODE>autoheader</CODE> для создания <TT>`config.h.in'</TT></A>.
+</P><P>
+
+<A NAME="Измененные файлы Makefile"></A>
+<HR SIZE="6">
+<A NAME="SEC98"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC97"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC99"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 13.2 Измененные файлы Makefile </H2>
+<!--docid::SEC98::-->
+<A NAME="Changed Makefiles"></A>
+<P>
+
+Добавьте <SAMP>`@CFLAGS@'</SAMP>, <SAMP>`@CPPFLAGS@'</SAMP> и <SAMP>`@LDFLAGS@'</SAMP> в
+ваши файлы <TT>`Makefile.in'</TT>, чтобы туда попадали значения
+соответствующих переменных среды, установленные при запуске
+<CODE>configure</CODE>.  Это необязательно, но удобно для
+пользователей.
+</P><P>
+
+Также добавьте <SAMP>`@configure_input@'</SAMP> в комментарий каждого из
+входных файлов макроса <CODE>AC_OUTPUT</CODE> кроме файлов <TT>`Makefile'</TT>,
+чтобы выходные файлы содержали сообщение о том, что они созданы скриптом
+<CODE>configure</CODE>. Автоматический выбор синтаксиса для комментариев в
+файлах, для которых вызывается <CODE>AC_OUTPUT</CODE>, было бы слишком сложно.
+</P><P>
+
+Добавьте <TT>`config.log'</TT> и <TT>`config.cache'</TT> в список файлов,
+которые вы удаляете с помощью цели <CODE>distclean</CODE>.
+</P><P>
+
+Если у вас в <TT>`Makefile.in'</TT> имеется следующее:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>prefix = /usr/local
+exec_prefix = ${prefix}
+</pre></td></tr></table></P><P>
+
+то вы должны изменить эту запись на следующую:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>prefix = @prefix@
+exec_prefix = @exec_prefix@
+</pre></td></tr></table></P><P>
+
+Старое поведение замены переменных без знаков <SAMP>`@'</SAMP> вокруг них
+было удалено.
+</P><P>
+
+<A NAME="Измененные макросы"></A>
+<HR SIZE="6">
+<A NAME="SEC99"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC98"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC100"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 13.3 Измененные макросы </H2>
+<!--docid::SEC99::-->
+<A NAME="Changed Macros"></A>
+<P>
+
+В Autoconf версии 2 многие макросы были переименованы.  Вы все равно
+можете использовать старые имена, но новые понятнее, и для них легче
+найти документацию. See section <A HREF="autoconf-ru_15.html#SEC109">15. Старые имена макросов</A>, где приведена таблица
+соответствия новых имен старым именам.  Используйте программу
+<CODE>autoupdate</CODE> для преобразования ваших файлов <TT>`configure.in'</TT>
+для использования новых имен макросов. See section <A HREF="autoconf-ru_13.html#SEC100">13.4 Использование <CODE>autoupdate</CODE> для обновления <CODE>configure</CODE></A>.
+</P><P>
+
+Некоторые макросы были заменены аналогичными, лучше выполняющими нужную
+задачу, но несовместимыми по параметрам вызова.  Если вы получаете
+предупреждения о вызове устаревших макросов во время запуска
+<CODE>autoconf</CODE>, то можете спокойно игнорировать эти предупреждения, но
+ваш скрипт <CODE>configure</CODE> будет работать лучше, если вы последуете
+советам и замените устаревший макрос на новый.  Аналогичным образом был
+изменен механизм выдачи результатов тестов.  Если вы использовали
+команды <CODE>echo</CODE> или <CODE>AC_VERBOSE</CODE> (может быть, посредством
+<CODE>AC_COMPILE_CHECK</CODE>), то вывод вашего скрипта <CODE>configure</CODE> будет
+выглядеть лучше, если вы станете использовать макросы
+<CODE>AC_MSG_CHECKING</CODE> и <CODE>AC_MSG_RESULT</CODE>.  See section <A HREF="autoconf-ru_6.html#SEC58">6.4 Выдача сообщений</A>.
+Эти макросы лучше работают при использовании кэшированных
+переменных.  See section <A HREF="autoconf-ru_6.html#SEC55">6.3 Кэширование результатов</A>.
+</P><P>
+
+<A NAME="Запуск autoupdate"></A>
+<HR SIZE="6">
+<A NAME="SEC100"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC99"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC101"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 13.4 Использование <CODE>autoupdate</CODE> для обновления <CODE>configure</CODE> </H2>
+<!--docid::SEC100::-->
+<A NAME="Invoking autoupdate"></A>
+<P>
+
+Программа <CODE>autoupdate</CODE> обновляет файл <TT>`configure.in'</TT>, заменяя
+вызовы старых макросов Autoconf на вызовы макросов с новыми именами. В
+Autoconf версии 2 большинство макросов были переименованы для
+использования более общей и понятной схемы наименования.  Для описания
+новой схемы именования See section <A HREF="autoconf-ru_7.html#SEC61">7.2 Имена макросов</A>. Хотя макросы со старыми
+именами все равно работают (см.see section <A HREF="autoconf-ru_15.html#SEC109">15. Старые имена макросов</A>, где приведен
+список старых имен макросов и соответствующих им новых имен), но если вы
+обновите свои файлы для соответствия новым именам макросов, то файлы
+<TT>`configure.in'</TT> станут читабельнее, а использовать свежую
+документацию по Autoconf станет проще.
+</P><P>
+
+<A NAME="IDX504"></A>
+Если <CODE>autoupdate</CODE> запущена без аргументов, то она обновляет
+<TT>`configure.in'</TT>, делая резервную копию оригинальной версии файла с
+использованием суффикса <TT>`~'</TT> (или значения переменной среды
+<CODE>SIMPLE_BACKUP_SUFFIX</CODE>, если она установлена). Если вы зададите
+аргумент программе <CODE>autoupdate</CODE>, то она будет считывать данные из
+этого файла вместо <TT>`configure.in'</TT> и выводить данные в поток
+стандартного вывода.
+</P><P>
+
+<CODE>autoupdate</CODE> распознает следующие ключи командной строки:
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>--help</CODE>
+<DD><DT><CODE>-h</CODE>
+<DD>Выдает список ключей командной строки и прекращает работу.
+<P>
+
+<DT><CODE>--macrodir=<VAR>dir</VAR></CODE>
+<DD><DT><CODE>-m <VAR>dir</VAR></CODE>
+<DD><A NAME="IDX505"></A>
+Ищет файлы с макросами Autoconf в каталоге <VAR>dir</VAR>, а не в каталоге, в
+котором производилась установка.  Вы можете задать путь к этому каталогу
+в переменной среды <CODE>AC_MACRODIR</CODE>; использование этого ключа
+перекрывает переменную среды.
+<P>
+
+<DT><CODE>--version</CODE>
+<DD>Выдает номер версии <CODE>autoupdate</CODE> и прекращает работу.
+</DL>
+<P>
+
+<A NAME="Измененные результаты"></A>
+<HR SIZE="6">
+<A NAME="SEC101"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC100"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC102"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 13.5 Измененные результаты </H2>
+<!--docid::SEC101::-->
+<A NAME="Changed Results"></A>
+<P>
+
+Если вы проверяли результаты предыдущих тестов путем проверки переменной
+командного процессора <CODE>DEFS</CODE>, то теперь вам необходимо
+переключиться на проверку значений переменных кэша для данных
+тестов. Переменная <CODE>DEFS</CODE> больше не существует во время запуска
+<CODE>configure</CODE>; она создается только при генерации выходных файлов.
+Это изменение поведения было сделано потому, что правильное
+экранирование содержимого этой переменной оказалось слишком громоздким и
+неэффективным при каждом вызове макроса <CODE>AC_DEFINE</CODE>. See section <A HREF="autoconf-ru_6.html#SEC56">6.3.1 Имена переменных кэша</A>.
+</P><P>
+
+Например, вот фрагмент <TT>`configure.in'</TT>, написанного для Autoconf
+версии 1:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_HAVE_FUNCS(syslog)
+case "$DEFS" in
+*-DHAVE_SYSLOG*) ;;
+*) # syslog не находится в библиотеках по умолчанию. Смотрим, есть ли он в
+   # других библиотеках.
+  saved_LIBS="$LIBS"
+  for lib in bsd socket inet; do
+    AC_CHECKING(for syslog in -l$lib)
+    LIBS="$saved_LIBS -l$lib"
+    AC_HAVE_FUNCS(syslog)
+    case "$DEFS" in
+    *-DHAVE_SYSLOG*) break ;;
+    *) ;;
+    esac
+    LIBS="$saved_LIBS"
+  done ;;
+esac
+</pre></td></tr></table></P><P>
+
+Вот как это записывается для версии 2:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_CHECK_FUNCS(syslog)
+if test $ac_cv_func_syslog = no; then
+  # syslog не находится в библиотеках по умолчанию. Смотрим, есть ли он в
+  # других библиотеках.
+  for lib in bsd socket inet; do
+    AC_CHECK_LIB($lib, syslog, [AC_DEFINE(HAVE_SYSLOG)
+      LIBS="$LIBS $lib"; break])
+  done
+fi
+</pre></td></tr></table></P><P>
+
+Если вы обходили ошибку в макросе <CODE>AC_DEFINE_UNQUOTED</CODE>, добавляя
+символы обратной косой черты перед кавычками, то теперь вам придется
+удалить их.  Этот макрос сейчас работает предсказуемо и не рассматривает
+особым образом кавычки (кроме обратных).  See section <A HREF="autoconf-ru_6.html#SEC54">6.2 Установка выходных переменных</A>.
+</P><P>
+
+Все логические переменные командного процессора, устанавливаемые
+макросами Autoconf, используют <SAMP>`yes'</SAMP> для истинных
+переменных. Большинство из них использует <SAMP>`no'</SAMP> для ложных значений,
+хотя для обратной совместимости некоторые из них используют пустую
+строку. Если вы полагали, что переменная командного процессора будет
+установлена во что-нибудь типа <SAMP>`1'</SAMP> или <SAMP>`t'</SAMP> для истинного
+значения, то вам необходимо изменить ваши тесты.
+</P><P>
+
+<A NAME="Измененное написание макросов"></A>
+<HR SIZE="6">
+<A NAME="SEC102"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC101"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 13.6 Измененное написание макросов </H2>
+<!--docid::SEC102::-->
+<A NAME="Changed Macro Writing"></A>
+<P>
+
+При определении ваших собственных макросов вы должны использовать макрос
+<CODE>AC_DEFUN</CODE> вместо <CODE>define</CODE>. <CODE>AC_DEFUN</CODE> автоматически
+вызывает макрос <CODE>AC_PROVIDE</CODE> и проверяет, что макросы, вызываемые
+через <CODE>AC_REQUIRE</CODE>, не прерывают другие макросы для предотвращения
+вложенных сообщений <SAMP>`checking<small>...</small>'</SAMP> на экране.  На самом деле
+старый способ не причинит вреда, но он менее удобен и привлекателен.
+See section <A HREF="autoconf-ru_7.html#SEC60">7.1 Определение макросов</A>.
+</P><P>
+
+Вы, вероятно, рассматривали макросы, поставляемые с Autoconf, как
+руководство по написанию макросов.  Посмотрите на новую их версию,
+потому что стиль некоторых макросов намного улучшен, а новые возможности
+активно используются.
+</P><P>
+
+Если вы делали хитрые вещи, используя недокументированные свойства
+Autoconf (макросы, переменные, diversions), то проверьте, не нужно ли
+изменить что-нибудь, чтобы учесть сделанные в Autoconf изменения.  Может
+быть, теперь вы можете пользоваться стандартной возможностью версии 2
+вместо того, чтобы упражняться в изобретательности.  Или нет.
+</P><P>
+
+Для ускорения работы написанных вами макросов добавьте в них поддержку
+кэширования. Просмотрите все ваши тесты, может быть, их нужно оформить в
+виде макросов, которые вы сможете использовать в разных пакетах.
+</P><P>
+
+<A NAME="История"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_13.html#SEC96"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_14.html#SEC103"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+on <I>February, 19  2004</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct = "UA-78697-3"; urchinTracker(); </script></body>
+</HTML>

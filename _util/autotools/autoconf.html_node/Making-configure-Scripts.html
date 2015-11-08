@@ -1,0 +1,133 @@
+<html lang="en">
+<head>
+<title>Making configure Scripts - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="The-GNU-Build-System.html#The-GNU-Build-System" title="The GNU Build System">
+<link rel="next" href="Setup.html#Setup" title="Setup">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Making-configure-Scripts"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Setup.html#Setup">Setup</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="The-GNU-Build-System.html#The-GNU-Build-System">The GNU Build System</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">3 Making <samp><span class="command">configure</span></samp> Scripts</h2>
+
+<p><a name="index-g_t_0040file_007baclocal_002em4_007d-6"></a><a name="index-g_t_0040command_007bconfigure_007d-7"></a>
+The configuration scripts that Autoconf produces are by convention
+called <samp><span class="command">configure</span></samp>.  When run, <samp><span class="command">configure</span></samp> creates several
+files, replacing configuration parameters in them with appropriate
+values.  The files that <samp><span class="command">configure</span></samp> creates are:
+
+     <ul>
+<li>one or more <samp><span class="file">Makefile</span></samp> files, usually one in each subdirectory of the
+package (see <a href="Makefile-Substitutions.html#Makefile-Substitutions">Makefile Substitutions</a>);
+
+     <li>optionally, a C header file, the name of which is configurable,
+containing <code>#define</code> directives (see <a href="Configuration-Headers.html#Configuration-Headers">Configuration Headers</a>);
+
+     <li>a shell script called <samp><span class="file">config.status</span></samp> that, when run, recreates
+the files listed above (see <a href="config_002estatus-Invocation.html#config_002estatus-Invocation">config.status Invocation</a>);
+
+     <li>an optional shell script normally called <samp><span class="file">config.cache</span></samp>
+(created when using &lsquo;<samp><span class="samp">configure --config-cache</span></samp>&rsquo;) that
+saves the results of running many of the tests (see <a href="Cache-Files.html#Cache-Files">Cache Files</a>);
+
+     <li>a file called <samp><span class="file">config.log</span></samp> containing any messages produced by
+compilers, to help debugging if <samp><span class="command">configure</span></samp> makes a mistake. 
+</ul>
+
+   <p><a name="index-g_t_0040file_007bconfigure_002ein_007d-8"></a><a name="index-g_t_0040file_007bconfigure_002eac_007d-9"></a>To create a <samp><span class="command">configure</span></samp> script with Autoconf, you need to write an
+Autoconf input file <samp><span class="file">configure.ac</span></samp> (or <samp><span class="file">configure.in</span></samp>) and run
+<samp><span class="command">autoconf</span></samp> on it.  If you write your own feature tests to
+supplement those that come with Autoconf, you might also write files
+called <samp><span class="file">aclocal.m4</span></samp> and <samp><span class="file">acsite.m4</span></samp>.  If you use a C header
+file to contain <code>#define</code> directives, you might also run
+<samp><span class="command">autoheader</span></samp>, and you can distribute the generated file
+<samp><span class="file">config.h.in</span></samp> with the package.
+
+   <p>Here is a diagram showing how the files that can be used in
+configuration are produced.  Programs that are executed are suffixed by
+&lsquo;<samp><span class="samp">*</span></samp>&rsquo;.  Optional files are enclosed in square brackets (&lsquo;<samp><span class="samp">[]</span></samp>&rsquo;). 
+<samp><span class="command">autoconf</span></samp> and <samp><span class="command">autoheader</span></samp> also read the installed Autoconf
+macro files (by reading <samp><span class="file">autoconf.m4</span></samp>).
+
+<p class="noindent">Files used in preparing a software package for distribution, when using
+just Autoconf:
+<pre class="example">     your source files --&gt; [autoscan*] --&gt; [configure.scan] --&gt; configure.ac
+     
+     configure.ac --.
+                    |   .------&gt; autoconf* -----&gt; configure
+     [aclocal.m4] --+---+
+                    |   `-----&gt; [autoheader*] --&gt; [config.h.in]
+     [acsite.m4] ---'
+     
+     Makefile.in
+</pre>
+   <p class="noindent">Additionally, if you use Automake, the following additional productions
+come into play:
+
+<pre class="example">     [acinclude.m4] --.
+                      |
+     [local macros] --+--&gt; aclocal* --&gt; aclocal.m4
+                      |
+     configure.ac ----'
+     
+     configure.ac --.
+                    +--&gt; automake* --&gt; Makefile.in
+     Makefile.am ---'
+</pre>
+   <p class="noindent">Files used in configuring a software package:
+<pre class="example">                            .-------------&gt; [config.cache]
+     configure* ------------+-------------&gt; config.log
+                            |
+     [config.h.in] -.       v            .-&gt; [config.h] -.
+                    +--&gt; config.status* -+               +--&gt; make*
+     Makefile.in ---'                    `-&gt; Makefile ---'
+</pre>
+   <ul class="menu">
+<li><a accesskey="1" href="Writing-Autoconf-Input.html#Writing-Autoconf-Input">Writing Autoconf Input</a>:       What to put in an Autoconf input file
+<li><a accesskey="2" href="autoscan-Invocation.html#autoscan-Invocation">autoscan Invocation</a>:          Semi-automatic <samp><span class="file">configure.ac</span></samp> writing
+<li><a accesskey="3" href="ifnames-Invocation.html#ifnames-Invocation">ifnames Invocation</a>:           Listing the conditionals in source code
+<li><a accesskey="4" href="autoconf-Invocation.html#autoconf-Invocation">autoconf Invocation</a>:          How to create configuration scripts
+<li><a accesskey="5" href="autoreconf-Invocation.html#autoreconf-Invocation">autoreconf Invocation</a>:        Remaking multiple <samp><span class="command">configure</span></samp> scripts
+</ul>
+
+   </body></html>
+

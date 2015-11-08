@@ -1,0 +1,94 @@
+<html lang="en">
+<head>
+<title>Shell Script Compiler - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Autoconf-Input.html#Writing-Autoconf-Input" title="Writing Autoconf Input">
+<link rel="next" href="Autoconf-Language.html#Autoconf-Language" title="Autoconf Language">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Shell-Script-Compiler"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Autoconf-Language.html#Autoconf-Language">Autoconf Language</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Autoconf-Input.html#Writing-Autoconf-Input">Writing Autoconf Input</a>
+<hr>
+</div>
+
+<h4 class="subsection">3.1.1 A Shell Script Compiler</h4>
+
+<p>Just as for any other computer language, in order to properly program
+<samp><span class="file">configure.ac</span></samp> in Autoconf you must understand <em>what</em> problem
+the language tries to address and <em>how</em> it does so.
+
+   <p>The problem Autoconf addresses is that the world is a mess.  After all,
+you are using Autoconf in order to have your package compile easily on
+all sorts of different systems, some of them being extremely hostile. 
+Autoconf itself bears the price for these differences: <samp><span class="command">configure</span></samp>
+must run on all those systems, and thus <samp><span class="command">configure</span></samp> must limit itself
+to their lowest common denominator of features.
+
+   <p>Naturally, you might then think of shell scripts; who needs
+<samp><span class="command">autoconf</span></samp>?  A set of properly written shell functions is enough to
+make it easy to write <samp><span class="command">configure</span></samp> scripts by hand.  Sigh! 
+Unfortunately, even in 2008, where shells without any function support are
+far and few between, there are pitfalls to avoid when making use of them. 
+Also, finding a Bourne shell that accepts shell functions is not trivial,
+even though there is almost always one on interesting porting targets.
+
+   <p>So, what is really needed is some kind of compiler, <samp><span class="command">autoconf</span></samp>,
+that takes an Autoconf program, <samp><span class="file">configure.ac</span></samp>, and transforms it
+into a portable shell script, <samp><span class="command">configure</span></samp>.
+
+   <p>How does <samp><span class="command">autoconf</span></samp> perform this task?
+
+   <p>There are two obvious possibilities: creating a brand new language or
+extending an existing one.  The former option is attractive: all
+sorts of optimizations could easily be implemented in the compiler and
+many rigorous checks could be performed on the Autoconf program
+(e.g., rejecting any non-portable construct).  Alternatively, you can
+extend an existing language, such as the <code>sh</code> (Bourne shell)
+language.
+
+   <p>Autoconf does the latter: it is a layer on top of <code>sh</code>.  It was
+therefore most convenient to implement <samp><span class="command">autoconf</span></samp> as a macro
+expander: a program that repeatedly performs <dfn>macro expansions</dfn> on
+text input, replacing macro calls with macro bodies and producing a pure
+<code>sh</code> script in the end.  Instead of implementing a dedicated
+Autoconf macro expander, it is natural to use an existing
+general-purpose macro language, such as M4, and implement the extensions
+as a set of M4 macros.
+
+   </body></html>
+

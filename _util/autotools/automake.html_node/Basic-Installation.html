@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Basic Installation</title>
+
+<meta name="description" content="automake: Basic Installation">
+<meta name="keywords" content="automake: Basic Installation">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Use-Cases.html#Use-Cases" rel="up" title="Use Cases">
+<link href="Standard-Targets.html#Standard-Targets" rel="next" title="Standard Targets">
+<link href="Use-Cases.html#Use-Cases" rel="prev" title="Use Cases">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Basic-Installation"></a>
+<div class="header">
+<p>
+Next: <a href="Standard-Targets.html#Standard-Targets" accesskey="n" rel="next">Standard Targets</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Basic-Installation-1"></a>
+<h4 class="subsection">2.2.1 Basic Installation</h4>
+<a name="index-Configuration_002c-basics"></a>
+<a name="index-Installation_002c-basics"></a>
+<a name="index-GNU-Build-System_002c-basics"></a>
+
+<p>The most common installation procedure looks as follows.
+</p>
+<div class="example">
+<pre class="example">~ % <kbd>tar zxf amhello-1.0.tar.gz</kbd>
+~ % <kbd>cd amhello-1.0</kbd>
+~/amhello-1.0 % <kbd>./configure</kbd>
+&hellip;
+config.status: creating Makefile
+config.status: creating src/Makefile
+&hellip;
+~/amhello-1.0 % <kbd>make</kbd>
+&hellip;
+~/amhello-1.0 % <kbd>make check</kbd>
+&hellip;
+~/amhello-1.0 % <kbd>su</kbd>
+Password:
+/home/adl/amhello-1.0 # <kbd>make install</kbd>
+&hellip;
+/home/adl/amhello-1.0 # <kbd>exit</kbd>
+~/amhello-1.0 % <kbd>make installcheck</kbd>
+&hellip;
+</pre></div>
+
+<a name="index-Unpacking"></a>
+
+<p>The user first unpacks the package.  Here, and in the following
+examples, we will use the non-portable <code>tar zxf</code> command for
+simplicity.  On a system without GNU <code>tar</code> installed, this
+command should read <code>gunzip -c amhello-1.0.tar.gz | tar xf -</code>.
+</p>
+<p>The user then enters the newly created directory to run the
+<samp>configure</samp> script.  This script probes the system for various
+features, and finally creates the <samp>Makefile</samp>s.  In this toy
+example there are only two <samp>Makefile</samp>s, but in real-world projects,
+there may be many more, usually one <samp>Makefile</samp> per directory.
+</p>
+<p>It is now possible to run <code>make</code>.  This will construct all the
+programs, libraries, and scripts that need to be constructed for the
+package.  In our example, this compiles the <samp>hello</samp> program.
+All files are constructed in place, in the source tree; we will see
+later how this can be changed.
+</p>
+<p><code>make check</code> causes the package&rsquo;s tests to be run.  This step is
+not mandatory, but it is often good to make sure the programs that
+have been built behave as they should, before you decide to install
+them.  Our example does not contain any tests, so running <code>make
+check</code> is a no-op.
+</p>
+<a name="index-su_002c-before-make-install"></a>
+<p>After everything has been built, and maybe tested, it is time to
+install it on the system.  That means copying the programs,
+libraries, header files, scripts, and other data files from the
+source directory to their final destination on the system.  The
+command <code>make install</code> will do that.  However, by default
+everything will be installed in subdirectories of <samp>/usr/local</samp>:
+binaries will go into <samp>/usr/local/bin</samp>, libraries will end up in
+<samp>/usr/local/lib</samp>, etc.  This destination is usually not writable
+by any user, so we assume that we have to become root before we can
+run <code>make install</code>.  In our example, running <code>make install</code>
+will copy the program <samp>hello</samp> into <samp>/usr/local/bin</samp>
+and <samp>README</samp> into <samp>/usr/local/share/doc/amhello</samp>.
+</p>
+<p>A last and optional step is to run <code>make installcheck</code>.  This
+command may run tests on the installed files.  <code>make check</code> tests
+the files in the source tree, while <code>make installcheck</code> tests
+their installed copies.  The tests run by the latter can be different
+from those run by the former.  For instance, there are tests that
+cannot be run in the source tree.  Conversely, some packages are set
+up so that <code>make installcheck</code> will run the very same tests as
+<code>make check</code>, only on different files (non-installed
+vs. installed).  It can make a difference, for instance when the
+source tree&rsquo;s layout is different from that of the installation.
+Furthermore it may help to diagnose an incomplete installation.
+</p>
+<p>Presently most packages do not have any <code>installcheck</code> tests
+because the existence of <code>installcheck</code> is little known, and its
+usefulness is neglected.  Our little toy package is no better: <code>make
+installcheck</code> does nothing.
+</p>
+<hr>
+<div class="header">
+<p>
+Next: <a href="Standard-Targets.html#Standard-Targets" accesskey="n" rel="next">Standard Targets</a>, Up: <a href="Use-Cases.html#Use-Cases" accesskey="u" rel="up">Use Cases</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

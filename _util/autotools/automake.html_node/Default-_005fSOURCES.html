@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Default _SOURCES</title>
+
+<meta name="description" content="automake: Default _SOURCES">
+<meta name="keywords" content="automake: Default _SOURCES">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Programs.html#Programs" rel="up" title="Programs">
+<link href="LIBOBJS.html#LIBOBJS" rel="next" title="LIBOBJS">
+<link href="Program-and-Library-Variables.html#Program-and-Library-Variables" rel="prev" title="Program and Library Variables">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Default-_005fSOURCES"></a>
+<div class="header">
+<p>
+Next: <a href="LIBOBJS.html#LIBOBJS" accesskey="n" rel="next">LIBOBJS</a>, Previous: <a href="Program-and-Library-Variables.html#Program-and-Library-Variables" accesskey="p" rel="prev">Program and Library Variables</a>, Up: <a href="Programs.html#Programs" accesskey="u" rel="up">Programs</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Default-_005fSOURCES-1"></a>
+<h3 class="section">8.5 Default <code>_SOURCES</code></h3>
+
+<a name="index-_005fSOURCES-2"></a>
+<a name="index-SOURCES-1"></a>
+<a name="index-_005fSOURCES_002c-default"></a>
+<a name="index-default-_005fSOURCES"></a>
+<a name="index-AM_005fDEFAULT_005fSOURCE_005fEXT"></a>
+
+<p><code>_SOURCES</code> variables are used to specify source files of programs
+(see <a href="A-Program.html#A-Program">A Program</a>), libraries (see <a href="A-Library.html#A-Library">A Library</a>), and Libtool
+libraries (see <a href="A-Shared-Library.html#A-Shared-Library">A Shared Library</a>).
+</p>
+<p>When no such variable is specified for a target, Automake will define
+one itself.  The default is to compile a single C file whose base name
+is the name of the target itself, with any extension replaced by
+<code>AM_DEFAULT_SOURCE_EXT</code>, which defaults to <samp>.c</samp>.
+</p>
+<p>For example if you have the following somewhere in your
+<samp>Makefile.am</samp> with no corresponding <code>libfoo_a_SOURCES</code>:
+</p>
+<div class="example">
+<pre class="example">lib_LIBRARIES = libfoo.a sub/libc++.a
+</pre></div>
+
+<p><samp>libfoo.a</samp> will be built using a default source file named
+<samp>libfoo.c</samp>, and <samp>sub/libc++.a</samp> will be built from
+<samp>sub/libc++.c</samp>.  (In older versions <samp>sub/libc++.a</samp>
+would be built from <samp>sub_libc___a.c</samp>, i.e., the default source
+was the canonized name of the target, with <samp>.c</samp> appended.
+We believe the new behavior is more sensible, but for backward
+compatibility <code>automake</code> will use the old name if a file or a rule
+with that name exists and <code>AM_DEFAULT_SOURCE_EXT</code> is not used.)
+</p>
+<a name="index-check_005fPROGRAMS-example"></a>
+<a name="index-check_005fPROGRAMS-1"></a>
+<p>Default sources are mainly useful in test suites, when building many
+test programs each from a single source.  For instance, in
+</p>
+<div class="example">
+<pre class="example">check_PROGRAMS = test1 test2 test3
+AM_DEFAULT_SOURCE_EXT = .cpp
+</pre></div>
+
+<p><samp>test1</samp>, <samp>test2</samp>, and <samp>test3</samp> will be built
+from <samp>test1.cpp</samp>, <samp>test2.cpp</samp>, and <samp>test3.cpp</samp>.
+Without the last line, they will be built from <samp>test1.c</samp>,
+<samp>test2.c</samp>, and <samp>test3.c</samp>.
+</p>
+<a name="index-Libtool-modules_002c-default-source-example"></a>
+<a name="index-default-source_002c-Libtool-modules-example"></a>
+<p>Another case where this is convenient is building many Libtool modules
+(<samp>module<var>n</var>.la</samp>), each defined in its own file
+(<samp>module<var>n</var>.c</samp>).
+</p>
+<div class="example">
+<pre class="example">AM_LDFLAGS = -module
+lib_LTLIBRARIES = module1.la module2.la module3.la
+</pre></div>
+
+<a name="index-empty-_005fSOURCES"></a>
+<a name="index-_005fSOURCES_002c-empty"></a>
+<p>Finally, there is one situation where this default source computation
+needs to be avoided: when a target should not be built from sources.
+We already saw such an example in <a href="true.html#true">true</a>; this happens when all
+the constituents of a target have already been compiled and just need
+to be combined using a <code>_LDADD</code> variable.  Then it is necessary
+to define an empty <code>_SOURCES</code> variable, so that <code>automake</code>
+does not compute a default.
+</p>
+<div class="example">
+<pre class="example">bin_PROGRAMS = target
+target_SOURCES =
+target_LDADD = libmain.a libmisc.a
+</pre></div>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="LIBOBJS.html#LIBOBJS" accesskey="n" rel="next">LIBOBJS</a>, Previous: <a href="Program-and-Library-Variables.html#Program-and-Library-Variables" accesskey="p" rel="prev">Program and Library Variables</a>, Up: <a href="Programs.html#Programs" accesskey="u" rel="up">Programs</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

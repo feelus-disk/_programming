@@ -1,0 +1,171 @@
+<html lang="en">
+<head>
+<title>testsuite Invocation - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Using-Autotest.html#Using-Autotest" title="Using Autotest">
+<link rel="prev" href="Writing-Testsuites.html#Writing-Testsuites" title="Writing Testsuites">
+<link rel="next" href="Making-testsuite-Scripts.html#Making-testsuite-Scripts" title="Making testsuite Scripts">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="testsuite-Invocation"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Making-testsuite-Scripts.html#Making-testsuite-Scripts">Making testsuite Scripts</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Writing-Testsuites.html#Writing-Testsuites">Writing Testsuites</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Using-Autotest.html#Using-Autotest">Using Autotest</a>
+<hr>
+</div>
+
+<h3 class="section">19.3 Running <samp><span class="command">testsuite</span></samp> Scripts</h3>
+
+<p><a name="index-g_t_0040command_007btestsuite_007d-2303"></a>
+Autotest test suites support the following options:
+
+     <dl>
+<dt><samp><span class="option">--help</span></samp><dt><samp><span class="option">-h</span></samp><dd>Display the list of options and exit successfully.
+
+     <br><dt><samp><span class="option">--version</span></samp><dt><samp><span class="option">-V</span></samp><dd>Display the version of the test suite and exit successfully.
+
+     <br><dt><samp><span class="option">--directory=</span><var>dir</var></samp><dt><samp><span class="option">-C </span><var>dir</var></samp><dd>Change the current directory to <var>dir</var> before creating any files. 
+Useful for running the testsuite in a subdirectory from a top-level
+Makefile.
+
+     <br><dt><samp><span class="option">--jobs[=</span><var>n</var><span class="option">]</span></samp><dt><samp><span class="option">-j[</span><var>n</var><span class="option">]</span></samp><dd>Run <var>n</var> tests in parallel, if possible.  If <var>n</var> is not given,
+run all given tests in parallel.  Note that there should be no space
+before the argument to <samp><span class="option">-j</span></samp>, as <samp><span class="option">-j </span><var>number</var></samp> denotes
+the separate arguments <samp><span class="option">-j</span></samp> and <samp><var>number</var></samp>, see below.
+
+     <p>In parallel mode, the standard input device of the testsuite script is
+not available to commands inside a test group.  Furthermore, banner
+lines are not printed, and the summary line for each test group is
+output after the test group completes.  Summary lines may appear
+unordered.  If verbose and trace output are enabled (see below), they
+may appear intermixed from concurrently running tests.
+
+     <p>Parallel mode requires the <samp><span class="command">mkfifo</span></samp> command to work, and will be
+silently disabled otherwise.
+
+     <br><dt><samp><span class="option">--clean</span></samp><dt><samp><span class="option">-c</span></samp><dd>Remove all the files the test suite might have created and exit.  Meant
+for <code>clean</code> Make targets.
+
+     <br><dt><samp><span class="option">--list</span></samp><dt><samp><span class="option">-l</span></samp><dd>List all the tests (or only the selection), including their possible
+keywords. 
+</dl>
+
+   <pre class="sp">
+
+</pre>
+
+By default all tests are performed (or described with <samp><span class="option">--list</span></samp>)
+silently in the default environment, but the environment, set of tests,
+and verbosity level can be tuned:
+
+     <dl>
+<dt>&lsquo;<samp><var>variable</var><span class="samp">=</span><var>value</var></samp>&rsquo;<dd>Set the environment <var>variable</var> to <var>value</var>.  Use this rather
+than &lsquo;<samp><span class="samp">FOO=foo ./testsuite</span></samp>&rsquo; as debugging scripts would then run in a
+different environment.
+
+     <p><a name="index-g_t_0040code_007bAUTOTEST_005fPATH_007d-2304"></a>The variable <code>AUTOTEST_PATH</code> specifies the testing path to prepend
+to <samp><span class="env">PATH</span></samp>.  Relative directory names (not starting with
+&lsquo;<samp><span class="samp">/</span></samp>&rsquo;) are considered to be relative to the top level of the
+package being built.  All directories are made absolute, first
+starting from the top level <em>build</em> tree, then from the
+<em>source</em> tree.  For instance &lsquo;<samp><span class="samp">./testsuite
+AUTOTEST_PATH=tests:bin</span></samp>&rsquo; for a <samp><span class="file">/src/foo-1.0</span></samp> source package built
+in <samp><span class="file">/tmp/foo</span></samp> results in &lsquo;<samp><span class="samp">/tmp/foo/tests:/tmp/foo/bin</span></samp>&rsquo; and
+then &lsquo;<samp><span class="samp">/src/foo-1.0/tests:/src/foo-1.0/bin</span></samp>&rsquo; being prepended to
+<samp><span class="env">PATH</span></samp>.
+
+     <br><dt>&lsquo;<samp><var>number</var></samp>&rsquo;<dt>&lsquo;<samp><var>number</var><span class="samp">-</span><var>number</var></samp>&rsquo;<dt>&lsquo;<samp><var>number</var><span class="samp">-</span></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">-</span><var>number</var></samp>&rsquo;<dd>Add the corresponding test groups, with obvious semantics, to the
+selection.
+
+     <br><dt>&lsquo;<samp><span class="samp">--keywords=</span><var>keywords</var></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">-k </span><var>keywords</var></samp>&rsquo;<dd>Add to the selection the test groups with title or keywords (arguments
+to <code>AT_SETUP</code> or <code>AT_KEYWORDS</code>) that match <em>all</em> keywords
+of the comma separated list <var>keywords</var>, case-insensitively.  Use
+&lsquo;<samp><span class="samp">!</span></samp>&rsquo; immediately before the keyword to invert the selection for this
+keyword.  By default, the keywords match whole words; enclose them in
+&lsquo;<samp><span class="samp">.*</span></samp>&rsquo; to also match parts of words.
+
+     <p>For example, running
+
+     <pre class="example">          <kbd>./testsuite -k 'autoupdate,.*FUNC.*'</kbd>
+</pre>
+     <p class="noindent">selects all tests tagged &lsquo;<samp><span class="samp">autoupdate</span></samp>&rsquo; <em>and</em> with tags
+containing &lsquo;<samp><span class="samp">FUNC</span></samp>&rsquo; (as in &lsquo;<samp><span class="samp">AC_CHECK_FUNC</span></samp>&rsquo;, &lsquo;<samp><span class="samp">AC_FUNC_ALLOCA</span></samp>&rsquo;,
+etc.), while
+
+     <pre class="example">          <kbd>./testsuite -k '!autoupdate' -k '.*FUNC.*'</kbd>
+</pre>
+     <p class="noindent">selects all tests not tagged &lsquo;<samp><span class="samp">autoupdate</span></samp>&rsquo; <em>or</em> with tags
+containing &lsquo;<samp><span class="samp">FUNC</span></samp>&rsquo;.
+
+     <br><dt>&lsquo;<samp><span class="samp">--errexit</span></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">-e</span></samp>&rsquo;<dd>If any test fails, immediately abort testing.  This implies
+<samp><span class="option">--debug</span></samp>: post test group clean up, and top-level logging
+are inhibited.  This option is meant for the full test
+suite, it is not really useful for generated debugging scripts. 
+If the testsuite is run in parallel mode using <samp><span class="option">--jobs</span></samp>,
+then concurrently running tests will finish before exiting.
+
+     <br><dt>&lsquo;<samp><span class="samp">--verbose</span></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">-v</span></samp>&rsquo;<dd>Force more verbosity in the detailed output of what is being done.  This
+is the default for debugging scripts.
+
+     <br><dt>&lsquo;<samp><span class="samp">--color</span></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">--color[=never|auto|always]</span></samp>&rsquo;<dd>Enable colored test results.  Without an argument, or with &lsquo;<samp><span class="samp">always</span></samp>&rsquo;,
+test results will be colored.  With &lsquo;<samp><span class="samp">never</span></samp>&rsquo;, color mode is turned
+off.  Otherwise, if either the macro <code>AT_COLOR_TESTS</code> is used by
+the testsuite author, or the argument &lsquo;<samp><span class="samp">auto</span></samp>&rsquo; is given, then test
+results are colored if standard output is connected to a terminal.
+
+     <br><dt>&lsquo;<samp><span class="samp">--debug</span></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">-d</span></samp>&rsquo;<dd>Do not remove the files after a test group was performed&mdash;but they are
+still removed <em>before</em>, therefore using this option is sane when
+running several test groups.  Create debugging scripts.  Do not
+overwrite the top-level
+log (in order to preserve a supposedly existing full log file).  This is
+the default for debugging scripts, but it can also be useful to debug
+the testsuite itself.
+
+     <br><dt>&lsquo;<samp><span class="samp">--recheck</span></samp>&rsquo;<dd>Add to the selection all test groups that failed or passed unexpectedly
+during the last non-debugging test run.
+
+     <br><dt>&lsquo;<samp><span class="samp">--trace</span></samp>&rsquo;<dt>&lsquo;<samp><span class="samp">-x</span></samp>&rsquo;<dd>Trigger shell tracing of the test groups. 
+</dl>
+
+   <p>Besides these options accepted by every Autotest testsuite, the
+testsuite author might have added package-specific options
+via the <code>AT_ARG_OPTION</code> and <code>AT_ARG_OPTION_ARG</code> macros
+(see <a href="Writing-Testsuites.html#Writing-Testsuites">Writing Testsuites</a>); refer to <samp><span class="command">testsuite --help</span></samp> and
+the package documentation for details.
+
+   </body></html>
+

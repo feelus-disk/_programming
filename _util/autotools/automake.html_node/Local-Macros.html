@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Local Macros</title>
+
+<meta name="description" content="automake: Local Macros">
+<meta name="keywords" content="automake: Local Macros">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="aclocal-Invocation.html#aclocal-Invocation" rel="up" title="aclocal Invocation">
+<link href="Serials.html#Serials" rel="next" title="Serials">
+<link href="Extending-aclocal.html#Extending-aclocal" rel="prev" title="Extending aclocal">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Local-Macros"></a>
+<div class="header">
+<p>
+Next: <a href="Serials.html#Serials" accesskey="n" rel="next">Serials</a>, Previous: <a href="Extending-aclocal.html#Extending-aclocal" accesskey="p" rel="prev">Extending aclocal</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Handling-Local-Macros"></a>
+<h4 class="subsection">6.3.4 Handling Local Macros</h4>
+
+<p>Feature tests offered by Autoconf do not cover all needs.  People
+often have to supplement existing tests with their own macros, or
+with third-party macros.
+</p>
+<p>There are two ways to organize custom macros in a package.
+</p>
+<p>The first possibility (the historical practice) is to list all your
+macros in <samp>acinclude.m4</samp>.  This file will be included in
+<samp>aclocal.m4</samp> when you run <code>aclocal</code>, and its macro(s) will
+henceforth be visible to <code>autoconf</code>.  However if it contains
+numerous macros, it will rapidly become difficult to maintain, and it
+will be almost impossible to share macros between packages.
+</p>
+<p>The second possibility, which we do recommend, is to write each macro
+in its own file and gather all these files in a directory.  This
+directory is usually called <samp>m4/</samp>.  Then it&rsquo;s enough to update
+<samp>configure.ac</samp> by adding a proper call to <code>AC_CONFIG_MACRO_DIRS</code>:
+</p>
+<div class="example">
+<pre class="example">AC_CONFIG_MACRO_DIRS([m4])
+</pre></div>
+
+<p><code>aclocal</code> will then take care of automatically adding <samp>m4/</samp>
+to its search path for m4 files.
+</p>
+<p>When &lsquo;<samp>aclocal</samp>&rsquo; is run, it will build an <samp>aclocal.m4</samp>
+that <code>m4_include</code>s any file from <samp>m4/</samp> that defines a
+required macro.  Macros not found locally will still be searched in
+system-wide directories, as explained in <a href="Macro-Search-Path.html#Macro-Search-Path">Macro Search Path</a>.
+</p>
+<p>Custom macros should be distributed for the same reason that
+<samp>configure.ac</samp> is: so that other people have all the sources of
+your package if they want to work on it.  Actually, this distribution
+happens automatically because all <code>m4_include</code>d files are
+distributed.
+</p>
+<p>However there is no consensus on the distribution of third-party
+macros that your package may use.  Many libraries install their own
+macro in the system-wide <code>aclocal</code> directory (see <a href="Extending-aclocal.html#Extending-aclocal">Extending aclocal</a>).  For instance, Guile ships with a file called
+<samp>guile.m4</samp> that contains the macro <code>GUILE_FLAGS</code> that can
+be used to define setup compiler and linker flags appropriate for
+using Guile.  Using <code>GUILE_FLAGS</code> in <samp>configure.ac</samp> will
+cause <code>aclocal</code> to copy <samp>guile.m4</samp> into
+<samp>aclocal.m4</samp>, but as <samp>guile.m4</samp> is not part of the project,
+it will not be distributed.  Technically, that means a user who
+needs to rebuild <samp>aclocal.m4</samp> will have to install Guile first.
+This is probably OK, if Guile already is a requirement to build the
+package.  However, if Guile is only an optional feature, or if your
+package might run on architectures where Guile cannot be installed,
+this requirement will hinder development.  An easy solution is to copy
+such third-party macros in your local <samp>m4/</samp> directory so they get
+distributed.
+</p>
+<p>Since Automake 1.10, <code>aclocal</code> offers the option <code>--install</code>
+to copy these system-wide third-party macros in your local macro directory,
+helping to solve the above problem.
+</p>
+<p>With this setup, system-wide macros will be copied to <samp>m4/</samp>
+the first time you run <code>aclocal</code>.  Then the locally installed
+macros will have precedence over the system-wide installed macros
+each time <code>aclocal</code> is run again.
+</p>
+<p>One reason why you should keep <samp>--install</samp> in the flags even
+after the first run is that when you later edit <samp>configure.ac</samp>
+and depend on a new macro, this macro will be installed in your
+<samp>m4/</samp> automatically.  Another one is that serial numbers
+(see <a href="Serials.html#Serials">Serials</a>) can be used to update the macros in your source tree
+automatically when new system-wide versions are installed.  A serial
+number should be a single line of the form
+</p>
+<div class="example">
+<pre class="example">#serial <var>nnn</var>
+</pre></div>
+
+<p>where <var>nnn</var> contains only digits and dots.  It should appear in
+the M4 file before any macro definition.  It is a good practice to
+maintain a serial number for each macro you distribute, even if you do
+not use the <samp>--install</samp> option of <code>aclocal</code>: this allows
+other people to use it.
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="Serials.html#Serials" accesskey="n" rel="next">Serials</a>, Previous: <a href="Extending-aclocal.html#Extending-aclocal" accesskey="p" rel="prev">Extending aclocal</a>, Up: <a href="aclocal-Invocation.html#aclocal-Invocation" accesskey="u" rel="up">aclocal Invocation</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<html lang="en">
+<head>
+<title>New Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Autoconf-2_002e13.html#Autoconf-2_002e13" title="Autoconf 2.13">
+<link rel="prev" href="Changed-Quotation.html#Changed-Quotation" title="Changed Quotation">
+<link rel="next" href="Hosts-and-Cross_002dCompilation.html#Hosts-and-Cross_002dCompilation" title="Hosts and Cross-Compilation">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="New-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Hosts-and-Cross_002dCompilation.html#Hosts-and-Cross_002dCompilation">Hosts and Cross-Compilation</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Changed-Quotation.html#Changed-Quotation">Changed Quotation</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Autoconf-2_002e13.html#Autoconf-2_002e13">Autoconf 2.13</a>
+<hr>
+</div>
+
+<h4 class="subsection">18.6.2 New Macros</h4>
+
+<p><a name="index-undefined-macro-2251"></a><a name="index-g_t_0040code_007b_005fm4_005fdivert_005fdiversion_007d-2252"></a>
+While Autoconf was relatively dormant in the late 1990s, Automake
+provided Autoconf-like macros for a while.  Starting with Autoconf 2.50
+in 2001, Autoconf provided
+versions of these macros, integrated in the <code>AC_</code> namespace,
+instead of <code>AM_</code>.  But in order to ease the upgrading via
+<samp><span class="command">autoupdate</span></samp>, bindings to such <code>AM_</code> macros are provided.
+
+   <p>Unfortunately older versions of Automake (e.g., Automake 1.4)
+did not quote the names of these macros. 
+Therefore, when <samp><span class="command">m4</span></samp> finds something like
+&lsquo;<samp><span class="samp">AC_DEFUN(AM_TYPE_PTRDIFF_T, ...)</span></samp>&rsquo; in <samp><span class="file">aclocal.m4</span></samp>,
+<code>AM_TYPE_PTRDIFF_T</code> is
+expanded, replaced with its Autoconf definition.
+
+   <p>Fortunately Autoconf catches pre-<code>AC_INIT</code> expansions, and
+complains, in its own words:
+
+<pre class="example">     $ <kbd>cat configure.ac</kbd>
+     AC_INIT([Example], [1.0], [bug-example@example.org])
+     AM_TYPE_PTRDIFF_T
+     $ <kbd>aclocal-1.4</kbd>
+     $ <kbd>autoconf</kbd>
+     aclocal.m4:17: error: m4_defn: undefined macro: _m4_divert_diversion
+     aclocal.m4:17: the top level
+     autom4te: m4 failed with exit status: 1
+     $
+</pre>
+   <p>Modern versions of Automake no longer define most of these
+macros, and properly quote the names of the remaining macros. 
+If you must use an old Automake, do not depend upon macros from Automake
+as it is simply not its job
+to provide macros (but the one it requires itself):
+
+<pre class="example">     $ <kbd>cat configure.ac</kbd>
+     AC_INIT([Example], [1.0], [bug-example@example.org])
+     AM_TYPE_PTRDIFF_T
+     $ <kbd>rm aclocal.m4</kbd>
+     $ <kbd>autoupdate</kbd>
+     autoupdate: `configure.ac' is updated
+     $ <kbd>cat configure.ac</kbd>
+     AC_INIT([Example], [1.0], [bug-example@example.org])
+     AC_CHECK_TYPES([ptrdiff_t])
+     $ <kbd>aclocal-1.4</kbd>
+     $ <kbd>autoconf</kbd>
+     $
+</pre>
+   </body></html>
+

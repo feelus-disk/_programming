@@ -1,0 +1,338 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on February, 19  2004 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>Autoconf: Ручная настройка</TITLE>
+
+<META NAME="description" CONTENT="Autoconf: Ручная настройка">
+<META NAME="keywords" CONTENT="Autoconf: Ручная настройка">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC67"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC66"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC68"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_7.html#SEC59"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_9.html#SEC72"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H1> 8. Ручная настройка </H1>
+<!--docid::SEC67::-->
+<A NAME="Manual Configuration"></A>
+<P>
+
+Некоторые типы свойств не могут быть определены автоматически путем
+запуска тестовых программ. Например, детали реализации формата объектных
+файлов или специальные ключи, которые необходимо передать компилятору
+или компоновщику. Вы можете проверить такие свойства, используя
+специализированные возможности, такие как заставив <CODE>configure</CODE>
+проверить вывод программы <CODE>uname</CODE> или производя поиск библиотек,
+специфических для отдельных систем. Однако Autoconf предоставляет
+однообразный метод для обработки неопределяемых свойств.
+</P><P>
+
+<BLOCKQUOTE><TABLE BORDER=0 CELLSPACING=0> 
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_8.html#SEC68">8.1 Указание типа системы</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_8.html#SEC69">8.2 Получение канонического типа системы</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_8.html#SEC70">8.3 Переменные типов систем</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+<TR><TD ALIGN="left" VALIGN="TOP"><A HREF="autoconf-ru_8.html#SEC71">8.4 Использование типов систем</A></TD><TD>&nbsp;&nbsp;</TD><TD ALIGN="left" VALIGN="TOP"></TD></TR>
+</TABLE></BLOCKQUOTE>
+<P>
+
+<A NAME="Указание имен"></A>
+<HR SIZE="6">
+<A NAME="SEC68"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC69"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_9.html#SEC72"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 8.1 Указание типа системы </H2>
+<!--docid::SEC68::-->
+<A NAME="Specifying Names"></A>
+<P>
+
+Подобно другим скриптам GNU <CODE>configure</CODE>, созданные Autoconf скрипты
+<CODE>configure</CODE> могут делать заключение, основываясь на каноническом
+имени типа системы, которое имеет форму:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre><VAR>cpu</VAR>-<VAR>company</VAR>-<VAR>system</VAR>
+</pre></td></tr></table></P><P>
+
+<CODE>configure</CODE> обычно может определить каноническое имя типа системы,
+на которой он запущен. Для этого он запускает скрипт с именем
+<CODE>config.guess</CODE>, который определяет имя, используя команду
+<CODE>uname</CODE> или символы определенные препроцессором C.
+</P><P>
+
+В качестве альтернативы пользователь может указать тип системы как
+аргумент командной строки скрипта <CODE>configure</CODE>. Это необходимо
+сделать, если вы хотите использовать кросс-компиляцию. В большинстве
+сложных случаев кросс-компиляции будут вовлечены три типа систем. Для их
+указания используются следующие ключи:
+</P><P>
+
+<DL COMPACT>
+<DT><CODE>--build=<VAR>build-type</VAR></CODE>
+<DD>тип системы, на которой настраивается и компилируется пакет
+(используется редко);
+<P>
+
+<DT><CODE>--host=<VAR>host-type</VAR></CODE>
+<DD>тип системы, на которой будет запускаться пакет;
+<P>
+
+<DT><CODE>--target=<VAR>target-type</VAR></CODE>
+<DD>тип системы, для которой утилиты компилятора будут создавать код.
+</DL>
+<P>
+
+Если пользователь задает <CODE>configure</CODE> неключевой аргумент, то он
+используется как значение по умолчанию для всех типов систем, если
+только пользователь не указал типы явно для систем с помощью ключей
+командной строки. Если типы целевой и собирающей систем не заданы, а
+задан тип системы, на которой будет запускаться пакет, то они равны
+заданному значению. Если вы используете кросс-компиляцию, то вам
+необходимо указать в командной строке скрипта <CODE>configure</CODE> имена
+используемых вами кросс-утилит, в частности компилятора С, например,
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>CC=m68k-coff-gcc configure --target=m68k-coff
+</pre></td></tr></table></P><P>
+
+<CODE>configure</CODE> распознает короткие алиасы для многих типов систем;
+например, в командной строке может быть задано имя <SAMP>`decstation'</SAMP>
+вместо <SAMP>`mips-dec-ultrix4.2'</SAMP>. <CODE>configure</CODE> запускает скрипт с
+именем <CODE>config.sub</CODE> для канонизации алиасов типов систем.
+</P><P>
+
+<A NAME="Канонизация"></A>
+<HR SIZE="6">
+<A NAME="SEC69"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC68"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC70"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_9.html#SEC72"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 8.2 Получение канонического типа системы </H2>
+<!--docid::SEC69::-->
+<A NAME="Canonicalizing"></A>
+<P>
+
+Следующие макросы делают тип системы доступным для скриптов
+<CODE>configure</CODE>. Они запускают скрипт командного процессора
+<CODE>config.guess</CODE> для определения значений каждого типа систем, в
+которых они нуждаются, и которые пользователь не указал в командной
+строке. Они запускают <CODE>config.sub</CODE> для канонизации заданных
+пользователем псевдонимов. Если вы используете эти макросы, то должны
+распространять эти два файла вместе с вашим исходным кодом.
+See section <A HREF="autoconf-ru_3.html#SEC10">3.2 Создание выходных файлов</A>, для получения информации о макросе
+<CODE>AC_CONFIG_AUX_DIR</CODE>, который вы можете использовать для контроля
+того, в каком именно каталоге <CODE>configure</CODE> будет искать эти файлы.
+Если вы не используете ни один из этих макросов, то <CODE>configure</CODE>
+игнорирует заданные ключи <SAMP>`--host'</SAMP>, <SAMP>`--target'</SAMP> и
+<SAMP>`--build'</SAMP>.
+</P><P>
+
+<A NAME="IDX461"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_CANONICAL_SYSTEM</B>
+<DD><A NAME="IDX462"></A>
+Определяет тип системы и устанавливает выходные переменные равными
+именам канонических типов систем.  See section <A HREF="autoconf-ru_8.html#SEC70">8.3 Переменные типов систем</A>, где
+описано, какие именно переменные устанавливаются этим макросом.
+</DL>
+</P><P>
+
+<A NAME="IDX463"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_CANONICAL_HOST</B>
+<DD><A NAME="IDX464"></A>
+Выполняет часть операций <CODE>AC_CANONICAL_SYSTEM</CODE>, относящуюся к
+определению типа системы, на которой будет запускаться пакет. Это все,
+что необходимо для программ, не входящих в набор утилит компилятора.
+</DL>
+</P><P>
+
+<A NAME="IDX465"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_VALIDATE_CACHED_SYSTEM_TUPLE</B> <I>(<VAR>cmd</VAR>)</I>
+<DD><A NAME="IDX466"></A>
+Если в кэш-файле записан тип системы, не совпадающий с текущим, то
+выполняется команда <VAR>cmd</VAR> или печатается стандартное сообщение об
+ошибке.
+</DL>
+</P><P>
+
+<A NAME="Переменные типов систем"></A>
+<HR SIZE="6">
+<A NAME="SEC70"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC69"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC71"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_9.html#SEC72"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 8.3 Переменные типов систем </H2>
+<!--docid::SEC70::-->
+<A NAME="System Type Variables"></A>
+<P>
+
+После вызова <CODE>AC_CANONICAL_SYSTEM</CODE> информация о типе системы
+содержится в нижеперечисленных выходных переменных.  После
+<CODE>AC_CANONICAL_HOST</CODE> устанавливаются только те из перечисленных
+переменных, чьи имена начинаются на <CODE>host</CODE>.
+</P><P>
+
+<DL COMPACT>
+<A NAME="IDX467"></A>
+<A NAME="IDX468"></A>
+<A NAME="IDX469"></A>
+<DT><CODE><CODE>build</CODE>, <CODE>host</CODE>, <CODE>target</CODE></CODE>
+<DD>канонические имена систем;
+<P>
+
+<DT><CODE><CODE>build_alias</CODE>, <CODE>host_alias</CODE>, <CODE>target_alias</CODE></CODE>
+<DD><A NAME="IDX470"></A>
+<A NAME="IDX471"></A>
+<A NAME="IDX472"></A>
+имена, указанные пользователем, или канонические имена, если был
+использован файл <CODE>config.guess</CODE>;
+<P>
+
+<DT><CODE><CODE>build_cpu</CODE>, <CODE>build_vendor</CODE>, <CODE>build_os</CODE></CODE>
+<DD><DT><CODE><CODE>host_cpu</CODE>, <CODE>host_vendor</CODE>, <CODE>host_os</CODE></CODE>
+<DD><DT><CODE><CODE>target_cpu</CODE>, <CODE>target_vendor</CODE>, <CODE>target_os</CODE></CODE>
+<DD><A NAME="IDX473"></A>
+<A NAME="IDX474"></A>
+<A NAME="IDX475"></A>
+<A NAME="IDX476"></A>
+<A NAME="IDX477"></A>
+<A NAME="IDX478"></A>
+<A NAME="IDX479"></A>
+<A NAME="IDX480"></A>
+<A NAME="IDX481"></A>
+отдельные части канонического имени (для удобства).
+</DL>
+<P>
+
+<A NAME="Использование типов систем"></A>
+<HR SIZE="6">
+<A NAME="SEC71"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC70"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_9.html#SEC72"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_9.html#SEC72"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<H2> 8.4 Использование типов систем </H2>
+<!--docid::SEC71::-->
+<A NAME="Using System Type"></A>
+<P>
+
+Как использовать канонический тип системы? Обычно вы используете его в
+одном или нескольких операторах <CODE>case</CODE> в <TT>`configure.in'</TT> для
+выбора специфических для системы файлов C.  Затем делаете ссылки на
+файлы, чьи имена содержат информацию о системе, чтобы они назывались
+также своим обобщенным именем, например, <TT>`host.h'</TT> или
+<TT>`target.c'</TT>.  Шаблоны в операторе <CODE>case</CODE> могут использовать
+специальные символы командного процессора для группировки нескольких
+вариантов вместе, например, как в таком фрагменте:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>case "$target" in
+i386-*-mach* | i386-*-gnu*) obj_format=aout emulation=mach bfd_gas=yes ;;
+i960-*-bout) obj_format=bout ;;
+esac
+</pre></td></tr></table></P><P>
+
+<A NAME="IDX482"></A>
+<DL>
+<DT><U>Macro:</U> <B>AC_LINK_FILES</B> <I>(<VAR>source</VAR><small>...</small>, <VAR>dest</VAR><small>...</small>)</I>
+<DD><A NAME="IDX483"></A>
+Заставляет <CODE>AC_OUTPUT</CODE> сделать ссылку с каждого файла из списка
+<VAR>source</VAR> на соответствующий файл с именем <VAR>dest</VAR>. Если это
+возможно, то создается символьная ссылка, иначе создается жесткая
+ссылка. Имена <VAR>dest</VAR> и <VAR>source</VAR> должны быть заданы относительно
+каталога верхнего уровня с исходными текстами или каталога, в котором
+происходит сборка. Этот макрос может быть вызван неоднократно.
+</P><P>
+
+Например, такой вызов:
+</P><P>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>AC_LINK_FILES(config/${machine}.h config/${obj_format}.h, host.h object.h)
+</pre></td></tr></table></P><P>
+
+создает в текущем каталоге файл <TT>`host.h'</TT>, являющийся ссылкой на
+<TT>`<VAR>srcdir</VAR>/config/${machine}.h'</TT>, и <TT>`object.h'</TT>, являющийся
+ссылкой на <TT>`<VAR>srcdir</VAR>/config/${obj_format}.h'</TT>.
+</DL>
+</P><P>
+
+Вы также можете использовать тип системы, на которой будет запускаться
+программа, для поиска утилит кросс-компиляции.  See section <A HREF="autoconf-ru_4.html#SEC24">4.1.2 Общие программы и проверки файлов</A>,
+для информации о макросе <CODE>AC_CHECK_TOOL</CODE>, выполняющем этот поиск.
+</P><P>
+
+<A NAME="Локальная конфигурация"></A>
+<HR SIZE="6">
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_8.html#SEC67"> &lt;&lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_9.html#SEC72"> &gt;&gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="autoconf-ru_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+on <I>February, 19  2004</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct = "UA-78697-3"; urchinTracker(); </script></body>
+</HTML>

@@ -1,0 +1,260 @@
+<html lang="en">
+<head>
+<title>Generic Programs - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Alternative-Programs.html#Alternative-Programs" title="Alternative Programs">
+<link rel="prev" href="Particular-Programs.html#Particular-Programs" title="Particular Programs">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Generic-Programs"></a>
+<p>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Particular-Programs.html#Particular-Programs">Particular Programs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Alternative-Programs.html#Alternative-Programs">Alternative Programs</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.2.2 Generic Program and File Checks</h4>
+
+<p>These macros are used to find programs not covered by the &ldquo;particular&rdquo;
+test macros.  If you need to check the behavior of a program as well as
+find out whether it is present, you have to write your own test for it
+(see <a href="Writing-Tests.html#Writing-Tests">Writing Tests</a>).  By default, these macros use the environment
+variable <samp><span class="env">PATH</span></samp>.  If you need to check for a program that might not
+be in the user's <samp><span class="env">PATH</span></samp>, you can pass a modified path to use
+instead, like this:
+
+<pre class="example">     AC_PATH_PROG([INETD], [inetd], [/usr/libexec/inetd],
+                  [$PATH$PATH_SEPARATOR/usr/libexec$PATH_SEPARATOR]dnl
+     [/usr/sbin$PATH_SEPARATOR/usr/etc$PATH_SEPARATOR/etc])
+</pre>
+   <p>You are strongly encouraged to declare the <var>variable</var> passed to
+<code>AC_CHECK_PROG</code> etc. as precious.  See <a href="Setting-Output-Variables.html#Setting-Output-Variables">Setting Output Variables</a>,
+<code>AC_ARG_VAR</code>, for more details.
+
+   <p><a name="AC_005fCHECK_005fPROG"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_PROG</b> (<var>variable, prog-to-check-for, value-if-found, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>reject</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fPROG-303"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fPROG-304"></a>
+<a name="index-ac_005fcv_005fprog_005f_0040var_007bvariable_007d-305"></a>
+Check whether program <var>prog-to-check-for</var> exists in <var>path</var>.  If
+it is found, set <var>variable</var> to <var>value-if-found</var>, otherwise to
+<var>value-if-not-found</var>, if given.  Always pass over <var>reject</var> (an
+absolute file name) even if it is the first found in the search path; in
+that case, set <var>variable</var> using the absolute file name of the
+<var>prog-to-check-for</var> found that is not <var>reject</var>.  If
+<var>variable</var> was already set, do nothing.  Calls <code>AC_SUBST</code> for
+<var>variable</var>.  The result of this test can be overridden by setting the
+<var>variable</var> variable or the cache variable
+<code>ac_cv_prog_</code><var>variable</var>. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fCHECK_005fPROGS"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_PROGS</b> (<var>variable, progs-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fPROGS-306"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fPROGS-307"></a>
+<a name="index-ac_005fcv_005fprog_005f_0040var_007bvariable_007d-308"></a>
+Check for each program in the blank-separated list
+<var>progs-to-check-for</var> existing in the <var>path</var>.  If one is found, set
+<var>variable</var> to the name of that program.  Otherwise, continue
+checking the next program in the list.  If none of the programs in the
+list are found, set <var>variable</var> to <var>value-if-not-found</var>; if
+<var>value-if-not-found</var> is not specified, the value of <var>variable</var>
+is not changed.  Calls <code>AC_SUBST</code> for <var>variable</var>.  The result of
+this test can be overridden by setting the <var>variable</var> variable or the
+cache variable <code>ac_cv_prog_</code><var>variable</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_TARGET_TOOL</b> (<var>variable, prog-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fTARGET_005fTOOL-309"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fTARGET_005fTOOL-310"></a>
+Like <code>AC_CHECK_PROG</code>, but first looks for <var>prog-to-check-for</var>
+with a prefix of the target type as determined by
+<code>AC_CANONICAL_TARGET</code>, followed by a dash (see <a href="Canonicalizing.html#Canonicalizing">Canonicalizing</a>). 
+If the tool cannot be found with a prefix, and if the build and target
+types are equal, then it is also searched for without a prefix.
+
+        <p>As noted in <a href="Specifying-Target-Triplets.html#Specifying-Target-Triplets">Specifying Target Triplets</a>, the
+target is rarely specified, because most of the time it is the same
+as the host: it is the type of system for which any compiler tool in
+the package produces code.  What this macro looks for is,
+for example, <em>a tool </em><span class="roman">(assembler, linker, etc.)</span><em> that the
+compiler driver </em><span class="roman">(</span><samp><span class="command">gcc</span></samp><span class="roman"> for the GNU C Compiler)</span><em>
+uses to produce objects, archives or executables</em>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_TOOL</b> (<var>variable, prog-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fTOOL-311"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fTOOL-312"></a>
+<!-- @caindex prog_@var{VARIABLE} -->
+<!-- @caindex prog_ac_ct_@var{VARIABLE} -->
+Like <code>AC_CHECK_PROG</code>, but first looks for <var>prog-to-check-for</var>
+with a prefix of the host type as specified by <samp><span class="option">--host</span></samp>, followed by a
+dash.  For example, if the user runs
+&lsquo;<samp><span class="samp">configure --build=x86_64-gnu --host=i386-gnu</span></samp>&rsquo;, then this call:
+     <pre class="example">          AC_CHECK_TOOL([RANLIB], [ranlib], [:])
+</pre>
+        <p class="noindent">sets <code>RANLIB</code> to <samp><span class="file">i386-gnu-ranlib</span></samp> if that program exists in
+<var>path</var>, or otherwise to &lsquo;<samp><span class="samp">ranlib</span></samp>&rsquo; if that program exists in
+<var>path</var>, or to &lsquo;<samp><span class="samp">:</span></samp>&rsquo; if neither program exists.
+
+        <p>When cross-compiling, this macro will issue a warning if no program
+prefixed with the host type could be found. 
+For more information, see <a href="Specifying-Target-Triplets.html#Specifying-Target-Triplets">Specifying Target Triplets</a>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_TARGET_TOOLS</b> (<var>variable, progs-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fTARGET_005fTOOLS-313"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fTARGET_005fTOOLS-314"></a>
+Like <code>AC_CHECK_TARGET_TOOL</code>, each of the tools in the list
+<var>progs-to-check-for</var> are checked with a prefix of the target type as
+determined by <code>AC_CANONICAL_TARGET</code>, followed by a dash
+(see <a href="Canonicalizing.html#Canonicalizing">Canonicalizing</a>).  If none of the tools can be found with a
+prefix, and if the build and target types are equal, then the first one
+without a prefix is used.  If a tool is found, set <var>variable</var> to
+the name of that program.  If none of the tools in the list are found,
+set <var>variable</var> to <var>value-if-not-found</var>; if <var>value-if-not-found</var>
+is not specified, the value of <var>variable</var> is not changed.  Calls
+<code>AC_SUBST</code> for <var>variable</var>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_CHECK_TOOLS</b> (<var>variable, progs-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fCHECK_005fTOOLS-315"></a></var><br>
+<blockquote><p><a name="index-AC_005fCHECK_005fTOOLS-316"></a>
+Like <code>AC_CHECK_TOOL</code>, each of the tools in the list
+<var>progs-to-check-for</var> are checked with a prefix of the host type as
+determined by <code>AC_CANONICAL_HOST</code>, followed by a dash
+(see <a href="Canonicalizing.html#Canonicalizing">Canonicalizing</a>).  If none of the tools can be found with a
+prefix, then the first one without a prefix is used.  If a tool is found,
+set <var>variable</var> to the name of that program.  If none of the tools in
+the list are found, set <var>variable</var> to <var>value-if-not-found</var>; if
+<var>value-if-not-found</var> is not specified, the value of <var>variable</var>
+is not changed.  Calls <code>AC_SUBST</code> for <var>variable</var>.
+
+        <p>When cross-compiling, this macro will issue a warning if no program
+prefixed with the host type could be found. 
+For more information, see <a href="Specifying-Target-Triplets.html#Specifying-Target-Triplets">Specifying Target Triplets</a>. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fPATH_005fPROG"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PATH_PROG</b> (<var>variable, prog-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fPATH_005fPROG-317"></a></var><br>
+<blockquote><p><a name="index-AC_005fPATH_005fPROG-318"></a>
+<a name="index-ac_005fcv_005fpath_005f_0040var_007bvariable_007d-319"></a>
+Like <code>AC_CHECK_PROG</code>, but set <var>variable</var> to the absolute
+name of <var>prog-to-check-for</var> if found.  The result of this test
+can be overridden by setting the <var>variable</var> variable.  A positive
+result of this test is cached in the <code>ac_cv_path_</code><var>variable</var>
+variable. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fPATH_005fPROGS"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PATH_PROGS</b> (<var>variable, progs-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fPATH_005fPROGS-320"></a></var><br>
+<blockquote><p><a name="index-AC_005fPATH_005fPROGS-321"></a>
+<a name="index-ac_005fcv_005fpath_005f_0040var_007bvariable_007d-322"></a>
+Like <code>AC_CHECK_PROGS</code>, but if any of <var>progs-to-check-for</var>
+are found, set <var>variable</var> to the absolute name of the program
+found.  The result of this test can be overridden by setting the
+<var>variable</var> variable.  A positive result of this test is cached in
+the <code>ac_cv_path_</code><var>variable</var> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PATH_PROGS_FEATURE_CHECK</b> (<var>variable, progs-to-check-for, feature-test, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fPATH_005fPROGS_005fFEATURE_005fCHECK-323"></a></var><br>
+<blockquote><p><a name="index-AC_005fPATH_005fPROGS_005fFEATURE_005fCHECK-324"></a>
+<a name="index-ac_005fcv_005fpath_005f_0040var_007bvariable_007d-325"></a>
+<a name="index-ac_005fpath_005f_0040var_007bvariable_007d-326"></a><a name="index-ac_005fpath_005f_0040var_007bvariable_007d_005ffound-327"></a>This macro was introduced in Autoconf 2.62.  If <var>variable</var> is not
+empty, then set the cache variable <code>ac_cv_path_</code><var>variable</var> to
+its value.  Otherwise, check for each program in the blank-separated
+list <var>progs-to-check-for</var> existing in <var>path</var>.  For each program
+found, execute <var>feature-test</var> with <code>ac_path_</code><var>variable</var>
+set to the absolute name of the candidate program.  If no invocation of
+<var>feature-test</var> sets the shell variable
+<code>ac_cv_path_</code><var>variable</var>, then <var>action-if-not-found</var> is
+executed.  <var>feature-test</var> will be run even when
+<code>ac_cv_path_</code><var>variable</var> is set, to provide the ability to
+choose a better candidate found later in <var>path</var>; to accept the
+current setting and bypass all further checks, <var>feature-test</var> can
+execute <code>ac_path_</code><var>variable</var><code>_found=:</code>.
+
+        <p>Note that this macro has some subtle differences from
+<code>AC_CHECK_PROGS</code>.  It is designed to be run inside
+<code>AC_CACHE_VAL</code>, therefore, it should have no side effects.  In
+particular, <var>variable</var> is not set to the final value of
+<code>ac_cv_path_</code><var>variable</var>, nor is <code>AC_SUBST</code> automatically
+run.  Also, on failure, any action can be performed, whereas
+<code>AC_CHECK_PROGS</code> only performs
+<var>variable</var><code>=</code><var>value-if-not-found</var>.
+
+        <p>Here is an example, similar to what Autoconf uses in its own configure
+script.  It will search for an implementation of <samp><span class="command">m4</span></samp> that
+supports the <code>indir</code> builtin, even if it goes by the name
+<samp><span class="command">gm4</span></samp> or is not the first implementation on <samp><span class="env">PATH</span></samp>.
+
+     <pre class="example">          AC_CACHE_CHECK([for m4 that supports indir], [ac_cv_path_M4],
+            [AC_PATH_PROGS_FEATURE_CHECK([M4], [m4 gm4],
+              [[m4out=`echo 'changequote([,])indir([divnum])' | $ac_path_M4`
+                test "x$m4out" = x0 \
+                &amp;&amp; ac_cv_path_M4=$ac_path_M4 ac_path_M4_found=:]],
+              [AC_MSG_ERROR([could not find m4 that supports indir])])])
+          AC_SUBST([M4], [$ac_cv_path_M4])
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PATH_TARGET_TOOL</b> (<var>variable, prog-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fPATH_005fTARGET_005fTOOL-328"></a></var><br>
+<blockquote><p><a name="index-AC_005fPATH_005fTARGET_005fTOOL-329"></a>
+Like <code>AC_CHECK_TARGET_TOOL</code>, but set <var>variable</var> to the absolute
+name of the program if it is found. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PATH_TOOL</b> (<var>variable, prog-to-check-for, </var><span class="roman">[</span><var>value-if-not-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>path = &lsquo;</var><samp><span class="samp">$PATH</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-AC_005fPATH_005fTOOL-330"></a></var><br>
+<blockquote><p><a name="index-AC_005fPATH_005fTOOL-331"></a>
+Like <code>AC_CHECK_TOOL</code>, but set <var>variable</var> to the absolute
+name of the program if it is found.
+
+        <p>When cross-compiling, this macro will issue a warning if no program
+prefixed with the host type could be found. 
+For more information, see <a href="Specifying-Target-Triplets.html#Specifying-Target-Triplets">Specifying Target Triplets</a>. 
+</p></blockquote></div>
+
+   </body></html>
+

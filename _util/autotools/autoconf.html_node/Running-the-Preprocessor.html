@@ -1,0 +1,144 @@
+<html lang="en">
+<head>
+<title>Running the Preprocessor - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Writing-Tests.html#Writing-Tests" title="Writing Tests">
+<link rel="prev" href="Writing-Test-Programs.html#Writing-Test-Programs" title="Writing Test Programs">
+<link rel="next" href="Running-the-Compiler.html#Running-the-Compiler" title="Running the Compiler">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Running-the-Preprocessor"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Running-the-Compiler.html#Running-the-Compiler">Running the Compiler</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Writing-Test-Programs.html#Writing-Test-Programs">Writing Test Programs</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Writing-Tests.html#Writing-Tests">Writing Tests</a>
+<hr>
+</div>
+
+<h3 class="section">6.3 Running the Preprocessor</h3>
+
+<p>Sometimes one might need to run the preprocessor on some source file. 
+<em>Usually it is a bad idea</em>, as you typically need to <em>compile</em>
+your project, not merely run the preprocessor on it; therefore you
+certainly want to run the compiler, not the preprocessor.  Resist the
+temptation of following the easiest path.
+
+   <p>Nevertheless, if you need to run the preprocessor, then use
+<code>AC_PREPROC_IFELSE</code>.
+
+   <p>The macros described in this section cannot be used for tests in Erlang,
+Fortran, or Go, since those languages require no preprocessor.
+
+   <p><a name="AC_005fPREPROC_005fIFELSE"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PREPROC_IFELSE</b> (<var>input, </var><span class="roman">[</span><var>action-if-true</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-false</var><span class="roman">]</span>)<var><a name="index-AC_005fPREPROC_005fIFELSE-1173"></a></var><br>
+<blockquote><p><a name="index-AC_005fPREPROC_005fIFELSE-1174"></a>
+Run the preprocessor of the current language (see <a href="Language-Choice.html#Language-Choice">Language Choice</a>)
+on the <var>input</var>, run the shell commands <var>action-if-true</var> on
+success, <var>action-if-false</var> otherwise.  The <var>input</var> can be made
+by <code>AC_LANG_PROGRAM</code> and friends.
+
+        <p>This macro uses <code>CPPFLAGS</code>, but not <code>CFLAGS</code>, because
+<samp><span class="option">-g</span></samp>, <samp><span class="option">-O</span></samp>, etc. are not valid options to many C
+preprocessors.
+
+        <p>It is customary to report unexpected failures with
+<code>AC_MSG_FAILURE</code>.  If needed, <var>action-if-true</var> can further access
+the preprocessed output in the file <samp><span class="file">conftest.i</span></samp>. 
+</p></blockquote></div>
+
+   <p>For instance:
+
+<pre class="example">     AC_INIT([Hello], [1.0], [bug-hello@example.org])
+     AC_DEFINE([HELLO_WORLD], ["Hello, World\n"],
+       [Greetings string.])
+     AC_PREPROC_IFELSE(
+        [AC_LANG_PROGRAM([[const char hw[] = "Hello, World\n";]],
+                         [[fputs (hw, stdout);]])],
+        [AC_MSG_RESULT([OK])],
+        [AC_MSG_FAILURE([unexpected preprocessor failure])])
+</pre>
+   <p class="noindent">results in:
+
+<pre class="example">     checking for gcc... gcc
+     checking for C compiler default output file name... a.out
+     checking whether the C compiler works... yes
+     checking whether we are cross compiling... no
+     checking for suffix of executables...
+     checking for suffix of object files... o
+     checking whether we are using the GNU C compiler... yes
+     checking whether gcc accepts -g... yes
+     checking for gcc option to accept ISO C89... none needed
+     checking how to run the C preprocessor... gcc -E
+     OK
+</pre>
+   <pre class="sp">
+
+</pre>
+
+The macro <code>AC_TRY_CPP</code> (see <a href="Obsolete-Macros.html#Obsolete-Macros">Obsolete Macros</a>) used to play the
+role of <code>AC_PREPROC_IFELSE</code>, but double quotes its argument, making
+it impossible to use it to elaborate sources.  You are encouraged to
+get rid of your old use of the macro <code>AC_TRY_CPP</code> in favor of
+<code>AC_PREPROC_IFELSE</code>, but, in the first place, are you sure you need
+to run the <em>preprocessor</em> and not the compiler?
+
+   <p><a name="AC_005fEGREP_005fHEADER"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_EGREP_HEADER</b> (<var>pattern, header-file, action-if-found, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span>)<var><a name="index-AC_005fEGREP_005fHEADER-1175"></a></var><br>
+<blockquote><p><a name="index-AC_005fEGREP_005fHEADER-1176"></a>
+If the output of running the preprocessor on the system header file
+<var>header-file</var> matches the extended regular expression
+<var>pattern</var>, execute shell commands <var>action-if-found</var>, otherwise
+execute <var>action-if-not-found</var>. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fEGREP_005fCPP"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_EGREP_CPP</b> (<var>pattern, program, </var><span class="roman">[</span><var>action-if-found</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-not-found</var><span class="roman">]</span>)<var><a name="index-AC_005fEGREP_005fCPP-1177"></a></var><br>
+<blockquote><p><a name="index-AC_005fEGREP_005fCPP-1178"></a>
+<var>program</var> is the text of a C or C++ program, on which shell
+variable, back quote, and backslash substitutions are performed.  If the
+output of running the preprocessor on <var>program</var> matches the
+extended regular expression <var>pattern</var>, execute shell commands
+<var>action-if-found</var>, otherwise execute <var>action-if-not-found</var>. 
+</p></blockquote></div>
+
+   </body></html>
+

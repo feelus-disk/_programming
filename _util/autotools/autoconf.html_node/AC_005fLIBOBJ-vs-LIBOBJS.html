@@ -1,0 +1,97 @@
+<html lang="en">
+<head>
+<title>AC_LIBOBJ vs LIBOBJS - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Autoconf-2_002e13.html#Autoconf-2_002e13" title="Autoconf 2.13">
+<link rel="prev" href="Hosts-and-Cross_002dCompilation.html#Hosts-and-Cross_002dCompilation" title="Hosts and Cross-Compilation">
+<link rel="next" href="AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT.html#AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT" title="AC_ACT_IFELSE vs AC_TRY_ACT">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="AC_LIBOBJ-vs-LIBOBJS"></a>
+<a name="AC_005fLIBOBJ-vs-LIBOBJS"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT.html#AC_005fACT_005fIFELSE-vs-AC_005fTRY_005fACT">AC_ACT_IFELSE vs AC_TRY_ACT</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Hosts-and-Cross_002dCompilation.html#Hosts-and-Cross_002dCompilation">Hosts and Cross-Compilation</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Autoconf-2_002e13.html#Autoconf-2_002e13">Autoconf 2.13</a>
+<hr>
+</div>
+
+<h4 class="subsection">18.6.4 <code>AC_LIBOBJ</code> vs. <code>LIBOBJS</code></h4>
+
+<p>Up to Autoconf 2.13, the replacement of functions was triggered via the
+variable <code>LIBOBJS</code>.  Since Autoconf 2.50, the macro
+<code>AC_LIBOBJ</code> should be used instead (see <a href="Generic-Functions.html#Generic-Functions">Generic Functions</a>). 
+Starting at Autoconf 2.53, the use of <code>LIBOBJS</code> is an error.
+
+   <p>This change is mandated by the unification of the GNU Build System
+components.  In particular, the various fragile techniques used to parse
+a <samp><span class="file">configure.ac</span></samp> are all replaced with the use of traces.  As a
+consequence, any action must be traceable, which obsoletes critical
+variable assignments.  Fortunately, <code>LIBOBJS</code> was the only problem,
+and it can even be handled gracefully (read, &ldquo;without your having to
+change something&rdquo;).
+
+   <p>There were two typical uses of <code>LIBOBJS</code>: asking for a replacement
+function, and adjusting <code>LIBOBJS</code> for Automake and/or Libtool.
+
+   <pre class="sp">
+
+</pre>
+
+As for function replacement, the fix is immediate: use
+<code>AC_LIBOBJ</code>.  For instance:
+
+<pre class="example">     LIBOBJS="$LIBOBJS fnmatch.o"
+     LIBOBJS="$LIBOBJS malloc.$ac_objext"
+</pre>
+   <p class="noindent">should be replaced with:
+
+<pre class="example">     AC_LIBOBJ([fnmatch])
+     AC_LIBOBJ([malloc])
+</pre>
+   <pre class="sp">
+
+</pre>
+
+<a name="index-LIBOBJDIR-2254"></a>When used with Automake 1.10 or newer, a suitable value for
+<code>LIBOBJDIR</code> is set so that the <code>LIBOBJS</code> and <code>LTLIBOBJS</code>
+can be referenced from any <samp><span class="file">Makefile.am</span></samp>.  Even without Automake,
+arranging for <code>LIBOBJDIR</code> to be set correctly enables
+referencing <code>LIBOBJS</code> and <code>LTLIBOBJS</code> in another directory. 
+The <code>LIBOBJDIR</code> feature is experimental.
+
+   </body></html>
+

@@ -1,0 +1,499 @@
+<html lang="en">
+<head>
+<title>C Compiler - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors" title="Compilers and Preprocessors">
+<link rel="prev" href="Generic-Compiler-Characteristics.html#Generic-Compiler-Characteristics" title="Generic Compiler Characteristics">
+<link rel="next" href="C_002b_002b-Compiler.html#C_002b_002b-Compiler" title="C++ Compiler">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="C-Compiler"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="C_002b_002b-Compiler.html#C_002b_002b-Compiler">C++ Compiler</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Generic-Compiler-Characteristics.html#Generic-Compiler-Characteristics">Generic Compiler Characteristics</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Compilers-and-Preprocessors.html#Compilers-and-Preprocessors">Compilers and Preprocessors</a>
+<hr>
+</div>
+
+<h4 class="subsection">5.10.3 C Compiler Characteristics</h4>
+
+<p>The following macros provide ways to find and exercise a C Compiler. 
+There are a few constructs that ought to be avoided, but do not deserve
+being checked for, since they can easily be worked around.
+
+     <dl>
+<dt>Don't use lines containing solitary backslashes<dd>They tickle a bug in the HP-UX C compiler (checked on
+HP-UX 10.20,
+11.00, and 11i).  When given the following source:
+
+     <pre class="example">          #ifdef __STDC__
+          /\
+          * A comment with backslash-newlines in it.  %{ %} *\
+          \
+          /
+          char str[] = "\\
+          " A string with backslash-newlines in it %{ %} \\
+          "";
+          char apostrophe = '\\
+          \
+          '\
+          ';
+          #endif
+</pre>
+     <p class="noindent">the compiler incorrectly fails with the diagnostics &ldquo;Non-terminating
+comment at end of file&rdquo; and &ldquo;Missing &lsquo;<samp><span class="samp">#endif</span></samp>&rsquo; at end of file.&rdquo;
+Removing the lines with solitary backslashes solves the problem.
+
+     <br><dt>Don't compile several files at once if output matters to you<dd>Some compilers, such as HP's, report names of files being
+compiled when given more than one file operand.  For instance:
+
+     <pre class="example">          $ <kbd>cc a.c b.c</kbd>
+          a.c:
+          b.c:
+</pre>
+     <p class="noindent">This can cause problems if you observe the output of the compiler to
+detect failures.  Invoking &lsquo;<samp><span class="samp">cc -c a.c &amp;&amp; cc -c b.c &amp;&amp; cc -o c a.o
+b.o</span></samp>&rsquo; solves the issue.
+
+     <br><dt>Don't rely on <code>#error</code> failing<dd>The IRIX C compiler does not fail when #error is preprocessed; it
+simply emits a diagnostic and continues, exiting successfully.  So,
+instead of an error directive like <code>#error "Unsupported word size"</code>
+it is more portable to use an invalid directive like <code>#Unsupported
+word size</code> in Autoconf tests.  In ordinary source code, <code>#error</code> is
+OK, since installers with inadequate compilers like IRIX can simply
+examine these compilers' diagnostic output.
+
+     <br><dt>Don't rely on correct <code>#line</code> support<dd>On Solaris, <samp><span class="command">c89</span></samp> (at least Sun C 5.3 through 5.8)
+diagnoses <code>#line</code> directives whose line
+numbers are greater than 32767.  Nothing in Posix
+makes this invalid.  That is why Autoconf stopped issuing
+<code>#line</code> directives. 
+</dl>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_CC</b> (<span class="roman">[</span><var>compiler-search-list</var><span class="roman">]</span>)<var><a name="index-AC_005fPROG_005fCC-861"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fCC-862"></a>
+<a name="index-CC-863"></a><a name="index-CFLAGS-864"></a><a name="index-CC-865"></a><a name="index-CFLAGS-866"></a><a name="index-ac_005fcv_005fprog_005fcc_005fc89-867"></a>
+Determine a C compiler to use.  If <code>CC</code> is not already set in the
+environment, check for <code>gcc</code> and <code>cc</code>, then for other C
+compilers.  Set output variable <code>CC</code> to the name of the compiler
+found.
+
+        <p>This macro may, however, be invoked with an optional first argument
+which, if specified, must be a blank-separated list of C compilers to
+search for.  This just gives the user an opportunity to specify an
+alternative search list for the C compiler.  For example, if you didn't
+like the default order, then you could invoke <code>AC_PROG_CC</code> like
+this:
+
+     <pre class="example">          AC_PROG_CC([gcc cl cc])
+</pre>
+        <p>If the C compiler does not handle function prototypes correctly by
+default, try to add an option to output variable <code>CC</code> to make it
+so.  This macro tries various options that select standard-conformance
+modes on various systems.
+
+        <p>After calling this macro you can check whether the C compiler has been
+set to accept ANSI C89 (ISO C90); if not, the shell
+variable
+<code>ac_cv_prog_cc_c89</code> is set to &lsquo;<samp><span class="samp">no</span></samp>&rsquo;.  See also
+<code>AC_C_PROTOTYPES</code> below.
+
+        <p>If using the GNU C compiler, set shell variable <code>GCC</code> to
+&lsquo;<samp><span class="samp">yes</span></samp>&rsquo;.  If output variable <code>CFLAGS</code> was not already set, set
+it to <samp><span class="option">-g -O2</span></samp> for the GNU C compiler (<samp><span class="option">-O2</span></samp> on systems
+where GCC does not accept <samp><span class="option">-g</span></samp>), or <samp><span class="option">-g</span></samp> for
+other compilers.  If your package does not like this default, then it is
+acceptable to insert the line &lsquo;<samp><span class="samp">: ${CFLAGS=""}</span></samp>&rsquo; after <code>AC_INIT</code>
+and before <code>AC_PROG_CC</code> to select an empty default instead.
+
+        <p>Many Autoconf macros use a compiler, and thus call
+&lsquo;<samp><span class="samp">AC_REQUIRE([AC_PROG_CC])</span></samp>&rsquo; to ensure that the compiler has been
+determined before the body of the outermost <code>AC_DEFUN</code> macro. 
+Although <code>AC_PROG_CC</code> is safe to directly expand multiple times, it
+performs certain checks (such as the proper value of <samp><span class="env">EXEEXT</span></samp>) only
+on the first invocation.  Therefore, care must be used when invoking
+this macro from within another macro rather than at the top level
+(see <a href="Expanded-Before-Required.html#Expanded-Before-Required">Expanded Before Required</a>). 
+</p></blockquote></div>
+
+   <p><a name="AC_005fPROG_005fCC_005fC_005fO"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_CC_C_O</b><var><a name="index-AC_005fPROG_005fCC_005fC_005fO-868"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fCC_005fC_005fO-869"></a>
+<a name="index-NO_005fMINUS_005fC_005fMINUS_005fO-870"></a><a name="index-ac_005fcv_005fprog_005fcc_005f_0040var_007bcompiler_007d_005fc_005fo-871"></a>
+If the C compiler does not accept the <samp><span class="option">-c</span></samp> and <samp><span class="option">-o</span></samp> options
+simultaneously, define <code>NO_MINUS_C_MINUS_O</code>.  This macro actually
+tests both the compiler found by <code>AC_PROG_CC</code>, and, if different,
+the first <code>cc</code> in the path.  The test fails if one fails.  This
+macro was created for GNU Make to choose the default C compilation
+rule.
+
+        <p>For the compiler <var>compiler</var>, this macro caches its result in the
+<code>ac_cv_prog_cc_</code><var>compiler</var><code>_c_o</code> variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_CPP</b><var><a name="index-AC_005fPROG_005fCPP-872"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fCPP-873"></a>
+<a name="index-CPP-874"></a><a name="index-CPP-875"></a>Set output variable <code>CPP</code> to a command that runs the
+C preprocessor.  If &lsquo;<samp><span class="samp">$CC -E</span></samp>&rsquo; doesn't work, <samp><span class="file">/lib/cpp</span></samp> is used. 
+It is only portable to run <code>CPP</code> on files with a <samp><span class="file">.c</span></samp>
+extension.
+
+        <p>Some preprocessors don't indicate missing include files by the error
+status.  For such preprocessors an internal variable is set that causes
+other macros to check the standard error from the preprocessor and
+consider the test failed if any warnings have been reported. 
+For most preprocessors, though, warnings do not cause include-file
+tests to fail unless <code>AC_PROG_CPP_WERROR</code> is also specified. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_CPP_WERROR</b><var><a name="index-AC_005fPROG_005fCPP_005fWERROR-876"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fCPP_005fWERROR-877"></a>
+<a name="index-CPP-878"></a>This acts like <code>AC_PROG_CPP</code>, except it treats warnings from the
+preprocessor as errors even if the preprocessor exit status indicates
+success.  This is useful for avoiding headers that generate mandatory
+warnings, such as deprecation notices. 
+</p></blockquote></div>
+
+   <p>The following macros check for C compiler or machine architecture
+features.  To check for characteristics not listed here, use
+<code>AC_COMPILE_IFELSE</code> (see <a href="Running-the-Compiler.html#Running-the-Compiler">Running the Compiler</a>) or
+<code>AC_RUN_IFELSE</code> (see <a href="Runtime.html#Runtime">Runtime</a>).
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_CC_STDC</b><var><a name="index-AC_005fPROG_005fCC_005fSTDC-879"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fCC_005fSTDC-880"></a>
+<a name="index-ac_005fcv_005fprog_005fcc_005fstdc-881"></a>
+If the C compiler cannot compile ISO Standard C (currently
+C99), try to add an option to output variable <code>CC</code> to make it work. 
+If the compiler does not support C99, fall back to supporting
+ANSI C89 (ISO C90).
+
+        <p>After calling this macro you can check whether the C compiler has been
+set to accept Standard C; if not, the shell variable
+<code>ac_cv_prog_cc_stdc</code> is set to &lsquo;<samp><span class="samp">no</span></samp>&rsquo;. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_CC_C89</b><var><a name="index-AC_005fPROG_005fCC_005fC89-882"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fCC_005fC89-883"></a>
+<a name="index-ac_005fcv_005fprog_005fcc_005fc89-884"></a>
+If the C compiler is not in ANSI C89 (ISO C90) mode by
+default, try to add an option to output variable <code>CC</code> to make it
+so.  This macro tries various options that select ANSI C89 on
+some system or another, preferring extended functionality modes over
+strict conformance modes.  It considers the compiler to be in
+ANSI C89 mode if it handles function prototypes correctly.
+
+        <p>After calling this macro you can check whether the C compiler has been
+set to accept ANSI C89; if not, the shell variable
+<code>ac_cv_prog_cc_c89</code> is set to &lsquo;<samp><span class="samp">no</span></samp>&rsquo;.
+
+        <p>This macro is called automatically by <code>AC_PROG_CC</code>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_CC_C99</b><var><a name="index-AC_005fPROG_005fCC_005fC99-885"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fCC_005fC99-886"></a>
+<a name="index-ac_005fcv_005fprog_005fcc_005fc99-887"></a>
+If the C compiler is not in C99 mode by default, try to add an
+option to output variable <code>CC</code> to make it so.  This macro tries
+various options that select C99 on some system or another, preferring
+extended functionality modes over strict conformance modes.  It
+considers the compiler to be in C99 mode if it handles <code>_Bool</code>,
+<code>//</code> comments, flexible array members, <code>inline</code>, signed and
+unsigned <code>long long int</code>, mixed code and declarations, named
+initialization of structs,
+<code>restrict</code>, <code>va_copy</code>, varargs macros, variable declarations
+in <code>for</code> loops, and variable length arrays.
+
+        <p>After calling this macro you can check whether the C compiler has been
+set to accept C99; if not, the shell variable
+<code>ac_cv_prog_cc_c99</code> is set to &lsquo;<samp><span class="samp">no</span></samp>&rsquo;. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_BACKSLASH_A</b><var><a name="index-AC_005fC_005fBACKSLASH_005fA-888"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fBACKSLASH_005fA-889"></a>
+<a name="index-HAVE_005fC_005fBACKSLASH_005fA-890"></a>Define &lsquo;<samp><span class="samp">HAVE_C_BACKSLASH_A</span></samp>&rsquo; to 1 if the C compiler understands
+&lsquo;<samp><span class="samp">\a</span></samp>&rsquo;.
+
+        <p>This macro is obsolescent, as current C compilers understand &lsquo;<samp><span class="samp">\a</span></samp>&rsquo;. 
+New programs need not use this macro. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fC_005fBIGENDIAN"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_BIGENDIAN</b> (<span class="roman">[</span><var>action-if-true</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-false</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-unknown</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>action-if-universal</var><span class="roman">]</span>)<var><a name="index-AC_005fC_005fBIGENDIAN-891"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fBIGENDIAN-892"></a>
+<a name="index-WORDS_005fBIGENDIAN-893"></a><a name="index-Endianness-894"></a>If words are stored with the most significant byte first (like Motorola
+and SPARC CPUs), execute <var>action-if-true</var>.  If words are stored with
+the least significant byte first (like Intel and VAX CPUs), execute
+<var>action-if-false</var>.
+
+        <p>This macro runs a test-case if endianness cannot be determined from the
+system header files.  When cross-compiling, the test-case is not run but
+grep'ed for some magic values.  <var>action-if-unknown</var> is executed if
+the latter case fails to determine the byte sex of the host system.
+
+        <p>In some cases a single run of a compiler can generate code for multiple
+architectures.  This can happen, for example, when generating Mac OS X
+universal binary files, which work on both PowerPC and Intel
+architectures.  In this case, the different variants might be for
+different architectures whose endiannesses differ.  If
+<samp><span class="command">configure</span></samp> detects this, it executes <var>action-if-universal</var>
+instead of <var>action-if-unknown</var>.
+
+        <p>The default for <var>action-if-true</var> is to define
+&lsquo;<samp><span class="samp">WORDS_BIGENDIAN</span></samp>&rsquo;.  The default for <var>action-if-false</var> is to do
+nothing.  The default for <var>action-if-unknown</var> is to
+abort configure and tell the installer how to bypass this test. 
+And finally, the default for <var>action-if-universal</var> is to ensure that
+&lsquo;<samp><span class="samp">WORDS_BIGENDIAN</span></samp>&rsquo; is defined if and only if a universal build is
+detected and the current code is big-endian; this default works only if
+<samp><span class="command">autoheader</span></samp> is used (see <a href="autoheader-Invocation.html#autoheader-Invocation">autoheader Invocation</a>).
+
+        <p>If you use this macro without specifying <var>action-if-universal</var>, you
+should also use <code>AC_CONFIG_HEADERS</code>; otherwise
+&lsquo;<samp><span class="samp">WORDS_BIGENDIAN</span></samp>&rsquo; may be set incorrectly for Mac OS X universal
+binary files. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fC_005fCONST"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_CONST</b><var><a name="index-AC_005fC_005fCONST-895"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fCONST-896"></a>
+<a name="index-const-897"></a><a name="index-ac_005fcv_005fc_005fconst-898"></a>
+If the C compiler does not fully support the <code>const</code> keyword,
+define <code>const</code> to be empty.  Some C compilers that do
+not define <code>__STDC__</code> do support <code>const</code>; some compilers that
+define <code>__STDC__</code> do not completely support <code>const</code>.  Programs
+can simply use <code>const</code> as if every C compiler supported it; for
+those that don't, the makefile or configuration header file
+defines it as empty.
+
+        <p>Occasionally installers use a C++ compiler to compile C code, typically
+because they lack a C compiler.  This causes problems with <code>const</code>,
+because C and C++ treat <code>const</code> differently.  For example:
+
+     <pre class="example">          const int foo;
+</pre>
+        <p class="noindent">is valid in C but not in C++.  These differences unfortunately cannot be
+papered over by defining <code>const</code> to be empty.
+
+        <p>If <samp><span class="command">autoconf</span></samp> detects this situation, it leaves <code>const</code> alone,
+as this generally yields better results in practice.  However, using a
+C++ compiler to compile C code is not recommended or supported, and
+installers who run into trouble in this area should get a C compiler
+like GCC to compile their C code.
+
+        <p>This macro caches its result in the <code>ac_cv_c_const</code> variable.
+
+        <p>This macro is obsolescent, as current C compilers support <code>const</code>. 
+New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_RESTRICT</b><var><a name="index-AC_005fC_005fRESTRICT-899"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fRESTRICT-900"></a>
+<a name="index-restrict-901"></a><a name="index-ac_005fcv_005fc_005frestrict-902"></a>
+If the C compiler recognizes a variant spelling for the <code>restrict</code>
+keyword (<code>__restrict</code>, <code>__restrict__</code>, or <code>_Restrict</code>),
+then define <code>restrict</code> to that; this is more likely to do the right
+thing with compilers that support language variants where plain
+<code>restrict</code> is not a keyword.  Otherwise, if the C compiler
+recognizes the <code>restrict</code> keyword, don't do anything. 
+Otherwise, define <code>restrict</code> to be empty. 
+Thus, programs may simply use <code>restrict</code> as if every C compiler
+supported it; for those that do not, the makefile
+or configuration header defines it away.
+
+        <p>Although support in C++ for the <code>restrict</code> keyword is not
+required, several C++ compilers do accept the keyword. 
+This macro works for them, too.
+
+        <p>This macro caches &lsquo;<samp><span class="samp">no</span></samp>&rsquo; in the <code>ac_cv_c_restrict</code> variable
+if <code>restrict</code> is not supported, and a supported spelling otherwise. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_VOLATILE</b><var><a name="index-AC_005fC_005fVOLATILE-903"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fVOLATILE-904"></a>
+<a name="index-volatile-905"></a>If the C compiler does not understand the keyword <code>volatile</code>,
+define <code>volatile</code> to be empty.  Programs can simply use
+<code>volatile</code> as if every C compiler supported it; for those that do
+not, the makefile or configuration header defines it as
+empty.
+
+        <p>If the correctness of your program depends on the semantics of
+<code>volatile</code>, simply defining it to be empty does, in a sense, break
+your code.  However, given that the compiler does not support
+<code>volatile</code>, you are at its mercy anyway.  At least your
+program compiles, when it wouldn't before. 
+See <a href="Volatile-Objects.html#Volatile-Objects">Volatile Objects</a>, for more about <code>volatile</code>.
+
+        <p>In general, the <code>volatile</code> keyword is a standard C feature, so
+you might expect that <code>volatile</code> is available only when
+<code>__STDC__</code> is defined.  However, Ultrix 4.3's native compiler does
+support volatile, but does not define <code>__STDC__</code>.
+
+        <p>This macro is obsolescent, as current C compilers support <code>volatile</code>. 
+New programs need not use this macro. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fC_005fINLINE"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_INLINE</b><var><a name="index-AC_005fC_005fINLINE-906"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fINLINE-907"></a>
+<a name="index-inline-908"></a>If the C compiler supports the keyword <code>inline</code>, do nothing. 
+Otherwise define <code>inline</code> to <code>__inline__</code> or <code>__inline</code>
+if it accepts one of those, otherwise define <code>inline</code> to be empty. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fC_005fCHAR_005fUNSIGNED"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_CHAR_UNSIGNED</b><var><a name="index-AC_005fC_005fCHAR_005fUNSIGNED-909"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fCHAR_005fUNSIGNED-910"></a>
+<a name="index-g_t_005f_005fCHAR_005fUNSIGNED_005f_005f-911"></a>If the C type <code>char</code> is unsigned, define <code>__CHAR_UNSIGNED__</code>,
+unless the C compiler predefines it.
+
+        <p>These days, using this macro is not necessary.  The same information can
+be determined by this portable alternative, thus avoiding the use of
+preprocessor macros in the namespace reserved for the implementation.
+
+     <pre class="example">          #include &lt;limits.h&gt;
+          #if CHAR_MIN == 0
+          # define CHAR_UNSIGNED 1
+          #endif
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_STRINGIZE</b><var><a name="index-AC_005fC_005fSTRINGIZE-912"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fSTRINGIZE-913"></a>
+<a name="index-HAVE_005fSTRINGIZE-914"></a>If the C preprocessor supports the stringizing operator, define
+<code>HAVE_STRINGIZE</code>.  The stringizing operator is &lsquo;<samp><span class="samp">#</span></samp>&rsquo; and is
+found in macros such as this:
+
+     <pre class="example">          #define x(y) #y
+</pre>
+        <p>This macro is obsolescent, as current C compilers support the
+stringizing operator.  New programs need not use this macro. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_FLEXIBLE_ARRAY_MEMBER</b><var><a name="index-AC_005fC_005fFLEXIBLE_005fARRAY_005fMEMBER-915"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fFLEXIBLE_005fARRAY_005fMEMBER-916"></a>
+<a name="index-FLEXIBLE_005fARRAY_005fMEMBER-917"></a>If the C compiler supports flexible array members, define
+<code>FLEXIBLE_ARRAY_MEMBER</code> to nothing; otherwise define it to 1. 
+That way, a declaration like this:
+
+     <pre class="example">          struct s
+            {
+              size_t n_vals;
+              double val[FLEXIBLE_ARRAY_MEMBER];
+            };
+</pre>
+        <p class="noindent">will let applications use the &ldquo;struct hack&rdquo; even with compilers that
+do not support flexible array members.  To allocate and use such an
+object, you can use code like this:
+
+     <pre class="example">          size_t i;
+          size_t n = compute_value_count ();
+          struct s *p =
+             malloc (offsetof (struct s, val)
+                     + n * sizeof (double));
+          p-&gt;n_vals = n;
+          for (i = 0; i &lt; n; i++)
+            p-&gt;val[i] = compute_value (i);
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_VARARRAYS</b><var><a name="index-AC_005fC_005fVARARRAYS-918"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fVARARRAYS-919"></a>
+<a name="index-HAVE_005fC_005fVARARRAYS-920"></a>If the C compiler supports variable-length arrays, define
+<code>HAVE_C_VARARRAYS</code>.  A variable-length array is an array of automatic
+storage duration whose length is determined at run time, when the array
+is declared. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_TYPEOF</b><var><a name="index-AC_005fC_005fTYPEOF-921"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fTYPEOF-922"></a>
+<a name="index-HAVE_005fTYPEOF-923"></a><a name="index-typeof-924"></a>If the C compiler supports GCC's <code>typeof</code> syntax either
+directly or
+through a different spelling of the keyword (e.g., <code>__typeof__</code>),
+define <code>HAVE_TYPEOF</code>.  If the support is available only through a
+different spelling, define <code>typeof</code> to that spelling. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>AC_C_PROTOTYPES</b><var><a name="index-AC_005fC_005fPROTOTYPES-925"></a></var><br>
+<blockquote><p><a name="index-AC_005fC_005fPROTOTYPES-926"></a>
+<a name="index-PROTOTYPES-927"></a><a name="index-g_t_005f_005fPROTOTYPES-928"></a><a name="index-PARAMS-929"></a>If function prototypes are understood by the compiler (as determined by
+<code>AC_PROG_CC</code>), define <code>PROTOTYPES</code> and <code>__PROTOTYPES</code>. 
+Defining <code>__PROTOTYPES</code> is for the benefit of
+header files that cannot use macros that infringe on user name space.
+
+        <p>This macro is obsolescent, as current C compilers support prototypes. 
+New programs need not use this macro. 
+</p></blockquote></div>
+
+   <p><a name="AC_005fPROG_005fGCC_005fTRADITIONAL"></a>
+
+<div class="defun">
+&mdash; Macro: <b>AC_PROG_GCC_TRADITIONAL</b><var><a name="index-AC_005fPROG_005fGCC_005fTRADITIONAL-930"></a></var><br>
+<blockquote><p><a name="index-AC_005fPROG_005fGCC_005fTRADITIONAL-931"></a>
+<a name="index-CC-932"></a>Add <samp><span class="option">-traditional</span></samp> to output variable <code>CC</code> if using the
+GNU C compiler and <code>ioctl</code> does not work properly without
+<samp><span class="option">-traditional</span></samp>.  That usually happens when the fixed header files
+have not been installed on an old system.
+
+        <p>This macro is obsolescent, since current versions of the GNU C
+compiler fix the header files automatically when installed. 
+</p></blockquote></div>
+
+   </body></html>
+

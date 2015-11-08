@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: amhello's configure.ac Setup Explained</title>
+
+<meta name="description" content="automake: amhello's configure.ac Setup Explained">
+<meta name="keywords" content="automake: amhello's configure.ac Setup Explained">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Hello-World.html#Hello-World" rel="up" title="Hello World">
+<link href="amhello_0027s-Makefile_002eam-Setup-Explained.html#amhello_0027s-Makefile_002eam-Setup-Explained" rel="next" title="amhello's Makefile.am Setup Explained">
+<link href="Creating-amhello.html#Creating-amhello" rel="prev" title="Creating amhello">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="amhello_0027s-configure_002eac-Setup-Explained"></a>
+<div class="header">
+<p>
+Next: <a href="amhello_0027s-Makefile_002eam-Setup-Explained.html#amhello_0027s-Makefile_002eam-Setup-Explained" accesskey="n" rel="next">amhello's Makefile.am Setup Explained</a>, Previous: <a href="Creating-amhello.html#Creating-amhello" accesskey="p" rel="prev">Creating amhello</a>, Up: <a href="Hello-World.html#Hello-World" accesskey="u" rel="up">Hello World</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="amhello_0027s-configure_002eac-Setup-Explained-1"></a>
+<h4 class="subsection">2.4.2 <code>amhello</code>&rsquo;s <samp>configure.ac</samp> Setup Explained</h4>
+
+<a name="index-configure_002eac_002c-Hello-World"></a>
+
+<p>Let us begin with the contents of <samp>configure.ac</samp>.
+</p>
+<div class="example">
+<pre class="example">AC_INIT([amhello], [1.0], [bug-automake@gnu.org])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AC_PROG_CC
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_FILES([
+ Makefile
+ src/Makefile
+])
+AC_OUTPUT
+</pre></div>
+
+<p>This file is read by both <code>autoconf</code> (to create
+<samp>configure</samp>) and <code>automake</code> (to create the various
+<samp>Makefile.in</samp>s).  It contains a series of M4 macros that will be
+expanded as shell code to finally form the <samp>configure</samp> script.
+We will not elaborate on the syntax of this file, because the Autoconf
+manual has a whole section about it (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Writing-Autoconf-Input.html#Writing-Autoconf-Input">Writing <samp>configure.ac</samp></a> in <cite>The Autoconf Manual</cite>).
+</p>
+<p>The macros prefixed with <code>AC_</code> are Autoconf macros, documented
+in the Autoconf manual (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Autoconf-Macro-Index.html#Autoconf-Macro-Index">Autoconf Macro
+Index</a> in <cite>The Autoconf Manual</cite>).  The macros that start with
+<code>AM_</code> are Automake macros, documented later in this manual
+(see <a href="Macro-Index.html#Macro-Index">Macro Index</a>).
+</p>
+<p>The first two lines of <samp>configure.ac</samp> initialize Autoconf and
+Automake.  <code>AC_INIT</code> takes in as parameters the name of the package,
+its version number, and a contact address for bug-reports about the
+package (this address is output at the end of <code>./configure
+--help</code>, for instance).  When adapting this setup to your own package,
+by all means please do not blindly copy Automake&rsquo;s address: use the
+mailing list of your package, or your own mail address.
+</p>
+<a name="index-_002dWall"></a>
+<a name="index-_002dWerror"></a>
+<a name="index-foreign"></a>
+
+<p>The argument to <code>AM_INIT_AUTOMAKE</code> is a list of options for
+<code>automake</code> (see <a href="Options.html#Options">Options</a>).  <samp>-Wall</samp> and
+<samp>-Werror</samp> ask <code>automake</code> to turn on all warnings and
+report them as errors.  We are speaking of <strong>Automake</strong> warnings
+here, such as dubious instructions in <samp>Makefile.am</samp>.  This has
+absolutely nothing to do with how the compiler will be called, even
+though it may support options with similar names.  Using <samp>-Wall
+-Werror</samp> is a safe setting when starting to work on a package: you do
+not want to miss any issues.  Later you may decide to relax things a
+bit.  The <samp>foreign</samp> option tells Automake that this package
+will not follow the GNU Standards.  GNU packages should always
+distribute additional files such as <samp>ChangeLog</samp>, <samp>AUTHORS</samp>,
+etc.  We do not want <code>automake</code> to complain about these
+missing files in our small example.
+</p>
+<p>The <code>AC_PROG_CC</code> line causes the <code>configure</code> script to
+search for a C compiler and define the variable <code>CC</code> with its
+name.  The <samp>src/Makefile.in</samp> file generated by Automake uses the
+variable <code>CC</code> to build <samp>hello</samp>, so when <code>configure</code>
+creates <samp>src/Makefile</samp> from <samp>src/Makefile.in</samp>, it will define
+<code>CC</code> with the value it has found.  If Automake is asked to create
+a <samp>Makefile.in</samp> that uses <code>CC</code> but <samp>configure.ac</samp> does
+not define it, it will suggest you add a call to <code>AC_PROG_CC</code>.
+</p>
+<p>The <code>AC_CONFIG_HEADERS([config.h])</code> invocation causes the
+<code>configure</code> script to create a <samp>config.h</samp> file gathering
+&lsquo;<samp>#define</samp>&rsquo;s defined by other macros in <samp>configure.ac</samp>.  In our
+case, the <code>AC_INIT</code> macro already defined a few of them.  Here
+is an excerpt of <samp>config.h</samp> after <code>configure</code> has run:
+</p>
+<div class="smallexample">
+<pre class="smallexample">&hellip;
+/* Define to the address where bug reports for this package should be sent. */
+#define PACKAGE_BUGREPORT &quot;bug-automake@gnu.org&quot;
+
+/* Define to the full name and version of this package. */
+#define PACKAGE_STRING &quot;amhello 1.0&quot;
+&hellip;
+</pre></div>
+
+<p>As you probably noticed, <samp>src/main.c</samp> includes <samp>config.h</samp> so
+it can use <code>PACKAGE_STRING</code>.  In a real-world project,
+<samp>config.h</samp> can grow really big, with one &lsquo;<samp>#define</samp>&rsquo; per
+feature probed on the system.
+</p>
+<p>The <code>AC_CONFIG_FILES</code> macro declares the list of files that
+<code>configure</code> should create from their <samp>*.in</samp> templates.
+Automake also scans this list to find the <samp>Makefile.am</samp> files it must
+process.  (This is important to remember: when adding a new directory
+to your project, you should add its <samp>Makefile</samp> to this list,
+otherwise Automake will never process the new <samp>Makefile.am</samp> you
+wrote in that directory.)
+</p>
+<p>Finally, the <code>AC_OUTPUT</code> line is a closing command that actually
+produces the part of the script in charge of creating the files
+registered with <code>AC_CONFIG_HEADERS</code> and <code>AC_CONFIG_FILES</code>.
+</p>
+<a name="index-autoscan"></a>
+
+<p>When starting a new project, we suggest you start with such a simple
+<samp>configure.ac</samp>, and gradually add the other tests it requires.
+The command <code>autoscan</code> can also suggest a few of the tests
+your package may need (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/autoscan-Invocation.html#autoscan-Invocation">Using
+<code>autoscan</code> to Create <samp>configure.ac</samp></a> in <cite>The
+Autoconf Manual</cite>).
+</p>
+
+<hr>
+<div class="header">
+<p>
+Next: <a href="amhello_0027s-Makefile_002eam-Setup-Explained.html#amhello_0027s-Makefile_002eam-Setup-Explained" accesskey="n" rel="next">amhello's Makefile.am Setup Explained</a>, Previous: <a href="Creating-amhello.html#Creating-amhello" accesskey="p" rel="prev">Creating amhello</a>, Up: <a href="Hello-World.html#Hello-World" accesskey="u" rel="up">Hello World</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+<html lang="en">
+<head>
+<title>Build Directories - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Makefile-Substitutions.html#Makefile-Substitutions" title="Makefile Substitutions">
+<link rel="prev" href="Changed-Directory-Variables.html#Changed-Directory-Variables" title="Changed Directory Variables">
+<link rel="next" href="Automatic-Remaking.html#Automatic-Remaking" title="Automatic Remaking">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Build-Directories"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Automatic-Remaking.html#Automatic-Remaking">Automatic Remaking</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Changed-Directory-Variables.html#Changed-Directory-Variables">Changed Directory Variables</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Makefile-Substitutions.html#Makefile-Substitutions">Makefile Substitutions</a>
+<hr>
+</div>
+
+<h4 class="subsection">4.8.4 Build Directories</h4>
+
+<p><a name="index-Build-directories-197"></a><a name="index-Directories_002c-build-198"></a>
+You can support compiling a software package for several architectures
+simultaneously from the same copy of the source code.  The object files
+for each architecture are kept in their own directory.
+
+   <p>To support doing this, <samp><span class="command">make</span></samp> uses the <code>VPATH</code> variable to
+find the files that are in the source directory.  GNU Make
+can do this.  Most other recent <samp><span class="command">make</span></samp> programs can do this as
+well, though they may have difficulties and it is often simpler to
+recommend GNU <samp><span class="command">make</span></samp> (see <a href="VPATH-and-Make.html#VPATH-and-Make">VPATH and Make</a>).  Older
+<samp><span class="command">make</span></samp> programs do not support <code>VPATH</code>; when using them, the
+source code must be in the same directory as the object files.
+
+   <p>If you are using GNU Automake, the remaining details in this
+section are already covered for you, based on the contents of your
+<samp><span class="file">Makefile.am</span></samp>.  But if you are using Autoconf in isolation, then
+supporting <code>VPATH</code> requires the following in your
+<samp><span class="file">Makefile.in</span></samp>:
+
+<pre class="example">     srcdir = @srcdir@
+     VPATH = @srcdir@
+</pre>
+   <p>Do not set <code>VPATH</code> to the value of another variable (see <a href="Variables-listed-in-VPATH.html#Variables-listed-in-VPATH">Variables listed in VPATH</a>.
+
+   <p><samp><span class="command">configure</span></samp> substitutes the correct value for <code>srcdir</code> when
+it produces <samp><span class="file">Makefile</span></samp>.
+
+   <p>Do not use the <samp><span class="command">make</span></samp> variable <code>$&lt;</code>, which expands to the
+file name of the file in the source directory (found with <code>VPATH</code>),
+except in implicit rules.  (An implicit rule is one such as &lsquo;<samp><span class="samp">.c.o</span></samp>&rsquo;,
+which tells how to create a <samp><span class="file">.o</span></samp> file from a <samp><span class="file">.c</span></samp> file.)  Some
+versions of <samp><span class="command">make</span></samp> do not set <code>$&lt;</code> in explicit rules; they
+expand it to an empty value.
+
+   <p>Instead, Make command lines should always refer to source
+files by prefixing them with &lsquo;<samp><span class="samp">$(srcdir)/</span></samp>&rsquo;.  For example:
+
+<pre class="example">     time.info: time.texinfo
+             $(MAKEINFO) '$(srcdir)/time.texinfo'
+</pre>
+   </body></html>
+

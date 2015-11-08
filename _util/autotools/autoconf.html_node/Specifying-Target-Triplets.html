@@ -1,0 +1,119 @@
+<html lang="en">
+<head>
+<title>Specifying Target Triplets - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Manual-Configuration.html#Manual-Configuration" title="Manual Configuration">
+<link rel="next" href="Canonicalizing.html#Canonicalizing" title="Canonicalizing">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Specifying-Target-Triplets"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Canonicalizing.html#Canonicalizing">Canonicalizing</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Manual-Configuration.html#Manual-Configuration">Manual Configuration</a>
+<hr>
+</div>
+
+<h3 class="section">14.1 Specifying target triplets</h3>
+
+<p><a name="index-System-type-1910"></a><a name="index-Target-triplet-1911"></a><!-- This node used to be named Specifying Names.  The @anchor allows old -->
+<!-- links to still work. -->
+<a name="Specifying-Names"></a>Autoconf-generated
+<samp><span class="command">configure</span></samp> scripts can make decisions based on a canonical name
+for the system type, or <dfn>target triplet</dfn>, which has the form:
+&lsquo;<samp><var>cpu</var><span class="samp">-</span><var>vendor</var><span class="samp">-</span><var>os</var></samp>&rsquo;, where <var>os</var> can be
+&lsquo;<samp><var>system</var></samp>&rsquo; or &lsquo;<samp><var>kernel</var><span class="samp">-</span><var>system</var></samp>&rsquo;
+
+   <p><samp><span class="command">configure</span></samp> can usually guess the canonical name for the type of
+system it's running on.  To do so it runs a script called
+<samp><span class="command">config.guess</span></samp>, which infers the name using the <code>uname</code>
+command or symbols predefined by the C preprocessor.
+
+   <p>Alternately, the user can specify the system type with command line
+arguments to <samp><span class="command">configure</span></samp> (see <a href="System-Type.html#System-Type">System Type</a>.  Doing so is
+necessary when
+cross-compiling.  In the most complex case of cross-compiling, three
+system types are involved.  The options to specify them are:
+
+     <dl>
+<dt><samp><span class="option">--build=</span><var>build-type</var></samp><dd>the type of system on which the package is being configured and
+compiled.  It defaults to the result of running <samp><span class="command">config.guess</span></samp>. 
+Specifying a <var>build-type</var> that differs from <var>host-type</var> enables
+cross-compilation mode.
+
+     <br><dt><samp><span class="option">--host=</span><var>host-type</var></samp><dd>the type of system on which the package runs.  By default it is the
+same as the build machine.  Specifying a <var>host-type</var> that differs
+from <var>build-type</var>, when <var>build-type</var> was also explicitly
+specified, enables cross-compilation mode.
+
+     <br><dt><samp><span class="option">--target=</span><var>target-type</var></samp><dd>the type of system for which any compiler tools in the package
+produce code (rarely needed).  By default, it is the same as host. 
+</dl>
+
+   <p>If you mean to override the result of <samp><span class="command">config.guess</span></samp>, use
+<samp><span class="option">--build</span></samp>, not <samp><span class="option">--host</span></samp>, since the latter enables
+cross-compilation.  For historical reasons,
+whenever you specify <samp><span class="option">--host</span></samp>,
+be sure to specify <samp><span class="option">--build</span></samp> too; this will be fixed in the
+future.  So, to enter cross-compilation mode, use a command like this
+
+<pre class="example">     ./configure --build=i686-pc-linux-gnu --host=m68k-coff
+</pre>
+   <p class="noindent">Note that if you do not specify <samp><span class="option">--host</span></samp>, <samp><span class="command">configure</span></samp>
+fails if it can't run the code generated by the specified compiler.  For
+example, configuring as follows fails:
+
+<pre class="example">     ./configure CC=m68k-coff-gcc
+</pre>
+   <p>When cross-compiling, <samp><span class="command">configure</span></samp> will warn about any tools
+(compilers, linkers, assemblers) whose name is not prefixed with the
+host type.  This is an aid to users performing cross-compilation. 
+Continuing the example above, if a cross-compiler named <samp><span class="command">cc</span></samp> is
+used with a native <samp><span class="command">pkg-config</span></samp>, then libraries found by
+<samp><span class="command">pkg-config</span></samp> will likely cause subtle build failures; but using
+the names <samp><span class="command">m68k-coff-cc</span></samp> and <samp><span class="command">m68k-coff-pkg-config</span></samp>
+avoids any confusion.  Avoiding the warning is as simple as creating the
+correct symlinks naming the cross tools.
+
+   <p><a name="index-g_t_0040command_007bconfig_002esub_007d-1912"></a><samp><span class="command">configure</span></samp> recognizes short aliases for many system types; for
+example, &lsquo;<samp><span class="samp">decstation</span></samp>&rsquo; can be used instead of
+&lsquo;<samp><span class="samp">mips-dec-ultrix4.2</span></samp>&rsquo;.  <samp><span class="command">configure</span></samp> runs a script called
+<samp><span class="command">config.sub</span></samp> to canonicalize system type aliases.
+
+   <p>This section deliberately omits the description of the obsolete
+interface; see <a href="Hosts-and-Cross_002dCompilation.html#Hosts-and-Cross_002dCompilation">Hosts and Cross-Compilation</a>.
+
+   </body></html>
+

@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Conditional Subdirectories</title>
+
+<meta name="description" content="automake: Conditional Subdirectories">
+<meta name="keywords" content="automake: Conditional Subdirectories">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Directories.html#Directories" rel="up" title="Directories">
+<link href="SUBDIRS-vs-DIST_005fSUBDIRS.html#SUBDIRS-vs-DIST_005fSUBDIRS" rel="next" title="SUBDIRS vs DIST_SUBDIRS">
+<link href="Subdirectories.html#Subdirectories" rel="prev" title="Subdirectories">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Conditional-Subdirectories"></a>
+<div class="header">
+<p>
+Next: <a href="Alternative.html#Alternative" accesskey="n" rel="next">Alternative</a>, Previous: <a href="Subdirectories.html#Subdirectories" accesskey="p" rel="prev">Subdirectories</a>, Up: <a href="Directories.html#Directories" accesskey="u" rel="up">Directories</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Conditional-Subdirectories-1"></a>
+<h3 class="section">7.2 Conditional Subdirectories</h3>
+<a name="index-Subdirectories_002c-building-conditionally"></a>
+<a name="index-Conditional-subdirectories"></a>
+<a name="index-SUBDIRS_002c-conditional"></a>
+<a name="index-Conditional-SUBDIRS"></a>
+
+<p>It is possible to define the <code>SUBDIRS</code> variable conditionally if,
+like in the case of GNU Inetutils, you want to only build a subset of
+the entire package.
+</p>
+<p>To illustrate how this works, let&rsquo;s assume we have two directories
+<samp>src/</samp> and <samp>opt/</samp>.  <samp>src/</samp> should always be built, but we
+want to decide in <code>configure</code> whether <samp>opt/</samp> will be built
+or not.  (For this example we will assume that <samp>opt/</samp> should be
+built when the variable &lsquo;<samp>$want_opt</samp>&rsquo; was set to &lsquo;<samp>yes</samp>&rsquo;.)
+</p>
+<p>Running <code>make</code> should thus recurse into <samp>src/</samp> always, and
+then maybe in <samp>opt/</samp>.
+</p>
+<p>However &lsquo;<samp>make dist</samp>&rsquo; should always recurse into both <samp>src/</samp>
+and <samp>opt/</samp>.  Because <samp>opt/</samp> should be distributed even if it
+is not needed in the current configuration.  This means
+<samp>opt/Makefile</samp> should be created <em>unconditionally</em>.
+</p>
+<p>There are two ways to setup a project like this.  You can use Automake
+conditionals (see <a href="Conditionals.html#Conditionals">Conditionals</a>) or use Autoconf <code>AC_SUBST</code>
+variables (see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Setting-Output-Variables.html#Setting-Output-Variables">Setting Output
+Variables</a> in <cite>The Autoconf Manual</cite>).  Using Automake
+conditionals is the preferred solution.  Before we illustrate these
+two possibilities, let&rsquo;s introduce <code>DIST_SUBDIRS</code>.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="SUBDIRS-vs-DIST_005fSUBDIRS.html#SUBDIRS-vs-DIST_005fSUBDIRS" accesskey="1">SUBDIRS vs DIST_SUBDIRS</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Two sets of directories
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Subdirectories-with-AM_005fCONDITIONAL.html#Subdirectories-with-AM_005fCONDITIONAL" accesskey="2">Subdirectories with AM_CONDITIONAL</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Specifying conditional subdirectories
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Subdirectories-with-AC_005fSUBST.html#Subdirectories-with-AC_005fSUBST" accesskey="3">Subdirectories with AC_SUBST</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Another way for conditional recursion
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="Unconfigured-Subdirectories.html#Unconfigured-Subdirectories" accesskey="4">Unconfigured Subdirectories</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Not even creating a &lsquo;<samp>Makefile</samp>&rsquo;
+</td></tr>
+</table>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,255 @@
+<html lang="en">
+<head>
+<title>Automatic Rule Rewriting - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="VPATH-and-Make.html#VPATH-and-Make" title="VPATH and Make">
+<link rel="prev" href="_0024_003c-in-Explicit-Rules.html#g_t_0024_003c-in-Explicit-Rules" title="$&lt; in Explicit Rules">
+<link rel="next" href="Tru64-Directory-Magic.html#Tru64-Directory-Magic" title="Tru64 Directory Magic">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Automatic-Rule-Rewriting"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Tru64-Directory-Magic.html#Tru64-Directory-Magic">Tru64 Directory Magic</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="_0024_003c-in-Explicit-Rules.html#g_t_0024_003c-in-Explicit-Rules">$&lt; in Explicit Rules</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="VPATH-and-Make.html#VPATH-and-Make">VPATH and Make</a>
+<hr>
+</div>
+
+<h4 class="subsection">12.18.4 Automatic Rule Rewriting</h4>
+
+<p><a name="index-g_t_0040code_007bVPATH_007d-and-automatic-rule-rewriting-1875"></a><a name="index-automatic-rule-rewriting-and-_0040code_007bVPATH_007d-1876"></a>
+Some <samp><span class="command">make</span></samp> implementations, such as Solaris and Tru64,
+search for prerequisites in <code>VPATH</code> and
+then rewrite each occurrence as a plain word in the rule. 
+For instance:
+
+<pre class="example">     # This isn't portable to GNU make.
+     VPATH = ../pkg/src
+     f.c: if.c
+             cp if.c f.c
+</pre>
+   <p class="noindent">executes <code>cp ../pkg/src/if.c f.c</code> if <samp><span class="file">if.c</span></samp> is
+found in <samp><span class="file">../pkg/src</span></samp>.
+
+   <p>However, this rule leads to real problems in practice.  For example, if
+the source directory contains an ordinary file named <samp><span class="file">test</span></samp> that is
+used in a dependency, Solaris <samp><span class="command">make</span></samp> rewrites commands like
+&lsquo;<samp><span class="samp">if test -r foo; ...</span></samp>&rsquo; to &lsquo;<samp><span class="samp">if ../pkg/src/test -r foo;
+...</span></samp>&rsquo;, which is typically undesirable.  In fact, <samp><span class="command">make</span></samp> is
+completely unaware of shell syntax used in the rules, so the VPATH
+rewrite can potentially apply to <em>any</em> whitespace-separated word
+in a rule, including shell variables, functions, and keywords.
+
+<pre class="example">     $ <kbd>mkdir build</kbd>
+     $ <kbd>cd build</kbd>
+     $ <kbd>cat &gt; Makefile &lt;&lt;'END'</kbd>
+     VPATH = ..
+     all: arg func for echo
+             func () { for arg in "$$@"; do echo $$arg; done; }; \
+             func "hello world"
+     END
+     $ <kbd>touch ../arg ../func ../for ../echo</kbd>
+     $ <kbd>make</kbd>
+     ../func () { ../for ../arg in "$@"; do ../echo $arg; done; }; \
+     ../func "hello world"
+     sh: syntax error at line 1: `do' unexpected
+     *** Error code 2
+</pre>
+   <p class="noindent">To avoid this problem, portable makefiles should never mention a source
+file or dependency whose name is that of a shell keyword like <samp><span class="file">for</span></samp>
+or <samp><span class="file">until</span></samp>, a shell command like <samp><span class="command">cat</span></samp> or <samp><span class="command">gcc</span></samp> or
+<samp><span class="command">test</span></samp>, or a shell function or variable used in the corresponding
+<samp><span class="command">Makefile</span></samp> recipe.
+
+   <p>Because of these problems GNU <samp><span class="command">make</span></samp> and many other <samp><span class="command">make</span></samp>
+implementations do not rewrite commands, so portable makefiles should
+search <code>VPATH</code> manually.  It is tempting to write this:
+
+<pre class="smallexample">     # This isn't portable to Solaris make.
+     VPATH = ../pkg/src
+     f.c: if.c
+             cp `test -f if.c || echo $(VPATH)/`if.c f.c
+</pre>
+   <p class="noindent">However, the &ldquo;prerequisite rewriting&rdquo; still applies here.  So if
+<samp><span class="file">if.c</span></samp> is in <samp><span class="file">../pkg/src</span></samp>, Solaris and Tru64 <samp><span class="command">make</span></samp>
+execute
+
+<pre class="smallexample">     cp `test -f ../pkg/src/if.c || echo ../pkg/src/`if.c f.c
+</pre>
+   <p class="noindent">which reduces to
+
+<pre class="example">     cp if.c f.c
+</pre>
+   <p class="noindent">and thus fails.  Oops.
+
+   <p>A simple workaround, and good practice anyway, is to use &lsquo;<samp><span class="samp">$?</span></samp>&rsquo; and
+&lsquo;<samp><span class="samp">$@</span></samp>&rsquo; when possible:
+
+<pre class="smallexample">     VPATH = ../pkg/src
+     f.c: if.c
+             cp $? $@
+</pre>
+   <p class="noindent">but this does not generalize well to commands with multiple
+prerequisites.  A more general workaround is to rewrite the rule so that
+the prerequisite <samp><span class="file">if.c</span></samp> never appears as a plain word.  For
+example, these three rules would be safe, assuming <samp><span class="file">if.c</span></samp> is in
+<samp><span class="file">../pkg/src</span></samp> and the other files are in the working directory:
+
+<pre class="smallexample">     VPATH = ../pkg/src
+     f.c: if.c f1.c
+             cat `test -f ./if.c || echo $(VPATH)/`if.c f1.c &gt;$@
+     g.c: if.c g1.c
+             cat `test -f 'if.c' || echo $(VPATH)/`if.c g1.c &gt;$@
+     h.c: if.c h1.c
+             cat `test -f "if.c" || echo $(VPATH)/`if.c h1.c &gt;$@
+</pre>
+   <p>Things get worse when your prerequisites are in a macro.
+
+<pre class="example">     VPATH = ../pkg/src
+     HEADERS = f.h g.h h.h
+     install-HEADERS: $(HEADERS)
+             for i in $(HEADERS); do \
+               $(INSTALL) -m 644 \
+                 `test -f $$i || echo $(VPATH)/`$$i \
+                 $(DESTDIR)$(includedir)/$$i; \
+     <!-- $$ restore font-lock -->
+             done
+</pre>
+   <p>The above <code>install-HEADERS</code> rule is not Solaris-proof because <code>for
+i in $(HEADERS);</code> is expanded to <code>for i in f.h g.h h.h;</code>
+where <code>f.h</code> and <code>g.h</code> are plain words and are hence
+subject to <code>VPATH</code> adjustments.
+
+   <p>If the three files are in <samp><span class="file">../pkg/src</span></samp>, the rule is run as:
+
+<pre class="example">     for i in ../pkg/src/f.h ../pkg/src/g.h h.h; do \
+       install -m 644 \
+          `test -f $i || echo ../pkg/src/`$i \
+          /usr/local/include/$i; \
+     done
+</pre>
+   <p>where the two first <samp><span class="command">install</span></samp> calls fail.  For instance,
+consider the <code>f.h</code> installation:
+
+<pre class="example">     install -m 644 \
+       `test -f ../pkg/src/f.h || \
+         echo ../pkg/src/ \
+       `../pkg/src/f.h \
+       /usr/local/include/../pkg/src/f.h;
+</pre>
+   <p class="noindent">It reduces to:
+
+<pre class="example">     install -m 644 \
+       ../pkg/src/f.h \
+       /usr/local/include/../pkg/src/f.h;
+</pre>
+   <p>Note that the manual <code>VPATH</code> search did not cause any problems here;
+however this command installs <samp><span class="file">f.h</span></samp> in an incorrect directory.
+
+   <p>Trying to quote <code>$(HEADERS)</code> in some way, as we did for
+<code>foo.c</code> a few makefiles ago, does not help:
+
+<pre class="example">     install-HEADERS: $(HEADERS)
+             headers='$(HEADERS)'; \
+             for i in $$headers; do \
+               $(INSTALL) -m 644 \
+                 `test -f $$i || echo $(VPATH)/`$$i \
+                 $(DESTDIR)$(includedir)/$$i; \
+             done
+</pre>
+   <p>Now, <code>headers='$(HEADERS)'</code> macro-expands to:
+
+<pre class="example">     headers='f.h g.h h.h'
+</pre>
+   <p class="noindent">but <code>g.h</code> is still a plain word.  (As an aside, the idiom
+<code>headers='$(HEADERS)'; for i in $$headers;</code> is a good
+idea if <code>$(HEADERS)</code> can be empty, because some shells diagnose a
+syntax error on <code>for i in;</code>.)
+
+   <p>One workaround is to strip this unwanted <samp><span class="file">../pkg/src/</span></samp> prefix manually:
+
+<pre class="example">     VPATH = ../pkg/src
+     HEADERS = f.h g.h h.h
+     install-HEADERS: $(HEADERS)
+             headers='$(HEADERS)'; \
+             for i in $$headers; do \
+               i=`expr "$$i" : '$(VPATH)/\(.*\)'`;
+               $(INSTALL) -m 644 \
+                 `test -f $$i || echo $(VPATH)/`$$i \
+                 $(DESTDIR)$(includedir)/$$i; \
+     <!-- $$ restore font-lock -->
+             done
+</pre>
+   <p>Automake does something similar.  However the above hack works only if
+the files listed in <code>HEADERS</code> are in the current directory or a
+subdirectory; they should not be in an enclosing directory.  If we had
+<code>HEADERS = ../f.h</code>, the above fragment would fail in a VPATH
+build with Tru64 <samp><span class="command">make</span></samp>.  The reason is that not only does
+Tru64 <samp><span class="command">make</span></samp> rewrite dependencies, but it also simplifies
+them.  Hence <code>../f.h</code> becomes <code>../pkg/f.h</code> instead of
+<code>../pkg/src/../f.h</code>.  This obviously defeats any attempt to strip
+a leading <samp><span class="file">../pkg/src/</span></samp> component.
+
+   <p>The following example makes the behavior of Tru64 <samp><span class="command">make</span></samp>
+more apparent.
+
+<pre class="example">     $ <kbd>cat Makefile</kbd>
+     VPATH = sub
+     all: ../foo
+             echo ../foo
+     $ <kbd>ls</kbd>
+     Makefile foo
+     $ <kbd>make</kbd>
+     echo foo
+     foo
+</pre>
+   <p class="noindent">Dependency <samp><span class="file">../foo</span></samp> was found in <samp><span class="file">sub/../foo</span></samp>, but Tru64
+<samp><span class="command">make</span></samp> simplified it as <samp><span class="file">foo</span></samp>.  (Note that the <samp><span class="file">sub/</span></samp>
+directory does not even exist, this just means that the simplification
+occurred before the file was checked for.)
+
+   <p>For the record here is how SunOS 4 <samp><span class="command">make</span></samp> behaves on this
+example.
+
+<pre class="smallexample">     $ <kbd>make</kbd>
+     make: Fatal error: Don't know how to make target `../foo'
+     $ <kbd>mkdir sub</kbd>
+     $ <kbd>make</kbd>
+     echo sub/../foo
+     sub/../foo
+</pre>
+   </body></html>
+

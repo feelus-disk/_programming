@@ -1,0 +1,181 @@
+<html lang="en">
+<head>
+<title>Configuration Actions - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Setup.html#Setup" title="Setup">
+<link rel="prev" href="Output.html#Output" title="Output">
+<link rel="next" href="Configuration-Files.html#Configuration-Files" title="Configuration Files">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Configuration-Actions"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Configuration-Files.html#Configuration-Files">Configuration Files</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Output.html#Output">Output</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Setup.html#Setup">Setup</a>
+<hr>
+</div>
+
+<h3 class="section">4.6 Performing Configuration Actions</h3>
+
+<p><a name="index-Configuration-actions-70"></a>
+<samp><span class="file">configure</span></samp> is designed so that it appears to do everything itself,
+but there is actually a hidden slave: <samp><span class="file">config.status</span></samp>. 
+<samp><span class="file">configure</span></samp> is in charge of examining your system, but it is
+<samp><span class="file">config.status</span></samp> that actually takes the proper actions based on the
+results of <samp><span class="file">configure</span></samp>.  The most typical task of
+<samp><span class="file">config.status</span></samp> is to <em>instantiate</em> files.
+
+   <p><a name="index-AC_005fCONFIG_005f_0040var_007bITEMS_007d-71"></a>
+This section describes the common behavior of the four standard
+instantiating macros: <code>AC_CONFIG_FILES</code>, <code>AC_CONFIG_HEADERS</code>,
+<code>AC_CONFIG_COMMANDS</code> and <code>AC_CONFIG_LINKS</code>.  They all
+have this prototype:
+
+<!-- FIXME: Can't use @ovar here, Texinfo 4.0 goes lunatic and emits something -->
+<!-- awful. -->
+<pre class="example">     AC_CONFIG_<var>ITEMS</var>(<var>tag</var>..., <span class="roman">[</span><var>commands</var><span class="roman">]</span>, <span class="roman">[</span><var>init-cmds</var><span class="roman">]</span>)
+</pre>
+   <p class="noindent">where the arguments are:
+
+     <dl>
+<dt><var>tag<small class="dots">...</small></var><dd>A blank-or-newline-separated list of tags, which are typically the names of
+the files to instantiate.
+
+     <p>You are encouraged to use literals as <var>tags</var>.  In particular, you
+should avoid
+
+     <pre class="example">          ... &amp;&amp; my_foos="$my_foos fooo"
+          ... &amp;&amp; my_foos="$my_foos foooo"
+          AC_CONFIG_<var>ITEMS</var>([$my_foos])
+</pre>
+     <p class="noindent">and use this instead:
+
+     <pre class="example">          ... &amp;&amp; AC_CONFIG_<var>ITEMS</var>([fooo])
+          ... &amp;&amp; AC_CONFIG_<var>ITEMS</var>([foooo])
+</pre>
+     <p>The macros <code>AC_CONFIG_FILES</code> and <code>AC_CONFIG_HEADERS</code> use
+special <var>tag</var> values: they may have the form &lsquo;<samp><var>output</var></samp>&rsquo; or
+&lsquo;<samp><var>output</var><span class="samp">:</span><var>inputs</var></samp>&rsquo;.  The file <var>output</var> is instantiated
+from its templates, <var>inputs</var> (defaulting to &lsquo;<samp><var>output</var><span class="samp">.in</span></samp>&rsquo;).
+
+     <p>&lsquo;<samp><span class="samp">AC_CONFIG_FILES([Makefile:boiler/top.mk:boiler/bot.mk])</span></samp>&rsquo;,
+for example, asks for
+the creation of the file <samp><span class="file">Makefile</span></samp> that contains the expansion of the
+output variables in the concatenation of <samp><span class="file">boiler/top.mk</span></samp> and
+<samp><span class="file">boiler/bot.mk</span></samp>.
+
+     <p>The special value &lsquo;<samp><span class="samp">-</span></samp>&rsquo; might be used to denote the standard output
+when used in <var>output</var>, or the standard input when used in the
+<var>inputs</var>.  You most probably don't need to use this in
+<samp><span class="file">configure.ac</span></samp>, but it is convenient when using the command line
+interface of <samp><span class="file">./config.status</span></samp>, see <a href="config_002estatus-Invocation.html#config_002estatus-Invocation">config.status Invocation</a>,
+for more details.
+
+     <p>The <var>inputs</var> may be absolute or relative file names.  In the latter
+case they are first looked for in the build tree, and then in the source
+tree.  Input files should be text files, and a line length below 2000
+bytes should be safe.
+
+     <br><dt><var>commands</var><dd>Shell commands output literally into <samp><span class="file">config.status</span></samp>, and
+associated with a tag that the user can use to tell <samp><span class="file">config.status</span></samp>
+which commands to run.  The commands are run each time a <var>tag</var>
+request is given to <samp><span class="file">config.status</span></samp>, typically each time the file
+<samp><var>tag</var></samp> is created.
+
+     <p>The variables set during the execution of <samp><span class="command">configure</span></samp> are
+<em>not</em> available here: you first need to set them via the
+<var>init-cmds</var>.  Nonetheless the following variables are precomputed:
+
+          <dl>
+<dt><code>srcdir</code><dd><a name="index-srcdir-72"></a>The name of the top source directory, assuming that the working
+directory is the top build directory.  This
+is what the <samp><span class="command">configure</span></samp> option <samp><span class="option">--srcdir</span></samp> sets.
+
+          <br><dt><code>ac_top_srcdir</code><dd><a name="index-ac_005ftop_005fsrcdir-73"></a>The name of the top source directory, assuming that the working
+directory is the current build directory.
+
+          <br><dt><code>ac_top_build_prefix</code><dd><a name="index-ac_005ftop_005fbuild_005fprefix-74"></a>The name of the top build directory, assuming that the working
+directory is the current build directory. 
+It can be empty, or else ends with a slash, so that you may concatenate
+it.
+
+          <br><dt><code>ac_srcdir</code><dd><a name="index-ac_005fsrcdir-75"></a>The name of the corresponding source directory, assuming that the
+working directory is the current build directory.
+
+          <br><dt><code>tmp</code><dd><a name="index-tmp-76"></a>The name of a temporary directory within the build tree, which you
+can use if you need to create additional temporary files.  The
+directory is cleaned up when <samp><span class="command">config.status</span></samp> is done or
+interrupted.  Please use package-specific file name prefixes to
+avoid clashing with files that <samp><span class="command">config.status</span></samp> may use
+internally. 
+</dl>
+
+     <p class="noindent">The <dfn>current</dfn> directory refers to the directory (or
+pseudo-directory) containing the input part of <var>tags</var>.  For
+instance, running
+
+     <pre class="example">          AC_CONFIG_COMMANDS([deep/dir/out:in/in.in], [...], [...])
+</pre>
+     <p class="noindent">with <samp><span class="option">--srcdir=../package</span></samp> produces the following values:
+
+     <pre class="example">          # Argument of --srcdir
+          srcdir='../package'
+          # Reversing deep/dir
+          ac_top_build_prefix='../../'
+          # Concatenation of $ac_top_build_prefix and srcdir
+          ac_top_srcdir='../../../package'
+          # Concatenation of $ac_top_srcdir and deep/dir
+          ac_srcdir='../../../package/deep/dir'
+</pre>
+     <p class="noindent">independently of &lsquo;<samp><span class="samp">in/in.in</span></samp>&rsquo;.
+
+     <br><dt><var>init-cmds</var><dd>Shell commands output <em>unquoted</em> near the beginning of
+<samp><span class="file">config.status</span></samp>, and executed each time <samp><span class="file">config.status</span></samp> runs
+(regardless of the tag).  Because they are unquoted, for example,
+&lsquo;<samp><span class="samp">$var</span></samp>&rsquo; is output as the value of <code>var</code>.  <var>init-cmds</var>
+is typically used by <samp><span class="file">configure</span></samp> to give <samp><span class="file">config.status</span></samp> some
+variables it needs to run the <var>commands</var>.
+
+     <p>You should be extremely cautious in your variable names: all the
+<var>init-cmds</var> share the same name space and may overwrite each other
+in unpredictable ways.  Sorry<small class="enddots">...</small>
+</dl>
+
+   <p>All these macros can be called multiple times, with different
+<var>tag</var> values, of course!
+
+   </body></html>
+

@@ -1,0 +1,3449 @@
+<HTML>
+	<meta http-equiv="Content-Language" content="ru">
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">   
+<BODY>
+</FONT><B><FONT FACE="Times New Roman" SIZE=6><P><a Name="3">3 Набор инструкций виртуальной машины</A></P>
+</B></FONT>
+<B><U><P><a href="3-doc.htm#3.1">3.1</B><FONT FACE="Times New Roman"> - Формат инструкций</A></P>
+</FONT><B><P><a href="3-doc.htm#3.2">3.2</B><FONT FACE="Times New Roman"> - Загрузка констант в стек</A></P>
+</FONT><B><P><a href="3-doc.htm#3.3">3.3</B><FONT FACE="Times New Roman"> - Загрузка  локальных переменных в стек</A></P>
+</FONT><B><P><a href="3-doc.htm#3.4">3.4</B><FONT FACE="Times New Roman"> - Сох</FONT><FONT FACE="Times New Roman" COLOR="#000000">ранение</FONT><FONT FACE="Times New Roman"> значений стека в локальных переменных</A></P>
+</FONT><B><P><a href="3-doc.htm#3.5">3.5</B><FONT FACE="Times New Roman"> - Расширенный индекс для загрузки,</FONT><FONT FACE="Times New Roman" COLOR="#000000"> сохранения и приращения</A></P>
+</FONT><B><FONT COLOR="#000000"><P><a href="3-doc.htm#3.6">3.6</B></FONT><FONT FACE="Times New Roman" COLOR="#000000"> - Управление массивами</A></P>
+</FONT><B><P><a href="3-doc.htm#3.7">3.7</B><FONT FACE="Times New Roman"> - Инструкции стека</A></P>
+</FONT><B><P><a href="3-doc.htm#3.8">3.8</B><FONT FACE="Times New Roman"> - Арифметические инструкции</A></P>
+</FONT><B><P><a href="3-doc.htm#3.9">3.9</B><FONT FACE="Times New Roman"> - Логические инструкции</A></P>
+</FONT><B><P><a href="3-doc.htm#3.10">3.10</B><FONT FACE="Times New Roman"> - Операции преобразования</A></P>
+</FONT><B><P><a href="3-doc.htm#3.11">3.11</B><FONT FACE="Times New Roman"> - Инструкции </FONT><FONT FACE="Times New Roman" COLOR="#000000">передачи </FONT><FONT FACE="Times New Roman">управления</A></P>
+</FONT><B><P><a href="3-doc.htm#3.12">3.12</B> - <FONT FACE="Times New Roman" COLOR="#000000">Возврат из функции</A></P>
+</FONT><B><P><a href="3-doc.htm#3.13">3.13</B> - <FONT FACE="Times New Roman" COLOR="#000000">Табличный переход</A></P>
+</FONT><B><P><a href="3-doc.htm#3.14">3.14</B><FONT FACE="Times New Roman"> - Управление полями объектов</A></P>
+</FONT><B><P><a href="3-doc.htm#3.15">3.15</B><FONT FACE="Times New Roman"> - Вызов метода</A></P>
+</FONT><B><P><a href="3-doc.htm#3.16">3.16</B><FONT FACE="Times New Roman"> - Обработка исключений</A></P>
+</FONT><B><P><a href="3-doc.htm#3.17">3.17</B> -<I><FONT COLOR="Black"> </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">Прочие операции с объектами</A></P>
+</FONT><B><P><a href="3-doc.htm#3.18">3.18</B><FONT FACE="Times New Roman"> - Мониторы</A></P>
+
+
+</U></FONT><B><FONT SIZE=5>
+</FONT><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.1">3.1 Формат инструкций</A></P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Инструкции для виртуальной машины языка Ява представлены в этом документе</P>
+<P>в следующей форме.</P>
+</FONT>
+<B><FONT FACE="Times New Roman" SIZE=4><P>Название инструкции</P>
+</B></FONT>
+<I><FONT FACE="Times New Roman"><P>Короткое</FONT><B> </B><FONT FACE="Times New Roman">описание</I>  инструкции</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=129>
+<TR><TD VALIGN="TOP">
+<P>opcode = number</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> operand1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> operand2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> ...</TD>
+</TR>
+</TABLE>
+
+
+<P>&nbsp;</P>
+<FONT FACE="Courier New" COLOR="#000000"><P>Стек: ..., value1, value2 = &gt; ..., value</FONT><FONT FACE="Courier New" COLOR="#000000">3</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Более <I>подробное</FONT><B> </B><FONT FACE="Times New Roman">описание</I>, объясняющее функции инструкции и указывающее все исключения, которые могли бы быть сгенерированы при выполнении.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Каждая строка в синтаксической диаграмме представляет собой 8-битный байт, определяемый единственным образом.</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>В виртуальной машине языка Ява операции производятся над элементами стека и результаты помещаются обратно в стек. Обычно не оговаривают является ли стек   источником или приемником операндов, но при необходимости это будет уточняться. </P>
+<P>Например, инструкция iload имеет короткое описание "Загрузка целого значения</P>
+<P>из локальной переменной." .Подразумевается, что оно загружается в стек. Инструкция iadd обозначает "Сложение целых"; в данном случае стек является источником и</P>
+<P>приемником.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Считается, что инструкции, которые не влияют на поток управления  всегда продвигают PC виртуальной машины на код операции следующей инструкции. Только для  инструкций, которые влияют на поток управления будет явно указываться как  они влияют на PC-счетчик</FONT>.</P>
+<B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.2">3.2 Загрузка констант в стек</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>bipush</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка в стек однобайтового целого со знаком</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=93>
+<TR><TD VALIGN="TOP">
+<P>bipush = 16</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> byte1</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<I><FONT COLOR="#000000"><P>byte1</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> интерпретируется как 8-битное </FONT><I><FONT COLOR="#000000">value</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> со знаком. Это </FONT><I><FONT COLOR="#000000">value</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> расширяется до</P>
+<P>целого и помещается в стек операндов.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4><P>sipush</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка в стек двухбайтового целого со знаком</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>sipush = 17</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> byte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> byte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ...,item</P>
+</FONT>
+<I><FONT COLOR="#000000"><P>byte1<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="#000000">и </FONT><I><FONT COLOR="#000000">byte2</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> рассматриваются как  16-битное </FONT><I><FONT COLOR="#000000">value</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> со знаком. Это </FONT><I><FONT COLOR="#000000">value</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> расширяется до целого и помещается в стек операндов.</P>
+</FONT>
+<B><FONT SIZE=4><P>ldc1</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка в стек </FONT><FONT FACE="Times New Roman" COLOR="#000000">элемента</FONT><FONT FACE="Times New Roman"> из константного пула</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=90>
+<TR><TD VALIGN="TOP">
+<P>ldc1 = 18</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1 </TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., item</P>
+</FONT>
+<P>&nbsp;</P>
+<I><FONT COLOR="#000000"><P>indexbyte1<B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="#000000">используется как беззнаковый  8-битный индекс в константном пуле текущего класса. </FONT><I><FONT COLOR="#000000">item</I>, &#241;&#238;&#238;&#242;&#226;&#229;&#242;&#241;&#242;&#226;&#243;&#254;&#249;&#232;&#233; &#253;&#242;&#238;&#236;&#243; &#232;&#237;&#228;&#229;&#234;&#241;&#243;  </FONT><FONT FACE="Times New Roman" COLOR="#000000">помещается на стек. Если загружается строка (объект класса </FONT><FONT FACE="Courier,Courier New" COLOR="#000000">String</FONT><FONT COLOR="#000000">) </FONT><FONT FACE="Times New Roman" COLOR="#000000">и не имеется достаточно памяти</FONT><FONT FACE="Times New Roman"> для ее размещения, то генерируется </FONT><FONT FACE="Courier,Courier New">OutOfMemoryError.</P>
+</FONT><FONT FACE="Times New Roman"><P>Заметьте: результатом загрузки в стек строки является ссылка на объект; что происходит с другими константами объясните где-нибудь здесь.</P>
+</FONT><B><FONT SIZE=4>
+<P>ldc2</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Загрузка в стек элемента из константного пула</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=86>
+<TR><TD VALIGN="TOP">
+<P>ldc2 = 19</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., item</P>
+</FONT>
+<P>&nbsp;</P>
+<I><FONT COLOR="#000000"><P>indexbyte1</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> и </FONT><I><FONT COLOR="#000000">indexbyte2 <B> </B></I></FONT><FONT FACE="Times New Roman" COLOR="#000000">рассматриваются как 16-битный индекс без знака в константном пуле текущего класса. </FONT><I><FONT COLOR="#000000">item</I></FONT><FONT FACE="Times New Roman" COLOR="#000000">, соответствующий индексу  помещается на стек. Если</FONT><FONT FACE="Times New Roman"> при загрузке строки не оказывается достаточно памяти для ее размещения, то  генерируется OutOfMemoryError.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: результатом загрузки в стек строки является ссылка на объект; что происходит с другими константами объясните где-нибудь здесь.</P>
+</FONT>
+<B><FONT SIZE=4><P>ldc2w</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Загрузка в стек длинного целого или двойного  вещественного значения</FONT><FONT COLOR="#000000"> </FONT><FONT FACE="Times New Roman" COLOR="#000000">из константного пула</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=89>
+<TR><TD VALIGN="TOP">
+<P>ldc2w = 20</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., constant-word1, constant-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2</I><FONT FACE="Times New Roman"> рассматриваются как  беззнаковый 16-битный индекс</P>
+<P>в константном пуле текущего класса.</FONT><FONT FACE="Times New Roman" COLOR="#000000"> Кончтанта из двух слов, состоящая из двух </FONT><FONT FACE="Courier New" COLOR="#000000">constant-word</FONT><FONT FACE="Times New Roman" COLOR="#000000"> соответствующая индексу,</FONT><FONT FACE="Times New Roman"> помещается на стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>aconst_null</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка в стек null ( пустой ссылки на объект) </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=114>
+<TR><TD VALIGN="TOP">
+<P>aconst_null = 1</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., null</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Загружает в стек null ( пустую ссылку на объект) .</P>
+</FONT>
+<B><FONT SIZE=4><P>iconst_m1</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка целочисленной константы -1</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=107>
+<TR><TD VALIGN="TOP">
+<P>iconst_m1 = 2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., -1</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Загружает целочисленную константу -1 в стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>iconst_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка целочисленной константы</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=82>
+<TR><TD VALIGN="TOP">
+<P>iconst_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., &lt;n&gt;</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Формы: </FONT><FONT FACE="Courier,Courier New">iconst_0 = 3, iconst_1 = 4, iconst_2 = 5, iconst_3 = 6, iconst_4 =</P>
+<P>7, iconst_5 = 8</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Загружает целочисленную константу &lt;n&gt; в стек.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>lconst_&lt; l &gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка длинной целочисленной константы</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=87>
+<TR><TD VALIGN="TOP">
+<P>lconst_&lt; l &gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., &lt; l &gt; -word1, &lt; l &gt; -word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Формы: </FONT><FONT FACE="Courier,Courier New">lconst_0 = 9, lconst_1 = 10</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Загружает длинную целочисленную константу &lt; l &gt; в стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>fconst_&lt;f&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Загрузка вещественного числа одинарной точности</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=79>
+<TR><TD VALIGN="TOP">
+<P>fconst_&lt;f&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., &lt;f&gt;</P>
+</FONT><FONT FACE="Times New Roman"><P>Формы: </FONT><FONT FACE="Courier,Courier New">fconst_0 = 11, fconst_1 = 12, fconst_2 = 13</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Загружает число с плавающей точкой одинарной точности равное &lt;f&gt; в стек.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>dconst_&lt;d&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Загрузка вещественного числа двойной точности</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=87>
+<TR><TD VALIGN="TOP">
+<P>dconst_&lt;d&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., &lt;d&gt; -word1, &lt;d&gt; -word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Формы: </FONT><FONT FACE="Courier,Courier New">dconst_0 = 14, dconst_1 = 15</P>
+
+</FONT><FONT FACE="Times New Roman"><P>Загружает число с плавающей точкой двойной точности равное &lt;d&gt; в стек.</P>
+</FONT><B><FONT SIZE=5>
+</FONT><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.3">3.3 Загрузка локальных переменных в стек</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>iload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка целого из локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=84>
+<TR><TD VALIGN="TOP">
+<P>iload = 21</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Значение локальной переменной с номером vindex в текущем окружении помещается в стек операндов.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>iload_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка целого из локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=77>
+<TR><TD VALIGN="TOP">
+<P>iload_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Формы: </FONT><FONT FACE="Courier,Courier New">iload_0 = 26, iload_1 = 27, iload_2 = 28, iload_3 = 29</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Значение локальной переменной с номером &lt;n&gt; в текущем окружении помещается в стек операндов.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция -</FONT><FONT FACE="Times New Roman" COLOR="#000000"> то</FONT><FONT FACE="Times New Roman"> же самое, что и iload с </FONT><I>vindex<B> </B>&lt;n&gt;,</I><FONT FACE="Times New Roman"> за исключением того, что</P>
+<P>операнд </FONT><I>&lt;n&gt;</I><FONT FACE="Times New Roman"> является неявным.</P>
+</FONT>
+<B><FONT SIZE=4><P>lload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка длинного целого из локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=84>
+<TR><TD VALIGN="TOP">
+<P>lload = 22</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value-word1, value-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Значение локальных переменных с номером vindex и vindex + 1 в текущем окружении </P>
+<P>помещается в стек операндов.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>lload_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Загрузка длинного целого из локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=77>
+<TR><TD VALIGN="TOP">
+<P>lload_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value-word1, value-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Формы: </FONT><FONT FACE="Courier,Courier New">lload_0 = 30, lload_1 = 31, lload_2 = 32, lload_3 = 33</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Значение локальных переменных с номером &lt;n&gt; и &lt;n&gt; + 1 в текущем окружении  помещается в стек операндов.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - </FONT><FONT FACE="Times New Roman" COLOR="#000000">то</FONT> <FONT FACE="Times New Roman" COLOR="#000000">же</FONT><FONT FACE="Times New Roman"> самое, что и lload с vindex &lt;n&gt;, за исключением того, что операнд &lt;n&gt; является неявным.</P>
+</FONT>
+<B><FONT SIZE=4><P>fload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка </FONT><FONT FACE="Times New Roman" COLOR="#000000">вещественного</FONT><FONT FACE="Times New Roman"> одинарной точности из локальной переменной.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=85>
+<TR><TD VALIGN="TOP">
+<P>fload = 23</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Значение локальной переменной </FONT><I>value<B> </B></I><FONT FACE="Times New Roman">соответствующей vindex в текущем окружении помещается в стек операндов.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>fload_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка </FONT><FONT FACE="Times New Roman" COLOR="#000000">вещественного</FONT><FONT FACE="Times New Roman"> одинарной точности из локальной переменной.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=77>
+<TR><TD VALIGN="TOP">
+<P>fload_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Формы:</FONT><FONT FACE="Courier,Courier New"> fload_0 = 34, fload_1 = 35, fload_2 = 36, fload_3 = 37</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Значение локальной переменной </FONT><I>value</I><FONT FACE="Times New Roman"> с номером &lt;n&gt; в текущем окружении помещается в стек операндов.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - то же самое, что и fload с vindex &lt;n&gt;, за исключением того, что операнд &lt;n&gt; является неявным.</P>
+</FONT><B><FONT SIZE=4><P>dload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка вещественного двойной точности из локальной переменной.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=89>
+<TR><TD VALIGN="TOP">
+<P>dload = 24</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value-word1, value-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Значение локальных переменных с </FONT><FONT FACE="Times New Roman" COLOR="#000000">номерами</FONT><FONT FACE="Times New Roman"> vindex и vindex + 1 в текущем окружении </P>
+<P>помещается в стек операндов.</P>
+</FONT>
+<FONT SIZE=4 COLOR="#000000"><P>dload_&lt;n&gt;</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Загрузка вещественного двойной точности из локальной переменной.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=81>
+<TR><TD VALIGN="TOP">
+<P>dload_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value-word1, value-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>Формы: dload_0 = 38, dload_1 = 39, dload_2 = 40, dload_3 = 41</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Значение локальных переменных с </FONT><FONT FACE="Times New Roman" COLOR="#000000">номерами</FONT><FONT FACE="Times New Roman"> &lt;n&gt; и &lt;n&gt; + 1 в текущем окружении  помещается в стек операндов.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - </FONT><FONT FACE="Times New Roman" COLOR="#000000">то</FONT><FONT FACE="Times New Roman"> же самое, что и dload с </FONT><I>vindex<B> </B>&lt;n&gt;,</I><FONT FACE="Times New Roman"> за исключением того, что операнд </P>
+<P>является неявным.</P>
+</FONT>
+<B><FONT FACE="Times New Roman" SIZE=4><P>аload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка объектной ссылки из локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=87>
+<TR><TD VALIGN="TOP">
+<P>aload = 25</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Значение локальной переменной с номером vindex в текущем окружении помещается в стек операндов.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>aload_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка объектной ссылки из локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=79>
+<TR><TD VALIGN="TOP">
+<P>aload_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>Формы: aload_0 = 42, aload_1 = 43, aload_2 = 44, aload_3 = 45</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Значение </FONT><I>value</I><FONT FACE="Times New Roman"> локальной переменной с номером &lt;n&gt; в текущем окружении помещается в стек операндов.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - тот же самое, что и aload с</FONT><B><I> </B>vindex<B> </B>&lt;n&gt;,</I><FONT FACE="Times New Roman"> за исключением того, что</P>
+<P>операнд </FONT><I>&lt;n&gt;</I><FONT FACE="Times New Roman"> является неявным.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5 COLOR="#000000"><P><a Name="3.4">3.4 Сохранение значений стека в локальных переменных</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>istore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение целого значения в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=88>
+<TR><TD VALIGN="TOP">
+<P>istore = 54</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть целым. Локальная переменная vindex в текущем окружении приобретает это значение.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>istore_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение целого в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=80>
+<TR><TD VALIGN="TOP">
+<P>istore_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Courier New"><P>Формы: istore_0 = 59, istore_1 = 60, istore_2 = 61, istore_3 = 62</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>value должно быть целым. Локальная переменная &lt;n&gt; в текущем окружении</P>
+<P>приобретает это значение.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - </FONT><FONT FACE="Times New Roman" COLOR="#000000">то</FONT><FONT FACE="Times New Roman"> же самое, что и istore с </FONT><I>vindex<B> </B>&lt;n&gt;,</I><FONT FACE="Times New Roman"> за исключением того, что операнд </FONT><I>&lt;n&gt;</I><FONT FACE="Times New Roman"> является неявным.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>lstore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение длинного целого в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=88>
+<TR><TD VALIGN="TOP">
+<P>lstore = 55</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть длинным целым. Локальные переменные vindex и vindex + 1 в</P>
+<P>текущем окружении приобретают эти значения. </P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>lstore_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение длинного целого в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=80>
+<TR><TD VALIGN="TOP">
+<P>istore_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value-w</FONT><FONT FACE="Courier New">ord1, value-word2 = &gt; ...</P>
+
+<P>&nbsp;</P>
+</FONT><FONT FACE="Courier New"><P>Формы: lstore_0 = 63, lstore_1 = 64, lstore_2 = 65, lstore_3 = 66</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>value должно быть длинным целым. Локальные переменные &lt;n&gt; и &lt;n&gt; + 1 в текущем</P>
+<P>окружении приобретют эти значения.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - </FONT><FONT FACE="Times New Roman" COLOR="#000000">то</FONT><FONT FACE="Times New Roman"> же самое, что и lstore с </FONT><I>vindex<B> </B>&lt;n&gt;,</I><FONT FACE="Times New Roman"> за исключением того, что операнд </FONT><I>&lt;n&gt;</I><FONT FACE="Times New Roman"> является неявным.</P>
+</FONT>
+<B><FONT SIZE=4><P>fstore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение вещественного одинарной точности в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=89>
+<TR><TD VALIGN="TOP">
+<P>fstore = 56</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть числом с плавающей точкой одинарной точности. Локальная переменная vindex в текущем окружении приобретает это значение.</P>
+</FONT>
+<B><FONT SIZE=4><P>fstore_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение вещественного одинарной точности в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=81>
+<TR><TD VALIGN="TOP">
+<P>fstore_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Courier New"><P>Формы: fstore_0 = 67, fstore_1 = 68, fstore_2 = 69, fstore_3 = 70</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>value должно быть числом с плавающей точкой одинарной точности. Локальная переменная &lt;n&gt; в текущем окружении  приобретает это значение.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - </FONT><FONT FACE="Times New Roman" COLOR="#000000">то</FONT><FONT FACE="Times New Roman"> же самое, что и fstore с </FONT><I>vindex<B> </B>&lt;n&gt;,</I><FONT FACE="Times New Roman"> за исключением того, что операнд </FONT><I>&lt;n&gt;</I><FONT FACE="Times New Roman"> является неявным.</P>
+</FONT><B><FONT SIZE=4><P>dstore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение двойного вещественного в локальной переменной</P>
+</FONT>
+<P>&nbsp;</P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>dstore = 57</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть числом с плавающей точкой двойной точности. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Локальные переменные vindex и vindex + 1 в текущем окружении  приобретают эти значения.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4><P>dstore_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Сохр</FONT><FONT FACE="Times New Roman">анение двойного вещественного в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=85>
+<TR><TD VALIGN="TOP">
+<P>dstore_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Courier New"><P>Формы: dstore_0 = 71, dstore_1 = 72, dstore_2 = 73, dstore_3 = 74</P>
+</FONT><FONT FACE="Courier New">
+</FONT><FONT FACE="Times New Roman"><P>value должно быть числом с плавающей точкой двойной точности . Локальные переменные &lt;n&gt; и &lt;n&gt; + 1 в текущем окружении  приобретают </FONT><FONT FACE="Times New Roman" COLOR="#000000">эти значения</FONT>.</P>
+
+<FONT FACE="Times New Roman"><P>Эта инструкция - </FONT><FONT FACE="Times New Roman" COLOR="#000000">то</FONT><FONT FACE="Times New Roman"> же самое, что и dstore с </FONT><I>vindex<B> </B>&lt;n&gt;,</I><FONT FACE="Times New Roman"> за исключением того, что операнд </FONT><I>&lt;n&gt;</I><FONT FACE="Times New Roman"> является неявным.</P>
+</FONT>
+<B><FONT SIZE=4><P>astore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение объектной ссылки в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=91>
+<TR><TD VALIGN="TOP">
+<P>astore = 58</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>value должнo быть адресом возврата или ссылкой на объект. Локальная переменная</P>
+<P>vindex в текущем окружении  приобретает это значение.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>astore_&lt;n&gt;</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение объектной ссылки в локальной переменной</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=83>
+<TR><TD VALIGN="TOP">
+<P>astore_&lt;n&gt;</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Courier New"><P>Формы: astore_0 = 75, astore_1 = 76, astore_2 = 77, astore_3 = 78</P>
+</FONT><FONT FACE="Courier,Courier New">
+</FONT><FONT FACE="Times New Roman"><P>value должно быть адресом возврата или ссылкой на объект. Локальная переменная</P>
+<P>&lt;n&gt; в текущем окружении  приобретает это значение.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Эта инструкция - </FONT><FONT FACE="Times New Roman" COLOR="#000000">то </FONT><FONT FACE="Times New Roman">же самое, что и astore с vindex &lt;n&gt;, за исключением того, что операнд &lt;n&gt; является неявным.</P>
+</FONT>
+<B><FONT SIZE=4><P>iinc</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Увеличение локальной переменной на константу</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=84>
+<TR><TD VALIGN="TOP">
+<P>iinc = 132</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>const</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Стек: без изменений</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Локальная переменная vindex в текущем окружении должна содержать целое значение.</P>
+<P>Ее значение увеличивается на значение const, где const интерпретируется как</P>
+<P>8-битная величина</FONT><FONT FACE="Times New Roman" COLOR="#000000"> со знаком</FONT>.</P>
+<B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.5">3.5 Расширенный индекс для загрузки, сохранения и приращения</A> </P>
+</B></FONT>
+<B><FONT SIZE=4><P>wide</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Расширенный индекс для доступа к локальным переменным для команд загрузки, сохранения и приращения .</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=90>
+<TR><TD VALIGN="TOP">
+<P>wide = 196</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: без изменений</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Этот байткод должен предшествовать одному из следующего байткодов</FONT><FONT FACE="Courier,Courier New">: iload, lload, fload, dload, aload, istore, lstore, fstore, dstore, astore, iinc.</FONT> vin<FONT FACE="Times New Roman">dex следующего байткода и vindex2 этого байткода компонуются в беззнаковый 16-битный индекс локальной переменной в текущем окружении. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Следующий байткод</FONT><FONT FACE="Times New Roman"> исполняется как обычно за исключением того, что использует расширенный индекс.</P>
+</FONT><B><FONT SIZE=5><P><a Name="3.6">3.6 </FONT><FONT FACE="Times New Roman" SIZE=5 COLOR="#000000">Управление массивами</A></P>
+</B></FONT><FONT COLOR="Black">
+</FONT><B><FONT SIZE=4><P>newarray</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Размещение</FONT><FONT FACE="Times New Roman"> нового массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=115>
+<TR><TD VALIGN="TOP">
+<P>newarray = 188</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> atype</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., size = &gt; rezult</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>size должен быть целым. Он представляет собой число элементов в новом</FONT> <FONT FACE="Times New Roman">массиве.</FONT> <FONT FACE="Times New Roman">atype - внутренний код, который указывает тип объявляемого массива.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Возможные варианты значений atype :</P></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=146>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_BOOLEAN</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>4</TD>
+</TR>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_CHAR</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>5</TD>
+</TR>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_FLOAT</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>6</TD>
+</TR>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_DOUBLE</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>7</TD>
+</TR>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_BYTE</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>8</TD>
+</TR>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_SHORT</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>9</TD>
+</TR>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_INT</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>10</TD>
+</TR>
+<TR><TD WIDTH="74%" VALIGN="TOP">
+<P>T_LONG</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>11</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Размещает новый массив типа </FONT><I>atype</I><FONT FACE="Times New Roman">, способный содержать </FONT><I>size</I><FONT FACE="Times New Roman"> элементов,</FONT> <FONT FACE="Times New Roman">результатом является ссылка на этот новый объект</FONT><FONT COLOR="Black">. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Можно размещать массив достаточно большой</FONT><FONT COLOR="#000000">,</FONT><FONT FACE="Times New Roman" COLOR="#000000"> чтобы содержать </FONT><I><FONT COLOR="#000000">size </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">элементов типа </FONT><I><FONT COLOR="#000000">atype</I>.</FONT><FONT FACE="Times New Roman"> Все элементы массива обнуляются.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если size меньше нуля, то генерируется </FONT><FONT FACE="Courier New">NegativeArraySizeException</FONT><FONT FACE="Times New Roman">. Если памяти недостаточно для размещения массива, то генерируется </FONT><FONT FACE="Courier New">OutOfMemoryError.</P>
+</FONT>
+<B><FONT SIZE=4><P>anewarray</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Объявление нового массива из ссылок на объекты</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=126>
+<TR><TD VALIGN="TOP">
+<P>anewarray = 189</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., size= &gt; result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>size должен быть целымr. Его значение представляет собой число элементов в новом</P>
+<P>массиве.</P>
+</FONT>
+<I><P>indexbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>indexbyte2</I><FONT FACE="Times New Roman"> используются для формирования индекса в константном пуле текущего класса. Элемент с этим индексом должен быть классом.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Размещает новый массив обозначенного типа класса, способный содержать </FONT><I>size</I><FONT FACE="Times New Roman"> элементов,</FONT> <FONT FACE="Times New Roman">результатом является ссылка на этот новый объект</FONT><FONT COLOR="Black">. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Можно размещать массив достаточно большой</FONT><FONT COLOR="#000000">,</FONT><FONT FACE="Times New Roman" COLOR="#000000"> чтобы содержать </FONT><I><FONT COLOR="#000000">size</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> элементов данного типа класса.</FONT><FONT FACE="Times New Roman"> Все элементы массива инициализируются пустым указателем(null).</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если размер меньше нуля, то генерируется </FONT><FONT FACE="Courier New">NegativeArraySizeException</FONT><FONT FACE="Times New Roman">. Если недостаточно памяти для объявления массива, то генерируется </FONT><FONT FACE="Courier New">OutOfMemoryError .</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>anewarray используется для создания одномерного массива из  ссылок на объекты Например, чтобы создать </P>
+</FONT>
+<FONT FACE="Courier New"><P>new Thread[7]</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>используется следующий код:</P>
+</FONT>
+<FONT FACE="Courier New"><P>bipush 7</P>
+</FONT><FONT FACE="Courier New"><P>anewarray &lt; Класс "java.lang.Thread" &gt;</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>anewarray может также использоваться для создания первого измерения многомерного массива. Например, следующее объявление массива:</P>
+</FONT>
+<FONT FACE="Courier New"><P>new int[6][]</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>создается следующим кодом:</P>
+</FONT>
+<FONT FACE="Courier New"><P>bipush 6</P>
+</FONT><FONT FACE="Courier New"><P>anewarray &lt; Класс " [I " &gt;</P>
+</FONT><FONT FACE="Courier New">
+</FONT><FONT FACE="Times New Roman"><P>См. </FONT><FONT FACE="Courier New">CONSTANT_Class</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman" COLOR="#000000">в главе " Class File Format ",</FONT><FONT FACE="Times New Roman"> содержащая информацию о</P>
+<P>названиях классов массивов.</P>
+</FONT>
+<B><FONT SIZE=4><P>multianewarray</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Размещение нового</FONT><FONT FACE="Times New Roman"> многомерного массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=157>
+<TR><TD VALIGN="TOP">
+<P>multianewarray = 197</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> indexbyte2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P> dimensions</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., size1 size2 ... sizen = &gt; result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Каждый</FONT><FONT FACE="Times New Roman"> size должен быть типа integer. Каждый из них представляет собой число элементов в измерении массива.</P>
+</FONT>
+<I><P>indexbyte1</I><FONT FACE="Times New Roman"> и </FONT><I>indexbyte2 </I><FONT FACE="Times New Roman">используются для создания индекса в константном пуле текущего класса. Элемент с этим индексом должен быть классом массива</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman" COLOR="#000000">единичной или большей размерности.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Необходимо учитывать следующее относительно <I>размерности</I></FONT>:</P>
+
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Она</FONT><I><FONT COLOR="Black"> </I></FONT><FONT FACE="Times New Roman">должна быть целого типа &gt; =1.</LI></UL>
+
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Она представляет собой число создаваемых измерений. Она должна быть размерностью класса массива.</LI></UL>
+
+</FONT>
+
+<UL>
+<FONT FACE="Times New Roman"><LI>Она представляет собой число элементов, которые извлекают из стека. Все они должны быть целого типа большие или равные нулю. Они используются в качестве размеров измерений. Например, для создания</LI></UL>
+
+</FONT>
+<FONT FACE="Courier New"><P>new int[6][3][]</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>используется следующий код:</P>
+</FONT>
+<FONT FACE="Courier New"><P>bipush 6</P>
+<P>bipush 3</P>
+</FONT><FONT FACE="Courier New"><P>multianewarray &lt; Класс " [[[I " &gt; 2</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если любой из size </FONT><FONT FACE="Times New Roman" COLOR="#000000">аргументов </FONT><FONT FACE="Times New Roman">на стеке меньше нуля, то генерируется </FONT><FONT FACE="Courier New">NegativeArraySizeException.</FONT><FONT FACE="Times New Roman"> Если не имеется достаточно памяти для размещения</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman" COLOR="#000000">массива, то</FONT><FONT FACE="Times New Roman"> генерируется </FONT><FONT FACE="Courier New">OutOfMemoryError.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Результатом является ссылка на новый объект массива.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: Необходимо больше объяснений о том что такое массив массивов.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: При создании одномерного массива эффективнее использовать newarray или anewarray.  </P>
+</FONT>
+<FONT FACE="Times New Roman"><P>См. </FONT><FONT FACE="Courier New">CONSTANT_Class</FONT> <FONT FACE="Times New Roman" COLOR="#000000">в главе " Class File Format " ,</FONT><FONT FACE="Times New Roman">содержащая информацию о</P>
+<P>названиях классов массивов.</P>
+</FONT>
+<B><FONT SIZE=4><P>arraylength</P>
+
+</B></FONT><FONT FACE="Times New Roman"><P>Возвращает длину массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=133>
+<TR><TD VALIGN="TOP">
+<P>arraylength = 190</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ..., length</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>objectref </I><FONT FACE="Times New Roman">должен быть ссылкой на </FONT><FONT FACE="Times New Roman" COLOR="#000000">объект</FONT><I><FONT COLOR="#000000">-</I></FONT><FONT FACE="Times New Roman" COLOR="#000000">массив</FONT><FONT FACE="Times New Roman">. Длина массива </FONT><FONT FACE="Times New Roman" COLOR="#000000">определяется и замещает </FONT><I><FONT COLOR="#000000">objectref </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">на вершине стека.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman"><P>Если objectref пустой(null), то генерируется </FONT><FONT FACE="Courier New">NullPointerException.</P>
+</FONT>
+<B><FONT SIZE=4><P>iaload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка целого из массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=96>
+<TR><TD VALIGN="TOP">
+<P>iaload = 46</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из целочисленных элементов. Индекс должен быть целым. Целочисленное </FONT><I>value</I><FONT FACE="Times New Roman" COLOR="#000000"> соответствующее индексу в массиве извлекается</FONT><FONT FACE="Times New Roman"> и помещается на вершину стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref </FONT><FONT FACE="Times New Roman" COLOR="#000000">равен </FONT><FONT COLOR="#000000">null</FONT><FONT FACE="Times New Roman">, то генерируется </FONT><FONT FACE="Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>laload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка длинного целого из массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=96>
+<TR><TD VALIGN="TOP">
+<P>laload = 47</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index =</FONT><FONT FACE="Courier New"> &gt; ..., value-word1, value-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из элементов типа длинное целое. index должен быть целым</FONT><FONT COLOR="#000000">. </FONT><I>value</I><FONT FACE="Times New Roman" COLOR="#000000"> длинного целого типа соответствующее индексу в массиве извлекается</FONT><FONT FACE="Times New Roman"> и помещается на вершину стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен </FONT><FONT FACE="Times New Roman" COLOR="#000000">null, то</FONT><FONT FACE="Times New Roman"> генерируется </FONT><FONT FACE="Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. Если индекс не входит в пределы границ массива, то генерируется</FONT><FONT FACE="Courier New"> ArrayIndexOutOfBoundsException</FONT>.</P>
+
+<B><FONT SIZE=4><P>faload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка вещественного из массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=96>
+<TR><TD VALIGN="TOP">
+<P>faload = 48</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index = &gt; ..., </FONT><FONT FACE="Courier New">value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из вещественных одинарной точности.</FONT> <FONT FACE="Times New Roman">Индекс должен быть целым. Вещественное одинарной точности </FONT><I>value</I><FONT FACE="Times New Roman" COLOR="#000000"> соответствующее индексу в массиве извлекается и помещается на вершину стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен </FONT>null,<FONT FACE="Times New Roman"> то генерируется </FONT><FONT FACE="Courier New">NullPointerException.</FONT><FONT FACE="Times New Roman"> Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>daload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка двойного вещественного из массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=100>
+<TR><TD VALIGN="TOP">
+<P>daload = 49</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index = &gt; ..., value-word1, value-word2</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из элементов вещественного типа двойной точности.Индекс должен быть целым. Вещественное двойной точности </FONT><I>value</I><FONT FACE="Times New Roman" COLOR="#000000">  cоответствующее индексу в массиве извлекается</FONT><FONT FACE="Times New Roman"> и помещается на вершину стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен </FONT>null,<FONT FACE="Times New Roman"> то генерируется </FONT><FONT FACE="Courier New">NullPointerException. </FONT><FONT FACE="Times New Roman">Если индекс не входит в пределы границ массива, то генерируется ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>aaload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка объектной ссылки из массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=98>
+<TR><TD VALIGN="TOP">
+<P>aaload = 50</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из объектных ссылок. Индекс</P>
+<P>должен быть целым. Объектная ссылка </FONT><FONT FACE="Times New Roman" COLOR="#000000">соответствующая индексу в массиве извлекается</FONT><FONT FACE="Times New Roman"> и помещается на вершину стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен</FONT> null,<FONT FACE="Times New Roman"> то генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException.</FONT><FONT FACE="Times New Roman"> Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+
+</FONT><B><FONT SIZE=4><P>baload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка </FONT><FONT FACE="Times New Roman" COLOR="#000000">байта</FONT><FONT FACE="Times New Roman"> со знаком из массива.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=99>
+<TR><TD VALIGN="TOP">
+<P>baload = 51</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из </FONT><FONT FACE="Times New Roman" COLOR="#000000">байтовых со знаком</FONT><FONT FACE="Times New Roman">. Индекс</P>
+<P>должен быть целым. Байтовый со знаком </FONT><FONT FACE="Times New Roman" COLOR="#000000">соответствующий индексу в массиве извлекается</FONT><FONT FACE="Times New Roman">, расширяется до целого, и помещается на вершину стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен</FONT> null,<FONT FACE="Times New Roman"> то генерируется </FONT><FONT FACE="Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>caload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка символа из массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=98>
+<TR><TD VALIGN="TOP">
+<P>caload = 52</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из символов. Индекс</P>
+<P>должен быть целым.Символ </FONT><FONT FACE="Times New Roman" COLOR="#000000">соответствующий индексу в массиве извлекается</FONT><FONT FACE="Times New Roman"> расширяется нулем до целого, и помещается на вершину стека.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен </FONT>null,<FONT FACE="Times New Roman"> то генерируется </FONT><FONT FACE="Courier New">NullPointerException. </FONT><FONT FACE="Times New Roman">Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>saload</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Загрузка короткого из массива</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=97>
+<TR><TD VALIGN="TOP">
+<P>saload = 53</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index = &gt; ..., value</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из коротких целых. Индекс должен быть целым. Короткий целый </FONT><FONT FACE="Times New Roman" COLOR="#000000">соответствующий индексу в массиве извлекается</FONT><FONT FACE="Times New Roman">, расширяется до целого, и помещается на вершину стека.</P>
+<P>Если arrayref равен </FONT>null,<FONT FACE="Times New Roman"> то генерируется </FONT><FONT FACE="Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>iastore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в целочисленном массиве  </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=105>
+<TR><TD VALIGN="TOP">
+<P>iastore = 79</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, </FONT><FONT FACE="Courier New" COLOR="#000000">index,</FONT><FONT FACE="Courier New"> value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из целых, index и value должны быть</P>
+<P>целыми. Целое value сохраняется в </FONT><FONT FACE="Times New Roman" COLOR="#000000">массиве в элементе с номером index.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равенnull, то генерируется </FONT><FONT FACE="Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>lastore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в массиве из длинных целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=106>
+<TR><TD VALIGN="TOP">
+<P>lastore = 80</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index, value-word1, value-word2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из длинных целых, индекс должен быть</P>
+<P> целым, а value длинным целым. value типа длинного целого сохраняется в массиве в элементе с номером index.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен null,то генерируется </FONT><FONT FACE="Courier New">NullPointerException.</FONT><FONT FACE="Times New Roman"> Если индекс не входит в пределы границ массива,то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException</FONT>.</P>
+
+<B><FONT SIZE=4><P>fastore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в массиве из одинарных вещественных  </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=100>
+<TR><TD VALIGN="TOP">
+<P>fastore = 81</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index, value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть массивом из чисел одинарной точности с плавающей точкой index должен быть целым, а value -  числом одинарной точности с плавающей точкой. Одинарное вещественное value сохраняется в массиве в элементе с номером index.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен null, то генерируется </FONT><FONT FACE="Courier New">NullPointerException.</FONT><FONT FACE="Times New Roman"> Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>dastore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в массиве из двойных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=104>
+<TR><TD VALIGN="TOP">
+<P>dastore = 82</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index, value-word1, value-word2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть массивом из чисел двойной точности с плавающей точкой. index должен быть целым, а value - числом двойной точности с плавающей точкой. Двойное вещественное value сохраняется в массиве в элементе с номером index.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен null,то генерируется </FONT><FONT FACE="Courier New">NullPointerException.</FONT><FONT FACE="Times New Roman"> Если индекс не входит в пределы границ массива,то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>aastore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в массиве из объектных ссылок</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=102>
+<TR><TD VALIGN="TOP">
+<P>aastore = 83</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index, value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из объектных ссылок, index должен быть целым, а value - объектной ссылкой. Объектная ссылка value сохраняется в массиве в элементе с номером index.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен null, то генерируется</FONT><FONT FACE="Courier New"> NullPointerException</FONT><FONT FACE="Times New Roman">. Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Фактический тип value должен быть согласован с фактическим типом элементов массива. Например, можно хранить пример класса Thread в массиве класса Object, но не наоборот. (См. </FONT><I>Java Language Specification</I><FONT FACE="Times New Roman"> для получения информации о том,</FONT><FONT FACE="Times New Roman" COLOR="#000000"> как определять, является ли объектная ссылка примером такого класса.) Если сделана попытка</FONT><FONT FACE="Times New Roman"> сохранения несовместимой ссылки на объект, то генерируется </FONT><FONT FACE="Courier New">ArrayStoreException.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: Не надо ссылаться на спецификацию языка Ява; укажите семантику здесь.</P>
+</FONT>
+<B><FONT SIZE=4><P>bastore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в массиве байтов со знаком </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=103>
+<TR><TD VALIGN="TOP">
+<P>bastore = 84</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index, value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>arrayref должен быть ссылкой на массив из байтов со знаком, index и </FONT>value <FONT FACE="Times New Roman">должны быть целыми</FONT>. <FONT FACE="Times New Roman">Целое value сохраняется в массиве в элементе с номером index.</FONT> <FONT FACE="Times New Roman">Если value слишком длинное для того, чтобы быть </FONT><FONT FACE="Times New Roman" COLOR="#000000">байтом со</FONT><FONT FACE="Times New Roman"> знаком, то оно отсекается.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен null, то генерируется </FONT><FONT FACE="Courier New">NullPointerException.</FONT><FONT FACE="Times New Roman"> Если индекс не входит в пределы границ массива,то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>castore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в символьном массиве</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=102>
+<TR><TD VALIGN="TOP">
+<P>castore = 85</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., arrayref, index, value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<P>a<FONT FACE="Times New Roman">rrayref должен быть массивом из символов, index и </FONT>value <FONT FACE="Times New Roman">должны быть</FONT><FONT FACE="Times New Roman" COLOR="#000000"> целыми</FONT><FONT COLOR="#000000">.</FONT><FONT FACE="Times New Roman" COLOR="#000000"> Целое value</FONT><FONT FACE="Times New Roman"> сохраняется в массиве в элементе с номером index. Если value слишком длинное для того, чтобы быть символом, то оно отсекается.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен null, то генерируется </FONT><FONT FACE="Courier New">NullPointerException.</FONT><FONT FACE="Times New Roman"> Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT>
+<B><FONT SIZE=4><P>sastore</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сохранение в массиве из коротких целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=101>
+<TR><TD VALIGN="TOP">
+<P>sastore = 86</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., array, index</FONT><FONT FACE="Courier New">, value = &gt; ...</P>
+</FONT><P>a<FONT FACE="Times New Roman">rrayref должен быть массивом из коротких, индекс должен быть целым</FONT> <FONT FACE="Times New Roman">Целое value сохраняется в массиве в элементе с номером index. Если</FONT> <FONT FACE="Times New Roman">value слишком длинное для того, чтобы быть коротким</FONT> <FONT FACE="Times New Roman">целым, то оно отсекается.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если arrayref равен null,то генерируется </FONT><FONT FACE="Courier New">NullPointerException</FONT><FONT FACE="Times New Roman">. Если индекс не входит в пределы границ массива, то генерируется </FONT><FONT FACE="Courier New">ArrayIndexOutOfBoundsException.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.7">3.7 Инструкции стека</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>nop</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Ничего не делает</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=74>
+<TR><TD VALIGN="TOP">
+<P>nop = 0</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: без изменений</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Ничего не делает.</P>
+</FONT>
+<B><FONT SIZE=4><P>pop</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Извлечение слова с вершины стека</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=82>
+<TR><TD VALIGN="TOP">
+<P>pop = 87</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Извлекает слово с вершины стека.</P>
+</FONT>
+<B><FONT SIZE=4><P>pop2</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Извлечение двух слов с вершины стека</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=89>
+<TR><TD VALIGN="TOP">
+<P>pop2 = 88</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any2, any1 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Извлекает два слова с вершины стека.</P>
+</FONT>
+<B><FONT SIZE=4><P>dup</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Дублирование слова на вершине стека</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=83>
+<TR><TD VALIGN="TOP">
+<P>dup = 89</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any = &gt; ..., any, any</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Дублирует слово на вершине стека</P>
+</FONT>
+<B><FONT SIZE=4><P>dup2</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Дублирование двух слов на вершине стека</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=90>
+<TR><TD VALIGN="TOP">
+<P>dup2 = 92</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any2, any1 = &gt; ..., any2, any1, any2, any1</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Дублирует пару слов на вершине стека</P>
+</FONT>
+<B><FONT SIZE=4><P>dup_x1</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Дублирование слово на вершине стека и помещение копии в стек на два слова ниже</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=103>
+<TR><TD VALIGN="TOP">
+<P>dup_x1 = 90</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any2, any1 = &gt; ..., any1, any2, any1</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Дублирует слово на вершине стека и помещает копию в стек на два слова ниже</P>
+</FONT>
+<B><FONT SIZE=4><P>dup2_x1</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Дублирование двух слов на вершине стека и помещение копий на два слова ниже </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=110>
+<TR><TD VALIGN="TOP">
+<P>dup2_x1 = 93</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any3, any2, any1 = &gt; ..., any2, any1, any3, any2, any1</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Дублирует два слова на вершине стека и помещает копии в стеке на два слова ниже </P>
+</FONT>
+<B><FONT SIZE=4><P>dup_x2</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Дублирование вершины стека и помещение копии на три слова ниже</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=103>
+<TR><TD VALIGN="TOP">
+<P>dup_x2 = 91</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any3, any2, any1 = &gt; ..., any1, any3, any2, any1</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Дублирует вершину стека и помещает ее копию в стек на два слова ниже.</P>
+</FONT>
+<B><FONT SIZE=4><P>dup2_x2</P>
+
+</B></FONT><FONT FACE="Times New Roman"><P>Дублирование двух слов на вершине стека и помещение копий на три слова ниже </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=110>
+<TR><TD VALIGN="TOP">
+<P>dup2_x2 = 94</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any4, any3, any2, any1 = &gt; ..., any2, any1, any4, any3, any2, any1</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Дублирует два слова на вершине стека и помещает копии в стек на три слова ниже.</P>
+</FONT>
+<B><FONT SIZE=4><P>swap</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Обмен двух слов на вершине стека</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=88>
+<TR><TD VALIGN="TOP">
+<P>swap = 95</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., any2, any1 = &gt; ..., any2, an</FONT><FONT FACE="Courier New">y1</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Меняет местами два элемента на вершине стека.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.8">3.8 Арифметические инструкции</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>iadd</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сложение целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=86>
+<TR><TD VALIGN="TOP">
+<P>iadd = 96</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми числами. Значения суммируются и  заменяются</FONT> <FONT FACE="Times New Roman">в стеке их суммой, которая является целым числом.</P>
+</FONT>
+<B><FONT SIZE=4><P>ladd</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сложение длинных целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=86>
+<TR><TD VALIGN="TOP">
+<P>ladd = 97</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек : ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть длинными целыми числами. Значения суммируются и заменяются в стеке их суммой, которая является длинным целым числом.</P>
+</FONT>
+<B><FONT SIZE=4><P>fadd</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сложение одинарных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=87>
+<TR><TD VALIGN="TOP">
+<P>fadd = 98</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами одинарной точности. Значения суммируются и  заменяются в стеке их суммой, которая вещественным числом одинарной точности.</P>
+</FONT>
+<B><FONT SIZE=4><P>dadd</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сложение двойных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=90>
+<TR><TD VALIGN="TOP">
+<P>dadd = 99</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами двойной точности. Значения суммируются и  заменяются в стеке их суммой, которая является вещественным числом двойной точности.</P>
+</FONT>
+<B><FONT SIZE=4><P>lsub</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вычитание целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=91>
+<TR><TD VALIGN="TOP">
+<P>isub = 100</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми числами. value2 вычитается из value1, и оба значения заменяются в стеке их разностью, которая является целым числом.</P>
+</FONT>
+<B><FONT SIZE=4><P>lsub</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вычитание длинных целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=91>
+<TR><TD VALIGN="TOP">
+<P>lsub = 101</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., re</FONT><FONT FACE="Courier New">sult-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть длинными целыми числами. value2 вычитается из value1, и оба значения заменяются в стеке их разностью, которая является длинным целым числом.</P>
+</FONT>
+<B><FONT SIZE=4><P>fsub</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вычитание одинарных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>fsub = 102</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами одинарной точности. value2 вычитается из value1, и оба значения заменяются в стеке их разностью, которая является вещественным числом одинарной точности.</P>
+</FONT>
+<B><FONT SIZE=4><P>dsub</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вычитание двойных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=96>
+<TR><TD VALIGN="TOP">
+<P>dsub = 103</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек : ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами двойной точности. value2 ычитается из value1, и оба значения заменяются в стеке их разностью, которая является вещественным числом двойной точности.</P>
+</FONT>
+<B><FONT SIZE=4><P>imul</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Умножение целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=94>
+<TR><TD VALIGN="TOP">
+<P>imul = 104</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми числами. Оба значения заменяются в стеке их произведением, которое является целым числом.</P>
+</FONT>
+<B><FONT SIZE=4><P>lmul</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Умножение длинных целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=94>
+<TR><TD VALIGN="TOP">
+<P>lmul = 105</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT><FONT FACE="Courier New">
+</FONT><P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть длинными целыми числами. Оба значения заменяются в стеке</P>
+<P>их произведением, которое является длинным целым числом.</P>
+</FONT>
+<B><FONT SIZE=4><P>fmul</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Умножение одинарных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=94>
+<TR><TD VALIGN="TOP">
+<P>fmul = 106</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами одинарной точности. Оба значения заменяются в стеке их произведением, которое является вещественным числом одинарной точности.</P>
+</FONT>
+<B><FONT SIZE=4><P>dmul</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Умножение двойных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=98>
+<TR><TD VALIGN="TOP">
+<P>dmul = 107</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT><FONT FACE="Courier,Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами двойной точности. Оба значения заменяются в стеке их произведением, которое является вещественным числом двойной точности.</P>
+</FONT>
+<B><FONT SIZE=4><P>idiv</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Деление целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=89>
+<TR><TD VALIGN="TOP">
+<P>idiv = 108</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми числами. value1 делится на value2, и оба значения заменяются в стеке их частным, которое является целым числом.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>result усекается до ближайшего целого числа, лежащего между ним и 0. При попытке деления на нуль генерируется " / на нуль " </FONT><FONT FACE="Courier New">ArithmeticException.</P>
+</FONT>
+<B><FONT SIZE=4><P>ldiv</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Деление длинных целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=89>
+<TR><TD VALIGN="TOP">
+<P>ldiv = 109</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT><FONT FACE="Courier,Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value1 и value2 должны быть длинными целыми числами. value1 делится на value2, и оба</P>
+<P>значения заменяются в стеке их частным, которое является длинным целым числом.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>result усекается до ближайшего целого числа, лежащего между ним и 0. При попытке деления на нуль генерируется " / на нуль " </FONT><FONT FACE="Courier New">ArithmeticException.</P>
+</FONT>
+<B><FONT SIZE=4><P>fdiv</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Деление одинарных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=90>
+<TR><TD VALIGN="TOP">
+<P>fdiv = 110</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами одинарной точности. value1 делится на value2, и оба значения заменяются в стеке их частным, которое является вещественным числом одинарной точности.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>После деления на нуль частное становится равным </FONT><FONT FACE="Courier New">NaN</FONT>.</P>
+
+<B><FONT SIZE=4><P>ddiv</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Деление двойных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=93>
+<TR><TD VALIGN="TOP">
+<P>ddiv = 111</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными числами двойной точности. value1 делится на value2, и оба значения заменяются в стеке их частным, которое является вещественным числом двойной точности.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>После деления на нуль частное становится равным </FONT><FONT FACE="Courier New">NaN.</P>
+</FONT>
+<B><FONT SIZE=4><P>irem</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Остаток от деления целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=94>
+<TR><TD VALIGN="TOP">
+<P>irem = 112</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 оба должны быть целыми числами. value1 делится на value2, и оба значения заменяются в стеке их остатком от деления, который является целым числом. При попытке деления на нуль генерируется " / на нуль " </FONT><FONT FACE="Courier New">ArithmeticException</FONT>.</P>
+
+<FONT FACE="Times New Roman"><P>Обратите внимание: необходимо описание семантики остатка от делния целых чисел</P>
+</FONT>
+<B><FONT SIZE=4><P>lrem</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Остаток от деления длинных целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=94>
+<TR><TD VALIGN="TOP">
+<P>lrem = 113</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек : ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-</FONT><FONT FACE="Courier New">word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 оба должны быть длинными целыми числами. value1 делится на value2, и оба значения заменяются в стеке их остатком от деления, который является длинным целым числом. При попытке деления на нуль генерируется " / на нуль " </FONT><FONT FACE="Courier New">ArithmeticException.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: необходимо описание семантики остатка от деления целых чисел</P>
+</FONT>
+<B><FONT SIZE=4><P>frem</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Остаток от деления одинарных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=95>
+<TR><TD VALIGN="TOP">
+<P>frem = 114</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек : ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 оба должны быть вещественными числами одинарной точности. value1 делится на value2, частное усекается до целого, а затем умножается на value2. Полученное произведение вычитается из value1. result, который является вещественным числом одинарной точности, заменяет оба значения в стеке. </FONT><I>result</I> = <I>value1</I> - (integral_part (<I>value1</I>/<I>value2</I>) *<I> value2</I><FONT FACE="Times New Roman">), где integral_part () округляется до ближайшего целого числа.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>После деления на нуль частное становится равным </FONT><FONT FACE="Courier New">NaN</FONT>.</P>
+
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Заметьте: gls, для лучшего определения семантики остатка от деления вещественных чисел</P>
+</FONT>
+<B><FONT SIZE=4><P>drem</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Остаток от деления двойных вещественных</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=99>
+<TR><TD VALIGN="TOP">
+<P>drem = 115</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек : ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 оба должны быть вещественными числами двойной точности. value1 делится на value2, частное усекается до целого, а затем умножается на value2. Полученное произведение вычитается из value1. result, который является вещественным числом двойной точности, заменяет оба значения в стеке. </FONT><I>result</I> = <I>value1</I> - (integral_part (<I>value1</I>/<I>value2</I>) *<I> value2</I><FONT FACE="Times New Roman">), где integral_part () округляется до ближайшего целого числа.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>После деления на нуль частное становится равным </FONT><FONT FACE="Courier New">NaN</FONT>.</P>
+
+<FONT FACE="Times New Roman"><P>Заметьте: gls, для лучшего определения семантики остатка при делении вещественных чисел</P>
+</FONT>
+<B><FONT SIZE=4><P>ineg</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Отрицание целого</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>ineg = 116</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек : ..., value = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть целым числом. Оно заменяется в стеке арифметическим отрицанием. </P>
+</FONT>
+<B><FONT SIZE=4><P>lneg</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Отрицание длинного целого</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=84>
+<TR><TD VALIGN="TOP">
+<P>leg = 117</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек : ..., value-word1, value-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть длинным целым числом. Оно заменяется в стеке арифметическим отрицанием.</P>
+</FONT>
+<B><FONT SIZE=4><P>fneg</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Отрицание одинарного вещественного</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>fneg = 118</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек : ..., value = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть вещественным числом одинарной точности. Оно заменяется в стеке арифметическим отрицанием.</P>
+</FONT>
+<B><FONT SIZE=4><P>dneg</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Отрицание двойного вещественного числа</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=96>
+<TR><TD VALIGN="TOP">
+<P>dneg = 119</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT><FONT FACE="Times New Roman"><P>value должно быть вещественным числом двойной точности. Оно заменяется в стеке арифметическим отрицанием.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.9">3.9 Логические инструкции</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>ishl</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сдвиг целого влево</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=88>
+<TR><TD VALIGN="TOP">
+<P>ishl = 120</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. value1 смещается влево на число,</FONT> <FONT FACE="Times New Roman">указанное в пяти младших битах value2. Целочисленный result заменяет оба значения в стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>ishr</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Арифметический сдвиг целого вправо</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=90>
+<TR><TD VALIGN="TOP">
+<P>ishr = 122</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. value1 сдвигается вправо арифметически </P>
+<P>( с расширением знака ) на число, указанное в пяти младших битах value2. Целочисленный результат заменяет оба значения в стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>iushr</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Логический сдвиг целого вправо</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=97>
+<TR><TD VALIGN="TOP">
+<P>iushr = 124</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. value1 сдвигается вправо логически ( без расширения знака ) на число, указанное в пяти младших битах value2. Целочисленный результат заменяет оба значения в стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>lshl</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сдвиг длинного целого влево</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=88>
+<TR><TD VALIGN="TOP">
+<P>lshl = 121</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 должен быть длинным целым, value2 должен быть целым. value1 сдвигается влево на число, указанное в шести младших битах value2. Результат, который является длинным целым заменяет оба значения в стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>lshr</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Арифметический сдвиг длинного целого вправо</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=90>
+<TR><TD VALIGN="TOP">
+<P>lshr = 123</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 должен быть длинным целым, value2 должен быть целым. value1 сдвигается вправо арифметически ( с расширением знака ) на число, указанное в шести младших битах value2. Результат, который является длинным целым заменяет оба значения в стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>lushr</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Логический сдвиг длинного целого вправо</P>
+</FONT>
+<P>lushr = 125</P>
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 должен быть длинным целым, value2 должен быть целым. value1 сдвигается вправо логически ( без расширения знака ) на число, указанное в шести младших битах value2. Результат, который является длинным целым заменяет оба значения в стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>iand</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Логическое И с операндами целого типа</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=88>
+<TR><TD VALIGN="TOP">
+<P>iand = 126</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2  оба должны быть целыми. Они заменяются в стеке их логическим И (конъюнкцией).</P>
+</FONT>
+<B><FONT SIZE=4><P>land</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Логическое И с операндами</FONT> <FONT FACE="Times New Roman">длинного целого типа</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=88>
+<TR><TD VALIGN="TOP">
+<P>land = 127</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 оба должны быть длинными целыми. Они заменяются в стеке их логическим И (конъюнкцией).</P>
+</FONT>
+<B><FONT SIZE=4><P>ior</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Логическое ИЛИ с целочисленными операндами</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=79>
+<TR><TD VALIGN="TOP">
+<P>ior = 128</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = </FONT><FONT FACE="Courier New">&gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2  оба должны быть целыми. Они заменяются в стеке их логическим ИЛИ (дизъюнкцией).</P>
+</FONT>
+<B><FONT SIZE=4><P>lor</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Логическое ИЛИ с операндами длинного целого типа</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=79>
+<TR><TD VALIGN="TOP">
+<P>lor = 129</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT><FONT FACE="Courier,Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value1 и value2  оба должны быть длинными целыми. Они заменяются в стеке их логическим ИЛИ (дизъюнкцией).</P>
+</FONT>
+<B><FONT SIZE=4><P>ixor</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Исключающее ИЛИ с целочисленными операндами</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=86>
+<TR><TD VALIGN="TOP">
+<P>ixor = 130</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2  оба должны быть целыми. Они заменяются в стеке их исключающим ИЛИ (исключающей дизъюнкцией).</P>
+</FONT>
+<B><FONT SIZE=4><P>lxor</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Исключающее ИЛИ с операндами длинного целого типа</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=7 WIDTH=86>
+<TR><TD VALIGN="TOP">
+<P>lxor = 131</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>value1 и value2  оба должны быть длинными целыми. Они заменяются в стеке их исключающим ИЛИ (исключающей дизъюнкцией).</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.10">3.10 Операции преобразования</B></FONT><FONT FACE="Arial" SIZE=4>.</A></P>
+</FONT>
+<B><FONT SIZE=4><P>i2l</B></FONT>&#9;&#9;</P>
+<FONT COLOR="Black">
+</FONT><FONT FACE="Times New Roman"><P>Преобразование целого в длинное целое</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=72>
+<TR><TD VALIGN="TOP">
+<P>i2l = 133</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result</FONT><FONT FACE="Courier New">-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value </FONT><FONT FACE="Times New Roman">должно быть целым. Оно преобразуется в длинное целое. </FONT><FONT FACE="Courier New">result</P>
+</FONT><FONT FACE="Times New Roman"><P>заменяет </FONT><FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>i2f</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Целое в вещественное</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=73>
+<TR><TD VALIGN="TOP">
+<P>i2f = 134</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value= &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value </FONT><FONT FACE="Times New Roman">должно быть целым. Оно преобразуется в число с плавающей точкой одинарной точности.</FONT><FONT FACE="Courier New"> result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>i2d</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Целое в двойное вещественное</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=77>
+<TR><TD VALIGN="TOP">
+<P>i2d = 135</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result-word1, result-word2</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+<P>value </FONT><FONT FACE="Times New Roman">должно быть целым. Оно преобразуется в число с плавающей точкой двойной точности. </FONT><FONT FACE="Courier New">result </FONT><FONT FACE="Times New Roman">заменяет </FONT><FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>l2i</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Длинное целое в целое</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=72>
+<TR><TD VALIGN="TOP">
+<P>l2i = 136</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ..., result</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+<P>value </FONT><FONT FACE="Times New Roman">должно быть длинным целым. Оно преобразуется в целое, образованное из</P>
+<P>32  младших бит. </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>l2f</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Длинное целое в вещественное</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=73>
+<TR><TD VALIGN="TOP">
+<P>l2f = 137</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ..., result</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+<P>value </FONT><FONT FACE="Times New Roman">должно быть длинным целым. Оно преобразуется в число с плавающей точкой одинарной точности.</FONT><FONT FACE="Courier New"> result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>l2d</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Длинное целое в двойное вещественное</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=77>
+<TR><TD VALIGN="TOP">
+<P>l2d = 138</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value </FONT><FONT FACE="Times New Roman">должно быть длинным целым. Оно преобразуется в число с плавающей точкой двойной точности.</FONT><FONT FACE="Courier New"> result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value </FONT><FONT FACE="Times New Roman">на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>f2i</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вещественное в целое</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=73>
+<TR><TD VALIGN="TOP">
+<P>f2i = 139</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value</FONT><FONT FACE="Times New Roman"> должно быть числом с плавающей точкой одинарной точности. Оно преобразуется в целое. </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке. Смотрите</FONT><FONT COLOR="Black"> </FONT><I>The Java Language Specification</I><FONT FACE="Times New Roman">  для изучения подробностей при преобразовании чисел с плавающей точкой одинарной точности в целые.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: Не надо ссылаться на спецификацию языка Ява; дайте семантику здесь.</P>
+</FONT>
+<B><FONT SIZE=4><P>f2l</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вещественное в длинное целое</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=73>
+<TR><TD VALIGN="TOP">
+<P>f2l = 140</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result-word1, result-word2</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+<P>value</FONT><FONT FACE="Times New Roman"> должно быть числом с плавающей точкой одинарной точности. Оно преобразуется в длинное целое. </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value </FONT><FONT FACE="Times New Roman">на стеке. Смотрите </FONT><I>The Java Language Specification</I><FONT FACE="Times New Roman"> для изучения подробностей  при преобразовании чисел с плавающей точкой одинарной точности в длинные целые.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: Не надо ссылаться на спецификацию языка Ява; дайте семантику здесь.</P>
+</FONT>
+<B><FONT SIZE=4><P>f2d</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вещественное в двойное вещественное</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=78>
+<TR><TD VALIGN="TOP">
+<P>f2d = 141</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value</FONT><FONT FACE="Times New Roman"> должно быть числом с плавающей точкой одинарной точности. Оно преобразуется в число с плавающей точкой двойной точности. </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value </FONT><FONT FACE="Times New Roman">на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>d2i</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Двойное вещественное в целое</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=77>
+<TR><TD VALIGN="TOP">
+<P>d2i = 142</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ..., result</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+<P>value </FONT><FONT FACE="Times New Roman">должно быть числом с плавающей точкой двойной точности. Оно преобразуется в целое.</FONT><FONT FACE="Courier New"> result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке. Смотрите </FONT><I>The Java Language Specification</I><FONT FACE="Times New Roman"> для изучения подробностей при преобразовании чисел с плавающей точкой двойной точности в целые.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: Не надо ссылаться на спецификацию языка Ява; дайте семантику здесь.</P>
+</FONT>
+<B><FONT SIZE=4><P>d2l</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Двойное вещественное в длинное целое</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=77>
+<TR><TD VALIGN="TOP">
+<P>d2l = 143</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ..., result-word1, result-word2</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value </FONT><FONT FACE="Times New Roman">должно быть числом с плавающей точкой двойной точности. Оно преобразуется в длинное целое. </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> заменяет</FONT> <FONT FACE="Courier New">value</FONT><FONT FACE="Times New Roman"> на стеке. Смотрите </FONT><I>The Java Language Specification</I><FONT FACE="Times New Roman"> языка Ява для изучения подробностей  при преобразовании чисел с плавающей точкой двойной точности в длинные целые.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: Не надо ссылаться на спецификацию языка Ява; дайте семантику здесь.</P>
+</FONT>
+<B><FONT SIZE=4><P>d2f</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Двойное вещественное в вещественное</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=78>
+<TR><TD VALIGN="TOP">
+<P>d2f = 144</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value</FONT><FONT FACE="Times New Roman"> должно быть числом с плавающей точкой двойной точности. Оно преобразуется в число с плавающей точкой одинарной точности. Если происходит переполнение, </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> должен быть бесконечностью с тем же знаком как и </FONT><FONT FACE="Courier New">value</FONT>. <FONT FACE="Courier New">result </FONT><FONT FACE="Times New Roman">заменяет </FONT><FONT FACE="Courier New">value </FONT><FONT FACE="Times New Roman">на стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>int2byte</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Целое в знаковый байт</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=106>
+<TR><TD VALIGN="TOP">
+<P>int2byte = 145</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>value</FONT><FONT FACE="Times New Roman"> должно быть integer. Оно отсекается до 8-битного результата со знаком, затем знак распространяется до целого. </FONT><FONT FACE="Courier New">result </FONT><FONT FACE="Times New Roman">заменяет </FONT><I><FONT FACE="Courier New">value</I> </FONT><FONT FACE="Times New Roman">на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>int2char</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Целое в символ</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=106>
+<TR><TD VALIGN="TOP">
+<P>int2char = 146</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result</P>
+</FONT>
+<FONT FACE="Courier New"><P>value </FONT><FONT FACE="Times New Roman">должно быть целым. Оно отсекается до 16-битного результата без знака, затем ноль распространяется до целого. </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> заменяет</FONT><FONT FACE="Courier New"> <I>value</FONT> </I><FONT FACE="Times New Roman">на стеке.</P>
+</FONT>
+<B><FONT SIZE=4><P>int2short</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Целое в короткое</FONT><I><FONT COLOR="Black"> </P>
+</I></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=110>
+<TR><TD VALIGN="TOP">
+<P>int2short = 147</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ..., result</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+<P>value</FONT><FONT FACE="Times New Roman"> должно быть целым. Оно отсекается до 16-битного результата , затем знак 0распространяется до целого. </FONT><FONT FACE="Courier New">result</FONT><FONT FACE="Times New Roman"> заменяет </FONT><I><FONT FACE="Courier New">value</FONT> </I><FONT FACE="Times New Roman">на стеке.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.11">3.11 Инструкции передачи управления</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>ifeq</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если </FONT><FONT FACE="Times New Roman" COLOR="#000000">равно </FONT>0</P>
+
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>ifeq = 153</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть целым. Оно удаляется со стека. </FONT><I><FONT COLOR="Black"> </I></FONT><FONT FACE="Times New Roman">Если value - ноль, </FONT><I>branchbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">ifeq</FONT><FONT COLOR="#000000">.</P>
+<STRIKE>
+</STRIKE></FONT><B><FONT SIZE=4><P>ifnull</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если пустой указатель</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>ifnull = 198</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value должно быть ссылкой на объект. Оно удаляется со стека. Если value пусто, </FONT><I>branchbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">ifnull</FONT><FONT COLOR="#000000">.</P>
+</FONT>
+<B><FONT SIZE=4><P>iflt</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если меньше 0</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>iflt = 155</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть целым. Оно удаляется со стека. Если value  меньше нуля, </FONT><I>branchbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">iflt.</P>
+</FONT><FONT COLOR="Black">
+</FONT><B><FONT SIZE=4><P>ifle</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если меньше или равно 0</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>ifle = 158</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New" COLOR="Black">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value  = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value  должно быть целым. Оно удаляется со стека</FONT><FONT COLOR="Black">.</FONT><FONT FACE="Times New Roman"> Если value меньше</P>
+<P>или равно 0, </FONT><I>branchbyte1 </I><FONT FACE="Times New Roman">и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">ifle.</P>
+</FONT><FONT COLOR="Black">
+</FONT><B><FONT SIZE=4><P>ifne</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если не равно 0</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>ifne = 154</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value должно быть целым. Оно удаляется со стека</FONT><FONT COLOR="Black">.</FONT><FONT FACE="Times New Roman"> Если value не равно 0, </FONT><I>branchbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за</FONT><FONT FACE="Courier New" COLOR="#000000"> ifne</FONT><FONT COLOR="#000000">.</P>
+</FONT><FONT COLOR="Black">
+</FONT><B><FONT SIZE=4><P>ifnonnull</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если не пустой указатель</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=107>
+<TR><TD VALIGN="TOP">
+<P>ifnonnull = 199</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть ссылкой на объект.Оно удаляется со стека. Если value - не пустой указатель, </FONT><I>branchbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">ifnonull.</P>
+</FONT><FONT COLOR="Black">
+</FONT><B><FONT SIZE=4><P>ifgt</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если больше 0</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>ifgt = 157</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть целым. Оно удаляется со стека. Если value больше чем нуль, </FONT><I>branchbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">ifgt.</P>
+</FONT>
+<B><FONT SIZE=4><P>ifge</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если больше или равно 0</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>ifge = 156</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value должно быть целым. Оно удаляется со стека. Если value больше или равно 0,</P>
+</FONT><I><P>branchbyte1 </I><FONT FACE="Times New Roman">и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">ifge.</P>
+</FONT>
+<B><FONT SIZE=4><P>if_icmpeq</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если целые равны</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=117>
+<TR><TD VALIGN="TOP">
+<P>if_icmpeq = 159</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. Их также удаляют со стека. Если value1 совпадает с value2, </FONT><I>branchbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">if_icmpeq.</P>
+</FONT><FONT COLOR="Black">
+</FONT><B><FONT SIZE=4><P>if_icmpne</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если целые не равны</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=116>
+<TR><TD VALIGN="TOP">
+<P>if_icmpne = 160</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. Они также удаляются со стека. Если value1 не совпадает с value2, </FONT><I>branchbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за</FONT><FONT FACE="Courier New" COLOR="#000000"> if_icmpne.</P>
+</FONT>
+<B><FONT SIZE=4><P>if_icmplt</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если целое</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman" COLOR="#000000">меньше 0</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=109>
+<TR><TD VALIGN="TOP">
+<P>if_icmplt = 161</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. Они также удаляются со стека. Если value1 - меньше чем value2, </FONT><I>branchbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">if_icmplt.</P>
+</FONT><B><FONT SIZE=4>
+<P>if_icmpgt</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, </FONT><FONT FACE="Times New Roman" COLOR="#000000">если целое больше 0</P>
+</FONT><FONT COLOR="#000000"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=113>
+<TR><TD VALIGN="TOP">
+<P>if_icmpgt = 163</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. Они также удаляются со стека</FONT><FONT COLOR="Black"> </FONT><FONT FACE="Times New Roman">Если value1 больше value2, </FONT><I>branchbyte1 </I><FONT FACE="Times New Roman">и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">if_icmpgt</FONT><FONT COLOR="#000000">.</P>
+</FONT>
+<B><FONT SIZE=4><P>if_icmple</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, </FONT><FONT FACE="Times New Roman" COLOR="#000000">если целое меньше или равно </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=112>
+<TR><TD VALIGN="TOP">
+<P>if_icmple = 164</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New" COLOR="Black">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. Они также удаляются со стека. Если value1 - меньше  или равно value2, </FONT><I>branchbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за</FONT><FONT FACE="Courier New" COLOR="#000000"> if_icmple.</P>
+</FONT>
+<B><FONT SIZE=4><P>if_icmpge</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход,</FONT> <FONT FACE="Times New Roman" COLOR="#000000">если целое больше или равно</P>
+</FONT><FONT COLOR="Black"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=116>
+<TR><TD VALIGN="TOP">
+<P>if_icmpge = 162</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть целыми. Они также удаляются со стека. Если value1 больше или равно value2, <I>branchbyte1 и branchbyte2</I> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">if_icmpge.</P>
+</FONT>
+<B><FONT SIZE=4><P>lcmp</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Сравнение длинных целых</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=87>
+<TR><TD VALIGN="TOP">
+<P>lcmp = 148</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word1 = &gt; ..., </P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть длинными целыми. Они также удаляются со стека и сравниваются. Если value1 больше чем value2, целое значение “1” помещается на стек. Если value1 совпадает с value2, на стек помещается значение “0”. Если value1 - меньше чем value2, на стек помещается значение “-1”.</P>
+</FONT>
+<B><FONT SIZE=4><P>fcmpl</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Сравнение вещественных одинарной точности (-1 при </FONT><FONT COLOR="#000000">NaN) </P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=91>
+<TR><TD VALIGN="TOP">
+<P>fcmpl = 149</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Value1 и value2 должны быть вещественными одинарной точности. Они удаляются со стека и сравниваются. Если value1 больше чем value2, значение “1”  помещается  на стек. Если value1 совпадает с value2, на стек помещается значение “0”. Если value1 - меньше чем value2, на стек помещается значение ”-1” .</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если или value1, или value2 - NaN, на стек помещается значение “-1”.</P>
+</FONT>
+<B><FONT SIZE=4><P>fcmpg</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сравнение вещественных одинарной точности (1 при NaN)</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=95>
+<TR><TD VALIGN="TOP">
+<P>fcmpg = 150</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными одинарной точности. Они удаляются со стека и сравниваются. Если value1 больше чем value2, значение “1”  помещается  на стек. Если value1 совпадает с value2, на стек помещается значение “0”. Если value1 - меньше чем value2, на стек помещается значение ”-1</FONT>” .</P>
+
+<FONT FACE="Times New Roman"><P>Если или value1, или value2 - NaN, на стек помещается значение “1”.</P>
+</FONT>
+<B><FONT SIZE=4><P>dcmpl</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сравнение вещественных двойной точности(-1 при NaN)</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=95>
+<TR><TD VALIGN="TOP">
+<P>dcmpl = 151</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word1 = &gt; ..., result</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными двойной точности. Они удаляются со стека и сравниваются. Если value1 больше чем value2, значение “1”  помещается  на стек. Если value1 совпадает с value2, на стек помещается значение “0”. Если value1 - меньше чем value2, на стек помещается значение ”-1” .</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если или value1, или value2 - NaN, на стек помещается значение “-1”.</P>
+</FONT>
+<B><FONT SIZE=4><P>dcmpg</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Сравнение вещественных двойной точности(1 при NaN)</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=99>
+<TR><TD VALIGN="TOP">
+<P>dcmpg = 152</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1-word1, value1-word2, value2-word1, value2-word1 = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть вещественными двойной точности. Они удаляются со стека и сравниваются. Если value1 больше чем value2, значение “1”  помещается  на стек. Если value1 совпадает с value2, на стек помещается значение “0”. Если value1 - меньше чем value2, на стек помещается значение ”-1” .</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если или value1, или value2 - NaN, на стек помещается значение “1”.</P>
+</FONT>
+<B><FONT SIZE=4><P>if_acmpeq</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если ссылки на объект равны</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=121>
+<TR><TD VALIGN="TOP">
+<P>if_acmpeq = 165</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть ссылками на объекты. Они также удаляются со стека. Если объектные ссылки не одинаковые,</FONT> <I><FONT FACE="Times New Roman">branchbyte1 и branchbyte2</I> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за</FONT><FONT FACE="Courier New" COLOR="#000000"> if_acmpeq.</P>
+</FONT>
+<B><FONT SIZE=4><P>if_acmpne</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход, если ссылки на объект не равны</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=120>
+<TR><TD VALIGN="TOP">
+<P>if_acmpne = 166</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value1, value2 = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value1 и value2 должны быть ссылками на объекты. Они также удаляются со стека. Если объектные ссылки не одинаковые,</FONT> <I>branchbyte1 </I><FONT FACE="Times New Roman">и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции. Иначе, исполнение продолжается  с инструкции следующей за </FONT><FONT FACE="Courier New" COLOR="#000000">if_acmpne.</P>
+</FONT><FONT COLOR="Black">
+</FONT><B><FONT SIZE=4><P>goto</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход на</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>goto = 167</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT COLOR="Black">
+</FONT><FONT FACE="Times New Roman"><P>Стек: не меняется</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>branchbyte1 </I><FONT FACE="Times New Roman">и</FONT><I> branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4><P>goto_w</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход на (расширенный индекс)</P>
+</FONT><FONT COLOR="Black"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=104>
+<TR><TD VALIGN="TOP">
+<P>goto_w = 200</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte3</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte4</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Стек: не меняется</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>branchbyte, branchbyte2</I>, <I>branchbyte3, </I><FONT FACE="Times New Roman">и</FONT><I> branchbyte4</I><FONT FACE="Times New Roman"> используются для построения 32-битного смещения со знаком. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4 COLOR="#000000"><P>jsr</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход на подпрограмму</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>jsr = 168</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ... = &gt; ..., ret</FONT><FONT FACE="Courier New">urn-address</P>
+</FONT>
+<P>&nbsp;</P>
+<I><P>branchbyte1 </I><FONT FACE="Times New Roman">и </FONT><I>branchbyte2</I><FONT FACE="Times New Roman"> используются для построения 16-битного смещения со знаком. Адрес инструкции после работы jsr помещается на стек </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman"><P>Заметьте: jsr инструкция используется в реализации финального ключевого слова Явы.</P>
+</FONT>
+<B><FONT SIZE=4><P>jsr_w</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Переход на подпрограмму (расширенный индекс)</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=92>
+<TR><TD VALIGN="TOP">
+<P>jsr_w = 201</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte3</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>branchbyte4</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ... = &gt; ..., return-address</P>
+</FONT><FONT FACE="Courier New">
+</FONT><I><P>&nbsp;</P>
+<P>branchbyte, branchbyte2</I>, <I>branchbyte3, </I><FONT FACE="Times New Roman">и</FONT><I> branchbyte4</I><FONT FACE="Times New Roman"> используются для построения 32-битного смещения со знаком. Адрес инструкции после работы jsr_w помещается на стек </FONT><FONT FACE="Times New Roman" COLOR="#000000">Исполнение продолжается с места имеющего указанное смещение относительно адреса данной инструкции.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4><P>ret</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Возврат из подпрограммы</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=74>
+<TR><TD VALIGN="TOP">
+<P>ret = 169</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindex</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Стек: не меняется</P>
+</FONT>
+<P>&nbsp;</P>
+<I><FONT FACE="Times New Roman"><P>Локальная</FONT><B> </B><FONT FACE="Times New Roman">переменная</FONT><B> </B>vindex<B>  </B><FONT FACE="Times New Roman">в</FONT><B> </B><FONT FACE="Times New Roman">среде</FONT><B> </B><FONT FACE="Times New Roman">выполнения</FONT><B> </B><FONT FACE="Times New Roman">Явы</FONT><B> </B><FONT FACE="Times New Roman">должна</FONT><B> </B><FONT FACE="Times New Roman">содержать</FONT><B> </B><FONT FACE="Times New Roman">адрес</FONT><B> </B><FONT FACE="Times New Roman">возврата</FONT><B>.</B></I> <FONT FACE="Times New Roman" COLOR="#000000">Состояние локальной переменной описано в рс.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте, что jsr кладет адрес на стек, а ret получает значение локальной переменной. Эта </FONT><FONT FACE="Times New Roman" COLOR="#000000">ассиметрия намеренна.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Заметьте: ret инструкция используется в реализации </FONT><FONT FACE="Times New Roman" COLOR="#000000">последнего ключевого слова Явы</FONT> .</P>
+
+<B><FONT SIZE=4><P>ret_w</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Возврат из подпрограммы (расширенный индекс)</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=93>
+<TR><TD VALIGN="TOP">
+<P>ret_w = 209</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>vindexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT COLOR="Black">
+</FONT><FONT FACE="Times New Roman"><P>Стек: не меняется</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>Vindexbyte1 и vindexbyte2 ассемблируются в 16-битный беззнаковый индекс локальной переменной в среде выполнения Явы. Эта локальная переменная должна содержать адрес возврата. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Состояние локальной переменной описано в рс.</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>См. ret инструкцию для получения большего количества информации.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.12">3.12 Возврат из функции</A></P>
+</B></FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>ireturn</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Возврат целого значения функции</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=96>
+<TR><TD VALIGN="TOP">
+<P>ireturn = 172</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value  = &gt; [пусто]</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>value должно быть целым. Значение </FONT><I><FONT COLOR="#000000">value </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">помещается на стек предыдущей среды выполнения. Любые другие значения на стеке операндов уничтожаются. После чего интерпретатор возвращает контроль вызывающей программе.</P>
+</FONT>
+<B><FONT SIZE=4><P>lreturn</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Возврат длинного целого значения функции</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=96>
+<TR><TD VALIGN="TOP">
+<P>lreturn = 173</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; [пусто]</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman"><P>value должно быть длинным целым. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Значение </FONT><I><FONT COLOR="#000000">value </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">помещается на стек предыдущей среды выполнения. Любые другие значения на стеке операндов уничтожаются. После чего  интерпретатор возвращает контроль вызывающей программе.</P>
+</FONT>
+<B><FONT SIZE=4><P>freturn</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Возврат одинарного вещественного значения</FONT><FONT FACE="Times New Roman" COLOR="#000000"> функции</P>
+</FONT><FONT COLOR="Black"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=97>
+<TR><TD VALIGN="TOP">
+<P>freturn = 174</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; [пусто]</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть вещественным числом одинарной точности. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Значение </FONT><I><FONT COLOR="#000000">value </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">помещается на стек предыдущей среды выполнения. Любые другие значения на стеке операндов уничтожаются. После чего  интерпретатор возвращает контроль вызывающей программе.</P>
+</FONT>
+<B><FONT SIZE=4><P>dreturn</P>
+
+</B></FONT><FONT FACE="Times New Roman"><P>Возврат двойного вещественного значения</FONT><FONT FACE="Times New Roman" COLOR="#000000"> функции</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=101>
+<TR><TD VALIGN="TOP">
+<P>dreturn = 175</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; [пусто]</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть числом с плавающей точкой двойной точности. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Значение </FONT><I><FONT COLOR="#000000">value </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">помещается на стек предыдущей среды выполнения. Любые другие значения на стеке операндов уничтожаются. После чего  интерпретатор возвращает контроль вызывающей программе.</P>
+</FONT>
+<B><FONT SIZE=4><P>areturn </P>
+
+</B></FONT><FONT FACE="Times New Roman"><P>Возврат </FONT><FONT FACE="Times New Roman" COLOR="#000000">объектной ссылки из функции</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=100>
+<TR><TD VALIGN="TOP">
+<P>areturn = 176</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; [пусто]</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>value должно быть ссылкой на объект</FONT>. <FONT FACE="Times New Roman" COLOR="#000000">Значение </FONT><I><FONT COLOR="#000000">value </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">помещается на стек предыдущей среды выполнения. Любые другие значения на стеке операндов уничтожаются. После чего  интерпретатор возвращает контроль вызывающей программе.</P>
+</FONT><B><FONT SIZE=4 COLOR="#000000">
+<P>return</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Возврат(опустошающий) из процедуры</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=93>
+<TR><TD VALIGN="TOP">
+<P>return = 177</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; [пусто]</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Все значения на стеке операндов уничтожаются. После чего интерпретатор возвращает контроль вызывающей программе.</P>
+</FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>breakpoint</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Остановка и передача контроля обработчику прерываний.</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=133>
+<TR><TD VALIGN="TOP">
+<FONT FACE="Courier New"><P> </FONT>breakpoint = 202</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Стек: не меняется</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.13">3.13 Переходы по таблице</A></P>
+</B></FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>tableswitch</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Доступ к таблице перехода по индексу и переход</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=125>
+<TR><TD VALIGN="TOP">
+<P>tableswitch = 170</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>...0-3 byte pad ...</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset3</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset4</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>low1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>low2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>low3</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>low4</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>high1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>high2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>high3</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>high4</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>... jump offsets ...</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., index = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>tableswitch - это команда переменной длины. Немедленно после команды </FONT><FONT FACE="Times New Roman" COLOR="#000000">tableswitch , между нулем и тремя 0 помещенных как вставка такая, что следующий байт начинается с адреса кратного четырем. После вставки следуют последовательности знаковых 4-байтовых величин: default-offset, low, high, и затем high-low+1 с дальнейшими 4-байтовыми знаковыми смещениями. High-low+1 с 4-байтовые знаковые смещения используются как 0-основания таблицы перехода.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman"><P>index должен быть целым. Если index  меньше или больше чем high, то default-offset добавляется к адресу этой команды. Иначе, low вычитается из index,</FONT><FONT FACE="Times New Roman" COLOR="#000000"> и элемент index-low</FONT><FONT COLOR="Black">h </FONT><FONT FACE="Times New Roman" COLOR="#000000">таблицы перехода извлекается, и</FONT><FONT FACE="Times New Roman"> добавляется к адресу этой команды.</P>
+</FONT>
+<B><FONT SIZE=4><P>lookupswitch</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Доступ к таблице перехода по сравнению с ключом и переход</P>
+</FONT><FONT COLOR="#000000">
+<P>&nbsp;</P></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=157>
+<TR><TD VALIGN="TOP">
+<P>lookupswitch = 171</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>...0-3  byte pad ...</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset3</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>default-offset4</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>npairs1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>npairs2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>npairs3</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>npairs4</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>...match-offset  pairs ...</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Стек: ..., key  = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>tableswitch - это команда переменной длины. Немедленно после команды tableswitch между нулем и тремя 0 помещенных как вставка такая, что следующий байт начинается с адреса кратного четырем.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Немедленно после вставки следуют последовательности знаковых 4-байтовых величин. Первая пара- специальная. Первый элемент этой пары - default offset, а второй элемент этой пары представляет число следующих пар. Каждая последующая пара содержит</FONT><FONT FACE="Times New Roman"> значение, которое сравнивается со значением ключа, и смещение.</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>key должен быть целым. Целое значение key на стеке сравнивается с каждым значением. Если он равен одному из них, к адресу этой команды добавляется offset. Если ключ не соответствует никакому из значений, default-offset добавляется к адресу этой команды.</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5 COLOR="#000000"><P><a Name="3.14">3.14 Управление полями объектов</A></P>
+</B></FONT>
+<B><FONT SIZE=4 COLOR="#000000"><P>putfield</P>
+</B></FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Установка поля в объекте</P>
+</FONT><FONT COLOR="#000000"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=102>
+<TR><TD VALIGN="TOP">
+<P>putfield = 181</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New" COLOR="#000000">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., objectref, value = &gt; ...</P>
+</FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>ИЛИ</P>
+</FONT>
+<FONT FACE="Courier New"><P>Стек: ..., objectref, value-word1, value-word2 = &gt; ...</P>
+</FONT><I><FONT FACE="Courier New" COLOR="Black">
+<P>&nbsp;</P>
+</FONT><P>indexbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> indexbyte2</I><FONT FACE="Times New Roman"> используются для конструирования индекса в константном пуле текущего класса. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Элементом константного пула будет поле ссылки на имя класса и имя поля.  Этот элемент позволяет получить указатель на блок поля, который содержит  размер поля (в байтах),  и смещение поля (в байтах)</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Значение поля с этим смещением от начала объекта, на который ссылается objectref, становится равным значению на вершине стека.</P>
+</FONT><I><FONT COLOR="Black">
+</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Эта команда имеет дело с полями шириной как 64-бита так и и с 32-битными.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если objectref  равно </FONT><FONT FACE="Courier New" COLOR="#000000">null</FONT><FONT COLOR="#000000">, </FONT><FONT FACE="Times New Roman" COLOR="#000000">то генерируется</FONT><FONT FACE="Arial" COLOR="#000000"> </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException . </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если указанное поле - статическое, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">IncompatibleClassChangeError.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4 COLOR="#000000"><P>getfield</P>
+</B></FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Перенос поля из объекта</P>
+</FONT><FONT COLOR="#000000"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=101>
+<TR><TD VALIGN="TOP">
+<P>getfield = 180</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ..., value</P>
+</FONT><FONT FACE="Courier New">
+</FONT><FONT FACE="Times New Roman"><P>ИЛИ</P>
+</FONT>
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ..., value-word1, value-word2</P>
+</FONT><I>
+<P>&nbsp;</P>
+<P>indexbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> indexbyte2</I><FONT FACE="Times New Roman"> используются для конструирования индекса в константном пуле текущего класса. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Элементом константного пула будет поле ссылки на имя класса и имя поля.  Этот элемент позволяет получить указатель на блок поля, который содержит  размер поля (в байтах),  и смещение поля (в байтах)</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Значение поля с этим смещением от начала объекта, на который ссылается objectref, становится равным значению на вершине стека.</P>
+</FONT><I><FONT COLOR="Black">
+</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Эта команда имеет дело с полями шириной как 64-бита так и и с 32-битными.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если objectref  равно </FONT><FONT FACE="Courier New" COLOR="#000000">null</FONT><FONT COLOR="#000000">, </FONT><FONT FACE="Times New Roman" COLOR="#000000">то генерируется</FONT><FONT FACE="Arial" COLOR="#000000"> </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException . </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если указанное поле - статическое, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">IncompatibleClassChangeError.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4 COLOR="#000000"><P>putstatic</P>
+</B></FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Установка статического поля в классе</P>
+</FONT><FONT COLOR="#000000"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=108>
+<TR><TD VALIGN="TOP">
+<P>putstatic = 179</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New" COLOR="#000000">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., value = &gt; ...</P>
+</FONT>
+<FONT FACE="Times New Roman"><P>ИЛИ</P>
+</FONT>
+<FONT FACE="Courier New"><P>Стек: ..., value-word1, value-word2 = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><I><P>indexbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> indexbyte2</I><FONT FACE="Times New Roman"> используются для конструирования индекса в константном пуле текущего класса. </FONT><FONT FACE="Times New Roman" COLOR="#000000">Элементом константного пула будет поле ссылки на  статическое имя класса и имя поля.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Поле будет установлено так</FONT><FONT COLOR="#000000">,</FONT><FONT FACE="Times New Roman" COLOR="#000000"> что его значение будет находится на вершине стека.</P>
+</FONT><I><FONT COLOR="Black">
+</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Эта команда имеет дело с полями шириной как 64-бита так и с 32-битными.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если указанное поле - динамическое,  генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">IncompatibleClassChangeError.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><B><FONT SIZE=4 COLOR="#000000"><P>getstatic</P>
+</B></FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Получение статического поля  класса</P>
+</FONT><FONT COLOR="#000000"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=107>
+<TR><TD VALIGN="TOP">
+<P>getstatic = 178</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New" COLOR="#000000">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., = &gt; ..., value</P>
+</FONT><FONT FACE="Courier New">
+</FONT><FONT FACE="Times New Roman"><P>ИЛИ</P>
+</FONT>
+<FONT FACE="Courier New"><P>Стек: ..., = &gt; ..., value-word1, value-word2</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><I><P>indexbyte1</I><FONT FACE="Times New Roman"> и</FONT><I> indexbyte2</I><FONT FACE="Times New Roman"> используются для конструирования индекса в константном пуле текущего класса. Элементом константного пула будет поле ссылки на статическое поле  класса</FONT> .<I><FONT COLOR="Black"> </P>
+</I></FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Эта команда имеет дело с полями шириной как 64-бита так и и с 32-битными.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если указанное поле - динамическое,  генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">IncompatibleClassChangeError.</P>
+</FONT><B><FONT FACE="Arial" SIZE=5 COLOR="#000000"><P><a Name="3.15">3.15 Вызов метода</A></P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Имеются четыре команды для вызова реализации метода</P>
+</FONT>
+<FONT FACE="Courier New"><P>invokevirtual</P>
+
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Вызывает метод экземпляра объекта, основываясь на типе объекта во время выполнения (виртуальном типе). Это обычный способ вызова методов в языке Ява. </P>
+</FONT><FONT FACE="Courier New">
+<P>invokenonvirtual</P>
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Вызывает метод экземпляра объекта, основываясь на не виртуальном типе объекта. Такой вызов используется, например, когда в качестве квалификатора метода записано ключевое слово </FONT><FONT COLOR="#000000">super</FONT><FONT FACE="Times New Roman" COLOR="#000000"> или имя суперкласса.</P>
+</FONT><FONT FACE="Courier New">
+<P>invokestatic</P>
+</FONT><FONT FACE="Times New Roman"><P>Вызывает статический метод в названном классе.</P>
+</FONT><FONT FACE="Courier New">
+<P>invokeinterface</P>
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Вызывает метод, который реализуется интерфейсом, отыскивая подходящий метод у</FONT><FONT FACE="Times New Roman"> объектов существующих во время выполнения.</P>
+</I></FONT><B><FONT SIZE=4><P>invokevirtual</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Вызывает метод экземпляра, основываясь на типе времени выполнения</P>
+</FONT><FONT COLOR="#000000"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=134>
+<TR><TD VALIGN="TOP">
+<P>invokevirtual = 182</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New" COLOR="#000000">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., objectref,</FONT><FONT FACE="Courier New"> [arg1, [arg2 ...]], ... = &gt; ...</P>
+
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Стек операндов должен содержать ссылку на объект и некоторое количество аргументов. indexbyte1 и indexbyte2 используются, для конструирования индекса в константном пуле текущего класса. Значение этого индекса в константном пуле содержит полную сигнатуру метода. Указатель на таблицу методов объекта получается из ссылки на объект.  Сигнатура метода отыскивается в таблице методов. Гарантируется, что сигнатура метода будет совпадать ровно с одной из сигнатур методов в таблице.</FONT><FONT COLOR="#000000"> </P>
+
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P> Результат поиска - это индекс в таблице методов указанного класса, который используется вместе с динамическим типом объекта для поиска в таблице методов этого типа, где отыскивается указатель на блок искомого метода. Блок метода указывает на тип метода (</FONT><FONT FACE="Courier New" COLOR="#000000">native, synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000"> и так далее) и число аргументов, ожидаемых на стеке операндов. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если метод отмечен как синхронизированный (</FONT><FONT FACE="Courier New" COLOR="#000000">synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000">) , то происходит вход в монитор, связанный с objectref. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Objectref и аргументы снимаются со стека данного метода и становятся начальными значениями локальных переменных нового метода. Выполнение продолжается с первой инструкции нового метода. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если ссылка на объект на стеке операндов пуста<STRIKE>я</STRIKE>, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException</FONT><FONT FACE="Times New Roman" COLOR="#000000">. Если во время выполнения метода стек изменяется, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">StackOverflowError</FONT><FONT COLOR="#000000">.</P>
+
+</FONT><B><FONT SIZE=4><P>invokenonvirtual</P>
+</B></FONT>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Вызывает метод экземпляра, основываясь на не виртуальном типе</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=156>
+<TR><TD VALIGN="TOP">
+<P>invokenonvirtual = 183</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref, [arg1, [arg2 ...]], ... = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Стек операндов должен содержать ссылку на объект и некоторое количество аргументов. indexbyte1 и indexbyte2 используются, для конструирования индекса в константном пуле текущего класса. Значение этого индекса в константном пуле содержит полную сигнатуру метода. Указатель на таблицу методов объекта получается из ссылки на объект.  Сигнатура метода отыскивается в таблице методов. Гарантируется, что сигнатура метода будет совпадать ровно с одной из сигнатур методов в таблице. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P> Результат поиска - это блок метода. Блок метода указывает на тип метода (</FONT><FONT FACE="Courier New" COLOR="#000000">native, synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000"> и так далее) и число аргументов, ожидаемых на стеке операндов. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если метод отмечен как синхронизированный (</FONT><FONT FACE="Courier New" COLOR="#000000">synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000">) , то происходит вход в монитор, связанный с objectref. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P> objectref и аргументы снимаются со стека данного метода и становятся начальными значениями локальных переменных нового метода. Выполнение продолжается с первой инструкции нового метода. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если ссылка на объект на стеке операндов пуста<STRIKE>я</STRIKE>, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException</FONT><FONT FACE="Times New Roman" COLOR="#000000">. Если во время выполнения метода стек изменяется, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">StackOverflowError</FONT><FONT COLOR="#000000">.</P>
+</FONT>
+<B><FONT SIZE=4><P>invokestatic</P>
+</B></FONT><I><FONT COLOR="Black">
+</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Вызов метода класса (статического метода)</P>
+</FONT><FONT COLOR="#000000"></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=129>
+<TR><TD VALIGN="TOP">
+<P>invokestatic = 184</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New" COLOR="#000000">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., [arg1, [arg2 ...]], ... = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+</FONT><P>&nbsp;</P>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Стек операндов должен содержать ссылку на объект и некоторое количество аргументов. indexbyte1 и indexbyte2 используются, для конструирования индекса в константном пуле текущего класса. Значение этого индекса в константном пуле содержит полную сигнатуру метода. Указатель на таблицу методов объекта получается из ссылки на объект.  Сигнатура метода отыскивается в таблице методов. Гарантируется, что сигнатура метода будет совпадать ровно с одной из сигнатур методов в таблице. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P> Результат поиска - это блок метода. Блок метода указывает на тип метода (</FONT><FONT FACE="Courier New" COLOR="#000000">native, synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000"> и так далее) и число аргументов, ожидаемых на стеке операндов. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если метод отмечен как синхронизированный (</FONT><FONT FACE="Courier New" COLOR="#000000">synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000">) , то происходит вход в монитор, связанный с objectref. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Аргументы снимаются со стека данного метода и становятся начальными значениями локальных переменных нового метода. Выполнение продолжается с первой инструкции нового метода. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если ссылка на объект на стеке операндов пуста<STRIKE>я</STRIKE>, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException</FONT><FONT FACE="Times New Roman" COLOR="#000000">. Если во время выполнения метода стек изменяется, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">StackOverflowError</FONT><FONT COLOR="#000000">.</P>
+
+</FONT><B><FONT SIZE=4><P>invokeinterface</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Вызывает метод интерфейса</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=149>
+<TR><TD VALIGN="TOP">
+<P>invokeinterface = 185</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>nargs </TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>reserved</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., objectref, [arg1, [arg2 ...]], ... = &gt; ...</P>
+</FONT><FONT FACE="Courier New">
+<P>&nbsp;</P>
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Стек операндов должен содержать ссылку на объект и  аргументов nargs-1. indexbyte1 и indexbyte2 используются, для конструирования индекса в константном пуле текущего класса. Значение этого индекса в константном пуле содержит полную сигнатуру метода. Указатель на таблицу методов объекта получается из ссылки на объект.  Сигнатура метода отыскивается в таблице методов. Гарантируется, что сигнатура метода будет совпадать ровно с одной из сигнатур методов в таблице. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P> Результат поиска - это блок метода. Блок метода указывает на тип метода (</FONT><FONT FACE="Courier New" COLOR="#000000">native, synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000"> и так далее), исключая </FONT><FONT FACE="Courier New" COLOR="#000000">invokevirtual </FONT><FONT FACE="Times New Roman" COLOR="#000000">и</FONT><FONT FACE="Courier New" COLOR="#000000"> invokenonvirtual</FONT><FONT FACE="Times New Roman" COLOR="#000000">, число аргументов (nargs) берется из байткода. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если метод отмечен как синхронизированный (</FONT><FONT FACE="Courier New" COLOR="#000000">synchronized</FONT><FONT FACE="Times New Roman" COLOR="#000000">) , то происходит вход в монитор, связанный с objectref. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Objectref и аргументы снимаются со стека данного метода и становятся начальными значениями локальных переменных нового метода. Выполнение продолжается с первой инструкции нового метода. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если ссылка на объект на стеке операндов пуста<STRIKE>я</STRIKE>, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException</FONT><FONT FACE="Times New Roman" COLOR="#000000">. Если во время выполнения метода стек изменяется, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">StackOverflowError</FONT><FONT COLOR="#000000">.</P>
+
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.16">3.16 Обработка исключений</A></P>
+</B></FONT><FONT FACE="Arial">
+</FONT><B><FONT SIZE=4><P>athrow</P>
+</B></FONT><FONT FACE="Arial">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Генерация обработки или ошибки</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=100>
+<TR><TD VALIGN="TOP">
+<P>athrow = 191</TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Courier New">
+</FONT><FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; [undefined]</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>Objectref должен быть ссылкой на объект, который является подклассом сгенерирванной </FONT><FONT FACE="Courier New" COLOR="#000000">Throwable</FONT><FONT FACE="Times New Roman" COLOR="#000000">. Текущее состояние стека в языке Ява исследуется наибольшим найденным оператором, который находит этот класс или суперкласс этого класса. Если обнаружено совпадение с элементом списка кетч, то PC устанавливается на адрес, указанный в элементе списка кетч, и выполнение продолжается.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если соответствующее предложение кетч не найдено в текущем состоянии стека, то состояние удаляется, и объект повторно генерируется. Если оно найдено, оно содержит местоположение кода для этого исключения. PC повторно устанавливается на это местоположение и выполнение продолжается. Если никакой соответствующий кетч не  найден в текущем состоянии стека, то блок удаляется, и objectref повторно</FONT><FONT FACE="Times New Roman"> генерируется. </P>
+</FONT>
+<FONT FACE="Times New Roman"><P>Если objectref </FONT><FONT FACE="Courier New">null</FONT><FONT FACE="Times New Roman">, генерируется </FONT><FONT FACE="Courier New">NullPointerException.</P>
+</FONT>
+<B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.17">3.17 Прочие операции с объектами</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>new</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Создает новый объект</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=83>
+<TR><TD VALIGN="TOP">
+<P>new = 187</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ... = &gt; ..., objectref</P>
+</FONT>
+<P>&nbsp;</P>
+<I><FONT COLOR="#000000"><P>indexbyte1 </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">и</FONT><I><FONT COLOR="#000000"> indexbyte2</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> используются для конструирования индекса в константном пуле текущего класса. Элемент с этим индексом должен быть именем класса, по которому можно получить указатель на класс. Создается новый экземпляр этого класса и ссылка на объект помещается на стек.</P>
+</FONT>
+<B><FONT SIZE=4><P>checkcast</P>
+</B></FONT>
+<FONT FACE="Times New Roman"><P>Проверяет, что объект имеет данный тип</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=118>
+<TR><TD VALIGN="TOP">
+<P>checkcast = 192</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Courier New"><P>Стек: ..., objectref = </FONT><FONT FACE="Courier New">&gt; ..., objectref</P>
+</FONT>
+<P>&nbsp;</P>
+<I><FONT COLOR="#000000"><P>indexbyte1</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> и</FONT><I><FONT COLOR="#000000"> indexbyte2</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> используются для конструирования индекса в константном пуле текущего класса. Предполагается, что строка с этим индексом в константном пуле является именем класса, которое позволяет получить указатель на класс, </FONT><I><FONT COLOR="#000000">class</I></FONT><FONT FACE="Times New Roman" COLOR="#000000">. objectref должен быть ссылкой на объект.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>checkcast определяет, может ли objectref быть преобразован так, чтобы быть ссылкой на объект класса </FONT><I><FONT COLOR="#000000">class</I></FONT><FONT FACE="Times New Roman" COLOR="#000000">. Пустой указатель </FONT><I><FONT COLOR="#000000">objectref </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">может быть преобразован в любой </FONT><I><FONT COLOR="#000000">class.</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> Иначе говоря, упомянутый объект должен быть экземпляром класса или одного из его суперклассов. (См. спецификацию языка Ява для подробной информации относительно того, как определять является ли objectref экземпляром класса.) Если </FONT><I><FONT COLOR="#000000">objectref </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">может быть преобразован в</FONT><I><FONT COLOR="#000000"> class</I></FONT><FONT FACE="Times New Roman" COLOR="#000000">, выполнение продолжается  со следующей инструкции, и </FONT><I><FONT COLOR="#000000">objectref </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">остается на стеке. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если </FONT><I><FONT COLOR="#000000">objectref </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">не может быть преобразован в </FONT><I><FONT COLOR="#000000">class</I></FONT><FONT FACE="Times New Roman" COLOR="#000000">, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">ClassCastException.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Заметьте: Не надо ссылаться на спецификацию языка Ява; дайте семантику прямо здесь</P>
+</FONT>
+<B><FONT SIZE=4><P>instanceof</P>
+
+</B></FONT><FONT FACE="Times New Roman"><P>Определяет, имеет ли объект данный тип</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=118>
+<TR><TD VALIGN="TOP">
+<P>instanceof = 193</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte1</TD>
+</TR>
+<TR><TD VALIGN="TOP">
+<P>indexbyte2</TD>
+</TR>
+</TABLE>
+
+
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ..., result</P>
+</FONT>
+<P>&nbsp;</P>
+<I><FONT COLOR="#000000"><P>indexbyte1</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> и</FONT><I><FONT COLOR="#000000"> indexbyte2</I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> используются для конструирования индекса в константном пуле текущего класса. Предполагается, что строка с этим индексом в константном пуле является именем класса, которое позволяет получить указатель на класс, </FONT><FONT COLOR="#000000">class</FONT><FONT FACE="Times New Roman" COLOR="#000000">. objectref должен быть ссылкой на объект.</P>
+</FONT><FONT COLOR="#000000">
+<I><P>instanceof </I></FONT><FONT FACE="Times New Roman" COLOR="#000000"> определяет, может ли </FONT><I><FONT COLOR="#000000">objectref </I></FONT><FONT FACE="Times New Roman" COLOR="#000000">быть преобразован так, чтобы быть ссылкой на объект класса </FONT><I><FONT COLOR="#000000">class</I></FONT><FONT FACE="Times New Roman" COLOR="#000000">.  Эта команда будет переопределять objectref с 1, если objectref является экземпляром класса или одного из его суперклассов. (См. спецификацию языка Ява для подробной информации относительно того, как определять является ли указатель на объект экземпляром класса).  Иначе, objectref переопределять с 0. Если objectref – </FONT><FONT FACE="Courier New" COLOR="#000000">null,</FONT><FONT FACE="Times New Roman" COLOR="#000000"> его переопределяют с 0.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman"><P>Заметьте: Не надо ссылаться на спецификацию языка Ява; дайте семантику прямо здесь</P>
+</FONT><B><FONT FACE="Times New Roman" SIZE=5><P><a Name="3.18">3.18 Мониторы</A></P>
+</B></FONT>
+<B><FONT SIZE=4><P>monitorenter</P>
+
+</B></FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Вход в контролируемую область кода</P>
+</FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=134>
+<TR><TD VALIGN="TOP">
+<P>monitorenter = 194</TD>
+</TR>
+</TABLE>
+
+
+<P>&nbsp;</P>
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman" COLOR="#000000"><P>objectref должен быть ссылкой на объект. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Интерпретатор пытается получать исключительный доступ через механизм блокировки к objectref. Если  другой поток уже имеет установленную objectref, то текущий поток ждет, пока объект не будет установлен. Если текущий поток уже имеет установленный объект, то продолжается выполнение. Если объект не блокирован, то получается исключительная блокировка. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если objectref</FONT><FONT FACE="Courier New" COLOR="#000000"> null</FONT><FONT FACE="Times New Roman" COLOR="#000000">, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000"> NullPointerException</FONT><FONT COLOR="#000000">.</P>
+</FONT>
+<B><FONT SIZE=4><P>monitorexit</P>
+</B></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000000" CELLPADDING=4 WIDTH=125>
+<TR><TD VALIGN="TOP">
+<P>monitorexit = 195</TD>
+</TR>
+</TABLE>
+
+
+<FONT FACE="Times New Roman"><P>Выход из контролируемой области кода</P>
+</FONT>
+<FONT FACE="Courier New"><P>Стек: ..., objectref = &gt; ...</P>
+</FONT>
+<P>&nbsp;</P>
+<FONT FACE="Times New Roman"><P>objectref должно быть ссылкой на объект</FONT><FONT COLOR="Black">.</P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Объект разблокировывается. Если это - последняя установка, то этот поток остается на объекте (одному потоку позволяется иметь многократные установки на одном и том же объекте), тогда другим потокам, которые ожидают  доступный объект, разрешается продолжать. </P>
+</FONT><FONT COLOR="#000000">
+</FONT><FONT FACE="Times New Roman" COLOR="#000000"><P>Если objectref </FONT><FONT FACE="Courier New" COLOR="#000000">null</FONT><FONT FACE="Times New Roman" COLOR="#000000">, генерируется </FONT><FONT FACE="Courier New" COLOR="#000000">NullPointerException</FONT><FONT COLOR="#000000">.</P>
+</BODY>
+</HTML>
+

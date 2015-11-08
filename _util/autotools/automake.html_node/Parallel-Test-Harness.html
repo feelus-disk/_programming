@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- 
+This manual is for GNU Automake (version 1.15,
+31 December 2014), a program that creates GNU standards-compliant
+Makefiles from template files.
+
+Copyright (C) 1995-2014 Free Software Foundation, Inc.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License,
+Version 1.3 or any later version published by the Free Software
+Foundation; with no Invariant Sections, with no Front-Cover texts,
+and with no Back-Cover Texts.  A copy of the license is included in the
+section entitled "GNU Free Documentation License."
+ -->
+<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>automake: Parallel Test Harness</title>
+
+<meta name="description" content="automake: Parallel Test Harness">
+<meta name="keywords" content="automake: Parallel Test Harness">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="index.html#Top" rel="start" title="Top">
+<link href="Indices.html#Indices" rel="index" title="Indices">
+<link href="index.html#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="Simple-Tests.html#Simple-Tests" rel="up" title="Simple Tests">
+<link href="Custom-Test-Drivers.html#Custom-Test-Drivers" rel="next" title="Custom Test Drivers">
+<link href="Serial-Test-Harness.html#Serial-Test-Harness" rel="prev" title="Serial Test Harness">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.indentedblock {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smallindentedblock {margin-left: 3.2em; font-size: smaller}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style:oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nocodebreak {white-space:nowrap}
+span.nolinebreak {white-space:nowrap}
+span.roman {font-family:serif; font-weight:normal}
+span.sansserif {font-family:sans-serif; font-weight:normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<a name="Parallel-Test-Harness"></a>
+<div class="header">
+<p>
+Previous: <a href="Serial-Test-Harness.html#Serial-Test-Harness" accesskey="p" rel="prev">Serial Test Harness</a>, Up: <a href="Simple-Tests.html#Simple-Tests" accesskey="u" rel="up">Simple Tests</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+<hr>
+<a name="Parallel-Test-Harness-1"></a>
+<h4 class="subsection">15.2.3 Parallel Test Harness</h4>
+
+<p>By default, Automake generated a parallel (concurrent) test harness.  It
+features automatic collection of the test scripts output in <samp>.log</samp>
+files, concurrent execution of tests with <code>make -j</code>, specification
+of inter-test dependencies, lazy reruns of tests that have not completed
+in a prior run, and hard errors for exceptional failures.
+</p>
+<a name="Basics-of-test-metadata"></a><a name="index-TEST_005fSUITE_005fLOG"></a>
+<a name="index-TESTS-1"></a>
+<a name="index-_002elog-files"></a>
+<a name="index-_002etrs-files"></a>
+<a name="index-test-metadata"></a>
+<p>The parallel test harness operates by defining a set of <code>make</code>
+rules that run the test scripts listed in <code>TESTS</code>, and, for each
+such script, save its output in a corresponding <samp>.log</samp> file and
+its results (and other &ldquo;metadata&rdquo;, see <a href="API-for-Custom-Test-Drivers.html#API-for-Custom-Test-Drivers">API for Custom Test Drivers</a>)
+in a corresponding <samp>.trs</samp> (as in <b>T</b>est <b>R</b>e<b>S</b>ults) file.
+The <samp>.log</samp> file will contain all the output emitted by the test on
+its standard output and its standard error.  The <samp>.trs</samp> file will
+contain, among the other things, the results of the test cases run by
+the script.
+</p>
+<p>The parallel test harness will also create a summary log file,
+<code>TEST_SUITE_LOG</code>, which defaults to <samp>test-suite.log</samp> and requires
+a <samp>.log</samp> suffix.  This file depends upon all the <samp>.log</samp> and
+<samp>.trs</samp> files created for the test scripts listed in <code>TESTS</code>.
+</p>
+<a name="index-VERBOSE"></a>
+<p>As with the serial harness above, by default one status line is printed
+per completed test, and a short summary after the suite has completed.
+However, standard output and standard error of the test are redirected
+to a per-test log file, so that parallel execution does not produce
+intermingled output.  The output from failed tests is collected in the
+<samp>test-suite.log</samp> file.  If the variable &lsquo;<samp>VERBOSE</samp>&rsquo; is set, this
+file is output after the summary.
+</p>
+<a name="index-TEST_005fEXTENSIONS"></a>
+<a name="index-TEST_005fLOGS"></a>
+<p>Each couple of <samp>.log</samp> and <samp>.trs</samp> files is created when the
+corresponding test has completed.  The set of log files is listed in
+the read-only variable <code>TEST_LOGS</code>, and defaults to <code>TESTS</code>,
+with the executable extension if any (see <a href="EXEEXT.html#EXEEXT">EXEEXT</a>), as well as any
+suffix listed in <code>TEST_EXTENSIONS</code> removed, and <samp>.log</samp> appended.
+Results are undefined if a test file name ends in several concatenated
+suffixes.  <code>TEST_EXTENSIONS</code> defaults to <samp>.test</samp>; it can be
+overridden by the user, in which case any extension listed in it must be
+constituted by a dot, followed by a non-digit alphabetic character,
+followed by any number of alphabetic characters.
+For example, &lsquo;<samp>.sh</samp>&rsquo;, &lsquo;<samp>.T</samp>&rsquo; and &lsquo;<samp>.t1</samp>&rsquo; are valid extensions,
+while &lsquo;<samp>.x-y</samp>&rsquo;, &lsquo;<samp>.6c</samp>&rsquo; and &lsquo;<samp>.t.1</samp>&rsquo; are not.
+</p>
+<a name="index-Configure-substitutions-in-TESTS"></a>
+<p>It is important to note that, due to current limitations (unlikely to be
+lifted), configure substitutions in the definition of <code>TESTS</code> can
+only work if they will expand to a list of tests that have a suffix listed
+in <code>TEST_EXTENSIONS</code>.
+</p>
+<a name="index-_005fLOG_005fCOMPILE"></a>
+<a name="index-_005fLOG_005fCOMPILER"></a>
+<a name="index-_005fLOG_005fFLAGS"></a>
+<a name="index-LOG_005fCOMPILE"></a>
+<a name="index-LOG_005fCOMPILER"></a>
+<a name="index-LOG_005fFLAGS"></a>
+<a name="index-ext_005fLOG_005fCOMPILE"></a>
+<a name="index-ext_005fLOG_005fCOMPILER"></a>
+<a name="index-ext_005fLOG_005fFLAGS"></a>
+<a name="index-AM_005fext_005fLOG_005fFLAGS"></a>
+<a name="index-AM_005fLOG_005fFLAGS"></a>
+<p>For tests that match an extension <code>.<var>ext</var></code> listed in
+<code>TEST_EXTENSIONS</code>, you can provide a custom &ldquo;test runner&rdquo; using
+the variable <code><var>ext</var>_LOG_COMPILER</code> (note the upper-case
+extension) and pass options in <code>AM_<var>ext</var>_LOG_FLAGS</code> and allow
+the user to pass options in <code><var>ext</var>_LOG_FLAGS</code>.  It will cause
+all tests with this extension to be called with this runner.  For all
+tests without a registered extension, the variables <code>LOG_COMPILER</code>,
+<code>AM_LOG_FLAGS</code>, and <code>LOG_FLAGS</code> may be used.  For example,
+</p>
+<div class="example">
+<pre class="example">TESTS = foo.pl bar.py baz
+TEST_EXTENSIONS = .pl .py
+PL_LOG_COMPILER = $(PERL)
+AM_PL_LOG_FLAGS = -w
+PY_LOG_COMPILER = $(PYTHON)
+AM_PY_LOG_FLAGS = -v
+LOG_COMPILER = ./wrapper-script
+AM_LOG_FLAGS = -d
+</pre></div>
+
+<p>will invoke &lsquo;<samp>$(PERL) -w foo.pl</samp>&rsquo;, &lsquo;<samp>$(PYTHON) -v bar.py</samp>&rsquo;,
+and &lsquo;<samp>./wrapper-script -d baz</samp>&rsquo; to produce <samp>foo.log</samp>,
+<samp>bar.log</samp>, and <samp>baz.log</samp>, respectively.  The <samp>foo.trs</samp>,
+<samp>bar.trs</samp> and <samp>baz.trs</samp> files will be automatically produced
+as a side-effect.
+</p>
+<p>It&rsquo;s important to note that, differently from what we&rsquo;ve seen for the
+serial test harness (see <a href="Serial-Test-Harness.html#Serial-Test-Harness">Serial Test Harness</a>), the
+<code>AM_TESTS_ENVIRONMENT</code> and <code>TESTS_ENVIRONMENT</code> variables
+<em>cannot</em> be use to define a custom test runner; the
+<code>LOG_COMPILER</code> and <code>LOG_FLAGS</code> (or their extension-specific
+counterparts) should be used instead:
+</p>
+<div class="example">
+<pre class="example">## This is WRONG!
+AM_TESTS_ENVIRONMENT = PERL5LIB='$(srcdir)/lib' $(PERL) -Mstrict -w
+</pre></div>
+
+<div class="example">
+<pre class="example">## Do this instead.
+AM_TESTS_ENVIRONMENT = PERL5LIB='$(srcdir)/lib'; export PERL5LIB;
+LOG_COMPILER = $(PERL)
+AM_LOG_FLAGS = -Mstrict -w
+</pre></div>
+
+<p>By default, the test suite harness will run all tests, but there are
+several ways to limit the set of tests that are run:
+</p>
+<ul>
+<li> You can set the <code>TESTS</code> variable.  For example, you can use a
+command like this to run only a subset of the tests:
+
+<div class="example">
+<pre class="example">env TESTS=&quot;foo.test bar.test&quot; make -e check
+</pre></div>
+
+<p>Note however that the command above will unconditionally overwrite the
+<samp>test-suite.log</samp> file, thus clobbering the recorded results
+of any previous testsuite run.  This might be undesirable for packages
+whose testsuite takes long time to execute.  Luckily, this problem can
+easily be avoided by overriding also <code>TEST_SUITE_LOG</code> at runtime;
+for example,
+</p>
+<div class="example">
+<pre class="example">env TEST_SUITE_LOG=partial.log TESTS=&quot;...&quot; make -e check
+</pre></div>
+
+<p>will write the result of the partial testsuite runs to the
+<samp>partial.log</samp>, without touching <samp>test-suite.log</samp>.
+</p>
+</li><li> You can set the <code>TEST_LOGS</code> variable.  By default, this variable is
+computed at <code>make</code> run time from the value of <code>TESTS</code> as
+described above.  For example, you can use the following:
+
+<div class="example">
+<pre class="example">set x subset*.log; shift
+env TEST_LOGS=&quot;foo.log $*&quot; make -e check
+</pre></div>
+
+<p>The comments made above about <code>TEST_SUITE_LOG</code> overriding applies
+here too.
+</p>
+</li><li> <a name="index-RECHECK_005fLOGS"></a>
+<a name="index-lazy-test-execution"></a>
+By default, the test harness removes all old per-test <samp>.log</samp> and
+<samp>.trs</samp> files before it starts running tests to regenerate them.  The
+variable <code>RECHECK_LOGS</code> contains the set of <samp>.log</samp> (and, by
+implication, <samp>.trs</samp>) files which are removed.  <code>RECHECK_LOGS</code>
+defaults to <code>TEST_LOGS</code>, which means all tests need to be rechecked.
+By overriding this variable, you can choose which tests need to be
+reconsidered.  For example, you can lazily rerun only those tests which
+are outdated, i.e., older than their prerequisite test files, by setting
+this variable to the empty value:
+
+<div class="example">
+<pre class="example">env RECHECK_LOGS= make -e check
+</pre></div>
+
+</li><li> <a name="index-recheck"></a>
+You can ensure that all tests are rerun which have failed or passed
+unexpectedly, by running <code>make recheck</code> in the test directory.
+This convenience target will set <code>RECHECK_LOGS</code> appropriately
+before invoking the main test harness.
+</li></ul>
+
+<p>In order to guarantee an ordering between tests even with <code>make
+-j<var>N</var></code>, dependencies between the corresponding <samp>.log</samp> files
+may be specified through usual <code>make</code> dependencies.  For example,
+the following snippet lets the test named <samp>foo-execute.test</samp> depend
+upon completion of the test <samp>foo-compile.test</samp>:
+</p>
+<div class="example">
+<pre class="example">TESTS = foo-compile.test foo-execute.test
+foo-execute.log: foo-compile.log
+</pre></div>
+
+<p>Please note that this ordering ignores the <em>results</em> of required
+tests, thus the test <samp>foo-execute.test</samp> is run even if the test
+<samp>foo-compile.test</samp> failed or was skipped beforehand.  Further,
+please note that specifying such dependencies currently works only for
+tests that end in one of the suffixes listed in <code>TEST_EXTENSIONS</code>.
+</p>
+<p>Tests without such specified dependencies may be run concurrently with
+parallel <code>make -j<var>N</var></code>, so be sure they are prepared for
+concurrent execution.
+</p>
+<a name="index-Unit-tests"></a>
+<p>The combination of lazy test execution and correct dependencies between
+tests and their sources may be exploited for efficient unit testing
+during development.  To further speed up the edit-compile-test cycle, it
+may even be useful to specify compiled programs in <code>EXTRA_PROGRAMS</code>
+instead of with <code>check_PROGRAMS</code>, as the former allows intertwined
+compilation and test execution (but note that <code>EXTRA_PROGRAMS</code> are
+not cleaned automatically, see <a href="Uniform.html#Uniform">Uniform</a>).
+</p>
+<p>The variables <code>TESTS</code> and <code>XFAIL_TESTS</code> may contain
+conditional parts as well as configure substitutions.  In the latter
+case, however, certain restrictions apply: substituted test names
+must end with a nonempty test suffix like <samp>.test</samp>, so that one of
+the inference rules generated by <code>automake</code> can apply.  For
+literal test names, <code>automake</code> can generate per-target rules
+to avoid this limitation.
+</p>
+<p>Please note that it is currently not possible to use <code>$(srcdir)/</code>
+or <code>$(top_srcdir)/</code> in the <code>TESTS</code> variable.  This technical
+limitation is necessary to avoid generating test logs in the source tree
+and has the unfortunate consequence that it is not possible to specify
+distributed tests that are themselves generated by means of explicit
+rules, in a way that is portable to all <code>make</code> implementations
+(see <a href="http://www.gnu.org/software/autoconf/manual/html_node/Make-Target-Lookup.html#Make-Target-Lookup">Make Target Lookup</a> in <cite>The Autoconf Manual</cite>, the
+semantics of FreeBSD and OpenBSD <code>make</code> conflict with this).
+In case of doubt you may want to require to use GNU <code>make</code>,
+or work around the issue with inference rules to generate the tests.
+</p>
+<hr>
+<div class="header">
+<p>
+Previous: <a href="Serial-Test-Harness.html#Serial-Test-Harness" accesskey="p" rel="prev">Serial Test Harness</a>, Up: <a href="Simple-Tests.html#Simple-Tests" accesskey="u" rel="up">Simple Tests</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Indices.html#Indices" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,171 @@
+<html lang="en">
+<head>
+<title>Number processing Macros - Autoconf</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Autoconf">
+<meta name="generator" content="makeinfo 4.13">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Programming-in-M4sugar.html#Programming-in-M4sugar" title="Programming in M4sugar">
+<link rel="prev" href="Text-processing-Macros.html#Text-processing-Macros" title="Text processing Macros">
+<link rel="next" href="Set-manipulation-Macros.html#Set-manipulation-Macros" title="Set manipulation Macros">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+This manual (24 April 2012) is for GNU Autoconf
+(version 2.69),
+a package for creating scripts to configure source code packages using
+templates and an M4 macro package.
+
+Copyright (C) 1992-1996, 1998-2012 Free Software Foundation,
+Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled ``GNU Free Documentation License.''
+   -->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<a name="Number-processing-Macros"></a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Set-manipulation-Macros.html#Set-manipulation-Macros">Set manipulation Macros</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Text-processing-Macros.html#Text-processing-Macros">Text processing Macros</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Programming-in-M4sugar.html#Programming-in-M4sugar">Programming in M4sugar</a>
+<hr>
+</div>
+
+<h4 class="subsection">8.3.8 Arithmetic computation in M4</h4>
+
+<p>The following macros facilitate integer arithmetic operations. 
+Where a parameter is documented as taking an arithmetic expression, you
+can use anything that can be parsed by <code>m4_eval</code>.
+
+<div class="defun">
+&mdash; Macro: <b>m4_cmp</b> (<var>expr-1, expr-2</var>)<var><a name="index-m4_005fcmp-1497"></a></var><br>
+<blockquote><p><a name="index-m4_005fcmp-1498"></a>
+Compare the arithmetic expressions <var>expr-1</var> and <var>expr-2</var>, and
+expand to &lsquo;<samp><span class="samp">-1</span></samp>&rsquo; if <var>expr-1</var> is smaller, &lsquo;<samp><span class="samp">0</span></samp>&rsquo; if they are
+equal, and &lsquo;<samp><span class="samp">1</span></samp>&rsquo; if <var>expr-1</var> is larger. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_list_cmp</b> (<var>list-1, list-2</var>)<var><a name="index-m4_005flist_005fcmp-1499"></a></var><br>
+<blockquote><p><a name="index-m4_005flist_005fcmp-1500"></a>
+Compare the two M4 lists consisting of comma-separated arithmetic
+expressions, left to right.  Expand to &lsquo;<samp><span class="samp">-1</span></samp>&rsquo; for the first element
+pairing where the value from <var>list-1</var> is smaller, &lsquo;<samp><span class="samp">1</span></samp>&rsquo; where the
+value from <var>list-2</var> is smaller, or &lsquo;<samp><span class="samp">0</span></samp>&rsquo; if both lists have the
+same values.  If one list is shorter than the other, the remaining
+elements of the longer list are compared against zero.
+     <pre class="example">          m4_list_cmp([1, 0],       [1])
+          &rArr;0
+          m4_list_cmp([1, [1 * 0]], [1, 0])
+          &rArr;0
+          m4_list_cmp([1, 2],       [1, 0])
+          &rArr;1
+          m4_list_cmp([1, [1+1], 3],[1, 2])
+          &rArr;1
+          m4_list_cmp([1, 2, -3],   [1, 2])
+          &rArr;-1
+          m4_list_cmp([1, 0],       [1, 2])
+          &rArr;-1
+          m4_list_cmp([1],          [1, 2])
+          &rArr;-1
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_max</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fmax-1501"></a></var><br>
+<blockquote><p><a name="index-m4_005fmax-1502"></a>
+This macro was introduced in Autoconf 2.62.  Expand to the decimal value
+of the maximum arithmetic expression among all the arguments. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_min</b> (<var>arg, <small class="dots">...</small></var>)<var><a name="index-m4_005fmin-1503"></a></var><br>
+<blockquote><p><a name="index-m4_005fmin-1504"></a>
+This macro was introduced in Autoconf 2.62.  Expand to the decimal value
+of the minimum arithmetic expression among all the arguments. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_sign</b> (<var>expr</var>)<var><a name="index-m4_005fsign-1505"></a></var><br>
+<blockquote><p><a name="index-m4_005fsign-1506"></a>
+Expand to &lsquo;<samp><span class="samp">-1</span></samp>&rsquo; if the arithmetic expression <var>expr</var> is negative,
+&lsquo;<samp><span class="samp">1</span></samp>&rsquo; if it is positive, and &lsquo;<samp><span class="samp">0</span></samp>&rsquo; if it is zero. 
+</p></blockquote></div>
+
+   <p><a name="m4_005fversion_005fcompare"></a>
+
+<div class="defun">
+&mdash; Macro: <b>m4_version_compare</b> (<var>version-1, version-2</var>)<var><a name="index-m4_005fversion_005fcompare-1507"></a></var><br>
+<blockquote><p><a name="index-m4_005fversion_005fcompare-1508"></a>
+This macro was introduced in Autoconf 2.53, but had a number of
+usability limitations that were not lifted until Autoconf 2.62.  Compare
+the version strings <var>version-1</var> and <var>version-2</var>, and expand to
+&lsquo;<samp><span class="samp">-1</span></samp>&rsquo; if <var>version-1</var> is smaller, &lsquo;<samp><span class="samp">0</span></samp>&rsquo; if they are the same,
+or &lsquo;<samp><span class="samp">1</span></samp>&rsquo; <var>version-2</var> is smaller.  Version strings must be a list
+of elements separated by &lsquo;<samp><span class="samp">.</span></samp>&rsquo;, &lsquo;<samp><span class="samp">,</span></samp>&rsquo; or &lsquo;<samp><span class="samp">-</span></samp>&rsquo;, where each
+element is a number along with optional case-insensitive letters
+designating beta releases.  The comparison stops at the leftmost element
+that contains a difference, although a 0 element compares equal to a
+missing element.
+
+        <p>It is permissible to include commit identifiers in <var>version</var>, such
+as an abbreviated SHA1 of the commit, provided there is still a
+monotonically increasing prefix to allow for accurate version-based
+comparisons.  For example, this paragraph was written when the
+development snapshot of autoconf claimed to be at version
+&lsquo;<samp><span class="samp">2.61a-248-dc51</span></samp>&rsquo;, or 248 commits after the 2.61a release, with an
+abbreviated commit identification of &lsquo;<samp><span class="samp">dc51</span></samp>&rsquo;.
+
+     <pre class="example">          m4_version_compare([1.1], [2.0])
+          &rArr;-1
+          m4_version_compare([2.0b], [2.0a])
+          &rArr;1
+          m4_version_compare([1.1.1], [1.1.1a])
+          &rArr;-1
+          m4_version_compare([1.2], [1.1.1a])
+          &rArr;1
+          m4_version_compare([1.0], [1])
+          &rArr;0
+          m4_version_compare([1.1pre], [1.1PRE])
+          &rArr;0
+          m4_version_compare([1.1a], [1,10])
+          &rArr;-1
+          m4_version_compare([2.61a], [2.61a-248-dc51])
+          &rArr;-1
+          m4_version_compare([2.61b], [2.61a-248-dc51])
+          &rArr;1
+</pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Macro: <b>m4_version_prereq</b> (<var>version, </var><span class="roman">[</span><var>if-new-enough</var><span class="roman">]</span><var>, </var><span class="roman">[</span><var>if-old = &lsquo;</var><samp><span class="samp">m4_fatal</span></samp><var>&rsquo;</var><span class="roman">]</span>)<var><a name="index-m4_005fversion_005fprereq-1509"></a></var><br>
+<blockquote><p><a name="index-m4_005fversion_005fprereq-1510"></a>
+Compares <var>version</var> against the version of Autoconf currently
+running.  If the running version is at <var>version</var> or newer, expand
+<var>if-new-enough</var>, but if <var>version</var> is larger than the version
+currently executing, expand <var>if-old</var>, which defaults to printing an
+error message and exiting m4sugar with status 63.  When given only one
+argument, this behaves like <code>AC_PREREQ</code> (see <a href="Versioning.html#Versioning">Versioning</a>). 
+Remember that the autoconf philosophy favors feature checks over version
+checks. 
+</p></blockquote></div>
+
+   </body></html>
+

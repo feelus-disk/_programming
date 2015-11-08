@@ -1,0 +1,2661 @@
+<!DOCTYPE html>
+<html><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta content="width=1024" name="viewport">
+
+
+    <title>Emacs для начинающих: elisp / Хабрахабр</title>
+
+    <meta name="yandex-verification" content="67d46b975fa41645"> <!-- яндекс вебмастер - верификация -->
+
+    <meta name="description" content="Введение
+
+Сразу предупреждаю, что я не собираюсь писать ни учебник, ни
+вводный курс Lisp и не претендую на какую либо полноту описания. А
+собираюсь я дать некоторые полезные по моему мнению...">
+    <meta name="keywords" content="emacs, emacs-tips, linux, linux для всех">
+
+    	<meta property="fb:app_id" content="444736788986613"> 
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="http://habrahabr.ru/post/61992/"> 
+<meta property="og:title" content="Emacs для начинающих: elisp"> 
+	
+	<meta property="og:image" content="http://habrahabr.ru/i/habralogo.jpg">
+	<link rel="image_src" href="http://habrahabr.ru/i/habralogo.jpg">
+<meta property="og:description" content="Введение  Сразу предупреждаю, что я не собираюсь писать ни учебник, ни вводный курс Lisp и не претендую на какую либо полноту описания. А собираюсь я дать...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@habrahabr">
+	<meta property="al:ios:url" content="habrahabr://post/61992">
+<meta property="al:ios:app_store_id" content="778613673">
+<meta property="al:ios:app_name" content="Habrahabr">
+<meta property="al:android:url" content="habrahabr://post/61992">
+<meta property="al:android:app_name" content="Habrahabr">
+<meta property="al:android:package" content="ru.habrahabr">
+<meta property="al:windows_phone:url" content="habrahabr://post/61992">
+<meta property="al:windows_phone:app_name" content="Habrahabr">
+<meta property="al:windows_phone:app_id" content="460a6bd6-8955-470f-935e-9ea1726a6060">
+	<link rel="canonical" href="http://habrahabr.ru/post/61992/">
+    <link rel="alternate" media="only screen and (max-width: 640px)" href="http://m.habrahabr.ru/post/61992/">
+
+
+
+
+    <link href="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/global_main.css" rel="stylesheet" media="all">
+    <script src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/watch.js" async="" type="text/javascript"></script><script src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/analytics.js" async=""></script><script type="text/javascript" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/global_main.js"></script>
+      <link href="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/post_common_css.css" rel="stylesheet" media="all">
+
+    <link href="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/printer.css" rel="stylesheet" media="print">
+
+    
+    
+
+
+
+
+      <script type="text/javascript" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/post_common_js.js"></script>
+
+
+      <!-- www.criteo.com/ru -->
+<script type="text/javascript">
+  var crtg_nid="2580";
+  var crtg_cookiename="cto_rtt";
+  var crtg_varname="crtg_content";
+  function crtg_getCookie(c_name){
+    var i,x,y,ARRCookies=document.cookie.split(";");
+    for(i=0;i<ARRCookies.length;i++){
+      x=ARRCookies[i].substr(0,ARRCookies[i].indexOf("="));
+      y=ARRCookies[i].substr(ARRCookies[i].indexOf("=")+1);
+      x=x.replace(/^\s+|\s+$/g,"");
+      if(x==c_name){return unescape(y);}
+    }
+    return'';
+  }
+  var crtg_content = crtg_getCookie(crtg_cookiename);var crtg_rnd=Math.floor(Math.random()*99999999999);
+  var crtg_url=location.protocol+'//rtax.criteo.com/delivery/rta/rta.js?netId='+escape(crtg_nid);crtg_url+='&cookieName='+escape(crtg_cookiename);crtg_url+='&rnd='+crtg_rnd;crtg_url+='&varName=' + escape(crtg_varname);
+  var crtg_script=document.createElement('script');crtg_script.type='text/javascript';crtg_script.src=crtg_url;crtg_script.async=true;
+  if(document.getElementsByTagName("head").length>0)document.getElementsByTagName("head")[0].appendChild(crtg_script);
+  else
+  if(document.getElementsByTagName("body").length>0)document.getElementsByTagName("body")[0].appendChild(crtg_script);
+</script><script async="" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/rta.js" type="text/javascript"></script>
+      <script>
+        var N = 5;
+        var ar_duo1 = Math.floor(Math.random()*N+1);
+      </script>
+      <script type="text/javascript" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/adriver.js"></script>
+
+    <link title="Хабрахабр / Комментарии к публикации «Emacs для начинающих: elisp»" type="application/rss+xml" rel="alternate" href="http://habrahabr.ru/rss/post/61992/">
+
+    
+<script type="text/javascript">
+
+    var user_type = "guest";
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-726094-1',  'auto' );
+    ga('create', 'UA-726094-24', 'auto', {'name': 'HGM'});
+
+  ga('require', 'displayfeatures');
+  ga('set', 'dimension1', user_type); // user type - guest/readonly/habrauser
+  //ga('set', 'dimension2', username); // username
+
+
+
+  ga('HGM.send', 'pageview');
+  ga('HGM.set', 'dimension1', user_type);
+  ga('HGM.set', 'dimension2', "habrahabr");
+  ga('send', 'pageview', { 'hitCallback': removeUtms });
+
+</script>
+
+
+    <meta content="Хабрахабр" name="apple-mobile-web-app-title">
+<link href="http://habrahabr.ru/images/apple-touch-icon_142x142.png" rel="apple-touch-icon" type="image/png">
+  </head>
+
+  <body><style type="text/css">#navbar .nav_panel .tab.tab_print:hover path,#navbar .nav_panel .tab.tab_print:hover text { fill: #4fa54c; } </style>
+    <div id="TMpanel">
+  <div class="container">
+    <div class="menu">
+      <a href="http://tmfeed.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">TM Feed</a>
+      <a href="http://habrahabr.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo" class="current">Хабрахабр</a>
+      <a href="http://megamozg.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Мегамозг</a>
+      <a href="http://geektimes.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Geektimes</a>
+      <a href="http://toster.ru/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Тостер</a>
+      <a href="http://brainstorage.me/?utm_source=tm_habrahabr&amp;utm_medium=tm_top_panel&amp;utm_campaign=tm_promo">Brainstorage</a>
+      <a href="http://freelansim.ru/?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=head_link">Фрилансим</a>
+    </div>
+      <div class="menu special"><a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=1&amp;ad=511994&amp;bt=21&amp;pid=1890375&amp;bid=3750260&amp;bn=3750260&amp;rnd=494237654" target="_blank" style="color: black">Деньги стартапам</a><a href="http://freelansim.ru/info/for_freelancers?utm_source=tm_menu&amp;utm_medium=referral&amp;utm_campaign=freelance&amp;utm_term=IT-%D1%84%D1%80%D0%B8%D0%BB%D0%B0%D0%BD%D1%81%D0%B5%D1%80%D0%B0%D0%BC_%D1%81%D1%8E%D0%B4%D0%B0&amp;utm_content=head_link" target="_blank" style="color: red">Заказы для IT-фрилансеров</a></div>
+  </div>
+</div>
+
+
+    <div id="layout">
+      <div id="navbar_overlay" class="hidden"></div>
+<div class="" style="bottom: 29px;" id="navbar">
+    <div class="nav_panel">
+        <a href="http://habrahabr.ru/" class="logo"></a>
+
+            <a href="http://habrahabr.ru/posts/" class="tab tab_menu" data-tab="menu_tab" title="Меню"><span class="g-icon g-icon-burger"></span></a>
+            <a href="https://habrahabr.ru/auth/login/" class="tab tab_login" id="login" title="Войти"><span class="g-icon g-icon-lock"></span></a>
+
+        <a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=1&amp;ad=513803&amp;bt=21&amp;pid=1904272&amp;bid=3767730&amp;bn=3767730&amp;rnd=1493486071" class="tab tab_print" id="print_tab" target="_blank" data-post-id="61992"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 71 71" enable-background="new 0 0 71 71" xml:space="preserve">
+<g>
+	<path fill-rule="evenodd" clip-rule="evenodd" fill="#C1C1C1" d="M53.6,19.7c0.6,0.7,1.1,1.3,1.5,2L26.6,38.1l-13.8-7.9
+		c0.1-0.8,0.4-1.7,0.6-2.5l13.2,7.6L53.6,19.7 M44.8,13.1c0.1,0.1,0.3,0.2,0.5,0.3c0.7,0.3,1.5,0.7,2.2,1.1l-20.9,12l-9.7-5.6
+		c0.5-0.7,1-1.4,1.6-2l8.1,4.7L44.8,13.1z M49.9,16c0.7,0.5,1.3,1.1,2,1.8L26.6,32.3l-12.2-7c0.4-0.8,0.8-1.6,1.2-2.3l11.1,6.3
+		L49.9,16z"></path>
+	<path fill-rule="evenodd" clip-rule="evenodd" fill="#C1C1C1" d="M59,34.5c0,2.6-0.4,5.1-1.3,7.6c-0.2,0.4-0.4,0.9-0.5,1.5
+		c-1.2,2.8-2.8,5.3-5,7.4c-2.2,2.1-4.7,3.8-7.4,4.9c-2.9,1.3-6,1.9-9.1,1.9c-3.1,0-6.2-0.6-9.1-1.9c-2.7-1.1-5.2-2.8-7.4-4.9
+		c-2.2-2.2-3.8-4.6-5-7.4c-1.2-2.9-1.8-6-1.8-9.1c0-0.5,0-1,0-1.5l14.2,8l29.9-17.1c0.5,1,0.9,2.1,1.2,3.2
+		C58.6,29.4,59,31.9,59,34.5"></path>
+</g>
+</svg></a>
+
+        <a href="#" class="scroll_to_up scroll_to_up_for_guest hidden" id="scroll_to_top" title="Наверх"></a>
+    </div>
+    <div class="nav_tabs_content ">
+
+        <div class="nav_tab hidden" id="menu_tab">
+            <div class="title">Разделы</div>
+            <form action="/search/" method="get" class="global_search_form">
+                <div>
+                    <input name="q" placeholder="Поиск" type="text">
+                </div>
+            </form>
+            <div class="menu">
+                <a href="http://habrahabr.ru/posts/top/">Публикации</a>
+                <a href="http://habrahabr.ru/hubs/">Хабы</a>
+                <a href="http://habrahabr.ru/companies/">Компании</a>
+                <a href="http://habrahabr.ru/users/">Пользователи</a>
+                <a href="http://toster.ru/" class="new_window">Q&amp;A</a>
+                <a href="http://habrahabr.ru/sandbox/">Песочница</a>
+                <a href="http://habrahabr.ru/exchange/">Биржа авторов</a>
+
+
+
+            </div>
+
+                
+
+                        <div class="line"></div>
+                        <div class="title">Спецпроекты</div>
+                        <div class="menu">
+
+                        <a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=1&amp;ad=482836&amp;bt=21&amp;pid=1730497&amp;bid=3502321&amp;bn=3502321&amp;rnd=124687018" target="_blank">AZURE бесплатно</a>
+
+                        <a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=1&amp;ad=510239&amp;bt=21&amp;pid=1878438&amp;bid=3747115&amp;bn=3747115&amp;rnd=1608845826" target="_blank">Приз 150000 рублей</a>
+                        </div>
+
+
+        </div>
+
+
+    </div>
+</div>
+
+      <div class="inner">
+        
+
+        
+
+          <div class="content_left">
+  	
+
+
+
+
+
+    <div class="post_show">
+  	  
+  <div class="post shortcuts_item" id="post_61992">
+  	<div class="published">13 июня 2009 в 14:30</div>
+    <h1 class="title">
+	    
+        <span class="post_title">Emacs для начинающих: elisp</span>
+      
+			
+  	</h1>
+  	
+  	<div class="hubs">
+		<a href="http://habrahabr.ru/hub/emacs/" class="hub " title="Вы не подписаны на этот хаб">Emacs</a><span class="profiled_hub" title="Профильный хаб">*</span>
+</div>
+
+  	
+  	<div class="content html_format">
+    	<h5>Введение</h5><br>
+<br>
+Сразу предупреждаю, что я не собираюсь писать ни учебник, ни<br>
+вводный курс Lisp и не претендую на какую либо полноту описания. А<br>
+собираюсь я дать некоторые полезные по моему мнению сведения, которые<br>
+помогут начинающим использовать emacs настраивать его по своему<br>
+усмотрению и писать несложные функции, которыми тоже можно будет<br>
+пользоваться в процессе использования emacs. <br>
+ <a name="habracut"></a><br>
+Emacs, как уже неоднократно везде упоминалось, представляет собой<br>
+комбинацию текстового редактора и интерпретатора Lisp. Нужно только<br>
+уметь этим воспользоваться.<br>
+<br>
+<h5>Подготовка рабочего места</h5><br>
+<br>
+Для начала поднастроим наш emacs, чтобы нам было бы комфортно в нем<br>
+работать.<br>
+<br>
+Вставим в наш .emacs следующие строки:<br>
+<br>
+<font color="4444FF"><strong>(</strong></font><font color="#2040a0">setq</font> <font color="#2040a0">auto-mode-alist</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">append</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'<font color="4444FF"><strong>(</strong></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font> <font color="#008000">"\\.el$"</font>. <font color="#2040a0">lisp-mode</font><font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><br>
+<font color="4444FF"><strong>(</strong></font><font color="#2040a0">global-font-lock-mode</font> <font color="#FF0000">1</font><font color="4444FF"><strong>)</strong></font><br>
+<br>
+Первый набор скобок сделает так, что при открытии файла с<br>
+расширением .el, в буфере автоматически включается режим работы с<br>
+текстами программ Lisp. Последняя строчка включает подсветку<br>
+синтаксиса. Раскрашивает операторы языка в разные приятные цвета. Это<br>
+реально помогает читать текст программы. Теперь, если мы редактировали<br>
+.emacs в emacs, перезапускаем его, чтобы он перечитал файл настроек.<br>
+<br>
+Тут опытные товарищи подсказали, что приведенные операции делать не 
+обязательно, так как нужные режимы включены в современных версиях emacs 
+по умолчанию.<br>
+<br>
+<br>
+ Постараемся все делать из емакса. Итак, нам нужно создать<br>
+директорию для наших экспериментальных файлов. И файл.<br>
+<br>
+Предположим, мы находимся в домашнем директории (подразумеваем, что<br>
+мы на каком нибудь UNIX-е). Нажимаем:<br>
+<br>
+<pre>| Клавиши               | Производимое действие                         |
+|-----------------------+-----------------------------------------------|
+| C-x C-f RET           | Переходим в режим dired в домашней директории |
+| + Имя директории RET  | Создаем новую директорию                      |
+| RET                   | Переходим в созданную директорию              |
+| C-x C-f myfile.el RET | Открываем файл myfile.el                      |
+</pre><br>
+<br>
+<h5>Самые общие понятия и приемы работы</h5><br>
+<br>
+В лиспе нужно знать два понятия, переменные и функции. Вообще то<br>
+переменную можно рассматривать тоже как функцию, возвращающую<br>
+значение, присвоенное этой переменной. У переменных и функций есть<br>
+имена — последовательность символов. Если в программе заключить имя в<br>
+круглые скобки, оно выполнится как функция. Правда, если это имя<br>
+переменной, интерпретатор лиспа выдаст ошибку. В лиспе имена принято<br>
+записывать, разделяя логические части имени через дефис. Например<br>
+my-cool-function<br>
+<br>
+Теперь о том, как вызываются функции. В отличие от, например, Си,<br>
+функции вызываются следующим образом:<br>
+<br>
+<pre>(name-of-the-function arg1 arg2 arg3 ......)
+</pre><br>
+<br>
+Т.е. вызов функции заключен в скобки. Первое имя в скобках — имя<br>
+функции, остальные имена это аргументы. Так же, как и в Си, в качестве<br>
+аргументов могут выступать выражения, возвращающие значения, например<br>
+вызовы других функций, например:<br>
+<br>
+<pre>(name-of-the-function arg1 (name-of-the-function) arg3 ......)
+</pre><br>
+<br>
+Это все хорошо, но как с этим работать? В emacs работать с этим<br>
+очень легко и просто. Давайте, для начала попробуем сложить 2 и<br>
+2. Запишем в нашем файле myfile.el следующее выражение: <br>
+<br>
+<pre>(+ 2 2)
+</pre><br>
+<br>
+Попробуем его расшифровать. Символ "+" это функция,<br>
+складывающая два ее аргумента. следующие две двойки — аргументы<br>
+функций. Попробуем ее выполнить. Для этого ставим курсор emacs правее<br>
+правой скобки нашего выражения (вплотную) и нажимаем C-x e. Если все<br>
+сделано правильно, в минибуфере появится цифра "4". Ура, мы<br>
+выполнили наше выражение.<br>
+<br>
+<br>
+Для полноценного программирования принято использовать<br>
+переменные. Давайте попробуем это сделать. Для начала нужно присвоить<br>
+переменной значение.<br>
+<br>
+<br>
+<pre>(set 'myvar-variable 4)
+</pre><br>
+<br>
+Что мы здесь имеем?<br>
+<br>
+<br>
+<pre>| Имя            | Комментарий                                                       |
+|----------------+-------------------------------------------------------------------|
+| set            | Функция, присваивающая первому аргументу значение 2-го            |
+| myvar-variable | Имя переменной, которой нужно присвоить значение                  |
+| 4              | Присваиваемое значение                                            |
+| '              | Значок, который показывает, что имя не должно возвращать значение |
+</pre><br>
+<br>
+Обратите внимание на заначек (одиночная кавычка), он не дает имени<br>
+переменной вернуть значение. Без него интерпретатор лисп будет<br>
+жаловаться на ошибку. Есть другой вариант функции присваивания, при<br>
+котором не нужно экранировать имя переменной кавычкой, setq. Для этой<br>
+функции запись будет выглядеть:<br>
+<br>
+<br>
+<pre>(setq myvar-variable 4)
+</pre><br>
+<br>
+Теперь, еще один удобный прием работы. Как посмотреть значение<br>
+присвоенное переменной? Для этого нужно поставить (можно прямо в<br>
+тексте программы) курсор правее имени переменной и нажать C-x e. В<br>
+минибуфере будет показано значение переменной. Обратите внимание, что<br>
+если вы попробуете это сделать с переменной, у которой стоит<br>
+экранирующая кавычка, значение показано не будет, экранированное имя<br>
+значение не возвращает.<br>
+<br>
+Присвоение переменной строкового значения. Очень просто. Строка<br>
+заключается в кавычки.<br>
+<br>
+<font color="4444FF"><strong>(</strong></font><font color="#2040a0">setq</font> <font color="#2040a0">myvar-str-variable</font> <font color="#008000">"My string"</font><font color="4444FF"><strong>)</strong></font><br>
+<br>
+Вывод сообщения в минибуфер.<br>
+<br>
+<pre>(message "My message")
+</pre><br>
+<br>
+Вставка строки в буфер в текущем положении курсора:<br>
+<br>
+<pre>(insert "My string")
+</pre><br>
+<br>
+Выполнение последовательности функций:<br>
+<br>
+<font color="4444FF"><strong>(</strong></font><font color="#2040a0">progn</font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">setq</font> <font color="#2040a0">my-var</font> <font color="#008000">"Hello"</font><font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">message</font> <font color="#2040a0">my-var</font><font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><br>
+<br>
+<h5>Определение собственных функций</h5><br>
+<br>
+Нет ничего легче, чем определить собственную функцию. Синтаксис<br>
+определения такой:<br>
+<br>
+<font color="4444FF"><strong>(</strong></font><strong>defun </strong><font color="#2040a0">myf-test</font> <font color="4444FF"><strong>(</strong></font><font color="#2040a0">a</font> <font color="#2040a0">b</font> ...<font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;<font color="#008000">"Строка документации"</font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font>выражение<font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;…<br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font>выражение<font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><br>
+<br>
+В этом определении:<br>
+<br>
+<pre>| что                   | Комментарий                                    |
+|-----------------------+------------------------------------------------|
+| defun                 | Ключевое слово для определения функции         |
+| myf-test              | Имя функции                                    |
+| (a b)                 | Список параметров                              |
+| "Строка документации" | Строка документации. Выдается при C-h myf-test |
+| (выражение)           | Выражения, выполняемые в теле функции          |
+</pre><br>
+<br>
+Примечание. Функция возвращает значение, возвращаемое ее последним выражением.<br>
+<br>
+Попробуем для примера определить собственную функцию:<br>
+<br>
+<font color="4444FF"><strong>(</strong></font><font color="#2040a0">progn</font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">setq</font> <font color="#2040a0">my-var</font> <font color="#008000">"Hello"</font><font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">message</font> <font color="#2040a0">my-var</font><font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><br>
+<br>
+Проверка:<br>
+<br>
+<pre>  (myf-test 1 2)
+</pre><br>
+<br>
+Прием работы: Чтобы меньше было возни, при отладке функций, удобно пользоваться следующим приемом:<br>
+<br>
+<br>
+<font color="4444FF"><strong>(</strong></font><font color="#2040a0">progn</font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><strong>defun </strong><font color="#2040a0">myf-test</font> <font color="4444FF"><strong>(</strong></font><font color="#2040a0">a</font> <font color="#2040a0">b</font><font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#008000">"Add first argument to second. Return result"</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font>+ <font color="#2040a0">a</font> <font color="#2040a0">b</font><font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">myf-test</font> <font color="#FF0000">1</font> <font color="#FF0000">2</font><font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>)</strong></font><br>
+<br>
+ Если помните, оператор "progn" выполняет список<br>
+выражений в его теле. В нашем случае, выполняется сначала определение<br>
+функции, затем вызывается на выполнение тестовый пример. Изменив что-то<br>
+в определении, можно моментально это проверить.<br>
+<br>
+Но, есть одна заковыка, функции, определяемые таким образом, Вы не<br>
+можете вызвать на выполнение командой M-x "имя функции". Для<br>
+того, чтобы можно бы было это сделать, в определение функции нужно<br>
+вставить оператор "interactive":<br>
+<br>
+<font color="4444FF"><strong>(</strong></font><strong>defun </strong><font color="#2040a0">myf-test-</font><font color="#FF0000">1</font> <font color="4444FF"><strong>(</strong></font><font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;<font color="#008000">"Add first argument to second. Return result"</font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">interactive</font><font color="4444FF"><strong>)</strong></font><br>
+&nbsp;&nbsp;<font color="4444FF"><strong>(</strong></font><font color="#2040a0">message</font> <font color="#008000">"Hello"</font><font color="4444FF"><strong>)</strong></font><font color="4444FF"><strong>)</strong></font><br>
+<br>
+Выполнив это определение, и подав команду M-x myf-test-1 RET, Вы<br>
+получите в минибуфере слово Hello<br>
+<br>
+Замечание: Для имен своих функций и переменных, желательно выбрать<br>
+и использовать свой уникальный префикс, так как в emacs глобальное<br>
+пространство имен. Я использую eik-, по имени-отчеству-фамилии. Вам<br>
+нужно выдумать что-то свое.<br>
+<br>
+<h5>Заключение</h5><br>
+<br>
+Описанных сведений из Lisp, на мой взгляд достаточно, для начала<br>
+экспериментов с кастомизацией emacs. В основном кастомизация и<br>
+сводится к присваивании значений переменным emacs и написанию<br>
+собственных функций.<br>
+<br>
+<h5>Литература</h5><br>
+<br>
+<ol>
+<li>В Ubuntu в комплект пакета emacs22 входит<br>
+справочное пособие по Elisp. M-x info, C-s elisp<br>
+ </li>
+<li> Google<br>
+ </li>
+<li> <a href="http://xtalk.msk.su/%7Eott/ru/emacs/elisp-intro/elisp-intro-ru.html">Программирование на Emacs Lisp</a><br>
+ </li>
+</ol> 
+    	<div class="clear"></div> 	
+  	</div>
+    
+<ul class="tags">
+	<li><a href="http://habrahabr.ru/search/?q=%5Bemacs%5D&amp;target_type=posts" rel="tag">emacs</a></li><li>, <a href="http://habrahabr.ru/search/?q=%5Bemacs-tips%5D&amp;target_type=posts" rel="tag">emacs-tips</a></li><li>, <a href="http://habrahabr.ru/search/?q=%5Blinux%5D&amp;target_type=posts" rel="tag">linux</a></li><li>, <a href="http://habrahabr.ru/search/?q=%5Blinux%20%D0%B4%D0%BB%D1%8F%20%D0%B2%D1%81%D0%B5%D1%85%5D&amp;target_type=posts" rel="tag">linux для всех</a></li>
+</ul>
+
+    <div class="infopanel_wrapper">
+	<div class="infopanel " id="infopanel_post_61992">
+
+				<div class="voting   ">
+	
+						<span class="plus" title="Голосовать могут только зарегистрированные пользователи."></span>
+	
+					<div class="mark positive ">
+							<span class="score" title="Всего 37: ↑34 и ↓3">+31</span>
+					</div>
+					
+						<span class="minus" title="Голосовать могут только зарегистрированные пользователи."></span>
+		
+				</div>
+	
+		<div class="pageviews" title="Просмотры публикации">4037</div>
+			
+		<div class="favorite">
+				<a class="guest" href="#" onclick="return false;" title="Только зарегистрированные пользователи могут добавлять публикации в избранное"></a>
+		</div>
+		<div class="favs_count" title="Количество пользователей, добавивших публикацию в избранное">37</div>
+		
+		
+		
+	
+	
+	
+	
+				<div class="author">
+					<a title="Автор текста" href="http://habrahabr.ru/users/evgenyk/">evgenyk</a>
+					<span class="rating" title="рейтинг пользователя">2,7</span>
+				</div>
+		
+	
+
+			<div class="share">
+				<div class="twitter">
+					<a href="http://twitter.com/intent/tweet?text=Emacs+%D0%B4%D0%BB%D1%8F+%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%3A+elisp+http://habr.ru/p/61992/+via+%40habrahabr+%23habr" title="Опубликовать ссылку в Twitter" target="_blank"></a>
+				</div>
+				<div class="vkontakte">
+					<a href="http://vk.com/share.php?url=http://habrahabr.ru/post/61992/" title="Опубликовать ссылку во ВКонтакте" onclick="window.open(this.href, 'Опубликовать ссылку во Вконтакте', 'width=800,height=300'); return false"></a>
+				</div>
+				<div class="facebook">
+					<a href="https://www.facebook.com/sharer/sharer.php?u=http://habrahabr.ru/post/61992/" title="Опубликовать ссылку в Facebook" onclick="window.open(this.href, 'Опубликовать ссылку в Facebook', 'width=640,height=436,toolbar=0,status=0'); return false"></a>
+				</div>
+				<div class="googleplus">
+					<a href="https://plus.google.com/share?url=http://habrahabr.ru/post/61992/" title="Опубликовать ссылку в Google Plus" onclick="window.open(this.href, 'Опубликовать ссылку в Google Plus', 'width=800,height=300'); return false"></a>
+				</div>
+			</div>
+	
+	</div>
+	<div class="clear"></div>
+</div>
+
+
+
+
+    
+    
+	</div>
+
+    </div>
+
+  	
+  <div id="adriver_banner_132032996"></div>
+
+  <script type="text/javascript">
+      /** Для блоков гугла **/
+      function requireAdsafe(file){
+          var head = document.getElementsByTagName("head")[0];
+          var script = document.createElement('script');
+          script.src = file;
+          script.type = 'text/javascript';
+          head.appendChild(script);
+      }
+
+      function show_inner_banner_block(name, url){
+          if( typeof(name) !== 'undefined'){
+              //$.get('/html/'+name+'/1425635298/', function(html){
+              $.get('http://special.habrahabr.ru/api/htmlblock/'+name+'/', function(html){
+                  $('#adriver_banner_132032996').html(html);
+                  $('.'+name+'_inner_banner').removeClass('hidden');
+                  if( typeof(url) !== 'undefined'){
+                      $('.'+name+'_inner_banner .block_url').attr('href', url);
+                  }
+              }, 'html')
+          }
+      }
+
+        $(function(){
+          var check_scroll_position = function() {
+            var height = $(window).height();
+            var scrollTop = $(window).scrollTop();
+            var scrollBottom = $(window).scrollTop() + height;
+            var blockTop = $('#adriver_banner_132032996').position().top;
+            var show = scrollTop < blockTop && blockTop < scrollBottom;
+
+            if( show ){
+                $( window ).off('scroll', check_scroll_position);
+                $( window ).trigger('show_bn3');
+            }
+          };
+
+          $( window ).on('scroll', check_scroll_position);
+
+          $( window ).on('show_bn3', function(){
+            var keyword = '';
+            if (typeof crtg_content !== 'undefined' && crtg_content) { keyword = crtg_content; }
+            var custom = { 4:ar_duo1 };
+                custom[1] = 'emacs';
+
+            //if (true)
+            //    show_inner_banner_block('raiffaizen2');
+            //else
+                new adriver("adriver_banner_132032996", {sid: 176776, bt: 52, bn: 3, custom: custom, keyword: keyword});
+          });
+
+          //$( window ).trigger('show_bn3');
+        });
+    </script>
+
+
+
+  	
+      
+      <div class="block_after_post">
+        
+
+
+<div class="block similar_posts">
+
+    <div class="title">Похожие публикации</div>
+    <div class="posts_list">
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/224245/">Антивирус для всех абонентов «Билайн»: тесты на приложениях для слежки</a>
+            <span class="when">27 мая 2014 в 11:20</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/216427/">Unreal Engine 4 теперь доступен для всех</a>
+            <span class="when">19 марта 2014 в 21:33</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/156611/">Valve: Linux предпочтительнее для игр, нежели Windows 8</a>
+            <span class="when">29 октября 2012 в 20:00</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/100627/">Linux IC для Hyper-V v2.1 вышли из Beta</a>
+            <span class="when">30 июля 2010 в 20:35</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/89274/">IBM и Canonical готовят Linux-нетбуки для Африки</a>
+            <span class="when">29 марта 2010 в 17:14</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/89187/">AVG выпустила Linux LiveCD для восстановления Windows-системы</a>
+            <span class="when">28 марта 2010 в 17:04</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/67215/">Легкий Linux дистрибутив для кофейников из Windows</a>
+            <span class="when">16 августа 2009 в 23:12</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/55256/">Организация съема трафика с Linux сервера для последующего анализа</a>
+            <span class="when">23 марта 2009 в 14:33</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/40231/">Обзор компактных Linux дистрибутивов для системных администраторов</a>
+            <span class="when">18 сентября 2008 в 17:04</span>
+        </div>
+        <div class="post_item">
+            <a class="post_name" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'similar_posts', $(this).parents('.similar_posts').hasClass('float_block') ? 'float' : 'common'); }" href="http://habrahabr.ru/post/28547/">Мультитач для всех</a>
+            <span class="when"> 5 июля 2008 в 13:03</span>
+        </div>
+    </div>
+</div>
+
+
+
+      </div>
+
+  		    <div class="comments_list " id="comments">
+
+        <h2 class="title ">Комментарии (<span id="comments_count">35</span>)
+            
+
+        </h2>
+
+        
+
+            <div class="comment_item" id="comment_1705898">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1705898">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1705898" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark positive ">
+                    <span class="score" title="Всего 7: ↑7 и ↓0">+7</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/garm/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/6c49a1f29791c537ac389cd17186ccb4_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/garm/" class="username">garm</a>
+            <time>13 июня 2009 в 19:09</time>
+
+            <a href="#comment_1705898" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Хорошая статья для начинающих, хотелось бы развития темы.<br>
+<br>
+Ряд замечаний, относительно подготовки рабочего места.<br>
+<br>
+Устанавливая переменную auto-mode-alist в .emacs мы теряем её 
+общесистемное значение — как правило, в переменной уже содержаться 
+соответствия для различных режимов, как поставляемых с emacs, так и 
+установленных с пакетами дистрибутива. Если это значение терять не 
+хочется, лучше использовать функцию add-to-list.<br>
+<br>
+Так же в emacs'е существует специальный режим для редактирования elisp —
+ emacs-lisp-mode, возможно имеет смысл использовать именно его. В итоге,
+ вместо (setq auto-mode-alist ...) можно написать нечто вроде:<br>
+<br>
+(add-to-list 'auto-mode-alist '("\\.el$". emacs-lisp-mode))<br>
+<br>
+Наконец, весьма вероятно, что emacs и без дополнительной настройки 
+открывает .el файлы в нужном режиме — в этом случае вообще ничего писать
+ не нужно.<br>
+<br>
+На счёт global-font-lock-mode — аналогично, не исключено, что она включена по умолчанию.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705898">
+        <div class="comment_item" id="comment_1705932">
+
+    <span class="parent_id" data-parent_id="1705898"></span>
+    <div class="comment_body ">
+        <div class="author_banned">НЛО прилетело и опубликовало эту надпись здесь</div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705932">
+        <div class="comment_item" id="comment_1705964">
+
+    <span class="parent_id" data-parent_id="1705932"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1705964">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1705964" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time>13 июня 2009 в 19:49</time>
+
+            <a href="#comment_1705964" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1705964" data-parent_id="1705932" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1705932" data-id="1705964" data-parent_id="1705932" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Исправил.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705964">
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_1705925">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1705925">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1705925" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time>13 июня 2009 в 19:29</time>
+
+            <a href="#comment_1705925" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Спасибо за замечания, исправлю. <br>
+<br>
+Про развитие, может и напишу небольшой цикл статеечек для начинающих, 
+так, чтобы хотя бы поверхностно были охвачены базовые и расширенные 
+возможности Emacs и те места, которые вызывают трудности у новичков. 
+Целей вижу две, привлечение новых емаксоводов и понижение порога 
+вохождения в Emacs.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705925">
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_1705934">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="author_banned">НЛО прилетело и опубликовало эту надпись здесь</div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705934">
+        <div class="comment_item" id="comment_1705967">
+
+    <span class="parent_id" data-parent_id="1705934"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1705967">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1705967" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time>13 июня 2009 в 19:55</time>
+
+            <a href="#comment_1705967" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1705967" data-parent_id="1705934" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1705934" data-id="1705967" data-parent_id="1705934" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Я его знаю. И все-таки, считаю, что есть место и для таких 
+статей. Начинающим не всегда легко бывает найти нужную информацию в 
+такой объемистой документации. Тем более, что они часто не знают, что 
+собственно искать. Такие короткие статейки, в которых описана какая-то 
+частная оласть/задача и ее решение, но более связанно, с работающими 
+примерами и объяснениями и которую можно прочитать и попробовать ее 
+примеры за двадцать минут, думаю они уместны и полезны. Интересны также и
+ приемы работы. Конечно, это все ИМХО.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705967">
+        <div class="comment_item" id="comment_1705995">
+
+    <span class="parent_id" data-parent_id="1705967"></span>
+    <div class="comment_body ">
+        <div class="author_banned">НЛО прилетело и опубликовало эту надпись здесь</div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705995">
+    </div>
+</div>
+
+        <div class="comment_item" id="comment_1705997">
+
+    <span class="parent_id" data-parent_id="1705967"></span>
+    <div class="comment_body ">
+        <div class="author_banned">НЛО прилетело и опубликовало эту надпись здесь</div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705997">
+    </div>
+</div>
+
+    </div>
+</div>
+
+        <div class="comment_item" id="comment_1705981">
+
+    <span class="parent_id" data-parent_id="1705934"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1705981">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1705981" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time>13 июня 2009 в 20:02</time>
+
+            <a href="#comment_1705981" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1705981" data-parent_id="1705934" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1705934" data-id="1705981" data-parent_id="1705934" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Кстати, я поторопился, учебник я до этого не видел, вставил на него ссылку.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1705981">
+    </div>
+</div>
+
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_1706032">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1706032">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1706032" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/nikitad/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/nikitad/" class="username">nikitad</a>
+            <time>13 июня 2009 в 20:35</time>
+
+            <a href="#comment_1706032" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Спасибо за полезную ссылку.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1706032">
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_1707194">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1707194">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1707194" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/shamaniac/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/shamaniac/" class="username">shamaniac</a>
+            <time>14 июня 2009 в 14:42</time>
+
+            <a href="#comment_1707194" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Может кому поможет избежать потери времени:<br>
+emacs lisp не поддерживает оптимизацию хвостовой рекурсии. Т.е если 
+писать работу со списками в функциональном стиле то скрипт будет 
+вываливаться с чем-то вроде maximum recursion depth…
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1707194">
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_1707416">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1707416">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1707416" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/oxyum/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/174882acd18013c1d908a25f356cc11f_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/oxyum/" class="username">oxyum</a>
+            <time>14 июня 2009 в 16:40</time>
+
+            <a href="#comment_1707416" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Насколько я помню, в eval по дефолту забинден на «C-x C-e», а не на «C-x e». Возможно стоить проверить…
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1707416">
+        <div class="comment_item" id="comment_1707442">
+
+    <span class="parent_id" data-parent_id="1707416"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1707442">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1707442" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/oxyum/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/174882acd18013c1d908a25f356cc11f_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/oxyum/" class="username">oxyum</a>
+            <time>14 июня 2009 в 16:52</time>
+
+            <a href="#comment_1707442" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1707442" data-parent_id="1707416" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1707416" data-id="1707442" data-parent_id="1707416" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            После «Попробуем для примера определить собственную 
+функцию:» надо заменить кусок с (progn ...) на кусок с (defun ...).<br>
+<br>
+PS: Нынче стало модно отделять префикс через "/" — «oxyum/my-cool-fun».
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1707442">
+        <div class="comment_item" id="comment_1707607">
+
+    <span class="parent_id" data-parent_id="1707442"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1707607">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1707607" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time>14 июня 2009 в 18:07</time>
+
+            <a href="#comment_1707607" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1707607" data-parent_id="1707442" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1707442" data-id="1707607" data-parent_id="1707442" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Спасибо, все исправил. <br>
+<br>
+Насчет префикса — как-то стремно такой символ в имя функции пихать, хотя с другой сторны, дело привычки.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1707607">
+        <div class="comment_item" id="comment_1707712">
+
+    <span class="parent_id" data-parent_id="1707607"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1707712">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1707712" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/oxyum/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/174882acd18013c1d908a25f356cc11f_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/oxyum/" class="username">oxyum</a>
+            <time>14 июня 2009 в 18:49</time>
+
+            <a href="#comment_1707712" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1707712" data-parent_id="1707607" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1707607" data-id="1707712" data-parent_id="1707607" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Да мне тоже было непривычно, а потом втянулся — сразу и наверняка видно, что это именно префикс.<br>
+<br>
+А вообще я предпочитаю языки, в которых есть понятие «namespace» (C++, Python, etc.).
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1707712">
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_1746145">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1746145">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1746145" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/puzan/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1c094f6ef4097c07b5e91d3164cc9078_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/puzan/" class="username">puzan</a>
+            <time>27 июня 2009 в 17:41</time>
+
+            <a href="#comment_1746145" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Куда статья про emacs делась? Только решил проглядеть, а тут история Windows и Unix. И то только наброски.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1746145">
+        <div class="comment_item" id="comment_1746648">
+
+    <span class="parent_id" data-parent_id="1746145"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1746648">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1746648" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time>27 июня 2009 в 23:34</time>
+
+            <a href="#comment_1746648" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1746648" data-parent_id="1746145" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1746145" data-id="1746648" data-parent_id="1746145" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Пардон, статью вернул, приношу извинения.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1746648">
+    </div>
+</div>
+
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_1957678">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1957678">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1957678" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Captcha/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/b929153ebbff18a24913e5a96dd9d641_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Captcha/" class="username">Captcha</a>
+            <time> 7 сентября 2009 в 13:26</time>
+
+            <a href="#comment_1957678" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            &gt; C-x C-f RET | Переходим в режим dired в домашней директории<br>
+<br>
+А не «С-x D RET»?
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1957678">
+        <div class="comment_item" id="comment_1957729">
+
+    <span class="parent_id" data-parent_id="1957678"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1957729">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1957729" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 7 сентября 2009 в 13:41</time>
+
+            <a href="#comment_1957729" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1957729" data-parent_id="1957678" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1957678" data-id="1957729" data-parent_id="1957678" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Работает и так и так, я просто всегда жму, C-x C-f RET просто чтобы не запоминать лишние клавиши, их и так много.<br>
+
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1957729">
+        <div class="comment_item" id="comment_1957969">
+
+    <span class="parent_id" data-parent_id="1957729"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1957969">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1957969" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Captcha/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/b929153ebbff18a24913e5a96dd9d641_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Captcha/" class="username">Captcha</a>
+            <time> 7 сентября 2009 в 14:54</time>
+
+            <a href="#comment_1957969" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1957969" data-parent_id="1957729" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1957729" data-id="1957969" data-parent_id="1957729" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Странно. У меня «C-x C-f RET» не переходит в dired режим, а просто обновляет текущий файл. XEmacs 21.4.17
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1957969">
+        <div class="comment_item" id="comment_1957974">
+
+    <span class="parent_id" data-parent_id="1957969"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1957974">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1957974" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Captcha/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/b929153ebbff18a24913e5a96dd9d641_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Captcha/" class="username">Captcha</a>
+            <time> 7 сентября 2009 в 14:55</time>
+
+            <a href="#comment_1957974" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1957974" data-parent_id="1957969" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1957969" data-id="1957974" data-parent_id="1957969" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Неправильно выразился. Я имею ввиду, что Емакс перечитывает текущий файл заново.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1957974">
+    </div>
+</div>
+
+        <div class="comment_item" id="comment_1958052">
+
+    <span class="parent_id" data-parent_id="1957969"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1958052">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958052" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 7 сентября 2009 в 15:16</time>
+
+            <a href="#comment_1958052" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958052" data-parent_id="1957969" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1957969" data-id="1958052" data-parent_id="1957969" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Не уверен в чем дело, у меня по C-x C-f при открытом файле, в минибуфере появляется путь к текущему директорию.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958052">
+        <div class="comment_item" id="comment_1958083">
+
+    <span class="parent_id" data-parent_id="1958052"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1958083">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958083" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Captcha/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/b929153ebbff18a24913e5a96dd9d641_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Captcha/" class="username">Captcha</a>
+            <time> 7 сентября 2009 в 15:28</time>
+
+            <a href="#comment_1958083" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958083" data-parent_id="1958052" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1958052" data-id="1958083" data-parent_id="1958052" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Ну да, у меня тоже. «C-x C-f» — появляется путь к текущей директории. «RET» — текущий файл перечитывается.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958083">
+        <div class="comment_item" id="comment_1958146">
+
+    <span class="parent_id" data-parent_id="1958083"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1958146">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958146" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 7 сентября 2009 в 15:42</time>
+
+            <a href="#comment_1958146" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958146" data-parent_id="1958083" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1958083" data-id="1958146" data-parent_id="1958083" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            А у меня после «RET» открывается директорий. Попробуйте сделать:<br>
+C-h k C-x C-f<br>
+У меня вот что:<br>
+C-x C-f runs the command find-file, which is an interactive compiled<br>
+Lisp function in `files.el'.<br>
+
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958146">
+        <div class="comment_item" id="comment_1958174">
+
+    <span class="parent_id" data-parent_id="1958146"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1958174">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958174" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Captcha/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/b929153ebbff18a24913e5a96dd9d641_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Captcha/" class="username">Captcha</a>
+            <time> 7 сентября 2009 в 15:50</time>
+
+            <a href="#comment_1958174" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958174" data-parent_id="1958146" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1958146" data-id="1958174" data-parent_id="1958146" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            C-x C-f runs 'find-file'<br>
+'find-file' is an interactive compiled Lisp function loaded from "/some_path/xemacs-21.4.17/lisp/files.elc"
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958174">
+        <div class="comment_item" id="comment_1958198">
+
+    <span class="parent_id" data-parent_id="1958174"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1958198">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958198" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 7 сентября 2009 в 15:57</time>
+
+            <a href="#comment_1958198" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958198" data-parent_id="1958174" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1958174" data-id="1958198" data-parent_id="1958174" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Может быть дело в версиях? у меня GNU Emacs 23.1.1 (i686-pc-linux-gnu, GTK+ Version 2.16.1)<br>
+А так: функция та же. Вообще, перегружает текущий файл специальная функция: M-x revert-buffer<br>
+Теперь осталось сделать M-x find-file<br>
+У меня там написано среди прочего:<br>
+<br>
+«Interactively, the default if you just type RET is the current directory»<br>
+<br>
+А у Вас?
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958198">
+        <div class="comment_item" id="comment_1958203">
+
+    <span class="parent_id" data-parent_id="1958198"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1958203">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958203" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 7 сентября 2009 в 15:58</time>
+
+            <a href="#comment_1958203" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958203" data-parent_id="1958198" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1958198" data-id="1958203" data-parent_id="1958198" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Пардон: M-h f find-file
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958203">
+        <div class="comment_item" id="comment_1958237">
+
+    <span class="parent_id" data-parent_id="1958203"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="1958237">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958237" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/Captcha/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/b929153ebbff18a24913e5a96dd9d641_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/Captcha/" class="username">Captcha</a>
+            <time> 7 сентября 2009 в 16:09</time>
+
+            <a href="#comment_1958237" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958237" data-parent_id="1958203" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1958203" data-id="1958237" data-parent_id="1958203" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Я понял =)<br>
+У меня касательно действия после RET ничего не сказано.<br>
+Ладно, будем считать что дело в разных версиях Емакса. Да и ОС — Солярис.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958237">
+        <div class="comment_item" id="comment_1958243">
+
+    <span class="parent_id" data-parent_id="1958237"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="1958243">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_1958243" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 7 сентября 2009 в 16:12</time>
+
+            <a href="#comment_1958243" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="1958243" data-parent_id="1958237" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_1958237" data-id="1958243" data-parent_id="1958237" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            ОК, ставьте 23, он очень вкусный.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_1958243">
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+            <div class="comment_item" id="comment_3881085">
+
+    <span class="parent_id" data-parent_id="0"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="3881085">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_3881085" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  negative">
+                    <span class="score" title="Всего 1: ↑0 и ↓1">–1</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/kvasko_linuxoid/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/kvasko_linuxoid/" class="username">kvasko_linuxoid</a>
+            <time> 9 мая 2011 в 11:12</time>
+
+            <a href="#comment_3881085" class="link_to_comment">#</a>
+            
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format bad bad1">
+            Сделал все как в инструкции, не хочет выполнять выражения на
+ C-x e. Пишет 'No kbd macro has been defined'. А в главном меню Emacs-а,
+ в пункте SLIME-&gt;Evaluation-&gt; все функции «серенькие», на которые 
+нельзя нажать.<br>
+Вот ~/.emacs:<br>
+<code>(custom-set-variables<br>
+ ;; custom-set-variables was added by Custom.<br>
+ ;; If you edit it by hand, you could mess it up, so be careful.<br>
+ ;; Your init file should contain only one such instance.<br>
+ ;; If there is more than one, they won't work right.<br>
+ )<br>
+(custom-set-faces<br>
+ ;; custom-set-faces was added by Custom.<br>
+ ;; If you edit it by hand, you could mess it up, so be careful.<br>
+ ;; Your init file should contain only one such instance.<br>
+ ;; If there is more than one, they won't work right.<br>
+ )<br>
+(setq auto-mode-alist<br>
+ (append<br>
+ '(<br>
+ ( "\\.el$". lisp-mode))))<br>
+(global-font-lock-mode 1)<br>
+<br>
+(setq inferior-lisp-program "sbcl")<br>
+</code><br>
+<br>
+Подскажите, в каком месте проблема?
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_3881085">
+        <div class="comment_item" id="comment_3881104">
+
+    <span class="parent_id" data-parent_id="3881085"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="3881104">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_3881104" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/kvasko_linuxoid/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/kvasko_linuxoid/" class="username">kvasko_linuxoid</a>
+            <time> 9 мая 2011 в 11:27</time>
+
+            <a href="#comment_3881104" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="3881104" data-parent_id="3881085" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_3881085" data-id="3881104" data-parent_id="3881085" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            C-x C-e тоже не работает. Пишет 'Not connected'. Курсор во 
+время нажатия этой комбинации стоит в начале следующей строки.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_3881104">
+        <div class="comment_item" id="comment_3881116">
+
+    <span class="parent_id" data-parent_id="3881104"></span>
+    <div class="comment_body ">
+        <div class="info  " rel="3881116">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_3881116" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/kvasko_linuxoid/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/stub-user-small.gif" alt=""></a>
+            <a href="http://habrahabr.ru/users/kvasko_linuxoid/" class="username">kvasko_linuxoid</a>
+            <time> 9 мая 2011 в 11:34</time>
+
+            <a href="#comment_3881116" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="3881116" data-parent_id="3881104" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_3881104" data-id="3881116" data-parent_id="3881104" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Ах, все заработало. Нужно было M-x slime
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_3881116">
+        <div class="comment_item" id="comment_3881169">
+
+    <span class="parent_id" data-parent_id="3881116"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="3881169">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_3881169" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 9 мая 2011 в 12:21</time>
+
+            <a href="#comment_3881169" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="3881169" data-parent_id="3881116" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_3881116" data-id="3881169" data-parent_id="3881116" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            Ну вот и ладушки. M-x 'function-name'<br>
+это команда выполнить интерактивную функцию 'function-name'<br>
+Все так, как и должно быть.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_3881169">
+    </div>
+</div>
+
+    </div>
+</div>
+
+        <div class="comment_item" id="comment_3881167">
+
+    <span class="parent_id" data-parent_id="3881104"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="3881167">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_3881167" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 9 мая 2011 в 12:19</time>
+
+            <a href="#comment_3881167" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="3881167" data-parent_id="3881104" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_3881104" data-id="3881167" data-parent_id="3881104" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            'C-x C-e' Это команда выполнить выражение. При этом курсор 
+должен стоять справа рядом с сзакрывающей скобкой выражения.
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_3881167">
+    </div>
+</div>
+
+    </div>
+</div>
+
+        <div class="comment_item" id="comment_3881166">
+
+    <span class="parent_id" data-parent_id="3881085"></span>
+    <div class="comment_body ">
+        <div class="info  is_topic_starter  " rel="3881166">
+            <div class="folding-dot-holder"><div class="folding-dot"></div></div>
+            <div id="voting_3881166" class="voting   ">
+                <span class="minus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <span class="plus" title="Голосовать могут только зарегистрированные пользователи"></span>
+                <div class="mark  ">
+                    <span class="score" title="Всего 0: ↑0 и ↓0">0</span>
+                </div>
+            </div>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="avatar"><img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/1e1661dfdd78e17516465e8b01591200_small.jpg" alt=""></a>
+            <a href="http://habrahabr.ru/users/evgenyk/" class="username">evgenyk</a>
+            <time> 9 мая 2011 в 12:18</time>
+
+            <a href="#comment_3881166" class="link_to_comment">#</a>
+            
+                <div class="show_tree" data-id="3881166" data-parent_id="3881085" title="Показать ветку комментариев">↵</div>
+                <a href="#comment_3881085" data-id="3881166" data-parent_id="3881085" class="to_parent">↑</a>
+            <span class="to_chidren"></span>
+            <div class="clear"></div>
+        </div>
+        <div class="message html_format ">
+            'C-x e' это выполнить клавиатурный макрос, который к этому 
+моменту должен быть определен. Вам emacs говорит, что вы хотите 
+выполнить макрос, а никакой макрос не определен.<br>
+
+        </div>
+        <div class="reply_form_placeholder"></div>
+        <div class="reply">
+            
+        </div>
+    </div>
+
+    <div class="reply_comments" id="reply_comments_3881166">
+    </div>
+</div>
+
+    </div>
+</div>
+
+    </div>
+
+
+  					<p class="for_users_only_msg">Только зарегистрированные пользователи могут оставлять комментарии. <a href="https://habrahabr.ru/auth/login/">Войдите</a>, пожалуйста.</p>
+
+
+  	
+<form action="/json/favorites/" method="post" id="edit_tags_form" class="hidden">
+  <input name="action" value="add" type="hidden">
+  <input name="ti" value="0" type="hidden">
+  <input name="tt" value="0" type="hidden">
+  <label>Пометьте топик понятными вам метками, если хотите</label>
+  <input autocomplete="off" name="tags_string" class="tags_string" type="text">
+  <div class="description">Метки лучше разделять запятой. Например: <i>общение, социальные сети, myspace.com, подростки, мердок</i></div>
+  <input value="Сохранить" class="submit" type="submit"> или <a href="#" class="close" onclick="return close_edit_tags()">закрыть</a>
+</form>
+    
+    
+
+  </div>
+  <div class="sidebar_right">
+  			<div class="banner_300x500">
+		<div id="adriver_banner_1863387959"></div>
+		<script type="text/javascript">
+            function show_bn1_block(name, url){
+                console.log('show' + name);
+                if( typeof(name) !== 'undefined'){
+                    $.get('/html/'+name+'/1425635298/', function(html){
+                        $('#adriver_banner_1863387959').html(html);
+                        if( typeof(url) !== 'undefined'){
+                            $('.'+name+'_inner_banner .block_url').attr('href', url);
+                        }
+                    })
+                }
+            }
+
+
+
+			$(function(){
+
+                // конвертирут кириллицу в cp1251
+                // doc: http://www.adriver.ru/doc/edu-n/pub/settargt/standtrgt/scentrgt/scentrgt.html#9
+				function esc(s){
+                    for(var i=0,l=s.length,r='';i<l;i++){
+                        var c = s.charCodeAt(i);r += String.fromCharCode(c>1039&&c<1104 ? c-848 : c==1105 ? 184 : c==1025 ? 168 : c);
+                    }
+                    return r;
+                }
+
+                var keyword = '';
+
+                if (typeof crtg_content !== 'undefined' && crtg_content) { keyword = crtg_content; }
+                
+                
+
+				var custom = {4:ar_duo1};
+					custom[1] = 'emacs';
+
+                 new adriver("adriver_banner_1863387959", {sid: 176776, bt: 52, bn: 1, custom: custom, keyword: keyword});
+			}());
+
+
+
+            
+		</script>
+	</div>
+
+  		
+  		
+<div class="block daily_best_posts">
+  <div class="title">Популярное за сутки</div>
+  <div class="posts_list">
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252101/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Документируем код эффективно при помощи Doxygen</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252265/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Поиск текстов, не соответствующих тематике и нахождение похожих статей</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/250825/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Web технологии глазами С++ программиста</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252337/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Angular 2: Построенный на TypeScript</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252297/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Поиск опечаток в проекте</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252323/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">ECMAScript 6</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/mosigra/blog/252325/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Как побеждать в компьютерных играх [3]: теперь полная книга</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/251835/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Разработка javascript приложений на базе Rx.js и React.js (RxReact)</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252351/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Кружок Arduino и не только</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252287/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">22 photoshop-плагина для фронтенд-разработчика</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252301/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Запускаем ванильное ядро на Intel Galileo</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/luxoft/blog/252299/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Семинар по анатомии .Net, Roslyn, CoreCLR, CoreFX, декомпиляции, хакерству</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/ruward/blog/252347/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Результаты рейтинга мобильных разработчиков 2015</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/eos/blog/252271/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Мобильное приложение для губернатора и агента по продажам</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252305/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">PHPixie 3.0 ORM или новый взгяд на ActiveRecord</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/codefreeze/blog/252273/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Конференция Mobius 2015 по мобильной разработке: анонс докладов</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252277/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Разработка «браузерки» — год жизни и три года мучений</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252303/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">SibSUTIS CTF 2015: Как мы проводили свои студенческие соревнования</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/company/microsoft/blog/252213/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Седьмая ежегодная Летняя школа Microsoft Research по машинному обучению и интеллекту — сотрудничество с ACM Europe</a>
+      </div>
+      <div class="post_item">
+        
+				
+				
+				
+				
+				
+
+        <a href="http://habrahabr.ru/post/252263/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'daily_best_posts', $(this).parents('.daily_best_posts').hasClass('float_block') ? 'float' : 'common'); }" class="post_name">Распределённый Captive Portal в публичных местах и сложности с Apple</a>
+      </div>
+  </div>
+  <div class="all"><a href="http://habrahabr.ru/top/">все лучшие</a></div>
+</div>
+
+	    
+
+<div class="block geektimes_top">
+	<a href="http://geektimes.ru/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo" class="title">Лучшее на Geektimes</a>
+	<div class="posts_list">
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246826/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Linux для планшета</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246838/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Учёные собирают деньги на изучение действия LSD</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246850/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">VMware вызвали в суд за нарушение GPL</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246830/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Ни капли лишнего: спортивные наушники от Sony</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246814/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">SpaceX стала прибыльной компанией благодаря контракту от NASA и инвестициям Google</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246506/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Звериные Сёги</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246858/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">20% поверхности Марса было покрыто океаном</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246846/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">«Ваша ДНК может быть использована против вас в суде»</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246812/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Флейта забытых снов</a>
+  		</div>
+  		<div class="post_item">
+  			<a class="post_name" href="http://geektimes.ru/post/246844/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Музыка на PC speaker — что-то вроде ретроспективы</a>
+  		</div>
+	</div>
+	<div class="all"><a href="http://geektimes.ru/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">все публикации</a></div>
+</div>
+
+	  	
+
+<div class="block geektimes_top">
+    <a href="http://megamozg.ru/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo" class="title">Лучшее на Мегамозге</a>
+    <div class="posts_list">
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11068/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Старейшая инвесткомпания JPMorgan скупает акции офшорных разработчиков с постсоветскими корнями: Epam и Luxoft</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11100/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Поющий лифт</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11080/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Поступление на PhD — 2-3. Языковые тесты и GRE</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11070/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Ozon сменил генерального директора</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11084/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Создатель Coub критикует российские отраслевые медиа</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11094/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Российский сервис «МойОфис» будет конкурировать с Microsoft Office и Google Docs</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11086/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Крупнейшие технологические компании скупают недвижимость на западе США</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11082/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как за 2 месяца увеличить клиентскую базу на 21% и сделать на 11% больше продаж на реферальном трафике на примере CloverR</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11072/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Яндекс построит дата-центр во Владимирской области</a>
+        </div>
+        <div class="post_item">
+            <a class="post_name" href="http://megamozg.ru/post/11116/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Как использование поискового запроса помогает повысить конверсию на 65%</a>
+        </div>
+
+    </div>
+    <div class="all"><a href="http://megamozg.ru/" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">все публикации</a></div>
+</div>
+
+
+  	  
+
+  		
+  		
+
+	<div class="block live_broadcast">
+		<div class="title">Что обсуждают? </div>
+
+		<div class="live_broadcast_activity">
+				<div class="posts_list">
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252323#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">ECMAScript 6</a>&nbsp;<span class="count">15</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/250885#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Translit для JavaScript</a>&nbsp;<span class="count">29</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252325#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Как побеждать в компьютерных играх [3]: теперь полная книга</a>&nbsp;<span class="count">15</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252277#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Разработка «браузерки» — год жизни и три года мучений</a>&nbsp;<span class="count">2</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252351#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Кружок Arduino и не только</a>&nbsp;<span class="count">13</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252337#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Angular 2: Построенный на TypeScript</a>&nbsp;<span class="count">16</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252177#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Я тебя по блеску в глазах взломаю</a>&nbsp;<span class="count">42</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252357#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">C#: как «выстрелить себе в ногу»</a>&nbsp;<span class="count">2</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/251243#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Защищаем приватные ключи от кражи из VPS</a>&nbsp;<span class="count">18</span>
+							</div>
+							<div class="post_item">
+								<a href="http://habrahabr.ru/post/252141#comments" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'post'); }" class="post_name">Информационные технологии кормят более 750 тысяч человек в Москве</a>&nbsp;<span class="count">11</span>
+							</div>
+				</div>
+				<div class="all"><a href="http://habrahabr.ru/posts/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'live_broadcast_activity', 'all_posts'); }">все публикации</a></div>
+		</div>
+
+	</div>
+  
+  		<!--  AdRiver code START. Type:AjaxJS Site: habrahabr PZ: 0 BN: 2 -->
+
+<div style="display: none ! important;" id="adriver_banner_480931290" class="adbanner"></div>
+
+
+<script type="text/javascript">
+    function show_bn2_block(name, url){
+        if( typeof(name) !== 'undefined'){
+            $.get('/html/'+name+'/1425635298/', function(html){
+                $('#adriver_banner_480931290').html(html);
+                if( typeof(url) !== 'undefined'){
+                    $('.'+name+'_inner_banner .block_url').attr('href', url);
+                }
+            })
+        }
+    }
+
+    $(function(){
+
+        var check_scroll_position = function() {
+            var height = $(window).height();
+            var scrollTop = $(window).scrollTop();
+            var scrollBottom = $(window).scrollTop() + height;
+            var blockTop = $('#adriver_banner_480931290').position().top;
+            var show = scrollTop < blockTop && blockTop < scrollBottom;
+            if( show ){
+                $( window ).off('scroll', check_scroll_position);
+                $( window ).trigger('show_bn2');
+            }
+        };
+        $( window ).on('scroll', check_scroll_position);
+
+        $( window ).on('show_bn2', function(){
+            var keyword = '';
+            if (typeof crtg_content !== 'undefined' && crtg_content) { keyword = crtg_content; }
+            var custom = {4:ar_duo1};
+            custom[1] = 'emacs';
+            new adriver("adriver_banner_480931290", {sid: 176776, bt: 52, bn: 2, custom: custom, keyword: keyword});
+        });
+    });
+    </script>
+<!--  AdRiver code END  -->
+
+  		
+<div class="block best_company">
+
+		<div class="title">Компания дня <img src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/bg_cicle_help.png" class="help-tip"></div>
+
+		<div class="company_info">
+			<div class="name">
+			 <img class="favicon" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/aef874ec91c63ae1cbf711e76d1c114b_small.png" alt="PAYSTO" height="16" width="16">
+			 <div class="company_name"><a href="http://habrahabr.ru/company/paysto/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'best_company', 'title'); }" class="title">PAYSTO</a></div>
+			</div>
+
+			<p>Последняя публикация:
+				<a href="http://habrahabr.ru/company/paysto/blog/251933/" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'best_company', 'post'); }">Магия одного div. Мастеркласс от создателя a.singlediv.com</a>
+			</p>
+
+			<div class="buttons">
+  			<div id="fans_count">314 подписчиков</div>
+			</div>
+		</div>
+
+	</div>
+
+
+  		
+  		
+  		
+  </div>
+  <div class="clear"></div>
+
+  <script>
+    // hubs to GA
+      ga('send', 'event', 'Post_view', 'emacs (Emacs)',  window.location.pathname + window.location.search);
+  </script>
+
+
+
+
+        	
+	<div class="rotated_posts">
+			<div class="rotated_post ">
+				<a href="http://habrahabr.ru/company/yandex/blog/241915/" class="grey" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'posts_rotation_block'); }">Яндекс.Браузер теперь и для Linux</a>
+			</div>
+			<div class="rotated_post ">
+				<a href="http://habrahabr.ru/post/243357/" class="grey" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'posts_rotation_block'); }">Безынерционное измерение температуры воздуха ультразвуком</a>
+			</div>
+			<div class="rotated_post last">
+				<a href="http://habrahabr.ru/post/248159/" class="grey" onclick="if (typeof ga === 'function') { ga('send', 'event', 'tm_block', 'posts_rotation_block'); }">Краткий курс компьютерной графики: пишем упрощённый OpenGL своими руками, статья 2 из 6</a>
+			</div>
+		<div class="clear"></div>
+	</div>
+
+        <div class="bottom_promo_blocks">
+    <div class="left">
+            
+	<div class="block new_vacanies">
+  <a href="http://brainstorage.me/jobs" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo" class="title">Brainstorage</a>
+  <div class="vacancies">
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/27559" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Frontend разработчик (Контентные проекты)</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/27545" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Фронтенд разработчик</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/27543" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Ведущий разработчик .NET</a>
+		</div>
+		<div class="job_item marked">
+			<a href="http://brainstorage.me/jobs/3215" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Senior PHP разработчик</a>
+		</div>
+		<div class="job_item marked">
+			<a href="http://brainstorage.me/jobs/26801" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Опытный Front End разработчик</a>
+		</div>
+		<div class="job_item marked">
+			<a href="http://brainstorage.me/jobs/27393" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Дизайнер интерфейсов (GUI)</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/27541" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">JavaScript - разработчик</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/27539" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">PHP-разработчик</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/27537" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">QA инженер на B2B направление</a>
+		</div>
+		<div class="job_item ">
+			<a href="http://brainstorage.me/jobs/27485" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">Ruby on Rails / Ruby Motion Разработчик [iOS/Android]</a>
+		</div>
+  </div>
+  <div class="all"><a href="http://brainstorage.me/jobs" data-utm="?utm_source=tm_habrahabr&amp;utm_medium=tm_block&amp;utm_campaign=tm_promo">все вакансии</a></div>
+</div>
+
+    </div>
+    <div class="right">
+        
+	<div class="block freelansim">
+	  <a href="http://freelansim.ru/" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim" class="title"></a>
+	  <div class="tasks">
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102807" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Прозвон базы с предложением по увеличению продаж </a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102793" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Сборка мобильного приложения iOS/Android</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102805" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Создание игры на Unity</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102797" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Вёрстка и прграммирование интернет-магазина</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102785" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Зареверсить несколько программ</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102777" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Сверстать страницу</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102689" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Работа с рекламными кампаниями Direct AdWords</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102071" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Написать на C# библиотеку для создания .pdf на основе шаблона</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102765" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">API на symfony2</a>
+				</div>
+				<div class="task ">
+					<a href="http://freelansim.ru/tasks/102751" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">Android-приложение для поиска попутчиков или попутных машин</a>
+				</div>
+
+	  </div>
+	  <div class="all"><a href="http://freelansim.ru/tasks" data-utm="?utm_source=habrahabr&amp;utm_medium=referral&amp;utm_campaign=mainpage&amp;utm_content=block_freelansim">все заказы</a></div>
+	</div>
+
+    </div>
+    <div class="clear"></div>
+</div>
+
+
+
+        <div class="clear"></div>
+
+        <div class="footer_panel">
+          <div id="footer">
+	<dl>
+		<dd><a href="https://habrahabr.ru/auth/login/">Войти</a></dd>
+		<dd><a href="https://habrahabr.ru/auth/register/">Регистрация</a></dd>
+	</dl>
+	<dl>
+		<dt>Разделы</dt>
+		<dd><a href="http://habrahabr.ru/posts/top/">Публикации</a></dd>
+		<dd><a href="http://habrahabr.ru/hubs/">Хабы</a></dd>
+		<dd><a href="http://habrahabr.ru/companies/">Компании</a></dd>
+		<dd><a href="http://habrahabr.ru/users/">Пользователи</a></dd>
+		<dd><a href="http://toster.ru/?_aa=press_anykey">Q&amp;A</a></dd>
+		<dd><a href="http://habrahabr.ru/sandbox/">Песочница</a></dd>
+		
+	</dl>	
+	<dl>
+		<dt>Инфо</dt>
+		<dd><a href="http://habrahabr.ru/info/about/">О сайте</a></dd>
+		<dd><a href="http://habrahabr.ru/info/help/rules/">Правила</a></dd>
+		<dd><a href="http://habrahabr.ru/info/help/">Помощь</a></dd>
+		<dd><a href="http://habrahabr.ru/info/agreement/">Соглашение</a></dd>
+	</dl>
+	<dl>
+		<dt>Услуги</dt>
+		<dd><a href="http://special.habrahabr.ru/advertising/">Реклама</a></dd>
+        <dd><a href="http://special.habrahabr.ru/">Спецпроекты</a></dd>
+        <dd><a href="http://special.habrahabr.ru/corporate/">Тарифы</a></dd>
+        <dd><a href="http://special.habrahabr.ru/content/">Контент</a></dd>
+        <dd><a href="http://special.habrahabr.ru/workshops/">Семинары</a></dd>
+	</dl>
+	<dl>
+		<dt>Разное</dt>
+		<dd><a href="http://habrahabr.ru/apps/">Приложения</a></dd>
+		<dd><a href="http://habrahabr.ru/special/testdrive/">Тест-драйвы</a></dd>
+		<dd><a href="http://special.habrahabr.ru/hello_startup/bizspark/">Помощь стартапам</a></dd>
+	</dl>
+	<div class="copyright">
+
+		<div class="about">
+			<a href="http://tmtm.ru/">© TM</a>
+			
+			<br><br>
+			<a href="http://habrahabr.ru/feedback/">Служба поддержки</a><br><br>
+                <a href="http://m.habrahabr.ru/post/61992/?mobile=yes">Мобильная версия</a><br><br>
+			
+
+			<div class="social_accounts">
+				<a href="https://twitter.com/habrahabr" class="tw"></a>
+				<a href="https://www.facebook.com/habrahabr.ru" class="fb"></a>
+				<a href="http://vk.com/habr" class="vk"></a>
+				<!-- <a href="" class="gp"></a> //-->
+			</div>
+
+		</div>
+	</div>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+
+
+      <script type="text/javascript" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/jquery.js"></script>
+      <script type="text/javascript">
+        $(document).ready( function(){
+          window.tmidLogin = function(){ return false; };
+          if( $.cookie('tmid_no_check') == undefined ) {
+            var expire = new Date();
+            expire.setMinutes(expire.getMinutes() + 10 );
+            $.cookie('tmid_no_check', 1, { expires: expire } );
+            $.getScript("https://id.tmtm.ru/checklogin/", function(){
+              if( window.tmidLogin() ) {
+
+                  var href = $('#login').attr('href');
+
+                  if( href !== undefined ) {
+                      window.location.href = href;
+                  }
+              }
+            });
+          }
+        });
+      </script>
+
+    <script type="text/javascript">
+  // global vars
+  var g_base_url = 'habrahabr.ru';
+  var g_show_xpanel = false;
+  var g_base_fullurl = 'http://habrahabr.ru/';
+  var g_is_guest = false;
+</script> 
+
+      <script type="text/javascript" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/shortcuts.js"></script>
+
+    <script type="text/javascript" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/global_footer_main.js"></script>
+
+    	<script type="text/javascript" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/a"></script>
+
+    
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+(function (d, w, c) {
+    (w[c] = w[c] || []).push(function() {
+        try {
+            w.yaCounter24049213 = new Ya.Metrika({id:24049213,
+                    webvisor:true,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true});
+        } catch(e) { }
+    });
+
+    var n = d.getElementsByTagName("script")[0],
+        s = d.createElement("script"),
+        f = function () { n.parentNode.insertBefore(s, n); };
+    s.type = "text/javascript";
+    s.async = true;
+    s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+    if (w.opera == "[object Opera]") {
+        d.addEventListener("DOMContentLoaded", f, false);
+    } else { f(); }
+})(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
+
+
+<!-- adriver counter //-->
+<span style="position:absolute;left:-9999px;">
+  <img style="display: none ! important;" class="ftxncblvtueegsycutoi" src="Emacs%20%D0%B4%D0%BB%D1%8F%20%D0%BD%D0%B0%D1%87%D0%B8%D0%BD%D0%B0%D1%8E%D1%89%D0%B8%D1%85%20%20elisp%20_%20%D0%A5%D0%B0%D0%B1%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D1%80_files/rle.txt" alt="" height="1" width="1">
+</span>
+<!-- adriver counter end //-->
+
+
+    
+
+    <!-- Хабр не резиновый! -->
+  
+
+<div id="tiptip_holder" style="max-width:auto;"><div id="tiptip_arrow"><div id="tiptip_arrow_inner"></div></div><div id="tiptip_content"></div></div><div id="AutocompleteContainter_61d3a" style="position: absolute; z-index: 9999; top: 2px; left: 0px;"><div class="autocomplete-w1"><div class="autocomplete" id="Autocomplete_61d3a" style="display: none; width: 300px; max-height: 400px;"></div></div></div><div id="AutocompleteContainter_82c49" style="position: absolute; z-index: 9999; top: 2px; left: 0px;"><div class="autocomplete-w1"><div class="autocomplete" id="Autocomplete_82c49" style="display: none; width: 300px; max-height: 400px;"></div></div></div><style class="ublock-postload-1ae7a5f130fc79b4fdb8a4272d9426b5">.adbanner,
+[href^="http://www.faceporn.net/free?"]
+{display:none !important;}</style></body></html>
