@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      6.60.&nbsp;Очередное сжатие
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;6.&nbsp;Установка основных системных программ
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="aboutdebug.html" title=
+          "About Debugging Symbols">Назад</a>
+          <p>
+            Об отладочных символах
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="revisedchroot.html" title=
+          "Cleaning Up">Далее</a>
+          <p>
+            Очистка
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          6.60. Очередное сжатие
+        </h1>
+      </div>
+      <p>
+        Если предполагаемый пользователь не програмист и не планирует заниматься
+        отладкой программ, то место, занимаемое системой, может быть уменьшено
+        примерно на 200 MБ удалением отладочной информации из бинарников и библиотек.
+      </p>
+      <p>
+        Большинство людей, использующих команды, описанные ниже, не используют
+        затруднений. Поскольку очень просто сделать опечатку и сделать новую
+        систему непригодной, то перед запуском команды <span><b class=
+        "command">strip</b></span> рекомендуется сделать резервную копию текущего
+        состояния системы.
+      </p>
+      <p>
+        Перед выполнением сжатия обратите особое внимание на то, чтобы ни один из
+        бинарников, которые будут сжаты, не были запущены. Если вы не уверены,
+        входил ли пользователь в chroot с командой, описанной в
+        <a href="chroot.html" title=
+        "6.3.&nbsp;Вход в среду Chroot&rdquo">Разделе&nbsp;6.3,
+        &ldquo;Вход в среду Chroot&rdquo;</a>, сначала выйдите из chroot:
+      </p>
+      <pre class="userinput">
+<kbd class="command">logout</kbd>
+</pre>
+      <p>
+        Затем перезайдите:
+      </p>
+      <pre class="userinput">
+<kbd class="command">chroot $LFS /tools/bin/env -i \
+    HOME=/root TERM=$TERM PS1='\u:\w\$ ' \
+    PATH=/bin:/usr/bin:/sbin:/usr/sbin \
+    /tools/bin/bash --login</kbd>
+</pre>
+      <p>
+        Теперь бинарники и библиотеки могут быть безопасно сжаты:
+      </p>
+      <pre class="userinput">
+<kbd class="command">/tools/bin/find /{,usr/}{bin,lib,sbin} -type f \
+   -exec /tools/bin/strip --strip-debug '{}' ';'</kbd>
+</pre>
+      <p>
+        Большое число файлов будут сообщать об несоответствии их формата файла.
+        Эти сообщения могут быть спокойно проигнорированы. Эти предупреждения
+        показывают, что эти файлы являются скриптами, а не бинарниками.
+      </p>
+      <p>
+        Если дисковое пространство очень компактно, то опция <i class=
+        "parameter"><tt>--strip-all</tt></i> может быть использована на
+        бинарниках в <tt class="filename">/{,usr/}{bin,sbin}</tt> для
+        получения дополнительных свободных мегабайт. Не применяйте эту
+        опцию на библиотеках&mdash;они будут разрушены.
+      </p>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="aboutdebug.html" title=
+          "About Debugging Symbols">Назад</a>
+          <p>
+            Об отладочных символах
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="revisedchroot.html" title=
+          "Cleaning Up">Далее</a>
+          <p>
+            Очистка
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

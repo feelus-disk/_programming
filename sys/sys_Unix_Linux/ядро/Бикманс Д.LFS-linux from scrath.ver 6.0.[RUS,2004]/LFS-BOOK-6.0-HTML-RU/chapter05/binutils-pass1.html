@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <meta http-equiv="Content-Type" content= 
+    "application/xhtml+xml; charset=koi8-r" /> 
+    <title> 
+      5.4.&nbsp;Binutils-2.15.91.0.2 - Шаг 1 
+    </title> 
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" /> 
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" /> 
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type= 
+    "text/css" media="print" /> 
+  </head> 
+  <body id="lfs" class="6.0"> 
+    <div class="navheader"> 
+      <div class="headertitles"> 
+        <h4> 
+          Linux From Scratch - Версия 6.0 
+        </h4> 
+        <h3> 
+          Глава&nbsp;5.&nbsp;Построение временной системы 
+        </h3> 
+      </div> 
+      <ul class="headerlinks"> 
+        <li class="prev"> 
+          <a accesskey="p" href="toolchaintechnotes.html" title= 
+          "">Назад</a> 
+          <p> 
+             
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="gcc-pass1.html" title= 
+          "GCC-3.4.1 - Pass 1">Далее</a> 
+          <p> 
+            GCC-3.4.1 - Шаг 1 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter05.html" title= 
+          "Глава&nbsp;5.&nbsp;Построение временной системы">Наверх</a> 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a> 
+        </li> 
+      </ul> 
+    </div> 
+    <div class="wrap" lang="en" xml:lang="en"> 
+      <div class="titlepage"> 
+        <h1 class="sect1"> 
+          5.4. Binutils-2.15.91.0.2 - Шаг 1 
+        </h1> 
+      </div> 
+      <div class="package" lang="en" xml:lang="en"> 
+        <p> 
+	    Binutils является колекцией средств разработки программ, содержащих 
+	    компоновщик, ассемблер и другие средства для работы с объектными файлами. 
+        </p> 
+        <div class="segmentedlist"> 
+          <p> 
+            <b>Расчетное время сборки</b> 1.0 SBU 
+          </p> 
+          <p> 
+            <b>Требуемое место на диске</b> 194 MB 
+          </p> 
+        </div> 
+        <div class="segmentedlist"> 
+          <p> 
+            <b>Binutils - зависимости установки:</b> Bash, Coreutils, 
+            Diffutils, GCC, Gettext, Glibc, Grep, Make, Perl, Sed и Texinfo 
+          </p> 
+        </div> 
+      </div> 
+      <div class="installation" lang="en" xml:lang="en"> 
+        <div class="titlepage"> 
+          <h2 class="sect2"> 
+            5.4.1. Инсталируем Binutils 
+          </h2> 
+        </div> 
+        <p> 
+          Важно чтобы Binutils был первым из пакетов, которые мы установим, 
+          потому что Glibc и GCC проводят некоторые тесты на доступные 
+          компоновщик и ассемблер для определения доступных опций. 
+        </p> 
+        <p> 
+          Этот пакет известен своим нестабильным поведением при компиляции 
+          с измененными опциями оптимизации (включая опции <i class="parameter"><tt>-march</tt></i> и 
+          <i class="parameter"><tt>-mcpu</tt></i> ). Binutils рекомендуется компилировать 
+	  с настройками по умолчанию. Если вы задали переменные такие как CFLAGS или CXXFLAGS, 
+	  изменяющие уровень оптимизации по умолчанию, рекомендуется убрать их при 
+          сборке пакета binutils. Изменяя оптимизации для binutils, вы действуете на свой страх и риск. 
+        </p> 
+        <p> 
+          В документации по Binutils рекомендуется собирать Binutils вне директории с исходниками,  
+	  в отдельной директории для сборки: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">mkdir ../binutils-build 
+cd ../binutils-build</kbd> 
+</pre> 
+        <div class="note"> 
+          <div class="admonhead"> 
+            <img alt="[Note]" src="../images/note.png" /> 
+            <h3 class="admontitle"> 
+              Замечание 
+            </h3> 
+          </div> 
+          <div class="admonbody"> 
+            <p> 
+	    Если вы хотите вычислить переменную SBU, которая 
+	    используется в этой книге, вам надо засечь время, которое понадобится 
+	    на сборку этого пакета. Это очень просто сделать чем-то похожим на 
+	    такую команду: 
+              <b class="userinput"><tt>time { ./configure ... &amp;&amp; ... 
+              &amp;&amp; ... &amp;&amp; make install; }</tt></b>. 
+            </p> 
+          </div> 
+        </div> 
+        <p> 
+          Теперь подготовим Binutils к компиляции: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">../binutils-2.15.91.0.2/configure --prefix=/tools \ 
+    --disable-nls</kbd> 
+</pre> 
+        <p> 
+          Описание используемых опций: 
+        </p> 
+        <div class="variablelist"> 
+          <dl> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--prefix=/tools</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Это скажет скрипту конфигурации, что программы Binutils следует 
+		 устанавливать в директорию <tt class="filename">/tools</tt> 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--disable-nls</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Это отключит интернационализацию (сокращенно - i18n). Вопервых нам  
+		это пока не надо. А вовторых это может вызвать определенные проблемы при  
+		статической компиляции. 
+              </p> 
+            </dd> 
+          </dl> 
+        </div> 
+        <p> 
+          Вернемся к компиляции пакета: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make configure-host 
+make LDFLAGS="-all-static"</kbd> 
+</pre> 
+        <p> 
+          Описание параметров сборки: 
+        </p> 
+        <div class="variablelist"> 
+          <dl> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>configure-host</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Это правильно настроит все субдиректории. Статичаская  
+		сборка без этого будет невозможна. Мы 
+		используем эту опцию для обеспечения беспроблемной работы. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>LDFLAGS="-all-static"</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Это скажет компоновщику, что все программы Binutils будут скомпонованы статически.  
+		Точнее, строго говоря, <i class= 
+                "parameter"><tt>"-all-static"</tt></i> отсылается программе 
+                <span><b class="command">libtool</b></span> , которая отсылает 
+                <i class="parameter"><tt>"-static"</tt></i> компоновщику. 
+              </p> 
+            </dd> 
+          </dl> 
+        </div> 
+        <p> 
+          Компиляция проведена. Обычно мы запускаем тест, но на этой ранней стадии 
+          требуемые для выполнения теста программы (Tcl, Expect и DejaGNU) еще отсутствуют 
+	  на своем месте. Кроме того, запускать тест на этом этапе сборки нет смысла, т.к. мы скоро 
+          заменим binutils на втором шаге. 
+        </p> 
+        <p> 
+          Устанавливаем пакет 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make install</kbd> 
+</pre> 
+        <p> 
+          Теперь подготовим компоновщик к последующему "встраиванию" в Glibc 
+          на следующей фазе сборки: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make -C ld clean 
+make -C ld LDFLAGS="-all-static" LIB_PATH=/tools/lib</kbd> 
+</pre> 
+        <p> 
+          Описание параметров сборки: 
+        </p> 
+        <div class="variablelist"> 
+          <dl> 
+            <dt> 
+              <span class="term"><i class="parameter"><tt>-C ld 
+              clean</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Это говорит программе сборки удалить все скомпилированые файлы 
+                в субдиректории <tt class="filename">ld</tt>. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class="parameter"><tt>-C ld 
+              LDFLAGS="-all-static" LIB_PATH=/tools/lib</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Этот параметр пересоберет все в субдиректории <tt class= 
+                "filename">ld</tt>. Указание переменной <tt class= 
+                "envar">LIB_PATH</tt> файла сборки Makefile в коммандной строке 
+		заменит установленное значение по умолчанию на расположение 
+		наших временных средств. 
+		Содержимое этой переменной указывает путь по умолчанию для поиска 
+		библиотек компоновщиком. 
+              </p> 
+            </dd> 
+          </dl> 
+        </div> 
+        <div class="warning"> 
+          <div class="admonhead"> 
+            <img alt="[Warning]" src="../images/warning.png" /> 
+            <h3 class="admontitle"> 
+              Внимание 
+            </h3> 
+          </div> 
+          <div class="admonbody"> 
+            <p> 
+              <span class="emphasis"><em></em></span>
+	      Не удаляйте сейчас директории для сборки и исходников Binutils. Вам 
+	      они еще будут нужны в этой главе далее в их теперешнем состоянии. 
+            </p> 
+          </div> 
+        </div> 
+      </div> 
+      <div class="content" lang="en" xml:lang="en"> 
+        <p> 
+          Детальная информация о пакете находится в <a href= 
+          "../chapter06/binutils.html#contents-binutils" title= 
+          "6.13.2.&nbsp;Описание Binutils">Разделе&nbsp;6.13.2, 
+          &ldquo;Описание Binutils&rdquo;</a>. 
+        </p> 
+      </div> 
+    </div> 
+    <div class="navfooter"> 
+      <ul> 
+        <li class="prev"> 
+          <a accesskey="p" href="toolchaintechnotes.html" title= 
+          "">Назад</a> 
+          <p> 
+             
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="gcc-pass1.html" title= 
+          "GCC-3.4.1 - Pass 1">Далее</a> 
+          <p> 
+            GCC-3.4.1 - Шаг 1 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter05.html" title= 
+          "Глава&nbsp;5.&nbsp;Построение временной системы">Наверх</a>. 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a>. 
+        </li> 
+      </ul> 
+    </div> 
+  </body> 
+</html> 

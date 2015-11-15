@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      7.12.&nbsp;Настройка скрипта network
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;7.&nbsp;Установка системных скриптов загрузки
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="hosts.html" title=
+          "Creating the /etc/hosts File">Назад</a>
+          <p>
+            Создание файла /etc/hosts
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="../chapter08/chapter08.html" title=
+          "Making the LFS System Bootable">Далее</a>
+          <p>
+            Обеспечение загрузки LFS системы
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          7.12. Настройка скрипта network
+        </h1>
+      </div>
+      <p>
+        Этот раздел нужен только в том случае, если вы собираетесь настраивать сетевую карту.
+      </p>
+      <p>
+        Если у вас таковая отсутствует, вам не надо создавать файлы конфигурации
+	сетевой карты. В этом случае вам надо удалить все ссылки <tt class=
+	"filename">network</tt> изо всех директорий с уровнями запуска
+        (<tt class="filename">/etc/rc.d/rc*.d</tt>).
+      </p>
+      <div class="sect2" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <h2 class="sect2">
+            7.12.1. Создание конфигурационных файлов сетевого интерфейса
+          </h2>
+        </div>
+        <p>
+          Какие из интерфейсов будут запущены или остановлены скриптом network
+	  описывается в директории <tt class=
+          "filename">/etc/sysconfig/network-devices</tt>. Эта директория
+	  содержит файлы вида <tt class=
+          "filename">ifconfig.xyz</tt>, где &ldquo;<span class=
+          "quote">xyz</span>&rdquo; является именем сетевого интерфейса (например eth0
+          или eth0:1).
+        </p>
+        <p>
+          Если вы решите переименовать или переместить директорию <tt class=
+	  "filename">/etc/sysconfig/network-devices</tt>, вам надо будет
+	  отредактировать соответствующим образом файл
+          <tt class="filename">/etc/sysconfig/rc</tt> и обновить
+          &ldquo;<span class="quote">network_devices</span>&rdquo; в соответствии
+	  с новыми путями.
+        </p>
+        <p>
+          Теперь нам надо создать файлы в этой директории. Следующая команда
+	  создаст пример <tt class="filename">ipv4</tt> файла для устройства
+          <span class="emphasis"><em>eth0</em></span>:
+        </p>
+        <pre class="userinput">
+<kbd class="command">cd /etc/sysconfig/network-devices &amp;&amp;
+mkdir ifconfig.eth0 &amp;&amp;
+cat &gt; ifconfig.eth0/ipv4 &lt;&lt; "EOF"
+<tt class="literal">ONBOOT=yes
+SERVICE=ipv4-static
+IP=192.168.1.1
+GATEWAY=192.168.1.2
+PREFIX=24
+BROADCAST=192.168.1.255</tt>
+EOF</kbd>
+</pre>
+        <p>
+          Значения переменных надо будет изменить на правильные
+	  для вашей системы. Если переменная <tt class="envar">ONBOOT</tt>
+          установлена в &ldquo;<span class="quote">yes</span>&rdquo; скрипт
+          network поднимет этот интерфейс при загрузке системы. Если же будет
+	  установлено что-либо другое, то этот интерфейс будет проигнорирован
+	  скриптом.
+        </p>
+        <p>
+          Переменная <tt class="envar">SERVICE</tt> описывает метод получения
+          IP адресов. Скрипты загрузки LFS имеют модульный формат назначения IP
+          адресов, а созданые дополнительные файлы в директории <tt class=
+          "filename">/etc/sysconfig/network-devices/services</tt> позволяют
+          использовать другие методы назначения IP. Это использовано для
+          Dynamic Host Configuration Protocol (DHCP), который описан в книге
+          BLFS.
+        </p>
+        <p>
+          Переменная <tt class="envar">GATEWAY</tt> должна содержать IP адрес
+          шлюза по умолчанию, если он есть. Если нет - закоментируйте
+          эту переменную.
+        </p>
+        <p>
+          Переменная <tt class="envar">PREFIX</tt> нужна для описания
+          количества бит, использованных в подсети. Каждый октет в IP адресации
+          содержит 8 бит. Если сетевая маска IP подсети равна 255.255.255.0, то
+          она использует первые три октета (24 бита) для описания номера сети. Если
+          сетевая маска равна 255.255.255.240, то она использует первые 28 бит.
+          Префиксы длиннее 24 бит используются DSL и кабельными провайдерами интернет
+          сервисов (ISP). В этом примере (PREFIX=24) сетевая маска равна 255.255.255.0.
+        </p>
+      </div>
+      <div class="sect2" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="resolv.conf" name="resolv.conf"></a>
+          <h2 class="sect2">
+            7.12.2. Создание файла /etc/resolv.conf
+          </h2>
+        </div>
+        <p>
+          Если система подключена к интернет, то ей требуются некоторые
+          обозначения разрешенных имен сервисов доменных имен (Domain Name
+	  Service - DNS) для разложения доменных имен интернет на IP адреса
+          и наоборот. Это достигается размещением IP адресов DNS сервера,
+          доступного от ISP или системного администратора, в <tt class=
+          "filename">/etc/resolv.conf</tt>. Создадим файл, выполнив следующее:
+        </p>
+        <pre class="userinput">
+<kbd class="command">cat &gt; /etc/resolv.conf &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/resolv.conf
+
+domain {<i class="replaceable"><tt>[Your Domain Name]</tt></i>}
+nameserver <i class=
+"replaceable"><tt>[IP address of your primary nameserver]</tt></i>
+nameserver <i class=
+"replaceable"><tt>[IP address of your secondary nameserver]</tt></i>
+
+# End /etc/resolv.conf</tt>
+EOF</kbd>
+</pre>
+        <p>
+          Замените <i class="replaceable"><tt>[IP address of the
+          nameserver]</tt></i> на наиболее подходящие для установки IP
+          адреса DNS. Здесь часто бывает более чем одно значение
+          (вторичные сервера требуются для увеличения надежности).
+          Если вам надо или вы хотите только один DNS сервер, удалите вторую строку
+          <span class="emphasis"><em>nameserver</em></span> из файла.
+        </p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="hosts.html" title=
+          "Creating the /etc/hosts File">Назад</a>
+          <p>
+            Создание файла /etc/hosts
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="../chapter08/chapter08.html" title=
+          "Making the LFS System Bootable">Далее</a>
+          <p>
+            Обеспечение загрузки LFS системы
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

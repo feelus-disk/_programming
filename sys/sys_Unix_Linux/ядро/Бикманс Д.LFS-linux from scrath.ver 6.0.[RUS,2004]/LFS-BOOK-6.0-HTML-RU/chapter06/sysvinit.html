@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      6.55.&nbsp;Sysvinit-2.85
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;6.&nbsp;Установка основных системных программ
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="sysklogd.html" title=
+          "Sysklogd-1.4.1">Назад</a>
+          <p>
+            Sysklogd-1.4.1
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="tar.html" title="Tar-1.14">Далее</a>
+          <p>
+            Tar-1.14
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="wrap" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          6.55. Sysvinit-2.85
+        </h1>
+      </div>
+      <div class="package" lang="en" xml:lang="en">
+        <p>
+          Пакет Sysvinit содержит пограммы для контроля загрузки, запуска и выключения
+	  всех других программ.
+        </p>
+        <div class="segmentedlist">
+          <p>
+            <b>Расчетное время сборки</b> 0.1 SBU
+          </p>
+          <p>
+            <b>Требуемое место на диске</b> 0.9 MB
+          </p>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Sysvinit - зависимости установки:</b> Binutils, Coreutils,
+            GCC, Glibc и Make
+          </p>
+        </div>
+      </div>
+      <div class="installation" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <h2 class="sect2">
+            6.55.1. Инсталируем Sysvinit
+          </h2>
+        </div>
+        <p>
+          Sysvinit-2.85 содержит ошибку &ldquo;<span class="quote">переполнения
+          буфера</span>&rdquo;. В некоторых случаях это может привести к изменению
+          значений переменных окружения. Исправим это:
+        </p>
+        <pre class="userinput">
+<kbd class="command">patch -Np1 -i ../sysvinit-2.85-proclen-1.patch</kbd>
+</pre>
+        <p>
+          Когда изменяется уровень запуска (например, при выключении системы),
+          <span><b class="command">init</b></span> посылает сигналы TERM и KILL
+          тем процессам которые запустил сам <span><b class="command">init</b></span>
+          и которые не должны быть запущены на новом уровне запуска.
+          Пока проходит этот процесс, <span><b class="command">init</b></span> выводит
+          сообщение, похожее на &ldquo;<span class="quote">Sending processes the TERM
+          signal</span>&rdquo;, при этом кажется, что init отсылает эти сигналы всем
+	  работающим процессам. Чтобы не входить в заблуждение, исправим это сообщение
+	  на &ldquo;<span class="quote">Sending processes started by init
+          the TERM signal</span>&rdquo;.
+        </p>
+        <pre class="userinput">
+<kbd class="command">sed -i 's@Sending processes@&amp; started by init@g' \
+    src/init.c</kbd>
+</pre>
+        <p>
+          Компилируем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make -C src</kbd>
+</pre>
+        <p>
+          Устанавливаем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make -C src install</kbd>
+</pre>
+      </div>
+      <div class="configuration" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="conf-sysvinit" name="conf-sysvinit"></a>
+          <h2 class="sect2">
+            6.55.2. Настройка Sysvinit
+          </h2>
+        </div>
+        <p>
+          Создадим новый файл <tt class="filename">/etc/inittab</tt> запуском
+          следующих команд:
+        </p>
+        <pre class="userinput">
+<kbd class="command">cat &gt; /etc/inittab &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/inittab
+
+id:3:initdefault:
+
+si::sysinit:/etc/rc.d/init.d/rc sysinit
+
+l0:0:wait:/etc/rc.d/init.d/rc 0
+l1:S1:wait:/etc/rc.d/init.d/rc 1
+l2:2:wait:/etc/rc.d/init.d/rc 2
+l3:3:wait:/etc/rc.d/init.d/rc 3
+l4:4:wait:/etc/rc.d/init.d/rc 4
+l5:5:wait:/etc/rc.d/init.d/rc 5
+l6:6:wait:/etc/rc.d/init.d/rc 6
+
+ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now
+
+su:S016:once:/sbin/sulogin
+
+1:2345:respawn:/sbin/agetty -I '\033(K' tty1 9600
+2:2345:respawn:/sbin/agetty -I '\033(K' tty2 9600
+3:2345:respawn:/sbin/agetty -I '\033(K' tty3 9600
+4:2345:respawn:/sbin/agetty -I '\033(K' tty4 9600
+5:2345:respawn:/sbin/agetty -I '\033(K' tty5 9600
+6:2345:respawn:/sbin/agetty -I '\033(K' tty6 9600
+
+# End /etc/inittab</tt>
+EOF</kbd>
+</pre>
+        <p>
+          Опция <i class="parameter"><tt>-I '\033(K'</tt></i> говорит
+          <span><b class="command">agetty</b></span> послать эту
+	  еscape-последовательность на терминал перед остальными действиями.
+          Эта еscape-последовательность переключает консольный набор символов на
+	  пользовательский, который может быть изменен запуском программы
+          <span><b class="command">setfont</b></span>. Стартовый скрипт
+	  <span><b class="command">console</b></span> из пакета LFS-Bootscripts
+          вызывает программу <span><b class="command">setfont</b></span>
+          во время загрузки системы. Посылка этой еscape-последовательности
+          необходима для людей, которые используют не-ISO 8859-1 экранный шрифт,
+          но это не имеет эффекта для использующих английский.
+        </p>
+      </div>
+      <div class="content" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="contents-sysvinit" name="contents-sysvinit"></a>
+          <h2 class="sect2">
+            6.55.3. Описание Sysvinit
+          </h2>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Проинсталированные программы:</b> halt, init, killall5, last, lastb
+            (ссылка на last), mesg, pidof (ссылка на killall5), poweroff (ссылка на
+            halt), reboot (ссылка на halt), runlevel, shutdown, sulogin,
+            telinit (ссылка на init), utmpdump и wall
+          </p>
+        </div>
+        <div class="variablelist">
+          <h3>
+            Короткое описание
+          </h3>
+          <dl>
+            <dt>
+              <a id="halt" name="halt"></a><span class="term"><span><b class=
+              "command">halt</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Обычно вызывает <span><b class="command">shutdown</b></span>
+                с параметром <i class="parameter"><tt>-h</tt></i>, если текущй
+                уровень запуска не 0, затем он отдает команду ядру на отключение
+                системы, но сначала записывает в файл <tt class=
+                "filename">/var/log/wtmp</tt> что система отключается.
+              </p>
+            </dd>
+            <dt>
+              <a id="init" name="init"></a><span class="term"><span><b class=
+              "command">init</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Первый процесс, который стартует после инициализации аппаратуры
+		ядром и запускает все процессы для текущего уровня запуска
+              </p>
+            </dd>
+            <dt>
+              <a id="killall5" name="killall5"></a><span class=
+              "term"><span><b class="command">killall5</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Посылает сигнал всем процессам, за исключением родительских
+		процессов - таким образом он не убьет шелл, вызвавший скрипт.
+              </p>
+            </dd>
+            <dt>
+              <a id="last" name="last"></a><span class="term"><span><b class=
+              "command">last</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Показывает, какие пользователи подключены (и отключены) в системе,
+		просматривая файл  <tt class="filename">/var/log/wtmp</tt>;
+                он также отображает процесс загрузки и отключения системы и
+		изменения уровней запуска.
+              </p>
+            </dd>
+            <dt>
+              <a id="lastb" name="lastb"></a><span class=
+              "term"><span><b class="command">lastb</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Показывает ошибки входа в систему, отмеченные в <tt class=
+                "filename">/var/log/btmp</tt>
+              </p>
+            </dd>
+            <dt>
+              <a id="mesg" name="mesg"></a><span class="term"><span><b class=
+              "command">mesg</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Контролирует возможность отправки другими пользователями сообщений
+		на текущий терминал пользователя.
+              </p>
+            </dd>
+            <dt>
+              <a id="pidof" name="pidof"></a><span class=
+              "term"><span><b class="command">pidof</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Возвращает PID указанных программ.
+              </p>
+            </dd>
+            <dt>
+              <a id="poweroff" name="poweroff"></a><span class=
+              "term"><span><b class="command">poweroff</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Передает ядру команду на отключение системы и выключение компьютера
+		(смотри <span><b class="command">halt</b></span>).
+              </p>
+            </dd>
+            <dt>
+              <a id="reboot" name="reboot"></a><span class=
+              "term"><span><b class="command">reboot</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Передает ядру команду на перезагрузку системы (смотри <span><b class=
+                "command">halt</b></span>).
+              </p>
+            </dd>
+            <dt>
+              <a id="runlevel" name="runlevel"></a><span class=
+              "term"><span><b class="command">runlevel</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Возвращает предыдущий и текущий уровни запуска, последний уровень
+		запуска записан в <tt class="filename">/var/run/utmp</tt>
+              </p>
+            </dd>
+            <dt>
+              <a id="shutdown" name="shutdown"></a><span class=
+              "term"><span><b class="command">shutdown</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Безопасно отключает систему, отсылает сигнал всем процессам и
+		уведомляет всех подключеных пользователей.
+              </p>
+            </dd>
+            <dt>
+              <a id="sulogin" name="sulogin"></a><span class=
+              "term"><span><b class="command">sulogin</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Позволяет зарегистрироваться <span class="emphasis"><em>root</em></span>;
+                Обычно используется в скрипте <span><b class=
+                "command">init</b></span>, когда система загружается в
+		однопользовательском режиме.
+              </p>
+            </dd>
+            <dt>
+              <a id="telinit" name="telinit"></a><span class=
+              "term"><span><b class="command">telinit</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Говорит <span><b class="command">init</b></span>
+                о необходимости смены уровня запуска.
+              </p>
+            </dd>
+            <dt>
+              <a id="utmpdump" name="utmpdump"></a><span class=
+              "term"><span><b class="command">utmpdump</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Отображает содержимое указанного login-файла в удобочитаемом формате.
+              </p>
+            </dd>
+            <dt>
+              <a id="wall" name="wall"></a><span class="term"><span><b class=
+              "command">wall</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Пишет сообщение всем подключеным пользователям.
+              </p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="sysklogd.html" title=
+          "Sysklogd-1.4.1">Назад</a>
+          <p>
+            Sysklogd-1.4.1
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="tar.html" title="Tar-1.14">Далее</a>
+          <p>
+            Tar-1.14
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

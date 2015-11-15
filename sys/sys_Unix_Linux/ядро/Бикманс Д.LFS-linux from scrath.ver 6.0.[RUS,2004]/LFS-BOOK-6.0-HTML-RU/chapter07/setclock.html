@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      7.5.&nbsp;Настройка скрипта setclock
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;7.&nbsp;Установка системных скриптов загрузки
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="udev.html" title=
+          "Device and Module Handling on an LFS System">Назад</a>
+          <p>
+            Поддержка устройств и модулей в LFS системе
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="console.html" title=
+          "Configuring the Linux Console">Далее</a>
+          <p>
+            Настройка консоли Linux
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          7.5. Настройка скрипта setclock
+        </h1>
+      </div>
+      <p>
+        Скрипт <span><b class="command">setclock</b></span> считывает время
+	с внутренних часов вашего компьютера, также известных как часы BIOS
+	или CMOS. Если аппаратные часы установлены на UTC, этот скрипт
+        конвертирует время аппаратных часов в локальное время, используя файл
+	<tt class="filename">/etc/localtime</tt>, (который говорит программе
+        <span><b class="command">hwclock</b></span>, в каком часовом поясе
+        находится пользователь). Нет способа автоматического определения
+	того, установленны ли внутренние часы вашего компьютера в GMT или нет,
+	поэтому нам надо будет это настроить самим.
+      </p>
+      <p>
+        Если вы не помните, установлены ли аппаратные часы на время UTC,
+        определите это запуском команды <b class="userinput"><tt>hwclock
+        --localtime --show</tt></b>. Это скажет, какое текущее время
+        установлено относительно аппаратных часов. Если это время соответствует
+        установленному на ваших собственных часах, то аппаратные часы установлены на
+        местное время. Если вывод <span><b class="command">hwclock</b></span>
+        показывает не местное время, то скорее всего это время UTC. Проверьте это
+        добавлением или исключением правильного количесва часов для часового пояса в
+        это время <span><b class="command">hwclock</b></span>. Например,
+        если вы живете в часовом поясе MST, который известен как GMT -0700,
+        добавте семь часов к местному времени. Затем, посчитайте для Daylight
+        Savings Time, которое требует исключения часа (или добавления
+        только шести в первом случае) в летнее время.
+      </p>
+      <p>
+        Измените значение переменной <tt class="envar">UTC</tt> ниже на
+        значение <i class="parameter"><tt>0</tt></i> (ноль), если аппаратные
+        часы <span class="emphasis"><em>не</em></span> установлены на время UTC.
+      </p>
+      <p>
+        Создадим новый файл <tt class="filename">/etc/sysconfig/clock</tt> запуском
+        следующего:
+      </p>
+      <pre class="userinput">
+<kbd class="command">cat &gt; /etc/sysconfig/clock &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/sysconfig/clock
+
+UTC=1
+
+# End /etc/sysconfig/clock</tt>
+EOF</kbd>
+</pre>
+      <p>
+        Хорошие советы по настройке времени в системе LFS находятся на
+        <a href=
+        "http://www.linuxfromscratch.org/hints/downloads/files/time.txt"><i>http://www.linuxfromscratch.org/hints/downloads/files/time.txt</i></a>.
+        Они содержат информацию по временным зонам, UTC и переменной окружения <tt class=
+        "envar">TZ</tt>.
+      </p>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="udev.html" title=
+          "Device and Module Handling on an LFS System">Назад</a>
+          <p>
+            Поддержка устройств и модулей в LFS системе
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="console.html" title=
+          "Configuring the Linux Console">Далее</a>
+          <p>
+            Настройка консоли Linux
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

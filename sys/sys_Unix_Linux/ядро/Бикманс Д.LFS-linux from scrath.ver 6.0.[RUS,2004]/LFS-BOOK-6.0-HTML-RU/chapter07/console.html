@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      7.6.&nbsp;Настройка консоли Linux
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;7.&nbsp;Установка системных скриптов загрузки
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="setclock.html" title=
+          "Configuring the setclock Script">Назад</a>
+          <p>
+            Настройка скрипта setclock
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="inputrc.html" title=
+          "Creating the /etc/inputrc File">Далее</a>
+          <p>
+            Создание файла /etc/inputrc
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          7.6. Настройка консоли Linux
+        </h1>
+      </div>
+      <p>
+        Этот раздел описывает настройку стартового скрипта <span><b class=
+        "command">console</b></span>, который устанавливает раскладку клавиатуры
+        и консольный шрифт. Если не-ASCII символы (британский фунт и символ Евро
+        примеры не-ASCII символов) не будут использованы и используется клавиатура
+        U.S, можете пропустить этот раздел. Без файла конфигурации стартовый скрипт
+        console не будет ничего делать.
+      </p>
+      <p>
+        Скрипт <span><b class="command">console</b></span> использует
+        <tt class="filename">/etc/sysconfig/console</tt> в качестве файла
+        конфигурации. Решите, какой шрифт и раскладка клавиатуры будут использованы.
+        Языково-специфичный FAQ поможет в этом. Подготовленный файл <tt class=
+        "filename">/etc/sysconfig/console</tt> с известными настройками для
+        некоторых стран был установлен в пакете LFS-Bootscripts, значит
+        подходящий раздел может быть раскоментирован, если есть поддерживаемая страна.
+        Если все еще сомневаетесь, обратитесь в директорию <tt class=
+        "filename">/usr/share/kbd</tt> для получения доступных раскладок клавиатуры
+        и эранных шрифтов. Прочтите мануалы для loadkeys и setfont и определите
+        корректные аргументы для этих программ. После определения создайте файл
+        конфигурации следующей командой:
+      </p>
+      <pre class="userinput">
+<kbd class="command">cat &gt;/etc/sysconfig/console &lt;&lt;"EOF"
+<tt class="literal">KEYMAP="<i class=
+"replaceable"><tt>[arguments for loadkeys]</tt></i>"
+FONT="<i class="replaceable"><tt>[arguments for setfont]</tt></i>"</tt>
+EOF</kbd>
+</pre>
+      <p>
+        Например, для испанских пользователей, желающих использовать символ Евро,
+        (доступный нажатием AltGr+E), будут корректными следующие установки:
+      </p>
+      <pre class="userinput">
+<kbd class="command">cat &gt;/etc/sysconfig/console &lt;&lt;"EOF"
+<tt class="literal">KEYMAP="es euro2"
+FONT="lat9-16 -u iso01"</tt>
+EOF</kbd>
+</pre>
+      <div class="note">
+        <div class="admonhead">
+          <img alt="[Note]" src="../images/note.png" />
+          <h3 class="admontitle">
+            Замечание
+          </h3>
+        </div>
+        <div class="admonbody">
+          <p>
+            Строка <tt class="envar">FONT</tt> выше корректна только для
+            ISO 8859-15 таблицы символов. Если используется ISO 8859-1, то
+            символ фунт будет вместо Евро, и корректная строка <tt class=
+            "envar">FONT</tt> должна быть такой:
+          </p>
+          <pre class="userinput">
+<kbd class="command">FONT="lat1-16"</kbd>
+</pre>
+        </div>
+      </div>
+      <p>
+        Если переменная <tt class="envar">KEYMAP</tt> или <tt class="envar">FONT</tt>
+        не установлена, скрипт <span><b class="command">console</b></span> не
+        будет загружать соответствующую программу.
+      </p>
+      <p>
+        В некоторых раскладках клавиатуры кнопки Backspace и Delete посылают символы,
+        отличные от соответствующих символов в раскладке клавиатуры по умолчанию,
+        встроенной в ядро. Это путает некоторые приложения. Например, <span class=
+        "application">Emacs</span> отображает свою подсказку (вместо удаления
+        символа перед курсором) при нажатии Backspace. Проверим эффективность
+        используемой раскладки клавиатуры (это работает только для i386 раскладок):
+      </p>
+      <pre class="userinput">
+<kbd class="command">zgrep '\W14\W' <i class=
+"replaceable"><tt>[/path/to/your/keymap]</tt></i></kbd>
+</pre>
+      <p>
+        Если код 14 является клавишей Backspace вместо Delete, создайте следующий
+        отрезок раскладки клавиатуры для устранения этой проблемы:
+      </p>
+      <pre class="userinput">
+<kbd class=
+"command">mkdir -p /etc/kbd &amp;&amp; cat &gt; /etc/kbd/bs-sends-del &lt;&lt;"EOF"
+<tt class=
+"literal">                  keycode  14 = Delete Delete Delete Delete
+              alt keycode  14 = Meta_Delete
+        altgr alt keycode  14 = Meta_Delete
+                  keycode 111 = Remove
+    altgr control keycode 111 = Boot
+      control alt keycode 111 = Boot
+altgr control alt keycode 111 = Boot</tt>
+EOF</kbd>
+</pre>
+      <p>
+        Скажите скрипту <span><b class="command">console</b></span> загружать
+        этот отрезок после загрузки основной раскладки клавиатуры:
+      </p>
+      <pre class="userinput">
+<kbd class="command">cat &gt;&gt;/etc/sysconfig/console &lt;&lt;"EOF"
+<tt class="literal">KEYMAP_CORRECTION="/etc/kbd/bs-sends-del"</tt>
+EOF</kbd>
+</pre>
+      <p>
+        Для вкомпилирования раскладки клавиатуры прямо в ядро вместо установки
+        ее каждый раз при загрузке скриптом <span><b class="command">console</b></span>,
+        следуйте инструкциям, описанным в <a href=
+        "../chapter08/kernel.html" title="8.3.&nbsp;Linux-2.6.8.1">Разделе
+        8.3, &ldquo;Linux-2.6.8.1&rdquo;</a>. Делайте это, если уверены, что
+        клавиатура всегда будет работать, как ожидается, даже когда загрузитесь в
+        эксплуатационной моде (переход <i class=
+        "parameter"><tt>init=/bin/sh</tt></i> в ядро), потому что скрипт
+        <span><b class="command">console</b></span> не будет запускать
+        экранный шрифт автоматически. Это не составит много проблем так как
+        ASCII символы будут поддерживаться корректно неправдоподобно, что
+        пользователю было бы необходимо полагаться на не-ASCII символы в течении
+        эксплуатационной моды.
+      </p>
+      <p>
+        Так как раскладку клавиатуры будет устанавливать ядро, то можно убрать
+        переменную <tt class="envar">KEYMAP</tt> в файле <tt class=
+        "filename">/etc/sysconfig/console</tt>. Если потребуется, она также может
+        быть оставлена на месте без последствий. Ее сохранение может быть
+        полезным при возможности загузки нескольких различных ядер, когда трудно
+        узнать, что эта раскладка вкомпилирована во все ядра.
+      </p>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="setclock.html" title=
+          "Configuring the setclock Script">Назад</a>
+          <p>
+            Настройка скрипта setclock
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="inputrc.html" title=
+          "Creating the /etc/inputrc File">Далее</a>
+          <p>
+            Создание файла /etc/inputrc
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

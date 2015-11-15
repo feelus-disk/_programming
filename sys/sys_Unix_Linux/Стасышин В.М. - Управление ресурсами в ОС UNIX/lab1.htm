@@ -1,0 +1,116 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=KOI8-R">
+<TITLE>Лабораторная работа N 1</TITLE>
+</HEAD>
+<BODY>
+
+<B><FONT FACE="Times New Roman" SIZE=4><P ALIGN="CENTER">Лабораторная работа N 1</P>
+</FONT><FONT SIZE=4><P ALIGN="CENTER"></P>
+</FONT><FONT FACE="Times New Roman" SIZE=4><P ALIGN="CENTER">УПРАВЛЕНИЕ СИСТЕМНЫМИ РЕСУРСАМИ СРЕДСТВАМИ SHELL-ИНТЕРПРЕТАТОРА</P>
+</FONT><FONT SIZE=4><P ALIGN="CENTER"></P>
+</FONT><FONT FACE="Times New Roman" SIZE=4><P ALIGN="CENTER">Цель работы</P>
+</B></FONT><FONT SIZE=4>
+</FONT><FONT FACE="Times New Roman" SIZE=4><P>Ознакомиться с основами программирования на уровне командного</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>языка Shell  путем  написания Shell-программ для работы с файловой</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>системой.</P>
+</FONT><FONT SIZE=4>
+</FONT><B><FONT FACE="Times New Roman" SIZE=4><P ALIGN="CENTER">Содержание работы</P>
+</B></FONT><FONT SIZE=4>
+<OL>
+
+</FONT><FONT FACE="Times New Roman" SIZE=4><LI>Изучить программные средства языка Shell (структура команды, группирование команд,  перенаправление ввода-вывода, конвейер</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>команд, Shell-переменные, макроподстановка результатов в Shell-командах, программные конструкции).</LI>
+<LI>Ознакомиться с заданием к лабораторной работе.</LI>
+<LI>Для указанного варианта составить Shell-программу, выполняющую требуемые действия в файловой системе.</LI>
+<LI>Отладить и оттестировать составленную Shell-программу.</LI>
+<LI>Защитить лабораторную работу, ответив на контрольные вопросы.</LI></P>
+
+</FONT><FONT SIZE=4>
+</FONT><B><FONT FACE="Times New Roman" SIZE=4><P ALIGN="CENTER">Методические указания к лабораторной работе</P>
+</B></FONT><FONT SIZE=4>
+</FONT><FONT FACE="Times New Roman" SIZE=4><P ALIGN="JUSTIFY">Обычно в ОС UNIX доступны несколько интерпретаторов. Наиболее</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>распространены Bourne-shell (или просто </FONT><FONT SIZE=4>- shell), C-shell, </FONT><FONT FACE="Times New Roman" SIZE=4>Korn-shell. В идейном  плане все эти интерпретаторы близки и в</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>дальнейшем речь будет идти о стандартном Shell (/bin/sh).</P>
+<P ALIGN="JUSTIFY">Работая на командном языке, пользователь может вводить переменные,  присваивать им значения, выполнять простые команды, строить составные команды, управлять потоком выполнения команд, объединять последовательность команд в процедуры (командные файлы).</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>На уровне командного языка доступны такие свойства системы как соединение процессов через программный канал, направление стандартного ввода/вывода в  конкретные файлы,  синхронное и асинхронное</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>выполнение команд.</P>
+<P ALIGN="JUSTIFY">Если указанный  интерпретатору  файл является текстовым и содержит команды командного языка (командный файл) и при этом  имеет</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>разрешение  на выполнение (помечен "х"), Shell-интерпретатор интерпретирует и выполняет команды этого файла. Другой способ вызова</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>командного файла - использование команды sh (вызов интерпретатора), в котором первым аргументом указывается имя командного файла.</P>
+<P ALIGN="JUSTIFY">Коротко перечислим средства  группирования команд и перенаправления ввода/вывода:</P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>cmd1 arg ...; cmd2 arg ...; ... cmdN arg ... - последовательное выполнение команд;</LI></P>
+</FONT><FONT SIZE=4><P ALIGN="JUSTIFY"><LI>cmd1 arg  ...&amp; cmd2 arg ...&amp; ...  cmdN arg ...  -</FONT><FONT FACE="Times New Roman" SIZE=4> асинхронное</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>выполнение команд;</LI></P>
+<P ALIGN="JUSTIFY"><LI>cmd1 arg ... &amp;&amp; cmd2 arg ... - зависимость последующей команды от предыдущей таким образом, что последующая команда выполняется, если предыдущая выдала нулевое значение;</LI></P>
+<P ALIGN="JUSTIFY"><LI>cmd1 arg ... || cmd2 arg ... - зависимость последующей команды от предыдущей таким образом, что последующая команда выполняется, если предыдущая выдала ненулевое значение;</LI></P></UL>
+
+
+<UL>
+<LI>cmd &gt; file - стандартный вывод направлен в файл file;</LI>
+</FONT><FONT SIZE=4><LI>cmd &gt;&gt; </FONT><FONT FACE="Times New Roman" SIZE=4>file - стандартный вывод направлен в конец файла file;</LI>
+<LI>cmd &lt; file - стандартный ввод выполняется из файла file;</LI>
+<P ALIGN="JUSTIFY"><LI>cmd1 | cmd2 - конвейер команд,  в котором  стандартный  вывод</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>команды cmd1 направлен на стандартный вход команды cmd2.</LI></P></UL>
+
+<P ALIGN="JUSTIFY">Shell-переменные могут хранить строки текста.  Правила формирования их  имен  аналогичны  правилам  задания  имен переменных в</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>обычных языках  программирования. При необходимости  присвоить</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>Shell-переменной значение, содержащее пробелы и другие специальные</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>знаки, оно заключается в кавычки. При использовании Shell-переменной в выражении ее имени должен предшествовать знак $. В последовательности символов те из них, которые  составляют имя, должны</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>быть выделены в { } или " ". Кроме того интерпретатор Shell автоматически присваивает значения пяти своим переменным:</P>
+<OL>
+
+<LI>$? - значение, возвращаемое последней выполняемой командой;</LI>
+<LI>$$ - идентификационный номер процесса Shell;</LI>
+<P ALIGN="JUSTIFY"><LI>$! - идентификационный номер фонового процесса,  запускаемого</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>интерпретатором Shell последним;</LI></P>
+<LI>$# - число аргументов, переданных в Shell;</LI>
+<LI>$- - флаги, переданные в Shell.</LI></OL>
+
+<P ALIGN="JUSTIFY">Для отмены  специальных символов ($,|,пробел и т.д.) в Shell-программах существуют следующие правила:</P>
+<OL>
+
+<LI>если  символу  предшествует  обратная косая черта, то его</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>специальный символ отменяется;</LI>
+<P ALIGN="JUSTIFY"><LI>отменяется специальный смысл всех символов, вошедших в</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>последовательность, заключенную в апострофы.</LI></P></OL>
+
+<P ALIGN="JUSTIFY">При вызове Shell-программ им могут передаваться параметры.</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>Соответствующие аргументы в Shell-программах идентифицируются  $1,</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>$2, $3 и т.д. Кроме того, переменная $0 соответствует имени выполняемой Shell-программы,  а переменная $# - числу аргументов в  команде.</P>
+<P ALIGN="JUSTIFY">Shell-интерпретатор дает возможность выполнять подстановку</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>результатов  выполнения  команд в Shell-программах.  Если команда</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>заключена в одиночные обратные кавычки, то интерпретатор Shell выполняет эту команду и подставляет вместо нее полученный результат.</P>
+<P>Наиболее важные команды для составления Shell-программ:</P>
+
+<UL>
+<LI>команда echo выводит в выходной поток значения своих  аргументов;</LI>
+<LI>команда expr выполняет арифметические действия над своими</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>аргументами;</LI>
+<P ALIGN="JUSTIFY"><LI>команда eval обеспечивает дополнительный уровень подстановки своих аргументов, а затем их выполнение;</LI></P>
+<LI>команда test с соответствующими ключами проверяет необходимое условие;</LI>
+<LI>команда sleep служит для реализации задержки.</LI></UL>
+
+<P>Программные конструкции Shell-программ:</P>
+<P ALIGN="CENTER"><IMG SRC="..\..\ft\002355\p0.jpg"></P>
+</FONT><B><FONT SIZE=4><P ALIGN="CENTER"></P>
+</FONT><FONT FACE="Times New Roman" SIZE=4><P ALIGN="CENTER">Варианты заданий</P>
+</B></FONT><FONT SIZE=4>
+</FONT><FONT FACE="Times New Roman" SIZE=4><P ALIGN="JUSTIFY">1. Shell-программа подсчитывает количество и выводит список</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>всех файлов  (без каталогов) в порядке уменьшения их длин в поддереве, начиная  с  каталога, имя которого задано параметром</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>Shell-программы. Форма вывода результата:</P>
+<P ALIGN="CENTER"><IMG SRC="..\..\ft\002355\p1.jpg"></P>
+<P ALIGN="JUSTIFY">2. Shell-программа подсчитывает количество и выводит перечень</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>каталогов в хронологическом порядке (по дате создания) в поддереве, начиная с каталога, имя которого задано параметром Shell-программы. Форма вывода результата:</P>
+<P ALIGN="CENTER"><IMG SRC="..\..\ft\002355\p2.jpg"></P>
+<P ALIGN="JUSTIFY">3. Задание варианта 1,  но список файлов в каталоге выводится в алфавитном порядке.</P>
+<P ALIGN="JUSTIFY">4. Shell-программа объединяет все временные файлы с указанным</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>суффиксом (например,  .tmp) в поддереве, начиная с каталога, имя</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>которого задано параметром Shell-программы. Результат объединения</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>помещается либо в указанный Shell-программой файл, либо выводится</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>на экран в форме:</P>
+<P ALIGN="CENTER"><IMG SRC="..\..\ft\002355\p3.jpg"></P>
+<P ALIGN="JUSTIFY">5. Shell-программа периодически с некоторым интервалом удаляет все временные файлы с указанным суффиксом (например, </FONT><FONT SIZE=4>.tmp) </FONT><FONT FACE="Times New Roman" SIZE=4>в</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>поддереве,  начиная с каталога, имя которого задано параметром</FONT><FONT SIZE=4> Sh</FONT><FONT FACE="Times New Roman" SIZE=4>ell-программы и выводит при этом список объединенных файлов в</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>форме, предложенной в варианте 1.</P>
+<P ALIGN="JUSTIFY">6. Shell-программа просматривает каталог, имя которого указано параметром Shell-программы и выводит имена встретившихся каталогов. Затем осуществляет переход в родительский каталог, который</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>становится текущим  и  повторяются указанные действия до тех пор,</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>пока текущим каталогом не станет корневой  каталог.  Форма  вывода</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>результата:</P>
+<P ALIGN="CENTER"><IMG SRC="..\..\ft\002355\p4.jpg"></P>
+<P ALIGN="JUSTIFY">7. Задание, аналогичное варианту 6, но выводятся не каталоги,</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>а файлы каталогов.</P>
+<P ALIGN="JUSTIFY">8. Shell-программа  выводит  имена  тех каталогов в каталоге,</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>которые в себе не содержат каталогов. Имя каталога задано параметром Shell-программы.</P>
+<P ALIGN="JUSTIFY">9. Shell-программа выводит имена тех каталогов в каталоге,</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>которые  в себе содержат каталоги. Имя каталога задано параметром</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>Shell-программы.</P>
+<P ALIGN="JUSTIFY">10. Shell-программа выводит содержимое каталога, имя которого</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>указано параметром Shell-программы. При выводе сначала перечисляются имена каталогов, а затем в алфавитном порядке имена файлов с</FONT><FONT SIZE=4> </FONT><FONT FACE="Times New Roman" SIZE=4>указанием их длин, даты создания и числа ссылок на них.</P>
+</FONT><FONT SIZE=4>
+</FONT><B><FONT FACE="Times New Roman" SIZE=4><P ALIGN="CENTER">Контpольные вопpосы</P>
+</B></FONT><FONT SIZE=4>
+<OL>
+
+</FONT><FONT FACE="Times New Roman" SIZE=4><LI>Что такое внутренние и внешние команды Shell-интерпретатора? Приведите примеры внутренних команд.</LI>
+<LI>Какие существуют средства группирования команд?  Приведите примеры использования.</LI>
+<LI>Как осуществляется перенаправление ввода-вывода?</LI>
+<LI>В чем сущность конвейера команд? Приведите примеры использования.</LI>
+<LI>Как средствами Shell выполнить арифметические действия над Shell-переменной?</LI>
+<LI>Каковы правила генерации имен файлов?</LI>
+<LI>Как выволняется подстановка результатов выполнения команд?</LI>
+<LI>Как интерпретировать строку cmd1 & cmd2 & ?</LI>
+<LI>Как интерпретировать строку cmd1 && cmd2 & ?</LI>
+<LI>Как интерпретировать строку cmd1 || cmd2 & ?</LI>
+<LI>В каком режиме выполняется интерпретатор команд Shell?</LI>
+<LI>Кем и в каком режиме осуществляется чтение потока символов с терминала интерпретатором Shell?</LI>
+</OL></OL>
+</FONT><FONT SIZE=2></FONT></BODY>
+</HTML>
+
+
+
+
+

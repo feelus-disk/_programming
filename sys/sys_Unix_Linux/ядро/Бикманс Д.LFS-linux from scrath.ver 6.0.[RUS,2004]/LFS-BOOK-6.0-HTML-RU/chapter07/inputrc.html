@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      7.7.&nbsp;Создание файла /etc/inputrc
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;7.&nbsp;Установка системных скриптов загрузки
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="console.html" title=
+          "Configuring the Linux Console">Назад</a>
+          <p>
+            Настройка консоли Linux
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="profile.html" title=
+          "The Bash Shell Startup Files">Далее</a>
+          <p>
+            Файлы загрузки оболочки Bash
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          7.7. Создание файла /etc/inputrc
+        </h1>
+      </div>
+      <p>
+        Файл <tt class="filename">/etc/inputrc</tt> используется в планировании
+        клавиатуры для специфических ситуаций. Этот файл является стартовым
+        файлом, используемым библиотекой <span class="application">Readline</span>,
+        связанной с вводом и используемой <span class="application">Bash</span> и
+        большинством других оболочек.
+      </p>
+      <p>
+        Для большей информации смотрите info-страницу bash, раздел <span class=
+        "emphasis"><em>Readline Init File</em></span>. Info-страница readline
+        также хороший источник информации.
+      </p>
+      <p>
+        Глобальные значения устанавливаюются в <tt class="filename">/etc/inputrc</tt>,
+        а личные значения пользователей  - в <tt class="filename">~/.inputrc</tt>.
+        Файл <tt class="filename">~/.inputrc</tt> будет заменять глобальный файл
+        установок. Последняя страница настроит Bash для работы с <tt class=
+        "filename">/etc/inputrc</tt> если для пользователя нет файла <tt class=
+        "filename">.inputrc</tt> во время чтения <tt class=
+        "filename">/etc/profile</tt> (обычно при регистрации). Чтобы сделать
+        систему, использующую оба файла, или отрицать глобальную поддерржку клавиатуры,
+        хорошая идея разместить файл <tt class="filename">.inputrc</tt> в директории
+        <tt class="filename">/etc/skel</tt> для использованя новыми пользователями.
+      </p>
+      <p>
+        Ниже приведен базовый файл <tt class="filename">/etc/inputrc</tt> с коментариями,
+        объясняющими действия некоторых опций. Заметьте, что коментарии не могут быть
+        в той же строке, что и команда.
+      </p>
+      <p>
+        Для создания <tt class="filename">.inputrc</tt> в <tt class=
+        "filename">/etc/skel</tt>, используя команду ниже, измените
+        вывод команды в <tt class="filename">/etc/skel/.inputrc</tt> и
+        после проверьте/установите права доступа. Скопируйте этот файл в
+        <tt class="filename">/etc/inputrc</tt> и домашние директории всех
+        имеющихся в системе пользователей, включая <span class=
+        "emphasis"><em>root</em></span>, которому нужна собственная версия файла.
+        Удостоверьтесь в использовании параметра <i class="parameter"><tt>-p</tt></i>
+        команды <span><b class="command">cp</b></span> для поддержки
+        прав доступа и убедитесь в изменении владельца и присвоении группы.
+      </p>
+      <pre class="userinput">
+<kbd class="command">cat &gt; /etc/inputrc &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/inputrc
+# Modified by Chris Lynn &lt;roryo@roryo.dynup.net&gt;
+
+# Не выводим ничего в первой строке
+set horizontal-scroll-mode Off
+
+# Разрешает 8-и битный ввод
+set meta-flag On 
+set input-meta On
+
+# Выключаем конвертацию 8-ого бита
+set convert-meta Off
+
+# Оставляем 8-ой бит для экрана
+set output-meta On
+
+# ничего, видимый или слышимый
+set bell-style none
+
+# Все следующее - карта соответствий escape-последовательностей значений, 
+# содержащихся внутри первого аргумента, к специфическим функциям 
+# readline
+
+"\eOd": backward-word
+"\eOc": forward-word
+
+# for linux console
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+"\e[5~": beginning-of-history
+"\e[6~": end-of-history
+"\e[3~": delete-char
+"\e[2~": quoted-insert
+
+# for xterm
+"\eOH": beginning-of-line
+"\eOF": end-of-line
+
+# for Konsole
+"\e[H": beginning-of-line
+"\e[F": end-of-line
+
+# End /etc/inputrc</tt>
+EOF</kbd>
+</pre>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="console.html" title=
+          "Configuring the Linux Console">Назад</a>
+          <p>
+            Настройка консоли Linux
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="profile.html" title=
+          "The Bash Shell Startup Files">Далее</a>
+          <p>
+            Файлы загрузки оболочки Bash
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
