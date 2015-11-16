@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <meta http-equiv="Content-Type" content= 
+    "application/xhtml+xml; charset=koi8-r" /> 
+    <title> 
+      4.4.&nbsp;Установка переменных окружения 
+    </title> 
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" /> 
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" /> 
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type= 
+    "text/css" media="print" /> 
+  </head> 
+  <body id="lfs" class="6.0"> 
+    <div class="navheader"> 
+      <div class="headertitles"> 
+        <h4> 
+          Linux From Scratch - Версия 6.0 
+        </h4> 
+        <h3> 
+          Глава&nbsp;4.&nbsp;Окончание подготовки 
+        </h3> 
+      </div> 
+      <ul class="headerlinks"> 
+        <li class="prev"> 
+          <a accesskey="p" href="addinguser.html" title= 
+          "Adding the LFS User">Назад</a> 
+          <p> 
+            Добавление пользователя LFS 
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="aboutsbus.html" title="About SBUs">Далее</a> 
+          <p> 
+            О SBU 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter04.html" title= 
+          "Глава&nbsp;4.&nbsp;Final Preparations">Наверх</a>. 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a> 
+        </li> 
+      </ul> 
+    </div> 
+    <div class="sect1" lang="en" xml:lang="en"> 
+      <div class="titlepage"> 
+        <h1 class="sect1"> 
+          4.4. Установка переменных окружения 
+        </h1> 
+      </div> 
+      <p> 
+        Установим хорошее окружение, создав два новых файла для оболочки 
+        <span><b class="command">bash</b></span>. Когда вы зарегистрируетесь 
+        под пользователем <span class="emphasis"><em>lfs</em></span>, выполните 
+        следующую команду для создания нового файла <tt class= 
+        "filename">.bash_profile</tt>: 
+      </p> 
+      <pre class="userinput"> 
+<kbd class="command">cat &gt; ~/.bash_profile &lt;&lt; "EOF" 
+<tt class= 
+"literal">exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash</tt> 
+EOF</kbd> 
+</pre> 
+      <p> 
+        Когда вы регистрируетесь как пользователь <span class="emphasis"><em>lfs</em></span>, 
+        первоначальной оболочкой обычно является <span class= 
+        "emphasis"><em>login</em></span>, которая читает файл <tt class= 
+        "filename">/etc/profile</tt> основной системы (возможно содержащий 
+        некоторые установки и переменные окружения) и затем <tt class= 
+        "filename">.bash_profile</tt>. Команда <span><b class="command">exec env 
+        -i.../bin/bash</b></span> в файле <tt class= 
+        "filename">.bash_profile</tt> заменяет запущенную оболочку на 
+        новую с полностью очищенными переменными окружения, исключая переменные 
+        <tt class="envar">HOME</tt>, <tt class="envar">TERM</tt> и 
+        <tt class="envar">PS1</tt>. Это подтверждает, что нежелательные и 
+        потенциально опасные переменные окружения из основной системы не 
+        попадут в окружение сборки. Техника, примененная здесь, преследует 
+        цель подтверждения очистки переменных окружения. 
+      </p> 
+      <p> 
+        Новый образец оболочки является <span class= 
+        "emphasis"><em>нерегистрированной</em></span> оболочкой, которая не читает 
+        файлы <tt class="filename">/etc/profile</tt> или <tt class= 
+        "filename">.bash_profile</tt>, но вместо этого читает файл <tt class= 
+        "filename">.bashrc</tt>. Создадим файл <tt class= 
+        "filename">.bashrc</tt>: 
+      </p> 
+      <pre class="userinput"> 
+<kbd class="command">cat &gt; ~/.bashrc &lt;&lt; "EOF" 
+<tt class="literal">set +h 
+umask 022 
+LFS=/mnt/lfs 
+LC_ALL=POSIX 
+PATH=/tools/bin:/bin:/usr/bin 
+export LFS LC_ALL PATH</tt> 
+EOF</kbd> 
+</pre> 
+      <p> 
+        Команда <span><b class="command">set +h</b></span> отключает функцию 
+        запоминания <span><b class="command">bash</b></span>. Запоминание обычно 
+        является полезным расширением. <span><b class="command">Вash</b></span> 
+        использует hash-таблицу для запоминания полного пути к исполняемым файлам
+	для сокращения времени поиска и отсутствия необходимости запоминания путей
+	этих файлов. Хотя новые средства должны быть использованы так скоро, как 
+        только они будут установлены. 
+        Отключив функцию запоминания, оболочка всегда будет искать программу по 
+        пути <tt class="envar">PATH</tt> после ее запуска. Таким образом, оболочка 
+        будет находить новые установленные средства в <tt class= 
+        "filename">$LFS/tools</tt>, как только они станут доступны без запоминания 
+        предыдущей версии этих программ из другого места. 
+      </p> 
+      <p> 
+	Установка маски для создания файлов пользователем (umask) в 022 позволит 
+	убедиться, что вновь созданые файлы и директории будут доступны для 
+	записи только владельцу, а для чтения и выполнения любому (по умолчанию, 
+        используя системный вызов open(2), новые файлы будут создаваться с 
+        правами доступа 644 и директории с правами доступа 755). 
+      </p> 
+      <p> 
+        Переменная <tt class="envar">LFS</tt> указывает на точку монтирования, 
+        которую вы выбрали для раздела LFS. 
+      </p> 
+      <p> 
+        Переменная <tt class="envar">LC_ALL</tt> контролирует локализацию некоторых 
+	программ, делает вывод их сообщений зависимым от страны. Если ваша система 
+	основана на Glibc старее версии 2.2.4, установка <tt class= 
+	"envar">LC_ALL</tt> в что-то отличное от 
+        &ldquo;<span class="quote">POSIX</span>&rdquo; или 
+        &ldquo;<span class="quote">C</span>&rdquo; (на протяжении этой главы) может 
+	создать проблемы при выходе-входе в среду chroot. Установив <tt class= 
+	"envar">LC_ALL</tt> в &ldquo;<span class= 
+        "quote">POSIX</span>&rdquo; или &ldquo;<span class= 
+        "quote">C</span>&rdquo; (что аналогично) мы страхуемся от ошибок при 
+	использовании chroot. 
+      </p> 
+      <p> 
+        Мы добавляем <tt class="filename">/tools/bin</tt> в начале стандартной переменной 
+        <tt class="envar">PATH</tt>, поэтому все программы, установленные в <a href= 
+        "../chapter05/chapter05.html">Главе 5</a> будут находиться оболочкой 
+        сразу после их установки. Это в комбинации с отключением запоминания 
+        ограничит риск использования старых программ из основной системы. 
+      </p> 
+      <p> 
+        В конце, для получения переменных окружения, полностью подготовленных для сборки 
+        временных средств, подключим только что созданный профиль пользователя: 
+      </p> 
+      <pre class="userinput"> 
+<kbd class="command">source ~/.bash_profile</kbd> 
+</pre> 
+    </div> 
+    <div class="navfooter"> 
+      <ul> 
+        <li class="prev"> 
+          <a accesskey="p" href="addinguser.html" title= 
+          "Adding the LFS User">Назад</a> 
+          <p> 
+            Добавление пользователя LFS 
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="aboutsbus.html" title="About SBUs">Далее</a> 
+          <p> 
+            О SBU 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter04.html" title= 
+          "Глава&nbsp;4.&nbsp;Final Preparations">Наверх</a>. 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a>. 
+        </li> 
+      </ul> 
+    </div> 
+  </body> 
+</html> 

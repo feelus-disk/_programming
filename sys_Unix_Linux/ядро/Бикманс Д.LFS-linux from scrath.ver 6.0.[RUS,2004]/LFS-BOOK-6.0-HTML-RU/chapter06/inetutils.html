@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      6.31.&nbsp;Inetutils-1.4.2
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;6.&nbsp;Установка основных системных программ
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="gettext.html" title=
+          "Gettext-0.14.1">Назад</a>
+          <p>
+            Gettext-0.14.1
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="iproute2.html" title=
+          "Iproute2-2.6.8-040823">Далее</a>
+          <p>
+            Iproute2-2.6.8-040823
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="wrap" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          6.31. Inetutils-1.4.2
+        </h1>
+      </div>
+      <div class="package" lang="en" xml:lang="en">
+        <p>
+          Пакет Inetutils содержит сетевые клиенты и серверы.
+        </p>
+        <div class="segmentedlist">
+          <p>
+            <b>Расчетное время сборки</b> 0.2 SBU
+          </p>
+          <p>
+            <b>Требуемое место на диске</b> 11 MB
+          </p>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Inetutils - зависимости установки:</b> Bash, Binutils,
+            Coreutils, Diffutils, GCC, Glibc, Grep, Make, Ncurses и Sed
+          </p>
+        </div>
+      </div>
+      <div class="installation" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <h2 class="sect2">
+            6.31.1. Инсталируем Inetutils
+          </h2>
+        </div>
+        <p>
+          Пакет Inetutils имеет проблемы с ядрами Linux серии 2.6. Устраним эти
+          проблемы накладыванием следующего патча:
+        </p>
+        <pre class="userinput">
+<kbd class=
+"command">patch -Np1 -i ../inetutils-1.4.2-kernel_headers-1.patch</kbd>
+</pre>
+        <p>
+          Не все ман-страницы, входящие в Inetutils, будут проинсталированы.
+          Хотя система сборки Inetutils будет настаивать на установке всех
+          ман-страниц в любом случае. Следующий патч исправит эту ситуацию:
+        </p>
+        <pre class="userinput">
+<kbd class=
+"command">patch -Np1 -i ../inetutils-1.4.2-no_server_man_pages-1.patch</kbd>
+</pre>
+        <p>
+          Подготавливаем Inetutils для компиляции:
+        </p>
+        <pre class="userinput">
+<kbd class="command">./configure --prefix=/usr --libexecdir=/usr/sbin \
+    --sysconfdir=/etc --localstatedir=/var \
+    --disable-logger --disable-syslogd \
+    --disable-whois --disable-servers</kbd>
+</pre>
+        <p>
+          Описание параметров конфигурации:
+        </p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term"><i class=
+              "parameter"><tt>--disable-logger</tt></i></span>
+            </dt>
+            <dd>
+              <p>
+		Этот параметр запрещает inetutils установку программы ведения логов,
+		которая использует скрипты для отправки сообщений System Log Daemon.
+		Мы не устанавливаем его потому, что Util-linux установит потом лучшую
+		версию этой программы.
+              </p>
+            </dd>
+            <dt>
+              <span class="term"><i class=
+              "parameter"><tt>--disable-syslogd</tt></i></span>
+            </dt>
+            <dd>
+              <p>
+                Этот параметр запрещет inetutils установку System Log Daemon, который мы
+		установим с пакетом Sysklogd.
+              </p>
+            </dd>
+            <dt>
+              <span class="term"><i class=
+              "parameter"><tt>--disable-whois</tt></i></span>
+            </dt>
+            <dd>
+              <p>
+		Этот параметр отключает сборку <span><b class=
+		"command">whois</b></span> клиента, который является сильно устаревшим.
+		Инструкции по установке лучшей версии клиента <span><b class=
+		"command">whois</b></span> вы найдете в книге BLFS.
+              </p>
+            </dd>
+            <dt>
+              <span class="term"><i class=
+              "parameter"><tt>--disable-servers</tt></i></span>
+            </dt>
+            <dd>
+              <p>
+		Этот параметр отключит установку ряда сетевых серверов как части
+		пакета Inetutils. Эти сервера не нужны на простой LFS системе.
+		Некоторые из них являются небезопасными и могут быть запущеными
+		только в доверенной сети. Более полную информацию можно получить
+		на <span><a href=
+                "http://www.linuxfromscratch.org/blfs/view/svn/basicnet/inetutils.html">
+                <i>http://www.linuxfromscratch.org/blfs/view/svn/basicnet/inetutils.html</i></a></span>.
+                Заметьте, что есть лучшие альтернативы для многих из этих серверов.
+              </p>
+            </dd>
+          </dl>
+        </div>
+        <p>
+          Компилируем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make</kbd>
+</pre>
+        <p>
+          Устанавливаем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make install</kbd>
+</pre>
+        <p>
+          И переместим программу <span><b class="command">ping</b></span> на ее
+	  место:
+        </p>
+        <pre class="userinput">
+<kbd class="command">mv /usr/bin/ping /bin</kbd>
+</pre>
+      </div>
+      <div class="content" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="contents-inetutils" name="contents-inetutils"></a>
+          <h2 class="sect2">
+            6.31.2. Описание Inetutils
+          </h2>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Проинсталированные программы:</b> ftp, ping, rcp, rlogin, rsh, talk,
+            telnet и tftp
+          </p>
+        </div>
+        <div class="variablelist">
+          <h3>
+            Короткое описание
+          </h3>
+          <dl>
+            <dt>
+              <a id="ftp" name="ftp"></a><span class="term"><span><b class=
+              "command">ftp</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Программа для передачи данных в сетях ARPANET
+              </p>
+            </dd>
+            <dt>
+              <a id="ping" name="ping"></a><span class="term"><span><b class=
+              "command">ping</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Посылает пакеты echo-request и отчитывается о времени прибытия ответа
+              </p>
+            </dd>
+            <dt>
+              <a id="rcp" name="rcp"></a><span class="term"><span><b class=
+              "command">rcp</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Обеспечивает удаленное копирование файлов
+              </p>
+            </dd>
+            <dt>
+              <a id="rlogin" name="rlogin"></a><span class=
+              "term"><span><b class="command">rlogin</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Обеспечивает удаленный вход в систему
+              </p>
+            </dd>
+            <dt>
+              <a id="rsh" name="rsh"></a><span class="term"><span><b class=
+              "command">rsh</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Запускает удаленный шелл
+              </p>
+            </dd>
+            <dt>
+              <a id="talk" name="talk"></a><span class="term"><span><b class=
+              "command">talk</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Используется для чата с другим пользователем
+              </p>
+            </dd>
+            <dt>
+              <a id="telnet" name="telnet"></a><span class=
+              "term"><span><b class="command">telnet</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Интерфейс для протокола TELNET
+              </p>
+            </dd>
+            <dt>
+              <a id="tftp" name="tftp"></a><span class="term"><span><b class=
+              "command">tftp</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Простая программа передачи файлов
+              </p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="gettext.html" title=
+          "Gettext-0.14.1">Назад</a>
+          <p>
+            Gettext-0.14.1
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="iproute2.html" title=
+          "Iproute2-2.6.8-040823">Далее</a>
+          <p>
+            Iproute2-2.6.8-040823
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

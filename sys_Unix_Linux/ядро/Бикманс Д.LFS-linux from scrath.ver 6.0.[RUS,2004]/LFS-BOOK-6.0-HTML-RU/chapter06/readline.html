@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      6.22.&nbsp;Readline-5.0
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;6.&nbsp;Установка основных системных программ
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="ncurses.html" title="Ncurses-5.4">Назад</a>
+          <p>
+            Ncurses-5.4
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="vim.html" title="Vim-6.3">Далее</a>
+          <p>
+            Vim-6.3
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="wrap" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          6.22. Readline-5.0
+        </h1>
+      </div>
+      <div class="package" lang="en" xml:lang="en">
+        <p>
+          Пакет Readline содержит библиотеку командной строки Readline.
+        </p>
+        <div class="segmentedlist">
+          <p>
+            <b>Расчетное время сборки</b> 0.11 SBU
+          </p>
+          <p>
+            <b>Требуемое место на диске</b> 3.8 MB
+          </p>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Readline - зависимости установки:</b> Binutils, Coreutils,
+            Diffutils, Gawk, GCC, Glibc, Grep, Make, Ncurses и Sed
+          </p>
+        </div>
+      </div>
+      <div class="installation" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <h2 class="sect2">
+            6.22.1. Инсталируем Readline
+          </h2>
+        </div>
+        <p>
+          Следующий патч устраняет проблему, при которй Readline иногда отображает
+          только 33 символа в строке, а затем переходит на следующую строку.
+        </p>
+        <pre class="userinput">
+<kbd class="command">patch -Np1 -i ../readline-5.0-display_wrap-1.patch</kbd>
+</pre>
+        <p>
+          Подготавливаем Readline для компиляции:
+        </p>
+        <pre class="userinput">
+<kbd class="command">./configure --prefix=/usr</kbd>
+</pre>
+        <p>
+          Компилируем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make SHLIB_XLDFLAGS=-lncurses</kbd>
+</pre>
+        <p>
+          Описание параметров сборки:
+        </p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term"><i class=
+              "parameter"><tt>SHLIB_XLDFLAGS=-lncurses</tt></i></span>
+            </dt>
+            <dd>
+              <p>
+                Этот флаг заставляет Readline использовать библиотеку <tt class=
+                "filename">libncurses</tt>.
+              </p>
+            </dd>
+          </dl>
+        </div>
+        <p>
+          Устанавливаем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make install</kbd>
+</pre>
+        <p>
+          Дадим динамическим библиотекам Readline более подходящие права доступа:
+        </p>
+        <pre class="userinput">
+<kbd class="command">chmod 755 /usr/lib/*.5.0</kbd>
+</pre>
+        <p>
+          Переместим динамические библиотеки в более подходящее место:
+        </p>
+        <pre class="userinput">
+<kbd class="command">mv /usr/lib/lib{readline,history}.so.5* /lib</kbd>
+</pre>
+        <p>
+          Так как библиотеки были перемещены, некоторые ссылки указывают на
+          несуществующие файлы. Обновим эти ссылки:
+        </p>
+        <pre class="userinput">
+<kbd class="command">ln -sf ../../lib/libhistory.so.5 /usr/lib/libhistory.so
+ln -sf ../../lib/libreadline.so.5 /usr/lib/libreadline.so</kbd>
+</pre>
+      </div>
+      <div class="content" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="contents-readline" name="contents-readline"></a>
+          <h2 class="sect2">
+            6.22.2. Описание Readline
+          </h2>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Проинсталированные библиотеки:</b> libhistory.[a,so] и
+            libreadline.[a,so]
+          </p>
+        </div>
+        <div class="variablelist">
+          <h3>
+            Короткое описание
+          </h3>
+          <dl>
+            <dt>
+              <a id="libhistory" name="libhistory"></a><span class=
+              "term"><tt class="filename">libhistory</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Предоставляет логичный интерфейс пользователя для вызова строк с историей
+              </p>
+            </dd>
+            <dt>
+              <a id="libreadline" name="libreadline"></a><span class=
+              "term"><tt class="filename">libreadline</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Помагает в логичности интерфейса пользователя через отдельные
+                программы, которые нужны для поддержания интерфейса командной строки
+              </p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="ncurses.html" title="Ncurses-5.4">Назад</a>
+          <p>
+            Ncurses-5.4
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="vim.html" title="Vim-6.3">Далее</a>
+          <p>
+            Vim-6.3
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,995 @@
+<html><head>
+
+   <META NAME="KeyWords" CONTENT="сети,CISCO,Internetworking Technology Overview,обзор,протоколы,описание,SNMP,Основы технологии,Модель управления,Типы команд,Различия в представлениии информации,Базы данных управления,Операции,Формат сообщений">
+
+   <META NAME="Description" CONTENT="Internetworking Technology Overview, В. Плешаков, Глава 32.  SNMP">
+
+   <META NAME="Robots" CONTENT="ALL">
+
+   <META NAME="Document-State" CONTENT="Static">
+
+   
+
+<title>Глава 32.  SNMP</title>
+
+<link rel="stylesheet" href="../../css/citforum.css">
+<style>
+
+</style>
+
+<meta http-equiv="content-type" content="text/html; charset=Windows-1251">
+</head>
+<body bgcolor=#FFFFFF link=#006890 vlink=#003860 alink=#800000 text=#000000 topmargin="0" marginheight="0">
+<a name=top></a>
+
+
+
+
+
+<!-- counters -->
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+<td><!--TopList COUNTER--><script language="JavaScript"><!--
+d=document;js=10;a=';r='+escape(d.referrer)
+//--></script><script language="JavaScript1.1"><!--
+js=11;a+=';j='+navigator.javaEnabled()
+//--></script><script language="JavaScript1.2"><!--
+js=12;s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+//--></script><script language="JavaScript1.3"><!--
+js=13//--></script><script language="JavaScript"><!--
+d.write('<img src="http://top.list.ru/counter'+
+'?id=26978;js='+js+a+'" alt="" height=1 width=1>')
+if(js>11)d.write('<'+'!-- ')//--></script><noscript><img
+src="http://top.list.ru/counter?js=na;id=26978"
+height=1 width=1 alt=""></noscript><script language="JavaScript"><!--
+if(js>11)d.write('--'+'>')
+//--></script><!--TopList COUNTER--></td>
+<td><!--LiveInternet counter--><script language="JavaScript"><!--
+document.write('<img src="http://counter.yadro.ru/hit?r'+
+escape(document.referrer)+((typeof(screen)=='undefined')?'':
+';s'+screen.width+'*'+screen.height+'*'+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+';u'+escape(document.URL)+
+';i'+escape('Жж'+document.title)+';'+Math.random()+
+'" width=1 height=1 alt="">')//--></script><!--/LiveInternet--></td>
+<td><img src="http://counter.rambler.ru/top100.cnt?13078" alt="" width=1 height=1 border=0></td>
+</tr></table>
+<!-- end of counters -->
+
+
+
+<center><table width=990 cellpadding=0 cellspacing=0>
+<tr><td>
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr valign=bottom>
+  <td align="left"><a href="http://citforum.ru/"><img src="../../pictures/logos/citlogo8.gif" width=140 height=44 border=0 alt=Logo></a></td>
+
+      <td align="right" width="100%" style="padding-bottom: 10px"><nobr><font size=2><b>Море(!) аналитической информации!</b></font></nobr></td>
+    </tr>
+    </table>
+
+
+
+
+<center style="margin-top: 3px">
+<!--  AdRiver code START. Type:728x90 Site: citforum PZ: 0 BN: 1 -->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write(
+'<iframe src="http://ad.adriver.ru/cgi-bin/erle.cgi?'
++ 'sid=137295&bn=1&target=blank&bt=36&pz=0&rnd=' + RndNum4NoCash + '&tail256=' + ar_Tail
++ '" frameborder=0 vspace=0 hspace=0 width=728 height=90 marginwidth=0'
++ ' marginheight=0 scrolling=no></iframe>');
+//--></script>
+<noscript>
+<a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=137295&bn=1&bt=36&pz=0&rnd=1013420086" target=_blank>
+<img src="http://ad.adriver.ru/cgi-bin/rle.cgi?sid=137295&bn=1&bt=36&pz=0&rnd=1013420086" alt="-AdRiver-" border=0 width=728 height=90></a>
+</noscript>
+<!--  AdRiver code END  -->
+
+</center>
+
+
+</td></tr>
+<tr><td>
+
+<table cellpadding=0 cellspacing=0 border=0 width=100% style="padding-top: 3px">
+<tr><td>
+<table   cellspacing=0 cellpadding=0 border=0 width=100%>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=931 height=1 alt="" border=0></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr><td bgcolor=#008080>
+
+<table cellspacing=1 cellpadding=3 border=0 width=100%>
+<tr>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/consulting/">IT-консалтинг</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/SE/">Software Engineering</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/programming/">Программирование</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/database/">СУБД</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/security/">Безопасность</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/internet/">Internet</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/nets/">Сети</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/operating_systems/">Операционные системы</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/hardware/">Hardware</a></font></td>
+<!--
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/faq/>FAQ (ЧаВО)</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/howto/>HOWTO</a></font></td>
+--> 
+</tr>
+</table>
+
+</td></tr>
+</table>
+
+</td></tr>
+<tr><td>
+<table cellpadding=0 cellspacing=0 border=0 width=100% style="padding-top: 3px">
+<tr valign=top>
+
+<td width=98% style="padding: 0 5px">
+
+
+<div class="document">
+
+
+<H3>
+
+Глава 32.  SNMP.
+
+</H3>
+
+<b>
+
+        <UL>
+
+<LI> <a href="32.shtml#32.1">Библиографическая справка</a>
+
+<LI> <a href="32.shtml#32.2">Основы технологии</a>
+
+<UL>
+
+<li> <a href="32.shtml#32.2.1">Модель управления</a>
+
+<li> <a href="32.shtml#32.2.2">Типы команд</a>
+
+<li> <a href="32.shtml#32.2.3">Различия в представлениии информации</a>
+
+<li> <a href="32.shtml#32.2.4">Базы данных управления</a>
+
+<li> <a href="32.shtml#32.2.5">Операции</a>
+
+</UL>
+
+                <LI> <a href="32.shtml#32.3">Формат сообщений</a>
+
+        </UL>
+
+</b>
+
+<h4>
+
+<a name="32.1"> Библиографическая справка</a>
+
+</h4><p align=justify>
+
+В создание протокола SNMP внесли свой вклад разработки по трем 
+
+направлениям:
+
+<dl>
+
+<dt>  <i>High-level Entity Management System (HEMS) </i>
+
+<dd>	Система управления
+
+	об'ектами высшего уровня. Определяет систему управления с рядом 
+
+	интересных технических характеристик. К сожалению, HEMS
+
+	использовалась 
+
+	только в местах ее разработки, что в конечном итоге привело к 
+
+	прекращению ее действия.
+
+<dt>  <i>Simple Gateway Monitoring Protocol (SGMP)</i>
+
+<dd>	Протокол управления
+
+	простым роутером. Разработка была начата группой сетевых 
+
+	инженеров для решения проблем, связанных с управлением быстрорастущей 
+
+	Internet; результатом их усилий стал протокол, предназначенный для
+
+	управления роутерами Internet. SGMP был реализован во многих
+
+	региональных ветвях Internet.
+
+<dt>  <i>CMIP over TCP (CMOT)</i>
+
+<dd>	CMIP над ТСР. Пропагандирует сетевое управление,
+
+	базирующееся на OSI, в частности, применение <i>Common Management 
+
+	Information Protocol (CMIP)</i> (Протокол информации общего управления)
+
+	для облегчения управления об'единенных сетей, базирующихся на ТСР.
+
+</dl>
+
+Достоинства и недостатки этих трех методов (HEMS, SGMP и CMOT) часто
+
+и горячо обсуждались в течение второй половины 1987 г. В начале 1988 г.
+
+был образован комитет Internet Activities Board - IAB (IAB - это группа, 
+
+ответственная за техническую разработку протоколов Internet) для 
+
+разрешения дебатов по поводу протокола сетевого управления. В конечном
+
+итоге комитет IAB пришел к соглашению, что улучшенная версия SGMP,
+
+которая должна была называться SNMP, должна стать временным решением;
+
+для долгосрочного применения должна быть проанализирована одна из
+
+технологий, базирующихся на OSI (либо СМОТ, либо сам СMIP). Для
+
+обеспечения легкого пути наращивания была разработана общая структура
+
+сетевого управления (которая теперь называется стандартной Структурой
+
+Управления Сети - <i>Network Management Framework</i>).
+
+<p align=justify>
+
+Сегодня SNMP является самым популярным протоколом управления различными
+
+коммерческими, университетскими и исследовательскими об'единенными 
+
+сетями. Деятельность по стандартизации, связанная с SNMP, продолжается
+
+по мере того, как поставщики разрабатывают и выпускают современные
+
+прикладные программы управления, базирующиеся на SNMP. SNMP 
+
+относительно простой протокол, однако набор его характеристик является
+
+достаточно мощным для решения трудных проблем, возникающих при 
+
+управлении гетерогенных сетей.
+
+
+
+<h4>
+
+<a name="32.2"> Основы технологии</a>
+
+</h4><p align=justify>
+
+SNMP является протоколом прикладного уровня, предназначенным для 
+
+облегчения обмена информацией управления между сетевыми устройствами.
+
+Пользуясь информацией SNMP (такой, как показатель числа пакетов в
+
+секунду и коэффициент сетевых ошибок), сетевые администраторы могут 
+
+более просто управлять производительностью сети и обнаруживать и решать 
+
+сетевые проблемы.
+
+
+
+<p align=justify><b>
+
+<a name="32.2.1"> Модель управления</a>
+
+</b><br>
+
+Агентами в SNMP являются программные модули, которые работают в 
+
+управляемых устройствах. Агенты собирают информацию об управляемых
+
+устройствах, в которых они работают, и делают эту информацию доступной
+
+для систем управления сетями (<i>network management systems - NMS</i>) с 
+
+помощью протокола SNMP. Эта модель представлена графически на 
+
+Рис. 32-1.
+
+<p><center>
+
+<img src="../../pictures/it/ito/32-1.gif">
+
+</center><p align=justify>
+
+Управляемое устройство может быть узлом любого типа, находящимся в 
+
+какой-нибудь сети: это хосты, служебные
+
+устройства связи, принтеры, роутеры, мосты и концентраторы. Т.к.
+
+некоторые из этих систем могут иметь ограниченные способности 
+
+управления программным обеспечением (например, они могут иметь 
+
+центральные процессоры с относительно малым быстродействием или
+
+ограниченный об'ем памяти), программное обеспечение управления должно
+
+сделать допущение о наименьшем общем знаменателе. Другими словами, 
+
+программы управления должны быть построены таким образом, чтобы 
+
+минимизировать воздействие своей производительности на управляемое 
+
+устройство.
+
+<p align=justify>
+
+Т.к. управляемые устройства содержат наименьший общий знаменатель
+
+программного обеспечения управления, тяжесть управления ложится на
+
+NMS. Поэтому NMS обычно являются компьютерами калибра АРМ
+
+проектировщика, которые имеют быстродействующие центральные процессоры,
+
+мегапиксельные цветные устройства отображения, значительный об'ем 
+
+памяти и достаточный об'ем диска. В любой управляемой сети может 
+
+иметься одна или более NMS. NMS прогоняют прикладные программы
+
+сетевого управления, которые представляют информацию управления 
+
+пользователям. Интерфейс пользователя обычно базируется на
+
+стандартизированном графическом интерфейсе пользователя (<i>graphical 
+
+user interface - GUI</i>).
+
+<p align=justify>
+
+Сообщение между управляемыми устройствами и NMS регулируется протоколом 
+
+сетевого управления. Стандартный протокол сети Internet, Network 
+
+Management Framework, предполагает парадигму дистанционной отладки,
+
+когда управляемые устройства поддерживают значения ряда переменных и
+
+сообщают их по требованию в NMS. Например, управляемое устройство
+
+может отслеживать следующие параметры:
+
+<dl>
+
+<dt>Число и состояние своих виртуальных цепей
+
+<dt>Число определенных видов полученных сообщений о неисправности
+
+<dt>Число байтов и пакетов, входящих и исходящих из данного устройства
+
+<dt>Максимальная длина очереди на выходе (для роутеров и других
+
+  устройств об'единения сетей)
+
+<dt>Отправленные и принятые широковещательные сообщения
+
+<dt>Отказавшие и вновь появившиеся сетевые интерфейсы
+
+</dl>
+
+
+
+<p align=justify><b>
+
+<a name="32.2.2"> Типы команд</a>
+
+</b><br>
+
+Если NMS хочет проконтролировать какое-либо из управляемых устройств,
+
+она делает это путем отправки ему сообщения с указанием об изменении 
+
+значения одной из его переменных. В целом управляемые устройства 
+
+отвечают на четыре типа команд (или инициируют их):
+
+<dl>
+
+<dt>  <i>Reads</i>
+
+<dd>	Для контролирования управляемых устройств NMS
+
+	считывают переменные, поддерживаемые этими устройствами.
+
+<dt>  <i>Writes</i>
+
+<dd>	Для контролирования управляемых устройств NMS
+
+	записывают переменные, накопленные в управляемых устройствах
+
+<dt>  <i>Traversal operations</i>
+
+<dd>	NMS используют операции прослеживания,
+
+	чтобы определить, какие переменные поддерживает
+
+	управляемое устройство,
+
+	а затем собрать информацию в таблицы переменных (такие, как таблица
+
+	маршрутизации IP)
+
+<dt>  <i>Traps</i>
+
+<dd>	Управляемые устройства используют ловушки для
+
+	асинхронных сообщений в NMS о некоторых событиях.
+
+</dl>
+
+
+
+<p align=justify><b>
+
+<a name="32.2.3"> Различия в представлениии информации</a>
+
+</b><br>
+
+Обмен информацией в управляемой сети находится потенциально под угрозой
+
+срыва из-за различий в технике представления данных, используемой 
+
+управляемыми устройствами. Другими словами, компьютеры представляют 
+
+информацию по-разному; эту несовместимость необходимо 
+
+рационализировать, чтобы обеспечить сообщение между различными 
+
+системами. Эту функцию выполняет абстрактный синтаксис. SNMP использует 
+
+для этой цели подмножество абстрактного синтаксиса, созданного для
+
+OSI - <i>Abstract Syntax Notation One (ASN.1)</i> (Система обозначений для 
+
+описания абстрактного синтаксиса). ASN.1 определяет как форматы 
+
+пакетов, так и управляемые об'екты. Управляемый об'ект-это просто
+
+характеристика чего-либо, которой можно управлять. Управляемый об'ект 
+
+отличается от переменной, которая является конкретной реализацией
+
+об'екта. Управляемые об'екты могут быть скалярными (определяя отдельную 
+
+реализацию) или табулярными величинами (определяя несколько связанных 
+
+друг с другом реализаций).
+
+
+
+<p align=justify><b>
+
+<a name="32.2.4"> Базы данных управления</a>
+
+</b><br>
+
+Все управляемые об'екты содержатся в Информационной базе управления 
+
+(<i>Management Information Base - MIB</i>),
+
+которая фактически является базой данных об'ектов. Логически
+
+MIB можно изобразить в виде абстрактного дерева, листьями которого
+
+являются отдельные информационные элементы. Идентификаторы об'ектов
+
+уникальным образом идентифицируют об'екты MIB этого дерева.
+
+Идентификаторы об'ектов похожи на телефонные номера тем, что они
+
+организованы иерархически и их отдельные части назначаются различными 
+
+организациями. Например, международные телефонные номера состоят из
+
+кода страны (назначаемого международной организацией) и телефонного
+
+номера в том виде, в каком он определен в данной стране. Телефонные
+
+номера в США далее делятся на код области, номер центральной
+
+телефонной станции (СО) и номер станции, связанной с этой СО.
+
+Аналогично, идентификаторы об'ектов высшего уровня MIB назначаются
+
+Международной Электротехнической Комиссией ISO (ISO IEC). ID об'ектов
+
+низшего уровня назначаются относящимися к ним организациями. На 
+
+Рис. 32-2 изображены корневая и несколько наиболее крупных ветвей
+
+дерева MIB.
+
+<p><center>
+
+<img src="../../pictures/it/ito/32-2.gif">
+
+</center><p align=justify>
+
+Дерево MIB расширяемо благодаря экспериментальным и частным ветвям.
+
+Например, поставщики могут определять свои собственные ветви для 
+
+включения реализаций своих изделий. В настоящее время вся работа по 
+
+стандартизации ведется на экспериментальной ветви.
+
+<p align=justify>
+
+Структуру MIB определяет документ, называемый Структура Информации
+
+Управления (<i>Structure of Management Information - SMI</i>). SMI определяет
+
+следующие типы информации:
+
+<dl>
+
+<dt>  <i>Network addresses</i> (Сетевые адреса)
+
+<dd>	Предсталяют какой-нибудь адрес
+
+	из конкретного семейства протоколов. В настоящее время единственным 
+
+	примером сетевых адресов являются 32-битовые адреса IP.
+
+<dt>  <i>Counters</i> (Счетчики)
+
+<dd>	Неотрицательные целые числа, которые монотонно
+
+	увеличиваются до тех пор, пока не достигнут максимального значения, 
+
+	после чего они сбрасываются до нуля. Примером счетчика является общее 
+
+	число байтов, принятых интерфейсом.
+
+<dt>  <i>Gauges</i> (Измерительный прибор, мера, размер)
+
+<dd>	Неотрицательные целые числа, которые
+
+	могут увеличиваться или уменьшаться, но запираются при максимальном
+
+	значении. Примером измерительного прибора является длина очереди,
+
+	состоящей из выходных пакетов (в пакетах).
+
+<dt>  <i>Ticks</i> (Тики)
+
+<dd> 	Сотые доли секунды, прошедшие после какого-нибудь
+
+	события. Примером tick является время, прошедшее после вхождения
+
+	интерфейса в свое текущее состояние.
+
+<dt>  <i>Opaque</i> (Мутный)
+
+<dd>	Произвольное кодирование. Используется для передачи
+
+	произвольных информационных последовательностей, находящихся вне
+
+	пределов точного печатания данных, которое использует SMI.
+
+</dl>
+
+
+
+<p align=justify><b>
+
+<a name="32.2.5"> Операции</a>
+
+</b><br>
+
+SNMP является простым протоколом запроса/ответа. Узлы могут отправлять
+
+множество запросов, не получая ответа. Определены следующие 4 
+
+операции SNMP:
+
+<dl>
+
+<dt>  <i>Get</i> (достань).
+
+<dd>	Извлекает какую-нибудь реализацию об'екта из агента.
+
+<dt>  <i>Get-next</i> (достань следующий).
+
+<dd>	Операция прослеживания, которая 
+
+	извлекает следущую реализацию об'екта из таблицы или перечня, 
+
+	находящихся в каком-нибудь агенте.
+
+<dt>  <i>Set</i> (установи).
+
+<dd>	Устанавливает реализации об'екта в пределах какого-нибудь агента.
+
+<dt>  <i>Trap</i> (ловушка).
+
+<dd>	Используется агентом для асинхронного информирования
+
+	NMS о каком-нибудь событии.
+
+</dl>
+
+
+
+<h4>
+
+<a name="32.3"> Формат сообщений</a>
+
+</h4><p align=justify>
+
+Сообщения SNMP состоят из 2 частей: имени сообщества (<i>community name</i>) и 
+
+данных (<i>data</i>). Имя сообщества назначает среду доступа для набора NMS,
+
+которые используют это имя. Можно сказать, что NMS, принадлежащие 
+
+одному сообществу, находятся под одним и тем же административным 
+
+началом. Т.к. устройства, которые не знают правильного имени 
+
+сообщества, исключаются из операций SNMP, управляющие сетей также
+
+используют имя сообщества в качестве слабой формы опознавания.
+
+<p align=justify>
+
+Информационная часть сообщения содержит специфичную операцию SNMP 
+
+(get, set, и т.д.) и связанные с ней операнды. Операнды обозначают
+
+реализации об'екта, которые включены в данную транзакцию SNMP.
+
+<p align=justify>
+
+Сообщения SNMP официально называются протокольными единицами данных
+
+(<i>protocol data units - PDU</i>). На Рис. 32-3 изображен формат пакета SNMP.
+
+<p><center>
+
+<img src="../../pictures/it/ito/32-3.gif">
+
+</center><p align=justify>
+
+PDU операций get и set SNMP состоят из следующих частей:
+
+<dl>
+
+<dt>  <i>Request-ID</i> (идентификатор запроса).
+
+<dd>	Устанавливает связь между командами и ответами.
+
+<dt>  <i>Error-status</i> (состояние сбоя).
+
+<dd>	Указывает ошибку и ее тип.
+
+<dt>  <i>Error-index</i> (индекс ошибки).
+
+<dd>    Устанавливвает связь между ошибкой и
+
+	конкретной реализацией об'екта.
+
+<dt>  <i>Variable bindings</i> (переменные привязки).
+
+<dd>    Состоят из данных
+
+	SNMP PDU. Пепеменные привязки устанавливают связь между конкретными 
+
+	переменными и их текущими значениями.
+
+</dl>
+
+
+
+PDU ловушки несколько отличаются от PDU других операций. Они состоят
+
+из следующих частей:
+
+<dl>
+
+<dt>  <i>Enterprise</i> (предметная область).
+
+<dd>	Идентифицирует тип об'екта, генерирующего данную ловушку.
+
+
+
+<dt>  <i>Agent address</i> (адрес агента).
+
+<dd>	Обеспечивает адрес об'екта, генерирующего данную ловушку.
+
+<dt>  <i>Generic trap type</i> (групповой тип ловушки).
+
+<dd>	Обеспечивает групповой тип ловушки.
+
+<dt>  <i>Specific trap code</i> (специфичный код ловушки).
+
+<dd>	Обеспечивет специфичный код ловушки.
+
+<dt>  <i>Time stamp</i> (временной ярлык).
+
+<dd>	Обеспечивает величину времени,
+
+	прошедшего между последней повторной инициализацией сети и генерацией
+
+	данной ловушки.
+
+<dt>  <i>Variable bindings</i> (переменные привязки).
+
+<dd>	Обеспечивает перечень переменных, содержащих интересную информацию о ловушке.
+
+</dl>
+
+
+
+<p><center><font size=-1>
+
+[<a href="31.shtml">Назад</a>]
+
+[<a href="index.shtml">Содержание</a>]
+
+[<a href="33.shtml">Вперед</a>]
+
+</font></center>
+
+<p>
+
+</div>
+
+
+<center><table><tr><td><a href=http://vip.gfi.ru/?source=banner:cit_vip rel=nofollow target=_blank><img src="../../a/gfi_110x52.png" width=110 height=52 border=0></a><td><a href=http://vip.gfi.ru/?source=banner:cit_vip rel=nofollow target=_blank style=font-size:15px;font-family:arial,sans-serif;font-weight:bold;text-decoration:none;color:black><nobr>Зарегистрируйте номер 007-101-303</nobr><br><nobr>на сайте VIP.GFI.RU и получите</nobr><br><nobr>наши продукты <span style=font-size:20px;color:red>БЕСПЛАТНО</span></nobr></a></table>
+</center>
+
+<center>
+
+
+</center>
+
+</td>
+
+
+<td>
+
+<table cellspacing=0 cellpadding=0 border=0 width="100%" align=right><tr>
+<td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0></td>
+<td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=2 height=1 border=0></td>
+<td>
+
+<table cellpadding=0 cellspacing=0 border=0>
+
+<tr><td align="center"><!--  AdRiver code START. Type:240x400 Site: citforum PZ: 0 BN: 1 -->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write(
+'<iframe src="http://ad.adriver.ru/cgi-bin/erle.cgi?'
++ 'sid=137295&bn=1&target=blank&bt=22&pz=0&rnd=' + RndNum4NoCash + '&tail256=' + ar_Tail
++ '" frameborder=0 vspace=0 hspace=0 width=240 height=400 marginwidth=0'
++ ' marginheight=0 scrolling=no></iframe>');
+//--></script>
+<noscript>
+<a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=137295&bn=1&bt=22&pz=0&rnd=1132854728" target=_blank>
+<img src="http://ad.adriver.ru/cgi-bin/rle.cgi?sid=137295&bn=1&bt=22&pz=0&rnd=1132854728" alt="-AdRiver-" border=0 width=240 height=400></a>
+</noscript>
+
+<!--  AdRiver code END  --></td></tr>
+
+
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#ffffff>
+<font size=2>
+<p><b>Новости мира IT:</b>
+<ul class=column>
+<!--<b><a target=_blank href=http://citcity.ru/20070/>4&#x2013;5 декабря пройдёт &#xab;Платформа 2009&#xbb;</a></b>
+<hr>-->
+
+<li>30.01 - <a href=http://citforum.ru/news/33316/>Доступна операционная система Chrome OS 40</a><li>30.01 - <a href=http://citforum.ru/news/33315/>Microsoft представит облачный сервис Cosmos для коммерческого использования</a><li>30.01 - <a href=http://citforum.ru/news/33314/>Apple обновила OS X Yosemite до версии 10.10.2</a><li>30.01 - <a href=http://citforum.ru/news/33313/>Ideum Duet: кофейный столик с двумя встроенными компьютерами и двумя ОС</a><li>30.01 - <a href=http://citforum.ru/news/33312/>Intel выпустила процессоры Broadwell с поддержкой vPro</a><li>30.01 - <a href=http://citforum.ru/news/33311/>Microsoft покажет на MWC 2015 смартфоны на базе Windows 10</a><li>29.01 - <a href=http://citforum.ru/news/33310/>YouTube отказался от Flash в пользу HTML5</a><li>29.01 - <a href=http://citforum.ru/news/33309/>Касперский назвал умные телевизоры новой мишенью для хакеров</a><li>29.01 - <a href=http://citforum.ru/news/33308/>Вышел браузер Opera 27</a><li>29.01 - <a href=http://citforum.ru/news/33307/>В метро Петербурга запустили систему бесконтактных платежей PayPass</a><li>29.01 - <a href=http://citforum.ru/news/33306/>Прибыль Microsoft упала на 11 %</a><li>29.01 - <a href=http://citforum.ru/news/33305/>Tele2 развернёт в Москве мобильную сеть 3G/4G</a><li>29.01 - <a href=http://citforum.ru/news/33304/>AMD разрабатывает семейство графических процессоров Arctic Islands</a><li>28.01 - <a href=http://citforum.ru/news/33303/>Интернет-гиганты Tencent и Alibaba стали самыми дорогими брендами Китая</a><li>28.01 - <a href=http://citforum.ru/news/33302/>Основатель Opera Software представил новый web-браузер Vivaldi</a><li>28.01 - <a href=http://citforum.ru/news/33301/>Mozilla хочет принести виртуальную реальность в веб</a><li>28.01 - <a href=http://citforum.ru/news/33300/>Обновилась операционная система PC-BSD</a><li>28.01 - <a href=http://citforum.ru/news/33299/>В Fujitsu создана система определения сонливости водителей</a><li>28.01 - <a href=http://citforum.ru/news/33298/>Проект интеллектуального чемодана Bluesmart привлёк более $2 млн</a><li>28.01 - <a href=http://citforum.ru/news/33297/>За 10 дней продано более 50 тысяч Tizen-смартфонов Samsung Z1</a>
+
+</ul>
+<p><a target=_blank href=http://citforum.ru/news/><b>Архив новостей</b></a>
+</font>
+<p align=right><a href=http://citforum.ru/news/rss/news.xml><img src="../../pictures/xml_rss.gif" border=0 width=36 height=14></a>
+</td></tr>
+
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td style="padding-left: 5px; min-width: 240px"><p><b>Последние комментарии:</b>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/32977/#comments>Новый &#xab;антипиратский&#xbb; закон вступит в силу 1 мая 2015 года</a>&nbsp;(29)<br>
+		<div class=comments_menu_date>31 Январь, 17:47		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33307/#comments>В метро Петербурга запустили систему бесконтактных платежей PayPass</a>&nbsp;(2)<br>
+		<div class=comments_menu_date>31 Январь, 15:59		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33316/#comments>Доступна операционная система Chrome OS 40</a>&nbsp;(3)<br>
+		<div class=comments_menu_date>30 Январь, 18:34		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/gazeta/59/#comments>Брешь в конфиденциальности (Практика использования сети Интернет в конкурентной разведке)</a>&nbsp;(29)<br>
+		<div class=comments_menu_date>30 Январь, 12:10		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33314/#comments>Apple обновила OS X Yosemite до версии 10.10.2</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>30 Январь, 10:06		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33311/#comments>Microsoft покажет на MWC 2015 смартфоны на базе Windows 10</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>30 Январь, 09:22		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33309/#comments>Касперский назвал умные телевизоры новой мишенью для хакеров</a>&nbsp;(3)<br>
+		<div class=comments_menu_date>30 Январь, 09:21		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/32291/#comments>Выпущен защищенный планшет для чиновников на основе российской ОС</a>&nbsp;(18)<br>
+		<div class=comments_menu_date>29 Январь, 21:03		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/24552/#comments>Взломана защита от копирования приложений для Android</a>&nbsp;(7)<br>
+		<div class=comments_menu_date>29 Январь, 20:52		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33301/#comments>Mozilla хочет принести виртуальную реальность в веб</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>29 Январь, 09:16		</div>
+	</div></td></tr>
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td><div id="cse" style="width: 100%;">Loading</div>
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript"> 
+  google.load('search', '1', {language : 'ru'});
+  google.setOnLoadCallback(function() {
+    var customSearchControl = new google.search.CustomSearchControl('018117224161927867877:xbac02ystjy');
+    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+    customSearchControl.draw('cse');
+  }, true);
+</script>
+<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+</td></tr>
+
+<tr><td align="center"><!-- Soloway 240x400 code START-->
+<script language="javascript" type="text/javascript"><!--
+if(typeof(ar_cn)=="undefined") var ar_cn=1;
+var ar_Tail=document.referrer ? escape(document.referrer) : 'unknown';
+var ar_link="http://ad.adriver.ru/cgi-bin/erle.cgi?sid=126751&bt=49&target=blank&tail256=" + ar_Tail;
+document.write('<div style="visibility:hidden;height:0px;"><iframe id="ar_container_'+ar_cn+'" width=1 height=1 marginwidth=0 marginheight=0 scrolling=no frameborder=0><\/iframe><\/div><div id="ad_ph_'+ar_cn+'"><\/div>');
+function ar_getDoc(t,n,l){var doc;if(t<100){if(document.all && !window.opera){doc = window.frames['ar_container_'+n].document}
+else if(document.getElementById){doc=document.getElementById('ar_container_'+n).contentDocument}
+if(!doc){setTimeout('ar_getDoc('+(++t)+','+n+',"'+l+'")', 100)}else {var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+doc.write ('<sc'+'ript language="JavaScript" type="text/javascript">var ar_bnum='+n+';<\/sc'+'ript>');
+doc.write ('<sc'+'ript language="JavaScript" type="text/javascript" src="'+l+'&rnd='+RndNum4NoCash+'"><\/sc'+'ript>');}}}
+(function(num,link){function addEvent(e,t,f){if(e.addEventListener)e.addEventListener(t,f,false);else if(e.attachEvent)e.attachEvent('on'+t,f)}
+function removeEvent(e,t,f){if(e.removeEventListener)e.removeEventListener(t,f,false);else if(e.detachEvent)e.detachEvent('on'+t,f)}
+var BannerLoader={top:0,height:400,cm:document.compatMode=="CSS1Compat",
+scroll:function(){var ch=self.innerHeight||this.cm&&document.documentElement.clientHeight||document.body.clientHeight;
+var st=self.pageYOffset||this.cm&&document.documentElement.scrollTop||document.body.scrollTop;
+var sh=self.scrollHeight||this.cm&&document.documentElement.scrollHeight||document.body.scrollHeight;
+if((st-this.top<=this.height*0.2&&st+ch-this.top>=this.height*0.8)||(sh-this.top<=this.height*0.8&&(sh-st-ch<1||sh<ch))){
+removeEvent(window,'scroll',this.sfunc);ar_getDoc(0,num,link)}},
+sfunc: function(){BannerLoader.scroll()},init:function(){var t=this,obj=document.getElementById('ad_ph_'+num);
+if(obj){while(obj.offsetParent){t.top += obj.offsetTop; obj = obj.offsetParent}
+addEvent(window,'scroll',this.sfunc);t.scroll()}}};addEvent(window, 'load', function(){BannerLoader.init()})})(ar_cn++,ar_link);
+//--></script>
+<!-- Soloway 240x400 code END -->
+</td></tr>
+
+<tr><td align="center">
+<font size="2"><a class=head href=http://forum.citforum.ru/>Форумы</a>
+<a class=head href=http://citforum.ru/gazeta/>Газета</a></font>
+</td></tr>
+</table>
+
+</td>
+<td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=2 height=1 border=0></td>
+<td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0></td>
+</tr></table>
+
+</td>
+ <!--no_right-->
+
+</tr>
+</table>
+</td>
+
+</tr></table>
+
+<p>
+<table   cellspacing=0 cellpadding=0 border=0 width=100%>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=931 height=1 alt="" border=0></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr><td bgcolor=#008080>
+
+<table cellspacing=1 cellpadding=3 border=0 width=100%>
+<tr>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/consulting/">IT-консалтинг</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/SE/">Software Engineering</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/programming/">Программирование</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/database/">СУБД</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/security/">Безопасность</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/internet/">Internet</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/nets/">Сети</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/operating_systems/">Операционные системы</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/hardware/">Hardware</a></font></td>
+<!--
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/faq/>FAQ (ЧаВО)</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/howto/>HOWTO</a></font></td>
+--> 
+</tr>
+</table>
+
+</td></tr>
+</table>
+
+<p>
+
+<table width=100%>
+<tr><td>
+<a href="http://citforum.ru/about/"><font size=2>Информация для рекламодателей</font></a> 
+</td><td><font size=2>PR-акции, размещение рекламы &mdash; <a href="mailto:adv@citforum.ru">adv@citforum.ru</a>,
+<br>тел. +7 495 6608306, ICQ 232284597</font>
+</td><td align=right><font size=2>Пресс-релизы &mdash; <a href=mailto:pr@citforum.ru>pr@citforum.ru</a></font>
+</td></tr></table>
+
+
+<table cellspacing=0 cellpadding=0 border=0 width="100%"><tr><td><img src="../../pictures/1x1.gif" width=1 height=5 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr></table>
+
+<table cellspacing=0 cellpadding=4 border=0 width=100%><tr>
+<td><font size=2>
+<a href=http://www.citforum.ru/feedback.php?page=/nets/ito/32.shtml&server=citforum.ru>Послать комментарий</a><br>
+<a href="http://citforum.ru/how.shtml">Информация для авторов</a>
+
+</font></td>
+
+<td><a href=http://top100.rambler.ru/cgi-bin/stats_top100.cgi?13078><img src="../../pictures/logos/banner-88x31-rambler-darkblue2.gif" width=88 height=31 border=0 alt="Rambler's Top100"></a></td>
+<td><!--TopList LOGO--><a target=_top href="http://top.list.ru/jump?from=26978"><img src="http://top.list.ru/counter?id=26978;t=54;l=1" border=0 height=31 width=88 alt="TopList"></a><!--TopList LOGO--></td>
+<td>
+<!--LiveInternet logo--><a href="http://www.liveinternet.ru/click" target=_blank><img
+src="http://counter.yadro.ru/logo?12.6" border=0
+alt="liveinternet.ru: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"
+width=88 height=31></a><!--/LiveInternet-->
+</td>
+
+<td align=right valign=bottom><FONT SIZE=1 face="Arial, sans-serif">This Web server launched on February 24, 1997<br>
+Copyright &copy; 1997-2000 CIT, &copy; 2001-2015 <a href="http://citforum.ru/info.shtml">CIT Forum</a></font></td>
+</tr></table>
+
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr><tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr></table>
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr><td align=center><font size=1 face="Arial, sans-serif"><b>Внимание!</b> Любой из материалов, опубликованных на этом сервере, не может быть  воспроизведен в какой бы то ни было форме и какими бы то ни было средствами без письменного разрешения владельцев авторских прав. <a href="http://citforum.ru/copyright.shtml">Подробнее...</a></td></tr></table>
+
+
+</table></center>
+
+
+<!-- AdGravity Javascript code START-->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write('<sc' + 'ript language="JavaScript" src="http://ad.adriver.ru/cgi-bin/erle.cgi?sid=126751&bt=16&target=blank&tail256="' + ar_Tail + '"></sc' + 'ript>');
+//--></script>
+<!-- AdGravity Javascript code END -->
+
+
+
+
+</body>
+
+</html>
+

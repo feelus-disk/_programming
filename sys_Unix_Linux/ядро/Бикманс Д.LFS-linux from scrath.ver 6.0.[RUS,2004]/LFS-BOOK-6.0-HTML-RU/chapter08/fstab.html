@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      8.2.&nbsp;Создание файла /etc/fstab
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;8.&nbsp;Обеспечение загрузки LFS системы
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="chapter08.html" title=
+          "Making the LFS System Bootable">Назад</a>
+          <p>
+            Обеспечение загрузки LFS системы
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="kernel.html" title="Linux-2.6.8.1">Далее</a>
+          <p>
+            Linux-2.6.8.1
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter08.html" title=
+          "Глава&nbsp;8.&nbsp;Making the LFS System Bootable">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          8.2. Создание файла /etc/fstab
+        </h1>
+      </div>
+      <p>
+        Файл <tt class="filename">/etc/fstab</tt> используется рядом
+	программ для определения того, какие разделы будут монтированы по
+	умолчанию, какие файловые системы должны быть проверены и т.д. Создадим
+	новую таблицу файловых системм как здесь:
+      </p>
+      <pre class="userinput">
+<kbd class="command">cat &gt; /etc/fstab &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/fstab
+
+# file system  mount-point  type   options         dump  fsck
+#                                                        order
+
+/dev/<i class="replaceable"><tt>[xxx]</tt></i>     /            <i class=
+"replaceable"><tt>[fff]</tt></i>  defaults        1     1
+/dev/<i class=
+"replaceable"><tt>[yyy]</tt></i>     swap         swap   pri=1           0     0
+proc           /proc        proc   defaults        0     0
+sysfs          /sys         sysfs  defaults        0     0
+devpts         /dev/pts     devpts gid=4,mode=620  0     0
+shm            /dev/shm     tmpfs  defaults        0     0
+# End /etc/fstab</tt>
+EOF</kbd>
+</pre>
+      <p>
+        Замените <i class="replaceable"><tt>[xxx]</tt></i>, <i class=
+        "replaceable"><tt>[yyy]</tt></i> и <i class=
+        "replaceable"><tt>[fff]</tt></i> на более подходяшие для системы
+        значения, например, <tt class="filename">hda2</tt>, <tt class=
+        "filename">hda5</tt> и <tt class="systemitem">ext2</tt>. За более
+	полной информацией обратитесь к <span><b class=
+        "command">man 5 fstab</b></span>.
+      </p>
+      <p>
+        При использовании журналируемых файловых систем <i class="parameter"><tt>1
+        1</tt></i> в конце строки должны быть заменены на <i class=
+        "parameter"><tt>0 0</tt></i>, так как такие разделы не требуют проверки.
+      </p>
+      <p>
+        Точка монтирования <tt class="filename">/dev/shm</tt> для <tt class=
+        "systemitem">tmpfs</tt> добавлена для обеспечения поддержки POSIX-разделяемой
+        памяти. Ваше ядро должно быть собрано со встроенной поддержкой этой системы
+	(более подробно об этом смотрите в следующем разделе). Имейте в виду, что только
+	небольшое количество програмного обеспечения использует POSIX-разделяемую память.
+        Поэтому точка монтирования <tt class="filename">/dev/shm</tt> является
+        опциональной. Для более подробной информации смотрите <tt class=
+        "filename">Documentation/filesystems/tmpfs.txt</tt> в дереве исходников ядра.
+      </p>
+      <p>
+        Также вы можете добавлять другие строки в файл <tt class=
+        "filename">/etc/fstab</tt>. Напимер строку для поддержки устройств USB:
+      </p>
+      <pre class="screen">
+usbfs        /proc/bus/usb usbfs   devgid=14,devmode=0660 0 0 
+</pre>
+      <p>
+        Это будет работать только если &ldquo;<span class=
+	"quote">Support for Host-side USB</span>&rdquo; и &ldquo;<span class=
+	"quote">USB device filesystem</span>&rdquo; вкомпилированы прямо в ядро
+	(не как модуль).
+      </p>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="chapter08.html" title=
+          "Making the LFS System Bootable">Назад</a>
+          <p>
+            Обеспечение загрузки LFS системы
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="kernel.html" title="Linux-2.6.8.1">Далее</a>
+          <p>
+            Linux-2.6.8.1
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter08.html" title=
+          "Глава&nbsp;8.&nbsp;Making the LFS System Bootable">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

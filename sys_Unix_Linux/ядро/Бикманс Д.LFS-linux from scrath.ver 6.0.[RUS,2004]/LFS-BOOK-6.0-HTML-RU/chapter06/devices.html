@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      6.8.&nbsp;Заполнение /dev
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;6.&nbsp;Установка основных системных программ
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="pwdgroup.html" title=
+          "Creating the passwd, group, и log Files">Назад</a>
+          <p>
+            Создание файлов passwd, group, и log
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="linux-libc-headers.html" title=
+          "Linux-Libc-Headers-2.6.8.1">Далее</a>
+          <p>
+            Установка заголовков Linux-Libc-2.6.8.1
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          6.8. Заполнение /dev
+        </h1>
+      </div>
+      <div class="sect2" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <h2 class="sect2">
+            6.8.1. Создание первоначальных файлов устройств
+          </h2>
+        </div>
+        <p>
+          Когда ядро загружает систему, оно требует наличия нескольких
+          файлов устройств, обычно это устройства <tt class="filename">console</tt>
+          и <tt class="filename">null</tt>. Создадим их запуском следующих
+          команд:
+        </p>
+        <pre class="userinput">
+<kbd class="command">mknod -m 600 /dev/console c 5 1
+mknod -m 666 /dev/null c 1 3</kbd>
+</pre>
+      </div>
+      <div class="sect2" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <h2 class="sect2">
+            6.8.2. Монтирование ramfs и заполнение /dev
+          </h2>
+        </div>
+        <p>
+          Идеальный способ для заполнения <tt class="filename">/dev</tt> - это
+          монтирование <tt class="systemitem">ramfs</tt> в <tt class=
+          "filename">/dev</tt>, как <tt class="systemitem">tmpfs</tt> и
+          создавать там устройства при каждой загрузке. Поскольку система
+          не была загружена, это необходимо сделать, чтобы в противном случае
+          загрузочные скрипты могли выполниться и заполнить <tt class=
+	  "filename">/dev</tt>. Начнем с монтирования <tt class=
+	  "filename">/dev</tt>:
+        </p>
+        <pre class="userinput">
+<kbd class="command">mount -n -t ramfs none /dev</kbd>
+</pre>
+        <p>
+          Запустим установленную программу <span><b class="command">udevstart</b></span>
+          для создания первоначальных устройств, основанных на всей информации в
+          директории <tt class="filename">/sys</tt>:
+        </p>
+        <pre class="userinput">
+<kbd class="command">/tools/sbin/udevstart</kbd>
+</pre>
+        <p>
+          Есть несколько ссылок и директорий, необходимых для LFS, которые
+          не создаются Udev, поэтому создадим их здесь:
+        </p>
+        <pre class="userinput">
+<kbd class="command">ln -s /proc/self/fd /dev/fd
+ln -s /proc/self/fd/0 /dev/stdin
+ln -s /proc/self/fd/1 /dev/stdout
+ln -s /proc/self/fd/2 /dev/stderr
+ln -s /proc/kcore /dev/core
+mkdir /dev/pts
+mkdir /dev/shm</kbd>
+</pre>
+        <p>
+          В конце подмонтируем собственные виртуальные файловые системы (ядра)
+          в только что созданные директории:
+        </p>
+        <pre class="userinput">
+<kbd class="command">mount -t devpts -o gid=4,mode=620 none /dev/pts
+mount -t tmpfs none /dev/shm</kbd>
+</pre>
+        <p>
+          Команды <span><b class="command">mount</b></span>, запущенные выше,
+          могут выдать следующее предупреждение:
+        </p>
+        <pre class="screen">
+<tt class=
+"computeroutput">can't open /etc/fstab: No such file or directory.</tt>
+</pre>
+        <p>
+          Этот файл - <tt class="filename">/etc/fstab</tt> - пока не был
+          создан, но он пока не нужен для нормального монтирования файловых
+          систем. Раз так, предупреждение может быть проигнорировано.
+        </p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="pwdgroup.html" title=
+          "Creating the passwd, group, и log Files">Назад</a>
+          <p>
+            Создание файлов passwd, group, и log
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="linux-libc-headers.html" title=
+          "Linux-Libc-Headers-2.6.8.1">Далее</a>
+          <p>
+            Установка заголовков Linux-Libc-2.6.8.1
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

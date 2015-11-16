@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <meta http-equiv="Content-Type" content= 
+    "application/xhtml+xml; charset=koi8-r" /> 
+    <title> 
+      5.8.&nbsp;Glibc-2.3.4-20040701 
+    </title> 
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" /> 
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" /> 
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type= 
+    "text/css" media="print" /> 
+  </head> 
+  <body id="lfs" class="6.0"> 
+    <div class="navheader"> 
+      <div class="headertitles"> 
+        <h4> 
+          Linux From Scratch - Версия 6.0 
+        </h4> 
+        <h3> 
+          Глава&nbsp;5.&nbsp;Построение временной системы 
+        </h3> 
+      </div> 
+      <ul class="headerlinks"> 
+        <li class="prev"> 
+          <a accesskey="p" href="kernel-headers.html" title= 
+          "Linux-2.6.8.1 Headers">Назад</a> 
+          <p> 
+            Заголовки Linux-2.6.8.1 
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="adjusting.html" title= 
+          "Adjusting the Toolchain">Далее</a> 
+          <p> 
+            "Интеграция" средств 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter05.html" title= 
+          "Глава&nbsp;5.&nbsp;Построение временной системы">Наверх</a>. 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a> 
+        </li> 
+      </ul> 
+    </div> 
+    <div class="wrap" lang="en" xml:lang="en"> 
+      <div class="titlepage"> 
+        <h1 class="sect1"> 
+          5.8. Glibc-2.3.4-20040701 
+        </h1> 
+      </div> 
+      <div class="package" lang="en" xml:lang="en"> 
+        <p> 
+          Glibc является библиотекой C, которая обеспечивает системные вызовы 
+	  и основные функции, такие как open, malloc, printf и т.д. Библиотека C 
+	  используется для всех динамически скомпонованых программ. 
+        </p> 
+        <div class="segmentedlist"> 
+          <p> 
+            <b>Расчетное время сборки</b> 11.8 SBU 
+          </p> 
+          <p> 
+            <b>Требуемое место на диске</b> 800 MB 
+          </p> 
+        </div> 
+        <div class="segmentedlist"> 
+          <p> 
+            <b>Glibc - зависимости установки:</b> Bash, Binutils, Coreutils, 
+            Diffutils, Gawk, GCC, Gettext, Grep, Make, Perl, Sed и Texinfo 
+          </p> 
+        </div> 
+      </div> 
+      <div class="installation" lang="en" xml:lang="en"> 
+        <div class="titlepage"> 
+          <h2 class="sect2"> 
+            5.8.1. Инсталируем Glibc 
+          </h2> 
+        </div> 
+        <p> 
+          Этот пакет известен своим нестабильным поведением при компиляции 
+	  с измененными опциями оптимизации (включая опции <i class="parameter"> 
+	  <tt>-march</tt></i> и <i class="parameter"><tt>-mcpu</tt></i>). 
+          Если вы задали переменные окружения, такие как <tt class="envar">CFLAGS</tt> 
+	  и <tt class="envar">CXXFLAGS</tt>, рекомендуется убрать их при сборке Glibc. 
+        </p> 
+        <p> 
+          Изменяя флаги оптимизации для glibc, вы действуете на свой страх и риск. 
+        </p> 
+        <p> 
+          Документация по Glibc рекомендует собирать Glibc вне директории с исходниками, 
+	  в отдельной директории для сборки: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">mkdir ../glibc-build 
+cd ../glibc-build</kbd> 
+</pre> 
+        <p> 
+          Далее, подготовим Glibc к компиляции: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">../glibc-2.3.4-20040701/configure --prefix=/tools \ 
+    --disable-profile --enable-add-ons=nptl --with-tls \ 
+    --with-__thread --enable-kernel=2.6.0 \ 
+    --with-binutils=/tools/bin --without-gd --without-cvs \ 
+    --with-headers=/tools/glibc-kernheaders</kbd> 
+</pre> 
+        <p> 
+          Описание опций конфигурации: 
+        </p> 
+        <div class="variablelist"> 
+          <dl> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--disable-profile</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Отключает сборку библиотек с использованием профильной информации. 
+		Опустите эту опцию, если собираетесь испольховать профили. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--enable-add-ons=nptl</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Говорит Glibc использовать дополнение NPTL к библиотеке. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--with-tls</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Говорит Glibc включить поддержку для Thread-Local Storage 
+                (TLS). Это необходимо для нормальной работы NPTL. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--with-__thread</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Эта опция говорит Glibc включить поддержку нитей. Это 
+                необходимо для правильной сборки TLS. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--enable-kernel=2.6.0</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Эта опция говорит Glibc компилировать библиотеку с поддержкой 
+                2.6.x Линукс ядер. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--with-binutils=/tools/bin</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Эта опция необязательна, но она позволяют нам удостовериться, 
+		что будут использована нужная программа Binutils для сборки Glibc. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--without-gd</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Эта опция запрещает сборку программы <span><b class= 
+                "command">memusagestat</b></span>, которая пытается связаться 
+                с библиотеками основной системы (libgd, libpng, libz, и т.д.). 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--without-cvs</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Эта опция запрещает использование файлов Makefile из тестовых CVS версий, 
+                когда используется CVS. Пока эта команда не обязательна, она рекомендуется. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--with-headers=/tools/glibc-kernheaders</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Эта опция говорит Glibc компилироваться с использованием 
+                &ldquo;<span class="quote">сырых</span>&rdquo; заголовков ядра, 
+                так что точно известно, какие функции имеет ядро и, таким образом, может 
+                себя оптимизировать. 
+              </p> 
+            </dd> 
+          </dl> 
+        </div> 
+        <p> 
+          На этом шаге вы можете увидеть следующее предупреждение: 
+        </p> 
+        <div class="blockquote"> 
+          <blockquote class="blockquote"> 
+            <pre class="screen"> 
+<tt class="computeroutput">configure: WARNING: 
+*** These auxiliary programs are missing or  
+*** incompatible versions: msgfmt 
+*** some features will be disabled. 
+*** Check the INSTALL file for required versions.</tt> 
+</pre> 
+          </blockquote> 
+        </div> 
+        <p> 
+          Отсутствующая или несовместимая программа <span><b class= 
+          "command">msgfmt</b></span> безвредна, но может привести к определенным 
+	  проблемам при тестировании. Эта программа 
+          <span><b class="command">msgfmt</b></span> является частью пакета 
+          Gettext, который используется из дистрибутива основной системы. Если 
+          <span><b class="command">msgfmt</b></span> имеется, но считается несовместимой, 
+          обновите пакет Gettext из основной системы или продолжайте без него. 
+        </p> 
+        <p> 
+          Компилируем пакет 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make</kbd> 
+</pre> 
+        <p> 
+          Компиляция проведена. Как было сказано ранее, запуск теста для временной сборки 
+          в этой части проводить не обязательно. В любом случае, для запуска теста Glibc 
+	  используйте следующую команду: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make check</kbd> 
+</pre> 
+        <p> 
+          Для обсуждения особо выжных ошибок тестирования, смотрите <a href= 
+	  "../chapter06/glibc.html" title="6.11.&nbsp;Glibc-2.3.4-20040701">Раздел 6.11, 
+          &ldquo;Glibc-2.3.4-20040701.&rdquo;</a> 
+        </p> 
+        <p> 
+          В этой части некоторые тесты могут быть неспособны дать положительный результат 
+	  при использовании имеющихся приложений или переменных окружения базовой системы. 
+	  Ошибки тестов Glibc в этой части, обычно, не должны беспокоить. Glibc, 
+          проинсталированные в <a href="../chapter06/chapter06.html">Главе 6</a>, 
+          будут полностью готовы к использованию. Но имейте в виду, что при 
+          прохождении тестов (даже в <a href="../chapter06/chapter06.html">Главе 6</a>), 
+	  некоторые ошибки все еще могут появляться, например в тесте math. 
+        </p> 
+        <p> 
+          Когда вы получите сообщение о непрохождении теста, запомните 
+	  его, а затем продолжите тестирование дальше, опять выполнив команду 
+          <span><b class="command">make check</b></span>. Скрипт тестирования запоминает 
+	  пройденые тесты для возможности его продолжения после выхода из-за ошибки. 
+	  Вы можете использовать эту возможность "запуска-остановки" автоматически с 
+	  помощью команды <span><b class="command">make -k check</b></span>. Если вы так 
+	  сделаете, проверьте логи тестирования и посмотрите общее количество и причины 
+	  проваленных тестов. 
+        </p> 
+        <p> 
+          Этап инсталляции Glibc будет иметь предупреждение в конце об отсутствии 
+          <tt class="filename">/tools/etc/ld.so.conf</tt>. Упредим это сообщение: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">mkdir /tools/etc 
+touch /tools/etc/ld.so.conf</kbd> 
+</pre> 
+        <p> 
+          Устанавливаем пакет 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make install</kbd> 
+</pre> 
+        <p> 
+          Разные страны и культуры имеют различные соглашения для 
+	  коммуникаций. Эти соглашения состоят как из очень простых, таких как 
+	  форматы даты и времени, так и из более сложных, таких как разговорный 
+	  язык. &ldquo;<span class="quote">Интернационализация</span>&rdquo; программ 
+	  GNU работает с помощью локалей (locales). 
+        </p> 
+        <div class="note"> 
+          <div class="admonhead"> 
+            <img alt="[Note]" src="../images/note.png" /> 
+            <h3 class="admontitle"> 
+              Замечание 
+            </h3> 
+          </div> 
+          <div class="admonbody"> 
+            <p> 
+              Если тест не был запущен в этой части (как в рекомендации), 
+              нет необходимости в инсталяции локалей сейчас. Необходимые локали 
+              будут установлены в следующей части. 
+            </p> 
+          </div> 
+        </div> 
+        <p> 
+          Для установки Glibc локалей в любом случае,используйте следующую команду: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make localedata/install-locales</kbd> 
+</pre> 
+        <p> 
+          Альтернативой запуску предыдущей команды для экономии времени является 
+	  установка только определенных локалей, тех которые вам нужны. Это может 
+	  быть достигнуто использованием команды <span><b class="command">localedef</b></span> 
+          command. Информацию об использовании этой команды можно получить из файла <tt class= 
+          "filename">INSTALL</tt> в исходниках Glibc. Тем не менее, список локалей может 
+	  быть существенным для некоторых тестов, в частности, теста <span class= 
+          "emphasis"><em>libstdc++</em></span> из GCC. Следующие команды, используемые 
+	  вместо вышеописаной <i class="parameter"><tt>install-locales</tt></i> 
+	  установят минимальный набор локалей для успешного завершения тестирований: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">mkdir -p /tools/lib/locale 
+localedef -i de_DE -f ISO-8859-1 de_DE 
+localedef -i de_DE@euro -f ISO-8859-15 de_DE@euro 
+localedef -i en_HK -f ISO-8859-1 en_HK 
+localedef -i en_PH -f ISO-8859-1 en_PH 
+localedef -i en_US -f ISO-8859-1 en_US 
+localedef -i es_MX -f ISO-8859-1 es_MX 
+localedef -i fa_IR -f UTF-8 fa_IR 
+localedef -i fr_FR -f ISO-8859-1 fr_FR 
+localedef -i fr_FR@euro -f ISO-8859-15 fr_FR@euro 
+localedef -i it_IT -f ISO-8859-1 it_IT 
+localedef -i ja_JP -f EUC-JP ja_JP</kbd> 
+</pre> 
+      </div> 
+      <div class="content" lang="en" xml:lang="en"> 
+        <p> 
+          Детальная информация о пакете находится в <a href= 
+          "../chapter06/glibc.html#contents-glibc" title= 
+          "6.11.4.&nbsp;Описание Glibc">Разделе&nbsp;6.11.4, 
+          &ldquo;Описание Glibc&rdquo;</a>. 
+        </p> 
+      </div> 
+    </div> 
+    <div class="navfooter"> 
+      <ul> 
+        <li class="prev"> 
+          <a accesskey="p" href="kernel-headers.html" title= 
+          "Linux-2.6.8.1 Headers">Назад</a> 
+          <p> 
+            Linux-2.6.8.1 Headers 
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="adjusting.html" title= 
+          "Adjusting the Toolchain">Далее</a> 
+          <p> 
+            "Интеграция" средств 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter05.html" title= 
+          "Глава&nbsp;5.&nbsp;Построение временной системы">Наверх</a>. 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a>. 
+        </li> 
+      </ul> 
+    </div> 
+  </body> 
+</html> 

@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+  <head> 
+    <meta http-equiv="Content-Type" content= 
+    "application/xhtml+xml; charset=koi8-r" /> 
+    <title> 
+      5.5.&nbsp;GCC-3.4.1 - Шаг 1 
+    </title> 
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" /> 
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" /> 
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type= 
+    "text/css" media="print" /> 
+  </head> 
+  <body id="lfs" class="6.0"> 
+    <div class="navheader"> 
+      <div class="headertitles"> 
+        <h4> 
+          Linux From Scratch - Версия 6.0 
+        </h4> 
+        <h3> 
+          Глава&nbsp;5.&nbsp;Построение временной системы 
+        </h3> 
+      </div> 
+      <ul class="headerlinks"> 
+        <li class="prev"> 
+          <a accesskey="p" href="binutils-pass1.html" title= 
+          "Binutils-2.15.91.0.2 - Pass 1">Назад</a> 
+          <p> 
+            Binutils-2.15.91.0.2 - Шаг 1 
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="linux-libc-headers.html" title= 
+          "Linux-Libc-Headers-2.6.8.1">Далее</a> 
+          <p> 
+            Linux-Libc-Headers-2.6.8.1 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter05.html" title= 
+          "Глава&nbsp;5.&nbsp;Построение временной системы">Наверх</a>. 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a> 
+        </li> 
+      </ul> 
+    </div> 
+    <div class="wrap" lang="en" xml:lang="en"> 
+      <div class="titlepage"> 
+        <h1 class="sect1"> 
+          5.5. GCC-3.4.1 - Шаг 1 
+        </h1> 
+      </div> 
+      <div class="package" lang="en" xml:lang="en"> 
+        <p> 
+          Пакет GCC содержит коллекцию компилятора GNU, включая компиляторы C и C++. 
+        </p> 
+        <div class="segmentedlist"> 
+          <p> 
+            <b>Расчетное время сборки</b> 4.4 SBU 
+          </p> 
+          <p> 
+            <b>Требуемое место на диске</b> 300 MB 
+          </p> 
+        </div> 
+        <div class="segmentedlist"> 
+          <p> 
+            <b>GCC - зависимости установки:</b> Bash, Binutils, Coreutils, 
+            Diffutils, Findutils, Gawk, Gettext, Glibc, Grep, Make, Perl, 
+            Sed и Texinfo 
+          </p> 
+        </div> 
+      </div> 
+      <div class="installation" lang="en" xml:lang="en"> 
+        <div class="titlepage"> 
+          <h2 class="sect2"> 
+            5.5.1. Инсталируем GCC 
+          </h2> 
+        </div> 
+        <p> 
+          Распакуйте только тарбол GCC-core, нам пока не нужен компилятор C++. 
+        </p> 
+        <p> 
+          Этот пакет известен своим нестабильным поведением при компиляции  
+	  с измененными опциями оптимизации 
+	  (включая опции <i class="parameter"><tt>-march</tt></i> и 
+          <i class="parameter"><tt>-mcpu</tt></i>). GCC рекомендуется компилировать с 
+	  настройками по умолчанию. Если вы задали переменные такие как 
+          <tt class="envar">CFLAGS</tt> и <tt class= 
+          "envar">CXXFLAGS</tt>, рекомендуется убрать их при сборке пакета GCC. 
+        </p> 
+        <p> 
+	  В документации по GCC рекомендуется собирать GCC вне директории с исходниками 
+	  в отдельной директории для сборки: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">mkdir ../gcc-build 
+cd ../gcc-build</kbd> 
+</pre> 
+        <p> 
+          Подготавливаем GCC для компиляции: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">../gcc-3.4.1/configure --prefix=/tools \ 
+    --libexecdir=/tools/lib --with-local-prefix=/tools \ 
+    --disable-nls --enable-shared --enable-languages=c</kbd> 
+</pre> 
+        <p> 
+          Описание опций конфигурации: 
+        </p> 
+        <div class="variablelist"> 
+          <dl> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--with-local-prefix=/tools</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Назначение этого переключателя - исключить <tt class= 
+                "filename">/usr/local/include</tt> из пути поиска включений <span><b class= 
+                "command">gcc</b></span>. Это не очень существенно, но мы собираемся  
+		минимизировать зависимомть от основной системы, и мы считаем, что это  
+		нужно сделать. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--enable-shared</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Этот переключатель может показаться интуитивно понятным поначалу. 
+		Но его использование допускает сборку <tt class= 
+                "filename">libgcc_s.so.1</tt> и <tt class= 
+                "filename">libgcc_eh.a</tt>, а также делает <tt class= 
+                "filename">libgcc_eh.a</tt> доступным для скрипта конфигурации Glibc 
+                (следующего компилируемого пакета), выдавая правильный результат. 
+                Заметьте, что бинарники компонуются статически, если это задано значением 
+                <i class="parameter"><tt>-static</tt></i> для переменной  
+                <tt class="envar">BOOT_LDFLAGS</tt> далее. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>--enable-languages=c</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+		Эта опция позволяет быть увереным, что будет собран только 
+		компилятор C. Она нужна только в том случае, если вы скачали 
+		и распаковали полный тарбол. 
+              </p> 
+            </dd> 
+          </dl> 
+        </div> 
+        <p> 
+          Продолжим компиляцию пакета: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make BOOT_LDFLAGS="-static" bootstrap</kbd> 
+</pre> 
+        <p> 
+          Описание параметров сборки: 
+        </p> 
+        <div class="variablelist"> 
+          <dl> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>BOOT_LDFLAGS="-static"</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Это скажет GCC компоновать программы статически. 
+              </p> 
+            </dd> 
+            <dt> 
+              <span class="term"><i class= 
+              "parameter"><tt>bootstrap</tt></i></span> 
+            </dt> 
+            <dd> 
+              <p> 
+                Этот параметр заставляет не просто компилироваться GCC, 
+		а компилироваться несколько раз. Программы, скомпилированые 
+		сначала используются для компиляции программ еще раз, а те, 
+		в свою очередь, используются при компиляции в третий раз. 
+		Идентичность второй и третьей компиляции позволяет убедиться в 
+		корректности сборки. 
+              </p> 
+            </dd> 
+          </dl> 
+        </div> 
+        <p> 
+          Компиляция проведена. На этом этапе обычно выполняется тест, 
+          но как было сказано ранее, мы еще не имеем полного набора тестовых 
+          утилит на своем месте. Кроме того, смысл запуска теста на этом этапе 
+          минимален т.к. программы, собранные на этом шаге скоро будут заменены. 
+        </p> 
+        <p> 
+          Устанавливаем пакет 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">make install</kbd> 
+</pre> 
+        <p> 
+          Многие программы и скрипты используют <span><b class="command">cc</b></span> вместо 
+          <span><b class="command">gcc</b></span> для обеспечения переносимости 
+	  программ на все Unix системы. Не у всех установлен именно компилятор GNU C. Запуск 
+          <span><b class="command">cc</b></span> позволяет администратору выбирать, 
+	  какой компилятор C устанавливать в систему, и мы создаем ссылку на него: 
+        </p> 
+        <pre class="userinput"> 
+<kbd class="command">ln -s gcc /tools/bin/cc</kbd> 
+</pre> 
+      </div> 
+      <div class="content" lang="en" xml:lang="en"> 
+        <p> 
+          Детальная информация о пакете находится в <a href= 
+          "../chapter06/gcc.html#contents-gcc" title= 
+          "6.14.2.&nbsp;Описание GCC">Разделе&nbsp;6.14.2, &ldquo;Contents 
+          of GCC&rdquo;</a>. 
+        </p> 
+      </div> 
+    </div> 
+    <div class="navfooter"> 
+      <ul> 
+        <li class="prev"> 
+          <a accesskey="p" href="binutils-pass1.html" title= 
+          "Binutils-2.15.91.0.2 - Pass 1">Назад</a> 
+          <p> 
+            Binutils-2.15.91.0.2 - Шаг 1 
+          </p> 
+        </li> 
+        <li class="next"> 
+          <a accesskey="n" href="linux-libc-headers.html" title= 
+          "Linux-Libc-Headers-2.6.8.1">Далее</a> 
+          <p> 
+            Linux-Libc-Headers-2.6.8.1 
+          </p> 
+        </li> 
+        <li class="up"> 
+          <a accesskey="u" href="chapter05.html" title= 
+          "Глава&nbsp;5.&nbsp;Построение временной системы">Наверх</a>. 
+        </li> 
+        <li class="home"> 
+          <a accesskey="h" href="../index.html" title= 
+          "Linux From Scratch - Версия 6.0">В начало</a>. 
+        </li> 
+      </ul> 
+    </div> 
+  </body> 
+</html> 

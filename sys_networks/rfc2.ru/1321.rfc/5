@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><link rel="stylesheet" href="../tpl/style.css@f4e332aa" type="text/css" /><link rel="prev" href="4" /><link rel="next" href="6" /><link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' /><style type="text/css">h1,h2,h3,h4{font-family:'Open Sans',sans-serif}</style><title>Перевод RFC 1321 — Алгоритм цифровых подписей MD5, стр. 5</title><meta name="author" content="R. Rivest" /><link rel="alternate" type="application/rss+xml" title="RFC2.ru - Русские Переводы RFC" href="../rss.xml"></head><body><div id="content"><div id="nav"><div class="icon i0"></div> <a href="../index.html" accesskey="`">На Главную</a></div><div id="search" class="ya-site-form ya-site-form_inited_no"><form action="http://yandex.ru/sitesearch" method="get" target="_blank"><input type="hidden" name="searchid" value="2154295"/><input type="hidden" name="l10n" value="ru"/><input type="hidden" name="reqenc" value=""/><input type="hidden" name="submit" value="Найти"/><input type="search" value="" name="text" placeholder="Поиск по RFC2.ru" /></form></div><div itemscope itemtype="http://schema.org/ScholarlyArticle"><meta itemprop="inLanguage" content="ru" /><meta itemprop="editor" content="ru" /><div id="header"><h1><a itemprop="headline" href="../1321.rfc">RFC 1321 — Алгоритм цифровых подписей MD5</a></h1></div><dl class="mute"><dt></dt><dd><div class="icon i1"></div> RFC: 1321</dd><dd><div class="icon i3"></div> Оригинал: <a href="original" target="_blank" rel="nofollow"><span itemprop="alternativeHeadline">The MD5 Message-Digest Algorithm</span></a></dd><dd><div class="icon i2"></div> Категория: <span itemprop="articleSection">Информационный</span></dd><dd><div class="icon i4"></div> Дата публикации: <time itemprop="datePublished" datetime="1992-04-02">Апрель 1992</time></dd><dd><div class="icon i5"></div> Автор: <span itemprop="author">R. Rivest</span></dd><dd><div class="icon i6"></div> Перевод: <span itemprop="editor">Николай Малых</span></dd></dl><div class="pages"><p class="r"> <h2 class="pt"><span class="z">RFC 1321,</span> Страница 5 из 8</h2></p><ul><li><noindex><a href="print" rel="nofollow">Одной Страницей</a></noindex></li><li><a accesskey="1" title="Первая страница" href="../1321.rfc" class="arr">&lArr;</a></li><li><a accesskey="2" title="На страницу назад" href="4"><b>&larr;</b></a></li><li><a href="../1321.rfc">1</a></li><li><a href="2">2</a></li><li><a href="3">3</a></li><li><a href="4">4</a></li><li class="this"><span>5</span></li><li><a href="6">6</a></li><li><a href="7">7</a></li><li><a href="8">8</a></li><li><a accesskey="3" title="На страницу вперед" href="6">&rarr;</a></li><li><a accesskey="4" title="Последняя страница" href="8">&rArr;</a></li></ul></div><div id="text" itemprop="articleBody"><h3 id="p3.4">3.4. Этап 4. Обработка сообщения блоками по 16 слов</h3><p>Сначала определим четыре дополнительных функции, каждая из которых принимает три 32-битовых слова в качестве аргументов и возвращает одно 32-битовое слово.</p><pre>F(X,Y,Z) = XY v not(X) Z
+G(X,Y,Z) = XZ v Y not(Z)
+H(X,Y,Z) = X xor Y xor Z
+I(X,Y,Z) = Y xor (X v not(Z))</pre><p>Для каждого бита функция F работает как условие — если X, то Y, иначе Z. Функцию F можно определить с использованием сложения (+) вместо операции ИЛИ (v), поскольку XY и not(X)Z никогда не будут давать 1 в одной битовой позиции. Интересно отметить, что при условии, когда биты X, Y и Z независимы и не образованы смещением (unbiased), каждый бит функции F (X,Y,Z) будет независимым и не будет образован смещением.</p><p>Функции G, H, I похожи на функцию F — фактически они действуют «параллельно по битам» для создания результатов по значениям X, Y, Z так, чтобы при независимых и не образованных смещением (unbiased) битах X, Y и Z каждый бит G(X,Y,Z), H (X,Y,Z) и I(X,Y,Z) также был независимым и не получался путем смещения. Отметим, что функция H представляет собой побитовую операцию «исключающее ИЛИ» (xor) или функцию «четности» (parity) переданных ей аргументов.</p><p>На этом этапе используется 64-элементная таблица T[1 ... 64], построенная с использованием синусоидальной функции (sine function). Пусть T[i] обозначает i-й элемент таблицы, который равен целой части произведения 4294967296 * abs(sin(i)), где i задано в радианах. Элементы таблицы приведены в приложении.</p><p>Ниже показана обработка блоков сообщения.</p><pre>/* Process each 16-word block. */
+For i = 0 to N/16-1 do
+
+  /* Copy block i into X. */
+  For j = 0 to 15 do
+    Set X[j] to M[i*16+j].
+  end /* of loop on j */
+
+  /* Save A as AA, B as BB, C as CC, and D as DD. */
+  AA = A
+  BB = B
+  CC = C
+  DD = D
+
+  /* Round 1. */
+  /* Let [abcd k s i] denote the operation
+       a = b + ((a + F(b,c,d) + X[k] + T[i]) &lt;&lt;&lt; s). */
+  /* Do the following 16 operations. */
+  [ABCD  0  7  1]  [DABC  1 12  2]  [CDAB  2 17  3]  [BCDA  3 22  4]
+  [ABCD  4  7  5]  [DABC  5 12  6]  [CDAB  6 17  7]  [BCDA  7 22  8]
+  [ABCD  8  7  9]  [DABC  9 12 10]  [CDAB 10 17 11]  [BCDA 11 22 12]
+  [ABCD 12  7 13]  [DABC 13 12 14]  [CDAB 14 17 15]  [BCDA 15 22 16]
+
+  /* Round 2. */
+  /* Let [abcd k s i] denote the operation
+       a = b + ((a + G(b,c,d) + X[k] + T[i]) &lt;&lt;&lt; s). */
+  /* Do the following 16 operations. */
+  [ABCD  1  5 17]  [DABC  6  9 18]  [CDAB 11 14 19]  [BCDA  0 20 20]
+  [ABCD  5  5 21]  [DABC 10  9 22]  [CDAB 15 14 23]  [BCDA  4 20 24]
+  [ABCD  9  5 25]  [DABC 14  9 26]  [CDAB  3 14 27]  [BCDA  8 20 28]
+  [ABCD 13  5 29]  [DABC  2  9 30]  [CDAB  7 14 31]  [BCDA 12 20 32]
+
+  /* Round 3. */
+  /* Let [abcd k s t] denote the operation
+       a = b + ((a + H(b,c,d) + X[k] + T[i]) &lt;&lt;&lt; s). */
+  /* Do the following 16 operations. */
+  [ABCD  5  4 33]  [DABC  8 11 34]  [CDAB 11 16 35]  [BCDA 14 23 36]
+  [ABCD  1  4 37]  [DABC  4 11 38]  [CDAB  7 16 39]  [BCDA 10 23 40]
+  [ABCD 13  4 41]  [DABC  0 11 42]  [CDAB  3 16 43]  [BCDA  6 23 44]
+  [ABCD  9  4 45]  [DABC 12 11 46]  [CDAB 15 16 47]  [BCDA  2 23 48]
+
+  /* Round 4. */
+  /* Let [abcd k s t] denote the operation
+       a = b + ((a + I(b,c,d) + X[k] + T[i]) &lt;&lt;&lt; s). */
+  /* Do the following 16 operations. */
+  [ABCD  0  6 49]  [DABC  7 10 50]  [CDAB 14 15 51]  [BCDA  5 21 52]
+  [ABCD 12  6 53]  [DABC  3 10 54]  [CDAB 10 15 55]  [BCDA  1 21 56]
+  [ABCD  8  6 57]  [DABC 15 10 58]  [CDAB  6 15 59]  [BCDA 13 21 60]
+  [ABCD  4  6 61]  [DABC 11 10 62]  [CDAB  2 15 63]  [BCDA  9 21 64]
+
+  /* Then perform the following additions. (That is increment each
+     of the four registers by the value it had before this block
+     was started.) */
+  A = A + AA
+  B = B + BB
+  C = C + CC
+  D = D + DD
+
+end /* of loop on i */</pre><h3 id="p3.5">3.5. Этап 5. Вывод</h3><p>Сигнатура сообщения выводится как A, B, C, D (т. е., мы начинаем вывод с младшего байта A и закачиваем старшим байтом D). На этом описание алгоритма MD5 завершается. Пример реализации на языке C дан в приложении.</p></div></div><noindex><div class="pages"><p class="r"> <b>Страница 5 из 8</b></p><ul><li><noindex><a href="print" rel="nofollow">Одной Страницей</a></noindex></li><li><a title="Первая страница" href="../1321.rfc" class="arr">&lArr;</a></li><li><a title="На страницу назад" href="4"><b>&larr;</b></a></li><li><a href="../1321.rfc">1</a></li><li><a href="2">2</a></li><li><a href="3">3</a></li><li><a href="4">4</a></li><li class="this"><span>5</span></li><li><a href="6">6</a></li><li><a href="7">7</a></li><li><a href="8">8</a></li><li><a title="На страницу вперед" href="6">&rarr;</a></li><li><a title="Последняя страница" href="8">&rArr;</a></li></ul></div></noindex><div id="disqus_thread"></div><script type="text/javascript">var disqus_shortname="rfc2",disqus_title="RFC 1321 - Алгоритм цифровых подписей MD5",disqus_identifier="1321.rfc",disqus_url="http://rfc2.ru/1321.rfc";(function(){var dsq=document.createElement("script");dsq.type="text/javascript";dsq.async=true;dsq.src = "//"+disqus_shortname+".disqus.com/embed.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(dsq);})();</script><div class="bubble">2007 - 2014 © <a href="../index.html" title="Русские переводы RFC">Русские переводы RFC</a>, IETF, ISOC.</div></div><div id="bottom" style="position:static !important;bottom:auto !important"><div class="bubble"><ul><li><!--723572853672--></li></ul></div></div><!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter4680559 = new Ya.Metrika({id:4680559, webvisor:true, clickmap:true, accurateTrackBounce:true, trackHash:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="http://mc.yandex.ru/watch/4680559" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter --></body></html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><link rel="stylesheet" href="../tpl/style.css@f4e332aa" type="text/css" /><link rel="prev" href="../2849.rfc" /><link rel="next" href="3" /><link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' /><style type="text/css">h1,h2,h3,h4{font-family:'Open Sans',sans-serif}</style><title>Перевод RFC 2849 — Формат обмена данными LDAP (LDIF) - техническая спецификация, стр. 2</title><meta name="author" content="G. Good" /><link rel="alternate" type="application/rss+xml" title="RFC2.ru - Русские Переводы RFC" href="../rss.xml"></head><body><div id="content"><div id="nav"><div class="icon i0"></div> <a href="../index.html" accesskey="`">На Главную</a></div><div id="search" class="ya-site-form ya-site-form_inited_no"><form action="http://yandex.ru/sitesearch" method="get" target="_blank"><input type="hidden" name="searchid" value="2154295"/><input type="hidden" name="l10n" value="ru"/><input type="hidden" name="reqenc" value=""/><input type="hidden" name="submit" value="Найти"/><input type="search" value="" name="text" placeholder="Поиск по RFC2.ru" /></form></div><div itemscope itemtype="http://schema.org/ScholarlyArticle"><meta itemprop="inLanguage" content="ru" /><meta itemprop="editor" content="ru" /><div id="header"><h1><a itemprop="headline" href="../2849.rfc">RFC 2849 — Формат обмена данными LDAP (LDIF) - техническая спецификация</a></h1></div><dl class="mute"><dt></dt><dd><div class="icon i1"></div> RFC: 2849</dd><dd><div class="icon i3"></div> Оригинал: <a href="original" target="_blank" rel="nofollow"><span itemprop="alternativeHeadline">The LDAP Data Interchange Format (LDIF) - Technical Specification</span></a></dd><dd><div class="icon i2"></div> Категория: <span itemprop="articleSection">Предложенный стандарт</span></dd><dd><div class="icon i4"></div> Дата публикации: <time itemprop="datePublished" datetime="2000-06-02">Июнь 2000</time></dd><dd><div class="icon i5"></div> Автор: <span itemprop="author">G. Good</span></dd><dd><div class="icon i6"></div> Перевод: <span itemprop="editor">Pro-LDAP.ru</span></dd></dl><div class="pages"><p class="r"> <h2 class="pt"><span class="z">RFC 2849,</span> Страница 2 из 8</h2></p><ul><li><noindex><a href="print" rel="nofollow">Одной Страницей</a></noindex></li><li><a accesskey="1" title="Первая страница" href="../2849.rfc" class="arr">&lArr;</a></li><li><a accesskey="2" title="На страницу назад" href="../2849.rfc"><b>&larr;</b></a></li><li><a href="../2849.rfc">1</a></li><li class="this"><span>2</span></li><li><a href="3">3</a></li><li><a href="4">4</a></li><li><a href="5">5</a></li><li><a href="6">6</a></li><li><a href="7">7</a></li><li><a href="8">8</a></li><li><a accesskey="3" title="На страницу вперед" href="3">&rarr;</a></li><li><a accesskey="4" title="Последняя страница" href="8">&rArr;</a></li></ul></div><div id="text" itemprop="articleBody"><h2>Определение LDAP Data Interchange Format</h2><p>Формат LDIF используется для выражения информации каталога или описания набора изменений, производимых над записями каталога. Файл LDIF состоит из серий записей, отделённых друг от друга строками-разделителями. Запись файла состоит из последовательности строк, описывающих запись каталога, или последовательности строк, описывающих набор изменений записи каталога. Файл LDIF определяет набор записей каталога или набор изменений, применяемых к записям каталога, но не то и другое сразу.</p><p>Существует однозначное соответствие между операциями LDAP модификации каталога (add, delete, modify и modrdn) и типами описанных ниже записей изменений changerecord ("add", "delete", "modify" и "modrdn" (или "moddn")). Это соответствие является преднамеренным и позволяет вызывать операции протокола простой трансляцией записей changerecord файла LDIF.</p><h3>Формальный синтаксис определения LDIF</h3><p>Приведённое ниже определение использует расширенную форму Бэкуса-Наура, определённую в RFC 2234 [<a href="7#p.references" title="&quot;Расширенная BNF для спецификации синтаксиса: ABNF&quot;">2</a>].</p><pre>ldif-file                = ldif-content / ldif-changes
+
+ldif-content             = version-spec 1*(1*SEP ldif-attrval-record)
+
+ldif-changes             = version-spec 1*(1*SEP ldif-change-record)
+
+ldif-attrval-record      = dn-spec SEP 1*attrval-spec
+
+ldif-change-record       = dn-spec SEP *control changerecord
+
+version-spec             = "version:" FILL version-number
+
+version-number           = 1*DIGIT
+                           ; version-number должен (MUST) быть "1" для
+                           ; формата LDIF, описанного в этом документе.
+
+dn-spec                  = "dn:" (FILL distinguishedName /
+                                  ":" FILL base64-distinguishedName)
+
+distinguishedName        = SAFE-STRING
+                           ; отличительное имя, как определено в [<a href="7#p.references" title="&quot;Строковое представление отличительных имён&quot;">3</a>]
+
+base64-distinguishedName = BASE64-UTF8-STRING
+                           ; distinguishedName, закодированное base64
+                           ; (смотрите примечание 10 ниже)
+
+rdn                      = SAFE-STRING
+                           ; относительное отличительное имя, определённое как
+                           ; &lt;name-component&gt; в [<a href="7#p.references" title="&quot;Строковое представление отличительных имён&quot;">3</a>]
+
+base64-rdn               = BASE64-UTF8-STRING
+                           ; rdn, закодированное base64
+                           ; (смотрите примечание 10 ниже)
+
+control                  = "control:" FILL ldap-oid        ; controlType
+                           0*1(1*SPACE ("true" / "false")) ; criticality
+                           0*1(value-spec)                ; controlValue
+                           SEP
+                           ; (смотрите примечание 9 ниже)
+
+ldap-oid                 = 1*DIGIT 0*1("." 1*DIGIT)
+                           ; LDAPOID, как определено в [<a href="7#p.references" title="&quot;Lightweight Directory Access Protocol (v3)&quot;">4</a>]
+
+attrval-spec             = AttributeDescription value-spec SEP
+
+value-spec               = ":" (    FILL 0*1(SAFE-STRING) /
+                                ":" FILL (BASE64-STRING) /
+                                "&lt;" FILL url)
+                           ; Смотрите примечания 7 и 8 ниже
+
+url                      = &lt;a Uniform Resource Locator,
+                            как определено в [<a href="7#p.references" title="&quot;Uniform Resource Locators (URL)&quot;">6</a>]&gt;
+                                   ; (смотрите примечание 6 ниже)
+
+AttributeDescription     = AttributeType [";" options]
+                           ; Определение взято из [<a href="7#p.references" title="&quot;Lightweight Directory Access Protocol (v3)&quot;">4</a>]
+
+AttributeType            = ldap-oid / (ALPHA *(attr-type-chars))
+
+options                  = option / (option ";" options)
+
+option                   = 1*opt-char
+
+attr-type-chars          = ALPHA / DIGIT / "-"
+
+opt-char                 = attr-type-chars
+
+changerecord             = "changetype:" FILL
+                           (change-add / change-delete /
+                            change-modify / change-moddn)
+
+change-add               = "add"                SEP 1*attrval-spec
+
+change-delete            = "delete"             SEP
+
+change-moddn             = ("modrdn" / "moddn") SEP
+                            "newrdn:" (    FILL rdn /
+                                       ":" FILL base64-rdn) SEP
+                            "deleteoldrdn:" FILL ("0" / "1")  SEP
+                            0*1("newsuperior:"
+                            (    FILL distinguishedName /
+                             ":" FILL base64-distinguishedName) SEP)
+
+change-modify            = "modify"             SEP *mod-spec
+
+mod-spec                 = ("add:" / "delete:" / "replace:")
+                           FILL AttributeDescription SEP
+                           *attrval-spec
+                           "-" SEP
+
+SPACE                    = %x20
+                           ; ASCII SP, space
+
+FILL                     = *SPACE
+
+SEP                      = (CR LF / LF)
+
+CR                       = %x0D
+                           ; ASCII CR, carriage return
+
+LF                       = %x0A
+                           ; ASCII LF, line feed
+
+ALPHA                    = %x41-5A / %x61-7A
+                           ; A-Z / a-z
+
+DIGIT                    = %x30-39
+                           ; 0-9
+
+UTF8-1                   = %x80-BF
+
+UTF8-2                   = %xC0-DF UTF8-1
+
+UTF8-3                   = %xE0-EF 2UTF8-1
+
+UTF8-4                   = %xF0-F7 3UTF8-1
+
+UTF8-5                   = %xF8-FB 4UTF8-1
+
+UTF8-6                   = %xFC-FD 5UTF8-1
+
+SAFE-CHAR                = %x01-09 / %x0B-0C / %x0E-7F
+                           ; любое значение &lt;= 127 (десятичное), за исключением
+                           ; NUL, LF и CR
+
+SAFE-INIT-CHAR           = %x01-09 / %x0B-0C / %x0E-1F /
+                           %x21-39 / %x3B / %x3D-7F
+                           ; любое значение &lt;= 127, за исключением NUL, LF, CR,
+                           ; SPACE, двоеточие (":", ASCII 58 десятичное)
+                           ; и знак меньше ("&lt;", ASCII 60 десятичное)
+
+SAFE-STRING              = [SAFE-INIT-CHAR *SAFE-CHAR]
+
+UTF8-CHAR                = SAFE-CHAR / UTF8-2 / UTF8-3 /
+                           UTF8-4 / UTF8-5 / UTF8-6
+
+UTF8-STRING              = *UTF8-CHAR
+
+BASE64-UTF8-STRING       = BASE64-STRING
+                           ; должна (MUST) быть UTF8-STRING,
+                           ; закодированная base64
+
+BASE64-CHAR              = %x2B / %x2F / %x30-39 / %x3D / %x41-5A /
+                           %x61-7A
+                           ; +, /, 0-9, =, A-Z, and a-z
+                           ; как определно в [<a href="7#p.references" title="&quot;Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies&quot;">5</a>]
+
+BASE64-STRING            = [*(BASE64-CHAR)]</pre></div></div><noindex><div class="pages"><p class="r"> <b>Страница 2 из 8</b></p><ul><li><noindex><a href="print" rel="nofollow">Одной Страницей</a></noindex></li><li><a title="Первая страница" href="../2849.rfc" class="arr">&lArr;</a></li><li><a title="На страницу назад" href="../2849.rfc"><b>&larr;</b></a></li><li><a href="../2849.rfc">1</a></li><li class="this"><span>2</span></li><li><a href="3">3</a></li><li><a href="4">4</a></li><li><a href="5">5</a></li><li><a href="6">6</a></li><li><a href="7">7</a></li><li><a href="8">8</a></li><li><a title="На страницу вперед" href="3">&rarr;</a></li><li><a title="Последняя страница" href="8">&rArr;</a></li></ul></div></noindex><div id="disqus_thread"></div><script type="text/javascript">var disqus_shortname="rfc2",disqus_title="RFC 2849 - Формат обмена данными LDAP (LDIF) - техническая спецификация",disqus_identifier="2849.rfc",disqus_url="http://rfc2.ru/2849.rfc";(function(){var dsq=document.createElement("script");dsq.type="text/javascript";dsq.async=true;dsq.src = "//"+disqus_shortname+".disqus.com/embed.js";(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(dsq);})();</script><div class="bubble">2007 - 2014 © <a href="../index.html" title="Русские переводы RFC">Русские переводы RFC</a>, IETF, ISOC.</div></div><div id="bottom" style="position:static !important;bottom:auto !important"><div class="bubble"><ul><li><!--723572853672--></li></ul></div></div><!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter4680559 = new Ya.Metrika({id:4680559, webvisor:true, clickmap:true, accurateTrackBounce:true, trackHash:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="http://mc.yandex.ru/watch/4680559" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter --></body></html>

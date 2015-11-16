@@ -1,0 +1,881 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      6.11.&nbsp;Glibc-2.3.4-20040701
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;6.&nbsp;Установка основных системных программ
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="man-pages.html" title=
+          "Man-pages-1.67">Назад</a>
+          <p>
+            Man-pages-1.67
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="readjusting.html" title=
+          "Re-adjusting the Toolchain">Далее</a>
+          <p>
+            Переустановка средств
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="wrap" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          6.11. Glibc-2.3.4-20040701
+        </h1>
+      </div>
+      <div class="package" lang="en" xml:lang="en">
+        <p>
+          Glibc является библиотекой C, которая обеспечивает системные вызовы
+	  и основные функции, такие как open, malloc, printf и т.д. Библиотека C
+	  используется для всех динамически скомпонованых программ.
+        </p>
+        <div class="segmentedlist">
+          <p>
+            <b>Расчетное время сборки</b> 12.3 SBU
+          </p>
+          <p>
+            <b>Требуемое место на диске</b> 784 MB
+          </p>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Glibc - зависимости установки:</b> Bash, Binutils, Coreutils,
+            Diffutils, Gawk, GCC, Gettext, Grep, Make, Perl, Sed и Texinfo
+          </p>
+        </div>
+      </div>
+      <div class="installation" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <h2 class="sect2">
+            6.11.1. Инсталируем Glibc
+          </h2>
+        </div>
+        <p>
+          Этот пакет известен своим нестабильным поведением при компиляции
+	  с измененными опциями оптимизации (включая опции <i class="parameter">
+	  <tt>-march</tt></i> и <i class="parameter"><tt>-mcpu</tt></i>).
+          Если вы задали переменные окружения, такие как <tt class="envar">CFLAGS</tt>
+	  и <tt class="envar">CXXFLAGS</tt>, рекомендуется убрать их при сборке Glibc.
+        </p>
+        <p>
+          Система сборки Glibc является весьма самодостаточной и должна
+	  установится корректно, даже если ваши spec файл и компоновщик находятся в
+          <tt class="filename">/tools</tt>. Мы не можем установить spec и компоновщик
+	  перед установкой Glibc потому, что тест автоконфинурации Glibc даст фиктивные
+	  результаты и от этого зависит чистота сборки.
+        </p>
+        <p>
+          Документация по Glibc рекомендует собирать Glibc вне директории с исходниками,
+	  в отдельной директории для сборки:
+        </p>
+        <pre class="userinput">
+<kbd class="command">mkdir ../glibc-build
+cd ../glibc-build</kbd>
+</pre>
+        <p>
+          Подготавливаем Glibc для компиляции:
+        </p>
+        <pre class="userinput">
+<kbd class="command">../glibc-2.3.4-20040701/configure --prefix=/usr \
+    --disable-profile --enable-add-ons=nptl --with-tls \
+    --with-__thread --enable-kernel=2.6.0 --without-cvs \
+    --libexecdir=/usr/lib/glibc \
+    --with-headers=/tools/glibc-kernheaders</kbd>
+</pre>
+        <p>
+          Описание новых опций конфигурации:
+        </p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term"><i class=
+              "parameter"><tt>--libexecdir=/usr/lib/glibc</tt></i></span>
+            </dt>
+            <dd>
+              <p>
+                Изменяем место установки программы <span><b class=
+                "command">pt_chown</b></span> из места по умолчанию
+                <tt class="filename">/usr/libexec</tt> в директорию <tt class=
+                "filename">/usr/lib/glibc</tt>.
+              </p>
+            </dd>
+          </dl>
+        </div>
+        <p>
+          Компилируем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make</kbd>
+</pre>
+        <div class="important">
+          <div class="admonhead">
+            <img alt="[Important]" src="../images/important.png" />
+            <h3 class="admontitle">
+              Важно
+            </h3>
+          </div>
+          <div class="admonbody">
+            <p>
+              В этом месте тестирование Glibc будет очень уместно.
+              Не пропускайте его.
+            </p>
+          </div>
+        </div>
+        <p>
+          Протестируем результаты:
+        </p>
+        <pre class="userinput">
+<kbd class="command">make check</kbd>
+</pre>
+        <p>
+	  Тестирование Glibc сильно зависит от некоторых функций вашей
+	  основной системы, в частности ядра. Также, некоторые тесты в этой главе
+	  могут взаимодействовать с окружением вашей системы. В общем, тестирование
+	  Glibc должно пройти удачно. Тем не менее, по причинам, перечисленным ниже,
+	  тестирование может закончиться неудачно. Вот список наиболее вероятных причин этого:
+        </p>
+        <div class="itemizedlist">
+          <ul>
+            <li>
+              <p>
+                Тест <span class="emphasis"><em>math</em></span> иногда не
+		проходит при его запуске на системе с процессорами, отличными
+		от новых Intel-совместимых или оригинальных AMD. Также это
+		может произойти при некоторых установках оптимизации.
+              </p>
+            </li>
+            <li>
+              <p>
+                Тест <span class="emphasis"><em>gettext</em></span> иногда не
+		проходит из-за зависимостей от основной системы. Точная причина пока не ясна.
+              </p>
+            </li>
+            <li>
+              <p>
+                Тест <span class="emphasis"><em>atime</em></span> иногда не проходит,
+		когда раздел LFS монтирован с опцией <i class="parameter"><tt>noatime</tt></i>.
+              </p>
+            </li>
+            <li>
+              <p>
+                Тест <span class="emphasis"><em>shm</em></span> может не пройти, если в
+		вашей системе запущена файловая система <tt class="systemitem">devfs</tt>,
+		но нет файловой системы <tt class="systemitem">tmpfs</tt>, монтированой на
+                <tt class="filename">/dev/shm</tt>. Это происходит, если отключена поддержка
+                <tt class="systemitem">tmpfs</tt> в ядре.
+              </p>
+            </li>
+            <li>
+              <p>
+                При запуске на старом и медленном оборудовании некоторые тесты могут
+                не пройти по тайм-ауту.
+              </p>
+            </li>
+          </ul>
+        </div>
+        <p>
+          На этапе инсталляции Glibc может выдать предупреждение в конце об отсутствии <tt class=
+          "filename">/etc/ld.so.conf</tt>. Упредим это сообщение:
+        </p>
+        <pre class="userinput">
+<kbd class="command">touch /etc/ld.so.conf</kbd>
+</pre>
+        <p>
+          Устанавливаем пакет
+        </p>
+        <pre class="userinput">
+<kbd class="command">make install</kbd>
+</pre>
+        <p>
+          Локали различных языков, на которых могут осуществляться системные сообщения,
+          не устанавливаются предыдущей командой. Они устанавливаются командой:
+        </p>
+        <pre class="userinput">
+<kbd class="command">make localedata/install-locales</kbd>
+</pre>
+        <p>
+          Альтернативой запуску предыдущей команды для экономии времени является
+	  установка только определенных локалей, тех которые вам нужны. Это может
+	  быть достигнуто использованием команды <span><b class="command">localedef</b></span>.
+        Информацию об использовании этой команды можно получить из файла <tt class=
+        "filename">INSTALL</tt> в исходниках Glibc. Тем не менее, список локалей может
+	  быть существенным для некоторых тестов, в частности, теста <span class=
+          "emphasis"><em>libstdc++</em></span> из GCC. Следующие команды, используемые
+	  вместо вышеописаной <i class="parameter"><tt>install-locales</tt></i>,
+	  установят минимальный набор локалей для успешного завершения тестирований:
+        </p>
+        <pre class="userinput">
+<kbd class="command">mkdir -p /usr/lib/locale
+localedef -i de_DE -f ISO-8859-1 de_DE
+localedef -i de_DE@euro -f ISO-8859-15 de_DE@euro
+localedef -i en_HK -f ISO-8859-1 en_HK
+localedef -i en_PH -f ISO-8859-1 en_PH
+localedef -i en_US -f ISO-8859-1 en_US
+localedef -i es_MX -f ISO-8859-1 es_MX
+localedef -i fa_IR -f UTF-8 fa_IR
+localedef -i fr_FR -f ISO-8859-1 fr_FR
+localedef -i fr_FR@euro -f ISO-8859-15 fr_FR@euro
+localedef -i it_IT -f ISO-8859-1 it_IT
+localedef -i ja_JP -f EUC-JP ja_JP</kbd>
+</pre>
+        <p>
+          Некоторые локали, установленные командой <span><b class="command">
+          make localedata/install-locales</b></span>, не полностью поддерживаются
+          некоторыми приложениями, описанными в LFS и BLFS книгах. Поскольку 
+	    такие проблемы существуют и приводят к сбоям на некотрых локалях, 
+          LFS не может быть использована с локалями, использующими мультибайтные
+          таблицы символов (включая UTF-8) или пишущиеся в порядке справа налево.
+          Необходимы многочисленные неофициальные и нестабильные патчи для устранения этих
+          проблем, поэтому LFS-разработчиками было решено не поддерживать таких комплексных
+          локалей. Это применено также к локалям ja_JP и fa_IR - они были установлены
+          только для прохождения тестов GCC и Gettext и программы <span><b class=
+          "command">watch</b></span> (части пакета Procps), которые не работают
+          корректно в них. Некоторые попытки обойти эти ограничения описаны в
+          интернационально-связанных заметках.
+        </p>
+        <p>
+          Соберем документацию по linuxthreads, которая является большим описанием по
+          threading API (применимой и к NPTL):
+        </p>
+        <pre class="userinput">
+<kbd class="command">make -C ../glibc-2.3.4-20040701/linuxthreads/man</kbd>
+</pre>
+        <p>
+          Проинсталируем эту документацию:
+        </p>
+        <pre class="userinput">
+<kbd class=
+"command">make -C ../glibc-2.3.4-20040701/linuxthreads/man install</kbd>
+</pre>
+      </div>
+      <div class="configuration" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="conf-glibc" name="conf-glibc"></a>
+          <h2 class="sect2">
+            6.11.2. Конфигурация Glibc
+          </h2>
+        </div>
+        <p>
+          Нам нужно создать файл <tt class="filename">/etc/nsswitch.conf</tt>
+          потому, что по умолчанию Glibc не создает этот файл и без него
+	  не работает с сетью. Так же необходимо установить часовой пояс.
+        </p>
+        <p>
+          Создадим новый файл <tt class="filename">/etc/nsswitch.conf</tt>,
+          запустив следующую команду:
+        </p>
+        <pre class="userinput">
+<kbd class="command">cat &gt; /etc/nsswitch.conf &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/nsswitch.conf
+
+passwd: files
+group: files
+shadow: files
+
+hosts: files dns
+networks: files
+
+protocols: files
+services: files
+ethers: files
+rpc: files
+
+# End /etc/nsswitch.conf</tt>
+EOF</kbd>
+</pre>
+        <p>
+          Для определения вашего часового пояса, запустите скрипт:
+        </p>
+        <pre class="userinput">
+<kbd class="command">tzselect</kbd>
+</pre>
+        <p>
+          Когда вы ответите на некоторые вопросы о вашим местонахождении,
+	  скрипт выдаст имя вашего часового пояса. Что-то наподобие <span class=
+          "emphasis"><em>Europe/Kiev</em></span>. Затем создадим файл
+          <tt class="filename">/etc/localtime</tt> запуском:
+        </p>
+        <pre class="userinput">
+<kbd class="command">cp --remove-destination /usr/share/zoneinfo/<i class=
+"replaceable"><tt>[xxx]</tt></i> \
+    /etc/localtime</kbd>
+</pre>
+        <p>
+          Замените <i class="replaceable"><tt>[xxx]</tt></i> именем часового пояса,
+          который выдаст <span><b class="command">tzselect</b></span>
+          (например, Europe/Kiev).
+        </p>
+        <p>
+          Описание параметров:
+        </p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term"><i class=
+              "parameter"><tt>--remove-destination</tt></i></span>
+            </dt>
+            <dd>
+              <p>
+                Это необходимо для удаления существующей ссылки.
+                Мы используем копию файла вместо ссылки в случае, если
+                <tt class="filename">/usr</tt> находится на другом разделе.
+                Также это нужно, например, когда вы загружаетесь в однопользовательском режиме.
+              </p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+      <div class="configuration" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="conf-ld" name="conf-ld"></a>
+          <h2 class="sect2">
+            6.11.3. Настройка динамического загрузчика
+          </h2>
+        </div>
+        <p>
+          По умолчанию, динамический загрузчик (<tt class=
+          "filename">/lib/ld-linux.so.2</tt>) ищет динамические библиотеки,
+	  необходимые для программ, в<tt class=
+          "filename">/lib</tt> и <tt class="filename">/usr/lib</tt>.
+          Таким образом, если есть директории с библиотеками, отличные от
+          <tt class="filename">/lib</tt> и <tt class=
+          "filename">/usr/lib</tt>, вам надо указать их в файле <tt class=
+          "filename">/etc/ld.so.conf</tt> в порядке поиска их динамическим
+          загрузчиком. Две наиболее распространенные директории с дополнительными
+	  библиотеками находятся в <tt class="filename">/usr/local/lib</tt> и <tt class=
+          "filename">/opt/lib</tt>, и мы добавим их в путь поиска динамического загрузчика.
+        </p>
+        <p>
+          Создадим новый файл <tt class="filename">/etc/ld.so.conf</tt>
+          запуском команды:
+        </p>
+        <pre class="userinput">
+<kbd class="command">cat &gt; /etc/ld.so.conf &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/ld.so.conf
+
+/usr/local/lib
+/opt/lib
+
+# End /etc/ld.so.conf</tt>
+EOF</kbd>
+</pre>
+      </div>
+      <div class="content" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="contents-glibc" name="contents-glibc"></a>
+          <h2 class="sect2">
+            6.11.4. Описание Glibc
+          </h2>
+        </div>
+        <div class="segmentedlist">
+          <p>
+            <b>Проинсталированные программы:</b> catchsegv, gencat, getconf, getent,
+            iconv, iconvconfig, ldconfig, ldd, lddlibc4, locale, localedef,
+            mtrace, nscd, nscd_nischeck, pcprofiledump, pt_chown, rpcgen,
+            rpcinfo, sln, sprof, tzselect, xtrace, zdump и zic
+          </p>
+          <p>
+            <b>Проинсталированные библиотеки:</b> ld.so, libBrokenLocale.[a,so],
+            libSegFault.so, libanl.[a,so], libbsd-compat.a, libc.[a,so],
+            libcrypt.[a,so], libdl.[a,so], libg.a, libieee.a, libm.[a,so],
+            libmcheck.a, libmemusage.so, libnsl.a, libnss_compat.so,
+            libnss_dns.so, libnss_files.so, libnss_hesiod.so, libnss_nis.so,
+            libnss_nisplus.so, libpcprofile.so, libpthread.[a,so],
+            libresolv.[a,so], librpcsvc.a, librt.[a,so], libthread_db.so и
+            libutil.[a,so]
+          </p>
+        </div>
+        <div class="variablelist">
+          <h3>
+            Короткое описание
+          </h3>
+          <dl>
+            <dt>
+              <a id="catchsegv" name="catchsegv"></a><span class=
+              "term"><span><b class="command">catchsegv</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Может быть использована для трассировки стэка, когда программа прервана
+                с ошибкой сегментации
+              </p>
+            </dd>
+            <dt>
+              <a id="gencat" name="gencat"></a><span class=
+              "term"><span><b class="command">gencat</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Генерирует каталоги сообщений
+              </p>
+            </dd>
+            <dt>
+              <a id="getconf" name="getconf"></a><span class=
+              "term"><span><b class="command">getconf</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Показывает значения системных конфигураций для специфичных переменных
+		файловой системы
+              </p>
+            </dd>
+            <dt>
+              <a id="getent" name="getent"></a><span class=
+              "term"><span><b class="command">getent</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Получает содержимое из административной базы данных
+              </p>
+            </dd>
+            <dt>
+              <a id="iconv" name="iconv"></a><span class=
+              "term"><span><b class="command">iconv</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Осуществляет конвертацию символов
+              </p>
+            </dd>
+            <dt>
+              <a id="iconvconfig" name="iconvconfig"></a><span class=
+              "term"><span><b class="command">iconvconfig</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Создает быстро загружаемый <span><b class="command">iconv</b></span>
+                модуль конфигурационных файлов
+              </p>
+            </dd>
+            <dt>
+              <a id="ldconfig" name="ldconfig"></a><span class=
+              "term"><span><b class="command">ldconfig</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Конфигурирует динамический компоновщик
+              </p>
+            </dd>
+            <dt>
+              <a id="ldd" name="ldd"></a><span class="term"><span><b class=
+              "command">ldd</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Сообщает, какие разделяемые библиотеки требуются каждой указанной
+                программе или разделяемой библиотеке
+              </p>
+            </dd>
+            <dt>
+              <a id="lddlibc4" name="lddlibc4"></a><span class=
+              "term"><span><b class="command">lddlibc4</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Помагает <span><b class="command">ldd</b></span> в работе с объектными файлами
+              </p>
+            </dd>
+            <dt>
+              <a id="locale" name="locale"></a><span class=
+              "term"><span><b class="command">locale</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Говорит компилятору разрешить или запретить использование POSIX
+                локалей для встроенных операций
+              </p>
+            </dd>
+            <dt>
+              <a id="localedef" name="localedef"></a><span class=
+              "term"><span><b class="command">localedef</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Компилирует спецификации локалей
+              </p>
+            </dd>
+            <dt>
+              <a id="mtrace" name="mtrace"></a><span class=
+              "term"><span><b class="command">mtrace</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Читает и интерпритирует файл трассировки памяти и выводит результат
+                в формате, удобном для восприятия человеком
+              </p>
+            </dd>
+            <dt>
+              <a id="nscd" name="nscd"></a><span class="term"><span><b class=
+              "command">nscd</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Демон, который обеспечивает кэш для большинства известных имен запросов
+                сервисов
+              </p>
+            </dd>
+            <dt>
+              <a id="nscd_nischeck" name="nscd_nischeck"></a><span class=
+              "term"><span><b class="command">nscd_nischeck</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Проверяет, необходим или нет безопасный режим для NIS+lookup
+              </p>
+            </dd>
+            <dt>
+              <a id="pcprofiledump" name="pcprofiledump"></a><span class=
+              "term"><span><b class="command">pcprofiledump</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Распечатывает информацию, сгенерированную PC profiling
+              </p>
+            </dd>
+            <dt>
+              <a id="pt_chown" name="pt_chown"></a><span class=
+              "term"><span><b class="command">pt_chown</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Программа-помощник к <span><b class=
+                "command">grantpt</b></span> для установки владельца, группы и
+                прав доступа ведомого псевдо терминала
+              </p>
+            </dd>
+            <dt>
+              <a id="rpcgen" name="rpcgen"></a><span class=
+              "term"><span><b class="command">rpcgen</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Генерирует C код для встраивания в протокол вызова удаленной процедуры
+		(Remote Procecure Call - RPC)
+              </p>
+            </dd>
+            <dt>
+              <a id="rpcinfo" name="rpcinfo"></a><span class=
+              "term"><span><b class="command">rpcinfo</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Создает вызов RPC к RPC серверу
+              </p>
+            </dd>
+            <dt>
+              <a id="sln" name="sln"></a><span class="term"><span><b class=
+              "command">sln</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Статически слинкованная программа<span><b class="command">ln</b></span>
+              </p>
+            </dd>
+            <dt>
+              <a id="sprof" name="sprof"></a><span class=
+              "term"><span><b class="command">sprof</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Читает и показывает профильные данные разделяемого объекта
+              </p>
+            </dd>
+            <dt>
+              <a id="tzselect" name="tzselect"></a><span class=
+              "term"><span><b class="command">tzselect</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Спрашивает пользователя о местоположении системы и выдает
+                соответствующее описание часового пояса
+              </p>
+            </dd>
+            <dt>
+              <a id="xtrace" name="xtrace"></a><span class=
+              "term"><span><b class="command">xtrace</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Отслеживает запуск программы, печатая текущую запущенную функцию
+              </p>
+            </dd>
+            <dt>
+              <a id="zdump" name="zdump"></a><span class=
+              "term"><span><b class="command">zdump</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Информация о часовом поясе
+              </p>
+            </dd>
+            <dt>
+              <a id="zic" name="zic"></a><span class="term"><span><b class=
+              "command">zic</b></span></span>
+            </dt>
+            <dd>
+              <p>
+                Компилятор часовых поясов
+              </p>
+            </dd>
+            <dt>
+              <a id="ld.so" name="ld.so"></a><span class="term"><tt class=
+              "filename">ld.so</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Программа-загрузчик для разделяемых библиотек
+              </p>
+            </dd>
+            <dt>
+              <a id="libBrokenLocale" name="libBrokenLocale"></a><span class=
+              "term"><tt class="filename">libBrokenLocale</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Используется программами, такими как Mozilla, для решения проблем с
+		поврежденными локалями
+              </p>
+            </dd>
+            <dt>
+              <a id="libSegFault" name="libSegFault"></a><span class=
+              "term"><tt class="filename">libSegFault</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека сигналов ошибки сегментации
+              </p>
+            </dd>
+            <dt>
+              <a id="libanl" name="libanl"></a><span class="term"><tt class=
+              "filename">libanl</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека поиска асинхронных имен
+              </p>
+            </dd>
+            <dt>
+              <a id="libbsd-compat" name="libbsd-compat"></a><span class=
+              "term"><tt class="filename">libbsd-compat</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Предоставляет совместимость, необходимую для запуска
+                Berkey Software Distribution (BSD) программ под Linux
+              </p>
+            </dd>
+            <dt>
+              <a id="libc" name="libc"></a><span class="term"><tt class=
+              "filename">libc</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Базовая библиотека C
+              </p>
+            </dd>
+            <dt>
+              <a id="libcrypt" name="libcrypt"></a><span class=
+              "term"><tt class="filename">libcrypt</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Криптографическая библиотека
+              </p>
+            </dd>
+            <dt>
+              <a id="libdl" name="libdl"></a><span class="term"><tt class=
+              "filename">libdl</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека интерфейса динамического связывания
+              </p>
+            </dd>
+            <dt>
+              <a id="libg" name="libg"></a><span class="term"><tt class=
+              "filename">libg</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека для <span><b class="command">g++</b></span>
+              </p>
+            </dd>
+            <dt>
+              <a id="libieee" name="libieee"></a><span class=
+              "term"><tt class="filename">libieee</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека для работы с числами с плавающей запятой
+		Института "Electrical and Electronic Engineers" (IEEE)
+              </p>
+            </dd>
+            <dt>
+              <a id="libm" name="libm"></a><span class="term"><tt class=
+              "filename">libm</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Математическая библиотека
+              </p>
+            </dd>
+            <dt>
+              <a id="libmcheck" name="libmcheck"></a><span class=
+              "term"><tt class="filename">libmcheck</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Описывает запуск кода при загрузке
+              </p>
+            </dd>
+            <dt>
+              <a id="libmemusage" name="libmemusage"></a><span class=
+              "term"><tt class="filename">libmemusage</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Используется программой <span><b class="command">memusage</b></span>
+                для сбора информации об использовании памяти программами
+              </p>
+            </dd>
+            <dt>
+              <a id="libnsl" name="libnsl"></a><span class="term"><tt class=
+              "filename">libnsl</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека сетевых сервисов
+              </p>
+            </dd>
+            <dt>
+              <a id="libnss" name="libnss"></a><span class="term"><tt class=
+              "filename">libnss</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека Name Service Switch, описывающая функции для
+                разбора имен хостов, имен пользователей, имен групп, алиасов,
+                сервисов, протоколов и т.д.
+              </p>
+            </dd>
+            <dt>
+              <a id="libpthread" name="libpthread"></a><span class=
+              "term"><tt class="filename">libpthread</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Библиотека POSIX-нитей
+              </p>
+            </dd>
+            <dt>
+              <a id="libresolv" name="libresolv"></a><span class=
+              "term"><tt class="filename">libresolv</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Описывает функции для создания, посылки и интерпритации
+                пакетов к серверам имен интернет
+              </p>
+            </dd>
+            <dt>
+              <a id="librpcsvc" name="librpcsvc"></a><span class=
+              "term"><tt class="filename">librpcsvc</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Описывает функции, предоставляющие разнообразные RPC сервисы
+              </p>
+            </dd>
+            <dt>
+              <a id="librt" name="librt"></a><span class="term"><tt class=
+              "filename">librt</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Описывает функции, предоставляющие большинство из интерфейсов, специфицированных
+                POSIX.1b Realtime Extension
+              </p>
+            </dd>
+            <dt>
+              <a id="libthread_db" name="libthread_db"></a><span class=
+              "term"><tt class="filename">libthread_db</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Описывает функции, полезные для построения отладчиков для
+                multi-threaded программ
+              </p>
+            </dd>
+            <dt>
+              <a id="libutil" name="libutil"></a><span class=
+              "term"><tt class="filename">libutil</tt></span>
+            </dt>
+            <dd>
+              <p>
+                Описывает код для &ldquo;<span class=
+                "quote">стандартных</span>&rdquo; функций, используемых во многих
+                других Юникс утилитах
+              </p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="man-pages.html" title=
+          "Man-pages-1.67">Назад</a>
+          <p>
+            Man-pages-1.67
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="readjusting.html" title=
+          "Re-adjusting the Toolchain">Далее</a>
+          <p>
+            Переустановка средств
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter06.html" title=
+          "Глава&nbsp;6.&nbsp;Установка основных системных программ">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

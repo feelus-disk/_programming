@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      Глава&nbsp;6.&nbsp;Установка основных системных программ
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Часть&nbsp;III.&nbsp;Сборка системы LFS
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="../part3.html" title=
+          "Building the LFS System">Назад</a>
+          <p>
+            Сборка системы LFS
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="kernfs.html" title=
+          "Mounting Virtual Kernel File Systems">Далее</a>
+          <p>
+            Монтирование виртуальных файловых систем ядра
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="../part3.html" title=
+          "Part&nbsp;III.&nbsp;Building the LFS System">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="chapter" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="chapter">
+          6. Установка основных системных программ
+        </h1>
+      </div>
+      <div class="sect1" lang="en" xml:lang="en">
+        <div class="titlepage">
+          <a id="ch-system-introduction" name="ch-system-introduction"></a>
+          <h2 class="sect1"><center>
+            6.1. Вступление
+          </center></h2>
+        </div>
+        <p>
+          В этой главе мы войдем в фазу сборки и начнем серьезно собирать нашу
+	  LFS систему. Для этого мы войдем в среду chroot внутри нашей мини Linux
+	  системы, проделаем некоторые дополнительные работы и начнем
+	  устанавливать пакеты один за одним.
+        </p>
+        <p>
+          Установка всех этих пакетов весьма проста и вы можете подумать, что
+	  достаточно было бы указать общее описание установки для всех пакетов, а
+	  конкретезировать только если установка их отличается от стандартной.
+	  Несмотря на то, что мы согласны с этим, мы решили дать полные
+	  инструкции по установке каждого из пакетов просто для того, чтобы
+	  минимизировать возможность возникновения ошибок.
+        </p>
+        <p>
+          Если вы решите использовать оптимизацию компилятора в этой главе,
+	  то вам стоит посмотреть справку по оптимизации на <a href=
+	  "http://www.linuxfromscratch.org/hints/downloads/files/optimization.txt">
+	  <i>http://www.linuxfromscratch.org/hints/downloads/files/optimization.txt</i></a>.
+	  Оптимизация компилятора может сделать программы быстрее, но могут
+	  возникнуть сложности при компиляции и некоторые проблемы при работе
+	  этих программ. Если пакет отказывается компилироваться при
+	  использовании оптимизации, то попробуйте скомпилировать пакет без нее,
+	  возможно проблемы исчезнут. Если пакет компилируется с использованием
+	  оптимизации, то есть возможность, что он скомпилируется некорректно,
+	  например, могут появиться проблемы между интерактивностью в коде и
+	  собраными средствами. В общем, использование оптимизауии при сборке
+	  является рискованым. Новичкам в LFS рекомендуется собирать ее без
+	  оптимизации. В ваших силах сделать систему быстрой и стабильной
+	  одновременной.
+        </p>
+        <p>
+          Список пакетов, которые надо собирать, является строго последовательным,
+	  нам надо убедиться, что в них не будет прописан путь к <tt class=
+	  "filename">/tools</tt>. По некоторым причинам, не стоит компилировать
+	  пакеты параллельно. Параллельная сборка может показаться выгодной иногда
+	  (в особенности на многопроцессорных системах), но в результате у программ
+	  появится зависимость от средств из <tt class="filename">/tools</tt> и они не
+	  смогут работать, когда мы удалим эту директорию.
+        </p>
+        <p>
+          Перед инструкциями по установке на каждой странице находится информация
+          о пакете, включая краткое описание того, что входит в пакет,
+          примерное время сборки, требуемое для сборки дисковое пространство и
+          какие другие пакеты нужны для нормальной сборки. Далее следуют инструкции по
+	  сборке, список программ и библиотек (включая короткие описания для них),
+          которые устанавливает пакет.
+        </p>
+        <p>
+          Для содержания в порядке установленных пакетов можно применять менеджеры пакетов.
+          Для ознакомления с различными менеджерами пакетов обращайтесь к <a href=
+          "http://www.linuxfromscratch.org/blfs/view/svn/introduction/important.html">
+          <i>http://www.linuxfromscratch.org/blfs/view/svn/introduction/important.html</i></a>.
+          Для метода управления пакетами, специально приспособленного к LFS, мы
+          рекомендуем <a href=
+          "http://www.linuxfromscratch.org/hints/downloads/files/more_control_and_pkg_man.txt">
+          <i>http://www.linuxfromscratch.org/hints/downloads/files/more_control_and_pkg_man.txt</i></a>.
+        </p>
+        <div class="note">
+          <div class="admonhead">
+            <img alt="[Note]" src="../images/note.png" />
+            <h3 class="admontitle">
+              Замечание
+            </h3>
+          </div>
+          <div class="admonbody">
+            <p>
+              Остаток этой книги выполняется в режиме регистрации под пользователем
+              <span class="emphasis"><em>root</em></span>, а не пользователем
+              <span class="emphasis"><em>lfs</em></span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="../part3.html" title=
+          "Building the LFS System">Назад</a>
+          <p>
+            Сборка системы LFS
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="kernfs.html" title=
+          "Mounting Virtual Kernel File Systems">Далее</a>
+          <p>
+            Монтирование виртуальных файловых систем ядра
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="../part3.html" title=
+          "Part&nbsp;III.&nbsp;Building the LFS System">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

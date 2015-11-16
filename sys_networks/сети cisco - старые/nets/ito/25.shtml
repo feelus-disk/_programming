@@ -1,0 +1,1089 @@
+<html><head>
+
+   <META NAME="KeyWords" CONTENT="сети,CISCO,Internetworking Technology Overview,обзор,протоколы,описание,OSPF,Основы технологии,Иерархия маршрутизации,Алгоритм SPF,Формат пакета,Дополнительные характеристики OSPF">
+
+   <META NAME="Description" CONTENT="Internetworking Technology Overview, В. Плешаков, Глава 24.  OSPF">
+
+   <META NAME="Robots" CONTENT="ALL">
+
+   <META NAME="Document-State" CONTENT="Static">
+
+   
+
+<title>Глава 25.  OSPF</title>
+
+<link rel="stylesheet" href="../../css/citforum.css">
+<style>
+
+</style>
+
+<meta http-equiv="content-type" content="text/html; charset=Windows-1251">
+</head>
+<body bgcolor=#FFFFFF link=#006890 vlink=#003860 alink=#800000 text=#000000 topmargin="0" marginheight="0">
+<a name=top></a>
+
+
+
+
+
+<!-- counters -->
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+<td><!--TopList COUNTER--><script language="JavaScript"><!--
+d=document;js=10;a=';r='+escape(d.referrer)
+//--></script><script language="JavaScript1.1"><!--
+js=11;a+=';j='+navigator.javaEnabled()
+//--></script><script language="JavaScript1.2"><!--
+js=12;s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+//--></script><script language="JavaScript1.3"><!--
+js=13//--></script><script language="JavaScript"><!--
+d.write('<img src="http://top.list.ru/counter'+
+'?id=26978;js='+js+a+'" alt="" height=1 width=1>')
+if(js>11)d.write('<'+'!-- ')//--></script><noscript><img
+src="http://top.list.ru/counter?js=na;id=26978"
+height=1 width=1 alt=""></noscript><script language="JavaScript"><!--
+if(js>11)d.write('--'+'>')
+//--></script><!--TopList COUNTER--></td>
+<td><!--LiveInternet counter--><script language="JavaScript"><!--
+document.write('<img src="http://counter.yadro.ru/hit?r'+
+escape(document.referrer)+((typeof(screen)=='undefined')?'':
+';s'+screen.width+'*'+screen.height+'*'+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+';u'+escape(document.URL)+
+';i'+escape('Жж'+document.title)+';'+Math.random()+
+'" width=1 height=1 alt="">')//--></script><!--/LiveInternet--></td>
+<td><img src="http://counter.rambler.ru/top100.cnt?13078" alt="" width=1 height=1 border=0></td>
+</tr></table>
+<!-- end of counters -->
+
+
+
+<center><table width=990 cellpadding=0 cellspacing=0>
+<tr><td>
+
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr valign=bottom>
+  <td align="left"><a href="http://citforum.ru/"><img src="../../pictures/logos/citlogo8.gif" width=140 height=44 border=0 alt=Logo></a></td>
+
+      <td align="right" width="100%" style="padding-bottom: 10px"><nobr><font size=2><b>Море(!) аналитической информации!</b></font></nobr></td>
+    </tr>
+    </table>
+
+
+
+
+<center style="margin-top: 3px">
+<!--  AdRiver code START. Type:728x90 Site: citforum PZ: 0 BN: 1 -->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write(
+'<iframe src="http://ad.adriver.ru/cgi-bin/erle.cgi?'
++ 'sid=137295&bn=1&target=blank&bt=36&pz=0&rnd=' + RndNum4NoCash + '&tail256=' + ar_Tail
++ '" frameborder=0 vspace=0 hspace=0 width=728 height=90 marginwidth=0'
++ ' marginheight=0 scrolling=no></iframe>');
+//--></script>
+<noscript>
+<a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=137295&bn=1&bt=36&pz=0&rnd=1013420086" target=_blank>
+<img src="http://ad.adriver.ru/cgi-bin/rle.cgi?sid=137295&bn=1&bt=36&pz=0&rnd=1013420086" alt="-AdRiver-" border=0 width=728 height=90></a>
+</noscript>
+<!--  AdRiver code END  -->
+
+</center>
+
+
+</td></tr>
+<tr><td>
+
+<table cellpadding=0 cellspacing=0 border=0 width=100% style="padding-top: 3px">
+<tr><td>
+<table   cellspacing=0 cellpadding=0 border=0 width=100%>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=931 height=1 alt="" border=0></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr><td bgcolor=#008080>
+
+<table cellspacing=1 cellpadding=3 border=0 width=100%>
+<tr>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/consulting/">IT-консалтинг</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/SE/">Software Engineering</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/programming/">Программирование</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/database/">СУБД</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/security/">Безопасность</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/internet/">Internet</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/nets/">Сети</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/operating_systems/">Операционные системы</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/hardware/">Hardware</a></font></td>
+<!--
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/faq/>FAQ (ЧаВО)</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/howto/>HOWTO</a></font></td>
+--> 
+</tr>
+</table>
+
+</td></tr>
+</table>
+
+</td></tr>
+<tr><td>
+<table cellpadding=0 cellspacing=0 border=0 width=100% style="padding-top: 3px">
+<tr valign=top>
+
+<td width=98% style="padding: 0 5px">
+
+
+<div class="document">
+
+
+<H3>
+
+Глава 25.  OSPF.
+
+</H3>
+
+<b>
+
+        <UL>
+
+<LI> <a href="25.shtml#25.1">Библиографическая справка</a>
+
+<LI> <a href="25.shtml#25.2">Основы технологии</a>
+
+<LI> <a href="25.shtml#25.3">Иерархия маршрутизации</a>
+
+<LI> <a href="25.shtml#25.4">Алгоритм SPF</a>
+
+<LI> <a href="25.shtml#25.5">Формат пакета</a>
+
+<LI> <a href="25.shtml#25.6">Дополнительные характеристики OSPF</a>
+
+        </UL>
+
+</b>
+
+<h4>
+
+<a name="25.1"> Библиографическая справка</a>
+
+</h4><p align=justify>
+
+
+
+Открытый протокол, базирующийся на алгоритме поиска наикратчайшего 
+
+пути (Open Shortest Path Fisrt - OSPF) является протоколом маршрутизации, 
+
+разработанным для сетей IP рабочей группой Internet Engineering Task 
+
+Force (IETF), занимающейся разработкой протоколов для внутрисистемных 
+
+роутеров (<i>interior gateway protocol - IGP</i>). Рабочая группа была 
+
+образована в 1988 г. для разработки протокола IGP, базирующегося на 
+
+алгоритме &quot;поиска наикратчайшего пути&quot;
+
+(<i>shortest path first - SPF</i>), с
+
+целью его использования в Internet, крупной международной сети, 
+
+об'единяющей научно-исследовательские институты, правительственные 
+
+учреждения, университеты и частные предприятия. Как и протокол IGRP 
+
+(смотри Главу 24 &quot;<a href="24.shtml">IGRP</a>&quot;),
+
+OSPF был разработан по той причине, что к 
+
+середине 1980 гг. непригодность RIP для обслуживания крупных 
+
+гетерогенных об'единенных систем стала все более очевидна
+
+(смотри Главу 23 &quot;<a href="23.shtml">RIP</a>&quot;).
+
+<p align=justify>
+
+ОSPF явился результатом научных исследований по нескольким 
+
+направлениям, включающим:
+
+<dl>
+
+<dd> 
+
+	Алгоритм SPF компании Bolt, Beranek и Newman (BBN), разработанный
+
+	для Arpanet (программы с коммутацией пакетов, разработанной BBN в  
+
+	начале 1970 гг., которая явилась поворотным пунктом в истории
+
+	разработки сетей) в 1978 г.
+
+<dd> 
+
+	Исследования Koмпании Radia Perlman по отказоустойчивости широкой
+
+	рассылки маршрутной информации (1988).
+
+<dd> 
+
+	Исследования BBN по маршрутизации в отдельной области (1986).
+
+<dd> 
+
+	Одна из первых версий протокола маршрутизации IS-IS OSI
+
+</dl>
+
+<p align=justify>
+
+	(Информация о IS-IS дается в
+
+	Главе 28 &quot;<a href="28.shtml">Maршрутизация OSI</a>&quot;).
+
+<p align=justify>
+
+Как видно из его названия, OSPF имеет две основных характеристики.
+
+Первая из них-это то, что протокол является открытым, т.е. его 
+
+спецификация является общественным достоянием. Спецификация OSPF
+
+опубликована в форме Запроса для Комментария (RFC) 1247. Второй его
+
+главной характеристикой является то, что он базируется на алгоритме
+
+SPF. Алгоритм SPF иногда называют алгоритмом <b>Dijkstra</b> по имени автора,
+
+который его разработал.
+
+
+
+<h4>
+
+<a name="25.2"> Основы технологии</a>
+
+</h4><p align=justify>
+
+
+
+OSPF является протоколом маршрутизации с об'явлением состояния о канале
+
+(<i>link-state</i>). Это значит, что он требует отправки об'явлений о 
+
+состоянии канала (<i>link-state advertisement - LSA</i>) во все роутеры,
+
+которые находятся в пределах одной и тойже иерархической области. В
+
+oб'явления LSA протокола OSPF включается информация о подключенных 
+
+интерфейсах, об использованных показателях и о других переменных. По
+
+мере накопления роутерами OSPF информации о состоянии канала,
+
+они используют алгоритм SPF для расчета наикратчайшего пути к каждому
+
+узлу.
+
+<p align=justify>
+
+Являясь алгоритмом с об'явлением состояния канала, OSPF отличается от 
+
+RIP и IGRP, которые являются протоколами маршрутизации с вектором
+
+расстояния. Роутеры, использующие алгоритм вектора расстояния,
+
+отправляют всю или часть своей таблицы маршрутизации в сообщения о 
+
+корректировке маршрутизации, но только своим соседям.
+
+
+
+<h4>
+
+<a name="25.3"> Иерархия маршрутизации</a>
+
+</h4><p align=justify>
+
+
+
+В отличие от RIP, OSPF может работать в пределах некоторой 
+
+иерархической системы. Самым крупным об'ектом в этой иерархии является
+
+автономная система (<i>Autonomous System - AS</i>)
+
+AS является набором сетей, которые находятся 
+
+под единым управлением и совместно используют общую стратегию 
+
+маршрутизации. OSPF является протоколом маршрутизации внутри AS, хотя
+
+он и способен принимать маршруты из других AS и отправлять маршруты в
+
+другие AS.
+
+<p align=justify>
+
+Любая AS может быть разделена на ряд областей (<i>area</i>).
+
+Область - это группа
+
+смежных сетей и подключенных к ним хостов.
+
+Роутеры, имеющие несколько интерфейсов, могут участвовать в
+
+нескольких областях. Такие роутеры, которые называются
+
+роутерами границы областей (<i>area border routers</i>),
+
+поддерживают отдельные топологические
+
+базы данных для каждой области. 
+
+<p align=justify>
+
+Топологическая база (<i>topological database</i>)
+
+данных фактически представляет собой  общую картину
+
+сети по отношению к роутерам. Топологическая база данных содержит
+
+набор LSA, полученных от всех роутеров, находящихся в одной 
+
+области. Т.к. роутеры одной области коллективно пользуются одной
+
+и той же информацией, они имеют идентичные топологические базы данных.
+
+<p align=justify>
+
+Термин &quot;домен&quot; (<i>domain</i>) исользуется для описания части сети,
+
+в которой
+
+все роутери имеют идентичную топологическую базу данных. Термин
+
+&quot;домен&quot; часто используется вместо AS.
+
+<p align=justify>
+
+Топология области является невидимой для об'ектов, находящихся вне этой
+
+области. Путем хранения топологий областей отдельно, OSPF добивается 
+
+меньшего трафика маршрутизации, чем трафик для случая, когда AS не 
+
+разделена на области.
+
+<p align=justify>
+
+Разделение на области приводит к образованию двух различных типов 
+
+маршрутизации OSPF, которые зависят от того, находятся ли источник и
+
+пункт назначения в одной и той же или разных областях. Маршрутизация
+
+внутри области имеет место в том случае, когда источник и пункт 
+
+назначения находятся в одной области; маршрутизация между областями -
+
+когда они находятся в разных областях.
+
+<p align=justify>
+
+Стержневая часть OSPF (<i>backbone</i>) отвечает за распределение маршрутной
+
+информации между областями. Она включает в себя все роутеры
+
+границы области, сети, которые не принадлежат полностью како-либо из
+
+областей, и подключенные к ним роутеры. На Рис. 25-1 представлен
+
+пример об'единенной сети с несколькими областями.
+
+<p><center>
+
+<img src="../../pictures/it/ito/25-1.gif">
+
+</center><p align=justify>
+
+На этом рисунке роутеры 4, 5, 6, 10, 11 и 12 образуют стержень.
+
+Если хост Н1 Области 3 захочет отправить
+
+пакет хосту Н2 Области 2, то пакет отправляется
+
+в роутер 13, который продвигает его в роутер 12, который в
+
+свою очередь отправляет его в роутер 11. Роутер 11
+
+продвигает пакет вдоль стержня к роутеру 10 границы области,
+
+который отправляет пакет через два внутренних роутера этой 
+
+области (роутеры 9 и 7) до тех пор, пока он не будет продвинут
+
+к хосту Н2.
+
+<p align=justify>
+
+Сам стержень представляет собой одну из областей OSPF, поэтому все 
+
+стержневые роутеры используют те же процедуры и алгоритмы
+
+поддержания маршрутной информации в пределах стержневой области, 
+
+которые используются любым другим роутером. Топология стержневой
+
+части невидима для всех внутренних роутеров точно также, как
+
+топологии отдельных областей невидимы для стержневой части.
+
+<p align=justify>
+
+Область может быть определена таким образом, что стержневая часть не
+
+будет смежной с ней. В этом случае связность стержневой части должна
+
+быть восстановлена через виртуальные соединения. Виртуальные соединения
+
+формируются между любыми роутерами стержневой области, которые 
+
+совместно используют какую-либо связь с любой из нестержневых областей; 
+
+они функционируют так, как если бы они были непосредственными связями.
+
+<p align=justify>
+
+Граничные роутеры AS, использующие OSPF, узнают о внешних
+
+роутерах через протоколы внешних роутеров (EGPs), таких, как
+
+<i>Exterior Gateway Protocol (EGP)</i> или
+
+<i>Border Gateway Protocol (BGP)</i>,
+
+или через информацию о конфигурации (информация об этих протоколах
+
+дается соответственно в
+
+Главе 26 &quot;<a href="26.shtml">EGP</a>&quot; и
+
+Главе 27 &quot;<a href="27.shtml">BGP</a>&quot;).
+
+
+
+<h4>
+
+<a name="25.4"> Алгоритм SPF</a>
+
+</h4><p align=justify>
+
+
+
+Алгоритм маршрутизации SPF является основой для операций OSPF. Когда
+
+на какой-нибудь роутер SPF подается питание, он инициилизирует 
+
+свои структуры данных о протоколе маршрутизации, а затем ожидает 
+
+индикации от протоколов низшего уровня о том, что его интерфейсфы
+
+работоспособны.
+
+<p align=justify>
+
+После получения подтверждения о работоспособности своих интерфейсов
+
+роутер использует приветственный протокол (<i>hello protocol</i>) OSPF,
+
+чтобы приобрести соседей (<i>neighbor</i>). Соседи - это роутеры с
+
+интерфейсами с общей сетью. Описываемый роутер отправляет своим
+
+соседям приветственные пакеты и получает от них такие же пакеты. 
+
+Помимо оказания помощи в приобретении соседей, приветственные пакеты
+
+также действуют как подтверждение дееспособности, позволяя другим
+
+роутерам узнавать о том, что другие роутери все еще 
+
+функционируют.
+
+<p align=justify>
+
+В сетях с множественным доступом (<i>multi-access networks</i>)
+
+(сетях, поддержиающих более одного роутера),
+
+протокол Hello выбирает назначенный
+
+роутер (<i>designated router</i>) и дублирующий назначенный 
+
+роутер. Назначеный роутер, помимо других функций, отвечает
+
+за генерацию LSA для всей сети с множественным доступом. Назначенные
+
+роутеры позволяют уменьшить сетевой трафик и об'ем топологической
+
+базы данных.
+
+<p align=justify>
+
+Если базы данных о состоянии канала двух роутеров являются 
+
+синхронными, то говорят, что эти роутеры смежные (<i>adjacent</i>). В
+
+сетях с множественным доступом назначенные роутеры определяют,
+
+какие роутеры должны стать смежными. Топологические базы данных
+
+синхронизируются между парами смежных роутеров. Смежности 
+
+управляют распределением пакетов протокола маршрутизации. Эти пакеты 
+
+отправляются и принимаются только на смежности.
+
+<p align=justify>
+
+Каждый роутер периодическив отправляет какое-нибудь LSA. LSA
+
+также отправляются в том случае, когда изменяется состояние какого-
+
+нибудь роутера. LSA включает в себя информацию о смежностях
+
+роутера. При сравнении установленных смежностей с состоянием
+
+канала быстро обнаруживаются отказавшие роутеры, и топология
+
+сети изменяется сооответствующим образом. Из топологической базы 
+
+данных, генерируемых LSA, каждый роутер рассчитывает дерево
+
+наикратчайшего пути, корнем которого является он сам. В свою очередь
+
+дерево наикратчайшего пути выдает маршрутную таблицу.
+
+
+
+<h4>
+
+<a name="25.5"> Формат пакета</a>
+
+</h4><p align=justify>
+
+
+
+Все пакеты OSPF начинаются с 24-байтового заголовка, как показано
+
+на Рис. 25-2.
+
+<p><center>
+
+<img src="../../pictures/it/ito/25-2.gif">
+
+</center><p align=justify>
+
+Первое поле в заголовке OSPF - это номер версии OSPF (<i>version number</i>).
+
+Номер версии обозначает конкретную используемую реализацию OSPF.
+
+<p align=justify>
+
+За номером версии идет поле типа (<i>type</i>). Существует 5 типов пакета
+
+OSPF:
+
+<dl>
+
+<dt>  <i>Hello</i>.
+
+<dd>	Отправляется через регулярные интервалы времени для 
+
+	установления и поддержания соседских взаимоотношений.
+
+<dt>  <i>Database Description</i>.
+
+<dd>	Описание базы данных. Описывает содержимое базы данных;
+
+	обмен этими пакетами производится при инициализации смежности.
+
+<dt>  <i>Link-State Request</i>
+
+<dd>	Запрос о состоянии канала. Запрашивает
+
+	части топологической базы данных соседа. Обмен этими пакетами
+
+	производится после того, как какой-нибудь роутер обнаруживает,
+
+	(путем проверки пакетов описания базы данных), что часть его 
+
+	топологической базы данных устарела.
+
+<dt>  <i>Link-State Update</i>
+
+<dd>	Корректировка состояния канала. Отвечает на
+
+	пакеты запроса о состоянии канала. Эти пакеты также используются для
+
+	регулярного распределения LSA. В одном пакете могут быть включены
+
+	несколько LSA.     
+
+<dt>  <i>Link-State Acknowledgement</i>
+
+<dd>	Подтверждение состояния канала.
+
+	Подтверждает пакеты корректировки состояния канала. Пакеты 
+
+	корректировки состояния канала должны быть четко подтверждены, что  
+
+	является гарантией надежности процесса лавинной адресации пакетов 
+
+	корректировки состояния канала через какую-нибудь область.
+
+</dl>
+
+<p align=justify>
+
+Каждое LSA в пакете корректировки состояния канала содержит тип поля.
+
+Существуют 4 типа LSA:
+
+<dl>
+
+<dt>  <i>Router links advertisements (RLA)</i>
+
+<dd>	Об'явления о каналах роутера.
+
+	Описывают собранные данные о состоянии каналов
+
+	роутера, связывающих его с конкретной областью. Любой 
+
+	роутер отправляет RLA для каждой области, к которой он 
+
+	принадлежит. RLA направляются лавинной адресацией через всю область, 
+
+	но они не отправляются за ее пределы.
+
+<dt>  <i>Network links advertisements (NLA)</i>
+
+<dd>	Об'явления о сетевых каналах.
+
+	Отправляются назначенными роутерами. Они описывают все 
+
+	роутеры, которые подключены к сети с множественным доступом, и
+
+	отправляются лавинной адресацией через область, содержащую
+
+	данную сеть с множественным доступом.
+
+<dt>  <i>Summary links advertisements (SLA)</i>
+
+<dd>	Суммарные об'явления о каналах.
+
+	Суммирует маршруты к пунктам назначения, находящимся вне какой-либо 
+
+	области, но в пределах данной AS. Они генерируются роутерами 
+
+	границы области, и отправляются лавинной адресацией через данную 
+
+	область. В стержневую область посылаются об'явления только о 
+
+	внутриобластных роутерах. В других областях рекламируются как 
+
+	внутриобластные, так и межобластные маршруты.
+
+<dt>  <i>AS external links advertisements</i>
+
+<dd>	Об'явления о внешних каналах AS.
+
+	Описывают какой-либо маршрут к одному из пунктов назначения, который
+
+	является внешним для данного AS. Об'явления о внешних каналах AS 
+
+	вырабатываются граничными роутерами AS. Этот тип об'явлений
+
+	является единственным типом об'явлений, которые продвигаются во всех 
+
+	направлениях данной AS; все другие об'явления продвигаются только в 
+
+	пределах конкретных областей.
+
+</dl>
+
+<p align=justify>
+
+За полем типа заголовка пакета OSPF идет поле длины пакета (<i>packet
+
+length</i>). Это поле обеспечивает длину пакета вместе с заголовком OSPF
+
+в байтах.
+
+<p align=justify>
+
+Поле идентификатора роутера (<i>router ID</i>) идентифицирует источник
+
+пакета.
+
+<p align=justify>
+
+Поле идентификатора области (<i>area ID</i>) идентифицирует область, к которой
+
+принадлежит данный пакет. Все пакеты OSPF связаны с одной отдельной 
+
+областью.
+
+<p align=justify>
+
+Стандартное поле контрольной суммы IP (<i>checksum</i>) проверяет содержимое
+
+всего пакета для выявления потенциальных повреждений, имевших место при
+
+транзите.
+
+<p align=justify>
+
+За полем контрольной суммы идет поле типа удостоверения (<i>authentication
+
+type</i>). Примером типа удостоверения является &quot;простой пароль&quot;.
+
+Все обмены протокола OSPF проводятся с установлением достоверности. Тип
+
+удостоверения устанавливается по принципу &quot;отдельный для каждой
+
+области&quot;.
+
+<p align=justify>
+
+За полем типа удостоверения идет поле удостоверения (<i>authentication</i>).
+
+Это поле длиной 64 бита и содержит информацию удостоверения.
+
+
+
+<h4>
+
+<a name="25.6"> Дополнительные характеристики OSPF</a>
+
+</h4><p align=justify>
+
+
+
+В числе дополнительных характеристик OSRF - равные затраты, 
+
+многотрактовая маршрутизация (<i>multipath routing</i>)
+
+и маршрутизация, базирующаяся на запросах
+
+типа услуг  высшего уровня (<i>type of service - TOS</i>).
+
+Базирующаяся на TOS 
+
+маршрутизация поддерживает те протоколы высшего уровня, которые могут
+
+назначать конкретные типы услуг. Например, какая-нибудь прикладная 
+
+программа может включить требование о том, что определенная информация 
+
+является срочной. Если OSPF имеет в своем распоряжении каналы с высоким 
+
+приоритетом, то они могут быть использованы для транспортировки срочных 
+
+дейтаграмм.
+
+<p align=justify>
+
+OSPF обеспечивает один или более показателей. Если используется только
+
+один показатель, то он считается произвольным, и TOS не обеспечивается.
+
+Если используется более одного показателя, то TOS обеспечивается
+
+факультативно путем использования отдельного показателя (и 
+
+следовательно, отдельной маршрутной таблицы) для каждой из 8 
+
+комбинаций, образованной тремя битами IP TOS: битом задержки (<i>delay</i>),
+
+производительности (</i>throughput</i>) и надежности (<i>reliability</i>).
+
+Например,
+
+если биты IP TOS задают небольшую задержку, низкую производительность
+
+и высокую надежность, то OSPF вычисляет маршруты во все пункты 
+
+назначения, базируясь на этом обозначении TOS.
+
+<p align=justify>
+
+Маски подсети IP включаются в каждый об'явленный пункт назначения,
+
+что позволяет использовать маски подсети переменной длины
+
+(<i>variable-length subnet masks</i>).
+
+С помощью масок подсети переменной длины сеть IP
+
+может быть разбита на несколько подсетей разной величины. Это 
+
+обеспечивает администраторам сетей дополнительную гибкость при выборе 
+
+конфигурации сети.
+
+
+
+<p><center><font size=-1>
+
+[<a href="24.shtml">Назад</a>]
+
+[<a href="index.shtml">Содержание</a>]
+
+[<a href="26.shtml">Вперед</a>]
+
+</font></center>
+
+<p>
+
+</div>
+
+
+<center><table><tr><td><a href=http://vip.gfi.ru/?source=banner:cit_vip rel=nofollow target=_blank><img src="../../a/gfi_110x52.png" width=110 height=52 border=0></a><td><a href=http://vip.gfi.ru/?source=banner:cit_vip rel=nofollow target=_blank style=font-size:15px;font-family:arial,sans-serif;font-weight:bold;text-decoration:none;color:black><nobr>Зарегистрируйте номер 007-101-303</nobr><br><nobr>на сайте VIP.GFI.RU и получите</nobr><br><nobr>наши продукты <span style=font-size:20px;color:red>БЕСПЛАТНО</span></nobr></a></table>
+</center>
+
+<center>
+
+
+</center>
+
+</td>
+
+
+<td>
+
+<table cellspacing=0 cellpadding=0 border=0 width="100%" align=right><tr>
+<td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0></td>
+<td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=2 height=1 border=0></td>
+<td>
+
+<table cellpadding=0 cellspacing=0 border=0>
+
+<tr><td align="center"><!--  AdRiver code START. Type:240x400 Site: citforum PZ: 0 BN: 1 -->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write(
+'<iframe src="http://ad.adriver.ru/cgi-bin/erle.cgi?'
++ 'sid=137295&bn=1&target=blank&bt=22&pz=0&rnd=' + RndNum4NoCash + '&tail256=' + ar_Tail
++ '" frameborder=0 vspace=0 hspace=0 width=240 height=400 marginwidth=0'
++ ' marginheight=0 scrolling=no></iframe>');
+//--></script>
+<noscript>
+<a href="http://ad.adriver.ru/cgi-bin/click.cgi?sid=137295&bn=1&bt=22&pz=0&rnd=1132854728" target=_blank>
+<img src="http://ad.adriver.ru/cgi-bin/rle.cgi?sid=137295&bn=1&bt=22&pz=0&rnd=1132854728" alt="-AdRiver-" border=0 width=240 height=400></a>
+</noscript>
+
+<!--  AdRiver code END  --></td></tr>
+
+
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#ffffff>
+<font size=2>
+<p><b>Новости мира IT:</b>
+<ul class=column>
+<!--<b><a target=_blank href=http://citcity.ru/20070/>4&#x2013;5 декабря пройдёт &#xab;Платформа 2009&#xbb;</a></b>
+<hr>-->
+
+<li>30.01 - <a href=http://citforum.ru/news/33316/>Доступна операционная система Chrome OS 40</a><li>30.01 - <a href=http://citforum.ru/news/33315/>Microsoft представит облачный сервис Cosmos для коммерческого использования</a><li>30.01 - <a href=http://citforum.ru/news/33314/>Apple обновила OS X Yosemite до версии 10.10.2</a><li>30.01 - <a href=http://citforum.ru/news/33313/>Ideum Duet: кофейный столик с двумя встроенными компьютерами и двумя ОС</a><li>30.01 - <a href=http://citforum.ru/news/33312/>Intel выпустила процессоры Broadwell с поддержкой vPro</a><li>30.01 - <a href=http://citforum.ru/news/33311/>Microsoft покажет на MWC 2015 смартфоны на базе Windows 10</a><li>29.01 - <a href=http://citforum.ru/news/33310/>YouTube отказался от Flash в пользу HTML5</a><li>29.01 - <a href=http://citforum.ru/news/33309/>Касперский назвал умные телевизоры новой мишенью для хакеров</a><li>29.01 - <a href=http://citforum.ru/news/33308/>Вышел браузер Opera 27</a><li>29.01 - <a href=http://citforum.ru/news/33307/>В метро Петербурга запустили систему бесконтактных платежей PayPass</a><li>29.01 - <a href=http://citforum.ru/news/33306/>Прибыль Microsoft упала на 11 %</a><li>29.01 - <a href=http://citforum.ru/news/33305/>Tele2 развернёт в Москве мобильную сеть 3G/4G</a><li>29.01 - <a href=http://citforum.ru/news/33304/>AMD разрабатывает семейство графических процессоров Arctic Islands</a><li>28.01 - <a href=http://citforum.ru/news/33303/>Интернет-гиганты Tencent и Alibaba стали самыми дорогими брендами Китая</a><li>28.01 - <a href=http://citforum.ru/news/33302/>Основатель Opera Software представил новый web-браузер Vivaldi</a><li>28.01 - <a href=http://citforum.ru/news/33301/>Mozilla хочет принести виртуальную реальность в веб</a><li>28.01 - <a href=http://citforum.ru/news/33300/>Обновилась операционная система PC-BSD</a><li>28.01 - <a href=http://citforum.ru/news/33299/>В Fujitsu создана система определения сонливости водителей</a><li>28.01 - <a href=http://citforum.ru/news/33298/>Проект интеллектуального чемодана Bluesmart привлёк более $2 млн</a><li>28.01 - <a href=http://citforum.ru/news/33297/>За 10 дней продано более 50 тысяч Tizen-смартфонов Samsung Z1</a>
+
+</ul>
+<p><a target=_blank href=http://citforum.ru/news/><b>Архив новостей</b></a>
+</font>
+<p align=right><a href=http://citforum.ru/news/rss/news.xml><img src="../../pictures/xml_rss.gif" border=0 width=36 height=14></a>
+</td></tr>
+
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td style="padding-left: 5px; min-width: 240px"><p><b>Последние комментарии:</b>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/32977/#comments>Новый &#xab;антипиратский&#xbb; закон вступит в силу 1 мая 2015 года</a>&nbsp;(29)<br>
+		<div class=comments_menu_date>31 Январь, 17:47		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33307/#comments>В метро Петербурга запустили систему бесконтактных платежей PayPass</a>&nbsp;(2)<br>
+		<div class=comments_menu_date>31 Январь, 15:59		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33316/#comments>Доступна операционная система Chrome OS 40</a>&nbsp;(3)<br>
+		<div class=comments_menu_date>30 Январь, 18:34		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/gazeta/59/#comments>Брешь в конфиденциальности (Практика использования сети Интернет в конкурентной разведке)</a>&nbsp;(29)<br>
+		<div class=comments_menu_date>30 Январь, 12:10		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33314/#comments>Apple обновила OS X Yosemite до версии 10.10.2</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>30 Январь, 10:06		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33311/#comments>Microsoft покажет на MWC 2015 смартфоны на базе Windows 10</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>30 Январь, 09:22		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33309/#comments>Касперский назвал умные телевизоры новой мишенью для хакеров</a>&nbsp;(3)<br>
+		<div class=comments_menu_date>30 Январь, 09:21		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/32291/#comments>Выпущен защищенный планшет для чиновников на основе российской ОС</a>&nbsp;(18)<br>
+		<div class=comments_menu_date>29 Январь, 21:03		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/24552/#comments>Взломана защита от копирования приложений для Android</a>&nbsp;(7)<br>
+		<div class=comments_menu_date>29 Январь, 20:52		</div>
+	</div>	<div class=comments_menu>
+		<a href=http://citforum.ru/news/33301/#comments>Mozilla хочет принести виртуальную реальность в веб</a>&nbsp;(1)<br>
+		<div class=comments_menu_date>29 Январь, 09:16		</div>
+	</div></td></tr>
+
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td><div id="cse" style="width: 100%;">Loading</div>
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript"> 
+  google.load('search', '1', {language : 'ru'});
+  google.setOnLoadCallback(function() {
+    var customSearchControl = new google.search.CustomSearchControl('018117224161927867877:xbac02ystjy');
+    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+    customSearchControl.draw('cse');
+  }, true);
+</script>
+<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+</td></tr>
+
+<tr><td align="center"><!-- Soloway 240x400 code START-->
+<script language="javascript" type="text/javascript"><!--
+if(typeof(ar_cn)=="undefined") var ar_cn=1;
+var ar_Tail=document.referrer ? escape(document.referrer) : 'unknown';
+var ar_link="http://ad.adriver.ru/cgi-bin/erle.cgi?sid=126751&bt=49&target=blank&tail256=" + ar_Tail;
+document.write('<div style="visibility:hidden;height:0px;"><iframe id="ar_container_'+ar_cn+'" width=1 height=1 marginwidth=0 marginheight=0 scrolling=no frameborder=0><\/iframe><\/div><div id="ad_ph_'+ar_cn+'"><\/div>');
+function ar_getDoc(t,n,l){var doc;if(t<100){if(document.all && !window.opera){doc = window.frames['ar_container_'+n].document}
+else if(document.getElementById){doc=document.getElementById('ar_container_'+n).contentDocument}
+if(!doc){setTimeout('ar_getDoc('+(++t)+','+n+',"'+l+'")', 100)}else {var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+doc.write ('<sc'+'ript language="JavaScript" type="text/javascript">var ar_bnum='+n+';<\/sc'+'ript>');
+doc.write ('<sc'+'ript language="JavaScript" type="text/javascript" src="'+l+'&rnd='+RndNum4NoCash+'"><\/sc'+'ript>');}}}
+(function(num,link){function addEvent(e,t,f){if(e.addEventListener)e.addEventListener(t,f,false);else if(e.attachEvent)e.attachEvent('on'+t,f)}
+function removeEvent(e,t,f){if(e.removeEventListener)e.removeEventListener(t,f,false);else if(e.detachEvent)e.detachEvent('on'+t,f)}
+var BannerLoader={top:0,height:400,cm:document.compatMode=="CSS1Compat",
+scroll:function(){var ch=self.innerHeight||this.cm&&document.documentElement.clientHeight||document.body.clientHeight;
+var st=self.pageYOffset||this.cm&&document.documentElement.scrollTop||document.body.scrollTop;
+var sh=self.scrollHeight||this.cm&&document.documentElement.scrollHeight||document.body.scrollHeight;
+if((st-this.top<=this.height*0.2&&st+ch-this.top>=this.height*0.8)||(sh-this.top<=this.height*0.8&&(sh-st-ch<1||sh<ch))){
+removeEvent(window,'scroll',this.sfunc);ar_getDoc(0,num,link)}},
+sfunc: function(){BannerLoader.scroll()},init:function(){var t=this,obj=document.getElementById('ad_ph_'+num);
+if(obj){while(obj.offsetParent){t.top += obj.offsetTop; obj = obj.offsetParent}
+addEvent(window,'scroll',this.sfunc);t.scroll()}}};addEvent(window, 'load', function(){BannerLoader.init()})})(ar_cn++,ar_link);
+//--></script>
+<!-- Soloway 240x400 code END -->
+</td></tr>
+
+<tr><td align="center">
+<font size="2"><a class=head href=http://forum.citforum.ru/>Форумы</a>
+<a class=head href=http://citforum.ru/gazeta/>Газета</a></font>
+</td></tr>
+</table>
+
+</td>
+<td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=2 height=1 border=0></td>
+<td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0></td>
+</tr></table>
+
+</td>
+ <!--no_right-->
+
+</tr>
+</table>
+</td>
+
+</tr></table>
+
+<p>
+<table   cellspacing=0 cellpadding=0 border=0 width=100%>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=931 height=1 alt="" border=0></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr><td bgcolor=#008080>
+
+<table cellspacing=1 cellpadding=3 border=0 width=100%>
+<tr>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/consulting/">IT-консалтинг</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/SE/">Software Engineering</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/programming/">Программирование</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/database/">СУБД</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/security/">Безопасность</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/internet/">Internet</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/nets/">Сети</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/operating_systems/">Операционные системы</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href="http://citforum.ru/hardware/">Hardware</a></font></td>
+<!--
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/faq/>FAQ (ЧаВО)</a></font></td>
+<td bgcolor=#F4F9F3 align=center><font size=-1><a class=head href=/howto/>HOWTO</a></font></td>
+--> 
+</tr>
+</table>
+
+</td></tr>
+</table>
+
+<p>
+
+<table width=100%>
+<tr><td>
+<a href="http://citforum.ru/about/"><font size=2>Информация для рекламодателей</font></a> 
+</td><td><font size=2>PR-акции, размещение рекламы &mdash; <a href="mailto:adv@citforum.ru">adv@citforum.ru</a>,
+<br>тел. +7 495 6608306, ICQ 232284597</font>
+</td><td align=right><font size=2>Пресс-релизы &mdash; <a href=mailto:pr@citforum.ru>pr@citforum.ru</a></font>
+</td></tr></table>
+
+
+<table cellspacing=0 cellpadding=0 border=0 width="100%"><tr><td><img src="../../pictures/1x1.gif" width=1 height=5 border=0 alt=""></td></tr>
+<tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr>
+<tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr></table>
+
+<table cellspacing=0 cellpadding=4 border=0 width=100%><tr>
+<td><font size=2>
+<a href=http://www.citforum.ru/feedback.php?page=/nets/ito/25.shtml&server=citforum.ru>Послать комментарий</a><br>
+<a href="http://citforum.ru/how.shtml">Информация для авторов</a>
+
+</font></td>
+
+<td><a href=http://top100.rambler.ru/cgi-bin/stats_top100.cgi?13078><img src="../../pictures/logos/banner-88x31-rambler-darkblue2.gif" width=88 height=31 border=0 alt="Rambler's Top100"></a></td>
+<td><!--TopList LOGO--><a target=_top href="http://top.list.ru/jump?from=26978"><img src="http://top.list.ru/counter?id=26978;t=54;l=1" border=0 height=31 width=88 alt="TopList"></a><!--TopList LOGO--></td>
+<td>
+<!--LiveInternet logo--><a href="http://www.liveinternet.ru/click" target=_blank><img
+src="http://counter.yadro.ru/logo?12.6" border=0
+alt="liveinternet.ru: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"
+width=88 height=31></a><!--/LiveInternet-->
+</td>
+
+<td align=right valign=bottom><FONT SIZE=1 face="Arial, sans-serif">This Web server launched on February 24, 1997<br>
+Copyright &copy; 1997-2000 CIT, &copy; 2001-2015 <a href="http://citforum.ru/info.shtml">CIT Forum</a></font></td>
+</tr></table>
+
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr><td bgcolor=#daecd7><img src="../../pictures/1x1.gif" width=1 height=3 border=0 alt=""></td></tr><tr><td bgcolor=#008080><img src="../../pictures/1x1.gif" width=1 height=1 border=0 alt=""></td></tr></table>
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr><td align=center><font size=1 face="Arial, sans-serif"><b>Внимание!</b> Любой из материалов, опубликованных на этом сервере, не может быть  воспроизведен в какой бы то ни было форме и какими бы то ни было средствами без письменного разрешения владельцев авторских прав. <a href="http://citforum.ru/copyright.shtml">Подробнее...</a></td></tr></table>
+
+
+</table></center>
+
+
+<!-- AdGravity Javascript code START-->
+<script language="javascript" type="text/javascript"><!--
+var RndNum4NoCash = Math.round(Math.random() * 1000000000);
+var ar_Tail='unknown'; if (document.referrer) ar_Tail = escape(document.referrer);
+document.write('<sc' + 'ript language="JavaScript" src="http://ad.adriver.ru/cgi-bin/erle.cgi?sid=126751&bt=16&target=blank&tail256="' + ar_Tail + '"></sc' + 'ript>');
+//--></script>
+<!-- AdGravity Javascript code END -->
+
+
+
+
+</body>
+
+</html>
+

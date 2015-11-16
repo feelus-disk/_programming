@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content=
+    "application/xhtml+xml; charset=koi8-r" />
+    <title>
+      7.8.&nbsp;Файлы загрузки оболочки Bash
+    </title>
+    <link rel="stylesheet" href="../stylesheets/lfs.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.65.1" />
+    <link rel="stylesheet" href="../stylesheets/lfs-print.css" type=
+    "text/css" media="print" />
+  </head>
+  <body id="lfs" class="6.0">
+    <div class="navheader">
+      <div class="headertitles">
+        <h4>
+          Linux From Scratch - Версия 6.0
+        </h4>
+        <h3>
+          Глава&nbsp;7.&nbsp;Установка системных скриптов загрузки
+        </h3>
+      </div>
+      <ul class="headerlinks">
+        <li class="prev">
+          <a accesskey="p" href="inputrc.html" title=
+          "Creating the /etc/inputrc File">Назад</a>
+          <p>
+            Создание файла /etc/inputrc
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="sysklogd.html" title=
+          "Configuring the sysklogd Script">Далее</a>
+          <p>
+            Настройка скрипта sysklogd
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sect1" lang="en" xml:lang="en">
+      <div class="titlepage">
+        <h1 class="sect1">
+          7.8. Файлы загрузки оболочки Bash
+        </h1>
+      </div>
+      <p>
+        Программа-оболочка <span><b class="command">/bin/bash</b></span>
+        (далее называемая &ldquo;<span class="quote">оболочкой</span>&rdquo;)
+        при запуске использует набор стартовых файлов для создания
+        окружения. Файлы в директории <tt class="filename">/etc</tt>
+        предоставляют глобальные установки. Если эквивалентные файлы присутствуют
+        в домашней диретории, то они могут заменить глобальные установки.
+      </p>
+      <p>
+        Интерактивнвя регистрация оболочки запускается после успешного входа, используя
+        <span><b class="command">/bin/login</b></span>, который читает файл
+        <tt class="filename">/etc/passwd</tt>.
+      </p>
+      <p>
+	  Интерактивнвя нерегистрированная оболочка запускается из командной строки
+	  (т.е. <tt class="prompt">[prompt]$</tt><span><b class=
+        "command">/bin/bash</b></span>).
+      </p>
+      <p>
+	  Неинтерактивная оболочка обычно присутствует
+        при загрузке стартовых скриптов. Она неинтерактивная потому, что она выполняет
+        скрипт и не ожидает ввода от пользователя между выполнением команд.
+      </p>
+      <p>
+        Для большей информации смотрите <span><b class="command">info
+        bash</b></span>
+      </p>
+      <p>
+        Файлы <tt class="filename">/etc/profile</tt> и <tt class=
+        "filename">~/.bash_profile</tt> читаются, когда оболочка работает в режиме
+        интерактивной регистрации.
+      </p>
+      <p>
+        Основной файл <tt class="filename">/etc/profile</tt> ниже устанавливает
+        некоторые переменные окружения, необходимые для поддержки различных языков.
+        Правильная их установка даст следующий результат:
+      </p>
+      <div class="itemizedlist">
+        <ul>
+          <li>
+            <p>
+              Вывод программ транслируется на нужном языке
+            </p>
+          </li>
+          <li>
+            <p>
+              Правильная классификация символов в буквы, цифры и другие классы.
+              Это необходимо Bash для правильного применения не-ASCII символов
+              в командной строке при не-английской локали
+            </p>
+          </li>
+          <li>
+            <p>
+              Правилиный алфавитный порядок сортировки
+            </p>
+          </li>
+          <li>
+            <p>
+              Предпочтительный размер страницы по умолчанию
+            </p>
+          </li>
+          <li>
+            <p>
+              Правильное форматирование денежной величины, времени и даты
+            </p>
+          </li>
+        </ul>
+      </div>
+      <p>
+        Этот скрипт также устанавливает переменную окружения <tt class=
+	"envar">INPUTRC</tt>, которая заставляет <span class=
+        "application">Bash</span> и <span class="application">Readline</span>
+        использовать ранее созданный файл <tt class=
+        "filename">/etc/inputrc</tt>.
+      </p>
+      <p>
+        Замените <i class="replaceable"><tt>[ll]</tt></i> ниже на двух-буквенный
+        код для требуемого языка (т.е., &ldquo;<span class=
+        "quote">ru</span>&rdquo;) и <i class=
+        "replaceable"><tt>[CC]</tt></i> на на двух-буквенный код страны
+        (т.е., &ldquo;<span class="quote">RU</span>&rdquo;).
+        Также может быть необходимо указание (и это актуальная и
+        предпочтительная форма) кодировки символов (т.е.
+        &ldquo;<span class="quote">koi8-r</span>&rdquo;) после точки (так,
+        что в результате будет &ldquo;<span class=
+        "quote">ru_RU.koi8-r</span>&rdquo;). Используйте следующую команду
+        для большей информации:
+      </p>
+      <pre class="userinput">
+<kbd class="command">man 3 setlocale</kbd>
+</pre>
+      <p>
+        Список всех локалей, поддерживаемых Glibc, может быть получен запуском
+        следующей команды:
+      </p>
+      <pre class="userinput">
+<kbd class="command">locale -a</kbd>
+</pre>
+      <p>
+        Как только подходящие параметры локали будут определены, создайте файл
+        <tt class="filename">/etc/profile</tt>:
+      </p>
+      <pre class="userinput">
+<kbd class="command">cat &gt; /etc/profile &lt;&lt; "EOF"
+<tt class="literal"># Begin /etc/profile
+
+export LC_ALL=<i class="replaceable"><tt>[ll]</tt></i>_<i class=
+"replaceable"><tt>[CC]</tt></i>
+export LANG=<i class="replaceable"><tt>[ll]</tt></i>_<i class=
+"replaceable"><tt>[CC]</tt></i>
+export INPUTRC=/etc/inputrc
+
+# End /etc/profile</tt>
+EOF</kbd>
+</pre>
+      <div class="note">
+        <div class="admonhead">
+          <img alt="[Note]" src="../images/note.png" />
+          <h3 class="admontitle">
+            Замечание
+          </h3>
+        </div>
+        <div class="admonbody">
+          <p>
+            Локали &ldquo;<span class="quote">C</span>&rdquo; (по умолчанию) и
+            &ldquo;<span class="quote">en_US</span>&rdquo; (рекомендуется
+            для английских пользователей США) различаются.
+          </p>
+        </div>
+      </div>
+      <p>
+        Установка раскладки клавиатуры, эранного шрифта и локале-связанных
+        переменных окружения является только шагом интернационализации, нужным
+        для поддержки локалей, использующих обычные однобайтовые кодировки и
+        направление письма слева-направо. Более комплексные вещи (включая UTF-8
+        основанные локали) требуют дополнительных шагов и дополнительных патчей,
+        так как много приложений имеют склонность работать неправильно в таких
+        условиях. Эти шаги и патчи не включены в книгу LFS и такие локали не
+        поддерживаются LFS.
+      </p>
+    </div>
+    <div class="navfooter">
+      <ul>
+        <li class="prev">
+          <a accesskey="p" href="inputrc.html" title=
+          "Creating the /etc/inputrc File">Назад</a>
+          <p>
+            Создание файла /etc/inputrc
+          </p>
+        </li>
+        <li class="next">
+          <a accesskey="n" href="sysklogd.html" title=
+          "Configuring the sysklogd Script">Далее</a>
+          <p>
+            Настройка скрипта sysklogd
+          </p>
+        </li>
+        <li class="up">
+          <a accesskey="u" href="chapter07.html" title=
+          "Глава&nbsp;7.&nbsp;Setting Up System Bootscripts">Наверх</a>.
+        </li>
+        <li class="home">
+          <a accesskey="h" href="../index.html" title=
+          "Linux From Scratch - Версия 6.0">В начало</a>.
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+
+scripts to do final cleanup
+
+save the originals
+
+for i in *.html
+do
+cp $i .old.$i
+done
+
+
+use the script sedme
+
+# fix </a> .</p>
+sed -e 's/<\/a> \.<\/p>/<\/a>.<\/p>/g' \
+ -e 's/<\/a> )/<\/a>)/g' \
+ -e 's/( <i>/(<i>/g' \
+ -e 's/<\/i> )/<\/i>)/g' \
+ -e 's/( <b>/(<b>/g' \
+ -e 's/( <a/(<a/g' \
+ -e 's|</a> ,|</a>,|g' \
+ -e 's|> \([.,;]\)|>\1|g' \
+ -e 's|\([[:upper:]]\) \([.,)]\)|\1\2|g'
+
+
+for i in *.html
+do
+cat .old.$i |./sedme >$i
+echo $i
+done
+
+check the diffs
+
+for i in *.html
+do
+diff .old.$i $i
+done >/tmp/D
