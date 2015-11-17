@@ -1,1 +1,0 @@
-AC_INIT(mcsanc)
