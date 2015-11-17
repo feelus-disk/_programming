@@ -1,4 +1,4 @@
-#include "GeneralHashFunctions.h"
+#include "GeneralHashFunctions.hpp"
 
 unsigned int RSHash(const std::string& str)
 {

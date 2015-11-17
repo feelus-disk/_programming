@@ -17,28 +17,33 @@
 */
 
 
-#include <iostream>
-#include <string>
+
+#include <stdio.h>
+#include <stdlib.h>
 #include "GeneralHashFunctions.h"
+
 
 int main(int argc, char* argv[])
 {
-   std::string key = "abcdefghijklmnopqrstuvwxyz1234567890";
 
-   std::cout << "General Purpose Hash Function Algorithms Test" << std::endl;
-   std::cout << "By Arash Partow - 2002        " << std::endl;
-   std::cout << "Key: "                          << key           << std::endl;
-   std::cout << " 1. RS-Hash Function Value:   " << RSHash(key)   << std::endl;
-   std::cout << " 2. JS-Hash Function Value:   " << JSHash(key)   << std::endl;
-   std::cout << " 3. PJW-Hash Function Value:  " << PJWHash(key)  << std::endl;
-   std::cout << " 4. ELF-Hash Function Value:  " << ELFHash(key)  << std::endl;
-   std::cout << " 5. BKDR-Hash Function Value: " << BKDRHash(key) << std::endl;
-   std::cout << " 6. SDBM-Hash Function Value: " << SDBMHash(key) << std::endl;
-   std::cout << " 7. DJB-Hash Function Value:  " << DJBHash(key)  << std::endl;
-   std::cout << " 8. DEK-Hash Function Value:  " << DEKHash(key)  << std::endl;
-   std::cout << " 9. FNV-Hash Function Value:  " << FNVHash(key)  << std::endl;
-   std::cout << "10. BP-Hash Function Value:   " << BPHash(key)   << std::endl;
-   std::cout << "11. AP-Hash Function Value:   " << APHash(key)   << std::endl;
+   char* key = "abcdefghijklmnopqrstuvwxyz1234567890";
 
-   return true;
+   printf("General Purpose Hash Function Algorithms Test\n");
+   printf("By Arash Partow - 2002         \n");
+   printf("Key:                         %s\n",key);
+   printf(" 1. RS-Hash Function Value:   %u\n",RSHash(key,36));
+   printf(" 2. JS-Hash Function Value:   %u\n",JSHash(key,36));
+   printf(" 3. PJW-Hash Function Value:  %u\n",PJWHash(key,36));
+   printf(" 4. ELF-Hash Function Value:  %u\n",ELFHash(key,36));
+   printf(" 5. BKDR-Hash Function Value: %u\n",BKDRHash(key,36));
+   printf(" 6. SDBM-Hash Function Value: %u\n",SDBMHash(key,36));
+   printf(" 7. DJB-Hash Function Value:  %u\n",DJBHash(key,36));
+   printf(" 8. DEK-Hash Function Value:  %u\n",DEKHash(key,36));
+   printf(" 9. BP-Hash Function Value:   %u\n",BPHash(key,36));
+   printf("10. FNV-Hash Function Value:  %u\n",FNVHash(key,36));
+   printf("11. AP-Hash Function Value:   %u\n",APHash(key,36));
+
+   exit(EXIT_SUCCESS);
+   return 1;
+
 }
