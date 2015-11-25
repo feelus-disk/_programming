@@ -1,0 +1,705 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+	
+
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="ru-RU" xml:lang="ru-RU">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Изучаем tput</title>
+<link rel="schema.DC" href="http://purl.org/DC/elements/1.0/"/>
+<link rel="SHORTCUT ICON" href="//www.ibm.com/favicon.ico"/>
+<meta name="DC.Rights" content="© Copyright IBM Corporation 2008"/>
+<meta name="Keywords" content="UNIX, shell-скрипты, tput, Адам Кормэни, dddauca, tttlca"/>
+<meta name="DC.Date" scheme="iso8601" content="2008-06-17"/>
+<meta name="Source"  content="v17 delivery:developerWorks"/>
+<meta name="Security" content="Public"/>
+<meta name="Abstract" content="Одним из средств UNIX являются shell-скрипты – как простые, так и сложные. Независимо от этого их авторам нужны инструменты для того, чтобы выделить текст жирным шрифтом или подчеркиванием, изменить его фон и т. д. Для этого и используется tput."/>
+<meta name="Description" content="Одним из средств UNIX являются shell-скрипты – как простые, так и сложные. Независимо от этого их авторам нужны инструменты для того, чтобы выделить текст жирным шрифтом или подчеркиванием, изменить его фон и т. д. Для этого и используется tput."/>
+<meta name="IBM.Effective" scheme="W3CDTF" content="2008-06-17"/>
+<meta name="Owner" content="RuAdmin DeveloperWorks/Russia/IBM"/>
+<meta name="DC.Language" scheme="rfc1766" content="ru-RU"/>
+<meta name="IBM.SpecialPurpose" content="SP001"/>
+<meta name="IBM.Country" content="RU"/>
+<meta name="Robots" content="index,follow"/>
+<meta name="DC.Type" scheme="IBM_ContentClassTaxonomy" content="CT316" />
+<meta name="DC.Subject" scheme="IBM_SubjectTaxonomy" content="SWG10" />
+<meta name="dW.ContentArea" content="34,2" />
+<meta name="dW.Topic" content="263,32,361,352,228,91" />
+
+<meta scheme="IBM_WTMCategory" name="IBM.WTMCategory" content="SOFDCAIXRU" />
+
+<link rel="canonical" href="http://www.ibm.com/developerworks/ru/library/au-learningtput/index.html"/>
+<!-- HEADER_SCRIPTS_AND_CSS_INCLUDE -->
+<link href="//1.www.s81c.com/common/v17/css/www.css" rel="stylesheet" title="www"  type="text/css"/>
+<!-- Masthead/footer -->
+<link href="//dw1.s81c.com/developerworks/css/dw-mf/v17/dw-mfN2015-01.css" media="screen,projection" rel="stylesheet" title="www" type="text/css"/>
+<link href="//dw1.s81c.com/developerworks/css/v17/dw-article-6.css" rel="stylesheet" title="www" type="text/css"/>
+<link href="//dw1.s81c.com/developerworks/css/v17/dw-common-features.css" rel="stylesheet" title="www" type="text/css"/>
+<link href="//dw1.s81c.com/developerworks/css/v17/dw-local-site-v17-N2014-05.css" media="screen,projection" rel="stylesheet" title="www" type="text/css"/>
+        <link href="//dw1.s81c.com/developerworks/css/v17/dw-bluemix-regbar.css" media="screen,projection" rel="stylesheet" title="www" type="text/css"/>
+<script type="text/javascript" src="//1.www.s81c.com/common/js/dojo/www.js">//</script>
+<script type="text/javascript" src="//dw1.s81c.com/developerworks/js/v17/dw-www-v2.js">//</script>
+<script type="text/javascript">dojo.addOnLoad(function(){var dw_lang="ru_RU";var dw_source="dwrussia";var dw_content=window.location.pathname.split("/")[window.location.pathname.split("/").length-2];if(dw_content=="library"){dw_content=window.location.pathname.split("/")[window.location.pathname.split("/").length-1];dw_content=window.location.pathname.split("/")[window.location.pathname.split("/").length-3]+"-"+dw_content.substring(0,dw_content.indexOf(".html"))}var lnkID="article-rbar-bmix-home-regbar";dojo.attr(dojo.query(".dw-regbar-btn")[0],"id",lnkID);var lnkHref=dojo.attr(dojo.byId(lnkID),"href")+"?lang="+dw_lang+"&ca="+dw_source+"-_-bluemix-_-"+dw_content+"-_-regbar-article";dojo.attr(dojo.byId(lnkID),"href",lnkHref);var rbstate=dojo.cookie("dwspck");if(rbstate==undefined)rbstate=0;rbstate=Number(rbstate);if(rbstate>=2)rbstate=0;if(rbstate==1){dojo.destroy("dw-regbar");return}var dwRegbarShow=dojo.animateProperty({node:"dw-regbar",duration:1000,delay:1000,properties:{opacity:{start:0,end:1},top:0}});var ibmTopSlideDown=dojo.animateProperty({node:"ibm-top",duration:1000,delay:1000,properties:{marginTop:{start:0,end:42}}});dwRegbarShow.play();ibmTopSlideDown.play();dwHideRegbar=function(){var dwRegbarHide=dojo.animateProperty({node:"dw-regbar",duration:1000,delay:0,properties:{opacity:{start:1,end:0},top:-100}});var ibmTopSlideUp=dojo.animateProperty({node:"ibm-top",duration:1000,delay:0,properties:{marginTop:{start:42,end:0}}});dwRegbarHide.play();ibmTopSlideUp.play();setTimeout(function(){dojo.destroy("dw-regbar")},1000);dojo.cookie("dwspck","1",{expires:3650,path:"/",domain:".ibm.com"})}});</script><script type="text/javascript">
+//  ibmweb.config.set({ sbs: { enabled: false }});
+</script>
+<script type="text/javascript">dojo.addOnLoad(function(){var dw_lang="ru_RU";var dw_source="dwrussia";var dw_register="Войдите, чтобы скачать<br/>бесплатную триал-версию Bluemix";var dw_connect="Связаться с<br/>разработчиками Bluemix";var dw_vp="Разработайте и разверните ваше следующее приложение на облачной платформе IBM Bluemix.";var dw_cta="Начните работу с<br/> бесплатной<br/> пробной версией";var dw_tile_alt="Разработайте и разверните ваше следующее приложение на облачной платформе IBM Bluemix. Начните работу бесплатно.";var dw_campaign="bluemix";var dw_content=window.location.pathname.split("/")[window.location.pathname.split("/").length-2];if(dw_content=="library"){dw_content=window.location.pathname.split("/")[window.location.pathname.split("/").length-1];dw_content=window.location.pathname.split("/")[window.location.pathname.split("/").length-3]+"-"+dw_content.substring(0,dw_content.indexOf(".html"))}var bluDevComURL="https://developer.ibm.com/bluemix/";var bluLink="https://www.bluemix.net/";var lnkID;var lnkIDd;var lnkIDt;var bLinkEnd;var bLinkTemp;var idTrkr=[];var idCnt;var artTop=dojo.query("div.ibm-col-1-1")[0];var artChildren=dojo.query(artTop).children();var edgy=false;if(dojo.hasClass(artChildren[0],"ibm-inset"))edgy=true;if((artChildren[0].nodeName=="H2")&&(dojo.hasClass(artChildren[1],"ibm-inset")))edgy=true;if(dojo.hasClass(artChildren[0],"codesection"))edgy=true;if((artChildren[0].nodeName=="H5")&&(dojo.hasClass(artChildren[1],"codesection")))edgy=true;if((artChildren[0].nodeName=="H5")&&(artChildren[1].width>=701))edgy=true;if(artChildren[1].width>=701)edgy=true;if(dojo.hasClass(artChildren[0],"ibm-data-table"))edgy=true;if((artChildren[0].nodeName=="H5")&&(dojo.hasClass(artChildren[1],"ibm-data-table")))edgy=true;if(!(edgy)){var sBarAB='<div class="dw-article-sidebar dw-bluemix" id="dwc-exp-a">'+'<img src="//dw1.s81c.com/developerworks/i/bluemix-graphic.png" height="64" width="64" alt=""/>'+'<p>'+dw_vp+'</p>'+'<p class="ibm-button-link-alternate dw-button-green">'+'<a id="tutc-sbar-bmix-home-btn-ABa" href="'+bluLink+'" class="dw-button-large">'+dw_cta+'</a></p></div>';dojo.place(sBarAB,artTop,"first")}dojo.forEach(dojo.query("#ibm-content-main a"),function(item,index){var dw_medium="article";var bLink=dojo.attr(item,"href");var linkClass=dojo.attr(item,"class");if((dojo.attr(item,"id")!=null)&&(dojo.attr(item,"id").indexOf("-sbar-")>-1))dw_medium="sidebar";if((dojo.attr(item,"id")!=null)&&(dojo.attr(item,"id").indexOf("-vpromo-")>-1))dw_medium="video-promotion";if(bLink&&(bLink.indexOf("//bluemix.net")>-1))bLink=bLink.replace("//bluemix.net","//www.bluemix.net");if(bLink&&(bLink.indexOf("//ace.ng.bluemix.net")>-1))bLink=bLink.replace("//ace.ng.bluemix.net","//www.bluemix.net");if(bLink&&(bLink.indexOf("//console.ng.bluemix.net")>-1))bLink=bLink.replace("//console.ng.bluemix.net","//www.bluemix.net");if(bLink&&((bLink.indexOf("//www.bluemix.net")>-1)||(bLink.indexOf("//www.ng.bluemix.net")>-1)||(bLink.indexOf("//hub.jazz.net")>-1)||(bLink.indexOf("//developer.ibm.com/open")>-1))){bLinkEnd="";bLink=bLink.split("?");if((bLink[1])&&(bLink[1].indexOf("repository=")!=-1)){var deployBtn=true;bLink[0]=bLink[0]+"?"+bLink[1];bLink[1]=null}if((bLink[1])&&(bLink[1].indexOf("/")!=-1))bLinkEnd=bLink[1].substring(bLink[1].indexOf("/"));bLink=bLink[0];if(bLink.indexOf("//developer.ibm.com/open")==-1){if(bLink.indexOf("//hub.jazz.net")>-1){if(!(deployBtn)&&((bLink.indexOf("//hub.jazz.net/git")>-1)||(bLink.indexOf("//hub.jazz.net/project")>-1))){bLink=bLink+"?utm_source="+dw_source+"&utm_medium="+dw_medium+"&utm_content="+dw_content+"&utm_campaign="+dw_campaign}else{if(deployBtn){bLink=bLink+"&cm_mmc="+dw_source+"-_-"+dw_campaign+"-_-"+dw_content+"-_-"+dw_medium}else{bLink=bLink+"?utm_source="+dw_source+"&utm_campaign="+dw_campaign+"&utm_content="+dw_content+"&utm_medium="+dw_medium}}}else{if(bLink.indexOf("/#/")==-1){if(bLink.substring(bLink.length-7)=="/docs/#"){bLink=bLink.replace("/docs/#","/docs/"+"?cm_mmc="+dw_source+"-_-"+dw_campaign+"-_-"+dw_content+"-_-"+dw_medium)}else if(bLink.substring(bLink.length-5)=="/docs"){bLink=bLink.replace("/docs","/docs/"+"?cm_mmc="+dw_source+"-_-"+dw_campaign+"-_-"+dw_content+"-_-"+dw_medium)}else{bLink=bLink+"?cm_mmc="+dw_source+"-_-"+dw_campaign+"-_-"+dw_content+"-_-"+dw_medium}}else{bLink=bLink.substring(0,bLink.indexOf("#"))+"?cm_mmc="+dw_source+"-_-"+dw_campaign+"-_-"+dw_content+"-_-"+dw_medium+bLink.substring(bLink.indexOf("#")-1)}}if(bLinkEnd)bLink=bLink+bLinkEnd;if(linkClass.indexOf("bluemix-home")==-1){if((bLink.indexOf("#")==-1)&&(bLink.indexOf("/solutions")==-1)&&(bLink.indexOf("/catalog")==-1)&&(bLink.indexOf("//www.bluemix.net/")!=-1)){bLink=bLink.replace("//www.bluemix.net/","//developer.ibm.com/sso/bmregistration");if(bLink.indexOf("http://")==0)bLink=bLink.replace("http://","https://");if(bLink.indexOf("//")==0)bLink=bLink.replace("//","https://");if(bLink.indexOf("?cm_mmc=")!=-1)bLink=bLink.replace("?cm_mmc=","?lang="+dw_lang+"&ca=")}if((bLink.indexOf("#")==-1)&&(bLink.indexOf("/solutions")==-1)&&(bLink.indexOf("//www.bluemix.net?")!=-1)){bLink=bLink.replace("//www.bluemix.net","//developer.ibm.com/sso/bmregistration");if(bLink.indexOf("http://")==0)bLink=bLink.replace("http://","https://");if(bLink.indexOf("//")==0)bLink=bLink.replace("//","https://");if(bLink.indexOf("?cm_mmc=")!=-1)bLink=bLink.replace("?cm_mmc=","?lang="+dw_lang+"&ca=")}}if((bLink.indexOf("#")!=-1)&&(bLink.indexOf("solutions")!=-1)){bLinkTemp=bLink.substring(0,bLink.indexOf("?"));bLink=bLink.substring(bLink.indexOf("/#/")+3,bLink.length);bLink=bLinkTemp+bLink;bLinkTemp=bLink.substring(0,bLink.indexOf("solution="));bLink=bLink.substring(bLink.indexOf("/solution=")+10,bLink.length);bLink=bLinkTemp+bLink;bLink=bLink+"?cm_mmc="+dw_source+"-_-"+dw_campaign+"-_-"+dw_content+"-_-"+dw_medium}if((bLink.indexOf("#")!=-1)&&(bLink.indexOf("store")!=-1)){if(bLink.indexOf("&cloudOEPaneId=store")!=-1){bLinkTemp=bLink.split("&cloudOEPaneId=store");bLink=bLinkTemp[0]}bLinkTemp=bLink.substring(bLink.indexOf("serviceOfferingGuid=")+20,bLink.length);bLink=bLink.substring(0,bLink.indexOf(".net/")+5)+"catalog/"+bLinkTemp+"?cm_mmc="+dw_source+"-_-"+dw_campaign+"-_-"+dw_content+"-_-"+dw_medium}}dojo.attr(item,"href",bLink);}});});</script><!-- LEADSPACE_STYLES -->
+
+</head>
+<body id="ibm-com">
+<div id="dw-regbar" class="dw-home-band" aria-labelledby="dw-regbar-vp" role="complementary">
+    <div class="ibm-columns">
+        <div class="ibm-col-6-6">
+            <span id="dw-regbar-bluemix">IBM <strong>Bluemix</strong></span>
+            <span id="dw-regbar-vp">Разработка приложений в облаке на бесплатной пробной версии!</span>
+            <p class="ibm-button-link-alternate dw-button-green">
+                <a class="dw-button-large dw-regbar-btn" href="https://developer.ibm.com/sso/bmregistration">Начать работу</a>                
+            </p>               
+        </div>
+    </div>
+    <span><a onclick="dwHideRegbar();" role="button"><span id="dw-close-regbar" aria-label="Закрыть окно регистрации" title="Закрыть окно регистрации" role="button"></span></a></span>
+</div>	<div id="ibm-top" class="ibm-landing-page">
+
+<!-- MASTHEAD_BEGIN -->		
+<div id="ibm-masthead">
+
+    <!-- TOP ROW -->    
+	<div id="dw-masthead-top-row">
+		<ul id="ibm-mast-options-dw" role="toolbar" aria-label="Masthead navigation">
+			<li id="dw-mast-top-4" role="presentation">
+				<a href="http://www.ibm.com/developerworks/ru/" tabindex="0"><img src="//dw1.s81c.com/developerworks/i/mf/dwn-dw-badge.png" width="43" height="22" alt="dW" aria-label="dW" /></a>
+			</li>
+			<li id="dw-mast-top-0" role="presentation">
+				<div id="dw-mast-signin">
+					<a id="dw-mf-signin-link" class="dw-mf-noscript" href="#" title="Для входа необходим JavaScript" tabindex="2">Войти</a>
+					<span class="dw-mf-signin-spacer">|</span>
+					<a id="dw-mf-reg-link" class="dw-mf-noscript" href="#" title="Для регистрации необходим JavaScript" tabindex="3">Зарегистрироваться</a>
+				</div>        
+				<div id="dw-mast-auth-link" class="dw-mf-hide">
+					<a class="authenticated ibm-active" href="#" role="button" tabindex="2"></a>
+					<ul id="dw-mast-auth-menu" class="dw-mf-hide">
+						<li class="dw-mast-auth-menu-title" aria-hidden="true">Сообщество developerWorks</li>
+						<li>
+							<span class="dw-mast-auth-menu-arrow" aria-hidden="true">›</span><a href="/developerworks/community/profiles/html/myProfileView.do?lang=ru" tabindex="3">Мой	профайл</a>
+						</li>
+						<li>
+							<span class="dw-mast-auth-menu-arrow" aria-hidden="true">›</span><a href="/developerworks/community/groups/service/html/mycommunities?lang=ru" tabindex="4">Мои сообщества</a>
+						</li>
+						<li>
+							<span class="dw-mast-auth-menu-arrow" aria-hidden="true">›</span><a href="/developerworks/community/news/?lang=ru" tabindex="5">Настройки</a>
+						</li>
+						<li class="dw-mast-auth-menu-divider"><hr/></li>
+						<li>
+							<span class="dw-mast-auth-menu-arrow" aria-hidden="true">›</span><a id="dw-mast-signout-link" href="#" tabindex="6">Выйти</a>
+						</li>		                
+					</ul>					
+				</div>
+			</li>			
+			<li id="dw-mast-top-1">
+				<div></div>
+			</li>
+			<li id="dw-mast-top-3" role="presentation">
+				<a href="http://www.ibm.com/ru/ru/" tabindex="1">IBM</a>
+			</li>
+		</ul>
+	</div>
+
+    <!-- BOTTOM ROW -->
+	<div id="ibm-universal-nav-dw" aria-label="Site map">
+		<ul id="ibm-unav-links-dw">
+		<li id="ibm-unav-home-dwlogo">
+				<a href="http://www.ibm.com/developerworks/ru/"><img src="//dw1.s81c.com/developerworks/i/mf/dwn-dw-wordmark.png" width="225" height="28" alt="developerWorks®" /></a>
+			</li>
+		</ul>
+		<ul id="ibm-menu-links-dw" class="ibm-menu-links-dw-ru" role="toolbar" aria-label="Site map">
+			<li id="dw-mast-nav-0" role="presentation"><a href="http://www.ibm.com/developerworks/ru/topics/" tabindex="0">Технические материалы</a></li>
+			<li id="dw-mast-nav-1" role="presentation"><a href="http://www.ibm.com/developerworks/downloads/" tabindex="0">Пробное ПО</a></li>
+			<li id="dw-mast-nav-2" role="presentation"><a href="http://www.ibm.com/developerworks/community/?lang=ru" tabindex="0">Сообщество</a></li>
+		</ul>
+		<form id="ibm-search-form" action="//www.ibm.com/search/csass/search/" method="get" name="form1" aria-label="Поиск developerWorks" role="search">
+			<p>
+				<label for="q"><span class="ibm-access">Поиск developerWorks</span></label>
+				<input id="q" type="text" name="q" value="Поиск developerWorks" maxlength="100"/>
+				<input type="hidden" name="sn" value="dw" />
+				<input type="hidden" name="lang" value="ru" />
+				<input type="hidden" name="cc" value="RU" />
+				<input type="hidden" name="en" value="utf" />
+				<input type="hidden" name="hpp" value="20" />
+				<input type="hidden" name="dws" value="rudw" />
+				<input type="hidden" name="lo" value="ru" />
+				<input id="ibm-search" class="ibm-btn-search" type="submit" value="Отправить" />
+			</p>
+		</form>		
+	</div>
+	
+</div>
+<div id="fdiv" class="ibm-access"></div><!-- MASTHEAD_END -->
+	    
+<!-- LAYOUT -->
+<!-- LEADSPACE_BEGIN --> 
+<div id="ibm-leadspace-head">
+	<!-- LEADSPACE_BODY_BEGIN --> 
+	<div id="ibm-leadspace-body">
+		<!-- Navigation_Trail_BEGIN -->
+        <ul id="ibm-navigation-trail"><li><a href="http://www.ibm.com/developerworks/ru/">developerWorks Россия</a></li><li><a href="http://www.ibm.com/developerworks/ru/topics/">Технические материалы</a></li><li><a href="http://www.ibm.com/developerworks/ru/aix/">AIX и UNIX</a></li><li><a href="http://www.ibm.com/developerworks/ru/views/aix/libraryview.jsp">Статьи</a></li></ul>
+		<!-- END_Navigation_Trail -->
+			<!-- Title_Subtitle -->
+			<h1>Изучаем tput</h1><p><em><span>Усовершенствуйте ваши shell-скрипты UNIX</span></em></p>
+	</div>
+	<!-- LEADSPACE_BODY_END --> 
+	<!-- SUMMARY_BEGIN -->
+	<div id="dw-summary-area" class="dw-summary-columns">
+		<div class="ibm-col-6-4">
+		<p>Одним из мощных средств операционной системы UNIX&#174; является возможность написания сценариев командной оболочки (shell-скриптов), которые существенно облегчают работу пользователей. Эти сценарии могут быть как простыми, состоящими из одной строки, так и очень сложными, содержащими тысячи строк. Иногда в shell-скриптах их авторы используют различные меню и хотят предоставить пользователям больше информации, нежели простая прокрутка текста. Также бывают случаи, когда пользователи видят одну или две строки, и автор хочет обратить внимание пользователей на какое-либо текстовое предупреждение. Независимо от сложности скрипта их авторам всегда нужны инструменты для того, чтобы выделить текст жирным шрифтом или подчеркиванием, изменить его фон и так далее. Как раз для этого и используется команда tput.</p>
+		<p class="ibm-no-print ibm-ind-link">
+
+			
+			<span id="nCmts"></span>
+		</p>
+		</div>
+		<div class="ibm-col-6-2 dw-toc-margin">
+			<p class="dw-summary-author"><a href="#authorN1001F" class="ibm-popup-link" onclick="ibmweb.overlay.show('authorN1001F',this);return false;">Адам Кормэни</a>, администратор национального центра данных, Scientific Games Corporation</p>
+<div id="authorN1001F" class="ibm-common-overlay"><div class="ibm-head"><p><a href="#close" class="ibm-common-overlay-close">Закрыть [x]</a></p></div><div class="ibm-body"><div class="ibm-main"><div class="ibm-title"><!--this is where the h2 usually goes--></div><div class="ibm-container ibm-alternate"><div class="ibm-container-body">
+<p><!--.-->
+Являясь на сегодняшний день администратором национального центра данных, Адам Кормэни (Adam Cormany) в течение последних нескольких лет работал системным инженером UNIX, администратором UNIX и руководителем эксплуатации группы технического сопровождения корпорации Scientific Games. Адам более 10 лет вплотную занимался администрированием операционных систем AIX, Solaris и Red Hat Linux, и имеет статус сертифицированного специалиста IBM по eServer в области администрирования систем pSeries AIX. Помимо администрирования, Адам обладает глубокими знаниями в области написания shell-скриптов для командных оболочек BASH, CSH и KSH, а также умеет программировать на языках C, PHP и Perl.</p><br /><br /></div></div></div></div><div class="ibm-footer"><!----></div></div>
+			<p class="dw-summary-date">17.06.2008</p>
+			
+
+
+			<div aria-hidden="true" class="ibm-container" id="dw-toc"><div class="ibm-container-body"><ul class="ibm-twisty"><li><a href="#toggle" class="ibm-twisty-trigger"><img src="//www.ibm.com/i/c.gif" alt="-"/></a><span class="ibm-twisty-head">Содержание</span><div class="ibm-twisty-body"><ul style="font-size:0.8em" class="ibm-link-list">
+<li><a class="ibm-anchor-down-em-link" href="#N1003B">Что такое tput?</a></li>
+<li><a class="ibm-anchor-down-em-link" href="#N10047">Что такое база данных terminfo?</a></li>
+<li><a class="ibm-anchor-down-em-link" href="#N1004D">Введение в командную строку tput</a></li>
+<li><a class="ibm-anchor-down-em-link" href="#N10103">Вывод ваших shell-скриптов на новый уровень</a></li>
+<li><a class="ibm-anchor-down-em-link" href="#N10170">Заключение</a></li>
+<li><a class="ibm-anchor-down-em-link" href="#resources">Ресурсы</a></li>
+<li><a class="ibm-anchor-down-em-link" href="#icomments">Комментарии</a></li></ul></div></li></ul></div></div>
+		</div>
+	</div>
+	<!-- SUMMARY_END -->
+</div>
+<!-- LEADSPACE_END -->
+
+<div id="ibm-pcon">
+
+<!-- BEGIN_IBM-CONTENT -->
+<div id="ibm-content">
+
+<!-- BEGIN_IBM-CONTENT-BODY -->
+<div id="ibm-content-body">
+
+<!-- BEGIN_IBM-CONTENT-MAIN -->
+<div id="ibm-content-main">
+
+<!-- 1_1_COLUMN_BEGIN -->
+<div class="ibm-columns">
+<div class="ibm-col-1-1">
+
+<h2 id="N1003B">Что такое tput?</h2><p>Команда <code>tput</code> инициализирует и управляет вашими сеансами работы с терминалом, используя базу данных terminfo. С помощью <code>tput</code> вы можете управлять различными функциями терминала, такими как перемещение или изменение вида курсора, изменение свойств текста и очистка определенных областей экрана терминала.</p><div class="ibm-alternate-rule"><hr/></div><p class="ibm-ind-link ibm-back-to-top"><a href="#ibm-pcon" class="ibm-anchor-up-link">В начало</a></p><h2 id="N10047">Что такое база данных terminfo?</h2><p>База данных terminfo в системе UNIX задает атрибуты и переменные терминала и принтера, включая такие параметры, как количество строк и столбцов на соответствующем устройстве и атрибуты выводимого текста. Для определения этих и других атрибутов базу данных terminfo используют такие широко известные UNIX-программы, как текстовые редакторы vi и emacs, а также программы curses и man.</p><div class="ibm-alternate-rule"><hr/></div><p class="ibm-ind-link ibm-back-to-top"><a href="#ibm-pcon" class="ibm-anchor-up-link">В начало</a></p><h2 id="N1004D">Введение в командную строку tput</h2><p>Аналогично большинству команд UNIX, команда <code>tput</code> может вызываться как из командной строки, так и из shell-скрипта. Чтобы вы могли лучше понять команду <code>tput</code>, сначала в этом руководстве будет рассмотрена командная строка, а затем будут приведены примеры shell-скриптов.</p><h3 id="N10059">Атрибуты курсора</h3><p>Перемещение курсора или изменение его атрибутов может оказаться полезным в shell-скриптах или командной строке UNIX. Могут возникать моменты, когда вам требуется вводить закрытую информацию, такую как пароль, или вводить информацию в двух различных областях экрана. В этом вам может помочь <code>tput</code>.
+			</p><h3 id="N10062">Перемещение курсора</h3><p>С помощью 
+				<code>tput</code> вы можете легко изменить позицию курсора на соответствующем устройстве. Используя опцию <code>cup</code> (позиция курсора – cursor position) команды <code>tput</code>, вы можете перемещать курсор в любую строку и столбец устройства с координатами X или Y. Координатами верхней левой точки устройства являются 0,0.</p><p>Чтобы переместить курсор в пятый столбец (координата X) первой строки (координата Y) устройства, просто выполните команду <code>tput cup 5 1</code>. Другим примером является команда <code>tput cup 23 45</code>, которая перемещает курсор в двадцать третий столбец сорок пятой строки.</p><h3 id="N10079">Перемещение курсора и вывод информации</h3><p>Другим полезным приемом является перемещение курсора, выполнение команды для вывода информации и последующее возвращение курсора в исходную позицию:</p><div class="codesection"><pre class="displaycode">(tput sc ; tput cup 23 45 ; echo “Input from tput/echo at 23/45” ; tput rc)</pre></div><p>Давайте рассмотрим команды подоболочки по отдельности:</p><div class="codesection"><pre class="displaycode">tput sc</pre></div><p>Сначала необходимо сохранить текущую позицию курсора. Для этого используйте опцию <code>sc</code> (сохранить текущую позицию – save cursor position).</p><div class="codesection"><pre class="displaycode">tput cup 23 45</pre></div><p>После сохранения исходной позиции курсор перемещается в точку с координатами 23,45.</p><div class="codesection"><pre class="displaycode">echo “Input from tput/echo at 23/45”</pre></div><p>Вывод информации в устройство стандартного вывода stdout.</p><div class="codesection"><pre class="displaycode">tput rc</pre></div><p>После того, как информация была отображена, курсор нужно вернуть в исходную позицию, которая была сохранена с помощью команды <code>tput sc</code>. Для этого используется опция <code>rc</code> (возврат курсора в исходную позицию – restore cursor position). 
+			</p><p><strong>Примечание.</strong> Поскольку в этой статье вначале рассматривается выполнение 
+				<code>tput</code> из командной строки, то  для более ясного представления выполните все команды в вашей собственной подоболочке вместо того, чтобы выполнять каждую команду по отдельности, получая каждый раз приглашение командной строки.</p><h3 id="N100AD">Изменение атрибутов курсора</h3><p>Бывают ситуации, когда при отображении данных на устройстве вы не хотите видеть курсор. Если вы сделаете курсор невидимым, вы улучшите вид при прокрутке информации на экране. Чтобы сделать курсор невидимым, используйте опцию <code>civis</code> (например, 
+				<code>tput civis</code>). Когда вся информация будет полностью отображена, вы снова сможете сделать курсор видимым с помощью опции <code>cnorm</code>.
+			</p><h3 id="N100BC">Атрибуты текста</h3><p>Изменение способа отображения текста позволяет привлечь внимание пользователей к определенному пункту меню или какому-то важному предупреждению. Вы можете делать текст жирным или подчеркнутым, изменять цвет текста и цвет фона, а также использовать реверсивную цветовую схему.</p><p>Чтобы изменить цвет текста, используйте опцию <code>setb</code> для установки цвета фона и опцию <code> setf</code> – для установки цвета текста. После этих опций указывается номер цвета, определенный в базе данных terminfo. Обычно используются следующие соответствия (хотя в различных системах UNIX они могут различаться):</p><ul class="ibm-bullet-list"><li><strong>0:</strong> Черный</li><li><strong>1:</strong> Синий</li><li><strong>2:</strong> Зеленый</li><li><strong>3:</strong> Голубой</li><li><strong>4:</strong> Красный</li><li><strong>5:</strong> Пурпурный</li><li><strong>6:</strong> Желтый</li><li><strong>7:</strong> Белый</li></ul><p>Выполнение следующих команд сделает цвет фона желтым, а цвет текста красным:</p><div class="codesection"><pre class="displaycode">tput setb 6
+tput setf 4</pre></div><p>Чтобы реверсировать текущую цветовую схему, просто выполните команду 
+				<code>tput rev</code>.
+			</p><p>Иногда недостаточно просто выделить текст цветом, а необходимо привлечь внимание пользователей другим способом. Для этого существуют два пути: выделить текст жирным шрифтом или подчеркиванием.
+			</p><p>Чтобы сделать текст жирным, используйте опцию <code>bold</code>.  Используйте опцию <code>smul</code>, чтобы начать выделение текста подчеркиванием, и опцию <code>rmul</code> – чтобы закончить выделение.</p><div class="ibm-alternate-rule"><hr/></div><p class="ibm-ind-link ibm-back-to-top"><a href="#ibm-pcon" class="ibm-anchor-up-link">В начало</a></p><h2 id="N10103">Вывод ваших shell-скриптов на новый уровень</h2><p>Теперь, когда вы знаете об основах запуска <code>tput</code> из командной строки, настало время сфокусироваться на применении полученных знаний для написания shell-скриптов, а также на использовании других возможностей. Для начала перечислим несколько функций, которые предоставляет в ваше распоряжение команда <code>tput</code>: это получение такой информации, как данные об устройстве, номер строки и столбца, а также очистка экрана.</p><p>Для определения количества столбцов, которые можно использовать на целевом устройстве (ширина), используется опция <code>cols</code>. Для определения количества строк (высота) используется опция <code>lines</code>
+.
+		</p><p>В зависимости от желаемого результата вы можете удалить данные различными способами. Чтобы удалить данные  с текущей позиции курсора до конца строки, используйте команду <code>tput el</code>. Чтобы удалить данные  с текущей позиции курсора до конца экрана, используйте команду <code>tput ed</code>. Если вы хотите очистить весь экран (или область устройства), выполните команду <code>tput clear</code>.
+		</p><h3 id="N10122">Написание скрипта с использованием рассмотренных опций</h3><p>Следующий код создает простое меню. Данный скрипт покажет вам, как можно использовать различные опции команды <code>tput</code>, о которых рассказывалось в этой статье.
+			</p><div class="codesection"><pre class="displaycode"> #!/bin/bash
+trap 'get_window_size' WINCH                    # trap when a user has resized the window
+
+_UNDERLINE_ON='tput smul'                       # turn on underline
+_UNDERLINE_OFF='tput rmul'                      # turn off underline
+
+get_window_size() {
+  _WINDOW_X='tput lines'
+  _WINDOW_Y='tput cols'
+
+  _FULL_SPACES='echo ""|awk '
+  {
+    _SPACES = '${_WINDOW_Y}'
+    while (_SPACES-- &gt; 0) printf (" ")
+  }''
+  _FULL_UNDERLINE='echo "${_UNDERLINE_ON}${_FULL_SPACES}${_UNDERLINE_OFF}"'
+
+  unset _FULL_SPACES
+  show_menu
+
+  return 0
+}
+
+set_color() {
+  tput clear
+  PS3="Enter Selection[1-9]:"
+  select _COLOR in "Black" "Blue" "Green" "Cyan" "Red" "Magenta" "Yellow" "White" "Exit"
+  do
+    case ${REPLY} in
+       [1-8])  _X='expr ${REPLY} - 1';;
+           9)  break;;
+           *)  echo "Invalid Color"; continue;;
+    esac
+
+    if [[ ${1} = "b" ]]
+    then
+      tput setb ${_X}
+    else
+      tput setf ${_X}
+    fi
+  done
+}
+
+show_menu() {
+  while [[ -z ${_ANS} ]]
+  do
+    tput civis
+    tput clear
+
+        cat &lt;&lt;- EOF
+                Window Size: ${_WINDOW_X} / ${_WINDOW_Y}
+
+                Select =&gt; ${_UNDERLINE_ON}     ${_UNDERLINE_OFF}
+
+                ${_FULL_UNDERLINE}
+                B) Background Text Color
+                F) Foreground Text Color
+
+                X) Exit
+        EOF
+
+    tput rc
+    tput smul
+    tput cnorm
+
+    read _ANS
+    tput rmul
+
+    case ${_ANS} in
+      [Bb])  set_color "b";;
+      [Ff])  set_color "f";;
+      [Xx])  tput clear; exit;;
+         *)
+             echo -e "Invalid Selection: ${_ANS}\c"
+             sleep 2
+             ;;
+    esac
+    unset _ANS
+  done
+}
+
+tput sgr0
+tput civis
+tput clear
+tput cup 3 10
+tput sc
+tput cup 0 0
+
+[[ -n ${_ANS} ]] &amp;&amp; unset _ANS
+get_window_size
+
+exit 0</pre></div><p>Давайте рассмотрим фрагменты этого shell-скрипта по отдельности.</p><p>Указываем, как должен интерпретироваться скрипт. В данном случае используется оболочка Bash. Далее устанавливаем ловушку для сигнала <code>WINCH</code> , а также назначаем функцию <code>get_window_size</code>, которая выступает в роли триггера для этого события. После этого определяем две переменные для упрощения последующего набора текста скрипта.</p><div class="codesection"><pre class="displaycode">#!/bin/bash
+trap 'get_window_size' WINCH                    # trap when a user has resized the window
+
+_UNDERLINE_ON='tput smul'                       # turn on underline
+_UNDERLINE_OFF='tput rmul'                      # turn off underline</pre></div><p>Создаем функцию с именем <code>get_widow_size</code>, определяющую количество строк и столбцов. В дополнение к этому определяем переменную <code>_FULL_UNDERLINE</code>, содержащую подчеркивание шириной, равной ширине устройства (количеству столбцов).</p><div class="codesection"><pre class="displaycode">get_window_size() {
+  _WINDOW_X='tput lines'
+  _WINDOW_Y='tput cols'
+
+  _FULL_SPACES='echo ""|awk '
+  {
+    _SPACES = '${_WINDOW_Y}'
+    while (_SPACES-- &gt; 0) printf (" ")
+  }''
+  _FULL_UNDERLINE='echo "${_UNDERLINE_ON}${_FULL_SPACES}${_UNDERLINE_OFF}"'
+
+  unset _FULL_SPACES
+  show_menu
+
+  return 0
+}</pre></div><p>Создаем функцию с именем <code>set_color</code>, позволяющую пользователям выбирать цвета фона и текста.</p><div class="codesection"><pre class="displaycode">set_color() {
+  tput clear
+  PS3="Enter Selection[1-9]:"
+  select _COLOR in "Black" "Blue" "Green" "Cyan" "Red" "Magenta" "Yellow" "White" "Exit"
+  do
+    case ${REPLY} in
+       [1-8])  _X='expr ${REPLY} - 1';;
+           9)  break;;
+           *)  echo "Invalid Color"; continue;;
+    esac
+
+    if [[ ${1} = "b" ]]
+    then
+      tput setb ${_X}
+    else
+      tput setf ${_X}
+    fi
+  done
+}</pre></div><p>Создаем функцию с именем <code>show_menu</code>, определяющую размер устройства. Также в этой функции демонстрируется, как сделать невидимым курсор, очистить экран, напечатать текст и возвратить курсор в исходную позицию.</p><div class="codesection"><pre class="displaycode">show_menu() {
+  while [[ -z ${_ANS} ]]
+  do
+    tput civis
+    tput clear
+
+        cat &lt;&lt;- EOF
+                Window Size: ${_WINDOW_X} / ${_WINDOW_Y}
+
+                Select =&gt; ${_UNDERLINE_ON}     ${_UNDERLINE_OFF}
+
+                ${_FULL_UNDERLINE}
+                B) Background Text Color
+                F) Foreground Text Color
+
+                X) Exit
+        EOF
+
+    tput rc
+    tput smul
+    tput cnorm
+
+    read _ANS
+    tput rmul
+
+    case ${_ANS} in
+      [Bb])  set_color "b";;
+      [Ff])  set_color "f";;
+      [Xx])  tput clear; exit;;
+         *)
+             echo -e "Invalid Selection: ${_ANS}\c"
+             sleep 2
+             ;;
+    esac
+    unset _ANS
+  done
+}</pre></div><p>Далее устанавливаем некоторые из атрибутов курсора. Сначала очищаем все атрибуты с помощью опции 
+				<code>sgr0</code>. Курсор становится невидимым, экран очищается. Затем невидимый курсор перемещается в точку с координатами 3,10, эта позиция сохраняется, после чего курсор перемещается в точку с координатами 0,0 (верхний левый угол экрана).</p><div class="codesection"><pre class="displaycode">tput sgr0
+tput civis
+tput clear
+tput cup 3 10
+tput sc
+tput cup 0 0</pre></div><p>В завершении вызываем функцию <code>get_window_size</code>  для получения размера окна и ответного вызова меню <strong>function show</strong>.
+			</p><div class="codesection"><pre class="displaycode">[[ -n ${_ANS} ]] &amp;&amp; unset _ANS
+get_window_size
+
+exit 0</pre></div><div class="ibm-alternate-rule"><hr/></div><p class="ibm-ind-link ibm-back-to-top"><a href="#ibm-pcon" class="ibm-anchor-up-link">В начало</a></p><h2 id="N10170">Заключение</h2><p>Знакомство с командой <code>tput</code> позволит вам более широко взглянуть на написание shell-скриптов UNIX. В UNIX существуют сотни способов для выполнения поставленных задач, так почему бы не добавить немного цвета и не придать этому профессиональный вид? Изучить команду <code>tput</code> очень просто, и это может оказаться эффективным для написания скриптов; пользователи по достоинству оценят преимущества, получаемые от работы с грамотно оформленным экраном терминала. Эта статья – лишь начало того, что вы можете сделать с помощью <code>tput</code>. Затратив немного усилий, вы можете создать при помощи <code>tput</code> полноценный скрипт с использованием меню, которое будет выглядеть просто отлично!
+		</p><!--CMA ID: 314629--><!--Site ID: 40--><!--XSLT stylesheet used to transform this file:
+        dw-document-html-7.0.xsl-->
+
+
+</div>
+</div>
+<!-- 1_1_COLUMN_END -->
+
+<!-- SPLIT_COLUMNS_BEGIN -->
+<div class="ibm-columns">
+
+<!-- 6_4_COLUMN_BEGIN -->
+<div class="ibm-col-6-4">
+
+<h2 id="resources" class="ibm-rule">Ресурсы</h2><h3 class="dw-resources-category-heading">Научиться</h3><ul class="ibm-bullet-list"><li>
+				Оригинал статьи <a href="http://www.ibm.com/developerworks/aix/library/au-learningtput/index.html">Discover tput</a> (EN).
+	</li><li>
+				Прочитайте руководство Bash <a href="http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x405.html">Управление цветами и перемещением курсора с помощью <code>tput</code></a> (EN).
+	</li><li>
+				Прочитайте статью GNU-сообщества <a href="http://www.cs.utah.edu/dept/old/texinfo/tput/tput.html">Команда <code>tput</code></a> (EN).
+	</li><li><a href="http://www.ibm.com/developerworks/ru/aix/">Раздел developerWorks по AIX и UNIX</a> содержит большое количество информации по администрированию систем IBM&#174; AIX&#174; и позволит вам повысить свои знания в области UNIX.
+	</li><li>
+				Раздел <a href="http://www.ibm.com/developerworks/ru/aix/newto/">AIX и UNIX для новичков</a> поможет вам узнать больше об этих операционных системах.
+	</li><li> 
+        Следите за обновлениями и событиями в разделе 
+        <a href="http://www.ibm.com/developerworks/offers/techbriefings/" onmouseover="linkQueryAppend(this)">developerWorks technical events and Webcasts</a> (EN). 
+      </li><li>
+				Достигните уровня технических экспертов IBM, посмотрев <a href="http://www.ibm.com/developerworks/podcast/">подкасты</a> (EN).
+	</li></ul><h3 class="dw-resources-category-heading">Получить продукты и технологии</h3><ul class="ibm-bullet-list"><li> 
+        Разработайте ваш следующий проект для Linux, загрузив 
+        <a href="http://www.ibm.com/developerworks/downloads/" onmouseover="linkQueryAppend(this)">пробные версии программного обеспечения IBM</a> (EN) с ресурса developerWorks. 
+      </li></ul><h3 class="dw-resources-category-heading">Обсудить</h3><ul class="ibm-bullet-list"><li><a href="http://www.ibm.com/developerworks/ru/forums/dw_forum.jsp?forum=23&amp;cat=21">Примите участие в обсуждении материала на форуме</a>.</li></ul>
+
+<!-- INLINE_COMMENTS_BEGIN -->
+<h2 id="icomments" class="ibm-alternate-rule ibm-no-print">Комментарии</h2>
+    
+<div class="ibm-no-print" id="dw-icomments-container">	
+	<div id="threadShow"></div>
+</div>
+<!-- Sign in OVERLAY STARTS HERE -->
+    
+<!-- Sign in OVERLAY STARTS HERE -->
+<div class="ibm-common-overlay" id="signin_overlay">
+<div class="ibm-head">
+<p><a class="ibm-common-overlay-close" href="#" onclick="dwsi.siInst.clearForm();">Закрыть [x]</a></p>
+</div>
+<div class="ibm-body">
+<div class="ibm-main">
+
+ <div class="ibm-title">
+<h2>developerWorks: Войти</h2>
+<div id="ibm-overlay-error-signin" class="no-display"></div>
+</div>
+<div class="ibm-container ibm-alternate ibm-buttons-last">
+<div class="ibm-container-body">
+<p class="ibm-overlay-intro">Обязательные поля отмечены звездочкой (<span class="ibm-required">*</span>).</p> 
+<form class="ibm-column-form" id="sFormId" action="" method="post" name="sForm" onsubmit="return false;">
+<p><label for="ibmid">IBM ID:<span class="ibm-required">*</span></label><span><input name="ibm-id" id="ibmid" size="25" value="" class="required" type="text" onkeypress="dwsi.siInst.handleEP(event,this.form);" />
+    <br /><a onclick="window.location='/developerworks/dwwi/DWAuthRouter?m=reg&amp;lang=ru_RU&amp;d='+encodeURIComponent(location.protocol + '//' + location.hostname + location.pathname + '#icomments'); return false;" 
+        href="#" class="ibm-forward-link">Нужен IBM ID?</a> <br /><a
+            class="ibm-forward-link" href="/developerworks/dwwi/jsp/WSHelp.jsp?lang=ru_RU">Забыли Ваш IBM ID?</a>   
+</span>
+</p> 
+<p><label for="password">Пароль:<span class="ibm-required">*</span></label><span>
+    <input name="password" id="password" size="25" value="" class="required" type="password" onkeypress="dwsi.siInst.handleEP(event,this.form);" />
+    <br /><a class="ibm-forward-link" href="#" onclick="(function ()
+        {window.location='https://www.ibm.com/account/profile?page=forgot&amp;lang=ru_RU&amp;appname=ibm&amp;required=null&amp;d='+encodeURIComponent(dwsi.siInst.getAuthUrl())+'%3Fm%3Dloginpage%26lang%3Dru_RU%26d%3D'+encodeURIComponent(location.href);})();">Забыли
+        Ваш пароль?</a>
+    <br /><a class="ibm-forward-link" href="#" onclick="(function ()
+        {window.location='https://www.ibm.com/account/profile?page=chpw&amp;lang=ru_RU&amp;appname=ibm&amp;required=null&amp;d='+encodeURIComponent(location.href);})();">Изменить пароль</a></span></p> 
+<p class="dw-perm-box">
+	<span><input id="perm" type="checkbox" name="perm_name"/><label for="perm"> Запомнить меня.</label></span>
+</p>
+<p>Нажимая <strong>Отправить</strong>, Вы принимаете <a href="/developerworks/community/terms?lang=ru" >Условия использования</a> developerWorks.</p>
+<div class="ibm-buttons-row">
+   <p><input class="ibm-btn-arrow-pri" name="ibm-submit" value="Отправить" onclick="dwsi.siInst.signin();return false;" type="submit" /><span class="ibm-sep">&nbsp;</span>
+<input value="Отмена" type="button" name="ibm-cancel" class="ibm-btn-cancel-sec" onclick="dwsi.siInst.clearForm();ibmweb.overlay.hide('signin_overlay');return false;"/></p>
+</div>
+</form>
+ <div class="ibm-overlay-rule"><hr /></div> 
+
+<p>Профиль создается, когда вы первый раз заходите в developerWorks.  <strong>Информация в вашем профиле (имя, страна / регион,  название компании) отображается для всех пользователей и будет сопровождать любой опубликованный вами контент пока вы специально не укажите скрыть название вашей компании</strong>.  Вы можете обновить ваш IBM аккаунт в любое время.</p>    
+<div><p class="dw-c-overlay-secure">Вся введенная информация защищена.</p></div>
+</div>
+</div>
+</div>
+</div>
+<div class="ibm-footer"></div>
+</div>
+<!-- Display name OVERLAY STARTS HERE -->
+<div class="ibm-common-overlay" id="displayname_overlay">
+<div class="ibm-head">
+<p><a class="ibm-common-overlay-close" href="#" onclick="dwsi.siInst.clearForm();">Закрыть [x]</a></p>
+</div>
+<div class="ibm-body">
+<div class="ibm-main">
+<div class="ibm-title">
+<h2>Выберите имя, которое будет отображаться на экране</h2><br /><br />
+<div id="ibm-overlay-error-dname" class="no-display"></div>
+</div>
+<div class="ibm-container ibm-alternate ibm-buttons-last">
+<div class="ibm-container-body">
+<p class="ibm-overlay-intro">При первом входе в developerWorks для Вас будет создан профиль и Вам нужно будет выбрать Отображаемое имя. Оно будет выводиться рядом с контентом, опубликованным Вами в developerWorks.</p><p><strong>Отображаемое имя должно иметь длину от 3 символов до 31 символа</strong>.  Ваше Имя в системе должно быть уникальным. В качестве имени по соображениям приватности нельзя использовать контактный e-mail.
+    </p>
+<p class="ibm-overlay-intro">Обязательные поля отмечены звездочкой (<span class="ibm-required">*</span>).</p> 
+<form id="dFormId" method="post" action="" name="dForm" onsubmit="return false;" class="ibm-column-form">
+<p><label for="displayname">Отображаемое имя:<span class="ibm-required">*</span></label><span>
+    <input name="displayname" id="displayname" size="25" value="" type="text" onkeypress="dwsi.siInst.handleEP(event,this.form);" /></span>
+    <span class="ibm-form-note">(Отображаемое имя должно иметь длину от 3 символов до 31 символа.)</span>
+</p>
+<p>Нажимая <strong>Отправить</strong>, Вы принимаете <a href="/developerworks/community/terms?lang=ru" >Условия использования</a> developerWorks.</p>
+<div class="ibm-buttons-row">
+   <p><input class="ibm-btn-arrow-pri" name="ibm-submit" value="Отправить" onclick="dwsi.siInst.signin();return false;" type="submit" /><span class="ibm-sep">&nbsp;</span>
+<input value="Отмена" type="button" name="ibm-cancel" class="ibm-btn-cancel-sec" onclick="dwsi.siInst.clearForm();ibmweb.overlay.hide('displayname_overlay');return false;" /></p>
+</div>
+</form>
+<div class="ibm-overlay-rule"><hr /></div>
+<div><p class="dw-c-overlay-secure">Вся введенная информация защищена.</p></div>
+</div>
+</div>
+</div>
+</div>
+<div class="ibm-footer"></div>
+</div>
+
+
+<!-- INLINE_COMMENTS_END -->
+
+</div>
+<!-- 6_4_COLUMN_END -->
+
+<!-- 6_2_COLUMN_BEGIN -->
+<div class="ibm-col-6-2">
+
+<!-- Next_Steps -->
+<!-- Dig_Deeper -->
+
+
+<!-- Promotion_Module -->
+    
+<!-- PROMOTION_MODULE_START -->
+<div class="ibm-alternate-rule"><hr /></div>
+<ul class="ibm-portrait-module-list">
+<li><img height="60" width="60" src="//www.ibm.com/developerworks/ru/i/article_bluemix_60x60.jpg" alt=""/>
+<h3><a class="ibm-feature-link"
+    href="http://www.ibm.com/developerworks/ru/cloud/bluemix/">Bluemix</a></h3>
+<p>Узнайте больше информации о платформе IBM Bluemix, создавайте приложения, используя готовые решения!</p></li>
+<li><img height="60" width="60" src="//www.ibm.com/developerworks/ru/i/article_newsletters_60x60.jpg" alt=""/>
+<h3><a class="ibm-feature-link"
+    href="http://www.ibm.com/developerworks/ru/newsletter">Новости IBM developerWorks</a></h3>
+<p>Подпишитесь на рассылку, чтобы еженедельно получать анонсы новых статей IBM developerWorks.</p></li>
+<li><img height="60" width="60" src="//www.ibm.com/developerworks/ru/i/index_ads_lib_60.jpg" alt=""/>
+<h3><a class="ibm-feature-link" href="http://www.ibm.com/developerworks/ru/doc/">Библиотека документов</a></h3>
+<p>Более трех тысяч статей, обзоров, руководств и других полезных материалов.</p></li>
+</ul>
+<!-- PROMOTION_MODULE_END -->
+
+</div>
+<!-- 6_2_COLUMN_END -->
+
+</div>
+<!-- SPLIT_COLUMNS_END -->
+
+<!-- BOTTOM_BACK_TO_TOP -->
+<div class="ibm-columns">
+<div class="ibm-col-1-1">
+	<div class="ibm-alternate-rule"><hr/></div><p class="ibm-ind-link ibm-back-to-top"><a href="#ibm-pcon" class="ibm-anchor-up-link">В начало</a></p>
+</div>
+</div>
+
+<!-- Rating_Meta_BEGIN -->
+<!--Rating_Meta_BEGIN--><div class="metavalue">static.content.url=http://www.ibm.com/developerworks/js/artrating/</div><div class="metavalue">SITE_ID=40</div><div class="metavalue">Zone=AIX и UNIX, Linux</div><div class="metavalue">ArticleID=314629</div><div class="metavalue">ArticleTitle=Изучаем tput</div><div class="metavalue">publish-date=06172008</div><script language="javascript" type="text/javascript">document.write('<div class="metavalue">url='+location.href.replace(/</g,  '%3C')+'</div>');</script><!--Rating_Meta_END-->
+<!-- Rating_Meta_END -->
+
+</div>
+<!-- END_IBM_CONTENT_MAIN -->
+
+</div>
+<!-- END_IBM_CONTENT_BODY -->
+
+</div>
+<!-- END_IBM_CONTENT -->
+
+</div>
+<!-- END_IBM_PCON -->
+<!-- FOOTER_BEGIN -->
+<div id="ibm-footer"><!-- IBM footer container; disabled --></div>
+
+<div id="ibm-footer-module-dwwrapper" role="contentinfo" aria-label="developerWorks Footer">
+
+<div id="ibm-footer-module-dw">
+	<div class="dw-footer-columns">
+		<div class="dw-footer-col-6-1">
+			<ul>
+				<li><a href="https://www.ibm.com/developerworks/secure/feedback.jsp?domain=dwrussia" tabindex="0">Помощь</a></li>
+				<li><a href="http://www.ibm.com/developerworks/ru/rss/" tabindex="0">Ленты</a></li>
+				<li><a href="https://www.ibm.com/developerworks/community/report?lang=ru" tabindex="0">Сообщить о нарушениях</a></li>
+			</ul>
+		</div>
+		<div class="dw-footer-col-6-2">
+			<ul>			
+				<li><a href="https://www.ibm.com/developerworks/community/terms?lang=ru" tabindex="0">Условия использования</a></li>
+				<li class="dw-footer-newline"><a href="https://www.ibm.com/developerworks/ru/community/terms/thirdparty/" tabindex="0">Уведомить сторонние<br/>ресурсы</a></li>
+				<li><a href="http://www.ibm.com/privacy/ru/ru/" tabindex="0">Конфиденциальность</a></li>
+			</ul>
+		</div>
+		<div class="dw-footer-col-6-3 dw-footer-col-6-3-ru">
+			<ul>
+				<li><a href="http://www.ibm.com/accessibility/us/en/" tabindex="0">Доступность (Английский)</a></li>
+				<li><a href="http://www.ibm.com/ru/software/info/students/" tabindex="0">Портал для студентов</a></li>			
+			</ul>
+		</div>
+		<div class="dw-footer-col-6-4">
+			<ul>
+				<li><a href="http://www.ibm.com/ru/partners/" tabindex="0">Бизнес-партнеры IBM</a></li>
+				<li><a href="//www.ibm.com/developerworks/ru/newsletter/" tabindex="0">Новости developerWorks</a></li>	
+			</ul>
+		</div>
+		<div class="dw-footer-col-6-5">
+			<ul>
+				<li class="dw-footer-lang-head">Выбрать язык:</li>
+				<li><a href="http://www.ibm.com/developerworks/" tabindex="0">English</a></li>
+				<li><a href="http://www.ibm.com/developerworks/cn/" lang="zh" tabindex="0">中文</a></li>
+				<li><a href="http://www.ibm.com/developerworks/jp/" lang="ja" tabindex="0">日本語</a></li>
+				<li><a href="http://www.ibm.com/developerworks/ru/" lang="ru" tabindex="0">Русский</a></li>
+				<li><a href="http://www.ibm.com/developerworks/br/" lang="pt" tabindex="0">Português (Brasil)</a></li>
+				<li><a href="http://www.ibm.com/developerworks/ssa/" lang="es" tabindex="0">Español</a></li>
+				<li><a href="http://www.ibm.com/developerworks/vn/" lang="vi" tabindex="0">Việt</a></li>
+			</ul>
+		</div>
+		<div class="dw-footer-col-6-6">
+			<img width="223" height="46" alt="IBM®" src="//dw1.s81c.com/developerworks/i/mf/dwn-ibm-logo-v17.png">
+			<img class="dw-preload" src="//1.www.s81c.com/i/v17/icons/ibm_sprite_social_blue_ON.png" alt="" width="1" height="1"/>
+		</div>
+	</div>
+</div>
+
+</div><!-- FOOTER_END -->
+
+<!-- END_IBM-TOP -->
+</div>
+
+<!-- SCRIPTS_INCLUDE_BEGIN -->
+<script type="text/javascript" src="/developerworks/js/v17/dw-comments.js">//</script>
+<script type="text/javascript" language="JavaScript">
+	dojo.ready(function(){
+		rBHash = typeof rBHash == "undefined" ? {} : rBHash;
+		rBHash['viperLang'] = 'ru';
+		rBHash['urlLang'] = 'ru';
+		rBHash['dwwi2Lang'] = 'ru_RU';
+		rBHash['appCode'] = 'dwmav';
+		rBHash['signoutUrl'] = (location.host.toLowerCase() === "www.ibm.com" || location.host.toLowerCase() === "developer.ibm.com") ? 'http://www.ibm.com/developerworks/ru/' : ''; 
+		dwsi.siInst = new dwweb.dynnav.dwsi();
+		dwsi.siInst.initSI();		
+
+		// construct the comment widget
+dwc.cmts = 'комментарии';
+dwc.signInPreText = '';
+dwc.signIn = 'Войти';
+dwc.or = 'or';
+dwc.register = 'зарегистрироваться';
+dwc.signInPostText = '';
+dwc.leaveCmt = 'чтобы оставить комментарий.';
+dwc.view = 'Посмотреть';
+dwc.totalCmts = 'Всего комментариев';
+dwc.postYourCmt = 'Отправить ваш комментарий';
+dwc.show = 'Отобразить:';
+dwc.recentCmts = 'Последние комментарии';
+dwc.allCmts = 'Все комментарии';
+dwc.tooLongCmt = 'Количество знаков в вашем комментарии превысило 1000.';
+dwc.numCharsLeft = 'осталось <span id="charCount">{1}</span> символов';
+dwc.reportAbuse = 'Сообщение о нарушениях';
+dwc.notifyMsg = 'Дайте мне знать, когдапоявятся новые комментарии';
+dwc.htmlWarning = 'Внимание: HTML элементы не поддерживаются в комментариях.'; 
+dwc.addCmts = 'Добавить комментарии';
+dwc.addCmt = 'Добавить комментарий';
+dwc.doNotErase = '-- Добавьте любой комментарий ниже --'; 
+dwc.viewOrAddCmts = 'Посмотреть или добавить комментарии';
+dwc.reportInapprCont = 'Сообщить о некорректном содержании';
+dwc.reportInapprContLink = 'http://www.ibm.com/developerworks/forums/forum.jspa?forumID=1835';
+dwc.postingCmt = 'Комментарий отправляется';
+dwc.noCmt = 'Нет комментариев';
+dwc.netwkErr = 'Возникла проблема при загрузке комментариев. Пожалуйста, обновите страничку позже.';
+dwc.addACmt = 'Добавить комментарий';
+dwc.instructCmt = 'Для завершения данной транзакции вы обязательно должны заполнить поля, отмеченные звездочкой (<span class="ibm-required">*</span>).';
+dwc.cmt = 'Комментарий:';
+dwc.btnPost = 'Отправить ';
+dwc.btnPostAnon = 'Отправить анонимно';
+dwc.btnClrCmt = 'Стереть';
+dwc.btnCancel = 'Отменить';
+dwc.showRecent = 'Показать следующие {1} '; // {1} is the count to be substituted
+dwc.showNext = 'Показать следующие {1} '; // {1} is the count to be substituted
+dwc.showAllCmts = 'Показать все комментарии';
+dwc.enterCmt = 'Пожалуйста, введите комментарий';
+dwc.loginErr = 'Статус вашей авторизации не может быть установлен в данный момент. Пожалуйста, повторите попытку позже.';
+dwc.postErr = 'В настоящее время ваше сообщение не может быть опубликовано. Пожалуйста, попробуйте позже.';
+dwc.postBy = 'Выложено (Размещено) <strong>{1}</strong> {2}'; // {1} is the author to be substituted; {2} is the date
+dwc.siteId = 40;
+dwc.lang = 'ru_RU';
+dwc.viperLang = 'ru';
+//dwc.abuseHref =  null;
+dwc.maxChars =  1000;
+dwc.cmtTxt =  'Комментарий:';
+dwc.cmtsTxt =  'Комментарии:';  
+		dwc && new dwc.comments('threadShow','95%',5,'nCmts','icomments');
+		});
+</script>
+
+
+
+<!-- BEGIN: Use this section to set page specific variables for the Unica Page Tag -->
+<script language="JavaScript">var NTPT_PGEXTRA="ibmSkillLevel=3&ibmCmaId=314629&ibmContentAreas=aix,linux";</script>
+<!--END --><!-- SCRIPTS_INCLUDE_END -->
+
+<div id="ibm-metrics">
+<script src="//dw1.s81c.com/common/stats/stats.js" type="text/javascript">//</script>
+</div>
+
+</body>
+</html>
